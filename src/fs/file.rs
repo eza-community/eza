@@ -6,9 +6,8 @@ use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
 #[cfg(windows)]
 use std::os::windows::fs::MetadataExt;
 use std::path::{Path, PathBuf};
-use std::time::SystemTime;
-#[cfg(unix)]
-use std::time::{Duration, UNIX_EPOCH};
+
+use chrono::prelude::*;
 
 use log::*;
 
@@ -536,42 +535,29 @@ impl<'dir> File<'dir> {
     }
 
     /// This file’s last modified timestamp, if available on this platform.
-    pub fn modified_time(&self) -> Option<SystemTime> {
+    pub fn modified_time(&self) -> Option<NaiveDateTime> {
         if self.is_link() && self.deref_links {
-            match self.link_target_recurse() {
-                FileTarget::Ok(f) => f.metadata.modified().ok(),
+            return match self.link_target_recurse() {
+                FileTarget::Ok(f) => f.modified_time(),
                 _ => None, 
-            }
-        } else {
-            self.metadata.modified().ok()
+            };
         }
+        self.metadata.modified().map(|st| DateTime::<Utc>::from(st).naive_utc()).ok()
     }
 
     /// This file’s last changed timestamp, if available on this platform.
     #[cfg(unix)]
-    pub fn changed_time(&self) -> Option<SystemTime> {
+    pub fn changed_time(&self) -> Option<NaiveDateTime> {
         if self.is_link() && self.deref_links {
-            match self.link_target_recurse() {
-                FileTarget::Ok(f) => return f.changed_time(),
-                _ => return None,
-            }
+            return match self.link_target_recurse() {
+                FileTarget::Ok(f) => f.changed_time(),
+                _ => None,
+            };
         }
-        
-        let (mut sec, mut nanosec) = (self.metadata.ctime(), self.metadata.ctime_nsec());
-
-        if sec < 0 {
-            if nanosec > 0 {
-                sec += 1;
-                nanosec -= 1_000_000_000;
-            }
-
-            let duration = Duration::new(sec.unsigned_abs(), nanosec.unsigned_abs() as u32);
-            Some(UNIX_EPOCH - duration)
-        }
-        else {
-            let duration = Duration::new(sec as u64, nanosec as u32);
-            Some(UNIX_EPOCH + duration)
-        }
+        NaiveDateTime::from_timestamp_opt(
+            self.metadata.ctime(),
+            self.metadata.ctime_nsec() as u32,
+        )
     }
 
     #[cfg(windows)]
@@ -580,27 +566,25 @@ impl<'dir> File<'dir> {
     }
 
     /// This file’s last accessed timestamp, if available on this platform.
-    pub fn accessed_time(&self) -> Option<SystemTime> {
+    pub fn accessed_time(&self) -> Option<NaiveDateTime> {
         if self.is_link() && self.deref_links {
-            match self.link_target_recurse() {
-                FileTarget::Ok(f) => f.metadata.accessed().ok(),
+            return match self.link_target_recurse() {
+                FileTarget::Ok(f) => f.accessed_time(),
                 _ => None, 
-            }
-        } else {
-            self.metadata.accessed().ok()
+            };
         }
+        self.metadata.accessed().map(|st| DateTime::<Utc>::from(st).naive_utc()).ok()
     }
 
     /// This file’s created timestamp, if available on this platform.
-    pub fn created_time(&self) -> Option<SystemTime> {
+    pub fn created_time(&self) -> Option<NaiveDateTime> {
         if self.is_link() && self.deref_links {
-            match self.link_target_recurse() {
-                FileTarget::Ok(f) => f.metadata.created().ok(),
-                _ => None, 
-            }
-        } else {
-            self.metadata.created().ok()
+            return match self.link_target_recurse() {
+                FileTarget::Ok(f) => f.created_time(),
+                _ => None,
+            };
         }
+        self.metadata.created().map(|st| DateTime::<Utc>::from(st).naive_utc()).ok()
     }
 
     /// This file’s ‘type’.
