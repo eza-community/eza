@@ -274,6 +274,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "timeago"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ec32dde57efb15c035ac074118d7f32820451395f28cb0524a01d4e94983b26"
+
+[[package]]
 name = "tinyvec"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -380,6 +386,7 @@ dependencies = [
  "scoped_threadpool",
  "term_grid",
  "terminal_size",
+ "timeago",
  "unicode-width",
  "users",
  "zoneinfo_compiled",
