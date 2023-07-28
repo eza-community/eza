@@ -269,7 +269,7 @@ So setting `EXA_COLORS="reset:*.txt=31"` will highlight only text files; setting
 AUTHOR
 ======
 
-Zetta is a fork of exa by Benjamin ‘ogham’ Sago and many other contributors.
+Zetta is a fork of exa by Benjamin ‘ogham’ Sago maintained by Denis ’syphar’ Cornehl and many other contributors.
 
 **Exa Website:** `https://the.exa.website/` \
 **Source code:** `https://github.com/syphar/zetta` \
