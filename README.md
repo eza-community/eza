@@ -10,6 +10,8 @@ For simplicity, only installation method for now is `cargo install`.
 
 **this readme will be extended again, pending some rewrites / updates.** 
 
+</div>
+
 ![Screenshots of zetta](screenshots.png)
 
 ---
