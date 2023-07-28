@@ -201,7 +201,7 @@ For example, ‘`COLUMNS=80 exa`’ will show a grid view with a maximum width o
 
 This option won’t do anything when zetta’s output doesn’t wrap, such as when using the `--long` view.
 
-## `ZETTA_STRICT`
+## `EXA_STRICT`
 
 Enables _strict mode_, which will make zetta error when two command-line options are incompatible.
 
@@ -211,14 +211,14 @@ In strict mode, the two options will not co-operate, and zetta will error.
 
 This option is intended for use with automated scripts and other situations where you want to be certain you’re typing in the right command.
 
-## `ZETTA_GRID_ROWS`
+## `EXA_GRID_ROWS`
 
 Limits the grid-details view (‘`zetta --grid --long`’) so it’s only activated when at least the given number of rows of output would be generated.
 
 With widescreen displays, it’s possible for the grid to look very wide and sparse, on just one or two lines with none of the columns lining up.
 By specifying a minimum number of rows, you can only use the view if it’s going to be worth using.
 
-## `ZETTA_ICON_SPACING`
+## `EXA_ICON_SPACING`
 
 Specifies the number of spaces to print between an icon (see the ‘`--icons`’ option) and its file name.
 
@@ -230,7 +230,7 @@ Disables colours in the output (regardless of its value). Can be overridden by `
 
 See `https://no-color.org/` for details.
 
-## `LS_COLORS`, `ZETTA_COLORS`
+## `LS_COLORS`, `EXA_COLORS`
 
 Specifies the colour scheme used to highlight files based on their name and kind, as well as highlighting metadata and parts of the UI.
 

@@ -14,7 +14,7 @@ zetta_colors — customising the file and UI colours of exa
 SYNOPSIS
 ========
 
-The `ZETTA_COLORS` environment variable can be used to customise the colours that `exa` uses to highlight file names, file metadata, and parts of the UI.
+The `EXA_COLORS` environment variable can be used to customise the colours that `exa` uses to highlight file names, file metadata, and parts of the UI.
 
 You can use the `dircolors` program to generate a script that sets the variable from an input file, or if you don’t mind editing long strings of text, you can just type it out directly. These variables have the following structure:
 
@@ -28,19 +28,19 @@ The key half of the pair can either be a two-letter code or a file glob, and any
 EXAMPLES
 ========
 
-`ZETTA_COLORS="uu=0:gu=0"`
+`EXA_COLORS="uu=0:gu=0"`
 : Disable the “current user” highlighting
 
-`ZETTA_COLORS="da=32"`
+`EXA_COLORS="da=32"`
 : Turn the date column green
 
-`ZETTA_COLORS="Vagrantfile=1;4;33"`
+`EXA_COLORS="Vagrantfile=1;4;33"`
 : Highlight Vagrantfiles
 
-`ZETTA_COLORS="*.zip=38;5;125"`
+`EXA_COLORS="*.zip=38;5;125"`
 : Override the existing zip colour
 
-`ZETTA_COLORS="*.md=38;5;121:*.log=38;5;248"`
+`EXA_COLORS="*.md=38;5;121:*.log=38;5;248"`
 : Markdown files a shade of green, log files a shade of grey
 
 
@@ -77,7 +77,7 @@ LIST OF CODES
 : symlinks with no target
 
 
-`ZETTA_COLORS` can use many more:
+`EXA_COLORS` can use many more:
 
 `ur`
 : the user-read permission bit
@@ -217,7 +217,7 @@ LIST OF CODES
 `bO`
 : the overlay style for broken symlink paths
 
-Values in `ZETTA_COLORS` override those given in `LS_COLORS`, so you don’t need to re-write an existing `LS_COLORS` variable with proprietary extensions.
+Values in `EXA_COLORS` override those given in `LS_COLORS`, so you don’t need to re-write an existing `LS_COLORS` variable with proprietary extensions.
 
 
 LIST OF STYLES
@@ -262,8 +262,8 @@ Many terminals will treat bolded text as a different colour, or at least provide
 Zetta provides its own built-in set of file extension mappings that cover a large range of common file extensions, including documents, archives, media, and temporary files.
 Any mappings in the environment variables will override this default set: running zetta with `LS_COLORS="*.zip=32"` will turn zip files green but leave the colours of other compressed files alone.
 
-You can also disable this built-in set entirely by including a `reset` entry at the beginning of `ZETTA_COLORS`.
-So setting `ZETTA_COLORS="reset:*.txt=31"` will highlight only text files; setting `EXA_COLORS="reset"` will highlight nothing.
+You can also disable this built-in set entirely by including a `reset` entry at the beginning of `EXA_COLORS`.
+So setting `EXA_COLORS="reset:*.txt=31"` will highlight only text files; setting `EXA_COLORS="reset"` will highlight nothing.
 
 
 AUTHOR
