@@ -197,7 +197,7 @@ Zetta responds to the following environment variables:
 
 Overrides the width of the terminal, in characters.
 
-For example, ‘`COLUMNS=80 exa`’ will show a grid view with a maximum width of 80 characters.
+For example, ‘`COLUMNS=80 zetta`’ will show a grid view with a maximum width of 80 characters.
 
 This option won’t do anything when zetta’s output doesn’t wrap, such as when using the `--long` view.
 
@@ -205,7 +205,7 @@ This option won’t do anything when zetta’s output doesn’t wrap, such as wh
 
 Enables _strict mode_, which will make zetta error when two command-line options are incompatible.
 
-Usually, options can override each other going right-to-left on the command line, so that zetta can be given aliases: creating an alias ‘`exa=exa --sort=ext`’ then running ‘`exa --sort=size`’ with that alias will run ‘`exa --sort=ext --sort=size`’, and the sorting specified by the user will override the sorting specified by the alias.
+Usually, options can override each other going right-to-left on the command line, so that zetta can be given aliases: creating an alias ‘`zetta=zetta --sort=ext`’ then running ‘`zetta --sort=size`’ with that alias will run ‘`zetta --sort=ext --sort=size`’, and the sorting specified by the user will override the sorting specified by the alias.
 
 In strict mode, the two options will not co-operate, and zetta will error.
 

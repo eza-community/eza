@@ -8,13 +8,13 @@
 NAME
 ====
 
-zetta_colors — customising the file and UI colours of exa
+zetta_colors — customising the file and UI colours of zetta
 
 
 SYNOPSIS
 ========
 
-The `EXA_COLORS` environment variable can be used to customise the colours that `exa` uses to highlight file names, file metadata, and parts of the UI.
+The `EXA_COLORS` environment variable can be used to customise the colours that `zetta` uses to highlight file names, file metadata, and parts of the UI.
 
 You can use the `dircolors` program to generate a script that sets the variable from an input file, or if you don’t mind editing long strings of text, you can just type it out directly. These variables have the following structure:
 
