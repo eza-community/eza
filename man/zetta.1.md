@@ -192,6 +192,7 @@ ENVIRONMENT VARIABLES
 =====================
 
 Zetta responds to the following environment variables:
+(Note: Compatibility with exa is a priority hence the variable names.)
 
 ## `COLUMNS`
 
