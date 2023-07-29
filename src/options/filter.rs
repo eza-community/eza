@@ -165,17 +165,23 @@ impl DotFilter {
 
             // Only --all
             (1, 0) => Ok(Self::Dotfiles),
+            // Only --all
             (_, 0) if matches.count(&flags::TREE) > 0 => Err(OptionsError::TreeAllAll),
+            // Only --all
             (c, 0) if c >= 3 && matches.is_strict() => Err(OptionsError::Conflict(&flags::ALL, &flags::ALL)),
+            // Only --all
             (_, 0) => Ok(Self::DotfilesAndDots),
 
             // Only --ls-all
             (0, 1) => Ok(Self::Dotfiles),
+            // Only --ls-all
             (0, _) if matches.is_strict() => Err(OptionsError::Conflict(&flags::LS_ALL, &flags::LS_ALL)),
+            // Only --ls-all
             (0, _) => Ok(Self::Dotfiles),
 
             // --all is actually the same as --ls-all
             (1, 1) if matches.is_strict() => Err(OptionsError::Conflict(&flags::ALL, &flags::LS_ALL)),
+            // --all is actually the same as --ls-all
             (1, 1) => Ok(Self::Dotfiles),
 
             (_, _) => Err(OptionsError::Conflict(&flags::ALL, &flags::LS_ALL)),
