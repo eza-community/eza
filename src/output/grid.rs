@@ -49,7 +49,6 @@ impl<'a> Render<'a> {
                 // with hyperlink escape sequences,
                 // the actual *contents.width() is larger than actually needed, so we take only the filename
                 width:     filename.bare_width(),
-                alignment: tg::Alignment::Left,
             });
         }
 
