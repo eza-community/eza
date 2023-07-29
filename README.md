@@ -75,12 +75,13 @@ These options are available when running with `--long` (`-l`):
 - **-t**, **--time=(field)**: which timestamp field to use
 - **-u**, **--accessed**: use the accessed timestamp field
 - **-U**, **--created**: use the created timestamp field
+- **-Z**, **--context**: list each file’s security context
 - **-@**, **--extended**: list each file’s extended attributes and sizes
 - **--changed**: use the changed timestamp field
 - **--git**: list each file’s Git status, if tracked or ignored
 - **--time-style**: how to format timestamps
 - **--no-permissions**: suppress the permissions field
-- **--octal-permissions**: list each file's permission in octal format
+- **-o**, **--octal-permissions**: list each file's permission in octal format
 - **--no-filesize**: suppress the filesize field
 - **--no-user**: suppress the user field
 - **--no-time**: suppress the time field

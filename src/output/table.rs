@@ -43,7 +43,10 @@ pub struct Columns {
     pub blocks: bool,
     pub group: bool,
     pub git: bool,
+    pub subdir_git_repos: bool,
+    pub subdir_git_repos_no_stat: bool,
     pub octal: bool,
+    pub security_context: bool,
 
     // Defaults to true:
     pub permissions: bool,
@@ -93,6 +96,10 @@ impl Columns {
             columns.push(Column::Group);
         }
 
+        if self.security_context {
+            columns.push(Column::SecurityContext);
+        }
+
         if self.time_types.modified {
             columns.push(Column::Timestamp(TimeType::Modified));
         }
@@ -111,6 +118,14 @@ impl Columns {
 
         if self.git && actually_enable_git {
             columns.push(Column::GitStatus);
+        }
+
+        if self.subdir_git_repos {
+            columns.push(Column::SubdirGitRepoStatus);
+        }
+
+        if self.subdir_git_repos_no_stat {
+            columns.push(Column::SubdirGitRepoNoStatus);
         }
 
         columns
@@ -135,8 +150,12 @@ pub enum Column {
     #[cfg(unix)]
     Inode,
     GitStatus,
+    SubdirGitRepoStatus,
+    SubdirGitRepoNoStatus,
     #[cfg(unix)]
     Octal,
+    #[cfg(unix)]
+    SecurityContext,
 }
 
 /// Each column can pick its own **Alignment**. Usually, numbers are
@@ -192,8 +211,12 @@ impl Column {
             #[cfg(unix)]
             Self::Inode         => "inode",
             Self::GitStatus     => "Git",
+            Self::SubdirGitRepoStatus => "Repo",
+            Self::SubdirGitRepoNoStatus => "Repo",
             #[cfg(unix)]
             Self::Octal         => "Octal",
+            #[cfg(unix)]
+            Self::SecurityContext => "Security Context",
         }
     }
 }
@@ -323,7 +346,7 @@ impl Environment {
                 Some(t)
             }
             Err(ref e) => {
-                println!("Unable to determine time zone: {}", e);
+                eprintln!("Unable to determine time zone: {e}");
                 None
             }
         };
@@ -493,8 +516,18 @@ impl<'a, 'f> Table<'a> {
             Column::Group => {
                 file.group().render(self.theme, &*self.env.lock_users(), self.user_format)
             }
+            #[cfg(unix)]
+            Column::SecurityContext => {
+                file.security_context().render(self.theme)
+            }
             Column::GitStatus => {
                 self.git_status(file).render(self.theme)
+            }
+            Column::SubdirGitRepoStatus => {
+                self.subdir_git_repo(file, true).render()
+            }
+            Column::SubdirGitRepoNoStatus => {
+                self.subdir_git_repo(file, false).render()
             }
             #[cfg(unix)]
             Column::Octal => {
@@ -522,6 +555,15 @@ impl<'a, 'f> Table<'a> {
         self.git
             .map(|g| g.get(&file.path, file.is_directory()))
             .unwrap_or_default()
+    }
+
+    fn subdir_git_repo(&self, file: &File<'_>, status : bool) -> f::SubdirGitRepo {
+        debug!("Getting subdir repo status for path {:?}", file.path);
+
+        if file.is_directory(){
+            return f::SubdirGitRepo::from_path(&file.path, status);
+        }
+        f::SubdirGitRepo::default()
     }
 
     pub fn render(&self, row: Row) -> TextCell {
