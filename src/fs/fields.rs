@@ -259,3 +259,27 @@ impl Default for Git {
         }
     }
 }
+
+#[allow(dead_code)]
+#[derive(PartialEq, Copy, Clone)]
+pub enum SubdirGitRepoStatus{
+    NoRepo,
+    GitClean,
+    GitDirty,
+    GitUnknown
+}
+
+#[derive(Clone)]
+pub struct SubdirGitRepo{
+    pub status : SubdirGitRepoStatus,
+    pub branch : Option<String>
+}
+
+impl Default for SubdirGitRepo{
+    fn default() -> Self {
+        Self{
+            status : SubdirGitRepoStatus::NoRepo,
+            branch : None
+        }
+    }
+}
