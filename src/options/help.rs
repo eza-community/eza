@@ -62,14 +62,14 @@ LONG VIEW OPTIONS
   --no-time                suppress the time field";
 
 static GIT_FILTER_HELP: &str = "  --git-ignore               ignore files mentioned in '.gitignore'";
-static GIT_VIEW_HELP:   &str = "  --git                    list each file's Git status, if tracked or ignored";
-static EXTENDED_HELP:   &str = "  -@, --extended           list each file's extended attributes and sizes";
-
+static GIT_VIEW_HELP:   &str = "  --git                list each file's Git status, if tracked or ignored";
+static EXTENDED_HELP:   &str = "  -@, --extended       list each file's extended attributes and sizes";
+static SECATTR_HELP:    &str = "  -Z, --context        list each file's security context";
 
 /// All the information needed to display the help text, which depends
 /// on which features are enabled and whether the user only wants to
 /// see one section’s help.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub struct HelpString;
 
 impl HelpString {
@@ -110,6 +110,7 @@ impl fmt::Display for HelpString {
 
         if xattr::ENABLED {
             write!(f, "\n{}", EXTENDED_HELP)?;
+            write!(f, "\n{}", SECATTR_HELP)?;
         }
 
         writeln!(f)

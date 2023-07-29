@@ -61,7 +61,7 @@ complete -c exa -s 'B' -l 'bytes'    -d "List file sizes in bytes, without any p
 complete -c exa -s 'g' -l 'group'    -d "List each file's group"
 complete -c exa -s 'h' -l 'header'   -d "Add a header row to each column"
 complete -c exa -s 'H' -l 'links'    -d "List each file's number of hard links"
-complete -c exa -s 'g' -l 'group'    -d "List each file's inode number"
+complete -c exa -s 'i' -l 'inode'    -d "List each file's inode number"
 complete -c exa -s 'S' -l 'blocks'   -d "List each file's number of filesystem blocks"
 complete -c exa -s 't' -l 'time'     -d "Which timestamp field to list" -x -a "
     modified\t'Display modified time'
@@ -89,3 +89,4 @@ complete -c exa        -l 'no-time'           -d "Suppress the time field"
 # Optional extras
 complete -c exa -l 'git' -d "List each file's Git status, if tracked"
 complete -c exa -s '@' -l 'extended' -d "List each file's extended attributes and sizes"
+complete -c exa -s 'Z' -l 'context' -d "List each file's security context"

@@ -210,7 +210,7 @@ pub struct Time {
 /// A file’s status in a Git repository. Whether a file is in a repository or
 /// not is handled by the Git module, rather than having a “null” variant in
 /// this enum.
-#[derive(PartialEq, Copy, Clone)]
+#[derive(PartialEq, Eq, Copy, Clone)]
 pub enum GitStatus {
 
     /// This file hasn’t changed since the last commit.
@@ -256,6 +256,39 @@ impl Default for Git {
         Self {
             staged: GitStatus::NotModified,
             unstaged: GitStatus::NotModified,
+        }
+    }
+}
+
+pub enum SecurityContextType<'a> {
+    SELinux(&'a str),
+    None
+}
+
+pub struct SecurityContext<'a> {
+    pub context: SecurityContextType<'a>,
+}
+
+#[allow(dead_code)]
+#[derive(PartialEq, Copy, Clone)]
+pub enum SubdirGitRepoStatus{
+    NoRepo,
+    GitClean,
+    GitDirty,
+    GitUnknown
+}
+
+#[derive(Clone)]
+pub struct SubdirGitRepo{
+    pub status : SubdirGitRepoStatus,
+    pub branch : Option<String>
+}
+
+impl Default for SubdirGitRepo{
+    fn default() -> Self {
+        Self{
+            status : SubdirGitRepoStatus::NoRepo,
+            branch : None
         }
     }
 }
