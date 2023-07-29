@@ -35,7 +35,9 @@ If you already have Nix setup with flake support, you can try out eza with the `
 
     nix run github:cafkafk/eza
 
-Nix will built eza and run it. If you want to pass arguments this way, use e.g. `nix run github:cafkafk/eza -- -ol`.
+Nix will built eza and run it. 
+
+If you want to pass arguments this way, use e.g. `nix run github:cafkafk/eza -- -ol`.
 
 <a id="installation">
 <h1>Installation</h1>
