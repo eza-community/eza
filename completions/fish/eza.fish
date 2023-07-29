@@ -88,6 +88,8 @@ complete -c eza        -l 'no-user'           -d "Suppress the user field"
 complete -c eza        -l 'no-time'           -d "Suppress the time field"
 
 # Optional extras
-complete -c eza -l 'git' -d "List each file's Git status, if tracked"
-complete -c eza -s '@' -l 'extended' -d "List each file's extended attributes and sizes"
-complete -c eza -s 'Z' -l 'context' -d "List each file's security context"
+complete -c eza -l 'git'                 -d "List each file's Git status, if tracked"
+complete -c eza -l 'git-repos'           -d "List each git-repos status and branch name"
+complete -c eza -l 'git-repos-no-status' -d "List each git-repos branch name (much faster)"
+complete -c eza -s '@' -l 'extended'     -d "List each file's extended attributes and sizes"
+complete -c eza -s 'Z' -l 'context'      -d "List each file's security context"
