@@ -29,7 +29,7 @@ For more information, see [exa’s website](https://the.exa.website/).
 <h1>Try it!</h1>
 </a>
 
-### Nix
+### Nix ❄️
 
 If you already have Nix setup with flake support, you can try out eza with the `nix run` command:
 
