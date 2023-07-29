@@ -67,6 +67,7 @@ pub static GIT_REPOS:         Arg = Arg { short: None,       long: "git-repos", 
 pub static GIT_REPOS_NO_STAT: Arg = Arg { short: None,       long: "git-repos-no-status",  takes_value: TakesValue::Forbidden };
 pub static EXTENDED:          Arg = Arg { short: Some(b'@'), long: "extended",             takes_value: TakesValue::Forbidden };
 pub static OCTAL:             Arg = Arg { short: None,       long: "octal-permissions",    takes_value: TakesValue::Forbidden };
+pub static SECURITY_CONTEXT:  Arg = Arg { short: Some(b'Z'), long: "context",              takes_value: TakesValue::Forbidden };
 
 
 pub static ALL_ARGS: Args = Args(&[
@@ -82,5 +83,5 @@ pub static ALL_ARGS: Args = Args(&[
     &BLOCKS, &TIME, &ACCESSED, &CREATED, &TIME_STYLE,
     &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &NO_ICONS,
 
-    &GIT, &GIT_REPOS, &GIT_REPOS_NO_STAT, &EXTENDED, &OCTAL
+    &GIT, &GIT_REPOS, &GIT_REPOS_NO_STAT, &EXTENDED, &OCTAL, &SECURITY_CONTEXT
 ]);

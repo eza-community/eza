@@ -117,6 +117,7 @@ impl details::Options {
             table: None,
             header: false,
             xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
+            secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
         };
 
         Ok(details)
@@ -136,6 +137,7 @@ impl details::Options {
             table: Some(TableOptions::deduce(matches, vars)?),
             header: matches.has(&flags::HEADER)?,
             xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
+            secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
         })
     }
 }
@@ -204,17 +206,18 @@ impl Columns {
         let subdir_git_repos = matches.has(&flags::GIT_REPOS)?;
         let subdir_git_repos_no_stat = !subdir_git_repos && matches.has(&flags::GIT_REPOS_NO_STAT)?;
 
-        let blocks = matches.has(&flags::BLOCKS)?;
-        let group  = matches.has(&flags::GROUP)?;
-        let inode  = matches.has(&flags::INODE)?;
-        let links  = matches.has(&flags::LINKS)?;
-        let octal  = matches.has(&flags::OCTAL)?;
+        let blocks           = matches.has(&flags::BLOCKS)?;
+        let group            = matches.has(&flags::GROUP)?;
+        let inode            = matches.has(&flags::INODE)?;
+        let links            = matches.has(&flags::LINKS)?;
+        let octal            = matches.has(&flags::OCTAL)?;
+        let security_context = xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?;
 
         let permissions = ! matches.has(&flags::NO_PERMISSIONS)?;
         let filesize =    ! matches.has(&flags::NO_FILESIZE)?;
         let user =        ! matches.has(&flags::NO_USER)?;
 
-        Ok(Self { time_types, inode, links, blocks, group, git, subdir_git_repos, subdir_git_repos_no_stat,octal, permissions, filesize, user })
+        Ok(Self { time_types, inode, links, blocks, group, git, subdir_git_repos, subdir_git_repos_no_stat, octal, security_context, permissions, filesize, user })
     }
 }
 

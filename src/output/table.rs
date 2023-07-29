@@ -46,6 +46,7 @@ pub struct Columns {
     pub subdir_git_repos: bool,
     pub subdir_git_repos_no_stat: bool,
     pub octal: bool,
+    pub security_context: bool,
 
     // Defaults to true:
     pub permissions: bool,
@@ -93,6 +94,10 @@ impl Columns {
         if self.group {
             #[cfg(unix)]
             columns.push(Column::Group);
+        }
+
+        if self.security_context {
+            columns.push(Column::SecurityContext);
         }
 
         if self.time_types.modified {
@@ -149,6 +154,8 @@ pub enum Column {
     SubdirGitRepoNoStatus,
     #[cfg(unix)]
     Octal,
+    #[cfg(unix)]
+    SecurityContext,
 }
 
 /// Each column can pick its own **Alignment**. Usually, numbers are
@@ -208,6 +215,8 @@ impl Column {
             Self::SubdirGitRepoNoStatus => "Repo",
             #[cfg(unix)]
             Self::Octal         => "Octal",
+            #[cfg(unix)]
+            Self::SecurityContext => "Security Context",
         }
     }
 }
@@ -506,6 +515,10 @@ impl<'a, 'f> Table<'a> {
             #[cfg(unix)]
             Column::Group => {
                 file.group().render(self.theme, &*self.env.lock_users(), self.user_format)
+            }
+            #[cfg(unix)]
+            Column::SecurityContext => {
+                file.security_context().render(self.theme)
             }
             Column::GitStatus => {
                 self.git_status(file).render(self.theme)
