@@ -1,13 +1,18 @@
 //! Files, and methods and fields to access their metadata.
 
 use std::io;
+#[cfg(unix)]
 use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
+#[cfg(windows)]
+use std::os::windows::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use log::*;
 
 use crate::fs::dir::Dir;
+use crate::fs::feature::xattr;
+use crate::fs::feature::xattr::{FileAttributes, Attribute};
 use crate::fs::fields as f;
 
 
@@ -63,6 +68,9 @@ pub struct File<'dir> {
     /// directory’s children, and are in fact added specifically by exa; this
     /// means that they should be skipped when recursing.
     pub is_all_all: bool,
+
+    /// The extended attributes of this file.
+    pub extended_attributes: Vec<Attribute>,
 }
 
 impl<'dir> File<'dir> {
@@ -77,8 +85,9 @@ impl<'dir> File<'dir> {
         debug!("Statting file {:?}", &path);
         let metadata   = std::fs::symlink_metadata(&path)?;
         let is_all_all = false;
+        let extended_attributes = File::gather_extended_attributes(&path);
 
-        Ok(File { name, ext, path, metadata, parent_dir, is_all_all })
+        Ok(File { name, ext, path, metadata, parent_dir, is_all_all, extended_attributes })
     }
 
     pub fn new_aa_current(parent_dir: &'dir Dir) -> io::Result<File<'dir>> {
@@ -89,8 +98,9 @@ impl<'dir> File<'dir> {
         let metadata   = std::fs::symlink_metadata(&path)?;
         let is_all_all = true;
         let parent_dir = Some(parent_dir);
+        let extended_attributes = File::gather_extended_attributes(&path);
 
-        Ok(File { path, parent_dir, metadata, ext, name: ".".into(), is_all_all })
+        Ok(File { path, parent_dir, metadata, ext, name: ".".into(), is_all_all, extended_attributes })
     }
 
     pub fn new_aa_parent(path: PathBuf, parent_dir: &'dir Dir) -> io::Result<File<'dir>> {
@@ -100,8 +110,9 @@ impl<'dir> File<'dir> {
         let metadata   = std::fs::symlink_metadata(&path)?;
         let is_all_all = true;
         let parent_dir = Some(parent_dir);
+        let extended_attributes = File::gather_extended_attributes(&path);
 
-        Ok(File { path, parent_dir, metadata, ext, name: "..".into(), is_all_all })
+        Ok(File { path, parent_dir, metadata, ext, name: "..".into(), is_all_all, extended_attributes })
     }
 
     /// A file’s name is derived from its string. This needs to handle directories
@@ -132,6 +143,21 @@ impl<'dir> File<'dir> {
         name.rfind('.')
             .map(|p| name[p + 1 ..]
             .to_ascii_lowercase())
+    }
+
+    /// Read the extended attributes of a file path.
+    fn gather_extended_attributes(path: &Path) -> Vec<Attribute> {
+        if xattr::ENABLED {
+            match path.symlink_attributes() {
+                Ok(xattrs) => xattrs,
+                Err(e) => {
+                    error!("Error looking up extended attributes for {}: {}", path.display(), e);
+                    Vec::new()
+                }
+            }
+        } else {
+            Vec::new()
+        }
     }
 
     /// Whether this file is a directory on the filesystem.
@@ -174,6 +200,7 @@ impl<'dir> File<'dir> {
     /// Whether this file is both a regular file *and* executable for the
     /// current user. An executable file has a different purpose from an
     /// executable directory, so they should be highlighted differently.
+    #[cfg(unix)]
     pub fn is_executable_file(&self) -> bool {
         let bit = modes::USER_EXECUTE;
         self.is_file() && (self.metadata.permissions().mode() & bit) == bit
@@ -185,21 +212,25 @@ impl<'dir> File<'dir> {
     }
 
     /// Whether this file is a named pipe on the filesystem.
+    #[cfg(unix)]
     pub fn is_pipe(&self) -> bool {
         self.metadata.file_type().is_fifo()
     }
 
     /// Whether this file is a char device on the filesystem.
+    #[cfg(unix)]
     pub fn is_char_device(&self) -> bool {
         self.metadata.file_type().is_char_device()
     }
 
     /// Whether this file is a block device on the filesystem.
+    #[cfg(unix)]
     pub fn is_block_device(&self) -> bool {
         self.metadata.file_type().is_block_device()
     }
 
     /// Whether this file is a socket on the filesystem.
+    #[cfg(unix)]
     pub fn is_socket(&self) -> bool {
         self.metadata.file_type().is_socket()
     }
@@ -213,13 +244,13 @@ impl<'dir> File<'dir> {
             path.to_path_buf()
         }
         else if let Some(dir) = self.parent_dir {
-            dir.join(&*path)
+            dir.join(path)
         }
         else if let Some(parent) = self.path.parent() {
-            parent.join(&*path)
+            parent.join(path)
         }
         else {
-            self.path.join(&*path)
+            self.path.join(path)
         }
     }
 
@@ -253,7 +284,8 @@ impl<'dir> File<'dir> {
             Ok(metadata) => {
                 let ext  = File::ext(&path);
                 let name = File::filename(&path);
-                let file = File { parent_dir: None, path, ext, metadata, name, is_all_all: false };
+                let extended_attributes = File::gather_extended_attributes(&absolute_path);
+                let file = File { parent_dir: None, path, ext, metadata, name, is_all_all: false, extended_attributes };
                 FileTarget::Ok(Box::new(file))
             }
             Err(e) => {
@@ -270,6 +302,7 @@ impl<'dir> File<'dir> {
     /// is uncommon, while you come across directories and other types
     /// with multiple links much more often. Thus, it should get highlighted
     /// more attentively.
+    #[cfg(unix)]
     pub fn links(&self) -> f::Links {
         let count = self.metadata.nlink();
 
@@ -280,6 +313,7 @@ impl<'dir> File<'dir> {
     }
 
     /// This file’s inode.
+    #[cfg(unix)]
     pub fn inode(&self) -> f::Inode {
         f::Inode(self.metadata.ino())
     }
@@ -287,6 +321,7 @@ impl<'dir> File<'dir> {
     /// This file’s number of filesystem blocks.
     ///
     /// (Not the size of each block, which we don’t actually report on)
+    #[cfg(unix)]
     pub fn blocks(&self) -> f::Blocks {
         if self.is_file() || self.is_link() {
             f::Blocks::Some(self.metadata.blocks())
@@ -297,11 +332,13 @@ impl<'dir> File<'dir> {
     }
 
     /// The ID of the user that own this file.
+    #[cfg(unix)]
     pub fn user(&self) -> f::User {
         f::User(self.metadata.uid())
     }
 
     /// The ID of the group that owns this file.
+    #[cfg(unix)]
     pub fn group(&self) -> f::Group {
         f::Group(self.metadata.gid())
     }
@@ -314,6 +351,7 @@ impl<'dir> File<'dir> {
     ///
     /// Block and character devices return their device IDs, because they
     /// usually just have a file size of zero.
+    #[cfg(unix)]
     pub fn size(&self) -> f::Size {
         if self.is_directory() {
             f::Size::None
@@ -335,12 +373,23 @@ impl<'dir> File<'dir> {
         }
     }
 
+    #[cfg(windows)]
+    pub fn size(&self) -> f::Size {
+        if self.is_directory() {
+            f::Size::None
+        }
+        else {
+            f::Size::Some(self.metadata.len())
+        }
+    }
+
     /// This file’s last modified timestamp, if available on this platform.
     pub fn modified_time(&self) -> Option<SystemTime> {
         self.metadata.modified().ok()
     }
 
     /// This file’s last changed timestamp, if available on this platform.
+    #[cfg(unix)]
     pub fn changed_time(&self) -> Option<SystemTime> {
         let (mut sec, mut nanosec) = (self.metadata.ctime(), self.metadata.ctime_nsec());
 
@@ -350,13 +399,18 @@ impl<'dir> File<'dir> {
                 nanosec -= 1_000_000_000;
             }
 
-            let duration = Duration::new(sec.abs() as u64, nanosec.abs() as u32);
+            let duration = Duration::new(sec.unsigned_abs(), nanosec.unsigned_abs() as u32);
             Some(UNIX_EPOCH - duration)
         }
         else {
             let duration = Duration::new(sec as u64, nanosec as u32);
             Some(UNIX_EPOCH + duration)
         }
+    }
+
+    #[cfg(windows)]
+    pub fn changed_time(&self) -> Option<SystemTime> {
+        return self.modified_time()
     }
 
     /// This file’s last accessed timestamp, if available on this platform.
@@ -374,6 +428,7 @@ impl<'dir> File<'dir> {
     /// This is used a the leftmost character of the permissions column.
     /// The file type can usually be guessed from the colour of the file, but
     /// ls puts this character there.
+    #[cfg(unix)]
     pub fn type_char(&self) -> f::Type {
         if self.is_file() {
             f::Type::File
@@ -401,7 +456,21 @@ impl<'dir> File<'dir> {
         }
     }
 
+    #[cfg(windows)]
+    pub fn type_char(&self) -> f::Type {
+        if self.is_file() {
+            f::Type::File
+        }
+        else if self.is_directory() {
+            f::Type::Directory
+        }
+        else {
+            f::Type::Special
+        }
+    }
+
     /// This file’s permissions, with flags for each bit.
+    #[cfg(unix)]
     pub fn permissions(&self) -> f::Permissions {
         let bits = self.metadata.mode();
         let has_bit = |bit| bits & bit == bit;
@@ -425,6 +494,22 @@ impl<'dir> File<'dir> {
         }
     }
 
+    #[cfg(windows)]
+    pub fn attributes(&self) -> f::Attributes {
+        let bits = self.metadata.file_attributes();
+        let has_bit = |bit| bits & bit == bit;
+
+        // https://docs.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants
+        f::Attributes {
+            directory:      has_bit(0x10),
+            archive:        has_bit(0x20),
+            readonly:       has_bit(0x1),
+            hidden:         has_bit(0x2),
+            system:         has_bit(0x4),
+            reparse_point:  has_bit(0x400),
+        }
+    }
+
     /// Whether this file’s extension is any of the strings that get passed in.
     ///
     /// This will always return `false` if the file has no extension.
@@ -439,6 +524,16 @@ impl<'dir> File<'dir> {
     /// that get passed in.
     pub fn name_is_one_of(&self, choices: &[&str]) -> bool {
         choices.contains(&&self.name[..])
+    }
+
+    /// This file’s security context field.
+    pub fn security_context(&self) -> f::SecurityContext<'_> {
+        let context = match &self.extended_attributes.iter().find(|a| a.name == "security.selinux") {
+            Some(attr) => f::SecurityContextType::SELinux(&attr.value),
+            None       => f::SecurityContextType::None
+        };
+
+        f::SecurityContext { context }
     }
 }
 
@@ -482,6 +577,7 @@ impl<'dir> FileTarget<'dir> {
 
 /// More readable aliases for the permission bits exposed by libc.
 #[allow(trivial_numeric_casts)]
+#[cfg(unix)]
 mod modes {
 
     // The `libc::mode_t` type’s actual type varies, but the value returned
@@ -559,6 +655,7 @@ mod filename_test {
     }
 
     #[test]
+    #[cfg(unix)]
     fn topmost() {
         assert_eq!("/", File::filename(Path::new("/")))
     }

@@ -7,7 +7,6 @@ use term_grid as grid;
 
 use crate::fs::{Dir, File};
 use crate::fs::feature::git::GitCache;
-use crate::fs::feature::xattr::FileAttributes;
 use crate::fs::filter::FileFilter;
 use crate::output::cell::TextCell;
 use crate::output::details::{Options as DetailsOptions, Row as DetailsRow, Render as DetailsRender};
@@ -18,7 +17,7 @@ use crate::output::tree::{TreeParams, TreeDepth};
 use crate::theme::Theme;
 
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub struct Options {
     pub grid: GridOptions,
     pub details: DetailsOptions,
@@ -39,7 +38,7 @@ impl Options {
 /// small directory of four files in four columns, the files just look spaced
 /// out and it’s harder to see what’s going on. So it can be enabled just for
 /// larger directory listings.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum RowThreshold {
 
     /// Only use grid-details view if it would result in at least this many
@@ -150,7 +149,7 @@ impl<'a> Render<'a> {
         let (first_table, _) = self.make_table(options, &drender);
 
         let rows = self.files.iter()
-                       .map(|file| first_table.row_for_file(file, file_has_xattrs(file)))
+                       .map(|file| first_table.row_for_file(file, drender.show_xattr_hint(file)))
                        .collect::<Vec<_>>();
 
         let file_names = self.files.iter()
@@ -202,7 +201,7 @@ impl<'a> Render<'a> {
             (None,    _)        => {/* Keep Git how it is */},
         }
 
-        let mut table = Table::new(options, self.git, &self.theme);
+        let mut table = Table::new(options, self.git, self.theme);
         let mut rows = Vec::new();
 
         if self.details.header {
@@ -298,12 +297,4 @@ fn divide_rounding_up(a: usize, b: usize) -> usize {
     }
 
     result
-}
-
-
-fn file_has_xattrs(file: &File<'_>) -> bool {
-    match file.path.attributes() {
-        Ok(attrs)  => ! attrs.is_empty(),
-        Err(_)     => false,
-    }
 }

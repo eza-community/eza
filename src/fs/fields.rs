@@ -82,13 +82,27 @@ pub struct Permissions {
     pub setuid:         bool,
 }
 
+/// The file's FileAttributes field, available only on Windows.
+#[derive(Copy, Clone)]
+pub struct Attributes {
+    pub archive:         bool,
+    pub directory:       bool,
+    pub readonly:        bool,
+    pub hidden:          bool,
+    pub system:          bool,
+    pub reparse_point:   bool,
+}
+
 /// The three pieces of information that are displayed as a single column in
 /// the details view. These values are fused together to make the output a
 /// little more compressed.
 #[derive(Copy, Clone)]
 pub struct PermissionsPlus {
     pub file_type:   Type,
+    #[cfg(unix)]
     pub permissions: Permissions,
+    #[cfg(windows)]
+    pub attributes:  Attributes,
     pub xattrs:      bool,
 }
 
@@ -196,7 +210,7 @@ pub struct Time {
 /// A file’s status in a Git repository. Whether a file is in a repository or
 /// not is handled by the Git module, rather than having a “null” variant in
 /// this enum.
-#[derive(PartialEq, Copy, Clone)]
+#[derive(PartialEq, Eq, Copy, Clone)]
 pub enum GitStatus {
 
     /// This file hasn’t changed since the last commit.
@@ -242,6 +256,39 @@ impl Default for Git {
         Self {
             staged: GitStatus::NotModified,
             unstaged: GitStatus::NotModified,
+        }
+    }
+}
+
+pub enum SecurityContextType<'a> {
+    SELinux(&'a str),
+    None
+}
+
+pub struct SecurityContext<'a> {
+    pub context: SecurityContextType<'a>,
+}
+
+#[allow(dead_code)]
+#[derive(PartialEq, Copy, Clone)]
+pub enum SubdirGitRepoStatus{
+    NoRepo,
+    GitClean,
+    GitDirty,
+    GitUnknown
+}
+
+#[derive(Clone)]
+pub struct SubdirGitRepo{
+    pub status : SubdirGitRepoStatus,
+    pub branch : Option<String>
+}
+
+impl Default for SubdirGitRepo{
+    fn default() -> Self {
+        Self{
+            status : SubdirGitRepoStatus::NoRepo,
+            branch : None
         }
     }
 }

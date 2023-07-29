@@ -51,6 +51,7 @@ pub static TIME:       Arg = Arg { short: Some(b't'), long: "time",       takes_
 pub static ACCESSED:   Arg = Arg { short: Some(b'u'), long: "accessed",   takes_value: TakesValue::Forbidden };
 pub static CREATED:    Arg = Arg { short: Some(b'U'), long: "created",    takes_value: TakesValue::Forbidden };
 pub static TIME_STYLE: Arg = Arg { short: None,       long: "time-style", takes_value: TakesValue::Necessary(Some(TIME_STYLES)) };
+pub static HYPERLINK:  Arg = Arg { short: None,       long: "hyperlink",  takes_value: TakesValue::Forbidden};
 const TIMES: Values = &["modified", "changed", "accessed", "created"];
 const TIME_STYLES: Values = &["default", "long-iso", "full-iso", "iso"];
 
@@ -62,9 +63,12 @@ pub static NO_TIME: Arg = Arg { short: None, long: "no-time", takes_value: Takes
 pub static NO_ICONS: Arg = Arg { short: None, long: "no-icons", takes_value: TakesValue::Forbidden };
 
 // optional feature options
-pub static GIT:       Arg = Arg { short: None,       long: "git",               takes_value: TakesValue::Forbidden };
-pub static EXTENDED:  Arg = Arg { short: Some(b'@'), long: "extended",          takes_value: TakesValue::Forbidden };
-pub static OCTAL:     Arg = Arg { short: None,       long: "octal-permissions", takes_value: TakesValue::Forbidden };
+pub static GIT:               Arg = Arg { short: None,       long: "git",                  takes_value: TakesValue::Forbidden };
+pub static GIT_REPOS:         Arg = Arg { short: None,       long: "git-repos",            takes_value: TakesValue::Forbidden };
+pub static GIT_REPOS_NO_STAT: Arg = Arg { short: None,       long: "git-repos-no-status",  takes_value: TakesValue::Forbidden };
+pub static EXTENDED:          Arg = Arg { short: Some(b'@'), long: "extended",             takes_value: TakesValue::Forbidden };
+pub static OCTAL:             Arg = Arg { short: Some(b'o'), long: "octal-permissions",    takes_value: TakesValue::Forbidden };
+pub static SECURITY_CONTEXT:  Arg = Arg { short: Some(b'Z'), long: "context",              takes_value: TakesValue::Forbidden };
 
 
 pub static ALL_ARGS: Args = Args(&[
@@ -77,8 +81,8 @@ pub static ALL_ARGS: Args = Args(&[
     &IGNORE_GLOB, &GIT_IGNORE, &ONLY_DIRS,
 
     &BINARY, &BYTES, &GROUP, &NUMERIC, &HEADER, &ICONS, &INODE, &LINKS, &MODIFIED, &CHANGED,
-    &BLOCKS, &TIME, &ACCESSED, &CREATED, &TIME_STYLE,
+    &BLOCKS, &TIME, &ACCESSED, &CREATED, &TIME_STYLE, &HYPERLINK,
     &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &NO_ICONS,
 
-    &GIT, &EXTENDED, &OCTAL
+    &GIT, &GIT_REPOS, &GIT_REPOS_NO_STAT, &EXTENDED, &OCTAL, &SECURITY_CONTEXT
 ]);
