@@ -25,6 +25,37 @@ For more information, see [exa’s website](https://the.exa.website/).
 
 ---
 
+<a id="try-it">
+<h1>Try it!</h1>
+</a>
+
+### Nix
+
+If you already have Nix setup with flake support, you can try out eza with the `nix run` command:
+
+    nix run github:cafkafk/eza
+
+Nix will built eza and run it. If you want to pass arguments this way, use e.g. `nix run github:cafkafk/eza -- -ol`.
+
+<a id="installation">
+<h1>Installation</h1>
+</a>
+
+eza is available for macOS and Linux.
+
+### Cargo
+
+If you already have a Rust environment set up, you can use the `cargo install` command:
+
+    cargo install eza
+
+Cargo will build the `eza` binary and place it in `$HOME/.cargo`.
+
+To build without Git support, run `cargo install --no-default-features eza` is also available, if the requisite dependencies are not installed.
+
+
+---
+
 <a id="options">
 <h1>Command-line options</h1>
 </a>
@@ -92,25 +123,6 @@ Some of the options accept parameters:
 - Valid sort fields are **accessed**, **changed**, **created**, **extension**, **Extension**, **inode**, **modified**, **name**, **Name**, **size**, **type**, and **none**. Fields starting with a capital letter sort uppercase before lowercase. The modified field has the aliases **date**, **time**, and **newest**, while its reverse has the aliases **age** and **oldest**.
 - Valid time fields are **modified**, **changed**, **accessed**, and **created**.
 - Valid time styles are **default**, **iso**, **long-iso**, and **full-iso**.
-
-
----
-
-<a id="installation">
-<h1>Installation</h1>
-</a>
-
-eza is available for macOS and Linux.
-
-### Cargo
-
-If you already have a Rust environment set up, you can use the `cargo install` command:
-
-    cargo install eza
-
-Cargo will build the `eza` binary and place it in `$HOME/.cargo`.
-
-To build without Git support, run `cargo install --no-default-features eza` is also available, if the requisite dependencies are not installed.
 
 
 ---
