@@ -288,7 +288,7 @@ impl Environment {
                 Some(t)
             }
             Err(ref e) => {
-                debug!("Unable to determine time zone: {}", e);
+                eprintln!("Unable to determine time zone: {e}");
                 None
             }
         };
