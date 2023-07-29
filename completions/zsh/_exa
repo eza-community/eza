@@ -1,16 +1,16 @@
-#compdef exa
+#compdef eza
 
-# Save this file as _exa in /usr/local/share/zsh/site-functions or in any
+# Save this file as _eza in /usr/local/share/zsh/site-functions or in any
 # other folder in $fpath.  E.g. save it in a folder called ~/.zfunc and add a
 # line containing `fpath=(~/.zfunc $fpath)` somewhere before `compinit` in your
 # ~/.zshrc.
 
-__exa() {
+__eza() {
     # Give completions using the `_arguments` utility function with
-    # `-s` for option stacking like `exa -ab` for `exa -a -b` and
-    # `-S` for delimiting options with `--` like in `exa -- -a`.
+    # `-s` for option stacking like `eza -ab` for `eza -a -b` and
+    # `-S` for delimiting options with `--` like in `eza -- -a`.
     _arguments -s -S \
-        "(- *)"{-v,--version}"[Show version of exa]" \
+        "(- *)"{-v,--version}"[Show version of eza]" \
         "(- *)"{-'\?',--help}"[Show list of command-line options]" \
         {-1,--oneline}"[Display one entry per line]" \
         {-l,--long}"[Display extended file metadata as a table]" \
