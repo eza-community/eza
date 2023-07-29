@@ -53,9 +53,11 @@ __eza() {
         {-u,--accessed}"[Use the accessed timestamp field]" \
         {-U,--created}"[Use the created timestamp field]" \
         --git"[List each file's Git status, if tracked]" \
+        --git-repos"[List each git-repos status and branch name]" \
+        --git-repos-no-status"[List each git-repos branch name (much faster)]" \
         {-@,--extended}"[List each file's extended attributes and sizes]" \
         {-Z,--context}"[List each file's security context]" \
         '*:filename:_files'
 }
 
-__exa
+__eza
