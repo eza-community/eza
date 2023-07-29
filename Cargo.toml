@@ -62,8 +62,7 @@ debug = false
 [profile.release]
 lto = true
 strip = true
-opt-level = "z"
-codegen-units = 1
+opt-level = "s"
 
 
 [package.metadata.deb]
