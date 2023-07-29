@@ -170,6 +170,18 @@ The full command is `cargo build --release --target=x86_64-unknown-linux-musl --
 
 For more information, see the [Building from Source page](https://the.exa.website/install/source).
 
+### Developing on Nix (experimental) ❄️
+
+If you have a working Nix installation with flake support, you can use nix to manage your dev environment.
+
+    nix develop
+
+The Nix Flake has a few features:
+- Run `nix flake check` to run `treefmt` on the repo.
+- Run `nix build` and manually test `./results/bin/eza -- <arguments>` for easy debugging.
+- Run `nix build .#test` to run `cargo test` via the flake.
+- Run `nix build .#clippy` to lint with clippy (still work in progress).
+
 
 ### Testing with Vagrant
 
