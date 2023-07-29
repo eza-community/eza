@@ -63,6 +63,8 @@ debug = false
 # use LTO for smaller binaries (that take longer to build)
 [profile.release]
 lto = true
+strip = true
+opt-level = "s"
 
 
 [package.metadata.deb]
