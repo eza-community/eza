@@ -66,7 +66,7 @@ pub static GIT:               Arg = Arg { short: None,       long: "git",       
 pub static GIT_REPOS:         Arg = Arg { short: None,       long: "git-repos",            takes_value: TakesValue::Forbidden };
 pub static GIT_REPOS_NO_STAT: Arg = Arg { short: None,       long: "git-repos-no-status",  takes_value: TakesValue::Forbidden };
 pub static EXTENDED:          Arg = Arg { short: Some(b'@'), long: "extended",             takes_value: TakesValue::Forbidden };
-pub static OCTAL:             Arg = Arg { short: None,       long: "octal-permissions",    takes_value: TakesValue::Forbidden };
+pub static OCTAL:             Arg = Arg { short: Some(b'o'), long: "octal-permissions",    takes_value: TakesValue::Forbidden };
 pub static SECURITY_CONTEXT:  Arg = Arg { short: Some(b'Z'), long: "context",              takes_value: TakesValue::Forbidden };
 
 
