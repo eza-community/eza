@@ -25,6 +25,39 @@ For more information, see [exa’s website](https://the.exa.website/).
 
 ---
 
+<a id="try-it">
+<h1>Try it!</h1>
+</a>
+
+### Nix ❄️
+
+If you already have Nix setup with flake support, you can try out eza with the `nix run` command:
+
+    nix run github:cafkafk/eza
+
+Nix will build eza and run it. 
+
+If you want to pass arguments this way, use e.g. `nix run github:cafkafk/eza -- -ol`.
+
+<a id="installation">
+<h1>Installation</h1>
+</a>
+
+eza is available for macOS and Linux.
+
+### Cargo
+
+If you already have a Rust environment set up, you can use the `cargo install` command:
+
+    cargo install eza
+
+Cargo will build the `eza` binary and place it in `$HOME/.cargo`.
+
+To build without Git support, run `cargo install --no-default-features eza` is also available, if the requisite dependencies are not installed.
+
+
+---
+
 <a id="options">
 <h1>Command-line options</h1>
 </a>
@@ -96,25 +129,6 @@ Some of the options accept parameters:
 
 ---
 
-<a id="installation">
-<h1>Installation</h1>
-</a>
-
-eza is available for macOS and Linux.
-
-### Cargo
-
-If you already have a Rust environment set up, you can use the `cargo install` command:
-
-    cargo install eza
-
-Cargo will build the `eza` binary and place it in `$HOME/.cargo`.
-
-To build without Git support, run `cargo install --no-default-features eza` is also available, if the requisite dependencies are not installed.
-
-
----
-
 <a id="development">
 <h1>Development
 
@@ -155,6 +169,18 @@ If you’re unable to compile libgit2, you can opt out of Git support by running
 The full command is `cargo build --release --target=x86_64-unknown-linux-musl --features vendored-openssl,git`.
 
 For more information, see the [Building from Source page](https://the.exa.website/install/source).
+
+### Developing on Nix (experimental) ❄️
+
+If you have a working Nix installation with flake support, you can use nix to manage your dev environment.
+
+    nix develop
+
+The Nix Flake has a few features:
+- Run `nix flake check` to run `treefmt` on the repo.
+- Run `nix build` and manually test `./results/bin/eza -- <arguments>` for easy debugging.
+- Run `nix build .#test` to run `cargo test` via the flake.
+- Run `nix build .#clippy` to lint with clippy (still work in progress).
 
 
 ### Testing with Vagrant
