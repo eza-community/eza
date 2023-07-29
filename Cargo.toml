@@ -42,7 +42,7 @@ default-features = false
 features = ["format"]
 
 [dependencies.git2]
-version = "0.13"
+version = "0.16"
 optional = true
 default-features = false
 
