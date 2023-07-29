@@ -58,7 +58,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "exa"
+name = "eza"
 version = "0.10.1"
 dependencies = [
  "ansi_term",
