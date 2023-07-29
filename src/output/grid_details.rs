@@ -262,7 +262,6 @@ impl<'a> Render<'a> {
                         let cell = grid::Cell {
                             contents: ANSIStrings(&column[row].contents).to_string(),
                             width:    *column[row].width,
-                            // alignment: grid::Alignment::Left,
                         };
 
                         grid.add(cell);
@@ -276,7 +275,6 @@ impl<'a> Render<'a> {
                     let cell = grid::Cell {
                         contents: ANSIStrings(&cell.contents).to_string(),
                         width:    *cell.width,
-                        // alignment: grid::Alignment::Left,
                     };
 
                     grid.add(cell);
