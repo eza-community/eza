@@ -1,5 +1,4 @@
 {
-
   inputs = {
 
     flake-utils.url = "github:numtide/flake-utils";
@@ -52,12 +51,32 @@
 
         formatter = treefmtEval.config.build.wrapper;
 
-        # For `nix build` & `nix run`:
 
-        packages.default = naersk'.buildPackage {
+        # packages.default = naersk'.buildPackage {
 
-          src = ./.;
+        #   src = ./.;
 
+        # };
+        packages = {
+          # For `nix build` & `nix run`:
+          default = naersk'.buildPackage {
+            src = ./.;
+          };
+          # Run `nix build .#check` to check code
+          check = naersk'.buildPackage {
+            src = ./.;
+            mode = "check";
+          };
+          # Run `nix build .#test` to run tests
+          test = naersk'.buildPackage {
+            src = ./.;
+            mode = "test";
+          };
+          # Run `nix build .#clippy` to lint code
+          clippy = naersk'.buildPackage {
+            src = ./.;
+            mode = "clippy";
+          };
         };
 
         # For `nix develop`:
