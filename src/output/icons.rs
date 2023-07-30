@@ -196,6 +196,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "gitignore"     => '\u{f1d3}', // 
             "gitmodules"    => '\u{f1d3}', // 
             "go"            => '\u{e626}', // 
+            "gpg"           => '\u{e60a}', // 
             "gradle"        => '\u{e256}', // 
             "groovy"        => '\u{e775}', // 
             "gsheet"        => '\u{f1c3}', // 
