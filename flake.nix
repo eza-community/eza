@@ -39,6 +39,7 @@
           # For `nix build` & `nix run`:
           default = naersk'.buildPackage {
             src = ./.;
+            doCheck = true; # run `cargo test` on build
           };
 
           # Run `nix build .#check` to check code
