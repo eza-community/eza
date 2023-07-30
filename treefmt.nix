@@ -5,4 +5,3 @@
     rustfmt.enable = true;
   };
 }
-
