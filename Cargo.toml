@@ -21,6 +21,7 @@ name = "eza"
 ansi_term = "0.12"
 glob = "0.3"
 lazy_static = "1.3"
+# ensure https://github.com/cafkafk/eza/pull/13 hasn't changed before updating libc
 libc = "0.2.135"
 locale = "0.2"
 log = "0.4"
