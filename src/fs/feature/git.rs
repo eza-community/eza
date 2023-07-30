@@ -343,3 +343,52 @@ fn index_status(status: git2::Status) -> f::GitStatus {
         _                                                => f::GitStatus::NotModified,
     }
 }
+
+fn current_branch(repo: &git2::Repository) -> Option<String>{
+    let head = match repo.head() {
+        Ok(head) => Some(head),
+        Err(ref e) if e.code() == git2::ErrorCode::UnbornBranch || e.code() == git2::ErrorCode::NotFound => return None,
+        Err(e) => {
+            error!("Error looking up Git branch: {:?}", e);
+            return None
+        }
+    };
+
+    if let Some(h) = head{
+        if let Some(s) = h.shorthand(){
+            let branch_name = s.to_owned();
+            if branch_name.len() > 10 {
+               return Some(branch_name[..8].to_string()+"..");
+            }
+            return Some(branch_name);
+        }
+    }
+    None
+}
+
+impl f::SubdirGitRepo{
+    pub fn from_path(dir : &Path, status : bool) -> Self{
+
+        let path = &reorient(&dir);
+        let g = git2::Repository::open(path);
+        if let Ok(repo) = g{
+
+            let branch = current_branch(&repo);
+            if !status{
+                return Self{status : f::SubdirGitRepoStatus::GitUnknown, branch};
+            }
+            match repo.statuses(None) {
+                Ok(es) => {
+                    if es.iter().filter(|s| s.status() != git2::Status::IGNORED).any(|_| true){
+                        return Self{status : f::SubdirGitRepoStatus::GitDirty, branch};
+                    }
+                    return Self{status : f::SubdirGitRepoStatus::GitClean, branch};
+                }
+                Err(e) => {
+                    error!("Error looking up Git statuses: {:?}", e)
+                }
+            }
+        }
+        Self::default()
+    }
+}
