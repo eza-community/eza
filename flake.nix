@@ -28,6 +28,7 @@
         naersk' = pkgs.callPackage naersk {
           cargo = toolchain;
           rustc = toolchain;
+          clippy = toolchain;
         };
 
         treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
