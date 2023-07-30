@@ -297,7 +297,7 @@ mod test {
         // --almost-all
         test!(almost_all:       DotFilter <- ["--almost-all"]; Both => Ok(DotFilter::Dotfiles));
         test!(almost_all_all:   DotFilter <- ["-Aa"];          Both => Ok(DotFilter::Dotfiles));
-        test!(almost_all_all_2: DotFilter <- ["-Aaa"];         Both => Ok(DotFilter::Dotfiles));
+        test!(almost_all_all_2: DotFilter <- ["-Aaa"];         Both => Ok(DotFilter::DotfilesAndDots));
     }
 
 
