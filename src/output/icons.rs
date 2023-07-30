@@ -240,7 +240,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "latex"         => '\u{f034}', // 
             "less"          => '\u{e758}', // 
             "lhs"           => '\u{e777}', // 
-            "license"       => '\u{f0219}', // 󰈙
+            "license"       => '\u{f02d}', // 
             "localized"     => '\u{f179}', // 
             "lock"          => '\u{f023}', // 
             "log"           => '\u{f18d}', // 
