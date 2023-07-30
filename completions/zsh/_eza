@@ -1,16 +1,16 @@
-#compdef exa
+#compdef eza
 
-# Save this file as _exa in /usr/local/share/zsh/site-functions or in any
+# Save this file as _eza in /usr/local/share/zsh/site-functions or in any
 # other folder in $fpath.  E.g. save it in a folder called ~/.zfunc and add a
 # line containing `fpath=(~/.zfunc $fpath)` somewhere before `compinit` in your
 # ~/.zshrc.
 
-__exa() {
+__eza() {
     # Give completions using the `_arguments` utility function with
-    # `-s` for option stacking like `exa -ab` for `exa -a -b` and
-    # `-S` for delimiting options with `--` like in `exa -- -a`.
+    # `-s` for option stacking like `eza -ab` for `eza -a -b` and
+    # `-S` for delimiting options with `--` like in `eza -- -a`.
     _arguments -s -S \
-        "(- *)"{-v,--version}"[Show version of exa]" \
+        "(- *)"{-v,--version}"[Show version of eza]" \
         "(- *)"{-'\?',--help}"[Show list of command-line options]" \
         {-1,--oneline}"[Display one entry per line]" \
         {-l,--long}"[Display extended file metadata as a table]" \
@@ -23,6 +23,7 @@ __exa() {
         --colo{,u}r-scale"[Highlight levels of file sizes distinctly]" \
         --icons"[Display icons]" \
         --no-icons"[Hide icons]" \
+        --hyperlink"[Display entries as hyperlinks]" \
         --group-directories-first"[Sort directories before other files]" \
         --git-ignore"[Ignore files mentioned in '.gitignore']" \
         {-a,--all}"[Show hidden and 'dot' files]" \
@@ -43,17 +44,20 @@ __exa() {
         {-n,--numeric}"[List numeric user and group IDs.]" \
         {-S,--blocks}"[List each file's number of filesystem blocks]" \
         {-t,--time}="[Which time field to show]:(time field):(accessed changed created modified)" \
-        --time-style="[How to format timestamps]:(time style):(default iso long-iso full-iso)" \
+        --time-style="[How to format timestamps]:(time style):(default iso long-iso full-iso relative)" \
         --no-permissions"[Suppress the permissions field]" \
-        --octal-permissions"[List each file's permission in octal format]" \
+        {-o, --octal-permissions}"[List each file's permission in octal format]" \
         --no-filesize"[Suppress the filesize field]" \
         --no-user"[Suppress the user field]" \
         --no-time"[Suppress the time field]" \
         {-u,--accessed}"[Use the accessed timestamp field]" \
         {-U,--created}"[Use the created timestamp field]" \
         --git"[List each file's Git status, if tracked]" \
+        --git-repos"[List each git-repos status and branch name]" \
+        --git-repos-no-status"[List each git-repos branch name (much faster)]" \
         {-@,--extended}"[List each file's extended attributes and sizes]" \
+        {-Z,--context}"[List each file's security context]" \
         '*:filename:_files'
 }
 
-__exa
+__eza
