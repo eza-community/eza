@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 trap 'exit' ERR
 
 # Check for release mode

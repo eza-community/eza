@@ -1,6 +1,7 @@
 use std::cmp::max;
 use std::env;
 use std::ops::Deref;
+#[cfg(unix)]
 use std::sync::{Mutex, MutexGuard};
 
 use datetime::TimeZone;
@@ -8,6 +9,7 @@ use zoneinfo_compiled::{CompiledData, Result as TZResult};
 
 use lazy_static::lazy_static;
 use log::*;
+#[cfg(unix)]
 use users::UsersCache;
 
 use crate::fs::{File, fields as f};
@@ -19,7 +21,7 @@ use crate::theme::Theme;
 
 
 /// Options for displaying a table.
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub struct Options {
     pub size_format: SizeFormat,
     pub time_format: TimeFormat,
@@ -29,7 +31,7 @@ pub struct Options {
 
 /// Extra columns to display in the table.
 #[allow(clippy::struct_excessive_bools)]
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub struct Columns {
 
     /// At least one of these timestamps will be shown.
@@ -41,7 +43,10 @@ pub struct Columns {
     pub blocks: bool,
     pub group: bool,
     pub git: bool,
+    pub subdir_git_repos: bool,
+    pub subdir_git_repos_no_stat: bool,
     pub octal: bool,
+    pub security_context: bool,
 
     // Defaults to true:
     pub permissions: bool,
@@ -54,10 +59,12 @@ impl Columns {
         let mut columns = Vec::with_capacity(4);
 
         if self.inode {
+            #[cfg(unix)]
             columns.push(Column::Inode);
         }
 
         if self.octal {
+            #[cfg(unix)]
             columns.push(Column::Octal);
         }
 
@@ -66,6 +73,7 @@ impl Columns {
         }
 
         if self.links {
+            #[cfg(unix)]
             columns.push(Column::HardLinks);
         }
 
@@ -74,15 +82,22 @@ impl Columns {
         }
 
         if self.blocks {
+            #[cfg(unix)]
             columns.push(Column::Blocks);
         }
 
         if self.user {
+            #[cfg(unix)]
             columns.push(Column::User);
         }
 
         if self.group {
+            #[cfg(unix)]
             columns.push(Column::Group);
+        }
+
+        if self.security_context {
+            columns.push(Column::SecurityContext);
         }
 
         if self.time_types.modified {
@@ -105,6 +120,14 @@ impl Columns {
             columns.push(Column::GitStatus);
         }
 
+        if self.subdir_git_repos {
+            columns.push(Column::SubdirGitRepoStatus);
+        }
+
+        if self.subdir_git_repos_no_stat {
+            columns.push(Column::SubdirGitRepoNoStatus);
+        }
+
         columns
     }
 }
@@ -116,13 +139,23 @@ pub enum Column {
     Permissions,
     FileSize,
     Timestamp(TimeType),
+    #[cfg(unix)]
     Blocks,
+    #[cfg(unix)]
     User,
+    #[cfg(unix)]
     Group,
+    #[cfg(unix)]
     HardLinks,
+    #[cfg(unix)]
     Inode,
     GitStatus,
+    SubdirGitRepoStatus,
+    SubdirGitRepoNoStatus,
+    #[cfg(unix)]
     Octal,
+    #[cfg(unix)]
+    SecurityContext,
 }
 
 /// Each column can pick its own **Alignment**. Usually, numbers are
@@ -136,12 +169,23 @@ pub enum Alignment {
 impl Column {
 
     /// Get the alignment this column should use.
+    #[cfg(unix)]
     pub fn alignment(self) -> Alignment {
         match self {
             Self::FileSize   |
             Self::HardLinks  |
             Self::Inode      |
             Self::Blocks     |
+            Self::GitStatus  => Alignment::Right,
+            Self::Timestamp(_) | 
+            _                => Alignment::Left,
+        }
+    }
+
+    #[cfg(windows)]
+    pub fn alignment(&self) -> Alignment {
+        match self {
+            Self::FileSize   |
             Self::GitStatus  => Alignment::Right,
             _                => Alignment::Left,
         }
@@ -151,24 +195,37 @@ impl Column {
     /// to have a header row printed.
     pub fn header(self) -> &'static str {
         match self {
+            #[cfg(unix)]
             Self::Permissions   => "Permissions",
+            #[cfg(windows)]
+            Self::Permissions   => "Mode",
             Self::FileSize      => "Size",
             Self::Timestamp(t)  => t.header(),
+            #[cfg(unix)]
             Self::Blocks        => "Blocks",
+            #[cfg(unix)]
             Self::User          => "User",
+            #[cfg(unix)]
             Self::Group         => "Group",
+            #[cfg(unix)]
             Self::HardLinks     => "Links",
+            #[cfg(unix)]
             Self::Inode         => "inode",
             Self::GitStatus     => "Git",
+            Self::SubdirGitRepoStatus => "Repo",
+            Self::SubdirGitRepoNoStatus => "Repo",
+            #[cfg(unix)]
             Self::Octal         => "Octal",
+            #[cfg(unix)]
+            Self::SecurityContext => "Security Context",
         }
     }
 }
 
 
 /// Formatting options for file sizes.
-#[allow(clippy::pub_enum_variant_names)]
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[allow(clippy::enum_variant_names)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum SizeFormat {
 
     /// Format the file size using **decimal** prefixes, such as “kilo”,
@@ -184,7 +241,7 @@ pub enum SizeFormat {
 }
 
 /// Formatting options for user and group.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum UserFormat {
     /// The UID / GID
     Numeric,
@@ -201,7 +258,7 @@ impl Default for SizeFormat {
 
 /// The types of a file’s time fields. These three fields are standard
 /// across most (all?) operating systems.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum TimeType {
 
     /// The file’s modified time (`st_mtime`).
@@ -236,7 +293,7 @@ impl TimeType {
 ///
 /// There should always be at least one of these — there’s no way to disable
 /// the time columns entirely (yet).
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 #[allow(clippy::struct_excessive_bools)]
 pub struct TimeTypes {
     pub modified: bool,
@@ -274,10 +331,12 @@ pub struct Environment {
     tz: Option<TimeZone>,
 
     /// Mapping cache of user IDs to usernames.
+    #[cfg(unix)]
     users: Mutex<UsersCache>,
 }
 
 impl Environment {
+    #[cfg(unix)]
     pub fn lock_users(&self) -> MutexGuard<'_, UsersCache> {
         self.users.lock().unwrap()
     }
@@ -288,7 +347,7 @@ impl Environment {
                 Some(t)
             }
             Err(ref e) => {
-                println!("Unable to determine time zone: {}", e);
+                eprintln!("Unable to determine time zone: {e}");
                 None
             }
         };
@@ -296,12 +355,14 @@ impl Environment {
         let numeric = locale::Numeric::load_user_locale()
                              .unwrap_or_else(|_| locale::Numeric::english());
 
+        #[cfg(unix)]
         let users = Mutex::new(UsersCache::new());
 
-        Self { numeric, tz, users }
+        Self { numeric, tz, #[cfg(unix)] users }
     }
 }
 
+#[cfg(unix)]
 fn determine_time_zone() -> TZResult<TimeZone> {
     if let Ok(file) = env::var("TZ") {
         TimeZone::from_file({
@@ -310,7 +371,7 @@ fn determine_time_zone() -> TZResult<TimeZone> {
             } else {
                 format!("/usr/share/zoneinfo/{}", {
                     if file.starts_with(':') {
-                        file.replacen(":", "", 1)
+                        file.replacen(':', "", 1)
                     } else {
                         file
                     }
@@ -320,6 +381,31 @@ fn determine_time_zone() -> TZResult<TimeZone> {
     } else {
         TimeZone::from_file("/etc/localtime")
     }
+}
+
+#[cfg(windows)]
+fn determine_time_zone() -> TZResult<TimeZone> {
+    use datetime::zone::{FixedTimespan, FixedTimespanSet, StaticTimeZone, TimeZoneSource};
+    use std::borrow::Cow;
+
+    Ok(TimeZone(TimeZoneSource::Static(&StaticTimeZone {
+        name: "Unsupported",
+        fixed_timespans: FixedTimespanSet {
+            first: FixedTimespan {
+                offset: 0,
+                is_dst: false,
+                name: Cow::Borrowed("ZONE_A"),
+            },
+            rest: &[(
+                1206838800,
+                FixedTimespan {
+                    offset: 3600,
+                    is_dst: false,
+                    name: Cow::Borrowed("ZONE_B"),
+                },
+            )],
+        },
+    })))
 }
 
 lazy_static! {
@@ -388,11 +474,15 @@ impl<'a, 'f> Table<'a> {
     fn permissions_plus(&self, file: &File<'_>, xattrs: bool) -> f::PermissionsPlus {
         f::PermissionsPlus {
             file_type: file.type_char(),
+            #[cfg(unix)]
             permissions: file.permissions(),
+            #[cfg(windows)]
+            attributes: file.attributes(),
             xattrs,
         }
     }
 
+    #[cfg(unix)]
     fn octal_permissions(&self, file: &File<'_>) -> f::OctalPermissions {
         f::OctalPermissions {
             permissions: file.permissions(),
@@ -407,24 +497,40 @@ impl<'a, 'f> Table<'a> {
             Column::FileSize => {
                 file.size().render(self.theme, self.size_format, &self.env.numeric)
             }
+            #[cfg(unix)]
             Column::HardLinks => {
                 file.links().render(self.theme, &self.env.numeric)
             }
+            #[cfg(unix)]
             Column::Inode => {
                 file.inode().render(self.theme.ui.inode)
             }
+            #[cfg(unix)]
             Column::Blocks => {
                 file.blocks().render(self.theme)
             }
+            #[cfg(unix)]
             Column::User => {
                 file.user().render(self.theme, &*self.env.lock_users(), self.user_format)
             }
+            #[cfg(unix)]
             Column::Group => {
                 file.group().render(self.theme, &*self.env.lock_users(), self.user_format)
+            }
+            #[cfg(unix)]
+            Column::SecurityContext => {
+                file.security_context().render(self.theme)
             }
             Column::GitStatus => {
                 self.git_status(file).render(self.theme)
             }
+            Column::SubdirGitRepoStatus => {
+                self.subdir_git_repo(file, true).render()
+            }
+            Column::SubdirGitRepoNoStatus => {
+                self.subdir_git_repo(file, false).render()
+            }
+            #[cfg(unix)]
             Column::Octal => {
                 self.octal_permissions(file).render(self.theme.ui.octal)
             }
@@ -450,6 +556,15 @@ impl<'a, 'f> Table<'a> {
         self.git
             .map(|g| g.get(&file.path, file.is_directory()))
             .unwrap_or_default()
+    }
+
+    fn subdir_git_repo(&self, file: &File<'_>, status : bool) -> f::SubdirGitRepo {
+        debug!("Getting subdir repo status for path {:?}", file.path);
+
+        if file.is_directory(){
+            return f::SubdirGitRepo::from_path(&file.path, status);
+        }
+        f::SubdirGitRepo::default()
     }
 
     pub fn render(&self, row: Row) -> TextCell {
