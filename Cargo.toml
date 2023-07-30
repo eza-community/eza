@@ -1,15 +1,15 @@
 [package]
 name = "eza"
 description = "A modern replacement for ls"
-authors = ["Benjamin Sago <ogham@bsago.me>", "Christina Sørensen <christina@cafkafk.com>"]
+authors = ["Christina Sørensen <christina@cafkafk.com>"]
 categories = ["command-line-utilities"]
 edition = "2021"
-rust-version = "1.63.0"
+rust-version = "1.71.0"
 exclude = ["/devtools/*", "/Justfile", "/Vagrantfile", "/screenshots.png"]
 readme = "README.md"
 homepage = "https://github.com/cafkafk/eza"
 license = "MIT"
-repository = "https://github.com/cafkafk/ez"
+repository = "https://github.com/cafkafk/eza"
 version = "0.10.1"
 
 
@@ -72,7 +72,7 @@ opt-level = "s"
 license-file = [ "LICENCE", "4" ]
 depends = "$auto"
 extended-description = """
-eza is a replacement for ls written in Rust.
+eza is a modern, maintained replacement for ls 
 """
 section = "utils"
 priority = "optional"
