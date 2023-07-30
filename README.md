@@ -2,26 +2,42 @@
 
 # eza
 
-eza is a modern replacement for _ls_.
+eza is a modern, maintained replacement for ls, built on [exa](https://github.com/ogham/exa).
 
 **README Sections:** [Options](#options) — [Installation](#installation) — [Development](#development)
 
-[![Unit tests](https://github.com/ogham/exa/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/ogham/exa/actions/workflows/unit-tests.yml)
-[![Say thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/ogham%40bsago.me)
+[![Built with Nix](https://img.shields.io/badge/Built_With-Nix-5277C3.svg?logo=nixos&labelColor=73C3D5)](https://nixos.org)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
+
+[![Unit tests](https://github.com/cafkafk/eza/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/cafkafk/eza/actions/workflows/unit-tests.yml)
+![Crates.io](https://img.shields.io/crates/v/eza?link=https%3A%2F%2Fcrates.io%2Fcrates%2Feza)
+![Crates.io](https://img.shields.io/crates/l/eza?link=https%3A%2F%2Fgithub.com%2Fcafkafk%2Feza%2Fblob%2Fmain%2FLICENCE)
+
 </div>
 
-![Screenshots of exa](screenshots.png)
+![Screenshots of eza](screenshots.png)
 
 ---
 
-**eza** is a modern replacement for the venerable file-listing command-line program `ls` that ships with Unix and Linux operating systems, giving it more features and better defaults.
+**eza** is a modern, maintained replacement for the venerable file-listing command-line program `ls` that ships with Unix and Linux operating systems, giving it more features and better defaults.
 It uses colours to distinguish file types and metadata.
 It knows about symlinks, extended attributes, and Git.
 And it’s **small**, **fast**, and just **one single binary**.
 
 By deliberately making some decisions differently, eza attempts to be a more featureful, more user-friendly version of `ls`.
-For more information, see [exa’s website](https://the.exa.website/).
 
+
+---
+
+**eza** features not in exa (non-exhaustive):
+
+ -   Fixes [“The Grid Bug”](https://github.com/cafkafk/eza/issues/66#issuecomment-1656758327) introduced in exa 2021.
+ -   Hyperlink support.
+ -   Selinux context output.
+ -   Git repo status output.
+ -   Human readable relative dates.
+ -   Several security fixes (see [dependabot](https://github.com/cafkafk/eza/security/dependabot?q=is%3Aclosed))
+ -   Many smaller bug fixes/changes!
 
 ---
 
@@ -45,20 +61,33 @@ If you want to pass arguments this way, use e.g. `nix run github:cafkafk/eza -- 
 
 eza is available for macOS and Linux.
 
-### Cargo
+### Cargo (crates.io)
+
+![Crates.io](https://img.shields.io/crates/v/eza?link=https%3A%2F%2Fcrates.io%2Fcrates%2Feza)
 
 If you already have a Rust environment set up, you can use the `cargo install` command:
 
     cargo install eza
 
+Cargo will build the `eza` binary and place it in `$HOME/.local/share/cargo/bin/eza`.
+
+### Cargo (git)
+
+If you already have a Rust environment set up, you can use the `cargo install` command in your local clone of the repo:
+
+    git clone https://github.com/cafkafk/eza.git
+    cd eza
+    cargo install --path .
+
 Cargo will build the `eza` binary and place it in `$HOME/.cargo`.
 
-To build without Git support, run `cargo install --no-default-features eza` is also available, if the requisite dependencies are not installed.
-
-
 ---
+Click sections to expand.
 
 <a id="options">
+<details>
+    <summary> Command-line options </summary>
+
 <h1>Command-line options</h1>
 </a>
 
@@ -124,19 +153,20 @@ Some of the options accept parameters:
 - Valid **--color** options are **always**, **automatic**, and **never**.
 - Valid sort fields are **accessed**, **changed**, **created**, **extension**, **Extension**, **inode**, **modified**, **name**, **Name**, **size**, **type**, and **none**. Fields starting with a capital letter sort uppercase before lowercase. The modified field has the aliases **date**, **time**, and **newest**, while its reverse has the aliases **age** and **oldest**.
 - Valid time fields are **modified**, **changed**, **accessed**, and **created**.
-- Valid time styles are **default**, **iso**, **long-iso**, and **full-iso**.
+- Valid time styles are **default**, **iso**, **long-iso**, **full-iso**, and **relative**.
 
-
----
+</details>
 
 <a id="development">
+<details>
+    <summary> Development </summary>
 <h1>Development
 
 <a href="https://blog.rust-lang.org/2022/08/11/Rust-1.63.0.html">
     <img src="https://img.shields.io/badge/rustc-1.63.0+-lightgray.svg" alt="Rust 1.63.0+" />
 </a>
 
-<a href="https://github.com/ogham/exa/blob/master/LICENCE">
+<a href="https://github.com/cafkafk/eza/blob/master/LICENCE">
     <img src="https://img.shields.io/badge/licence-MIT-green" alt="MIT Licence" />
 </a>
 </h1></a>
@@ -167,8 +197,6 @@ If you’re unable to compile libgit2, you can opt out of Git support by running
 
 - If you intend to compile for musl, you will need to use the flag `vendored-openssl` if you want to get the Git feature working.
 The full command is `cargo build --release --target=x86_64-unknown-linux-musl --features vendored-openssl,git`.
-
-For more information, see the [Building from Source page](https://the.exa.website/install/source).
 
 ### Developing on Nix (experimental) ❄️
 
@@ -219,3 +247,4 @@ Of course, the drawback of having a standard development environment is that you
 For this reason, Vagrant isn’t a *necessary* development step — it’s there if you’d like to use it, but eza still gets used and tested on other platforms.
 It can still be built and compiled on any target triple that it supports, VM or no VM, with `cargo build` and `cargo test`.
 
+</details>

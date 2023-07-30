@@ -57,6 +57,7 @@ lazy_static! {
         m.insert(".gitconfig", '\u{f1d3}'); // 
         m.insert(".github", '\u{f408}'); // 
         m.insert(".gitignore", '\u{f1d3}'); // 
+        m.insert(".gitignore_global", '\u{f1d3}'); // 
         m.insert(".gitmodules", '\u{f1d3}'); // 
         m.insert(".rvm", '\u{e21e}'); // 
         m.insert(".vimrc", '\u{e62b}'); // 
@@ -67,6 +68,7 @@ lazy_static! {
         m.insert("config", '\u{e5fc}'); // 
         m.insert("docker-compose.yml", '\u{f308}'); // 
         m.insert("Dockerfile", '\u{f308}'); // 
+        m.insert("Earthfile", '\u{f30d}'); // 🌍
         m.insert("ds_store", '\u{f179}'); // 
         m.insert("gitignore_global", '\u{f1d3}'); // 
         m.insert("go.mod", '\u{e626}'); // 
@@ -88,6 +90,7 @@ lazy_static! {
         m.insert("PKGBUILD", '\u{f303}'); // 
         m.insert("rubydoc", '\u{e73b}'); // 
         m.insert("yarn.lock", '\u{e718}'); // 
+        m.insert("Vagrantfile", '\u{2371}'); //⍱
 
         m
     };
@@ -102,7 +105,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "bin"           => '\u{e5fc}', // 
             ".git"          => '\u{f1d3}', // 
             ".idea"         => '\u{e7b5}', // 
-            _               => '\u{f115}'  // 
+            _               => '\u{f413}'  // 
         }
     }
     else if let Some(icon) = extensions.icon_file(file) { icon }
@@ -360,6 +363,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "xz"            => '\u{f410}', // 
             "yaml"          => '\u{f481}', // 
             "yml"           => '\u{f481}', // 
+            "zig"           => '\u{21af}', // ↯
             "zip"           => '\u{f410}', // 
             "zsh"           => '\u{f489}', // 
             "zsh-theme"     => '\u{f489}', // 
