@@ -190,8 +190,7 @@ impl Column {
             Self::Inode      |
             Self::Blocksize  |
             Self::GitStatus  => Alignment::Right,
-            Self::Timestamp(_) | 
-            _                => Alignment::Left,
+            _ => Alignment::Left,
         }
     }
 
