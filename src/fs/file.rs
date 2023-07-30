@@ -363,8 +363,8 @@ impl<'dir> File<'dir> {
             // SAFETY: `major()` and `minor()` can return an unsigned integer
             // of at most 32bits, so an `i64` is going to accomodate them well
             f::Size::DeviceIDs(f::DeviceIDs {
-                major: unsafe { major(device_ids) },
-                minor: unsafe { minor(device_ids) },
+                major: unsafe { major(device_ids) as i64 },
+                minor: unsafe { minor(device_ids) as i64 },
             })
         }
         else {
