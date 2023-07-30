@@ -8,7 +8,7 @@ use crate::options::flags;
 use crate::options::parser::MatchedFlags;
 
 
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub struct VersionString;
 // There were options here once, but there aren’t anymore!
 
@@ -31,7 +31,7 @@ impl VersionString {
 
 impl fmt::Display for VersionString {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        writeln!(f, "{}", include!(concat!(env!("OUT_DIR"), "/version_string.txt")))
+        write!(f, "{}", include_str!(concat!(env!("OUT_DIR"), "/version_string.txt")))
     }
 }
 

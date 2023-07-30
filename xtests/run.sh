@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 trap 'exit' ERR
 
 # Check for release mode
@@ -6,6 +6,11 @@ case "$1" in
   "--release") exa_binary="$HOME/target/release/exa" ;;
   *)           exa_binary="$HOME/target/debug/exa" ;;
 esac
+
+if [ ! -e /vagrant ]; then
+  echo "The extended tests must be run on the Vagrant machine."
+  exit 1
+fi
 
 if [ ! -f "$exa_binary" ]; then
   echo "exa binary ($exa_binary) does not exist"

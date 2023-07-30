@@ -66,6 +66,17 @@ impl UiStyles {
                 conflicted:  Red.normal(),
             },
 
+            security_context: SecurityContext {
+                none:       Style::default(),
+                selinux: SELinuxContext {
+                    colon: Style::default().dimmed(),
+                    user:  Blue.normal(),
+                    role:  Green.normal(),
+                    typ:   Yellow.normal(),
+                    range: Cyan.normal(),
+                },
+            },
+
             punctuation:  Black.bold(),
             date:         Blue.normal(),
             inode:        Purple.normal(),

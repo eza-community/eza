@@ -11,7 +11,7 @@ use crate::output::icons::FileIcon;
 use crate::theme::FileColours;
 
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Debug, Default, PartialEq, Eq)]
 pub struct FileExtensions;
 
 impl FileExtensions {
@@ -19,25 +19,27 @@ impl FileExtensions {
     /// An “immediate” file is something that can be run or activated somehow
     /// in order to kick off the build of a project. It’s usually only present
     /// in directories full of source code.
+    #[allow(clippy::case_sensitive_file_extension_comparisons)]
     fn is_immediate(&self, file: &File<'_>) -> bool {
         file.name.to_lowercase().starts_with("readme") ||
         file.name.ends_with(".ninja") ||
         file.name_is_one_of( &[
             "Makefile", "Cargo.toml", "SConstruct", "CMakeLists.txt",
             "build.gradle", "pom.xml", "Rakefile", "package.json", "Gruntfile.js",
-            "Gruntfile.coffee", "BUILD", "BUILD.bazel", "WORKSPACE", "build.xml",
+            "Gruntfile.coffee", "BUILD", "BUILD.bazel", "WORKSPACE", "build.xml", "Podfile",
             "webpack.config.js", "meson.build", "composer.json", "RoboFile.php", "PKGBUILD",
             "Justfile", "Procfile", "Dockerfile", "Containerfile", "Vagrantfile", "Brewfile",
-            "Gemfile", "Pipfile", "build.sbt", "mix.exs",
+            "Gemfile", "Pipfile", "build.sbt", "mix.exs", "bsconfig.json", "tsconfig.json",
         ])
     }
 
     fn is_image(&self, file: &File<'_>) -> bool {
         file.extension_is_one_of( &[
-            "png", "jpeg", "jpg", "gif", "bmp", "tiff", "tif",
-            "ppm", "pgm", "pbm", "pnm", "webp", "raw", "arw",
-            "svg", "stl", "eps", "dvi", "ps", "cbr", "jpf",
-            "cbz", "xpm", "ico", "cr2", "orf", "nef", "heif",
+            "png", "jfi", "jfif", "jif", "jpe", "jpeg", "jpg", "gif", "bmp",
+            "tiff", "tif", "ppm", "pgm", "pbm", "pnm", "webp", "raw", "arw",
+            "svg", "stl", "eps", "dvi", "ps", "cbr", "jpf", "cbz", "xpm",
+            "ico", "cr2", "orf", "nef", "heif", "avif", "jxl", "j2k", "jp2",
+            "j2c", "jpx",
         ])
     }
 
@@ -79,14 +81,14 @@ impl FileExtensions {
         file.extension_is_one_of( &[
             "zip", "tar", "Z", "z", "gz", "bz2", "a", "ar", "7z",
             "iso", "dmg", "tc", "rar", "par", "tgz", "xz", "txz",
-            "lz", "tlz", "lzma", "deb", "rpm", "zst",
+            "lz", "tlz", "lzma", "deb", "rpm", "zst", "lz4", "cpio",
         ])
     }
 
     fn is_temp(&self, file: &File<'_>) -> bool {
         file.name.ends_with('~')
             || (file.name.starts_with('#') && file.name.ends_with('#'))
-            || file.extension_is_one_of( &[ "tmp", "swp", "swo", "swn", "bak", "bk" ])
+            || file.extension_is_one_of( &[ "tmp", "swp", "swo", "swn", "bak", "bkp", "bk" ])
     }
 
     fn is_compiled(&self, file: &File<'_>) -> bool {

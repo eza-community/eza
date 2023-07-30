@@ -27,7 +27,13 @@ pub mod git {
         }
 
         pub fn get(&self, _index: &Path, _prefix_lookup: bool) -> f::Git {
-            panic!("Tried to query a Git cache, but Git support is disabled")
+            unreachable!();
+        }
+    }
+
+    impl f::SubdirGitRepo{
+        pub fn from_path(_dir : &Path, _status : bool) -> Self{
+            panic!("Tried to get subdir Git status, but Git support is disabled")
         }
     }
 }

@@ -26,7 +26,7 @@ pub struct View {
 
 
 /// The **mode** is the “type” of output.
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 #[allow(clippy::large_enum_variant)]
 pub enum Mode {
     Grid(grid::Options),
@@ -37,7 +37,7 @@ pub enum Mode {
 
 
 /// The width of the terminal requested by the user.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum TerminalWidth {
 
     /// The user requested this specific number of columns.
@@ -55,7 +55,7 @@ impl TerminalWidth {
 
         match self {
             Self::Set(width)  => Some(width),
-            Self::Automatic   => term_size::dimensions_stdout().map(|t| t.0),
+            Self::Automatic   => terminal_size::terminal_size().map(|(w, _)| w.0.into()),
         }
     }
 }

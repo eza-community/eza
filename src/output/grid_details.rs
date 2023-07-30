@@ -7,7 +7,6 @@ use term_grid as grid;
 
 use crate::fs::{Dir, File};
 use crate::fs::feature::git::GitCache;
-use crate::fs::feature::xattr::FileAttributes;
 use crate::fs::filter::FileFilter;
 use crate::output::cell::TextCell;
 use crate::output::details::{Options as DetailsOptions, Row as DetailsRow, Render as DetailsRender};
@@ -18,7 +17,7 @@ use crate::output::tree::{TreeParams, TreeDepth};
 use crate::theme::Theme;
 
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub struct Options {
     pub grid: GridOptions,
     pub details: DetailsOptions,
@@ -39,7 +38,7 @@ impl Options {
 /// small directory of four files in four columns, the files just look spaced
 /// out and it’s harder to see what’s going on. So it can be enabled just for
 /// larger directory listings.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum RowThreshold {
 
     /// Only use grid-details view if it would result in at least this many
@@ -150,14 +149,18 @@ impl<'a> Render<'a> {
         let (first_table, _) = self.make_table(options, &drender);
 
         let rows = self.files.iter()
-                       .map(|file| first_table.row_for_file(file, file_has_xattrs(file)))
+                       .map(|file| first_table.row_for_file(file, drender.show_xattr_hint(file)))
                        .collect::<Vec<_>>();
 
         let file_names = self.files.iter()
                              .map(|file| self.file_style.for_file(file, self.theme).paint().promote())
                              .collect::<Vec<_>>();
 
-        let mut last_working_table = self.make_grid(1, options, &file_names, rows.clone(), &drender);
+        let mut last_working_grid = self.make_grid(1, options, &file_names, rows.clone(), &drender);
+
+        if file_names.len() == 1 {
+            return Some((last_working_grid, 1));
+        }
 
         // If we can’t fit everything in a grid 100 columns wide, then
         // something has gone seriously awry
@@ -166,23 +169,25 @@ impl<'a> Render<'a> {
 
             let the_grid_fits = {
                 let d = grid.fit_into_columns(column_count);
-                d.is_complete() && d.width() <= self.console_width
+                d.width() <= self.console_width
             };
 
             if the_grid_fits {
-                last_working_table = grid;
+                last_working_grid = grid;
             }
-            else {
-                // If we’ve figured out how many columns can fit in the user’s
-                // terminal, and it turns out there aren’t enough rows to
-                // make it worthwhile, then just resort to the lines view.
+
+            if !the_grid_fits || column_count == file_names.len() {
+                let last_column_count = if the_grid_fits { column_count } else { column_count - 1 };
+                // If we’ve figured out how many columns can fit in the user’s terminal,
+                // and it turns out there aren’t enough rows to make it worthwhile
+                // (according to EXA_GRID_ROWS), then just resort to the lines view.
                 if let RowThreshold::MinimumRows(thresh) = self.row_threshold {
-                    if last_working_table.fit_into_columns(column_count - 1).row_count() < thresh {
+                    if last_working_grid.fit_into_columns(last_column_count).row_count() < thresh {
                         return None;
                     }
                 }
 
-                return Some((last_working_table, column_count - 1));
+                return Some((last_working_grid, last_column_count));
             }
         }
 
@@ -196,7 +201,7 @@ impl<'a> Render<'a> {
             (None,    _)        => {/* Keep Git how it is */},
         }
 
-        let mut table = Table::new(options, self.git, &self.theme);
+        let mut table = Table::new(options, self.git, self.theme);
         let mut rows = Vec::new();
 
         if self.details.header {
@@ -290,12 +295,4 @@ fn divide_rounding_up(a: usize, b: usize) -> usize {
     }
 
     result
-}
-
-
-fn file_has_xattrs(file: &File<'_>) -> bool {
-    match file.path.attributes() {
-        Ok(attrs)  => ! attrs.is_empty(),
-        Err(_)     => false,
-    }
 }

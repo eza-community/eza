@@ -2,8 +2,8 @@
 
 use std::cmp::Ordering;
 use std::iter::FromIterator;
+#[cfg(unix)]
 use std::os::unix::fs::MetadataExt;
-use std::path::Path;
 
 use crate::fs::DotFilter;
 use crate::fs::File;
@@ -23,7 +23,7 @@ use crate::fs::File;
 /// The filter also governs sorting the list. After being filtered, pairs of
 /// files are compared and sorted based on the result, with the sort field
 /// performing the comparison.
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub struct FileFilter {
 
     /// Whether directories should be listed first, and other types of file
@@ -50,31 +50,8 @@ pub struct FileFilter {
     ///
     /// This came about more or less by a complete historical accident,
     /// when the original `ls` tried to hide `.` and `..`:
-    /// https://plus.google.com/+RobPikeTheHuman/posts/R58WgWwN9jp
     ///
-    ///   When one typed ls, however, these files appeared, so either Ken or
-    ///   Dennis added a simple test to the program. It was in assembler then,
-    ///   but the code in question was equivalent to something like this:
-    ///      if (name[0] == '.') continue;
-    ///   This statement was a little shorter than what it should have been,
-    ///   which is:
-    ///      if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0) continue;
-    ///   but hey, it was easy.
-    ///
-    ///   Two things resulted.
-    ///
-    ///   First, a bad precedent was set. A lot of other lazy programmers
-    ///   introduced bugs by making the same simplification. Actual files
-    ///   beginning with periods are often skipped when they should be counted.
-    ///
-    ///   Second, and much worse, the idea of a "hidden" or "dot" file was
-    ///   created. As a consequence, more lazy programmers started dropping
-    ///   files into everyone's home directory. I don't have all that much
-    ///   stuff installed on the machine I'm using to type this, but my home
-    ///   directory has about a hundred dot files and I don't even know what
-    ///   most of them are or whether they're still needed. Every file name
-    ///   evaluation that goes through my home directory is slowed down by
-    ///   this accumulated sludge.
+    /// [Linux History: How Dot Files Became Hidden Files](https://linux-audit.com/linux-history-how-dot-files-became-hidden-files/)
     pub dot_filter: DotFilter,
 
     /// Glob patterns to ignore. Any file name that matches *any* of these
@@ -82,9 +59,6 @@ pub struct FileFilter {
     pub ignore_patterns: IgnorePatterns,
 
     /// Whether to ignore Git-ignored patterns.
-    /// This is implemented completely separately from the actual Git
-    /// repository scanning — a `.gitignore` file will still be scanned even
-    /// if there’s no `.git` folder present.
     pub git_ignore: GitIgnore,
 }
 
@@ -115,7 +89,7 @@ impl FileFilter {
     }
 
     /// Sort the files in the given vector based on the sort field option.
-    pub fn sort_files<'a, F>(&self, files: &mut Vec<F>)
+    pub fn sort_files<'a, F>(&self, files: &mut [F])
     where F: AsRef<File<'a>>
     {
         files.sort_by(|a, b| {
@@ -139,7 +113,7 @@ impl FileFilter {
 
 
 /// User-supplied field to sort by.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum SortField {
 
     /// Don’t apply any sorting. This is usually used as an optimisation in
@@ -157,6 +131,7 @@ pub enum SortField {
 
     /// The file’s inode, which usually corresponds to the order in which
     /// files were created on the filesystem, more or less.
+    #[cfg(unix)]
     FileInode,
 
     /// The time the file was modified (the “mtime”).
@@ -173,7 +148,7 @@ pub enum SortField {
     /// slows the whole operation down, so many systems will only update the
     /// timestamp in certain circumstances. This has become common enough that
     /// it’s now expected behaviour!
-    /// http://unix.stackexchange.com/a/8842
+    /// <https://unix.stackexchange.com/a/8842>
     AccessedDate,
 
     /// The time the file was changed (the “ctime”).
@@ -182,7 +157,7 @@ pub enum SortField {
     /// changed — its permissions, owners, or link count.
     ///
     /// In original Unix, this was, however, meant as creation time.
-    /// https://www.bell-labs.com/usr/dmr/www/cacm.html
+    /// <https://www.bell-labs.com/usr/dmr/www/cacm.html>
     ChangedDate,
 
     /// The time the file was created (the “btime” or “birthtime”).
@@ -219,7 +194,7 @@ pub enum SortField {
 /// lowercase letters because it takes the difference between the two cases
 /// into account? I gave up and just named these two variants after the
 /// effects they have.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum SortCase {
 
     /// Sort files case-sensitively with uppercase first, with ‘A’ coming
@@ -250,6 +225,7 @@ impl SortField {
             Self::Name(AaBbCc)  => natord::compare_ignore_case(&a.name, &b.name),
 
             Self::Size          => a.metadata.len().cmp(&b.metadata.len()),
+            #[cfg(unix)]
             Self::FileInode     => a.metadata.ino().cmp(&b.metadata.ino()),
             Self::ModifiedDate  => a.modified_time().cmp(&b.modified_time()),
             Self::AccessedDate  => a.accessed_time().cmp(&b.accessed_time()),
@@ -284,8 +260,10 @@ impl SortField {
     }
 
     fn strip_dot(n: &str) -> &str {
-        if n.starts_with('.') { &n[1..] }
-                         else { n }
+        match n.strip_prefix('.') {
+            Some(s) => s,
+            None    => n,
+        }
     }
 }
 
@@ -293,7 +271,7 @@ impl SortField {
 /// The **ignore patterns** are a list of globs that are tested against
 /// each filename, and if any of them match, that file isn’t displayed.
 /// This lets a user hide, say, text files by ignoring `*.txt`.
-#[derive(PartialEq, Default, Debug, Clone)]
+#[derive(PartialEq, Eq, Default, Debug, Clone)]
 pub struct IgnorePatterns {
     patterns: Vec<glob::Pattern>,
 }
@@ -345,35 +323,20 @@ impl IgnorePatterns {
     fn is_ignored(&self, file: &str) -> bool {
         self.patterns.iter().any(|p| p.matches(file))
     }
-
-    /// Test whether the given file should be hidden from the results.
-    pub fn is_ignored_path(&self, file: &Path) -> bool {
-        self.patterns.iter().any(|p| p.matches_path(file))
-    }
-
-    // TODO(ogham): The fact that `is_ignored_path` is pub while `is_ignored`
-    // isn’t probably means it’s in the wrong place
 }
 
 
-/// Whether to ignore or display files that are mentioned in `.gitignore` files.
-#[derive(PartialEq, Debug, Copy, Clone)]
+/// Whether to ignore or display files that Git would ignore.
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum GitIgnore {
 
-    /// Ignore files that Git would ignore. This means doing a check for a
-    /// `.gitignore` file, possibly recursively up the filesystem tree.
+    /// Ignore files that Git would ignore.
     CheckAndIgnore,
 
     /// Display files, even if Git would ignore them.
     Off,
 }
 
-// This is not fully baked yet. The `ignore` crate lists a lot more files that
-// we aren’t checking:
-//
-// > By default, all ignore files found are respected. This includes .ignore,
-// > .gitignore, .git/info/exclude and even your global gitignore globs,
-// > usually found in $XDG_CONFIG_HOME/git/ignore.
 
 
 #[cfg(test)]
@@ -383,31 +346,31 @@ mod test_ignores {
     #[test]
     fn empty_matches_nothing() {
         let pats = IgnorePatterns::empty();
-        assert_eq!(false, pats.is_ignored("nothing"));
-        assert_eq!(false, pats.is_ignored("test.mp3"));
+        assert!(!pats.is_ignored("nothing"));
+        assert!(!pats.is_ignored("test.mp3"));
     }
 
     #[test]
     fn ignores_a_glob() {
         let (pats, fails) = IgnorePatterns::parse_from_iter(vec![ "*.mp3" ]);
         assert!(fails.is_empty());
-        assert_eq!(false, pats.is_ignored("nothing"));
-        assert_eq!(true,  pats.is_ignored("test.mp3"));
+        assert!(!pats.is_ignored("nothing"));
+        assert!(pats.is_ignored("test.mp3"));
     }
 
     #[test]
     fn ignores_an_exact_filename() {
         let (pats, fails) = IgnorePatterns::parse_from_iter(vec![ "nothing" ]);
         assert!(fails.is_empty());
-        assert_eq!(true,  pats.is_ignored("nothing"));
-        assert_eq!(false, pats.is_ignored("test.mp3"));
+        assert!(pats.is_ignored("nothing"));
+        assert!(!pats.is_ignored("test.mp3"));
     }
 
     #[test]
     fn ignores_both() {
         let (pats, fails) = IgnorePatterns::parse_from_iter(vec![ "nothing", "*.mp3" ]);
         assert!(fails.is_empty());
-        assert_eq!(true, pats.is_ignored("nothing"));
-        assert_eq!(true, pats.is_ignored("test.mp3"));
+        assert!(pats.is_ignored("nothing"));
+        assert!(pats.is_ignored("test.mp3"));
     }
 }

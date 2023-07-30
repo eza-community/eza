@@ -39,6 +39,7 @@ const SORTS: Values = &[ "name", "Name", "size", "extension",
 pub static BINARY:     Arg = Arg { short: Some(b'b'), long: "binary",     takes_value: TakesValue::Forbidden };
 pub static BYTES:      Arg = Arg { short: Some(b'B'), long: "bytes",      takes_value: TakesValue::Forbidden };
 pub static GROUP:      Arg = Arg { short: Some(b'g'), long: "group",      takes_value: TakesValue::Forbidden };
+pub static NUMERIC:    Arg = Arg { short: Some(b'n'), long: "numeric",    takes_value: TakesValue::Forbidden };
 pub static HEADER:     Arg = Arg { short: Some(b'h'), long: "header",     takes_value: TakesValue::Forbidden };
 pub static ICONS:      Arg = Arg { short: None,       long: "icons",      takes_value: TakesValue::Forbidden };
 pub static INODE:      Arg = Arg { short: Some(b'i'), long: "inode",      takes_value: TakesValue::Forbidden };
@@ -50,6 +51,7 @@ pub static TIME:       Arg = Arg { short: Some(b't'), long: "time",       takes_
 pub static ACCESSED:   Arg = Arg { short: Some(b'u'), long: "accessed",   takes_value: TakesValue::Forbidden };
 pub static CREATED:    Arg = Arg { short: Some(b'U'), long: "created",    takes_value: TakesValue::Forbidden };
 pub static TIME_STYLE: Arg = Arg { short: None,       long: "time-style", takes_value: TakesValue::Necessary(Some(TIME_STYLES)) };
+pub static HYPERLINK:  Arg = Arg { short: None,       long: "hyperlink",  takes_value: TakesValue::Forbidden};
 const TIMES: Values = &["modified", "changed", "accessed", "created"];
 const TIME_STYLES: Values = &["default", "long-iso", "full-iso", "iso"];
 
@@ -58,11 +60,15 @@ pub static NO_PERMISSIONS: Arg = Arg { short: None, long: "no-permissions", take
 pub static NO_FILESIZE: Arg = Arg { short: None, long: "no-filesize", takes_value: TakesValue::Forbidden };
 pub static NO_USER: Arg = Arg { short: None, long: "no-user", takes_value: TakesValue::Forbidden };
 pub static NO_TIME: Arg = Arg { short: None, long: "no-time", takes_value: TakesValue::Forbidden };
+pub static NO_ICONS: Arg = Arg { short: None, long: "no-icons", takes_value: TakesValue::Forbidden };
 
 // optional feature options
-pub static GIT:       Arg = Arg { short: None,       long: "git",               takes_value: TakesValue::Forbidden };
-pub static EXTENDED:  Arg = Arg { short: Some(b'@'), long: "extended",          takes_value: TakesValue::Forbidden };
-pub static OCTAL:     Arg = Arg { short: None,       long: "octal-permissions", takes_value: TakesValue::Forbidden };
+pub static GIT:               Arg = Arg { short: None,       long: "git",                  takes_value: TakesValue::Forbidden };
+pub static GIT_REPOS:         Arg = Arg { short: None,       long: "git-repos",            takes_value: TakesValue::Forbidden };
+pub static GIT_REPOS_NO_STAT: Arg = Arg { short: None,       long: "git-repos-no-status",  takes_value: TakesValue::Forbidden };
+pub static EXTENDED:          Arg = Arg { short: Some(b'@'), long: "extended",             takes_value: TakesValue::Forbidden };
+pub static OCTAL:             Arg = Arg { short: Some(b'o'), long: "octal-permissions",    takes_value: TakesValue::Forbidden };
+pub static SECURITY_CONTEXT:  Arg = Arg { short: Some(b'Z'), long: "context",              takes_value: TakesValue::Forbidden };
 
 
 pub static ALL_ARGS: Args = Args(&[
@@ -74,9 +80,9 @@ pub static ALL_ARGS: Args = Args(&[
     &ALL, &LIST_DIRS, &LEVEL, &REVERSE, &SORT, &DIRS_FIRST,
     &IGNORE_GLOB, &GIT_IGNORE, &ONLY_DIRS,
 
-    &BINARY, &BYTES, &GROUP, &HEADER, &ICONS, &INODE, &LINKS, &MODIFIED, &CHANGED,
-    &BLOCKS, &TIME, &ACCESSED, &CREATED, &TIME_STYLE,
-    &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME,
+    &BINARY, &BYTES, &GROUP, &NUMERIC, &HEADER, &ICONS, &INODE, &LINKS, &MODIFIED, &CHANGED,
+    &BLOCKS, &TIME, &ACCESSED, &CREATED, &TIME_STYLE, &HYPERLINK,
+    &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &NO_ICONS,
 
-    &GIT, &EXTENDED, &OCTAL
+    &GIT, &GIT_REPOS, &GIT_REPOS_NO_STAT, &EXTENDED, &OCTAL, &SECURITY_CONTEXT
 ]);
