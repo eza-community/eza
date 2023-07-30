@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [[ ! -d "/vagrant" ]]; then
     echo "This script should be run in the Vagrant environment"
