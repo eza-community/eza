@@ -201,7 +201,7 @@ impl Args {
                                 result_flags.push((flag, Some(next_arg)));
                             }
                             else {
-                                return Err(ParseError::NeedsValue { flag, values })
+                                return Err(ParseError::NeedsValue { flag, values });
                             }
                         }
                         TakesValue::Optional(_) => {
