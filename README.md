@@ -61,7 +61,7 @@ If you want to pass arguments this way, use e.g. `nix run github:cafkafk/eza -- 
 
 eza is available for macOS and Linux.
 
-### Cargo from crates.io
+### Cargo (crates.io)
 
 ![Crates.io](https://img.shields.io/crates/v/eza?link=https%3A%2F%2Fcrates.io%2Fcrates%2Feza)
 
@@ -71,10 +71,12 @@ If you already have a Rust environment set up, you can use the `cargo install` c
 
 Cargo will build the `eza` binary and place it in `$HOME/.local/share/cargo/bin/eza`.
 
-### Cargo from source
+### Cargo (git)
 
 If you already have a Rust environment set up, you can use the `cargo install` command in your local clone of the repo:
 
+    git clone https://github.com/cafkafk/eza.git
+    cd eza
     cargo install --path .
 
 Cargo will build the `eza` binary and place it in `$HOME/.cargo`.
