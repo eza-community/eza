@@ -167,9 +167,9 @@ impl DotFilter {
             (0, false) => Ok(Self::JustFiles),
 
             // either a single --all or at least one --almost-all is given
-            (1, _) | (_, true) => Ok(Self::Dotfiles),
-            // more than one --all (and no --almost-all)
-            (c, false) => if matches.count(&flags::TREE) > 0 {
+            (1, _) | (0, true) => Ok(Self::Dotfiles),
+            // more than one --all
+            (c, _) => if matches.count(&flags::TREE) > 0 {
                 Err(OptionsError::TreeAllAll)
             } else if matches.is_strict() && c > 2 {
                 Err(OptionsError::Conflict(&flags::ALL, &flags::ALL))
