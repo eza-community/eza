@@ -158,34 +158,29 @@ impl DotFilter {
     /// in tree mode would loop onto itself!
     pub fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
         let all_count = matches.count(&flags::ALL);
-        let ls_all_count = matches.count(&flags::LS_ALL);
+        let ls_all_count = matches.has(&flags::LS_ALL)?;
 
         if matches.is_strict() {
             return match (all_count, ls_all_count) {
-                (0, 0) => Ok(Self::JustFiles), // neither --all nor --all --all nor --almost-all
-                (1, 0) | (0, 1) => Ok(Self::Dotfiles), // either --all or --almost-all
-                (2, 0) => Ok(Self::DotfilesAndDots), // --all --all (but not --almost-all)
+                (2, false) => Ok(Self::DotfilesAndDots), // --all --all (but not --almost-all)
                 _ => Err(OptionsError::Conflict(&flags::ALL, &flags::LS_ALL)),
             }
         };
 
         match (all_count, ls_all_count) {
-            (0, 0) => Ok(Self::JustFiles),
+            (0, false) => Ok(Self::JustFiles),
 
             // Only --all
-            (1, 0) => Ok(Self::Dotfiles),
+            (1, false) | (0, true) => Ok(Self::Dotfiles),
             // Only --all
-            (_, 0) if matches.count(&flags::TREE) > 0 => Err(OptionsError::TreeAllAll),
-            // Only --all
-            (_, 0) => Ok(Self::DotfilesAndDots),
+            (_, false) => if matches.count(&flags::TREE) > 0 {
+                Err(OptionsError::TreeAllAll)
+            } else {
+                Ok(Self::DotfilesAndDots)
+            },
 
             // Only --ls-all
-            (0, 1) => Ok(Self::Dotfiles),
-            // Only --ls-all
-            (0, _) => Ok(Self::Dotfiles),
-
-            // --all is actually the same as --ls-all
-            (1, 1) => Ok(Self::Dotfiles),
+            (0, _) | (1, true) => Ok(Self::Dotfiles),
 
             _ => Err(OptionsError::Conflict(&flags::ALL, &flags::LS_ALL)),
         }
