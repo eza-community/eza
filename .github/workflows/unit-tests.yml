@@ -2,14 +2,14 @@ name: Unit tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths:
       - '.github/workflows/*'
       - 'src/**'
       - 'Cargo.*'
       - build.rs
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
     paths:
       - '.github/workflows/*'
       - 'src/**'
