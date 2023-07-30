@@ -30,4 +30,10 @@ pub mod git {
             unreachable!();
         }
     }
+
+    impl f::SubdirGitRepo{
+        pub fn from_path(_dir : &Path, _status : bool) -> Self{
+            panic!("Tried to get subdir Git status, but Git support is disabled")
+        }
+    }
 }

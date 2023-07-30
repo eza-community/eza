@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 if [[ -f ~/target/debug/exa ]]; then
   ~/target/debug/exa "$@"
 else
