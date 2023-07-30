@@ -2,24 +2,24 @@
 
 # eza
 
-eza is a modern replacement for _ls_.
+eza is a modern, maintained replacement for ls, built on [exa](https://github.com/ogham/exa).
 
 **README Sections:** [Options](#options) — [Installation](#installation) — [Development](#development)
 
 [![Unit tests](https://github.com/cafkafk/eza/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/cafkafk/eza/actions/workflows/unit-tests.yml)
+[![Built with Nix](https://img.shields.io/badge/Built_With-Nix-5277C3.svg?logo=nixos&labelColor=73C3D5)](https://nixos.org)
 </div>
 
 ![Screenshots of exa](screenshots.png)
 
 ---
 
-**eza** is a modern replacement for the venerable file-listing command-line program `ls` that ships with Unix and Linux operating systems, giving it more features and better defaults.
+**eza** is a modern, maintained replacement for the venerable file-listing command-line program `ls` that ships with Unix and Linux operating systems, giving it more features and better defaults.
 It uses colours to distinguish file types and metadata.
 It knows about symlinks, extended attributes, and Git.
 And it’s **small**, **fast**, and just **one single binary**.
 
 By deliberately making some decisions differently, eza attempts to be a more featureful, more user-friendly version of `ls`.
-For more information, see [exa’s website](https://the.exa.website/).
 
 
 ---
@@ -56,7 +56,8 @@ To build without Git support, run `cargo install --no-default-features eza` is a
 
 
 ---
-
+<details>
+    <summary> Command-line options </summary>
 <a id="options">
 <h1>Command-line options</h1>
 </a>
@@ -125,9 +126,10 @@ Some of the options accept parameters:
 - Valid time fields are **modified**, **changed**, **accessed**, and **created**.
 - Valid time styles are **default**, **iso**, **long-iso**, **full-iso**, and **relative**.
 
+</details>
 
----
-
+<details>
+    <summary> Development </summary>
 <a id="development">
 <h1>Development
 
@@ -218,3 +220,4 @@ Of course, the drawback of having a standard development environment is that you
 For this reason, Vagrant isn’t a *necessary* development step — it’s there if you’d like to use it, but eza still gets used and tested on other platforms.
 It can still be built and compiled on any target triple that it supports, VM or no VM, with `cargo build` and `cargo test`.
 
+</details>
