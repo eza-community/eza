@@ -24,6 +24,17 @@ By deliberately making some decisions differently, eza attempts to be a more fea
 
 ---
 
+**eza** features not in exa (non-exhaustive):
+
+ -   Hyperlink support.
+ -   Selinux context output.
+ -   Git repo status output.
+ -   Human readable relative dates.
+ -   Several security fixes (see [dependabot](https://github.com/cafkafk/eza/security/dependabot?q=is%3Aclosed))
+ -   Many smaller bug fixes/changes!
+
+---
+
 <a id="try-it">
 <h1>Try it!</h1>
 </a>
