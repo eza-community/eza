@@ -8,9 +8,10 @@ eza is a modern, maintained replacement for ls, built on [exa](https://github.co
 
 [![Unit tests](https://github.com/cafkafk/eza/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/cafkafk/eza/actions/workflows/unit-tests.yml)
 [![Built with Nix](https://img.shields.io/badge/Built_With-Nix-5277C3.svg?logo=nixos&labelColor=73C3D5)](https://nixos.org)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
 </div>
 
-![Screenshots of exa](screenshots.png)
+![Screenshots of eza](screenshots.png)
 
 ---
 
@@ -149,7 +150,7 @@ Some of the options accept parameters:
     <img src="https://img.shields.io/badge/rustc-1.63.0+-lightgray.svg" alt="Rust 1.63.0+" />
 </a>
 
-<a href="https://github.com/ogham/exa/blob/master/LICENCE">
+<a href="https://github.com/cafkafk/eza/blob/master/LICENCE">
     <img src="https://img.shields.io/badge/licence-MIT-green" alt="MIT Licence" />
 </a>
 </h1></a>
@@ -180,8 +181,6 @@ If you’re unable to compile libgit2, you can opt out of Git support by running
 
 - If you intend to compile for musl, you will need to use the flag `vendored-openssl` if you want to get the Git feature working.
 The full command is `cargo build --release --target=x86_64-unknown-linux-musl --features vendored-openssl,git`.
-
-For more information, see the [Building from Source page](https://the.exa.website/install/source).
 
 ### Developing on Nix (experimental) ❄️
 
