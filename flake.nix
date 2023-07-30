@@ -31,7 +31,7 @@
         };
 
         treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
-      in {
+      in rec {
         # For `nix fmt`
         formatter = treefmtEval.config.build.wrapper;
 
@@ -69,6 +69,9 @@
         # for `nix flake check`
         checks = {
           formatting = treefmtEval.config.build.check self;
+          build = packages.check;
+          test = packages.test;
+          lint = packages.clippy;
         };
       }
     );
