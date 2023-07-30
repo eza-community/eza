@@ -160,6 +160,15 @@ impl DotFilter {
         let all_count = matches.count(&flags::ALL);
         let ls_all_count = matches.count(&flags::LS_ALL);
 
+        if matches.is_strict() {
+            return match (all_count, ls_all_count) {
+                (0, 0) => Ok(Self::JustFiles), // neither --all nor --all --all nor --almost-all
+                (1, 0) | (0, 1) => Ok(Self::Dotfiles), // either --all or --almost-all
+                (2, 0) => Ok(Self::DotfilesAndDots), // --all --all (but not --almost-all)
+                _ => Err(OptionsError::Conflict(&flags::ALL, &flags::LS_ALL)),
+            }
+        };
+
         match (all_count, ls_all_count) {
             (0, 0) => Ok(Self::JustFiles),
 
@@ -168,23 +177,17 @@ impl DotFilter {
             // Only --all
             (_, 0) if matches.count(&flags::TREE) > 0 => Err(OptionsError::TreeAllAll),
             // Only --all
-            (c, 0) if c >= 3 && matches.is_strict() => Err(OptionsError::Conflict(&flags::ALL, &flags::ALL)),
-            // Only --all
             (_, 0) => Ok(Self::DotfilesAndDots),
 
             // Only --ls-all
             (0, 1) => Ok(Self::Dotfiles),
             // Only --ls-all
-            (0, _) if matches.is_strict() => Err(OptionsError::Conflict(&flags::LS_ALL, &flags::LS_ALL)),
-            // Only --ls-all
             (0, _) => Ok(Self::Dotfiles),
 
             // --all is actually the same as --ls-all
-            (1, 1) if matches.is_strict() => Err(OptionsError::Conflict(&flags::ALL, &flags::LS_ALL)),
-            // --all is actually the same as --ls-all
             (1, 1) => Ok(Self::Dotfiles),
 
-            (_, _) => Err(OptionsError::Conflict(&flags::ALL, &flags::LS_ALL)),
+            _ => Err(OptionsError::Conflict(&flags::ALL, &flags::LS_ALL)),
         }
     }
 }
