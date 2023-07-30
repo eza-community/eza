@@ -2,14 +2,14 @@ name: Unit tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths:
       - '.github/workflows/*'
       - 'src/**'
       - 'Cargo.*'
       - build.rs
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
     paths:
       - '.github/workflows/*'
       - 'src/**'
@@ -28,7 +28,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        rust: [1.56.1, stable, beta, nightly]
+        rust: [1.71.0, stable, beta, nightly]
 
     steps:
       - name: Checkout repository

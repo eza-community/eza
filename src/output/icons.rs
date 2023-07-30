@@ -57,9 +57,10 @@ lazy_static! {
         m.insert(".gitconfig", '\u{f1d3}'); // 
         m.insert(".github", '\u{f408}'); // 
         m.insert(".gitignore", '\u{f1d3}'); // 
+        m.insert(".gitignore_global", '\u{f1d3}'); // 
         m.insert(".gitmodules", '\u{f1d3}'); // 
         m.insert(".rvm", '\u{e21e}'); // 
-        m.insert(".vimrc", '\u{e62b}'); // 
+        m.insert(".vimrc", '\u{e7c5}'); // 
         m.insert(".vscode", '\u{e70c}'); // 
         m.insert(".zshrc", '\u{f489}'); // 
         m.insert(".emacs", '\u{e632}'); // 
@@ -69,6 +70,7 @@ lazy_static! {
         m.insert("config", '\u{e5fc}'); // 
         m.insert("docker-compose.yml", '\u{f308}'); // 
         m.insert("Dockerfile", '\u{f308}'); // 
+        m.insert("Earthfile", '\u{f30d}'); // 🌍
         m.insert("ds_store", '\u{f179}'); // 
         m.insert("gitignore_global", '\u{f1d3}'); // 
         m.insert("go.mod", '\u{e626}'); // 
@@ -90,6 +92,7 @@ lazy_static! {
         m.insert("PKGBUILD", '\u{f303}'); // 
         m.insert("rubydoc", '\u{e73b}'); // 
         m.insert("yarn.lock", '\u{e718}'); // 
+        m.insert("Vagrantfile", '\u{2371}'); //⍱
 
         m
     };
@@ -104,7 +107,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "bin"           => '\u{e5fc}', // 
             ".git"          => '\u{f1d3}', // 
             ".idea"         => '\u{e7b5}', // 
-            _               => '\u{f115}'  // 
+            _               => '\u{f413}'  // 
         }
     }
     else if let Some(icon) = extensions.icon_file(file) { icon }
@@ -306,6 +309,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "rspec_parallel"=> '\u{e21e}', // 
             "rspec_status"  => '\u{e21e}', // 
             "rss"           => '\u{f09e}', // 
+            "rst"           => '\u{f15c}', // 
             "rtf"           => '\u{f718}', // 
             "ru"            => '\u{e21e}', // 
             "rubydoc"       => '\u{e73b}', // 
@@ -345,7 +349,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "tz"            => '\u{f410}', // 
             "tzo"           => '\u{f410}', // 
             "video"         => '\u{f03d}', // 
-            "vim"           => '\u{e62b}', // 
+            "vim"           => '\u{e7c5}', // 
             "vue"           => '\u{fd42}', // ﵂
             "war"           => '\u{e256}', // 
             "wav"           => '\u{f001}', // 
@@ -362,6 +366,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "xz"            => '\u{f410}', // 
             "yaml"          => '\u{f481}', // 
             "yml"           => '\u{f481}', // 
+            "zig"           => '\u{21af}', // ↯
             "zip"           => '\u{f410}', // 
             "zsh"           => '\u{f489}', // 
             "zsh-theme"     => '\u{f489}', // 
