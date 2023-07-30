@@ -307,6 +307,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "readme"        => '\u{f48a}', // 
             "rlib"          => '\u{e7a8}', // 
             "rmd"           => '\u{f48a}', // 
+            "rmeta"         => '\u{e7a8}', // 
             "rpm"           => '\u{e7bb}', // 
             "rs"            => '\u{e7a8}', // 
             "rspec"         => '\u{e21e}', // 
