@@ -159,10 +159,7 @@ impl DotFilter {
     /// `--almost-all` binds stronger than multiple `--all` as we currently do not take the order
     /// of arguments into account and it is the safer option (does not clash with `--tree`)
     pub fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let all_count = matches.count(&flags::ALL);
-        let ls_all_count = matches.has(&flags::ALMOST_ALL)?;
-
-        match (all_count, ls_all_count) {
+        match (matches.count(&flags::ALL), matches.has(&flags::ALMOST_ALL)?) {
             (0, false) => Ok(Self::JustFiles),
 
             // either a single --all or at least one --almost-all is given
