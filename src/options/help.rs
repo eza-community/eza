@@ -24,6 +24,7 @@ DISPLAY OPTIONS
   --colo[u]r-scale   highlight levels of file sizes distinctly
   --icons            display icons
   --no-icons         don't display icons (always overrides --icons)
+  --hyperlink        display entries as hyperlinks
 
 FILTERING AND SORTING OPTIONS
   -a, --all                  show hidden and 'dot' files
@@ -41,35 +42,35 @@ FILTERING AND SORTING OPTIONS
                              date, time, old, and new all refer to modified.
 
 LONG VIEW OPTIONS
-  -b, --binary         list file sizes with binary prefixes
-  -B, --bytes          list file sizes in bytes, without any prefixes
-  -g, --group          list each file's group
-  -h, --header         add a header row to each column
-  -H, --links          list each file's number of hard links
-  -i, --inode          list each file's inode number
-  -m, --modified       use the modified timestamp field
-  -n, --numeric        list numeric user and group IDs
-  -S, --blocks         show number of file system blocks
-  -t, --time FIELD     which timestamp field to list (modified, accessed, created)
-  -u, --accessed       use the accessed timestamp field
-  -U, --created        use the created timestamp field
-  --changed            use the changed timestamp field
-  --time-style         how to format timestamps (default, iso, long-iso, full-iso)
-  --no-permissions     suppress the permissions field
-  --octal-permissions  list each file's permission in octal format
-  --no-filesize        suppress the filesize field
-  --no-user            suppress the user field
-  --no-time            suppress the time field";
+  -b, --binary             list file sizes with binary prefixes
+  -B, --bytes              list file sizes in bytes, without any prefixes
+  -g, --group              list each file's group
+  -h, --header             add a header row to each column
+  -H, --links              list each file's number of hard links
+  -i, --inode              list each file's inode number
+  -m, --modified           use the modified timestamp field
+  -n, --numeric            list numeric user and group IDs
+  -S, --blocks             show number of file system blocks
+  -t, --time FIELD         which timestamp field to list (modified, accessed, created)
+  -u, --accessed           use the accessed timestamp field
+  -U, --created            use the created timestamp field
+  --changed                use the changed timestamp field
+  --time-style             how to format timestamps (default, iso, long-iso, full-iso)
+  --no-permissions         suppress the permissions field
+  -o, --octal-permissions  list each file's permission in octal format
+  --no-filesize            suppress the filesize field
+  --no-user                suppress the user field
+  --no-time                suppress the time field";
 
 static GIT_FILTER_HELP: &str = "  --git-ignore               ignore files mentioned in '.gitignore'";
 static GIT_VIEW_HELP:   &str = "  --git                list each file's Git status, if tracked or ignored";
 static EXTENDED_HELP:   &str = "  -@, --extended       list each file's extended attributes and sizes";
-
+static SECATTR_HELP:    &str = "  -Z, --context        list each file's security context";
 
 /// All the information needed to display the help text, which depends
 /// on which features are enabled and whether the user only wants to
 /// see one section’s help.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub struct HelpString;
 
 impl HelpString {
@@ -110,6 +111,7 @@ impl fmt::Display for HelpString {
 
         if xattr::ENABLED {
             write!(f, "\n{}", EXTENDED_HELP)?;
+            write!(f, "\n{}", SECATTR_HELP)?;
         }
 
         writeln!(f)

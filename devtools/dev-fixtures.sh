@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # This file contains the text fixtures — the known, constant data — that are
 # used when setting up the environment that exa’s tests get run in.
 
