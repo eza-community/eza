@@ -82,9 +82,12 @@ If you already have a Rust environment set up, you can use the `cargo install` c
 Cargo will build the `eza` binary and place it in `$HOME/.cargo`.
 
 ---
+Click sections to expand.
+
+<a id="options">
 <details>
     <summary> Command-line options </summary>
-<a id="options">
+
 <h1>Command-line options</h1>
 </a>
 
@@ -154,9 +157,9 @@ Some of the options accept parameters:
 
 </details>
 
+<a id="development">
 <details>
     <summary> Development </summary>
-<a id="development">
 <h1>Development
 
 <a href="https://blog.rust-lang.org/2022/08/11/Rust-1.63.0.html">
