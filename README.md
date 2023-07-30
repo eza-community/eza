@@ -26,7 +26,7 @@ By deliberately making some decisions differently, eza attempts to be a more fea
 
 **eza** features not in exa (non-exhaustive):
 
- -   Fixes [“The Grid Bug”](https://github.com/cafkafk/eza/issues/66#issuecomment-1656758327) introduced in exa.
+ -   Fixes [“The Grid Bug”](https://github.com/cafkafk/eza/issues/66#issuecomment-1656758327) introduced in exa 2021.
  -   Hyperlink support.
  -   Selinux context output.
  -   Git repo status output.
