@@ -57,6 +57,7 @@ lazy_static! {
         m.insert(".gitconfig", '\u{f1d3}'); // 
         m.insert(".github", '\u{f408}'); // 
         m.insert(".gitignore", '\u{f1d3}'); // 
+        m.insert(".gitignore_global", '\u{f1d3}'); // 
         m.insert(".gitmodules", '\u{f1d3}'); // 
         m.insert(".rvm", '\u{e21e}'); // 
         m.insert(".vimrc", '\u{e62b}'); // 
@@ -88,6 +89,7 @@ lazy_static! {
         m.insert("PKGBUILD", '\u{f303}'); // 
         m.insert("rubydoc", '\u{e73b}'); // 
         m.insert("yarn.lock", '\u{e718}'); // 
+        m.insert("Vagrantfile", '\u{2371}'); //⍱
 
         m
     };
@@ -360,6 +362,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "xz"            => '\u{f410}', // 
             "yaml"          => '\u{f481}', // 
             "yml"           => '\u{f481}', // 
+            "zig"           => '\u{21af}', // ↯
             "zip"           => '\u{f410}', // 
             "zsh"           => '\u{f489}', // 
             "zsh-theme"     => '\u{f489}', // 
