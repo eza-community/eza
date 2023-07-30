@@ -53,7 +53,7 @@ pub static CREATED:    Arg = Arg { short: Some(b'U'), long: "created",    takes_
 pub static TIME_STYLE: Arg = Arg { short: None,       long: "time-style", takes_value: TakesValue::Necessary(Some(TIME_STYLES)) };
 pub static HYPERLINK:  Arg = Arg { short: None,       long: "hyperlink",  takes_value: TakesValue::Forbidden};
 const TIMES: Values = &["modified", "changed", "accessed", "created"];
-const TIME_STYLES: Values = &["default", "long-iso", "full-iso", "iso"];
+const TIME_STYLES: Values = &["default", "long-iso", "full-iso", "iso", "relative"];
 
 // suppressing columns
 pub static NO_PERMISSIONS: Arg = Arg { short: None, long: "no-permissions", takes_value: TakesValue::Forbidden };

@@ -80,6 +80,7 @@ complete -c eza        -l 'time-style'    -d "How to format timestamps" -x -a "
     iso\t'Display brief ISO timestamps'
     long-iso\t'Display longer ISO timestaps, up to the minute'
     full-iso\t'Display full ISO timestamps, up to the nanosecond'
+    relative\t'Display relative timestamps'
 "
 complete -c eza        -l 'no-permissions'    -d "Suppress the permissions field"
 complete -c eza -s 'o' -l 'octal-permissions' -d "List each file's permission in octal format"
