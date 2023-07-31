@@ -3,6 +3,9 @@
 //! Currently this is dependent on the file’s name and extension, because
 //! those are the only metadata that we have access to without reading the
 //! file’s contents.
+//!
+//! # Contributors
+//! Please keep these lists sorted. If you're using vim, :sort i
 
 use ansi_term::Style;
 
@@ -25,7 +28,6 @@ impl FileExtensions {
             || file.name.ends_with(".ninja")
             || matches!(
                 file.name.as_str(),
-                // This should be sorted, e.g. vim :sort i
                 "BUILD"
                     | "Brewfile"
                     | "bsconfig.json"
@@ -74,64 +76,182 @@ impl FileExtensions {
 
     fn is_image(&self, file: &File<'_>) -> bool {
         file.extension_is_one_of( &[
-            "png", "jfi", "jfif", "jif", "jpe", "jpeg", "jpg", "gif", "bmp",
-            "tiff", "tif", "ppm", "pgm", "pbm", "pnm", "webp", "raw", "arw",
-            "svg", "stl", "eps", "dvi", "ps", "cbr", "jpf", "cbz", "xpm",
-            "ico", "cr2", "orf", "nef", "heif", "avif", "jxl", "j2k", "jp2",
-            "j2c", "jpx",
+            "arw",
+            "avif",
+            "bmp",
+            "cbr",
+            "cbz",
+            "cr2",
+            "dvi",
+            "eps",
+            "gif",
+            "heif",
+            "ico",
+            "j2c",
+            "j2k",
+            "jfi",
+            "jfif",
+            "jif",
+            "jp2",
+            "jpe",
+            "jpeg",
+            "jpf",
+            "jpg",
+            "jpx",
+            "jxl",
+            "nef",
+            "orf",
+            "pbm",
+            "pgm",
+            "png",
+            "pnm",
+            "ppm",
+            "ps",
+            "raw",
+            "stl",
+            "svg",
+            "tif",
+            "tiff",
+            "webp",
+            "xpm",
         ])
     }
 
     fn is_video(&self, file: &File<'_>) -> bool {
         file.extension_is_one_of( &[
-            "avi", "flv", "m2v", "m4v", "mkv", "mov", "mp4", "mpeg",
-            "mpg", "ogm", "ogv", "vob", "wmv", "webm", "m2ts", "heic",
+            "avi",
+            "flv",
+            "heic",
+            "m2ts",
+            "m2v",
+            "m4v",
+            "mkv",
+            "mov",
+            "mp4",
+            "mpeg",
+            "mpg",
+            "ogm",
+            "ogv",
+            "vob",
+            "webm",
+            "wmv",
         ])
     }
 
     fn is_music(&self, file: &File<'_>) -> bool {
         file.extension_is_one_of( &[
-            "aac", "m4a", "mp2", "mp3", "ogg", "wma", "mka", "opus",
+            "aac",
+            "m4a",
+            "mka",
+            "mp2",
+            "mp3",
+            "ogg",
+            "opus",
+            "wma",
         ])
     }
 
     // Lossless music, rather than any other kind of data...
     fn is_lossless(&self, file: &File<'_>) -> bool {
         file.extension_is_one_of( &[
-            "alac", "ape", "flac", "wav",
+            "alac",
+            "ape",
+            "flac",
+            "wav",
         ])
     }
 
     fn is_crypto(&self, file: &File<'_>) -> bool {
         file.extension_is_one_of( &[
-            "asc", "enc", "gpg", "pgp", "sig", "signature", "pfx", "p12",
+            "asc",
+            "enc",
+            "gpg",
+            "p12",
+            "pfx",
+            "pgp",
+            "sig",
+            "signature",
         ])
     }
 
     fn is_document(&self, file: &File<'_>) -> bool {
         file.extension_is_one_of( &[
-            "djvu", "doc", "docx", "dvi", "eml", "eps", "fotd", "key",
-            "keynote", "numbers", "odp", "odt", "pages", "pdf", "ppt",
-            "pptx", "rtf", "xls", "xlsx",
+            "djvu",
+            "doc",
+            "docx",
+            "dvi",
+            "eml",
+            "eps",
+            "fotd",
+            "key",
+            "keynote",
+            "numbers",
+            "odp",
+            "odt",
+            "pages",
+            "pdf",
+            "ppt",
+            "pptx",
+            "rtf",
+            "xls",
+            "xlsx",
         ])
     }
 
     fn is_compressed(&self, file: &File<'_>) -> bool {
         file.extension_is_one_of( &[
-            "zip", "tar", "Z", "z", "gz", "bz2", "a", "ar", "7z",
-            "iso", "dmg", "tc", "rar", "par", "tgz", "xz", "txz",
-            "lz", "tlz", "lzma", "deb", "rpm", "zst", "lz4", "cpio",
+            "zip",
+            "tar",
+            "Z",
+            "z",
+            "gz",
+            "bz2",
+            "a",
+            "ar",
+            "7z",
+            "iso",
+            "dmg",
+            "tc",
+            "rar",
+            "par",
+            "tgz",
+            "xz",
+            "txz",
+            "lz",
+            "tlz",
+            "lzma",
+            "deb",
+            "rpm",
+            "zst",
+            "lz4",
+            "cpio",
         ])
     }
 
     fn is_temp(&self, file: &File<'_>) -> bool {
         file.name.ends_with('~')
             || (file.name.starts_with('#') && file.name.ends_with('#'))
-            || file.extension_is_one_of( &[ "tmp", "swp", "swo", "swn", "bak", "bkp", "bk" ])
+            || file.extension_is_one_of( &[
+                "bak",
+                "bk"
+                "bkp",
+                "swn",
+                "swo",
+                "swp",
+                "tmp",
+            ])
     }
 
     fn is_compiled(&self, file: &File<'_>) -> bool {
-        if file.extension_is_one_of( &[ "class", "elc", "hi", "o", "pyc", "zwc", "ko" ]) {
+        if file.extension_is_one_of( &[
+            "class",
+            "elc",
+            "hi",
+            "ko"
+            "o",
+            "pyc",
+            "zwc",
+        ]) {
             true
         }
         else if let Some(dir) = file.parent_dir {
@@ -148,16 +268,16 @@ impl FileColours for FileExtensions {
         use ansi_term::Colour::*;
 
         Some(match file {
-            f if self.is_temp(f)        => White.normal(),
-            f if self.is_immediate(f)   => Yellow.bold().underline(),
-            f if self.is_image(f)       => Purple.normal(),
-            f if self.is_video(f)       => Purple.bold(),
-            f if self.is_music(f)       => Cyan.normal(),
-            f if self.is_lossless(f)    => Cyan.bold(),
+            f if self.is_compiled(f)    => Yellow.normal(),
+            f if self.is_compressed(f)  => Red.normal(),
             f if self.is_crypto(f)      => Green.bold(),
             f if self.is_document(f)    => Green.normal(),
-            f if self.is_compressed(f)  => Red.normal(),
-            f if self.is_compiled(f)    => Yellow.normal(),
+            f if self.is_image(f)       => Purple.normal(),
+            f if self.is_immediate(f)   => Yellow.bold().underline(),
+            f if self.is_lossless(f)    => Cyan.bold(),
+            f if self.is_music(f)       => Cyan.normal(),
+            f if self.is_temp(f)        => White.normal(),
+            f if self.is_video(f)       => Purple.bold(),
             _                           => return None,
         })
     }
