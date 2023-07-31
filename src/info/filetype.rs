@@ -51,6 +51,7 @@ impl FileExtensions {
                     | "Gruntfile.coffee"
                     | "Gruntfile.js"
                     | "Justfile"
+                    | "justfile"
                     | "Makefile"
                     | "makefile"
                     | "Makefile.in"
@@ -107,6 +108,7 @@ impl FileExtensions {
             "pnm",
             "ppm",
             "ps",
+            "pxm",
             "raw",
             "stl",
             "svg",
@@ -200,31 +202,40 @@ impl FileExtensions {
 
     fn is_compressed(&self, file: &File<'_>) -> bool {
         file.extension_is_one_of( &[
-            "zip",
-            "tar",
-            "Z",
-            "z",
-            "gz",
-            "bz2",
+            "7z",
             "a",
             "ar",
-            "7z",
-            "iso",
-            "dmg",
-            "tc",
-            "rar",
-            "par",
-            "tgz",
-            "xz",
-            "txz",
-            "lz",
-            "tlz",
-            "lzma",
-            "deb",
-            "rpm",
-            "zst",
-            "lz4",
+            "bz",
+            "bz2",
+            "bz3",
             "cpio",
+            "deb",
+            "dmg",
+            "gz",
+            "iso",
+            "lz",
+            "lz4",
+            "lzh",
+            "lzma",
+            "lzo",
+            "par",
+            "rar",
+            "rpm",
+            "tar",
+            "taz",
+            "tbz",
+            "tbz2",
+            "tc",
+            "tgz",
+            "tlz",
+            "txz",
+            "tz",
+            "tzo",
+            "xz",
+            "Z",
+            "z",
+            "zip",
+            "zst",
         ])
     }
 
@@ -295,6 +306,9 @@ impl FileIcon for FileExtensions {
         }
         else if self.is_video(file) {
             Some(Icons::Video.value())
+        }
+        else if self.is_compressed(file) {
+            Some(Icons::Compressed.value())
         }
         else {
             None
