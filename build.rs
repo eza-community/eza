@@ -22,8 +22,8 @@ use datetime::{LocalDateTime, ISO};
 fn main() -> io::Result<()> {
     #![allow(clippy::write_with_newline)]
 
-    let tagline = "exa - list files on the command-line";
-    let url     = "https://the.exa.website/";
+    let tagline = "eza - A modern, maintained replacement for ls";
+    let url     = "https://github.com/cafkafk/eza";
 
     let ver =
         if is_debug_build() {
