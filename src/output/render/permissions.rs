@@ -10,8 +10,9 @@ pub trait PermissionsPlusRender {
     fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> TextCell;
 }
 
+#[cfg(unix)]
 impl PermissionsPlusRender for Option<f::PermissionsPlus> {
-    fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> TextCell {
+    pub fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> TextCell {
         match self {
             Some(p) => {
                 let mut chars = vec![ p.file_type.render(colours) ];
@@ -37,6 +38,17 @@ impl PermissionsPlusRender for Option<f::PermissionsPlus> {
                     contents: chars.into(),
                 }
             }
+        }
+    }
+
+    #[cfg(windows)]
+    pub fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> TextCell {
+        let mut chars = vec![ self.attributes.render_type(colours) ];
+        chars.extend(self.attributes.render(colours));
+
+        TextCell {
+            width:    DisplayWidth::from(chars.len()),
+            contents: chars.into(),
         }
     }
 }
@@ -104,6 +116,34 @@ impl f::Permissions {
     }
 }
 
+#[cfg(windows)]
+impl f::Attributes {
+    pub fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> Vec<ANSIString<'static>> {
+        let bit = |bit, chr: &'static str, style: Style| {
+            if bit { style.paint(chr) }
+              else { colours.dash().paint("-") }
+        };
+
+        vec![
+            bit(self.archive,   "a", colours.normal()),
+            bit(self.readonly,  "r", colours.user_read()),
+            bit(self.hidden,    "h", colours.special_user_file()),
+            bit(self.system,    "s", colours.special_other()),
+        ]
+    }
+
+    pub fn render_type<C: Colours+FiletypeColours>(&self, colours: &C) -> ANSIString<'static> {
+        if self.reparse_point {
+            return colours.pipe().paint("l")
+        }
+        else if self.directory {
+            return colours.directory().paint("d")
+        }
+        else {
+            return colours.dash().paint("-")
+        }
+    }
+}
 
 pub trait Colours {
     fn dash(&self) -> Style;

@@ -118,6 +118,7 @@ impl details::Options {
             table: None,
             header: false,
             xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
+            secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
         };
 
         Ok(details)
@@ -137,6 +138,7 @@ impl details::Options {
             table: Some(TableOptions::deduce(matches, vars)?),
             header: matches.has(&flags::HEADER)?,
             xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
+            secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
         })
     }
 }
@@ -200,19 +202,23 @@ impl TableOptions {
 impl Columns {
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
         let time_types = TimeTypes::deduce(matches)?;
-        let git = matches.has(&flags::GIT)?;
 
-        let blocks = matches.has(&flags::BLOCKS)?;
-        let group  = matches.has(&flags::GROUP)?;
-        let inode  = matches.has(&flags::INODE)?;
-        let links  = matches.has(&flags::LINKS)?;
-        let octal  = matches.has(&flags::OCTAL)?;
+        let git = matches.has(&flags::GIT)?;
+        let subdir_git_repos = matches.has(&flags::GIT_REPOS)?;
+        let subdir_git_repos_no_stat = !subdir_git_repos && matches.has(&flags::GIT_REPOS_NO_STAT)?;
+
+        let blocks           = matches.has(&flags::BLOCKS)?;
+        let group            = matches.has(&flags::GROUP)?;
+        let inode            = matches.has(&flags::INODE)?;
+        let links            = matches.has(&flags::LINKS)?;
+        let octal            = matches.has(&flags::OCTAL)?;
+        let security_context = xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?;
 
         let permissions = ! matches.has(&flags::NO_PERMISSIONS)?;
         let filesize =    ! matches.has(&flags::NO_FILESIZE)?;
         let user =        ! matches.has(&flags::NO_USER)?;
 
-        Ok(Self { time_types, inode, links, blocks, group, git, octal, permissions, filesize, user })
+        Ok(Self { time_types, inode, links, blocks, group, git, subdir_git_repos, subdir_git_repos_no_stat, octal, security_context, permissions, filesize, user })
     }
 }
 
@@ -255,20 +261,13 @@ impl TimeFormat {
                 }
             };
 
-        if &word == "default" {
-            Ok(Self::DefaultFormat)
-        }
-        else if &word == "iso" {
-            Ok(Self::ISOFormat)
-        }
-        else if &word == "long-iso" {
-            Ok(Self::LongISO)
-        }
-        else if &word == "full-iso" {
-            Ok(Self::FullISO)
-        }
-        else {
-            Err(OptionsError::BadArgument(&flags::TIME_STYLE, word))
+        match word.to_string_lossy().as_ref() {
+            "default"  => Ok(Self::DefaultFormat),
+            "relative" => Ok(Self::Relative),
+            "iso"      => Ok(Self::ISOFormat),
+            "long-iso" => Ok(Self::LongISO),
+            "full-iso" => Ok(Self::FullISO),
+            _ => Err(OptionsError::BadArgument(&flags::TIME_STYLE, word))
         }
     }
 }
@@ -379,7 +378,7 @@ mod test {
 
         ($name:ident: $type:ident <- $inputs:expr; $stricts:expr => err $result:expr) => {
             /// Special macro for testing Err results.
-            /// This is needed because sometimes the Ok type doesn’t implement PartialEq.
+            /// This is needed because sometimes the Ok type doesn’t implement `PartialEq`.
             #[test]
             fn $name() {
                 for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| $type::deduce(mf)) {
@@ -390,7 +389,7 @@ mod test {
 
         ($name:ident: $type:ident <- $inputs:expr; $stricts:expr => like $pat:pat) => {
             /// More general macro for testing against a pattern.
-            /// Instead of using PartialEq, this just tests if it matches a pat.
+            /// Instead of using `PartialEq`, this just tests if it matches a pat.
             #[test]
             fn $name() {
                 for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| $type::deduce(mf)) {
@@ -465,6 +464,7 @@ mod test {
         // Individual settings
         test!(default:   TimeFormat <- ["--time-style=default"], None;      Both => like Ok(TimeFormat::DefaultFormat));
         test!(iso:       TimeFormat <- ["--time-style", "iso"], None;       Both => like Ok(TimeFormat::ISOFormat));
+        test!(relative:  TimeFormat <- ["--time-style", "relative"], None;  Both => like Ok(TimeFormat::Relative));
         test!(long_iso:  TimeFormat <- ["--time-style=long-iso"], None;     Both => like Ok(TimeFormat::LongISO));
         test!(full_iso:  TimeFormat <- ["--time-style", "full-iso"], None;  Both => like Ok(TimeFormat::FullISO));
 
