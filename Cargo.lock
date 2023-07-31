@@ -59,7 +59,7 @@ dependencies = [
 
 [[package]]
 name = "eza"
-version = "0.10.2"
+version = "0.10.3"
 dependencies = [
  "ansi_term",
  "datetime",
