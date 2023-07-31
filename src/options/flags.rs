@@ -6,13 +6,14 @@ pub static VERSION: Arg = Arg { short: Some(b'v'), long: "version",  takes_value
 pub static HELP:    Arg = Arg { short: Some(b'?'), long: "help",     takes_value: TakesValue::Forbidden };
 
 // display options
-pub static ONE_LINE: Arg = Arg { short: Some(b'1'), long: "oneline",  takes_value: TakesValue::Forbidden };
-pub static LONG:     Arg = Arg { short: Some(b'l'), long: "long",     takes_value: TakesValue::Forbidden };
-pub static GRID:     Arg = Arg { short: Some(b'G'), long: "grid",     takes_value: TakesValue::Forbidden };
-pub static ACROSS:   Arg = Arg { short: Some(b'x'), long: "across",   takes_value: TakesValue::Forbidden };
-pub static RECURSE:  Arg = Arg { short: Some(b'R'), long: "recurse",  takes_value: TakesValue::Forbidden };
-pub static TREE:     Arg = Arg { short: Some(b'T'), long: "tree",     takes_value: TakesValue::Forbidden };
-pub static CLASSIFY: Arg = Arg { short: Some(b'F'), long: "classify", takes_value: TakesValue::Forbidden };
+pub static ONE_LINE:    Arg = Arg { short: Some(b'1'), long: "oneline",     takes_value: TakesValue::Forbidden };
+pub static LONG:        Arg = Arg { short: Some(b'l'), long: "long",        takes_value: TakesValue::Forbidden };
+pub static GRID:        Arg = Arg { short: Some(b'G'), long: "grid",        takes_value: TakesValue::Forbidden };
+pub static ACROSS:      Arg = Arg { short: Some(b'x'), long: "across",      takes_value: TakesValue::Forbidden };
+pub static RECURSE:     Arg = Arg { short: Some(b'R'), long: "recurse",     takes_value: TakesValue::Forbidden };
+pub static TREE:        Arg = Arg { short: Some(b'T'), long: "tree",        takes_value: TakesValue::Forbidden };
+pub static CLASSIFY:    Arg = Arg { short: Some(b'F'), long: "classify",    takes_value: TakesValue::Forbidden };
+pub static DEREF_LINKS: Arg = Arg { short: Some(b'X'), long: "dereference", takes_value: TakesValue::Forbidden };
 
 pub static COLOR:  Arg = Arg { short: None, long: "color",  takes_value: TakesValue::Necessary(Some(COLOURS)) };
 pub static COLOUR: Arg = Arg { short: None, long: "colour", takes_value: TakesValue::Necessary(Some(COLOURS)) };
@@ -23,6 +24,7 @@ pub static COLOUR_SCALE: Arg = Arg { short: None, long: "colour-scale", takes_va
 
 // filtering and sorting options
 pub static ALL:         Arg = Arg { short: Some(b'a'), long: "all",         takes_value: TakesValue::Forbidden };
+pub static ALMOST_ALL:  Arg = Arg { short: Some(b'A'), long: "almost-all",  takes_value: TakesValue::Forbidden };
 pub static LIST_DIRS:   Arg = Arg { short: Some(b'd'), long: "list-dirs",   takes_value: TakesValue::Forbidden };
 pub static LEVEL:       Arg = Arg { short: Some(b'L'), long: "level",       takes_value: TakesValue::Necessary(None) };
 pub static REVERSE:     Arg = Arg { short: Some(b'r'), long: "reverse",     takes_value: TakesValue::Forbidden };
@@ -51,8 +53,9 @@ pub static TIME:       Arg = Arg { short: Some(b't'), long: "time",       takes_
 pub static ACCESSED:   Arg = Arg { short: Some(b'u'), long: "accessed",   takes_value: TakesValue::Forbidden };
 pub static CREATED:    Arg = Arg { short: Some(b'U'), long: "created",    takes_value: TakesValue::Forbidden };
 pub static TIME_STYLE: Arg = Arg { short: None,       long: "time-style", takes_value: TakesValue::Necessary(Some(TIME_STYLES)) };
+pub static HYPERLINK:  Arg = Arg { short: None,       long: "hyperlink",  takes_value: TakesValue::Forbidden};
 const TIMES: Values = &["modified", "changed", "accessed", "created"];
-const TIME_STYLES: Values = &["default", "long-iso", "full-iso", "iso"];
+const TIME_STYLES: Values = &["default", "long-iso", "full-iso", "iso", "relative"];
 
 // suppressing columns
 pub static NO_PERMISSIONS: Arg = Arg { short: None, long: "no-permissions", takes_value: TakesValue::Forbidden };
@@ -62,23 +65,26 @@ pub static NO_TIME: Arg = Arg { short: None, long: "no-time", takes_value: Takes
 pub static NO_ICONS: Arg = Arg { short: None, long: "no-icons", takes_value: TakesValue::Forbidden };
 
 // optional feature options
-pub static GIT:       Arg = Arg { short: None,       long: "git",               takes_value: TakesValue::Forbidden };
-pub static EXTENDED:  Arg = Arg { short: Some(b'@'), long: "extended",          takes_value: TakesValue::Forbidden };
-pub static OCTAL:     Arg = Arg { short: None,       long: "octal-permissions", takes_value: TakesValue::Forbidden };
+pub static GIT:               Arg = Arg { short: None,       long: "git",                  takes_value: TakesValue::Forbidden };
+pub static GIT_REPOS:         Arg = Arg { short: None,       long: "git-repos",            takes_value: TakesValue::Forbidden };
+pub static GIT_REPOS_NO_STAT: Arg = Arg { short: None,       long: "git-repos-no-status",  takes_value: TakesValue::Forbidden };
+pub static EXTENDED:          Arg = Arg { short: Some(b'@'), long: "extended",             takes_value: TakesValue::Forbidden };
+pub static OCTAL:             Arg = Arg { short: Some(b'o'), long: "octal-permissions",    takes_value: TakesValue::Forbidden };
+pub static SECURITY_CONTEXT:  Arg = Arg { short: Some(b'Z'), long: "context",              takes_value: TakesValue::Forbidden };
 
 
 pub static ALL_ARGS: Args = Args(&[
     &VERSION, &HELP,
 
-    &ONE_LINE, &LONG, &GRID, &ACROSS, &RECURSE, &TREE, &CLASSIFY,
+    &ONE_LINE, &LONG, &GRID, &ACROSS, &RECURSE, &TREE, &CLASSIFY, &DEREF_LINKS,
     &COLOR, &COLOUR, &COLOR_SCALE, &COLOUR_SCALE,
 
-    &ALL, &LIST_DIRS, &LEVEL, &REVERSE, &SORT, &DIRS_FIRST,
+    &ALL, &ALMOST_ALL, &LIST_DIRS, &LEVEL, &REVERSE, &SORT, &DIRS_FIRST,
     &IGNORE_GLOB, &GIT_IGNORE, &ONLY_DIRS,
 
     &BINARY, &BYTES, &GROUP, &NUMERIC, &HEADER, &ICONS, &INODE, &LINKS, &MODIFIED, &CHANGED,
-    &BLOCKS, &TIME, &ACCESSED, &CREATED, &TIME_STYLE,
+    &BLOCKS, &TIME, &ACCESSED, &CREATED, &TIME_STYLE, &HYPERLINK,
     &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &NO_ICONS,
 
-    &GIT, &EXTENDED, &OCTAL
+    &GIT, &GIT_REPOS, &GIT_REPOS_NO_STAT, &EXTENDED, &OCTAL, &SECURITY_CONTEXT
 ]);

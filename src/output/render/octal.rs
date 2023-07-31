@@ -3,26 +3,37 @@ use ansi_term::Style;
 use crate::fs::fields as f;
 use crate::output::cell::TextCell;
 
+pub trait Render {
+    fn render(&self, style: Style) -> TextCell;
+}
+
+impl Render for Option<f::OctalPermissions> {
+    fn render(&self, style: Style) -> TextCell {
+        match self {
+            Some(p) => {
+                let perm = &p.permissions;
+                let octal_sticky = f::OctalPermissions::bits_to_octal(perm.setuid, perm.setgid, perm.sticky);
+                let octal_owner  = f::OctalPermissions::bits_to_octal(perm.user_read, perm.user_write, perm.user_execute);
+                let octal_group  = f::OctalPermissions::bits_to_octal(perm.group_read, perm.group_write, perm.group_execute);
+                let octal_other  = f::OctalPermissions::bits_to_octal(perm.other_read, perm.other_write, perm.other_execute);
+
+                TextCell::paint(style, format!("{}{}{}{}", octal_sticky, octal_owner, octal_group, octal_other))
+            },
+            None => TextCell::paint(style, "----".into())
+        }
+    }
+}
 
 impl f::OctalPermissions {
     fn bits_to_octal(r: bool, w: bool, x: bool) -> u8 {
-        (r as u8) * 4 + (w as u8) * 2 + (x as u8)
-    }
-
-    pub fn render(&self, style: Style) -> TextCell {
-        let perm = &self.permissions;
-        let octal_sticky = Self::bits_to_octal(perm.setuid, perm.setgid, perm.sticky);
-        let octal_owner  = Self::bits_to_octal(perm.user_read, perm.user_write, perm.user_execute);
-        let octal_group  = Self::bits_to_octal(perm.group_read, perm.group_write, perm.group_execute);
-        let octal_other  = Self::bits_to_octal(perm.other_read, perm.other_write, perm.other_execute);
-
-        TextCell::paint(style, format!("{}{}{}{}", octal_sticky, octal_owner, octal_group, octal_other))
+        u8::from(r) * 4 + u8::from(w) * 2 + u8::from(x)
     }
 }
 
 
 #[cfg(test)]
 pub mod test {
+    use super::Render;
     use crate::output::cell::TextCell;
     use crate::fs::fields as f;
 
@@ -37,10 +48,10 @@ pub mod test {
             other_read: true, other_write: false, other_execute: true, sticky: false,
         };
 
-        let octal = f::OctalPermissions{ permissions: bits };
+        let octal = Some(f::OctalPermissions{ permissions: bits });
 
         let expected = TextCell::paint_str(Purple.bold(), "0755");
-        assert_eq!(expected, octal.render(Purple.bold()).into());
+        assert_eq!(expected, octal.render(Purple.bold()));
     }
 
     #[test]
@@ -51,10 +62,10 @@ pub mod test {
             other_read: true, other_write: false, other_execute: false, sticky: false,
         };
 
-        let octal = f::OctalPermissions{ permissions: bits };
+        let octal = Some(f::OctalPermissions{ permissions: bits });
 
         let expected = TextCell::paint_str(Purple.bold(), "0644");
-        assert_eq!(expected, octal.render(Purple.bold()).into());
+        assert_eq!(expected, octal.render(Purple.bold()));
     }
 
     #[test]
@@ -65,10 +76,10 @@ pub mod test {
             other_read: false, other_write: false, other_execute: false, sticky: false,
         };
 
-        let octal = f::OctalPermissions{ permissions: bits };
+        let octal = Some(f::OctalPermissions{ permissions: bits });
 
         let expected = TextCell::paint_str(Purple.bold(), "0600");
-        assert_eq!(expected, octal.render(Purple.bold()).into());
+        assert_eq!(expected, octal.render(Purple.bold()));
     }
 
     #[test]
@@ -79,10 +90,10 @@ pub mod test {
             other_read: true, other_write: true,  other_execute: true, sticky: false,
         };
 
-        let octal = f::OctalPermissions{ permissions: bits };
+        let octal = Some(f::OctalPermissions{ permissions: bits });
 
         let expected = TextCell::paint_str(Purple.bold(), "4777");
-        assert_eq!(expected, octal.render(Purple.bold()).into());
+        assert_eq!(expected, octal.render(Purple.bold()));
 
     }
 
@@ -94,10 +105,10 @@ pub mod test {
             other_read: true, other_write: true,  other_execute: true, sticky: false,
         };
 
-        let octal = f::OctalPermissions{ permissions: bits };
+        let octal = Some(f::OctalPermissions{ permissions: bits });
 
         let expected = TextCell::paint_str(Purple.bold(), "2777");
-        assert_eq!(expected, octal.render(Purple.bold()).into());
+        assert_eq!(expected, octal.render(Purple.bold()));
     }
 
     #[test]
@@ -108,9 +119,9 @@ pub mod test {
             other_read: true, other_write: true,  other_execute: true, sticky: true,
         };
 
-        let octal = f::OctalPermissions{ permissions: bits };
+        let octal = Some(f::OctalPermissions{ permissions: bits });
 
         let expected = TextCell::paint_str(Purple.bold(), "1777");
-        assert_eq!(expected, octal.render(Purple.bold()).into());
+        assert_eq!(expected, octal.render(Purple.bold()));
     }
 }
