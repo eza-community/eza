@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # This script creates a bunch of awkward test case files. It gets
 # automatically run as part of Vagrant provisioning.
 trap 'exit' ERR

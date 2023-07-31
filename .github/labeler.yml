@@ -1,0 +1,5 @@
+"features › icon":
+  - src/output/icons.rs 
+
+"packaging › snap":
+  - snap/**/*

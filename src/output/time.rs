@@ -1,8 +1,10 @@
 //! Timestamp formatting.
 
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::convert::TryInto;
+use std::cmp::max;
+use std::time::{SystemTime, UNIX_EPOCH, Duration};
 
-use datetime::{LocalDateTime, TimeZone, DatePiece, TimePiece};
+use datetime::{LocalDateTime, TimeZone, DatePiece, TimePiece, Instant};
 use datetime::fmt::DateFormat;
 
 use lazy_static::lazy_static;
@@ -25,7 +27,7 @@ use unicode_width::UnicodeWidthStr;
 ///
 /// Currently exa does not support *custom* styles, where the user enters a
 /// format string in an environment variable or something. Just these four.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum TimeFormat {
 
     /// The **default format** uses the user’s locale to print month names,
@@ -46,6 +48,9 @@ pub enum TimeFormat {
     /// millisecond and includes its offset down to the minute. This too uses
     /// only numbers so doesn’t require any special consideration.
     FullISO,
+
+    /// Use a relative but fixed width representation.
+    Relative,
 }
 
 // There are two different formatting functions because local and zoned
@@ -58,6 +63,7 @@ impl TimeFormat {
             Self::ISOFormat      => iso_local(time),
             Self::LongISO        => long_local(time),
             Self::FullISO        => full_local(time),
+            Self::Relative       => relative(time),
         }
     }
 
@@ -67,6 +73,7 @@ impl TimeFormat {
             Self::ISOFormat      => iso_zoned(time, zone),
             Self::LongISO        => long_zoned(time, zone),
             Self::FullISO        => full_zoned(time, zone),
+            Self::Relative       => relative(time),
         }
     }
 }
@@ -87,7 +94,7 @@ fn default_zoned(time: SystemTime, zone: &TimeZone) -> String {
 }
 
 fn get_dateformat(date: &LocalDateTime) -> &'static DateFormat<'static> {
-    match (is_recent(&date), *MAXIMUM_MONTH_WIDTH) {
+    match (is_recent(date), *MAXIMUM_MONTH_WIDTH) {
         (true, 4)   => &FOUR_WIDE_DATE_TIME,
         (true, 5)   => &FIVE_WIDE_DATE_TIME,
         (true, _)   => &OTHER_WIDE_DATE_TIME,
@@ -111,6 +118,20 @@ fn long_zoned(time: SystemTime, zone: &TimeZone) -> String {
     format!("{:04}-{:02}-{:02} {:02}:{:02}",
             date.year(), date.month() as usize, date.day(),
             date.hour(), date.minute())
+}
+
+#[allow(trivial_numeric_casts)]
+fn relative(time: SystemTime) -> String {
+    timeago::Formatter::new()
+        .ago("")
+        .convert(
+            Duration::from_secs(
+                max(0, Instant::now().seconds() - systemtime_epoch(time))
+                // this .unwrap is safe since the call above can never result in a 
+                // value < 0
+                .try_into().unwrap()
+            )
+        )
 }
 
 #[allow(trivial_numeric_casts)]
