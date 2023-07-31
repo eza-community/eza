@@ -233,7 +233,7 @@ impl FileExtensions {
             || (file.name.starts_with('#') && file.name.ends_with('#'))
             || file.extension_is_one_of( &[
                 "bak",
-                "bk"
+                "bk",
                 "bkp",
                 "swn",
                 "swo",
@@ -247,7 +247,7 @@ impl FileExtensions {
             "class",
             "elc",
             "hi",
-            "ko"
+            "ko",
             "o",
             "pyc",
             "zwc",
