@@ -35,6 +35,13 @@ stderr = { empty = true }
 status = 0
 tags = [ 'long', 'time' ]
 
+[[cmd]]
+name = "‘exa -l --time-style=relative’ handles dates far past and future dates"
+shell = "exa -l --time-style=relative /testcases/far-dates"
+stdout = { file = "outputs/far_dates_relative.ansitxt" }
+stderr = { empty = true }
+status = 0
+tags = [ 'long', 'time' ]
 
 # alternate date formats
 
@@ -42,6 +49,14 @@ tags = [ 'long', 'time' ]
 name = "‘exa -l --time-style=long-iso’ produces a table using the long-iso date format"
 shell = "exa -l --time-style=long-iso /testcases/dates"
 stdout = { file = "outputs/dates_long_timestyle_longiso.ansitxt" }
+stderr = { empty = true }
+status = 0
+tags = [ 'long', 'time-style' ]
+
+[[cmd]]
+name = "‘exa -l --time-style=relative’ produces a table using the relative date format"
+shell = "exa -l --time-style=relative /testcases/dates"
+stdout = { file = "outputs/dates_long_timestyle_relative.ansitxt" }
 stderr = { empty = true }
 status = 0
 tags = [ 'long', 'time-style' ]

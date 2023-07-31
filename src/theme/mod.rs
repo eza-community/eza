@@ -233,6 +233,7 @@ impl render::GitColours for Theme {
 impl render::GroupColours for Theme {
     fn yours(&self)      -> Style { self.ui.users.group_yours }
     fn not_yours(&self)  -> Style { self.ui.users.group_not_yours }
+    fn no_group(&self)   -> Style { self.ui.punctuation }
 }
 
 impl render::LinksColours for Theme {
@@ -292,6 +293,7 @@ impl render::SizeColours for Theme {
 impl render::UserColours for Theme {
     fn you(&self)           -> Style { self.ui.users.user_you }
     fn someone_else(&self)  -> Style { self.ui.users.user_someone_else }
+    fn no_user(&self)       -> Style { self.ui.punctuation }
 }
 
 impl FileNameColours for Theme {
@@ -306,6 +308,15 @@ impl FileNameColours for Theme {
     fn colour_file(&self, file: &File<'_>) -> Style {
         self.exts.colour_file(file).unwrap_or(self.ui.filekinds.normal)
     }
+}
+
+impl render::SecurityCtxColours for Theme {
+    fn none(&self)          -> Style { self.ui.security_context.none }
+    fn selinux_colon(&self) -> Style { self.ui.security_context.selinux.colon }
+    fn selinux_user(&self)  -> Style { self.ui.security_context.selinux.user }
+    fn selinux_role(&self)  -> Style { self.ui.security_context.selinux.role }
+    fn selinux_type(&self)  -> Style { self.ui.security_context.selinux.typ }
+    fn selinux_range(&self) -> Style { self.ui.security_context.selinux.range }
 }
 
 
