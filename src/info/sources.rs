@@ -18,6 +18,8 @@ impl<'a> File<'a> {
             match &ext[..] {
                 "css"   => vec![self.path.with_extension("sass"), self.path.with_extension("scss"),  // SASS, SCSS
                                 self.path.with_extension("styl"), self.path.with_extension("less")],  // Stylus, Less
+                "mjs"   => vec![self.path.with_extension("mts")],  // JavaScript ES Modules source
+                "cjs"   => vec![self.path.with_extension("cts")],  // JavaScript Commonjs Modules source
                 "js"    => vec![self.path.with_extension("coffee"), self.path.with_extension("ts")],  // CoffeeScript, TypeScript
 
                 "aux" |                                          // TeX: auxiliary file
@@ -26,11 +28,13 @@ impl<'a> File<'a> {
                 "blg" |                                          // BibTeX log file
                 "fdb_latexmk" |                                  // TeX latexmk file
                 "fls" |                                          // TeX -recorder file
+                "headfootlength" |                               // TeX package autofancyhdr file
                 "lof" |                                          // TeX list of figures
                 "log" |                                          // TeX log file
                 "lot" |                                          // TeX list of tables
-                "out" |                                          // hyperref list of bookmarks
+                "out" => vec![self.path.with_extension("tex")],  // hyperref list of bookmarks
                 "toc" => vec![self.path.with_extension("tex")],  // TeX table of contents
+                "xdv" => vec![self.path.with_extension("tex")],  // XeTeX dvi
 
                 _ => vec![],  // No source files if none of the above
             }

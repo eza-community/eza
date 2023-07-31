@@ -259,3 +259,36 @@ impl Default for Git {
         }
     }
 }
+
+pub enum SecurityContextType<'a> {
+    SELinux(&'a str),
+    None
+}
+
+pub struct SecurityContext<'a> {
+    pub context: SecurityContextType<'a>,
+}
+
+#[allow(dead_code)]
+#[derive(PartialEq, Copy, Clone)]
+pub enum SubdirGitRepoStatus{
+    NoRepo,
+    GitClean,
+    GitDirty,
+    GitUnknown
+}
+
+#[derive(Clone)]
+pub struct SubdirGitRepo{
+    pub status : SubdirGitRepoStatus,
+    pub branch : Option<String>
+}
+
+impl Default for SubdirGitRepo{
+    fn default() -> Self {
+        Self{
+            status : SubdirGitRepoStatus::NoRepo,
+            branch : None
+        }
+    }
+}
