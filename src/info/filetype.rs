@@ -108,6 +108,7 @@ impl FileExtensions {
             "pnm",
             "ppm",
             "ps",
+            "pxm",
             "raw",
             "stl",
             "svg",
