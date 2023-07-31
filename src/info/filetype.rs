@@ -51,6 +51,7 @@ impl FileExtensions {
                     | "Gruntfile.coffee"
                     | "Gruntfile.js"
                     | "Justfile"
+                    | "justfile"
                     | "Makefile"
                     | "makefile"
                     | "Makefile.in"
