@@ -10,7 +10,7 @@ pub use self::git::Colours as GitColours;
 #[cfg(unix)]
 mod groups;
 #[cfg(unix)]
-pub use self::groups::Colours as GroupColours;
+pub use self::groups::{Colours as GroupColours, Render as GroupRender};
 
 mod inode;
 // inode uses just one colour
@@ -19,7 +19,7 @@ mod links;
 pub use self::links::Colours as LinksColours;
 
 mod permissions;
-pub use self::permissions::Colours as PermissionsColours;
+pub use self::permissions::{Colours as PermissionsColours, PermissionsPlusRender};
 
 mod size;
 pub use self::size::Colours as SizeColours;
@@ -32,8 +32,10 @@ pub use self::times::Render as TimeRender;
 mod users;
 #[cfg(unix)]
 pub use self::users::Colours as UserColours;
+pub use self::users::Render as UserRender;
 
 mod octal;
+pub use self::octal::Render as OctalPermissionsRender;
 // octal uses just one colour
 
 mod securityctx;

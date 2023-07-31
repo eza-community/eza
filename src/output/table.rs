@@ -15,9 +15,17 @@ use users::UsersCache;
 use crate::fs::{File, fields as f};
 use crate::fs::feature::git::GitCache;
 use crate::output::cell::TextCell;
-use crate::output::render::TimeRender;
+use crate::output::render::{
+    GroupRender,
+    OctalPermissionsRender,
+    PermissionsPlusRender,
+    TimeRender,
+    UserRender
+};
 use crate::output::time::TimeFormat;
 use crate::theme::Theme;
+
+
 
 
 /// Options for displaying a table.
@@ -471,21 +479,27 @@ impl<'a, 'f> Table<'a> {
         self.widths.add_widths(row)
     }
 
-    fn permissions_plus(&self, file: &File<'_>, xattrs: bool) -> f::PermissionsPlus {
-        f::PermissionsPlus {
-            file_type: file.type_char(),
-            #[cfg(unix)]
-            permissions: file.permissions(),
-            #[cfg(windows)]
-            attributes: file.attributes(),
-            xattrs,
+    fn permissions_plus(&self, file: &File<'_>, xattrs: bool) -> Option<f::PermissionsPlus> {
+        match file.permissions() {
+            Some(p) => Some(f::PermissionsPlus {
+                file_type: file.type_char(),
+                #[cfg(unix)]
+                permissions: p,
+                #[cfg(windows)]
+                attributes: file.attributes(),
+                xattrs
+            }),
+            None => None,
         }
     }
 
     #[cfg(unix)]
-    fn octal_permissions(&self, file: &File<'_>) -> f::OctalPermissions {
-        f::OctalPermissions {
-            permissions: file.permissions(),
+    fn octal_permissions(&self, file: &File<'_>) -> Option<f::OctalPermissions> {
+        match file.permissions() {
+            Some(p) => Some(f::OctalPermissions {
+                permissions: p,
+            }),
+            None => None,
         }
     }
 

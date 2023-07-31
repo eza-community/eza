@@ -52,6 +52,7 @@ __eza() {
         --no-time"[Suppress the time field]" \
         {-u,--accessed}"[Use the accessed timestamp field]" \
         {-U,--created}"[Use the created timestamp field]" \
+        {-X,--dereference}"[dereference symlinks for file information]" \
         --git"[List each file's Git status, if tracked]" \
         --git-repos"[List each git-repos status and branch name]" \
         --git-repos-no-status"[List each git-repos branch name (much faster)]" \
