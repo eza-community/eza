@@ -307,6 +307,9 @@ impl FileIcon for FileExtensions {
         else if self.is_video(file) {
             Some(Icons::Video.value())
         }
+        else if self.is_compressed(file) {
+            Some(Icons::Compressed.value())
+        }
         else {
             None
         }

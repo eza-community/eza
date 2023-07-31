@@ -16,14 +16,16 @@ pub enum Icons {
     Audio,
     Image,
     Video,
+    Compressed,
 }
 
 impl Icons {
     pub fn value(self) -> char {
         match self {
-            Self::Audio  => '\u{f001}',
-            Self::Image  => '\u{f1c5}',
-            Self::Video  => '\u{f03d}',
+            Self::Audio  => '\u{f001}', // 
+            Self::Image  => '\u{f1c5}', // 
+            Self::Video  => '\u{f03d}', // 
+            Self::Compressed => '\u{f410}', // 
         }
     }
 }
