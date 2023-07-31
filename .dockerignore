@@ -1,0 +1,24 @@
+# Nix Flake stuff
+result
+
+# Rust stuff
+target
+
+# Vagrant stuff
+.vagrant
+*.log
+
+# Compiled artifacts
+# (see devtools/*-package-for-*.sh)
+/eza-linux-x86_64
+/eza-linux-x86_64-*.zip
+/eza-macos-x86_64
+/eza-macos-x86_64-*.zip
+/MD5SUMS
+/SHA1SUMS
+
+# Snap stuff
+parts
+prime
+stage
+*.snap

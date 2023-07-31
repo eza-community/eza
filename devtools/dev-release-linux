@@ -15,7 +15,7 @@ fi
 # What was done here before was a pretty dirty hack. The less we talk about it
 # the better...
 toml_file="Cargo.toml"
-eza_version=$(rg version Cargo.toml | head -n 1 | rg '([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?' -o)
+eza_version=$(grep version Cargo.toml | head -n 1 | grep -E '([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?' -o)
 if [ -z "$eza_version" ]; then
   echo "Failed to parse version number! Can't build eza!"
   exit 1
@@ -51,14 +51,21 @@ strip -v "$eza_linux_binary"
 # /vagrant path being in the zip too. Only the zip gets the version number, so
 # the binaries can have consistent names, and it’s still possible to tell
 # different *downloads* apart.
-echo -e "\n\033[4mZipping binary...\033[0m"
+# echo -e "\n\033[4mZipping binary...\033[0m"
+# if [[ "$1" == "--weekly" ]]; then
+#   eza_linux_zip="eza-linux-x86_64-${eza_version}-${date}-${git_hash}.zip"
+# else
+#   eza_linux_zip="eza-linux-x86_64.zip"
+# fi
+# rm -vf "$eza_linux_zip"
+# zip -j "$eza_linux_zip" "$eza_linux_binary"
 if [[ "$1" == "--weekly" ]]; then
-  eza_linux_zip="eza-linux-x86_64-${eza_version}-${date}-${git_hash}.zip"
+  eza_linux_tar="eza-linux-x86_64-${eza_version}-${date}-${git_hash}.tar.gz"
 else
-  eza_linux_zip="eza-linux-x86_64.zip"
+  eza_linux_tar="eza-linux-x86_64.tar.gz"
 fi
-rm -vf "$eza_linux_zip"
-zip -j "$eza_linux_zip" "$eza_linux_binary"
+rm -vf "$eza_linux_tar"
+tar czvf "$eza_linux_tar" "$eza_linux_binary"
 
 # There was a problem a while back where a library was getting unknowingly
 # *dynamically* linked, which broke the whole ‘self-contained binary’ concept.
@@ -68,4 +75,4 @@ ldd "$eza_linux_binary" | sed "s/\t//"
 
 # Might as well use it to test itself, right?
 echo -e "\n\033[4mAll done! Files produced:\033[0m"
-./$eza_linux_binary "$eza_linux_binary" "$eza_linux_zip" -lB
+./$eza_linux_binary "$eza_linux_binary" "$eza_linux_tar" -lB
