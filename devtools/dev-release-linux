@@ -1,14 +1,8 @@
 #!/usr/bin/env bash
 
+# This is the preferred release script
+
 set -e
-
-# This script builds a publishable release-worthy version of eza.
-# It gets the version number, builds eza using cargo, tests it, strips the
-# binary, compresses it into a zip, then puts it in /vagrant so it’s
-# accessible from the host machine.
-#
-# If you’re in the VM, you can run it using the ‘package-eza’ command.
-
 
 # Linux check!
 uname=$(uname -s)
@@ -18,20 +12,19 @@ if [[ "$uname" != "Linux" ]]; then
 fi
 
 # First, we need to get the version number to figure out what to call the zip.
-# We do this by getting the first line from the Cargo.toml that matches
-# /version/, removing its whitespace, and building a command out of it, so the
-# shell executes something like `eza_version="0.8.0"`, which it understands as
-# a variable definition. Hey, it’s not a hack if it works.
-toml_file="/vagrant/Cargo.toml"
-eval eza_$(grep version $toml_file | head -n 1 | sed "s/ //g")
+# What was done here before was a pretty dirty hack. The less we talk about it
+# the better...
+toml_file="Cargo.toml"
+eza_version=$(rg version Cargo.toml | head -n 1 | rg '([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?' -o)
 if [ -z "$eza_version" ]; then
   echo "Failed to parse version number! Can't build eza!"
   exit 1
 fi
 
 # Weekly builds have a bit more information in their version number (see build.rs).
+uname=$(uname -s)
 if [[ "$1" == "--weekly" ]]; then
-  git_hash=$(GIT_DIR=/vagrant/.git git rev-parse --short --verify HEAD)
+  git_hash=$(GIT_DIR=.git git rev-parse --short --verify HEAD)
   date=$(date +"%Y-%m-%d")
   echo "Building eza weekly v$eza_version, date $date, Git hash $git_hash"
 else
@@ -42,12 +35,12 @@ fi
 # faster binary. This binary gets built to a different place, so the extended
 # tests script needs to be told which one to use.
 echo -e "\n\033[4mCompiling release version of eza...\033[0m"
-eza_linux_binary="/vagrant/eza-linux-x86_64"
+eza_linux_binary="eza-linux-x86_64"
 rm -vf "$eza_linux_binary"
 cargo build --release --manifest-path "$toml_file"
-cargo test --release --manifest-path "$toml_file" --lib -- --quiet
-/vagrant/xtests/run.sh --release
-cp /home/vagrant/target/release/eza "$eza_linux_binary"
+cargo test --release --manifest-path "$toml_file" -- --quiet
+# /vagrant/xtests/run.sh --release
+cp target/release/eza "$eza_linux_binary"
 
 # Stripping the binary before distributing it removes a bunch of debugging
 # symbols, saving some space.
@@ -60,9 +53,9 @@ strip -v "$eza_linux_binary"
 # different *downloads* apart.
 echo -e "\n\033[4mZipping binary...\033[0m"
 if [[ "$1" == "--weekly" ]]; then
-  eza_linux_zip="/vagrant/eza-linux-x86_64-${eza_version}-${date}-${git_hash}.zip"
+  eza_linux_zip="eza-linux-x86_64-${eza_version}-${date}-${git_hash}.zip"
 else
-  eza_linux_zip="/vagrant/eza-linux-x86_64.zip"
+  eza_linux_zip="eza-linux-x86_64.zip"
 fi
 rm -vf "$eza_linux_zip"
 zip -j "$eza_linux_zip" "$eza_linux_binary"
@@ -75,4 +68,4 @@ ldd "$eza_linux_binary" | sed "s/\t//"
 
 # Might as well use it to test itself, right?
 echo -e "\n\033[4mAll done! Files produced:\033[0m"
-"$eza_linux_binary" "$eza_linux_binary" "$eza_linux_zip" -lB
+./$eza_linux_binary "$eza_linux_binary" "$eza_linux_zip" -lB

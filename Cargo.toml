@@ -1,4 +1,6 @@
 [package]
+# Version MUST be the first attribute
+version = "0.10.3"
 name = "eza"
 description = "A modern replacement for ls"
 authors = ["Christina Sørensen <christina@cafkafk.com>"]
@@ -10,7 +12,6 @@ readme = "README.md"
 homepage = "https://github.com/cafkafk/eza"
 license = "MIT"
 repository = "https://github.com/cafkafk/eza"
-version = "0.10.3"
 
 
 [[bin]]
