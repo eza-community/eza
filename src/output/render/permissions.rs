@@ -12,7 +12,7 @@ pub trait PermissionsPlusRender {
 
 #[cfg(unix)]
 impl PermissionsPlusRender for Option<f::PermissionsPlus> {
-    pub fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> TextCell {
+    fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> TextCell {
         match self {
             Some(p) => {
                 let mut chars = vec![ p.file_type.render(colours) ];
