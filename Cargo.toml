@@ -10,7 +10,7 @@ readme = "README.md"
 homepage = "https://github.com/cafkafk/eza"
 license = "MIT"
 repository = "https://github.com/cafkafk/eza"
-version = "0.10.3"
+version = "0.10.4"
 
 
 [[bin]]
