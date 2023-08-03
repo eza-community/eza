@@ -111,7 +111,7 @@ pub struct FileName<'a, 'dir, C> {
     /// How to handle displaying links.
     link_style: LinkStyle,
 
-    options: Options,
+    pub options: Options,
 }
 
 impl<'a, 'dir, C> FileName<'a, 'dir, C> {

@@ -5,6 +5,7 @@ use term_grid as tg;
 use crate::fs::File;
 use crate::fs::filter::FileFilter;
 use crate::output::file_name::Options as FileStyle;
+use crate::output::file_name::{ShowIcons, EmbedHyperlinks};
 use crate::theme::Theme;
 
 
@@ -43,12 +44,19 @@ impl<'a> Render<'a> {
         for file in &self.files {
             let filename = self.file_style.for_file(file, self.theme);
             let contents = filename.paint();
+            let width;
+
+            match (filename.options.embed_hyperlinks, filename.options.show_icons) {
+                (EmbedHyperlinks::On, ShowIcons::On(spacing)) => width = filename.bare_width() + 1 + (spacing as usize),
+                (EmbedHyperlinks::On, ShowIcons::Off) => width = filename.bare_width(),
+                (EmbedHyperlinks::Off, _) => width = *contents.width(),
+            };
 
             grid.add(tg::Cell {
                 contents:  contents.strings().to_string(),
                 // with hyperlink escape sequences,
                 // the actual *contents.width() is larger than actually needed, so we take only the filename
-                width:     filename.bare_width(),
+                width:     width,
             });
         }
 
