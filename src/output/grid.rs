@@ -47,7 +47,7 @@ impl<'a> Render<'a> {
             let width;
 
             match (filename.options.embed_hyperlinks, filename.options.show_icons) {
-                (EmbedHyperlinks::On, ShowIcons::On(_)) => width = filename.bare_width() + 1,
+                (EmbedHyperlinks::On, ShowIcons::On(spacing)) => width = filename.bare_width() + 1 + (spacing as usize),
                 (EmbedHyperlinks::On, ShowIcons::Off) => width = filename.bare_width(),
                 (EmbedHyperlinks::Off, _) => width = *contents.width(),
             };
