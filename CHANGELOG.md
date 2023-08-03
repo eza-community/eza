@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.5] - 2023-08-03
+
+### Bug Fixes
+
+- Output wraps in terminal
+- Respect icon spacing
+
 ## [0.10.4] - 2023-08-02
 
 ### Bug Fixes
@@ -24,6 +31,10 @@ All notable changes to this project will be documented in this file.
 - Add -X/--dereference completions
 - Added ".out" files for latex
 - Add changelog generation
+
+### Miscellaneous Tasks
+
+- Release 0.10.4
 
 ## [0.10.3] - 2023-07-31
 
