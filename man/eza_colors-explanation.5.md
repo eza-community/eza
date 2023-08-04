@@ -37,5 +37,5 @@ in the same directory as one of its source files: styles.css will count as compi
 
 ## See also
 
-- [exa.1.md](exa.1.md)
-- [exa_colors.5.md](exa_colors.5.md)
+- [eza.1.md](eza.1.md)
+- [eza_colors.5.md](eza_colors.5.md)

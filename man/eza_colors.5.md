@@ -281,4 +281,4 @@ SEE ALSO
 ========
 
 - [eza.1.md](eza.1.md)
-- [eza-colors-explanation.md](eza-colors-explanation.md)
+- [eza_colors-explanation.5.md](eza_colors-explanation.5.md)
