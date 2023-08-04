@@ -1,8 +1,8 @@
-# Exa Color Explanation
+# Eza Color Explanation
 
-exa provides its own built\-in set of file extension mappings that cover a large range of common file extensions, including documents, archives, media, and temporary files.
+eza provides its own built\-in set of file extension mappings that cover a large range of common file extensions, including documents, archives, media, and temporary files.
 
-Any mappings in the environment variables will override this default set: running exa with `LS_COLORS="*.zip=32"` will turn zip files green but leave the colours of other compressed files alone.
+Any mappings in the environment variables will override this default set: running eza with `LS_COLORS="*.zip=32"` will turn zip files green but leave the colours of other compressed files alone.
 
 You can also disable this built\-in set entirely by including a
 `reset` entry at the beginning of `EXA_COLORS`.
