@@ -1,6 +1,6 @@
-% exa_colors(5) v0.9.0
+% eza_colors(5) v0.9.0
 
-<!-- This is the exa_colors(5) man page, written in Markdown. -->
+<!-- This is the eza_colors(5) man page, written in Markdown. -->
 <!-- To generate the roff version, run `just man`, -->
 <!-- and the man page will appear in the ‘target’ directory. -->
 
@@ -8,13 +8,13 @@
 NAME
 ====
 
-exa_colors — customising the file and UI colours of exa
+eza_colors — customising the file and UI colours of eza
 
 
 SYNOPSIS
 ========
 
-The `EXA_COLORS` environment variable can be used to customise the colours that `exa` uses to highlight file names, file metadata, and parts of the UI.
+The `EXA_COLORS` environment variable can be used to customise the colours that `eza` uses to highlight file names, file metadata, and parts of the UI.
 
 You can use the `dircolors` program to generate a script that sets the variable from an input file, or if you don’t mind editing long strings of text, you can just type it out directly. These variables have the following structure:
 
@@ -223,9 +223,9 @@ Values in `EXA_COLORS` override those given in `LS_COLORS`, so you don’t need 
 LIST OF STYLES
 ==============
 
-Unlike some versions of `ls`, the given ANSI values must be valid colour codes: exa won’t just print out whichever characters are given.
+Unlike some versions of `ls`, the given ANSI values must be valid colour codes: eza won’t just print out whichever characters are given.
 
-The codes accepted by exa are:
+The codes accepted by eza are:
 
 `1`
 : for bold
@@ -259,8 +259,8 @@ The codes accepted by exa are:
 
 Many terminals will treat bolded text as a different colour, or at least provide the option to.
 
-exa provides its own built-in set of file extension mappings that cover a large range of common file extensions, including documents, archives, media, and temporary files.
-Any mappings in the environment variables will override this default set: running exa with `LS_COLORS="*.zip=32"` will turn zip files green but leave the colours of other compressed files alone.
+eza provides its own built-in set of file extension mappings that cover a large range of common file extensions, including documents, archives, media, and temporary files.
+Any mappings in the environment variables will override this default set: running eza with `LS_COLORS="*.zip=32"` will turn zip files green but leave the colours of other compressed files alone.
 
 You can also disable this built-in set entirely by including a `reset` entry at the beginning of `EXA_COLORS`.
 So setting `EXA_COLORS="reset:*.txt=31"` will highlight only text files; setting `EXA_COLORS="reset"` will highlight nothing.
@@ -269,15 +269,16 @@ So setting `EXA_COLORS="reset:*.txt=31"` will highlight only text files; setting
 AUTHOR
 ======
 
-exa is maintained by Benjamin ‘ogham’ Sago and many other contributors.
+eza is maintained by Christina Sørensen and many other contributors.
 
-**Website:** `https://the.exa.website/` \
-**Source code:** `https://github.com/ogham/exa` \
-**Contributors:** `https://github.com/ogham/exa/graphs/contributors`
+**Source code:** `https://github.com/cafkafk/eza` \
+**Contributors:** `https://github.com/cafkafk/eza/graphs/contributors`
+
+Our infinite thanks to Benjamin ‘ogham’ Sago and all the other contributors of exa, from which eza was forked.
 
 
 SEE ALSO
 ========
 
-- [exa.1.md](exa.1.md)
-- [exa-colors-explanation.md](exa-colors-explanation.md)
+- [eza.1.md](eza.1.md)
+- [eza-colors-explanation.md](eza-colors-explanation.md)

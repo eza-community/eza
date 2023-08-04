@@ -47,7 +47,7 @@ impl Dir {
 
     /// Produce an iterator of IO results of trying to read all the files in
     /// this directory.
-    pub fn files<'dir, 'ig>(&'dir self, dots: DotFilter, git: Option<&'ig GitCache>, git_ignoring: bool) -> Files<'dir, 'ig> {
+    pub fn files<'dir, 'ig>(&'dir self, dots: DotFilter, git: Option<&'ig GitCache>, git_ignoring: bool, deref_links: bool) -> Files<'dir, 'ig> {
         Files {
             inner:     self.contents.iter(),
             dir:       self,
@@ -55,6 +55,7 @@ impl Dir {
             dots:      dots.dots(),
             git,
             git_ignoring,
+            deref_links,
         }
     }
 
@@ -89,6 +90,9 @@ pub struct Files<'dir, 'ig> {
     git: Option<&'ig GitCache>,
 
     git_ignoring: bool,
+
+    /// Whether symbolic links should be dereferenced when querying information.
+    deref_links: bool,
 }
 
 impl<'dir, 'ig> Files<'dir, 'ig> {
@@ -111,6 +115,13 @@ impl<'dir, 'ig> Files<'dir, 'ig> {
                     continue;
                 }
 
+                // Also hide _prefix files on Windows because it's used by old applications
+                // as an alternative to dot-prefix files.
+                #[cfg(windows)]
+                if ! self.dotfiles && filename.starts_with('_') {
+                    continue;
+                }
+
                 if self.git_ignoring {
                     let git_status = self.git.map(|g| g.get(path, false)).unwrap_or_default();
                     if git_status.unstaged == GitStatus::Ignored {
@@ -118,7 +129,7 @@ impl<'dir, 'ig> Files<'dir, 'ig> {
                     }
                 }
 
-                return Some(File::from_args(path.clone(), self.dir, filename)
+                return Some(File::from_args(path.clone(), self.dir, filename, self.deref_links)
                                  .map_err(|e| (path.clone(), e)))
             }
 
@@ -169,7 +180,7 @@ impl<'dir, 'ig> Iterator for Files<'dir, 'ig> {
 /// Usually files in Unix use a leading dot to be hidden or visible, but two
 /// entries in particular are “extra-hidden”: `.` and `..`, which only become
 /// visible after an extra `-a` option.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum DotFilter {
 
     /// Shows files, dotfiles, and `.` and `..`.

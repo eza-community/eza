@@ -49,14 +49,20 @@ mod theme;
 fn main() {
     use std::process::exit;
 
+    #[cfg(unix)]
     unsafe {
         libc::signal(libc::SIGPIPE, libc::SIG_DFL);
     }
 
     logger::configure(env::var_os(vars::EXA_DEBUG));
 
+    #[cfg(windows)]
+    if let Err(e) = ansi_term::enable_ansi_support() {
+        warn!("Failed to enable ANSI support: {}", e);
+    }
+
     let args: Vec<_> = env::args_os().skip(1).collect();
-    match Options::parse(args.iter().map(|e| e.as_ref()), &LiveVars) {
+    match Options::parse(args.iter().map(std::convert::AsRef::as_ref), &LiveVars) {
         OptionsResult::Ok(options, mut input_paths) => {
 
             // List the current directory by default.
@@ -171,7 +177,7 @@ impl<'args> Exa<'args> {
         let mut exit_status = 0;
 
         for file_path in &self.input_paths {
-            match File::from_args(PathBuf::from(file_path), None, None) {
+            match File::from_args(PathBuf::from(file_path), None, None, self.options.view.deref_links) {
                 Err(e) => {
                     exit_status = 2;
                     writeln!(io::stderr(), "{:?}: {}", file_path, e)?;
@@ -224,7 +230,7 @@ impl<'args> Exa<'args> {
 
             let mut children = Vec::new();
             let git_ignore = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
-            for file in dir.files(self.options.filter.dot_filter, self.git.as_ref(), git_ignore) {
+            for file in dir.files(self.options.filter.dot_filter, self.git.as_ref(), git_ignore, self.options.view.deref_links) {
                 match file {
                     Ok(file)        => children.push(file),
                     Err((path, e))  => writeln!(io::stderr(), "[{}: {}]", path.display(), e)?,

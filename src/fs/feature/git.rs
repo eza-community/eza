@@ -162,11 +162,25 @@ impl GitRepo {
     /// Returns the original buffer if none is found.
     fn discover(path: PathBuf) -> Result<Self, PathBuf> {
         info!("Searching for Git repository above {:?}", path);
-        let repo = match git2::Repository::discover(&path) {
+        // Search with GIT_DIR env variable first if set
+        let repo = match git2::Repository::open_from_env() {
             Ok(r) => r,
             Err(e) => {
-                error!("Error discovering Git repositories: {:?}", e);
-                return Err(path);
+                // anything other than NotFound implies GIT_DIR was set and we got actual error
+                if e.code() != git2::ErrorCode::NotFound {
+                    error!("Error opening Git repo from env using GIT_DIR: {:?}", e);
+                    return Err(path);
+                } else {
+                    // nothing found, search using discover
+                    match git2::Repository::discover(&path) {
+                        Ok(r) => r,
+                        Err(e) => {
+                            error!("Error discovering Git repositories: {:?}", e);
+                            return Err(path);
+
+                        }
+                    }
+                }
             }
         };
 
@@ -296,6 +310,7 @@ impl Git {
 /// Paths need to be absolute for them to be compared properly, otherwise
 /// you’d ask a repo about “./README.md” but it only knows about
 /// “/vagrant/README.md”, prefixed by the workdir.
+#[cfg(unix)]
 fn reorient(path: &Path) -> PathBuf {
     use std::env::current_dir;
 
@@ -306,6 +321,14 @@ fn reorient(path: &Path) -> PathBuf {
     };
 
     path.canonicalize().unwrap_or(path)
+}
+
+#[cfg(windows)]
+fn reorient(path: &Path) -> PathBuf {
+    let unc_path = path.canonicalize().unwrap();
+    // On Windows UNC path is returned. We need to strip the prefix for it to work.
+    let normal_path = unc_path.as_os_str().to_str().unwrap().trim_left_matches("\\\\?\\");
+    return PathBuf::from(normal_path);
 }
 
 /// The character to display if the file has been modified, but not staged.
@@ -332,5 +355,54 @@ fn index_status(status: git2::Status) -> f::GitStatus {
         s if s.contains(git2::Status::INDEX_RENAMED)     => f::GitStatus::Renamed,
         s if s.contains(git2::Status::INDEX_TYPECHANGE)  => f::GitStatus::TypeChange,
         _                                                => f::GitStatus::NotModified,
+    }
+}
+
+fn current_branch(repo: &git2::Repository) -> Option<String>{
+    let head = match repo.head() {
+        Ok(head) => Some(head),
+        Err(ref e) if e.code() == git2::ErrorCode::UnbornBranch || e.code() == git2::ErrorCode::NotFound => return None,
+        Err(e) => {
+            error!("Error looking up Git branch: {:?}", e);
+            return None
+        }
+    };
+
+    if let Some(h) = head{
+        if let Some(s) = h.shorthand(){
+            let branch_name = s.to_owned();
+            if branch_name.len() > 10 {
+               return Some(branch_name[..8].to_string()+"..");
+            }
+            return Some(branch_name);
+        }
+    }
+    None
+}
+
+impl f::SubdirGitRepo{
+    pub fn from_path(dir : &Path, status : bool) -> Self{
+
+        let path = &reorient(&dir);
+        let g = git2::Repository::open(path);
+        if let Ok(repo) = g{
+
+            let branch = current_branch(&repo);
+            if !status{
+                return Self{status : f::SubdirGitRepoStatus::GitUnknown, branch};
+            }
+            match repo.statuses(None) {
+                Ok(es) => {
+                    if es.iter().filter(|s| s.status() != git2::Status::IGNORED).any(|_| true){
+                        return Self{status : f::SubdirGitRepoStatus::GitDirty, branch};
+                    }
+                    return Self{status : f::SubdirGitRepoStatus::GitClean, branch};
+                }
+                Err(e) => {
+                    error!("Error looking up Git statuses: {:?}", e)
+                }
+            }
+        }
+        Self::default()
     }
 }

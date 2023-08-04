@@ -19,6 +19,9 @@ pub struct Options {
 
     /// Whether to prepend icon characters before file names.
     pub show_icons: ShowIcons,
+    
+    /// Whether to make file names hyperlinks.
+    pub embed_hyperlinks: EmbedHyperlinks,
 }
 
 impl Options {
@@ -54,7 +57,7 @@ enum LinkStyle {
 
 
 /// Whether to append file class characters to the file names.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum Classify {
 
     /// Just display the file names, without any characters.
@@ -73,7 +76,7 @@ impl Default for Classify {
 
 
 /// Whether and how to show icons.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum ShowIcons {
 
     /// Don’t show icons at all.
@@ -84,6 +87,13 @@ pub enum ShowIcons {
     On(u32),
 }
 
+/// Whether to embed hyperlinks.
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+pub enum EmbedHyperlinks{
+    
+    Off,
+    On,
+}
 
 /// A **file name** holds all the information necessary to display the name
 /// of the given file. This is used in all of the views.
@@ -101,7 +111,7 @@ pub struct FileName<'a, 'dir, C> {
     /// How to handle displaying links.
     link_style: LinkStyle,
 
-    options: Options,
+    pub options: Options,
 }
 
 impl<'a, 'dir, C> FileName<'a, 'dir, C> {
@@ -151,7 +161,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         	// indicate this fact. But when showing targets, we can just
         	// colour the path instead (see below), and leave the broken
         	// link’s filename as the link colour.
-            for bit in self.coloured_file_name() {
+            for bit in self.escaped_file_name() {
                 bits.push(bit);
             }
         }
@@ -171,6 +181,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                         let target_options = Options {
                             classify: Classify::JustFilenames,
                             show_icons: ShowIcons::Off,
+                            embed_hyperlinks: EmbedHyperlinks::Off,
                         };
 
                         let target_name = FileName {
@@ -181,7 +192,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                             options: target_options,
                         };
 
-                        for bit in target_name.coloured_file_name() {
+                        for bit in target_name.escaped_file_name() {
                             bits.push(bit);
                         }
 
@@ -226,7 +237,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         let coconut = parent.components().count();
 
         if coconut == 1 && parent.has_root() {
-            bits.push(self.colours.symlink_path().paint("/"));
+            bits.push(self.colours.symlink_path().paint(std::path::MAIN_SEPARATOR.to_string()));
         }
         else if coconut >= 1 {
             escape(
@@ -235,12 +246,13 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                 self.colours.symlink_path(),
                 self.colours.control_char(),
             );
-            bits.push(self.colours.symlink_path().paint("/"));
+            bits.push(self.colours.symlink_path().paint(std::path::MAIN_SEPARATOR.to_string()));
         }
     }
 
     /// The character to be displayed after a file when classifying is on, if
     /// the file’s type has one associated with it.
+    #[cfg(unix)]
     fn classify_char(&self, file: &File<'_>) -> Option<&'static str> {
         if file.is_executable_file() {
             Some("*")
@@ -262,8 +274,23 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         }
     }
 
+    #[cfg(windows)]
+    fn classify_char(&self, file: &File<'_>) -> Option<&'static str> {
+        if file.is_directory() {
+            Some("/")
+        }
+        else if file.is_link() {
+            Some("@")
+        }
+        else {
+            None
+        }
+    }
+
     /// Returns at least one ANSI-highlighted string representing this file’s
     /// name using the given set of colours.
+    ///
+    /// If --hyperlink flag is provided, it will escape the filename accordingly.
     ///
     /// Ordinarily, this will be just one string: the file’s complete name,
     /// coloured according to its file type. If the name contains control
@@ -272,18 +299,63 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     ///
     /// So in that situation, those characters will be escaped and highlighted in
     /// a different colour.
-    fn coloured_file_name<'unused>(&self) -> Vec<ANSIString<'unused>> {
+    fn escaped_file_name<'unused>(&self) -> Vec<ANSIString<'unused>> {
         let file_style = self.style();
         let mut bits = Vec::new();
 
-        escape(
-            self.file.name.clone(),
+        self.escape_color_and_hyperlinks(
             &mut bits,
             file_style,
             self.colours.control_char(),
         );
 
         bits
+    }
+
+    // An adapted version of escape::escape.
+    // afaik of all the calls to escape::escape, only for escaped_file_name, the call to escape needs to be checked for hyper links
+    // and if that's the case then I think it's best to not try and generalize escape::escape to this case,
+    // as this adaptation would incur some unneeded operations there
+    pub fn escape_color_and_hyperlinks(&self, bits: &mut Vec<ANSIString<'_>>, good: Style, bad: Style) {
+        let string = self.file.name.to_owned();
+
+        if string.chars().all(|c| c >= 0x20 as char && c != 0x7f as char) {
+            let painted = good.paint(string);
+
+            let adjusted_filename = if let EmbedHyperlinks::On = self.options.embed_hyperlinks {
+                ANSIString::from(format!("\x1B]8;;{}\x1B\x5C{}\x1B]8;;\x1B\x5C", self.file.path.display(), painted))
+            } else {
+                painted
+            };
+            bits.push(adjusted_filename);
+            return;
+        }
+
+        // again adapted from escape::escape
+        // still a slow route, but slightly improved to at least not reallocate buff + have a predetermined buff size
+        //
+        // also note that buff would never need more than len,
+        // even tho 'in total' it will be lenghier than len (as we expand with escape_default),
+        // because we clear it after an irregularity
+        let mut buff = String::with_capacity(string.len());
+        for c in string.chars() {
+            // The `escape_default` method on `char` is *almost* what we want here, but
+            // it still escapes non-ASCII UTF-8 characters, which are still printable.
+
+            if c >= 0x20 as char && c != 0x7f as char {
+                buff.push(c);
+            }
+            else {
+                if ! buff.is_empty() {
+                    bits.push(good.paint(std::mem::take(&mut buff)));
+                }
+                // biased towards regular characters, so we still collect on first sight of bad char
+                for e in c.escape_default() {
+                    buff.push(e);
+                }
+                bits.push(bad.paint(std::mem::take(&mut buff)));
+            }
+        }
     }
 
     /// Figures out which colour to paint the filename part of the output,
@@ -301,15 +373,25 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
 
         match self.file {
             f if f.is_directory()        => self.colours.directory(),
+            #[cfg(unix)]
             f if f.is_executable_file()  => self.colours.executable_file(),
             f if f.is_link()             => self.colours.symlink(),
+            #[cfg(unix)]
             f if f.is_pipe()             => self.colours.pipe(),
+            #[cfg(unix)]
             f if f.is_block_device()     => self.colours.block_device(),
+            #[cfg(unix)]
             f if f.is_char_device()      => self.colours.char_device(),
+            #[cfg(unix)]
             f if f.is_socket()           => self.colours.socket(),
             f if ! f.is_file()           => self.colours.special(),
             _                            => self.colours.colour_file(self.file),
         }
+    }
+
+    /// For grid's use, to cover the case of hyperlink escape sequences
+    pub fn bare_width(&self) -> usize {
+        self.file.name.len()
     }
 }
 
