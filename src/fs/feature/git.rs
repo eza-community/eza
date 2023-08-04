@@ -162,11 +162,25 @@ impl GitRepo {
     /// Returns the original buffer if none is found.
     fn discover(path: PathBuf) -> Result<Self, PathBuf> {
         info!("Searching for Git repository above {:?}", path);
-        let repo = match git2::Repository::discover(&path) {
+        // Search with GIT_DIR env variable first if set
+        let repo = match git2::Repository::open_from_env() {
             Ok(r) => r,
             Err(e) => {
-                error!("Error discovering Git repositories: {:?}", e);
-                return Err(path);
+                // anything other than NotFound implies GIT_DIR was set and we got actual error
+                if e.code() != git2::ErrorCode::NotFound {
+                    error!("Error opening Git repo from env using GIT_DIR: {:?}", e);
+                    return Err(path);
+                } else {
+                    // nothing found, search using discover
+                    match git2::Repository::discover(&path) {
+                        Ok(r) => r,
+                        Err(e) => {
+                            error!("Error discovering Git repositories: {:?}", e);
+                            return Err(path);
+
+                        }
+                    }
+                }
             }
         };
 
