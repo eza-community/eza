@@ -280,4 +280,5 @@ Our infinite thanks to Benjamin ‘ogham’ Sago and all the other contributors 
 SEE ALSO
 ========
 
-- `eza(1)`
+- [eza.1.md](eza.1.md)
+- [eza_colors-explanation.5.md](eza_colors-explanation.5.md)
