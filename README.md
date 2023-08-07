@@ -81,6 +81,30 @@ If you already have a Rust environment set up, you can use the `cargo install` c
 
 Cargo will build the `eza` binary and place it in `$HOME/.cargo`.
 
+### Arch Linux
+[![AUR package](https://repology.org/badge/version-for-repo/aur/eza.svg)](https://repology.org/project/eza/versions)
+
+Eza is available in the [AUR](https://aur.archlinux.org/packages/eza-git).
+
+### Nix
+[![nixpkgs unstable package](https://repology.org/badge/version-for-repo/nix_unstable/eza.svg)](https://repology.org/project/eza/versions)
+
+Eza is available from [Nixpkgs](https://github.com/NixOS/nixpkgs).
+
+For `nix profile` users:
+
+```shell
+nix profile install nixpkgs#eza
+```
+
+For `nix-env` users:
+
+```shell
+nix-env -i eza
+```
+
+
+
 ---
 Click sections to expand.
 
