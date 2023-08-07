@@ -1,9 +1,12 @@
 <!--- Provide a general summary of your changes in the Title above -->
-##### Describe your changes
+
+##### Description
 <!--- Describe your changes in detail -->
 
-##### Any Relavant Issue ticket number and link
-<!--- this category is optional IF there are no associated issues/PRs of relavance -->
+##### Related Issue
+<!--- If suggesting a major new feature or major change, please discuss it in an issue/discussions first -->
+<!--- If fixing a bug, IDEALLY there should be an issue describing it with steps to reproduce -->
+<!--- Please link to the issue here: -->
 
 ##### Motivation and Context
 <!--- Why is this change required? What problem does it solve? -->
@@ -16,9 +19,9 @@
 
 ##### Screenshots (if appropriate):
 
-##### Checklist before requesting a review
+##### Checklist while waiting for a review
 - [ ] Have you performed a self review of the code?
-- [ ] Have you added adequte tests?
+- [ ] Have you added adequate tests?
 - [ ] If this adds a feature, has completions been added for zsh and fish?
 - [ ] Have you updated documentation, man pages, help?
 - [ ] Have you ensured any option flags are respected?
