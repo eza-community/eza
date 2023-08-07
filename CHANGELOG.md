@@ -2,12 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.6] - 2023-08-07
+
+### Bug Fixes
+
+- Rename eza-colors-explanation
+- Exa -> eza in manpage
+
+### Documentation
+
+- Adding --git-repos to help.
+- Add aur, nixpkgs installation
+
+### Features
+
+- Use GIT_DIR env var to find the repo
+- Add color explanations
+
 ## [0.10.5] - 2023-08-03
 
 ### Bug Fixes
 
 - Output wraps in terminal
 - Respect icon spacing
+
+### Miscellaneous Tasks
+
+- Release 0.10.5
 
 ## [0.10.4] - 2023-08-02
 
@@ -172,6 +193,11 @@ All notable changes to this project will be documented in this file.
 - Create labeler.yml
 - Add snap to labeler.yml
 - Add filetype.rs autolabel
+
+### Git
+
+- Use GIT_DIR env var to find the repo
+- Use open_from_env before discover
 
 ### Icons
 
