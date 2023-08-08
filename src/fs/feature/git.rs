@@ -171,8 +171,10 @@ impl GitRepo {
                     error!("Error opening Git repo from env using GIT_DIR: {:?}", e);
                     return Err(path);
                 } else {
-                    // nothing found, search using discover
-                    match git2::Repository::discover(&path) {
+                    // Perform Git's default search in the absence of GIT_DIR:
+                    let flags = git2::RepositoryOpenFlags::FROM_ENV;
+                    let unused: [&OsStr; 0] = [];
+                    match git2::Repository::open_ext(&path, flags, &unused) {
                         Ok(r) => r,
                         Err(e) => {
                             error!("Error discovering Git repositories: {:?}", e);
