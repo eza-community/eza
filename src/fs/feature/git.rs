@@ -170,15 +170,13 @@ impl GitRepo {
                 if e.code() != git2::ErrorCode::NotFound {
                     error!("Error opening Git repo from env using GIT_DIR: {:?}", e);
                     return Err(path);
-                } else {
-                    // nothing found, search using discover
-                    match git2::Repository::discover(&path) {
-                        Ok(r) => r,
-                        Err(e) => {
-                            error!("Error discovering Git repositories: {:?}", e);
-                            return Err(path);
-
-                        }
+                }
+                // nothing found, search using discover
+                match git2::Repository::discover(&path) {
+                    Ok(r) => r,
+                    Err(e) => {
+                        error!("Error discovering Git repositories: {:?}", e);
+                        return Err(path);
                     }
                 }
             }
