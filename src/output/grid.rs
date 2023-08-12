@@ -61,7 +61,7 @@ impl<'a> Render<'a> {
         }
 
         if let Some(display) = grid.fit_into_width(self.console_width) {
-            write!(w, "{}", display)
+            write!(w, "{display}")
         }
         else {
             // File names too long for a grid - drop down to just listing them!
