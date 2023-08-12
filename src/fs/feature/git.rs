@@ -1,5 +1,6 @@
 //! Getting the Git status of files and directories.
 
+use std::env;
 use std::ffi::OsStr;
 #[cfg(target_family = "unix")]
 use std::os::unix::ffi::OsStrExt;
@@ -48,6 +49,20 @@ impl FromIterator<PathBuf> for GitCache {
             misses: Vec::new(),
         };
 
+        if let Ok(path) = env::var("GIT_DIR") {
+            // These flags are consistent with how `git` uses GIT_DIR:
+            let flags = git2::RepositoryOpenFlags::NO_SEARCH | git2::RepositoryOpenFlags::NO_DOTGIT;
+            match GitRepo::discover(path.into(), flags) {
+                Ok(repo) => {
+                    debug!("Opened GIT_DIR repo");
+                    git.repos.push(repo);
+                }
+                Err(miss) => {
+                    git.misses.push(miss);
+                }
+            }
+        }
+
         for path in iter {
             if git.misses.contains(&path) {
                 debug!("Skipping {:?} because it already came back Gitless", path);
@@ -56,7 +71,8 @@ impl FromIterator<PathBuf> for GitCache {
                 debug!("Skipping {:?} because we already queried it", path);
             }
             else {
-                match GitRepo::discover(path) {
+                let flags = git2::RepositoryOpenFlags::FROM_ENV;
+                match GitRepo::discover(path, flags) {
                     Ok(r) => {
                         if let Some(r2) = git.repos.iter_mut().find(|e| e.has_workdir(&r.workdir)) {
                             debug!("Adding to existing repo (workdir matches with {:?})", r2.workdir);
@@ -158,27 +174,17 @@ impl GitRepo {
         path.starts_with(&self.original_path) || self.extra_paths.iter().any(|e| path.starts_with(e))
     }
 
-    /// Searches for a Git repository at any point above the given path.
-    /// Returns the original buffer if none is found.
-    fn discover(path: PathBuf) -> Result<Self, PathBuf> {
-        info!("Searching for Git repository above {:?}", path);
-        // Search with GIT_DIR env variable first if set
-        let repo = match git2::Repository::open_from_env() {
+    /// Open a Git repository. Depending on the flags, the path is either
+    /// the repository's "gitdir" (or a "gitlink" to the gitdir), or the
+    /// path is the start of a rootwards search for the repository.
+    fn discover(path: PathBuf, flags: git2::RepositoryOpenFlags) -> Result<Self, PathBuf> {
+        info!("Opening Git repository for {:?} ({:?})", path, flags);
+        let unused: [&OsStr; 0] = [];
+        let repo = match git2::Repository::open_ext(&path, flags, unused) {
             Ok(r) => r,
             Err(e) => {
-                // anything other than NotFound implies GIT_DIR was set and we got actual error
-                if e.code() != git2::ErrorCode::NotFound {
-                    error!("Error opening Git repo from env using GIT_DIR: {:?}", e);
-                    return Err(path);
-                }
-                // nothing found, search using discover
-                match git2::Repository::discover(&path) {
-                    Ok(r) => r,
-                    Err(e) => {
-                        error!("Error discovering Git repositories: {:?}", e);
-                        return Err(path);
-                    }
-                }
+                error!("Error opening Git repository for {path:?}: {e:?}");
+                return Err(path);
             }
         };
 
