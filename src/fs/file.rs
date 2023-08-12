@@ -316,10 +316,9 @@ impl<'dir> File<'dir> {
         if let FileTarget::Ok(f) = target {
             if f.is_link() {
                 return f.link_target_recurse();
-            } else {
-                return FileTarget::Ok(f);
             }
-        } 
+            return FileTarget::Ok(f);
+        }
         target
     }
 

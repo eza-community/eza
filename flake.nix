@@ -32,6 +32,7 @@
         };
 
         treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
+        buildInputs = with pkgs; lib.optionals stdenv.isDarwin [libiconv darwin.apple_sdk.frameworks.Security];
       in rec {
         # For `nix fmt`
         formatter = treefmtEval.config.build.wrapper;
@@ -41,24 +42,28 @@
           default = naersk'.buildPackage {
             src = ./.;
             doCheck = true; # run `cargo test` on build
+            inherit buildInputs;
           };
 
           # Run `nix build .#check` to check code
           check = naersk'.buildPackage {
             src = ./.;
             mode = "check";
+            inherit buildInputs;
           };
 
           # Run `nix build .#test` to run tests
           test = naersk'.buildPackage {
             src = ./.;
             mode = "test";
+            inherit buildInputs;
           };
 
           # Run `nix build .#clippy` to lint code
           clippy = naersk'.buildPackage {
             src = ./.;
             mode = "clippy";
+            inherit buildInputs;
           };
         };
 

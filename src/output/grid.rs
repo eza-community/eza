@@ -44,24 +44,22 @@ impl<'a> Render<'a> {
         for file in &self.files {
             let filename = self.file_style.for_file(file, self.theme);
             let contents = filename.paint();
-            let width;
-
-            match (filename.options.embed_hyperlinks, filename.options.show_icons) {
-                (EmbedHyperlinks::On, ShowIcons::On(spacing)) => width = filename.bare_width() + 1 + (spacing as usize),
-                (EmbedHyperlinks::On, ShowIcons::Off) => width = filename.bare_width(),
-                (EmbedHyperlinks::Off, _) => width = *contents.width(),
+            let width = match (filename.options.embed_hyperlinks, filename.options.show_icons) {
+                (EmbedHyperlinks::On, ShowIcons::On(spacing)) => filename.bare_width() + 1 + (spacing as usize),
+                (EmbedHyperlinks::On, ShowIcons::Off) => filename.bare_width(),
+                (EmbedHyperlinks::Off, _) => *contents.width(),
             };
 
             grid.add(tg::Cell {
                 contents:  contents.strings().to_string(),
                 // with hyperlink escape sequences,
                 // the actual *contents.width() is larger than actually needed, so we take only the filename
-                width:     width,
+                width,
             });
         }
 
         if let Some(display) = grid.fit_into_width(self.console_width) {
-            write!(w, "{}", display)
+            write!(w, "{display}")
         }
         else {
             // File names too long for a grid - drop down to just listing them!

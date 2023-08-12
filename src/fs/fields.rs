@@ -82,7 +82,7 @@ pub struct Permissions {
     pub setuid:         bool,
 }
 
-/// The file's FileAttributes field, available only on Windows.
+/// The file's `FileAttributes` field, available only on Windows.
 #[derive(Copy, Clone)]
 pub struct Attributes {
     pub archive:         bool,

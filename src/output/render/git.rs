@@ -60,7 +60,9 @@ impl f::GitStatus {
 
 pub trait Colours {
     fn not_modified(&self) -> Style;
-    #[allow(clippy::new_ret_no_self)]
+    // FIXME: this amount of allows needed to keep clippy happy should be enough
+    // of an argument that new needs to be renamed.
+    #[allow(clippy::new_ret_no_self,clippy::wrong_self_convention)]
     fn new(&self) -> Style;
     fn modified(&self) -> Style;
     fn deleted(&self) -> Style;

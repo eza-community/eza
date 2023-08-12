@@ -317,7 +317,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     // and if that's the case then I think it's best to not try and generalize escape::escape to this case,
     // as this adaptation would incur some unneeded operations there
     pub fn escape_color_and_hyperlinks(&self, bits: &mut Vec<ANSIString<'_>>, good: Style, bad: Style) {
-        let string = self.file.name.to_owned();
+        let string = self.file.name.clone();
 
         if string.chars().all(|c| c >= 0x20 as char && c != 0x7f as char) {
             let painted = good.paint(string);
@@ -430,5 +430,5 @@ pub trait Colours: FiletypeColours {
 
 /// Generate a string made of `n` spaces.
 fn spaces(width: u32) -> String {
-    (0 .. width).into_iter().map(|_| ' ').collect()
+    (0 .. width).map(|_| ' ').collect()
 }

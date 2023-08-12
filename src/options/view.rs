@@ -33,7 +33,7 @@ impl Mode {
         let flag = matches.has_where_any(|f| f.matches(&flags::LONG) || f.matches(&flags::ONE_LINE)
                                           || f.matches(&flags::GRID) || f.matches(&flags::TREE));
 
-        let flag = if let Some(f) = flag { f } else {
+        let Some(flag) = flag else {
             Self::strict_check_long_flags(matches)?;
             let grid = grid::Options::deduce(matches)?;
             return Ok(Self::Grid(grid));
@@ -84,7 +84,7 @@ impl Mode {
             for option in &[ &flags::BINARY, &flags::BYTES, &flags::INODE, &flags::LINKS,
                              &flags::HEADER, &flags::BLOCKS, &flags::TIME, &flags::GROUP, &flags::NUMERIC ] {
                 if matches.has(option)? {
-                    return Err(OptionsError::Useless(*option, false, &flags::LONG));
+                    return Err(OptionsError::Useless(option, false, &flags::LONG));
                 }
             }
 

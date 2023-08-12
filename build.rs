@@ -60,7 +60,7 @@ fn git_hash() -> String {
 
     String::from_utf8_lossy(
         &Command::new("git")
-            .args(&["rev-parse", "--short", "HEAD"])
+            .args(["rev-parse", "--short", "HEAD"])
             .output().unwrap()
             .stdout).trim().to_string()
 }
@@ -97,7 +97,7 @@ fn version_string() -> String {
 
 /// Finds whether a feature is enabled by examining the Cargo variable.
 fn feature_enabled(name: &str) -> bool {
-    env::var(&format!("CARGO_FEATURE_{}", name))
+    env::var(format!("CARGO_FEATURE_{}", name))
         .map(|e| ! e.is_empty())
         .unwrap_or(false)
 }
