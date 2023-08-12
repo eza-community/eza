@@ -328,7 +328,7 @@ impl<'a> Render<'a> {
             }
 
             let count = egg.xattrs.len();
-            for (index, xattr) in egg.xattrs.into_iter().enumerate() {
+            for (index, xattr) in egg.xattrs.enumerate() {
                 let params = TreeParams::new(depth.deeper(), errors.is_empty() && index == count - 1);
                 let r = self.render_xattr(xattr, params);
                 rows.push(r);
