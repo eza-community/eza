@@ -430,5 +430,5 @@ pub trait Colours: FiletypeColours {
 
 /// Generate a string made of `n` spaces.
 fn spaces(width: u32) -> String {
-    (0 .. width).into_iter().map(|_| ' ').collect()
+    (0 .. width).map(|_| ' ').collect()
 }
