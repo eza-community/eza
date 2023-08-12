@@ -8,10 +8,7 @@ use ansi_term::{Colour, ANSIString};
 /// Sets the internal logger, changing the log level based on the value of an
 /// environment variable.
 pub fn configure<T: AsRef<OsStr>>(ev: Option<T>) {
-    let ev = match ev {
-        Some(v)  => v,
-        None     => return,
-    };
+    let Some(ev) = ev else { return };
 
     let env_var = ev.as_ref();
     if env_var.is_empty() {
