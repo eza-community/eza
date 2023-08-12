@@ -194,7 +194,7 @@ impl ExtensionMappings {
     }
 
     fn add(&mut self, pattern: glob::Pattern, style: Style) {
-        self.mappings.push((pattern, style))
+        self.mappings.push((pattern, style));
     }
 }
 

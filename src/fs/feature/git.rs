@@ -68,7 +68,7 @@ impl FromIterator<PathBuf> for GitCache {
                         git.repos.push(r);
                     }
                     Err(miss) => {
-                        git.misses.push(miss)
+                        git.misses.push(miss);
                     }
                 }
             }
@@ -170,15 +170,13 @@ impl GitRepo {
                 if e.code() != git2::ErrorCode::NotFound {
                     error!("Error opening Git repo from env using GIT_DIR: {:?}", e);
                     return Err(path);
-                } else {
-                    // nothing found, search using discover
-                    match git2::Repository::discover(&path) {
-                        Ok(r) => r,
-                        Err(e) => {
-                            error!("Error discovering Git repositories: {:?}", e);
-                            return Err(path);
-
-                        }
+                }
+                // nothing found, search using discover
+                match git2::Repository::discover(&path) {
+                    Ok(r) => r,
+                    Err(e) => {
+                        error!("Error discovering Git repositories: {:?}", e);
+                        return Err(path);
                     }
                 }
             }
@@ -316,8 +314,8 @@ fn reorient(path: &Path) -> PathBuf {
 
     // TODO: I’m not 100% on this func tbh
     let path = match current_dir() {
-        Err(_)   => Path::new(".").join(&path),
-        Ok(dir)  => dir.join(&path),
+        Err(_)   => Path::new(".").join(path),
+        Ok(dir)  => dir.join(path),
     };
 
     path.canonicalize().unwrap_or(path)
@@ -383,7 +381,7 @@ fn current_branch(repo: &git2::Repository) -> Option<String>{
 impl f::SubdirGitRepo{
     pub fn from_path(dir : &Path, status : bool) -> Self{
 
-        let path = &reorient(&dir);
+        let path = &reorient(dir);
         let g = git2::Repository::open(path);
         if let Ok(repo) = g{
 
@@ -399,7 +397,7 @@ impl f::SubdirGitRepo{
                     return Self{status : f::SubdirGitRepoStatus::GitClean, branch};
                 }
                 Err(e) => {
-                    error!("Error looking up Git statuses: {:?}", e)
+                    error!("Error looking up Git statuses: {e:?}");
                 }
             }
         }

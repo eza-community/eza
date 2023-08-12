@@ -179,14 +179,14 @@ impl<'a> Render<'a> {
             self.add_files_to_table(&mut pool, &mut table, &mut rows, &self.files, TreeDepth::root());
 
             for row in self.iterate_with_table(table.unwrap(), rows) {
-                writeln!(w, "{}", row.strings())?
+                writeln!(w, "{}", row.strings())?;
             }
         }
         else {
             self.add_files_to_table(&mut pool, &mut None, &mut rows, &self.files, TreeDepth::root());
 
             for row in self.iterate(rows) {
-                writeln!(w, "{}", row.strings())?
+                writeln!(w, "{}", row.strings())?;
             }
         }
 
@@ -328,7 +328,7 @@ impl<'a> Render<'a> {
             }
 
             let count = egg.xattrs.len();
-            for (index, xattr) in egg.xattrs.into_iter().enumerate() {
+            for (index, xattr) in egg.xattrs.iter().enumerate() {
                 let params = TreeParams::new(depth.deeper(), errors.is_empty() && index == count - 1);
                 let r = self.render_xattr(xattr, params);
                 rows.push(r);
@@ -357,7 +357,7 @@ impl<'a> Render<'a> {
         let error_message = if let Some(path) = path {
             format!("<{}: {}>", path.display(), error)
         } else {
-            format!("<{}>", error)
+            format!("<{error}>")
         };
 
         // TODO: broken_symlink() doesn’t quite seem like the right name for

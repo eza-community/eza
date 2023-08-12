@@ -179,6 +179,7 @@ impl Column {
     /// Get the alignment this column should use.
     #[cfg(unix)]
     pub fn alignment(self) -> Alignment {
+        #[allow(clippy::wildcard_in_or_patterns)]
         match self {
             Self::FileSize   |
             Self::HardLinks  |
@@ -437,7 +438,7 @@ pub struct Row {
     cells: Vec<TextCell>,
 }
 
-impl<'a, 'f> Table<'a> {
+impl<'a> Table<'a> {
     pub fn new(options: &'a Options, git: Option<&'a GitCache>, theme: &'a Theme) -> Table<'a> {
         let columns = options.columns.collect(git.is_some());
         let widths = TableWidths::zero(columns.len());
@@ -476,31 +477,25 @@ impl<'a, 'f> Table<'a> {
     }
 
     pub fn add_widths(&mut self, row: &Row) {
-        self.widths.add_widths(row)
+        self.widths.add_widths(row);
     }
 
     fn permissions_plus(&self, file: &File<'_>, xattrs: bool) -> Option<f::PermissionsPlus> {
-        match file.permissions() {
-            Some(p) => Some(f::PermissionsPlus {
-                file_type: file.type_char(),
-                #[cfg(unix)]
-                permissions: p,
-                #[cfg(windows)]
-                attributes: file.attributes(),
-                xattrs
-            }),
-            None => None,
-        }
+        file.permissions().map(|p| f::PermissionsPlus {
+            file_type: file.type_char(),
+            #[cfg(unix)]
+            permissions: p,
+            #[cfg(windows)]
+            attributes: file.attributes(),
+            xattrs
+        })
     }
 
     #[cfg(unix)]
     fn octal_permissions(&self, file: &File<'_>) -> Option<f::OctalPermissions> {
-        match file.permissions() {
-            Some(p) => Some(f::OctalPermissions {
-                permissions: p,
-            }),
-            None => None,
-        }
+        file.permissions().map(|p| f::OctalPermissions {
+            permissions: p,
+        })
     }
 
     fn display(&self, file: &File<'_>, column: Column, xattrs: bool) -> TextCell {

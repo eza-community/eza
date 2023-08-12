@@ -83,14 +83,14 @@ impl TimeFormat {
 fn default_local(time: SystemTime) -> String {
     let date = LocalDateTime::at(systemtime_epoch(time));
     let date_format = get_dateformat(&date);
-    date_format.format(&date, &*LOCALE)
+    date_format.format(&date, &LOCALE)
 }
 
 #[allow(trivial_numeric_casts)]
 fn default_zoned(time: SystemTime, zone: &TimeZone) -> String {
     let date = zone.to_zoned(LocalDateTime::at(systemtime_epoch(time)));
     let date_format = get_dateformat(&date);
-    date_format.format(&date, &*LOCALE)
+    date_format.format(&date, &LOCALE)
 }
 
 fn get_dateformat(date: &LocalDateTime) -> &'static DateFormat<'static> {

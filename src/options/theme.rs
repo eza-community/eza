@@ -27,10 +27,7 @@ impl UseColours {
             None => Self::Automatic,
         };
 
-        let word = match matches.get_where(|f| f.matches(&flags::COLOR) || f.matches(&flags::COLOUR))? {
-            Some(w)  => w,
-            None => return Ok(default_value),
-        };
+        let Some(word) = matches.get_where(|f| f.matches(&flags::COLOR) || f.matches(&flags::COLOUR))? else { return Ok(default_value) };
 
         if word == "always" {
             Ok(Self::Always)
