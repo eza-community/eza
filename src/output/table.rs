@@ -437,7 +437,7 @@ pub struct Row {
     cells: Vec<TextCell>,
 }
 
-impl<'a, 'f> Table<'a> {
+impl<'a> Table<'a> {
     pub fn new(options: &'a Options, git: Option<&'a GitCache>, theme: &'a Theme) -> Table<'a> {
         let columns = options.columns.collect(git.is_some());
         let widths = TableWidths::zero(columns.len());
