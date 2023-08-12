@@ -116,10 +116,14 @@ pub fn icon_for_file(file: &File<'_>) -> char {
     else if let Some(icon) = extensions.icon_file(file) { icon }
     else if let Some(ext) = file.ext.as_ref() {
         match ext.as_str() {
+            "7z"            => '\u{f410}', // 
+            "a"             => '\u{f17c}', // 
+            "acf"           => '\u{f1b6}', // 
             "ai"            => '\u{e7b4}', // 
             "android"       => '\u{e70e}', // 
             "apk"           => '\u{e70e}', // 
             "apple"         => '\u{f179}', // 
+            "asm"           => '\u{e637}', // 
             "avi"           => '\u{f03d}', // 
             "avif"          => '\u{f1c5}', // 
             "avro"          => '\u{e60b}', // 
@@ -131,6 +135,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "bat"           => '\u{ebc4}', //  
             "bats"          => '\u{f489}', // 
             "bib"           => '\u{e69b}', // 
+            "bin"           => '\u{eae8}', // 
             "bmp"           => '\u{f1c5}', // 
             "bst"           => '\u{e69b}', // 
             "bz"            => '\u{f410}', // 
@@ -139,6 +144,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "c++"           => '\u{e61d}', // 
             "cab"           => '\u{e70f}', // 
             "cc"            => '\u{e61d}', // 
+            "cert"          => '\u{eafa}', // 
             "cfg"           => '\u{e615}', // 
             "cjs"           => '\u{e74e}', // 
             "class"         => '\u{e256}', // 
@@ -148,9 +154,11 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "cmd"           => '\u{e70f}', // 
             "coffee"        => '\u{f0f4}', // 
             "conf"          => '\u{e615}', // 
+            "config"        => '\u{e615}', // 
             "cp"            => '\u{e61d}', // 
             "cpio"          => '\u{f410}', // 
             "cpp"           => '\u{e61d}', // 
+            "crt"           => '\u{eafa}', // 
             "cs"            => '\u{f031b}', // 󰌛
             "csh"           => '\u{f489}', // 
             "cshtml"        => '\u{f1fa}', // 
@@ -159,16 +167,19 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "csv"           => '\u{f1c3}', // 
             "csx"           => '\u{f031b}', // 󰌛
             "cts"           => '\u{e628}', // 
+            "cu"            => '\u{e64b}', // 
             "cxx"           => '\u{e61d}', // 
             "d"             => '\u{e7af}', // 
             "dart"          => '\u{e798}', // 
             "db"            => '\u{f1c0}', // 
             "deb"           => '\u{e77d}', // 
+            "desktop"       => '\u{ebd1}', // 
             "diff"          => '\u{f440}', // 
             "djvu"          => '\u{f02d}', // 
             "dll"           => '\u{e70f}', // 
             "doc"           => '\u{f1c2}', // 
             "docx"          => '\u{f1c2}', // 
+            "drawio"        => '\u{ebba}', // 
             "ds_store"      => '\u{f179}', // 
             "DS_store"      => '\u{f179}', // 
             "dump"          => '\u{f1c0}', // 
@@ -178,6 +189,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "ejs"           => '\u{e618}', // 
             "el"            => '\u{e632}', // 
             "elm"           => '\u{e62c}', // 
+            "eml"           => '\u{f003}', //  
             "env"           => '\u{f462}', // 
             "eot"           => '\u{f031}', // 
             "epub"          => '\u{e28a}', // 
@@ -218,7 +230,11 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "htm"           => '\u{f13b}', // 
             "html"          => '\u{f13b}', // 
             "hxx"           => '\u{f0fd}', // 
+            "ical"          => '\u{eab0}', // 
+            "icalendar"     => '\u{eab0}', // 
             "ico"           => '\u{f1c5}', // 
+            "ics"           => '\u{eab0}', // 
+            "ifb"           => '\u{eab0}', // 
             "image"         => '\u{f1c5}', // 
             "img"           => '\u{e271}', // 
             "iml"           => '\u{e7b5}', // 
@@ -244,6 +260,10 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "json"          => '\u{e60b}', // 
             "jsx"           => '\u{e7ba}', // 
             "jxl"           => '\u{f1c5}', // 
+            "kdb"           => '\u{f23e}', // 
+            "kdbx"          => '\u{f23e}', // 
+            "key"           => '\u{eb11}', // 
+            "ko"            => '\u{f17c}', // 
             "ksh"           => '\u{f489}', // 
             "latex"         => '\u{e69b}', // 
             "less"          => '\u{e758}', // 
@@ -265,6 +285,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "mly"           => '\u{e67a}', // 
             "mm"            => '\u{e61d}', // 
             "m4a"           => '\u{f001}', // 
+            "magnet"        => '\u{f076}', // 
             "markdown"      => '\u{f48a}', // 
             "md"            => '\u{f48a}', // 
             "mjs"           => '\u{e74e}', // 
@@ -282,6 +303,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "nix"           => '\u{f313}', // 
             "node"          => '\u{f0399}', // 󰎙
             "npmignore"     => '\u{e71e}', // 
+            "o"             => '\u{eae8}', // 
             "odp"           => '\u{f1c4}', // 
             "ods"           => '\u{f1c3}', // 
             "odt"           => '\u{f1c2}', // 
@@ -289,9 +311,11 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "ogv"           => '\u{f03d}', // 
             "org"           => '\u{e633}', // 
             "otf"           => '\u{f031}', // 
+            "out"           => '\u{eb2c}', // 
             "part"          => '\u{f43a}', // 
             "patch"         => '\u{f440}', // 
             "pdf"           => '\u{f1c1}', // 
+            "pem"           => '\u{eb11}', // 
             "php"           => '\u{e73d}', // 
             "pl"            => '\u{e769}', // 
             "plx"           => '\u{e769}', // 
@@ -309,6 +333,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "pxm"           => '\u{f1c5}', // 
             "py"            => '\u{e606}', // 
             "pyc"           => '\u{e606}', // 
+            "qcow2"         => '\u{e271}', // 
             "r"             => '\u{f25d}', // 
             "rakefile"      => '\u{e21e}', // 
             "rar"           => '\u{f410}', // 
@@ -332,9 +357,11 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "rtf"           => '\u{f0219}', // 󰈙
             "ru"            => '\u{e21e}', // 
             "rubydoc"       => '\u{e73b}', // 
+            "s"             => '\u{e637}', // 
             "sass"          => '\u{e603}', // 
             "scala"         => '\u{e737}', // 
             "scss"          => '\u{e749}', // 
+            "service"       => '\u{eba2}', // 
             "sh"            => '\u{f489}', // 
             "shell"         => '\u{f489}', // 
             "slim"          => '\u{e73b}', // 
@@ -367,8 +394,13 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "txz"           => '\u{f410}', // 
             "tz"            => '\u{f410}', // 
             "tzo"           => '\u{f410}', // 
+            "unity"         => '\u{e721}', // 
+            "unity3d"       => '\u{e721}', // 
+            "vdi"           => '\u{e271}', // 
+            "vhd"           => '\u{e271}', // 
             "video"         => '\u{f03d}', // 
             "vim"           => '\u{e7c5}', // 
+            "vmdk"          => '\u{e271}', // 
             "vue"           => '\u{f0844}', // 󰡄
             "war"           => '\u{e256}', // 
             "wav"           => '\u{f001}', // 
@@ -379,6 +411,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "woff2"         => '\u{f031}', // 
             "xhtml"         => '\u{f13b}', // 
             "xls"           => '\u{f1c3}', // 
+            "xlsm"          => '\u{f1c3}', // 
             "xlsx"          => '\u{f1c3}', // 
             "xml"           => '\u{f05c0}', // 󰗀
             "xul"           => '\u{f05c0}', // 󰗀
