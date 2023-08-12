@@ -44,3 +44,6 @@ jobs:
 
       - name: Run unit tests
         run: cargo hack test --feature-powerset
+
+      - name: Run clippy lints
+        run: cargo clippy -- -D warnings 
