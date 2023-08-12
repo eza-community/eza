@@ -180,7 +180,7 @@ impl GitRepo {
     fn discover(path: PathBuf, flags: git2::RepositoryOpenFlags) -> Result<Self, PathBuf> {
         info!("Opening Git repository for {:?} ({:?})", path, flags);
         let unused: [&OsStr; 0] = [];
-        let repo = match git2::Repository::open_ext(&path, flags, &unused) {
+        let repo = match git2::Repository::open_ext(&path, flags, unused) {
             Ok(r) => r,
             Err(e) => {
                 error!("Error opening Git repository for {path:?}: {e:?}");
