@@ -164,7 +164,7 @@ impl Args {
             // the pair “-- --arg”, without it getting matched as a flag that
             // doesn’t exist.
             if ! parsing {
-                frees.push(arg)
+                frees.push(arg);
             }
             else if arg == "--" {
                 parsing = false;
@@ -194,7 +194,7 @@ impl Args {
                     let flag = Flag::Long(arg.long);
                     match arg.takes_value {
                         TakesValue::Forbidden => {
-                            result_flags.push((flag, None))
+                            result_flags.push((flag, None));
                         }
                         TakesValue::Necessary(values) => {
                             if let Some(next_arg) = inputs.next() {
@@ -283,7 +283,7 @@ impl Args {
                         let flag = Flag::Short(*byte);
                         match arg.takes_value {
                             TakesValue::Forbidden => {
-                                result_flags.push((flag, None))
+                                result_flags.push((flag, None));
                             }
                             TakesValue::Necessary(values) |
                             TakesValue::Optional(values) => {
