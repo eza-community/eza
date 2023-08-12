@@ -78,6 +78,9 @@ Valid settings are ‘`always`’, ‘`automatic`’, and ‘`never`’.
 `--hyperlink`
 : Display entries as hyperlinks
 
+`-w`, `--width=COLS`
+Set screen width in columns.
+
 
 FILTERING AND SORTING OPTIONS
 =============================
@@ -204,7 +207,7 @@ eza responds to the following environment variables:
 
 ## `COLUMNS`
 
-Overrides the width of the terminal, in characters.
+Overrides the width of the terminal, in characters, however, `-w` takes precedence.
 
 For example, ‘`COLUMNS=80 eza`’ will show a grid view with a maximum width of 80 characters.
 
