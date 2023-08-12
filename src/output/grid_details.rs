@@ -227,7 +227,7 @@ impl<'a> Render<'a> {
         let original_height = divide_rounding_up(rows.len(), column_count);
         let height = divide_rounding_up(num_cells, column_count);
 
-        for (i, (file_name, row)) in file_names.iter().zip(rows.into_iter()).enumerate() {
+        for (i, (file_name, row)) in file_names.iter().zip(rows).enumerate() {
             let index = if self.grid.across {
                     i % column_count
                 }
@@ -271,7 +271,7 @@ impl<'a> Render<'a> {
         }
         else {
             for column in &columns {
-                for cell in column.iter() {
+                for cell in column {
                     let cell = grid::Cell {
                         contents: ANSIStrings(&cell.contents).to_string(),
                         width:    *cell.width,
