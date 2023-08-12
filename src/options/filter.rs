@@ -33,10 +33,7 @@ impl SortField {
         let Some(word) = matches.get(&flags::SORT)? else { return Ok(Self::default()) };
 
         // Get String because we can’t match an OsStr
-        let word = match word.to_str() {
-            Some(w)  => w,
-            None     => return Err(OptionsError::BadArgument(&flags::SORT, word.into()))
-        };
+        let Some(word) = word.to_str() else { return Err(OptionsError::BadArgument(&flags::SORT, word.into())) };
 
         let field = match word {
             "name" | "filename" => {
