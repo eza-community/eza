@@ -397,7 +397,7 @@ impl f::SubdirGitRepo{
                     return Self{status : f::SubdirGitRepoStatus::GitClean, branch};
                 }
                 Err(e) => {
-                    error!("Error looking up Git statuses: {:?}", e);
+                    error!("Error looking up Git statuses: {e:?}");
                 }
             }
         }
