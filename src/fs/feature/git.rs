@@ -68,7 +68,7 @@ impl FromIterator<PathBuf> for GitCache {
                         git.repos.push(r);
                     }
                     Err(miss) => {
-                        git.misses.push(miss)
+                        git.misses.push(miss);
                     }
                 }
             }
