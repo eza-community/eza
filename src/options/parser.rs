@@ -316,7 +316,7 @@ impl Args {
 
             // Otherwise, it’s a free string, usually a file name.
             else {
-                frees.push(arg)
+                frees.push(arg);
             }
         }
 
