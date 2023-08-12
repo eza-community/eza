@@ -184,10 +184,7 @@ impl IgnorePatterns {
 
         // If there are no inputs, we return a set of patterns that doesn’t
         // match anything, rather than, say, `None`.
-        let inputs = match matches.get(&flags::IGNORE_GLOB)? {
-            Some(is)  => is,
-            None      => return Ok(Self::empty()),
-        };
+        let Some(inputs) = matches.get(&flags::IGNORE_GLOB)? else { return Ok(Self::empty()) };
 
         // Awkwardly, though, a glob pattern can be invalid, and we need to
         // deal with invalid patterns somehow.
