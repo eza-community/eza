@@ -179,6 +179,7 @@ impl Column {
     /// Get the alignment this column should use.
     #[cfg(unix)]
     pub fn alignment(self) -> Alignment {
+        #[allow(clippy::wildcard_in_or_patterns)]
         match self {
             Self::FileSize   |
             Self::HardLinks  |
