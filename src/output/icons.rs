@@ -130,7 +130,9 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "bashrc"        => '\u{f489}', // 
             "bat"           => '\u{ebc4}', //  
             "bats"          => '\u{f489}', // 
+            "bib"           => '\u{e69b}', // 
             "bmp"           => '\u{f1c5}', // 
+            "bst"           => '\u{e69b}', // 
             "bz"            => '\u{f410}', // 
             "bz2"           => '\u{f410}', // 
             "c"             => '\u{e61e}', // 
@@ -142,7 +144,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "class"         => '\u{e256}', // 
             "clj"           => '\u{e768}', // 
             "cljs"          => '\u{e76a}', // 
-            "cls"           => '\u{f034}', // 
+            "cls"           => '\u{e69b}', // 
             "cmd"           => '\u{e70f}', // 
             "coffee"        => '\u{f0f4}', // 
             "conf"          => '\u{e615}', // 
@@ -243,7 +245,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "jsx"           => '\u{e7ba}', // 
             "jxl"           => '\u{f1c5}', // 
             "ksh"           => '\u{f489}', // 
-            "latex"         => '\u{f034}', // 
+            "latex"         => '\u{e69b}', // 
             "less"          => '\u{e758}', // 
             "lhs"           => '\u{e777}', // 
             "license"       => '\u{f02d}', // 
@@ -337,7 +339,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "so"            => '\u{f17c}', // 
             "sql"           => '\u{f1c0}', // 
             "sqlite3"       => '\u{e7c4}', // 
-            "sty"           => '\u{f034}', // 
+            "sty"           => '\u{e69b}', // 
             "styl"          => '\u{e600}', // 
             "stylus"        => '\u{e600}', // 
             "svg"           => '\u{f1c5}', // 
@@ -347,7 +349,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             "taz"           => '\u{f410}', // 
             "tbz"           => '\u{f410}', // 
             "tbz2"          => '\u{f410}', // 
-            "tex"           => '\u{f034}', // 
+            "tex"           => '\u{e69b}', // 
             "tgz"           => '\u{f410}', // 
             "tiff"          => '\u{f1c5}', // 
             "tlz"           => '\u{f410}', // 
