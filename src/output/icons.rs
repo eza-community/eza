@@ -75,6 +75,7 @@ lazy_static! {
         m.insert("Earthfile", '\u{f30d}'); // 🌍
         m.insert("ds_store", '\u{f179}'); // 
         m.insert("gitignore_global", '\u{f1d3}'); // 
+        m.insert("gitlab-ci.yml", '\u{f296}'); // 
         m.insert("go.mod", '\u{e626}'); // 
         m.insert("go.sum", '\u{e626}'); // 
         m.insert("gradle", '\u{e256}'); // 
