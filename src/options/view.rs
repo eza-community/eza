@@ -84,7 +84,7 @@ impl Mode {
             for option in &[ &flags::BINARY, &flags::BYTES, &flags::INODE, &flags::LINKS,
                              &flags::HEADER, &flags::BLOCKS, &flags::TIME, &flags::GROUP, &flags::NUMERIC ] {
                 if matches.has(option)? {
-                    return Err(OptionsError::Useless(*option, false, &flags::LONG));
+                    return Err(OptionsError::Useless(option, false, &flags::LONG));
                 }
             }
 

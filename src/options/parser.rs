@@ -71,7 +71,7 @@ impl fmt::Display for Flag {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
             Self::Short(short)  => write!(f, "-{}", *short as char),
-            Self::Long(long)    => write!(f, "--{}", long),
+            Self::Long(long)    => write!(f, "--{long}"),
         }
     }
 }
@@ -330,7 +330,7 @@ impl Args {
         }
     }
 
-    fn lookup_long<'b>(&self, long: &'b OsStr) -> Result<&Arg, ParseError> {
+    fn lookup_long(&self, long: &OsStr) -> Result<&Arg, ParseError> {
         match self.0.iter().find(|arg| arg.long == long) {
             Some(arg)  => Ok(arg),
             None       => Err(ParseError::UnknownArgument { attempt: long.to_os_string() })

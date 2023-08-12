@@ -102,21 +102,21 @@ impl fmt::Display for HelpString {
     /// Format this help options into an actual string of help
     /// text to be displayed to the user.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{}", USAGE_PART1)?;
+        write!(f, "{USAGE_PART1}")?;
 
         if cfg!(feature = "git") {
-            write!(f, "\n{}", GIT_FILTER_HELP)?;
+            write!(f, "\n{GIT_FILTER_HELP}")?;
         }
 
-        write!(f, "\n{}", USAGE_PART2)?;
+        write!(f, "\n{USAGE_PART2}")?;
 
         if cfg!(feature = "git") {
-            write!(f, "\n{}", GIT_VIEW_HELP)?;
+            write!(f, "\n{GIT_VIEW_HELP}")?;
         }
 
         if xattr::ENABLED {
-            write!(f, "\n{}", EXTENDED_HELP)?;
-            write!(f, "\n{}", SECATTR_HELP)?;
+            write!(f, "\n{EXTENDED_HELP}")?;
+            write!(f, "\n{SECATTR_HELP}")?;
         }
 
         writeln!(f)
