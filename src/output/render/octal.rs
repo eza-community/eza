@@ -17,7 +17,7 @@ impl Render for Option<f::OctalPermissions> {
                 let octal_group  = f::OctalPermissions::bits_to_octal(perm.group_read, perm.group_write, perm.group_execute);
                 let octal_other  = f::OctalPermissions::bits_to_octal(perm.other_read, perm.other_write, perm.other_execute);
 
-                TextCell::paint(style, format!("{}{}{}{}", octal_sticky, octal_owner, octal_group, octal_other))
+                TextCell::paint(style, format!("{octal_sticky}{octal_owner}{octal_group}{octal_other}"))
             },
             None => TextCell::paint(style, "----".into())
         }
