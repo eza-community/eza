@@ -484,9 +484,9 @@ pub enum ParseError {
 impl fmt::Display for ParseError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::NeedsValue { flag, values: None }      => write!(f, "Flag {} needs a value", flag),
-            Self::NeedsValue { flag, values: Some(cs) }  => write!(f, "Flag {} needs a value ({})", flag, Choices(cs)),
-            Self::ForbiddenValue { flag }                => write!(f, "Flag {} cannot take a value", flag),
+            Self::NeedsValue { flag, values: None }      => write!(f, "Flag {flag} needs a value"),
+            Self::NeedsValue { flag, values: Some(cs) }  => write!(f, "Flag {flag} needs a value ({})", Choices(cs)),
+            Self::ForbiddenValue { flag }                => write!(f, "Flag {flag} cannot take a value"),
             Self::UnknownShortArgument { attempt }       => write!(f, "Unknown argument -{}", *attempt as char),
             Self::UnknownArgument { attempt }            => write!(f, "Unknown argument --{}", attempt.to_string_lossy()),
         }
