@@ -480,27 +480,21 @@ impl<'a, 'f> Table<'a> {
     }
 
     fn permissions_plus(&self, file: &File<'_>, xattrs: bool) -> Option<f::PermissionsPlus> {
-        match file.permissions() {
-            Some(p) => Some(f::PermissionsPlus {
-                file_type: file.type_char(),
-                #[cfg(unix)]
-                permissions: p,
-                #[cfg(windows)]
-                attributes: file.attributes(),
-                xattrs
-            }),
-            None => None,
-        }
+        file.permissions().map(|p| f::PermissionsPlus {
+            file_type: file.type_char(),
+            #[cfg(unix)]
+            permissions: p,
+            #[cfg(windows)]
+            attributes: file.attributes(),
+            xattrs
+        })
     }
 
     #[cfg(unix)]
     fn octal_permissions(&self, file: &File<'_>) -> Option<f::OctalPermissions> {
-        match file.permissions() {
-            Some(p) => Some(f::OctalPermissions {
-                permissions: p,
-            }),
-            None => None,
-        }
+        file.permissions().map(|p| f::OctalPermissions {
+            permissions: p,
+        })
     }
 
     fn display(&self, file: &File<'_>, column: Column, xattrs: bool) -> TextCell {
