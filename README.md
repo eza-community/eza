@@ -158,7 +158,7 @@ These options are available when running with `--long` (`-l`):
 - **-H**, **--links**: list each file’s number of hard links
 - **-i**, **--inode**: list each file’s inode number
 - **-m**, **--modified**: use the modified timestamp field
-- **-S**, **--blocks**: list each file’s number of file system blocks
+- **-S**, **--blocksize**: show size of allocated file system blocks
 - **-t**, **--time=(field)**: which timestamp field to use
 - **-u**, **--accessed**: use the accessed timestamp field
 - **-U**, **--created**: use the created timestamp field
