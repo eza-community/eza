@@ -435,15 +435,11 @@ impl<'dir> File<'dir> {
         if !self.is_directory() {
             false
         } else {
-            if let Ok(has_files) = Dir::read_dir(self.path.clone()) {
+            match Dir::read_dir(self.path.clone()) {
          // . & .. are skipped, if the returned iterator has .next(), it's not empty
-            match has_files.files(super::DotFilter::Dotfiles, None, false, false).next() {
-                    Some(_) => false,
-                    None => true,
+                Ok(has_files) =>  has_files.files(super::DotFilter::Dotfiles, None, false, false).next().is_none(),
+                Err(_) => false,
                 }
-            } else {
-                false
-            }
         }
     }
 
