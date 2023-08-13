@@ -426,6 +426,27 @@ impl<'dir> File<'dir> {
         }
     }
 
+    // To display icons for empty folders.
+    // The naive approach, as one would think that this info may have been cached.
+    // but as mentioned in the size function comment above, different filesystems
+    // make it difficult to get any info about a dir by it's size, so this may be it.
+    #[cfg(unix)]
+    pub fn is_empty_dir(&self) -> bool {
+        if !self.is_directory() {
+            false
+        } else {
+            if let Ok(has_files) = Dir::read_dir(self.path.clone()) {
+         // . & .. are skipped, if the returned iterator has .next(), it's not empty
+            match has_files.files(super::DotFilter::Dotfiles, None, false, false).next() {
+                    Some(_) => false,
+                    None => true,
+                }
+            } else {
+                false
+            }
+        }
+    }
+
     #[cfg(windows)]
     pub fn size(&self) -> f::Size {
         if self.is_directory() {

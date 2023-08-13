@@ -106,11 +106,15 @@ pub fn icon_for_file(file: &File<'_>) -> char {
 
     if let Some(icon) = MAP_BY_NAME.get(file.name.as_str()) { *icon }
     else if file.points_to_directory() {
+        if file.is_empty_dir() {
+          return '\u{f115}'  // 
+        }
         match file.name.as_str() {
             "bin"           => '\u{e5fc}', // 
             ".git"          => '\u{f1d3}', // 
             ".idea"         => '\u{e7b5}', // 
-            _               => '\u{f413}'  // 
+            _               => '\u{f07b}'  // 
+
         }
     }
     else if let Some(icon) = extensions.icon_file(file) { icon }
