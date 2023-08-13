@@ -223,7 +223,7 @@ impl Columns {
         let subdir_git_repos = matches.has(&flags::GIT_REPOS)?;
         let subdir_git_repos_no_stat = !subdir_git_repos && matches.has(&flags::GIT_REPOS_NO_STAT)?;
 
-        let blocks           = matches.has(&flags::BLOCKS)?;
+        let blocksize        = matches.has(&flags::BLOCKS)?;
         let group            = matches.has(&flags::GROUP)?;
         let inode            = matches.has(&flags::INODE)?;
         let links            = matches.has(&flags::LINKS)?;
@@ -234,7 +234,7 @@ impl Columns {
         let filesize =    ! matches.has(&flags::NO_FILESIZE)?;
         let user =        ! matches.has(&flags::NO_USER)?;
 
-        Ok(Self { time_types, inode, links, blocks, group, git, subdir_git_repos, subdir_git_repos_no_stat, octal, security_context, permissions, filesize, user })
+        Ok(Self { time_types, inode, links, blocksize, group, git, subdir_git_repos, subdir_git_repos_no_stat, octal, security_context, permissions, filesize, user })
     }
 }
 

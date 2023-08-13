@@ -48,7 +48,7 @@ pub struct Columns {
     // The rest are just on/off
     pub inode: bool,
     pub links: bool,
-    pub blocks: bool,
+    pub blocksize: bool,
     pub group: bool,
     pub git: bool,
     pub subdir_git_repos: bool,
@@ -89,9 +89,9 @@ impl Columns {
             columns.push(Column::FileSize);
         }
 
-        if self.blocks {
+        if self.blocksize {
             #[cfg(unix)]
-            columns.push(Column::Blocks);
+            columns.push(Column::Blocksize);
         }
 
         if self.user {
@@ -148,7 +148,7 @@ pub enum Column {
     FileSize,
     Timestamp(TimeType),
     #[cfg(unix)]
-    Blocks,
+    Blocksize,
     #[cfg(unix)]
     User,
     #[cfg(unix)]
@@ -184,7 +184,7 @@ impl Column {
             Self::FileSize   |
             Self::HardLinks  |
             Self::Inode      |
-            Self::Blocks     |
+            Self::Blocksize  |
             Self::GitStatus  => Alignment::Right,
             Self::Timestamp(_) | 
             _                => Alignment::Left,
@@ -211,7 +211,7 @@ impl Column {
             Self::FileSize      => "Size",
             Self::Timestamp(t)  => t.header(),
             #[cfg(unix)]
-            Self::Blocks        => "Blocks",
+            Self::Blocksize     => "Blocksize",
             #[cfg(unix)]
             Self::User          => "User",
             #[cfg(unix)]
@@ -515,7 +515,7 @@ impl<'a> Table<'a> {
                 file.inode().render(self.theme.ui.inode)
             }
             #[cfg(unix)]
-            Column::Blocks => {
+            Column::Blocksize => {
                 file.blocksize().render(self.theme, self.size_format, &self.env.numeric)
             }
             #[cfg(unix)]
