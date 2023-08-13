@@ -69,7 +69,7 @@
 
         # For `nix develop`:
         devShells.default = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [toolchain];
+          nativeBuildInputs = with pkgs; [toolchain just pandoc];
         };
 
         # for `nix flake check`
