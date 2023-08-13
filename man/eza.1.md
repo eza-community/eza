@@ -152,8 +152,8 @@ These options are available when running with `--long` (`-l`):
 `-n`, `--numeric`
 : List numeric user and group IDs.
 
-`-S`, `--blocks`
-: List each file’s number of file system blocks.
+`-S`, `--blocksize`
+: List each file’s size of allocated file system blocks.
 
 `-t`, `--time=WORD`
 : Which timestamp field to list.
