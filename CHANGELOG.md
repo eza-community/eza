@@ -2,6 +2,89 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.7] - 2023-08-13
+
+### Bug Fixes
+
+- Broken zsh completion syntax
+- Respect GIT_CEILING_DIRECTORIES
+- MacOS flake support
+
+### Documentation
+
+- Create SECURITY.md
+- Create CONTRIBUTING.md
+
+### Features
+
+- Add gitlab-ci.yml
+- Improve icon for Earthfile
+- Better.ps1, add .psd1, .psm1 icons
+- Replace .bat icon by windows cli icon
+- Use TeX icons and add .bib, .bst icon
+- Use Ocaml logo, add .mli, .mll, .mly
+- Add many more icons
+- Add -w/--width to help string
+- Add -w/--width to README
+- Add -w/--width to flags
+- Add -w/--width to manpage
+- Fish -w/--width
+- Zsh -w/--width
+
+### Miscellaneous Tasks
+
+- Add PR template
+- Bump log from 0.4.14 to 0.4.20
+
+### Refactor
+
+- GIT_DIR handling
+- Turn unused var into value
+- Fix borrowed trait implements required
+- Simplify format strings
+- Consistent style
+- Clippy::explicit_auto_deref
+- Clippy::explicit_auto_deref
+- Clippy::redundant_else
+- Clippy::manual_map
+- Clippy::semicolon_if_nothing_returned
+- Clippy::extra_unused_lifetimes
+- Allow clippy::wildcard_in_or_patterns
+- Clippy::uninlined_format_args
+- Allow Colours::new call with self
+- Clippy::explicit_iter_loop
+- Clippy::uninlined_format_args
+- Clippy::needless_late_init
+- Clippy::useless_conversion
+- Clippy::implicit_clone
+- Clippy::uninlined_format_args
+- Clippy::into-iter-on-ref
+- Clippy::semicolon_if_nothing_returned
+- Clippy::into_iter_on_ref
+- Clippy::needless_lifetimes
+- Clippy::uninlined_format_args
+- Trivial clippy lints
+- Clippy::semicolon_if_nothing_returned
+- Clippy::semicolon_if_nothing_returned
+- Clippy::manual_let_else
+- Clippy::semicolon_if_nothing_returned
+- Clippy::semicolon_if_nothing_returned
+- Clippy::uninlined_format_args
+- Clippy::manual_let_else
+- Clippy::manual_let_else
+- Clippy::manual_let_else
+- Clippy::manual_let_else
+- Clippy::manual_let_else
+- Fix trivial cast
+- Clippy::needless-borrow
+- TerminalWidth::deduce to -w/--width
+
+### Ci
+
+- Create pull_request_template.md
+- Add clippy check
+- Add dependabot updater
+
 ## [0.10.6] - 2023-08-07
 
 ### Bug Fixes
@@ -18,6 +101,10 @@ All notable changes to this project will be documented in this file.
 
 - Use GIT_DIR env var to find the repo
 - Add color explanations
+
+### Miscellaneous Tasks
+
+- Release 0.10.6
 
 ## [0.10.5] - 2023-08-03
 
