@@ -51,7 +51,7 @@ LONG VIEW OPTIONS
   -i, --inode              list each file's inode number
   -m, --modified           use the modified timestamp field
   -n, --numeric            list numeric user and group IDs
-  -S, --blocks             show number of file system blocks
+  -S, --blocksize          show size of allocated file system blocks
   -t, --time FIELD         which timestamp field to list (modified, accessed, created)
   -u, --accessed           use the accessed timestamp field
   -U, --created            use the created timestamp field
