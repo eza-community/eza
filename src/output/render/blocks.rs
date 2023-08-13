@@ -71,32 +71,70 @@ pub mod test {
     use ansi_term::Colour::*;
 
     use super::Colours;
-    use crate::output::cell::TextCell;
+    use crate::output::cell::{TextCell, DisplayWidth};
+    use crate::output::table::SizeFormat;
     use crate::fs::fields as f;
 
+    use locale::Numeric as NumericLocale;
+    use number_prefix::Prefix;
 
     struct TestColours;
 
     impl Colours for TestColours {
-        fn block_count(&self) -> Style { Red.blink() }
-        fn no_blocks(&self)   -> Style { Green.italic() }
+        fn blocksize(&self, _prefix: Option<Prefix>) -> Style { Fixed(66).normal() }
+        fn unit(&self, _prefix: Option<Prefix>)      -> Style { Fixed(77).bold() }
+        fn no_blocksize(&self)                       -> Style { Black.italic() }
     }
 
 
     #[test]
-    fn blocklessness() {
-        let blox = f::Blocks::None;
-        let expected = TextCell::blank(Green.italic());
-
-        assert_eq!(expected, blox.render(&TestColours));
+    fn directory() {
+        let directory = f::Blocksize::None;
+        let expected = TextCell::blank(Black.italic());
+        assert_eq!(expected, directory.render(&TestColours, SizeFormat::JustBytes, &NumericLocale::english()))
     }
 
 
     #[test]
-    fn blockfulity() {
-        let blox = f::Blocks::Some(3005);
-        let expected = TextCell::paint_str(Red.blink(), "3005");
+    fn file_decimal() {
+        let directory = f::Blocksize::Some(2_100_000);
+        let expected = TextCell {
+            width: DisplayWidth::from(4),
+            contents: vec![
+                Fixed(66).paint("2.1"),
+                Fixed(77).bold().paint("M"),
+            ].into(),
+        };
 
-        assert_eq!(expected, blox.render(&TestColours));
+        assert_eq!(expected, directory.render(&TestColours, SizeFormat::DecimalBytes, &NumericLocale::english()))
+    }
+
+
+    #[test]
+    fn file_binary() {
+        let directory = f::Blocksize::Some(1_048_576);
+        let expected = TextCell {
+            width: DisplayWidth::from(5),
+            contents: vec![
+                Fixed(66).paint("1.0"),
+                Fixed(77).bold().paint("Mi"),
+            ].into(),
+        };
+
+        assert_eq!(expected, directory.render(&TestColours, SizeFormat::BinaryBytes, &NumericLocale::english()))
+    }
+
+
+    #[test]
+    fn file_bytes() {
+        let directory = f::Blocksize::Some(1_048_576);
+        let expected = TextCell {
+            width: DisplayWidth::from(9),
+            contents: vec![
+                Fixed(66).paint("1,048,576"),
+            ].into(),
+        };
+
+        assert_eq!(expected, directory.render(&TestColours, SizeFormat::JustBytes, &NumericLocale::english()))
     }
 }
