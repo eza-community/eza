@@ -15,8 +15,9 @@ impl f::Blocks {
 
 
 pub trait Colours {
-    fn block_count(&self) -> Style;
-    fn no_blocks(&self) -> Style;
+    fn blocksize(&self, prefix: Option<Prefix>) -> Style;
+    fn unit(&self, prefix: Option<Prefix>)      -> Style;
+    fn no_blocksize(&self)                      -> Style;
 }
 
 
