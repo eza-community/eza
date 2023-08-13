@@ -8,9 +8,10 @@ use term_grid as grid;
 use crate::fs::{Dir, File};
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::FileFilter;
-use crate::output::cell::TextCell;
+use crate::output::cell::{TextCell, DisplayWidth};
 use crate::output::details::{Options as DetailsOptions, Row as DetailsRow, Render as DetailsRender};
 use crate::output::file_name::Options as FileStyle;
+use crate::output::file_name::{ShowIcons, EmbedHyperlinks};
 use crate::output::grid::Options as GridOptions;
 use crate::output::table::{Table, Row as TableRow, Options as TableOptions};
 use crate::output::tree::{TreeParams, TreeDepth};
@@ -153,8 +154,23 @@ impl<'a> Render<'a> {
                        .collect::<Vec<_>>();
 
         let file_names = self.files.iter()
-                             .map(|file| self.file_style.for_file(file, self.theme).paint().promote())
-                             .collect::<Vec<_>>();
+            .map(|file| {
+                let filename = self.file_style.for_file(file, self.theme);
+                let contents = filename.paint();
+                let width = match (filename.options.embed_hyperlinks, filename.options.show_icons) {
+                    (EmbedHyperlinks::On, ShowIcons::On(spacing)) => filename.bare_width() + 1 + (spacing as usize),
+                    (EmbedHyperlinks::On, ShowIcons::Off) => filename.bare_width(),
+                    (EmbedHyperlinks::Off, _) => *contents.width(),
+                };
+
+                TextCell {
+                    contents,
+                    // with hyperlink escape sequences,
+                    // the actual *contents.width() is larger than actually needed, so we take only the filename
+                    width: DisplayWidth::from(width),
+                }
+            })
+            .collect::<Vec<_>>();
 
         let mut last_working_grid = self.make_grid(1, options, &file_names, rows.clone(), &drender);
 
