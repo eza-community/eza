@@ -193,6 +193,9 @@ LIST OF CODES
 `gt`
 : a modified metadata flag in Git
 
+`gi`
+: an ignored flag in Git
+
 `xx`
 : “punctuation”, including many background UI elements
 
