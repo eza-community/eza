@@ -1,5 +1,6 @@
 //! Getting the Git status of files and directories.
 
+use std::env;
 use std::ffi::OsStr;
 #[cfg(target_family = "unix")]
 use std::os::unix::ffi::OsStrExt;
@@ -48,6 +49,20 @@ impl FromIterator<PathBuf> for GitCache {
             misses: Vec::new(),
         };
 
+        if let Ok(path) = env::var("GIT_DIR") {
+            // These flags are consistent with how `git` uses GIT_DIR:
+            let flags = git2::RepositoryOpenFlags::NO_SEARCH | git2::RepositoryOpenFlags::NO_DOTGIT;
+            match GitRepo::discover(path.into(), flags) {
+                Ok(repo) => {
+                    debug!("Opened GIT_DIR repo");
+                    git.repos.push(repo);
+                }
+                Err(miss) => {
+                    git.misses.push(miss);
+                }
+            }
+        }
+
         for path in iter {
             if git.misses.contains(&path) {
                 debug!("Skipping {:?} because it already came back Gitless", path);
@@ -56,7 +71,8 @@ impl FromIterator<PathBuf> for GitCache {
                 debug!("Skipping {:?} because we already queried it", path);
             }
             else {
-                match GitRepo::discover(path) {
+                let flags = git2::RepositoryOpenFlags::FROM_ENV;
+                match GitRepo::discover(path, flags) {
                     Ok(r) => {
                         if let Some(r2) = git.repos.iter_mut().find(|e| e.has_workdir(&r.workdir)) {
                             debug!("Adding to existing repo (workdir matches with {:?})", r2.workdir);
@@ -68,7 +84,7 @@ impl FromIterator<PathBuf> for GitCache {
                         git.repos.push(r);
                     }
                     Err(miss) => {
-                        git.misses.push(miss)
+                        git.misses.push(miss);
                     }
                 }
             }
@@ -158,14 +174,16 @@ impl GitRepo {
         path.starts_with(&self.original_path) || self.extra_paths.iter().any(|e| path.starts_with(e))
     }
 
-    /// Searches for a Git repository at any point above the given path.
-    /// Returns the original buffer if none is found.
-    fn discover(path: PathBuf) -> Result<Self, PathBuf> {
-        info!("Searching for Git repository above {:?}", path);
-        let repo = match git2::Repository::discover(&path) {
+    /// Open a Git repository. Depending on the flags, the path is either
+    /// the repository's "gitdir" (or a "gitlink" to the gitdir), or the
+    /// path is the start of a rootwards search for the repository.
+    fn discover(path: PathBuf, flags: git2::RepositoryOpenFlags) -> Result<Self, PathBuf> {
+        info!("Opening Git repository for {:?} ({:?})", path, flags);
+        let unused: [&OsStr; 0] = [];
+        let repo = match git2::Repository::open_ext(&path, flags, unused) {
             Ok(r) => r,
             Err(e) => {
-                error!("Error discovering Git repositories: {:?}", e);
+                error!("Error opening Git repository for {path:?}: {e:?}");
                 return Err(path);
             }
         };
@@ -296,16 +314,25 @@ impl Git {
 /// Paths need to be absolute for them to be compared properly, otherwise
 /// you’d ask a repo about “./README.md” but it only knows about
 /// “/vagrant/README.md”, prefixed by the workdir.
+#[cfg(unix)]
 fn reorient(path: &Path) -> PathBuf {
     use std::env::current_dir;
 
     // TODO: I’m not 100% on this func tbh
     let path = match current_dir() {
-        Err(_)   => Path::new(".").join(&path),
-        Ok(dir)  => dir.join(&path),
+        Err(_)   => Path::new(".").join(path),
+        Ok(dir)  => dir.join(path),
     };
 
     path.canonicalize().unwrap_or(path)
+}
+
+#[cfg(windows)]
+fn reorient(path: &Path) -> PathBuf {
+    let unc_path = path.canonicalize().unwrap();
+    // On Windows UNC path is returned. We need to strip the prefix for it to work.
+    let normal_path = unc_path.as_os_str().to_str().unwrap().trim_left_matches("\\\\?\\");
+    return PathBuf::from(normal_path);
 }
 
 /// The character to display if the file has been modified, but not staged.
@@ -332,5 +359,54 @@ fn index_status(status: git2::Status) -> f::GitStatus {
         s if s.contains(git2::Status::INDEX_RENAMED)     => f::GitStatus::Renamed,
         s if s.contains(git2::Status::INDEX_TYPECHANGE)  => f::GitStatus::TypeChange,
         _                                                => f::GitStatus::NotModified,
+    }
+}
+
+fn current_branch(repo: &git2::Repository) -> Option<String>{
+    let head = match repo.head() {
+        Ok(head) => Some(head),
+        Err(ref e) if e.code() == git2::ErrorCode::UnbornBranch || e.code() == git2::ErrorCode::NotFound => return None,
+        Err(e) => {
+            error!("Error looking up Git branch: {:?}", e);
+            return None
+        }
+    };
+
+    if let Some(h) = head{
+        if let Some(s) = h.shorthand(){
+            let branch_name = s.to_owned();
+            if branch_name.len() > 10 {
+               return Some(branch_name[..8].to_string()+"..");
+            }
+            return Some(branch_name);
+        }
+    }
+    None
+}
+
+impl f::SubdirGitRepo{
+    pub fn from_path(dir : &Path, status : bool) -> Self{
+
+        let path = &reorient(dir);
+        let g = git2::Repository::open(path);
+        if let Ok(repo) = g{
+
+            let branch = current_branch(&repo);
+            if !status{
+                return Self{status : f::SubdirGitRepoStatus::GitUnknown, branch};
+            }
+            match repo.statuses(None) {
+                Ok(es) => {
+                    if es.iter().filter(|s| s.status() != git2::Status::IGNORED).any(|_| true){
+                        return Self{status : f::SubdirGitRepoStatus::GitDirty, branch};
+                    }
+                    return Self{status : f::SubdirGitRepoStatus::GitClean, branch};
+                }
+                Err(e) => {
+                    error!("Error looking up Git statuses: {e:?}");
+                }
+            }
+        }
+        Self::default()
     }
 }

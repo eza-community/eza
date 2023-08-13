@@ -7,7 +7,7 @@ use crate::options::parser::{Arg, Flag, ParseError};
 
 
 /// Something wrong with the combination of options the user has picked.
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub enum OptionsError {
 
     /// There was an error (from `getopts`) parsing the arguments.
@@ -44,13 +44,13 @@ pub enum OptionsError {
 }
 
 /// The source of a string that failed to be parsed as a number.
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub enum NumberSource {
 
     /// It came... from a command-line argument!
     Arg(&'static Arg),
 
-    /// It came... from the enviroment!
+    /// It came... from the environment!
     Env(&'static str),
 }
 
@@ -63,8 +63,8 @@ impl From<glob::PatternError> for OptionsError {
 impl fmt::Display for NumberSource {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Arg(arg) => write!(f, "option {}", arg),
-            Self::Env(env) => write!(f, "environment variable {}", env),
+            Self::Arg(arg) => write!(f, "option {arg}"),
+            Self::Env(env) => write!(f, "environment variable {env}"),
         }
     }
 }
@@ -79,20 +79,20 @@ impl fmt::Display for OptionsError {
                     write!(f, "Option {} has no {:?} setting ({})", arg, attempt, Choices(values))
                 }
                 else {
-                    write!(f, "Option {} has no {:?} setting", arg, attempt)
+                    write!(f, "Option {arg} has no {attempt:?} setting")
                 }
             }
-            Self::Parse(e)                   => write!(f, "{}", e),
-            Self::Unsupported(e)             => write!(f, "{}", e),
-            Self::Conflict(a, b)             => write!(f, "Option {} conflicts with option {}", a, b),
-            Self::Duplicate(a, b) if a == b  => write!(f, "Flag {} was given twice", a),
-            Self::Duplicate(a, b)            => write!(f, "Flag {} conflicts with flag {}", a, b),
-            Self::Useless(a, false, b)       => write!(f, "Option {} is useless without option {}", a, b),
-            Self::Useless(a, true, b)        => write!(f, "Option {} is useless given option {}", a, b),
-            Self::Useless2(a, b1, b2)        => write!(f, "Option {} is useless without options {} or {}", a, b1, b2),
+            Self::Parse(e)                   => write!(f, "{e}"),
+            Self::Unsupported(e)             => write!(f, "{e}"),
+            Self::Conflict(a, b)             => write!(f, "Option {a} conflicts with option {b}"),
+            Self::Duplicate(a, b) if a == b  => write!(f, "Flag {a} was given twice"),
+            Self::Duplicate(a, b)            => write!(f, "Flag {a} conflicts with flag {b}"),
+            Self::Useless(a, false, b)       => write!(f, "Option {a} is useless without option {b}"),
+            Self::Useless(a, true, b)        => write!(f, "Option {a} is useless given option {b}"),
+            Self::Useless2(a, b1, b2)        => write!(f, "Option {a} is useless without options {b1} or {b2}"),
             Self::TreeAllAll                 => write!(f, "Option --tree is useless given --all --all"),
-            Self::FailedParse(s, n, e)       => write!(f, "Value {:?} not valid for {}: {}", s, n, e),
-            Self::FailedGlobPattern(ref e)   => write!(f, "Failed to parse glob pattern: {}", e),
+            Self::FailedParse(s, n, e)       => write!(f, "Value {s:?} not valid for {n}: {e}"),
+            Self::FailedGlobPattern(ref e)   => write!(f, "Failed to parse glob pattern: {e}"),
         }
     }
 }
@@ -119,7 +119,7 @@ impl OptionsError {
 
 
 /// A list of legal choices for an argument-taking option.
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub struct Choices(pub &'static [&'static str]);
 
 impl fmt::Display for Choices {

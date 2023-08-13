@@ -2,14 +2,14 @@ name: Unit tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths:
       - '.github/workflows/*'
       - 'src/**'
       - 'Cargo.*'
       - build.rs
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
     paths:
       - '.github/workflows/*'
       - 'src/**'
@@ -28,27 +28,22 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        rust: [1.48.0, stable, beta, nightly]
+        rust: [1.71.0, stable, beta, nightly]
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: ${{ matrix.rust }}
-          override: true
 
       - name: Install cargo-hack
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: cargo-hack
+        run: cargo install cargo-hack@0.5.27
 
       - name: Run unit tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: hack
-          args: test --feature-powerset
+        run: cargo hack test --feature-powerset
+
+      - name: Run clippy lints
+        run: cargo clippy -- -D warnings 

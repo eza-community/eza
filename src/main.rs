@@ -18,7 +18,6 @@
 #![allow(clippy::non_ascii_literal)]
 #![allow(clippy::option_if_let_else)]
 #![allow(clippy::too_many_lines)]
-#![allow(clippy::unnested_or_patterns)] // TODO: remove this when we support Rust 1.53.0
 #![allow(clippy::unused_self)]
 #![allow(clippy::upper_case_acronyms)]
 #![allow(clippy::wildcard_imports)]
@@ -50,10 +49,20 @@ mod theme;
 fn main() {
     use std::process::exit;
 
+    #[cfg(unix)]
+    unsafe {
+        libc::signal(libc::SIGPIPE, libc::SIG_DFL);
+    }
+
     logger::configure(env::var_os(vars::EXA_DEBUG));
 
+    #[cfg(windows)]
+    if let Err(e) = ansi_term::enable_ansi_support() {
+        warn!("Failed to enable ANSI support: {}", e);
+    }
+
     let args: Vec<_> = env::args_os().skip(1).collect();
-    match Options::parse(args.iter().map(|e| e.as_ref()), &LiveVars) {
+    match Options::parse(args.iter().map(std::convert::AsRef::as_ref), &LiveVars) {
         OptionsResult::Ok(options, mut input_paths) => {
 
             // List the current directory by default.
@@ -75,30 +84,30 @@ fn main() {
                 }
 
                 Err(e) if e.kind() == ErrorKind::BrokenPipe => {
-                    warn!("Broken pipe error: {}", e);
+                    warn!("Broken pipe error: {e}");
                     exit(exits::SUCCESS);
                 }
 
                 Err(e) => {
-                    eprintln!("{}", e);
+                    eprintln!("{e}");
                     exit(exits::RUNTIME_ERROR);
                 }
             }
         }
 
         OptionsResult::Help(help_text) => {
-            print!("{}", help_text);
+            print!("{help_text}");
         }
 
         OptionsResult::Version(version_str) => {
-            print!("{}", version_str);
+            print!("{version_str}");
         }
 
         OptionsResult::InvalidOptions(error) => {
-            eprintln!("exa: {}", error);
+            eprintln!("exa: {error}");
 
             if let Some(s) = error.suggestion() {
-                eprintln!("{}", s);
+                eprintln!("{s}");
             }
 
             exit(exits::OPTIONS_ERROR);
@@ -168,17 +177,17 @@ impl<'args> Exa<'args> {
         let mut exit_status = 0;
 
         for file_path in &self.input_paths {
-            match File::from_args(PathBuf::from(file_path), None, None) {
+            match File::from_args(PathBuf::from(file_path), None, None, self.options.view.deref_links) {
                 Err(e) => {
                     exit_status = 2;
-                    writeln!(io::stderr(), "{:?}: {}", file_path, e)?;
+                    writeln!(io::stderr(), "{file_path:?}: {e}")?;
                 }
 
                 Ok(f) => {
                     if f.points_to_directory() && ! self.options.dir_action.treat_dirs_as_files() {
                         match f.to_dir() {
                             Ok(d)   => dirs.push(d),
-                            Err(e)  => writeln!(io::stderr(), "{:?}: {}", file_path, e)?,
+                            Err(e)  => writeln!(io::stderr(), "{file_path:?}: {e}")?,
                         }
                     }
                     else {
@@ -221,7 +230,7 @@ impl<'args> Exa<'args> {
 
             let mut children = Vec::new();
             let git_ignore = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
-            for file in dir.files(self.options.filter.dot_filter, self.git.as_ref(), git_ignore) {
+            for file in dir.files(self.options.filter.dot_filter, self.git.as_ref(), git_ignore, self.options.view.deref_links) {
                 match file {
                     Ok(file)        => children.push(file),
                     Err((path, e))  => writeln!(io::stderr(), "[{}: {}]", path.display(), e)?,

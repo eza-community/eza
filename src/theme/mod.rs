@@ -14,7 +14,7 @@ pub use self::lsc::LSColors;
 mod default_theme;
 
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub struct Options {
 
     pub use_colours: UseColours,
@@ -31,7 +31,7 @@ pub struct Options {
 /// Turning them on when output is going to, say, a pipe, would make programs
 /// such as `grep` or `more` not work properly. So the `Automatic` mode does
 /// this check and only displays colours when they can be truly appreciated.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum UseColours {
 
     /// Display them even when output isn’t going to a terminal.
@@ -44,13 +44,13 @@ pub enum UseColours {
     Never,
 }
 
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum ColourScale {
     Fixed,
     Gradient,
 }
 
-#[derive(PartialEq, Debug, Default)]
+#[derive(PartialEq, Eq, Debug, Default)]
 pub struct Definitions {
     pub ls: Option<String>,
     pub exa: Option<String>,
@@ -194,7 +194,7 @@ impl ExtensionMappings {
     }
 
     fn add(&mut self, pattern: glob::Pattern, style: Style) {
-        self.mappings.push((pattern, style))
+        self.mappings.push((pattern, style));
     }
 }
 
@@ -229,9 +229,11 @@ impl render::GitColours for Theme {
     fn conflicted(&self)    -> Style { self.ui.git.conflicted }
 }
 
+#[cfg(unix)]
 impl render::GroupColours for Theme {
     fn yours(&self)      -> Style { self.ui.users.group_yours }
     fn not_yours(&self)  -> Style { self.ui.users.group_not_yours }
+    fn no_group(&self)   -> Style { self.ui.punctuation }
 }
 
 impl render::LinksColours for Theme {
@@ -261,11 +263,11 @@ impl render::SizeColours for Theme {
         use number_prefix::Prefix::*;
 
         match prefix {
-            None                    => self.ui.size.number_byte,
-            Some(Kilo) | Some(Kibi) => self.ui.size.number_kilo,
-            Some(Mega) | Some(Mebi) => self.ui.size.number_mega,
-            Some(Giga) | Some(Gibi) => self.ui.size.number_giga,
-            Some(_)                 => self.ui.size.number_huge,
+            Some(Kilo | Kibi) => self.ui.size.number_kilo,
+            Some(Mega | Mebi) => self.ui.size.number_mega,
+            Some(Giga | Gibi) => self.ui.size.number_giga,
+            Some(_)           => self.ui.size.number_huge,
+            None              => self.ui.size.number_byte,
         }
     }
 
@@ -273,11 +275,11 @@ impl render::SizeColours for Theme {
         use number_prefix::Prefix::*;
 
         match prefix {
-            None                    => self.ui.size.unit_byte,
-            Some(Kilo) | Some(Kibi) => self.ui.size.unit_kilo,
-            Some(Mega) | Some(Mebi) => self.ui.size.unit_mega,
-            Some(Giga) | Some(Gibi) => self.ui.size.unit_giga,
-            Some(_)                 => self.ui.size.unit_huge,
+            Some(Kilo | Kibi) => self.ui.size.unit_kilo,
+            Some(Mega | Mebi) => self.ui.size.unit_mega,
+            Some(Giga | Gibi) => self.ui.size.unit_giga,
+            Some(_)           => self.ui.size.unit_huge,
+            None              => self.ui.size.unit_byte,
         }
     }
 
@@ -287,9 +289,11 @@ impl render::SizeColours for Theme {
     fn minor(&self)   -> Style { self.ui.size.minor }
 }
 
+#[cfg(unix)]
 impl render::UserColours for Theme {
     fn you(&self)           -> Style { self.ui.users.user_you }
     fn someone_else(&self)  -> Style { self.ui.users.user_someone_else }
+    fn no_user(&self)       -> Style { self.ui.punctuation }
 }
 
 impl FileNameColours for Theme {
@@ -304,6 +308,15 @@ impl FileNameColours for Theme {
     fn colour_file(&self, file: &File<'_>) -> Style {
         self.exts.colour_file(file).unwrap_or(self.ui.filekinds.normal)
     }
+}
+
+impl render::SecurityCtxColours for Theme {
+    fn none(&self)          -> Style { self.ui.security_context.none }
+    fn selinux_colon(&self) -> Style { self.ui.security_context.selinux.colon }
+    fn selinux_user(&self)  -> Style { self.ui.security_context.selinux.user }
+    fn selinux_role(&self)  -> Style { self.ui.security_context.selinux.role }
+    fn selinux_type(&self)  -> Style { self.ui.security_context.selinux.typ }
+    fn selinux_range(&self) -> Style { self.ui.security_context.selinux.range }
 }
 
 

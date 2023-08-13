@@ -1,4 +1,4 @@
-use ansi_term::{ANSIString, Style};
+use ansi_term::{ANSIString, Style, Color};
 
 use crate::output::cell::{TextCell, DisplayWidth};
 use crate::fs::fields as f;
@@ -16,6 +16,31 @@ impl f::Git {
     }
 }
 
+impl f::SubdirGitRepo {
+    pub fn render(self) -> TextCell {
+        let style = Style::new();
+        let branch_style = match self.branch.as_deref(){
+            Some("master") => style.fg(Color::Green),
+            Some("main") => style.fg(Color::Green),
+            Some(_) => style.fg(Color::Fixed(208)),
+            _ => style,
+        };
+        
+        let branch = branch_style.paint(self.branch.unwrap_or(String::from("-")));
+
+        let s = match self.status {
+            f::SubdirGitRepoStatus::NoRepo => style.paint("- "),
+            f::SubdirGitRepoStatus::GitClean => style.fg(Color::Green).paint("| "),
+            f::SubdirGitRepoStatus::GitDirty => style.bold().fg(Color::Red).paint("- "),
+            f::SubdirGitRepoStatus::GitUnknown => style.paint("- "),
+        };
+
+        TextCell {
+            width: DisplayWidth::from(2 + branch.len()),
+            contents: vec![s,branch].into(),
+        }
+    }
+}
 
 impl f::GitStatus {
     fn render(self, colours: &dyn Colours) -> ANSIString<'static> {
@@ -35,7 +60,9 @@ impl f::GitStatus {
 
 pub trait Colours {
     fn not_modified(&self) -> Style;
-    #[allow(clippy::new_ret_no_self)]
+    // FIXME: this amount of allows needed to keep clippy happy should be enough
+    // of an argument that new needs to be renamed.
+    #[allow(clippy::new_ret_no_self,clippy::wrong_self_convention)]
     fn new(&self) -> Style;
     fn modified(&self) -> Style;
     fn deleted(&self) -> Style;
@@ -85,7 +112,7 @@ pub mod test {
             ].into(),
         };
 
-        assert_eq!(expected, stati.render(&TestColours).into())
+        assert_eq!(expected, stati.render(&TestColours))
     }
 
 
@@ -104,6 +131,6 @@ pub mod test {
             ].into(),
         };
 
-        assert_eq!(expected, stati.render(&TestColours).into())
+        assert_eq!(expected, stati.render(&TestColours))
     }
 }

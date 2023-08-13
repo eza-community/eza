@@ -30,16 +30,10 @@ impl SortField {
     /// Returns the default sort field if none is given, or `Err` if the
     /// value doesn’t correspond to a sort field we know about.
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let word = match matches.get(&flags::SORT)? {
-            Some(w)  => w,
-            None     => return Ok(Self::default()),
-        };
+        let Some(word) = matches.get(&flags::SORT)? else { return Ok(Self::default()) };
 
         // Get String because we can’t match an OsStr
-        let word = match word.to_str() {
-            Some(w)  => w,
-            None     => return Err(OptionsError::BadArgument(&flags::SORT, word.into()))
-        };
+        let Some(word) = word.to_str() else { return Err(OptionsError::BadArgument(&flags::SORT, word.into())) };
 
         let field = match word {
             "name" | "filename" => {
@@ -88,6 +82,7 @@ impl SortField {
             "cr" | "created" => {
                 Self::CreatedDate
             }
+            #[cfg(unix)]
             "inode" => {
                 Self::FileInode
             }
@@ -149,27 +144,32 @@ impl DotFilter {
 
     /// Determines the dot filter based on how many `--all` options were
     /// given: one will show dotfiles, but two will show `.` and `..` too.
+    /// --almost-all is equivalent to --all, included for compatibility with
+    /// `ls -A`.
     ///
-    /// It also checks for the `--tree` option in strict mode, because of a
-    /// special case where `--tree --all --all` won’t work: listing the
-    /// parent directory in tree mode would loop onto itself!
+    /// It also checks for the `--tree` option, because of a special case
+    /// where `--tree --all --all` won’t work: listing the parent directory
+    /// in tree mode would loop onto itself!
+    ///
+    /// `--almost-all` binds stronger than multiple `--all` as we currently do not take the order
+    /// of arguments into account and it is the safer option (does not clash with `--tree`)
     pub fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let count = matches.count(&flags::ALL);
+        let all_count = matches.count(&flags::ALL);
+        let has_almost_all = matches.has(&flags::ALMOST_ALL)?;
 
-        if count == 0 {
-            Ok(Self::JustFiles)
-        }
-        else if count == 1 {
-            Ok(Self::Dotfiles)
-        }
-        else if matches.count(&flags::TREE) > 0 {
-            Err(OptionsError::TreeAllAll)
-        }
-        else if count >= 3 && matches.is_strict() {
-            Err(OptionsError::Conflict(&flags::ALL, &flags::ALL))
-        }
-        else {
-            Ok(Self::DotfilesAndDots)
+        match (all_count, has_almost_all) {
+            (0, false) => Ok(Self::JustFiles),
+
+            // either a single --all or at least one --almost-all is given
+            (1, _) | (0, true) => Ok(Self::Dotfiles),
+            // more than one --all
+            (c, _) => if matches.count(&flags::TREE) > 0 {
+                Err(OptionsError::TreeAllAll)
+            } else if matches.is_strict() && c > 2 {
+                Err(OptionsError::Conflict(&flags::ALL, &flags::ALL))
+            } else {
+                Ok(Self::DotfilesAndDots)
+            },
         }
     }
 }
@@ -184,10 +184,7 @@ impl IgnorePatterns {
 
         // If there are no inputs, we return a set of patterns that doesn’t
         // match anything, rather than, say, `None`.
-        let inputs = match matches.get(&flags::IGNORE_GLOB)? {
-            Some(is)  => is,
-            None      => return Ok(Self::empty()),
-        };
+        let Some(inputs) = matches.get(&flags::IGNORE_GLOB)? else { return Ok(Self::empty()) };
 
         // Awkwardly, though, a glob pattern can be invalid, and we need to
         // deal with invalid patterns somehow.
@@ -230,7 +227,7 @@ mod test {
                 use crate::options::test::parse_for_test;
                 use crate::options::test::Strictnesses::*;
 
-                static TEST_ARGS: &[&Arg] = &[ &flags::SORT, &flags::ALL, &flags::TREE, &flags::IGNORE_GLOB, &flags::GIT_IGNORE ];
+                static TEST_ARGS: &[&Arg] = &[ &flags::SORT, &flags::ALL, &flags::ALMOST_ALL, &flags::TREE, &flags::IGNORE_GLOB, &flags::GIT_IGNORE ];
                 for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| $type::deduce(mf)) {
                     assert_eq!(result, $result);
                 }
@@ -245,7 +242,7 @@ mod test {
         test!(empty:         SortField <- [];                  Both => Ok(SortField::default()));
 
         // Sort field arguments
-        test!(one_arg:       SortField <- ["--sort=mod"];       Both => Ok(SortField::ModifiedDate));
+        test!(one_arg:       SortField <- ["--sort=mod"];      Both => Ok(SortField::ModifiedDate));
         test!(one_long:      SortField <- ["--sort=size"];     Both => Ok(SortField::Size));
         test!(one_short:     SortField <- ["-saccessed"];      Both => Ok(SortField::AccessedDate));
         test!(lowercase:     SortField <- ["--sort", "name"];  Both => Ok(SortField::Name(SortCase::AaBbCc)));
@@ -274,27 +271,31 @@ mod test {
         use super::*;
 
         // Default behaviour
-        test!(empty:      DotFilter <- [];               Both => Ok(DotFilter::JustFiles));
+        test!(empty:        DotFilter <- [];               Both => Ok(DotFilter::JustFiles));
 
         // --all
-        test!(all:        DotFilter <- ["--all"];        Both => Ok(DotFilter::Dotfiles));
-        test!(all_all:    DotFilter <- ["--all", "-a"];  Both => Ok(DotFilter::DotfilesAndDots));
-        test!(all_all_2:  DotFilter <- ["-aa"];          Both => Ok(DotFilter::DotfilesAndDots));
+        test!(all:              DotFilter <- ["--all"];        Both => Ok(DotFilter::Dotfiles));
+        test!(all_all:          DotFilter <- ["--all", "-a"];  Both => Ok(DotFilter::DotfilesAndDots));
+        test!(all_all_2:        DotFilter <- ["-aa"];          Both => Ok(DotFilter::DotfilesAndDots));
 
-        test!(all_all_3:  DotFilter <- ["-aaa"];         Last => Ok(DotFilter::DotfilesAndDots));
-        test!(all_all_4:  DotFilter <- ["-aaa"];         Complain => Err(OptionsError::Conflict(&flags::ALL, &flags::ALL)));
+        test!(all_all_3:        DotFilter <- ["-aaa"];         Last => Ok(DotFilter::DotfilesAndDots));
+        test!(all_all_4:        DotFilter <- ["-aaa"];         Complain => Err(OptionsError::Conflict(&flags::ALL, &flags::ALL)));
 
         // --all and --tree
-        test!(tree_a:     DotFilter <- ["-Ta"];          Both => Ok(DotFilter::Dotfiles));
-        test!(tree_aa:    DotFilter <- ["-Taa"];         Both => Err(OptionsError::TreeAllAll));
-        test!(tree_aaa:   DotFilter <- ["-Taaa"];        Both => Err(OptionsError::TreeAllAll));
+        test!(tree_a:           DotFilter <- ["-Ta"];          Both => Ok(DotFilter::Dotfiles));
+        test!(tree_aa:          DotFilter <- ["-Taa"];         Both => Err(OptionsError::TreeAllAll));
+        test!(tree_aaa:         DotFilter <- ["-Taaa"];        Both => Err(OptionsError::TreeAllAll));
+
+        // --almost-all
+        test!(almost_all:       DotFilter <- ["--almost-all"]; Both => Ok(DotFilter::Dotfiles));
+        test!(almost_all_all:   DotFilter <- ["-Aa"];          Both => Ok(DotFilter::Dotfiles));
+        test!(almost_all_all_2: DotFilter <- ["-Aaa"];         Both => Ok(DotFilter::DotfilesAndDots));
     }
 
 
     mod ignore_patterns {
         use super::*;
         use std::iter::FromIterator;
-        use glob;
 
         fn pat(string: &'static str) -> glob::Pattern {
             glob::Pattern::new(string).unwrap()

@@ -5,10 +5,11 @@ use term_grid as tg;
 use crate::fs::File;
 use crate::fs::filter::FileFilter;
 use crate::output::file_name::Options as FileStyle;
+use crate::output::file_name::{ShowIcons, EmbedHyperlinks};
 use crate::theme::Theme;
 
 
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub struct Options {
     pub across: bool,
 }
@@ -41,16 +42,24 @@ impl<'a> Render<'a> {
 
         self.filter.sort_files(&mut self.files);
         for file in &self.files {
-            let filename = self.file_style.for_file(file, self.theme).paint();
+            let filename = self.file_style.for_file(file, self.theme);
+            let contents = filename.paint();
+            let width = match (filename.options.embed_hyperlinks, filename.options.show_icons) {
+                (EmbedHyperlinks::On, ShowIcons::On(spacing)) => filename.bare_width() + 1 + (spacing as usize),
+                (EmbedHyperlinks::On, ShowIcons::Off) => filename.bare_width(),
+                (EmbedHyperlinks::Off, _) => *contents.width(),
+            };
 
             grid.add(tg::Cell {
-                contents:  filename.strings().to_string(),
-                width:     *filename.width(),
+                contents:  contents.strings().to_string(),
+                // with hyperlink escape sequences,
+                // the actual *contents.width() is larger than actually needed, so we take only the filename
+                width,
             });
         }
 
         if let Some(display) = grid.fit_into_width(self.console_width) {
-            write!(w, "{}", display)
+            write!(w, "{display}")
         }
         else {
             // File names too long for a grid - drop down to just listing them!

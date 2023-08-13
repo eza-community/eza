@@ -3,6 +3,9 @@
 //! Currently this is dependent on the file’s name and extension, because
 //! those are the only metadata that we have access to without reading the
 //! file’s contents.
+//!
+//! # Contributors
+//! Please keep these lists sorted. If you're using vim, :sort i
 
 use ansi_term::Style;
 
@@ -11,7 +14,7 @@ use crate::output::icons::FileIcon;
 use crate::theme::FileColours;
 
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Debug, Default, PartialEq, Eq)]
 pub struct FileExtensions;
 
 impl FileExtensions {
@@ -21,77 +24,245 @@ impl FileExtensions {
     /// in directories full of source code.
     #[allow(clippy::case_sensitive_file_extension_comparisons)]
     fn is_immediate(&self, file: &File<'_>) -> bool {
-        file.name.to_lowercase().starts_with("readme") ||
-        file.name.ends_with(".ninja") ||
-        file.name_is_one_of( &[
-            "Makefile", "Cargo.toml", "SConstruct", "CMakeLists.txt",
-            "build.gradle", "pom.xml", "Rakefile", "package.json", "Gruntfile.js",
-            "Gruntfile.coffee", "BUILD", "BUILD.bazel", "WORKSPACE", "build.xml", "Podfile",
-            "webpack.config.js", "meson.build", "composer.json", "RoboFile.php", "PKGBUILD",
-            "Justfile", "Procfile", "Dockerfile", "Containerfile", "Vagrantfile", "Brewfile",
-            "Gemfile", "Pipfile", "build.sbt", "mix.exs", "bsconfig.json", "tsconfig.json",
-        ])
+	file.name.to_lowercase().starts_with("readme")
+            || file.name.ends_with(".ninja")
+            || matches!(
+                file.name.as_str(),
+                "BUILD"
+                    | "Brewfile"
+                    | "bsconfig.json"
+                    | "BUILD.bazel"
+                    | "build.gradle"
+                    | "build.sbt"
+                    | "build.xml"
+                    | "Cargo.lock"
+                    | "Cargo.toml"
+                    | "CMakeLists.txt"
+                    | "composer.json"
+                    | "configure.ac"
+                    | "Configure.ac"
+                    | "Containerfile"
+                    | "Dockerfile"
+                    | "Earthfile"
+                    | "flake.lock"
+                    | "flake.nix"
+                    | "Gemfile"
+                    | "GNUmakefile"
+                    | "Gruntfile.coffee"
+                    | "Gruntfile.js"
+                    | "Justfile"
+                    | "justfile"
+                    | "Makefile"
+                    | "makefile"
+                    | "Makefile.in"
+                    | "makefile.in"
+                    | "meson.build"
+                    | "mix.exs"
+                    | "package.json"
+                    | "Pipfile"
+                    | "PKGBUILD"
+                    | "Podfile"
+                    | "pom.xml"
+                    | "Procfile"
+                    | "Rakefile"
+                    | "RoboFile.php"
+                    | "SConstruct"
+                    | "tsconfig.json"
+                    | "Vagrantfile"
+                    | "webpack.config.cjs"
+                    | "webpack.config.js"
+                    | "WORKSPACE"
+            )
     }
 
     fn is_image(&self, file: &File<'_>) -> bool {
         file.extension_is_one_of( &[
-            "png", "jfi", "jfif", "jif", "jpe", "jpeg", "jpg", "gif", "bmp",
-            "tiff", "tif", "ppm", "pgm", "pbm", "pnm", "webp", "raw", "arw",
-            "svg", "stl", "eps", "dvi", "ps", "cbr", "jpf", "cbz", "xpm",
-            "ico", "cr2", "orf", "nef", "heif", "avif", "jxl",
+            "arw",
+            "avif",
+            "bmp",
+            "cbr",
+            "cbz",
+            "cr2",
+            "dvi",
+            "eps",
+            "gif",
+            "heif",
+            "ico",
+            "j2c",
+            "j2k",
+            "jfi",
+            "jfif",
+            "jif",
+            "jp2",
+            "jpe",
+            "jpeg",
+            "jpf",
+            "jpg",
+            "jpx",
+            "jxl",
+            "nef",
+            "orf",
+            "pbm",
+            "pgm",
+            "png",
+            "pnm",
+            "ppm",
+            "ps",
+            "pxm",
+            "raw",
+            "stl",
+            "svg",
+            "tif",
+            "tiff",
+            "webp",
+            "xpm",
         ])
     }
 
     fn is_video(&self, file: &File<'_>) -> bool {
         file.extension_is_one_of( &[
-            "avi", "flv", "m2v", "m4v", "mkv", "mov", "mp4", "mpeg",
-            "mpg", "ogm", "ogv", "vob", "wmv", "webm", "m2ts", "heic",
+            "avi",
+            "flv",
+            "heic",
+            "m2ts",
+            "m2v",
+            "m4v",
+            "mkv",
+            "mov",
+            "mp4",
+            "mpeg",
+            "mpg",
+            "ogm",
+            "ogv",
+            "vob",
+            "webm",
+            "wmv",
         ])
     }
 
     fn is_music(&self, file: &File<'_>) -> bool {
         file.extension_is_one_of( &[
-            "aac", "m4a", "mp3", "ogg", "wma", "mka", "opus",
+            "aac",
+            "m4a",
+            "mka",
+            "mp2",
+            "mp3",
+            "ogg",
+            "opus",
+            "wma",
         ])
     }
 
     // Lossless music, rather than any other kind of data...
     fn is_lossless(&self, file: &File<'_>) -> bool {
         file.extension_is_one_of( &[
-            "alac", "ape", "flac", "wav",
+            "alac",
+            "ape",
+            "flac",
+            "wav",
         ])
     }
 
     fn is_crypto(&self, file: &File<'_>) -> bool {
         file.extension_is_one_of( &[
-            "asc", "enc", "gpg", "pgp", "sig", "signature", "pfx", "p12",
+            "asc",
+            "enc",
+            "gpg",
+            "p12",
+            "pfx",
+            "pgp",
+            "sig",
+            "signature",
         ])
     }
 
     fn is_document(&self, file: &File<'_>) -> bool {
         file.extension_is_one_of( &[
-            "djvu", "doc", "docx", "dvi", "eml", "eps", "fotd", "key",
-            "keynote", "numbers", "odp", "odt", "pages", "pdf", "ppt",
-            "pptx", "rtf", "xls", "xlsx",
+            "djvu",
+            "doc",
+            "docx",
+            "dvi",
+            "eml",
+            "eps",
+            "fotd",
+            "key",
+            "keynote",
+            "numbers",
+            "odp",
+            "odt",
+            "pages",
+            "pdf",
+            "ppt",
+            "pptx",
+            "rtf",
+            "xls",
+            "xlsx",
         ])
     }
 
     fn is_compressed(&self, file: &File<'_>) -> bool {
         file.extension_is_one_of( &[
-            "zip", "tar", "Z", "z", "gz", "bz2", "a", "ar", "7z",
-            "iso", "dmg", "tc", "rar", "par", "tgz", "xz", "txz",
-            "lz", "tlz", "lzma", "deb", "rpm", "zst", "lz4",
+            "7z",
+            "a",
+            "ar",
+            "bz",
+            "bz2",
+            "bz3",
+            "cpio",
+            "deb",
+            "dmg",
+            "gz",
+            "iso",
+            "lz",
+            "lz4",
+            "lzh",
+            "lzma",
+            "lzo",
+            "par",
+            "rar",
+            "rpm",
+            "tar",
+            "taz",
+            "tbz",
+            "tbz2",
+            "tc",
+            "tgz",
+            "tlz",
+            "txz",
+            "tz",
+            "tzo",
+            "xz",
+            "Z",
+            "z",
+            "zip",
+            "zst",
         ])
     }
 
     fn is_temp(&self, file: &File<'_>) -> bool {
         file.name.ends_with('~')
             || (file.name.starts_with('#') && file.name.ends_with('#'))
-            || file.extension_is_one_of( &[ "tmp", "swp", "swo", "swn", "bak", "bkp", "bk" ])
+            || file.extension_is_one_of( &[
+                "bak",
+                "bk",
+                "bkp",
+                "swn",
+                "swo",
+                "swp",
+                "tmp",
+            ])
     }
 
     fn is_compiled(&self, file: &File<'_>) -> bool {
-        if file.extension_is_one_of( &[ "class", "elc", "hi", "o", "pyc", "zwc", "ko" ]) {
+        if file.extension_is_one_of( &[
+            "class",
+            "elc",
+            "hi",
+            "ko",
+            "o",
+            "pyc",
+            "zwc",
+        ]) {
             true
         }
         else if let Some(dir) = file.parent_dir {
@@ -108,16 +279,16 @@ impl FileColours for FileExtensions {
         use ansi_term::Colour::*;
 
         Some(match file {
-            f if self.is_temp(f)        => Fixed(244).normal(),
-            f if self.is_immediate(f)   => Yellow.bold().underline(),
-            f if self.is_image(f)       => Fixed(133).normal(),
-            f if self.is_video(f)       => Fixed(135).normal(),
-            f if self.is_music(f)       => Fixed(92).normal(),
-            f if self.is_lossless(f)    => Fixed(93).normal(),
-            f if self.is_crypto(f)      => Fixed(109).normal(),
-            f if self.is_document(f)    => Fixed(105).normal(),
+            f if self.is_compiled(f)    => Yellow.normal(),
             f if self.is_compressed(f)  => Red.normal(),
-            f if self.is_compiled(f)    => Fixed(137).normal(),
+            f if self.is_crypto(f)      => Green.bold(),
+            f if self.is_document(f)    => Green.normal(),
+            f if self.is_image(f)       => Purple.normal(),
+            f if self.is_immediate(f)   => Yellow.bold().underline(),
+            f if self.is_lossless(f)    => Cyan.bold(),
+            f if self.is_music(f)       => Cyan.normal(),
+            f if self.is_temp(f)        => White.normal(),
+            f if self.is_video(f)       => Purple.bold(),
             _                           => return None,
         })
     }
@@ -135,6 +306,9 @@ impl FileIcon for FileExtensions {
         }
         else if self.is_video(file) {
             Some(Icons::Video.value())
+        }
+        else if self.is_compressed(file) {
+            Some(Icons::Compressed.value())
         }
         else {
             None
