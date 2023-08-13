@@ -131,6 +131,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s.
 - **--icons**: display icons
 - **--no-icons**: don't display icons (always overrides --icons)
 - **--hyperlink**: display entries as hyperlinks
+- **-w**, **--width=(columns)**: set screen width in columns
 
 ### Filtering options
 

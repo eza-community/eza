@@ -14,6 +14,7 @@ pub static RECURSE:     Arg = Arg { short: Some(b'R'), long: "recurse",     take
 pub static TREE:        Arg = Arg { short: Some(b'T'), long: "tree",        takes_value: TakesValue::Forbidden };
 pub static CLASSIFY:    Arg = Arg { short: Some(b'F'), long: "classify",    takes_value: TakesValue::Forbidden };
 pub static DEREF_LINKS: Arg = Arg { short: Some(b'X'), long: "dereference", takes_value: TakesValue::Forbidden };
+pub static WIDTH:       Arg = Arg { short: Some(b'w'), long: "width",       takes_value: TakesValue::Necessary(None) };
 
 pub static COLOR:  Arg = Arg { short: None, long: "color",  takes_value: TakesValue::Necessary(Some(COLOURS)) };
 pub static COLOUR: Arg = Arg { short: None, long: "colour", takes_value: TakesValue::Necessary(Some(COLOURS)) };
@@ -77,7 +78,7 @@ pub static ALL_ARGS: Args = Args(&[
     &VERSION, &HELP,
 
     &ONE_LINE, &LONG, &GRID, &ACROSS, &RECURSE, &TREE, &CLASSIFY, &DEREF_LINKS,
-    &COLOR, &COLOUR, &COLOR_SCALE, &COLOUR_SCALE,
+    &COLOR, &COLOUR, &COLOR_SCALE, &COLOUR_SCALE, &WIDTH,
 
     &ALL, &ALMOST_ALL, &LIST_DIRS, &LEVEL, &REVERSE, &SORT, &DIRS_FIRST,
     &IGNORE_GLOB, &GIT_IGNORE, &ONLY_DIRS,

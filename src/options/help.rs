@@ -25,6 +25,7 @@ DISPLAY OPTIONS
   --icons            display icons
   --no-icons         don't display icons (always overrides --icons)
   --hyperlink        display entries as hyperlinks
+  -w, --width COLS   set screen width in columns
 
 FILTERING AND SORTING OPTIONS
   -a, --all                  show hidden and 'dot' files
