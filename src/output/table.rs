@@ -516,7 +516,7 @@ impl<'a> Table<'a> {
             }
             #[cfg(unix)]
             Column::Blocks => {
-                file.blocks().render(self.theme)
+                file.blocksize().render(self.theme, self.size_format, &self.env.numeric)
             }
             #[cfg(unix)]
             Column::User => {
