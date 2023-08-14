@@ -79,7 +79,7 @@ Valid settings are ‘`always`’, ‘`automatic`’, and ‘`never`’.
 : Display entries as hyperlinks
 
 `-w`, `--width=COLS`
-Set screen width in columns.
+: Set screen width in columns.
 
 
 FILTERING AND SORTING OPTIONS
