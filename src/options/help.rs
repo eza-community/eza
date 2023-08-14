@@ -6,11 +6,11 @@ use crate::options::parser::MatchedFlags;
 
 
 static USAGE_PART1: &str = "Usage:
-  exa [options] [files...]
+  eza [options] [files...]
 
 META OPTIONS
   -?, --help         show list of command-line options
-  -v, --version      show version of exa
+  -v, --version      show version of eza
 
 DISPLAY OPTIONS
   -1, --oneline      display one entry per line
