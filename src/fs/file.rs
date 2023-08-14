@@ -433,14 +433,14 @@ impl<'dir> File<'dir> {
     // make it difficult to get any info about a dir by it's size, so this may be it.
     #[cfg(unix)]
     pub fn is_empty_dir(&self) -> bool {
-        if !self.is_directory() {
-            false
-        } else {
+        if self.is_directory() {
             match Dir::read_dir(self.path.clone()) {
-         // . & .. are skipped, if the returned iterator has .next(), it's not empty
-                Ok(has_files) =>  has_files.files(super::DotFilter::Dotfiles, None, false, false).next().is_none(),
+                // . & .. are skipped, if the returned iterator has .next(), it's not empty
+                Ok(has_files) => has_files.files(super::DotFilter::Dotfiles, None, false, false).next().is_none(),
                 Err(_) => false,
-                }
+            }
+        } else {
+            false
         }
     }
 
