@@ -267,8 +267,8 @@ AUTHOR
 
 eza is maintained by Christina Sørensen and many other contributors.
 
-**Source code:** `https://github.com/cafkafk/eza` \
-**Contributors:** `https://github.com/cafkafk/eza/graphs/contributors`
+**Source code:** `https://github.com/eza-community/eza` \
+**Contributors:** `https://github.com/eza-community/eza/graphs/contributors`
 
 Our infinite thanks to Benjamin ‘ogham’ Sago and all the other contributors of exa, from which eza was forked.
 
