@@ -7,9 +7,9 @@ edition = "2021"
 rust-version = "1.70.0"
 exclude = ["/devtools/*", "/Justfile", "/Vagrantfile", "/screenshots.png"]
 readme = "README.md"
-homepage = "https://github.com/cafkafk/eza"
+homepage = "https://github.com/eza-community/eza"
 license = "MIT"
-repository = "https://github.com/cafkafk/eza"
+repository = "https://github.com/eza-community/eza"
 version = "0.10.7"
 
 

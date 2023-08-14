@@ -23,7 +23,7 @@ fn main() -> io::Result<()> {
     #![allow(clippy::write_with_newline)]
 
     let tagline = "eza - A modern, maintained replacement for ls";
-    let url     = "https://github.com/cafkafk/eza";
+    let url     = "https://github.com/eza-community/eza";
 
     let ver =
         if is_debug_build() {
