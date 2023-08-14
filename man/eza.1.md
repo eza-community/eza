@@ -79,7 +79,7 @@ Valid settings are ‘`always`’, ‘`automatic`’, and ‘`never`’.
 : Display entries as hyperlinks
 
 `-w`, `--width=COLS`
-Set screen width in columns.
+: Set screen width in columns.
 
 
 FILTERING AND SORTING OPTIONS
@@ -152,8 +152,8 @@ These options are available when running with `--long` (`-l`):
 `-n`, `--numeric`
 : List numeric user and group IDs.
 
-`-S`, `--blocks`
-: List each file’s number of file system blocks.
+`-S`, `--blocksize`
+: List each file’s size of allocated file system blocks.
 
 `-t`, `--time=WORD`
 : Which timestamp field to list.
@@ -267,8 +267,8 @@ AUTHOR
 
 eza is maintained by Christina Sørensen and many other contributors.
 
-**Source code:** `https://github.com/cafkafk/eza` \
-**Contributors:** `https://github.com/cafkafk/eza/graphs/contributors`
+**Source code:** `https://github.com/eza-community/eza` \
+**Contributors:** `https://github.com/eza-community/eza/graphs/contributors`
 
 Our infinite thanks to Benjamin ‘ogham’ Sago and all the other contributors of exa, from which eza was forked.
 

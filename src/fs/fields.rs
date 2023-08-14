@@ -11,13 +11,8 @@
 //! The `output::details` module, among others, uses these types to render and
 //! display the information as formatted strings.
 
-// C-style `blkcnt_t` types don’t follow Rust’s rules!
 #![allow(non_camel_case_types)]
 #![allow(clippy::struct_excessive_bools)]
-
-
-/// The type of a file’s block count.
-pub type blkcnt_t = u64;
 
 /// The type of a file’s group ID.
 pub type gid_t = u32;
@@ -137,12 +132,12 @@ pub struct Links {
 pub struct Inode(pub ino_t);
 
 
-/// The number of blocks that a file takes up on the filesystem, if any.
+/// A file's size of allocated file system blocks.
 #[derive(Copy, Clone)]
-pub enum Blocks {
+pub enum Blocksize {
 
     /// This file has the given number of blocks.
-    Some(blkcnt_t),
+    Some(u64),
 
     /// This file isn’t of a type that can take up blocks.
     None,
