@@ -6,11 +6,11 @@ use crate::options::parser::MatchedFlags;
 
 
 static USAGE_PART1: &str = "Usage:
-  exa [options] [files...]
+  eza [options] [files...]
 
 META OPTIONS
   -?, --help         show list of command-line options
-  -v, --version      show version of exa
+  -v, --version      show version of eza
 
 DISPLAY OPTIONS
   -1, --oneline      display one entry per line
@@ -51,7 +51,7 @@ LONG VIEW OPTIONS
   -i, --inode              list each file's inode number
   -m, --modified           use the modified timestamp field
   -n, --numeric            list numeric user and group IDs
-  -S, --blocks             show number of file system blocks
+  -S, --blocksize          show size of allocated file system blocks
   -t, --time FIELD         which timestamp field to list (modified, accessed, created)
   -u, --accessed           use the accessed timestamp field
   -U, --created            use the created timestamp field

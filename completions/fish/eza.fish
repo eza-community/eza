@@ -64,7 +64,7 @@ complete -c eza -s g -l group -d "List each file's group"
 complete -c eza -s h -l header -d "Add a header row to each column"
 complete -c eza -s H -l links -d "List each file's number of hard links"
 complete -c eza -s i -l inode -d "List each file's inode number"
-complete -c eza -s S -l blocks -d "List each file's number of filesystem blocks"
+complete -c eza -s S -l blocksize -d "List each file's size of allocated file system blocks"
 complete -c eza -s t -l time -d "Which timestamp field to list" -x -a "
     modified\t'Display modified time'
     changed\t'Display changed time'

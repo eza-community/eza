@@ -202,8 +202,31 @@ impl ExtensionMappings {
 
 
 impl render::BlocksColours for Theme {
-    fn block_count(&self)  -> Style { self.ui.blocks }
-    fn no_blocks(&self)    -> Style { self.ui.punctuation }
+    fn blocksize(&self, prefix: Option<number_prefix::Prefix>) -> Style {
+        use number_prefix::Prefix::*;
+
+        match prefix {
+            Some(Kilo | Kibi) => self.ui.size.number_kilo,
+            Some(Mega | Mebi) => self.ui.size.number_mega,
+            Some(Giga | Gibi) => self.ui.size.number_giga,
+            Some(_)           => self.ui.size.number_huge,
+            None              => self.ui.size.number_byte,
+        }
+    }
+
+    fn unit(&self, prefix: Option<number_prefix::Prefix>) -> Style {
+        use number_prefix::Prefix::*;
+
+        match prefix {
+            Some(Kilo | Kibi) => self.ui.size.unit_kilo,
+            Some(Mega | Mebi) => self.ui.size.unit_mega,
+            Some(Giga | Gibi) => self.ui.size.unit_giga,
+            Some(_)           => self.ui.size.unit_huge,
+            None              => self.ui.size.unit_byte,
+        }
+    }
+
+    fn no_blocksize(&self) -> Style { self.ui.punctuation }
 }
 
 impl render::FiletypeColours for Theme {
