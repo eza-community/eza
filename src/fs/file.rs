@@ -345,16 +345,17 @@ impl<'dir> File<'dir> {
         f::Inode(self.metadata.ino())
     }
 
-    /// This file’s number of filesystem blocks.
-    ///
-    /// (Not the size of each block, which we don’t actually report on)
+    /// This actual size the file takes up on disk, in bytes.
     #[cfg(unix)]
-    pub fn blocks(&self) -> f::Blocks {
+    pub fn blocksize(&self) -> f::Blocksize {
         if self.is_file() || self.is_link() {
-            f::Blocks::Some(self.metadata.blocks())
+            // Note that metadata.blocks returns the number of blocks
+            // for 512 byte blocks according to the POSIX standard
+            // even though the physical block size may be different.
+            f::Blocksize::Some(self.metadata.blocks() * 512)
         }
         else {
-            f::Blocks::None
+            f::Blocksize::None
         }
     }
 

@@ -9,9 +9,9 @@ eza is a modern, maintained replacement for ls, built on [exa](https://github.co
 [![Built with Nix](https://img.shields.io/badge/Built_With-Nix-5277C3.svg?logo=nixos&labelColor=73C3D5)](https://nixos.org)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
 
-[![Unit tests](https://github.com/cafkafk/eza/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/cafkafk/eza/actions/workflows/unit-tests.yml)
+[![Unit tests](https://github.com/eza-community/eza/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/eza-community/eza/actions/workflows/unit-tests.yml)
 ![Crates.io](https://img.shields.io/crates/v/eza?link=https%3A%2F%2Fcrates.io%2Fcrates%2Feza)
-![Crates.io](https://img.shields.io/crates/l/eza?link=https%3A%2F%2Fgithub.com%2Fcafkafk%2Feza%2Fblob%2Fmain%2FLICENCE)
+![Crates.io](https://img.shields.io/crates/l/eza?link=https%3A%2F%2Fgithub.com%2Feza-community%2Feza%2Fblob%2Fmain%2FLICENCE)
 
 </div>
 
@@ -31,12 +31,12 @@ By deliberately making some decisions differently, eza attempts to be a more fea
 
 **eza** features not in exa (non-exhaustive):
 
- -   Fixes [“The Grid Bug”](https://github.com/cafkafk/eza/issues/66#issuecomment-1656758327) introduced in exa 2021.
+ -   Fixes [“The Grid Bug”](https://github.com/eza-community/eza/issues/66#issuecomment-1656758327) introduced in exa 2021.
  -   Hyperlink support.
  -   Selinux context output.
  -   Git repo status output.
  -   Human readable relative dates.
- -   Several security fixes (see [dependabot](https://github.com/cafkafk/eza/security/dependabot?q=is%3Aclosed))
+ -   Several security fixes (see [dependabot](https://github.com/eza-community/eza/security/dependabot?q=is%3Aclosed))
  -   Many smaller bug fixes/changes!
 
 ---
@@ -49,11 +49,11 @@ By deliberately making some decisions differently, eza attempts to be a more fea
 
 If you already have Nix setup with flake support, you can try out eza with the `nix run` command:
 
-    nix run github:cafkafk/eza
+    nix run github:eza-community/eza
 
 Nix will build eza and run it. 
 
-If you want to pass arguments this way, use e.g. `nix run github:cafkafk/eza -- -ol`.
+If you want to pass arguments this way, use e.g. `nix run github:eza-community/eza -- -ol`.
 
 <a id="installation">
 <h1>Installation</h1>
@@ -75,7 +75,7 @@ Cargo will build the `eza` binary and place it in `$HOME/.local/share/cargo/bin/
 
 If you already have a Rust environment set up, you can use the `cargo install` command in your local clone of the repo:
 
-    git clone https://github.com/cafkafk/eza.git
+    git clone https://github.com/eza-community/eza.git
     cd eza
     cargo install --path .
 
@@ -158,7 +158,7 @@ These options are available when running with `--long` (`-l`):
 - **-H**, **--links**: list each file’s number of hard links
 - **-i**, **--inode**: list each file’s inode number
 - **-m**, **--modified**: use the modified timestamp field
-- **-S**, **--blocks**: list each file’s number of file system blocks
+- **-S**, **--blocksize**: show size of allocated file system blocks
 - **-t**, **--time=(field)**: which timestamp field to use
 - **-u**, **--accessed**: use the accessed timestamp field
 - **-U**, **--created**: use the created timestamp field
@@ -192,7 +192,7 @@ Some of the options accept parameters:
     <img src="https://img.shields.io/badge/rustc-1.63.0+-lightgray.svg" alt="Rust 1.63.0+" />
 </a>
 
-<a href="https://github.com/cafkafk/eza/blob/master/LICENCE">
+<a href="https://github.com/eza-community/eza/blob/master/LICENCE">
     <img src="https://img.shields.io/badge/licence-MIT-green" alt="MIT Licence" />
 </a>
 </h1></a>

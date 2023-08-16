@@ -49,7 +49,7 @@ pub static INODE:      Arg = Arg { short: Some(b'i'), long: "inode",      takes_
 pub static LINKS:      Arg = Arg { short: Some(b'H'), long: "links",      takes_value: TakesValue::Forbidden };
 pub static MODIFIED:   Arg = Arg { short: Some(b'm'), long: "modified",   takes_value: TakesValue::Forbidden };
 pub static CHANGED:    Arg = Arg { short: None,       long: "changed",    takes_value: TakesValue::Forbidden };
-pub static BLOCKS:     Arg = Arg { short: Some(b'S'), long: "blocks",     takes_value: TakesValue::Forbidden };
+pub static BLOCKSIZE:  Arg = Arg { short: Some(b'S'), long: "blocksize",  takes_value: TakesValue::Forbidden };
 pub static TIME:       Arg = Arg { short: Some(b't'), long: "time",       takes_value: TakesValue::Necessary(Some(TIMES)) };
 pub static ACCESSED:   Arg = Arg { short: Some(b'u'), long: "accessed",   takes_value: TakesValue::Forbidden };
 pub static CREATED:    Arg = Arg { short: Some(b'U'), long: "created",    takes_value: TakesValue::Forbidden };
@@ -84,7 +84,7 @@ pub static ALL_ARGS: Args = Args(&[
     &IGNORE_GLOB, &GIT_IGNORE, &ONLY_DIRS,
 
     &BINARY, &BYTES, &GROUP, &NUMERIC, &HEADER, &ICONS, &INODE, &LINKS, &MODIFIED, &CHANGED,
-    &BLOCKS, &TIME, &ACCESSED, &CREATED, &TIME_STYLE, &HYPERLINK,
+    &BLOCKSIZE, &TIME, &ACCESSED, &CREATED, &TIME_STYLE, &HYPERLINK,
     &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &NO_ICONS,
 
     &GIT, &GIT_REPOS, &GIT_REPOS_NO_STAT, &EXTENDED, &OCTAL, &SECURITY_CONTEXT
