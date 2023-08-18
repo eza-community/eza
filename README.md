@@ -103,6 +103,17 @@ For `nix-env` users:
 nix-env -i eza
 ```
 
+### Debian and Ubuntu
+Eza is available from [deb.gierens.de](http://deb.gierens.de). The GPG public
+key is in this repo under [deb.asc](/deb.asc).
+
+To install eza from this repo use:
+```bash
+wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo tee /etc/apt/trusted.gpg.d/gierens.asc
+echo "deb http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+sudo apt update
+sudo apt install -y eza
+```
 
 
 ---
