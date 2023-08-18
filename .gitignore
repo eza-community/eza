@@ -14,6 +14,7 @@ target
 /eza-linux-x86_64-*.zip
 /eza-macos-x86_64
 /eza-macos-x86_64-*.zip
+/eza_*_amd64.deb
 /MD5SUMS
 /SHA1SUMS
 
