@@ -10,10 +10,10 @@ target
 
 # Compiled artifacts
 # (see devtools/*-package-for-*.sh)
-/exa-linux-x86_64
-/exa-linux-x86_64-*.zip
-/exa-macos-x86_64
-/exa-macos-x86_64-*.zip
+/eza-linux-x86_64
+/eza-linux-x86_64-*.zip
+/eza-macos-x86_64
+/eza-macos-x86_64-*.zip
 /MD5SUMS
 /SHA1SUMS
 
