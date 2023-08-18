@@ -1,4 +1,6 @@
 {
+  description = "The EZA flake for developing and releasing (soon)";
+
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     naersk.url = "github:nix-community/naersk";

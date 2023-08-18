@@ -6,3 +6,6 @@
 
 "packaging › snap":
   - snap/**/*
+
+"flake/nix ❄️":
+  - flake.*
