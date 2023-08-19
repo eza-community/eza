@@ -23,3 +23,6 @@ prime
 stage
 *.snap
 .direnv
+
+# VHS testing stuff
+tests/tmp
