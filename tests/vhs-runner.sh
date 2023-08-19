@@ -19,7 +19,6 @@ function run_test -d "Run VHS test" -a NAME
     set GEN_FILE_ESCAPE (echo $GEN_FILE | sed "s/\//\\\\\//g")
 
     cat $TAPES/$NAME_TAPE | sed s/outfile/$GEN_FILE_ESCAPE/ | sed s/-l// | vhs >/dev/null
-    # diff -q validated.ascii validated.txt && echo $SUCCESS || echo $FAILURE
     cmp -s -- $REFERENCES/$NAME.txt $TEMP/$NAME.txt && echo $SUCCESS || echo $FAILURE
 end
 
@@ -36,7 +35,6 @@ function gen_test -d "Generate VHS test" -a NAME
     set GEN_FILE_ESCAPE (echo $GEN_FILE | sed "s/\//\\\\\//g")
 
     cat $TAPES/$NAME_TAPE | sed s/outfile/$GEN_FILE_ESCAPE/ | sed s/-l// | vhs >/dev/null
-    # diff -q validated.ascii validated.txt && echo $SUCCESS || echo $FAILURE
     cmp -s -- $REFERENCES/$NAME.txt $TEMP/$NAME.txt && echo $SUCCESS || echo $FAILURE
 end
 
