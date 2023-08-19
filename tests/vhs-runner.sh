@@ -19,4 +19,19 @@ function run_test -d "Run VHS tests" -a NAME
     cmp -s -- $REFERENCES/$NAME.txt $TEMP/$NAME.txt && echo $SUCCESS || echo $FAILURE
 end
 
+function gen_test -d "Generate VHS tests" -a NAME
+    set NAME_TAPE "$NAME.tape"
+
+    set SUCCESS "[+] $NAME: Success"
+    set FAILURE "[+] $NAME: Failure"
+
+    echo "[*] Generating $NAME..."
+
+    cat $TAPES/$NAME_TAPE | sed "s/outfile/$REFERENCES\/$NAME.txt/" | sed s/-l// | vhs
+    # diff -q validated.ascii validated.txt && echo $SUCCESS || echo $FAILURE
+    cmp -s -- $REFERENCES/$NAME.txt $TEMP/$NAME.txt && echo $SUCCESS || echo $FAILURE
+end
+
+
+gen_test main
 run_test main
