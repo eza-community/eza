@@ -50,11 +50,14 @@ function gen_test -d "Generate VHS test" -a NAME
 end
 
 function main
+    # TODO: automatic reference deletion
+    for file in $TAPES/*
 
-    gen_test main
+        set filename (basename $file .tape)
 
-    run_test main
-
+        gen_test $filename
+        run_test $filename
+    end
 end
 
 main
