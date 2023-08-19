@@ -23,6 +23,7 @@ function run_test -d "Run VHS test" -a NAME
 end
 
 function gen_test -d "Generate VHS test" -a NAME
+
     set NAME_TAPE "$NAME.tape"
 
     set SUCCESS "[+] $NAME: Success"
