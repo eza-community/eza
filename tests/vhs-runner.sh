@@ -39,5 +39,12 @@ function gen_test -d "Generate VHS test" -a NAME
     cmp -s -- $REFERENCES/$NAME.txt $TEMP/$NAME.txt && echo $SUCCESS || echo $FAILURE
 end
 
-# gen_test main
-run_test main
+function main
+
+    # gen_test main
+
+    run_test main
+
+end
+
+main
