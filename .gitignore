@@ -25,4 +25,5 @@ stage
 .direnv
 
 # VHS testing stuff
+out.gif
 tests/tmp
