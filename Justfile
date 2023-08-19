@@ -38,7 +38,7 @@ all-release: build-release test-release
 
 alias itest := integration_tests
 @integration_tests:
-    ./tests/vhs-runner.sh
+    VHS_PUBLISH=false ./tests/vhs-runner.sh
 
 #------------------------#
 # running extended tests #
