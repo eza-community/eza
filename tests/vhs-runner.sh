@@ -37,7 +37,6 @@ function run_test -d "Run VHS test" -a NAME
     set GEN_FILE $GEN_DIR/$NAME.txt
     set GEN_FILE_ESCAPE (echo $GEN_FILE | sed "s/\//\\\\\//g")
 
-    echo "[*] $NAME: Testing..."
     print_msg DD0 "*" $NAME "Testing..."
 
     cat $TAPES/$NAME_TAPE | sed s/outfile/$GEN_FILE_ESCAPE/ | sed s/-l// | vhs &>/dev/null
@@ -49,8 +48,8 @@ function gen_test -d "Generate VHS test" -a NAME
 
     set NAME_TAPE "$NAME.tape"
 
-    set SUCCESS (set_color yellow; echo -n "[+] $NAME:"; set_color reset; echo " Success")
-    set FAILURE "[+] $NAME: Failure"
+    set SUCCESS (print_msg "0D0" "+" "$NAME" "Success")
+    set FAILURE (print_msg "D00" "-" "$NAME" "Failure")
 
     set GEN_DIR $REFERENCES
     set GEN_FILE $GEN_DIR/$NAME.txt
@@ -60,11 +59,11 @@ function gen_test -d "Generate VHS test" -a NAME
     # to change the reference. They should now only have to delete the old
     # reference, and a new one will be generated.
     if builtin test -f $GEN_FILE
-        echo "[+] $NAME: $GEN_FILE exists, skipping gen"
+        print_msg 0D0 "+" $NAME "$GEN_FILE exists"
         return
     end
 
-    echo "[*] $NAME: Testing..."
+    print_msg DD0 "*" $NAME "Generating..."
 
     cat $TAPES/$NAME_TAPE | sed s/outfile/$GEN_FILE_ESCAPE/ | sed s/-l// | vhs &>/dev/null
 
