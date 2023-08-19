@@ -5,9 +5,8 @@ set TAPES "$TEST_DIR/tapes"
 set REFERENCES "$TEST_DIR\/references"
 set TEMP "$TEST_DIR\/tmp"
 
-function run_test -d "Run VHS tests"
+function run_test -d "Run VHS tests" -a NAME
 
-    set NAME main
     set NAME_TAPE "$NAME.tape"
 
     set SUCCESS "[+] $NAME: Success"
@@ -20,4 +19,4 @@ function run_test -d "Run VHS tests"
     cmp -s -- $REFERENCES/$NAME.txt $TEMP/$NAME.txt && echo $SUCCESS || echo $FAILURE
 end
 
-run_test
+run_test main
