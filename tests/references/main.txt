@@ -1,0 +1,114 @@
+>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> cargo run -q --
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> cargo run -q --
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> cargo run -q --
+build.rs            CONTRIBUTING.md  out.gif              src
+Cargo.lock          devtools         README.md            target
+Cargo.toml          flake.lock       result               tests
+CHANGELOG.md        flake.nix        rust-toolchain.toml  treefmt.nix
+cliff.toml          Justfile         screenshots.png      Vagrantfile
+CODE_OF_CONDUCT.md  LICENCE          SECURITY.md          xtests
+completions         man              snap
+>
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> cargo run -q --
+build.rs            CONTRIBUTING.md  out.gif              src
+Cargo.lock          devtools         README.md            target
+Cargo.toml          flake.lock       result               tests
+CHANGELOG.md        flake.nix        rust-toolchain.toml  treefmt.nix
+cliff.toml          Justfile         screenshots.png      Vagrantfile
+CODE_OF_CONDUCT.md  LICENCE          SECURITY.md          xtests
+completions         man              snap
+>
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
+> cargo run -q --
+build.rs            CONTRIBUTING.md  out.gif              src
+Cargo.lock          devtools         README.md            target
+Cargo.toml          flake.lock       result               tests
+CHANGELOG.md        flake.nix        rust-toolchain.toml  treefmt.nix
+cliff.toml          Justfile         screenshots.png      Vagrantfile
+CODE_OF_CONDUCT.md  LICENCE          SECURITY.md          xtests
+completions         man              snap
+>
+
+
+
+
+
+
+
+
+
+────────────────────────────────────────────────────────────────────────────────
