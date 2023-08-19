@@ -6,14 +6,23 @@ set REFERENCES $TEST_DIR/references
 set TEMP $TEST_DIR/tmp
 
 function print_msg -a ARG -a OP -a NAME -a MSG
+    # Write operator, e.g. [+]
+    # [*]: indicates neutral result
+    # [+]: indicates positive result
+    # [-]: indicates negative result
     set_color reset
     echo -n "[$OP] "
+
+    # Write source, e.g. [ blocksize ]:
     set_color reset
     set_color -b $ARG
     set_color 000
     echo -n "[ $NAME ]:"
+
+    # Write message, e.g.
     set_color reset
     echo " $MSG"
+
     set_color reset
 end
 
