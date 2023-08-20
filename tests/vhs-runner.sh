@@ -5,6 +5,10 @@ set TAPES $TEST_DIR/tapes
 set REFERENCES $TEST_DIR/references
 set TEMP $TEST_DIR/tmp
 
+set EZA_GREEN 0D0
+set EZA_RED D00
+set EZA_YELLOW DD0
+
 alias ffmpeg="echo skipping ffmpeg" 
 
 function print_msg -a ARG -a OP -a NAME -a MSG
@@ -34,14 +38,14 @@ function run_test -d "Run VHS test" -a NAME
 
     set NAME_TAPE "$NAME.tape"
 
-    set SUCCESS (print_msg "0D0" "+" "$FUNCTION_NAME" "Success")
-    set FAILURE (print_msg "D00" "-" "$FUNCTION_NAME" "Failure")
+    set SUCCESS (print_msg "$EZA_GREEN" "+" "$FUNCTION_NAME" "Success")
+    set FAILURE (print_msg "$EZA_RED" "-" "$FUNCTION_NAME" "Failure")
 
     set GEN_DIR $TEMP
     set GEN_FILE $GEN_DIR/$NAME.txt
     set GEN_FILE_ESCAPE (echo $GEN_FILE | sed "s/\//\\\\\//g")
 
-    print_msg DD0 "*" $FUNCTION_NAME "Testing..."
+    print_msg $EZA_YELLOW "*" $FUNCTION_NAME "Testing..."
 
     cat $TAPES/$NAME_TAPE | sed s/outfile/$GEN_FILE_ESCAPE/ | vhs &>/dev/null
 
@@ -54,8 +58,8 @@ function gen_test -d "Generate VHS test" -a NAME
 
     set NAME_TAPE "$NAME.tape"
 
-    set SUCCESS (print_msg "0D0" "+" "$FUNCTION_NAME" "Success")
-    set FAILURE (print_msg "D00" "-" "$FUNCTION_NAME" "Failure")
+    set SUCCESS (print_msg "$EZA_GREEN" "+" "$FUNCTION_NAME" "Success")
+    set FAILURE (print_msg "$EZA_RED" "-" "$FUNCTION_NAME" "Failure")
 
     set GEN_DIR $REFERENCES
     set GEN_FILE $GEN_DIR/$NAME.txt
@@ -65,11 +69,11 @@ function gen_test -d "Generate VHS test" -a NAME
     # to change the reference. They should now only have to delete the old
     # reference, and a new one will be generated.
     if builtin test -f $GEN_FILE
-        print_msg 0D0 "+" $FUNCTION_NAME "$GEN_FILE exists"
+        print_msg $EZA_GREEN "+" $FUNCTION_NAME "$GEN_FILE exists"
         return
     end
 
-    print_msg DD0 "*" $FUNCTION_NAME "Generating..."
+    print_msg $EZA_YELLOW "*" $FUNCTION_NAME "Generating..."
 
     cat $TAPES/$NAME_TAPE | sed s/outfile/$GEN_FILE_ESCAPE/ | vhs &>/dev/null && echo $SUCCESS || echo $FAILURE
 
