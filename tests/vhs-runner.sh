@@ -43,7 +43,7 @@ function run_test -d "Run VHS test" -a NAME
 
     print_msg DD0 "*" $FUNCTION_NAME "Testing..."
 
-    cat $TAPES/$NAME_TAPE | sed s/outfile/$GEN_FILE_ESCAPE/ | sed s/-l// | vhs &>/dev/null
+    cat $TAPES/$NAME_TAPE | sed s/outfile/$GEN_FILE_ESCAPE/ | vhs &>/dev/null
 
     cmp -s -- $REFERENCES/$NAME.txt $TEMP/$NAME.txt && echo $SUCCESS || echo $FAILURE
 end
@@ -71,7 +71,7 @@ function gen_test -d "Generate VHS test" -a NAME
 
     print_msg DD0 "*" $FUNCTION_NAME "Generating..."
 
-    cat $TAPES/$NAME_TAPE | sed s/outfile/$GEN_FILE_ESCAPE/ | sed s/-l// | vhs &>/dev/null && echo $SUCCESS || echo $FAILURE
+    cat $TAPES/$NAME_TAPE | sed s/outfile/$GEN_FILE_ESCAPE/ | vhs &>/dev/null && echo $SUCCESS || echo $FAILURE
 
 end
 
