@@ -5,6 +5,8 @@ set TAPES $TEST_DIR/tapes
 set REFERENCES $TEST_DIR/references
 set TEMP $TEST_DIR/tmp
 
+alias ffmpeg="echo skipping ffmpeg" 
+
 function print_msg -a ARG -a OP -a NAME -a MSG
     # Write operator, e.g. [+]
     # [*]: indicates neutral result
@@ -28,16 +30,18 @@ end
 
 function run_test -d "Run VHS test" -a NAME
 
+    set FUNCTION_NAME "$NAME > run_test"
+
     set NAME_TAPE "$NAME.tape"
 
-    set SUCCESS (print_msg "0D0" "+" "$NAME" "Success")
-    set FAILURE (print_msg "D00" "-" "$NAME" "Failure")
+    set SUCCESS (print_msg "0D0" "+" "$FUNCTION_NAME" "Success")
+    set FAILURE (print_msg "D00" "-" "$FUNCTION_NAME" "Failure")
 
     set GEN_DIR $TEMP
     set GEN_FILE $GEN_DIR/$NAME.txt
     set GEN_FILE_ESCAPE (echo $GEN_FILE | sed "s/\//\\\\\//g")
 
-    print_msg DD0 "*" $NAME "Testing..."
+    print_msg DD0 "*" $FUNCTION_NAME "Testing..."
 
     cat $TAPES/$NAME_TAPE | sed s/outfile/$GEN_FILE_ESCAPE/ | sed s/-l// | vhs &>/dev/null
 
@@ -46,10 +50,12 @@ end
 
 function gen_test -d "Generate VHS test" -a NAME
 
+    set FUNCTION_NAME "$NAME > gen_test"
+
     set NAME_TAPE "$NAME.tape"
 
-    set SUCCESS (print_msg "0D0" "+" "$NAME" "Success")
-    set FAILURE (print_msg "D00" "-" "$NAME" "Failure")
+    set SUCCESS (print_msg "0D0" "+" "$FUNCTION_NAME" "Success")
+    set FAILURE (print_msg "D00" "-" "$FUNCTION_NAME" "Failure")
 
     set GEN_DIR $REFERENCES
     set GEN_FILE $GEN_DIR/$NAME.txt
@@ -59,15 +65,14 @@ function gen_test -d "Generate VHS test" -a NAME
     # to change the reference. They should now only have to delete the old
     # reference, and a new one will be generated.
     if builtin test -f $GEN_FILE
-        print_msg 0D0 "+" $NAME "$GEN_FILE exists"
+        print_msg 0D0 "+" $FUNCTION_NAME "$GEN_FILE exists"
         return
     end
 
-    print_msg DD0 "*" $NAME "Generating..."
+    print_msg DD0 "*" $FUNCTION_NAME "Generating..."
 
-    cat $TAPES/$NAME_TAPE | sed s/outfile/$GEN_FILE_ESCAPE/ | sed s/-l// | vhs &>/dev/null
+    cat $TAPES/$NAME_TAPE | sed s/outfile/$GEN_FILE_ESCAPE/ | sed s/-l// | vhs &>/dev/null && echo $SUCCESS || echo $FAILURE
 
-    cmp -s -- $REFERENCES/$NAME.txt $TEMP/$NAME.txt && echo $SUCCESS || echo $FAILURE
 end
 
 function main
