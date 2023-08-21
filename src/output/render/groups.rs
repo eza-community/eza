@@ -1,5 +1,5 @@
 use ansi_term::Style;
-use users::{Users, Groups};
+use uzers::{Users, Groups};
 
 use crate::fs::fields as f;
 use crate::output::cell::TextCell;
@@ -11,7 +11,7 @@ pub trait Render{
 
 impl Render for Option<f::Group> {
     fn render<C: Colours, U: Users+Groups>(self, colours: &C, users: &U, format: UserFormat) -> TextCell {
-        use users::os::unix::GroupExt;
+        use uzers::os::unix::GroupExt;
 
         let mut style = colours.not_yours();
 
@@ -59,9 +59,9 @@ pub mod test {
     use crate::output::cell::TextCell;
     use crate::output::table::UserFormat;
 
-    use users::{User, Group};
-    use users::mock::MockUsers;
-    use users::os::unix::GroupExt;
+    use uzers::{User, Group};
+    use uzers::mock::MockUsers;
+    use uzers::os::unix::GroupExt;
     use ansi_term::Colour::*;
     use ansi_term::Style;
 
