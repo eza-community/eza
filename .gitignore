@@ -24,3 +24,7 @@ prime
 stage
 *.snap
 .direnv
+
+# VHS testing stuff
+out.gif
+tests/tmp
