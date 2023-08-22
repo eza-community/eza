@@ -1,3 +1,7 @@
+# Name
+
+eza_colors-explanation — more details on customizing eza colors
+
 # Eza Color Explanation
 
 eza provides its own built\-in set of file extension mappings that cover a large range of common file extensions, including documents, archives, media, and temporary files.

@@ -10,7 +10,25 @@ readme = "README.md"
 homepage = "https://github.com/eza-community/eza"
 license = "MIT"
 repository = "https://github.com/eza-community/eza"
-version = "0.10.7"
+version = "0.10.8"
+
+
+[package.metadata.deb]
+license-file = [ "LICENCE", "4" ]
+depends = "$auto"
+extended-description = """
+eza is a modern, maintained replacement for ls
+"""
+section = "utils"
+priority = "optional"
+assets = [
+    [ "target/release/eza", "/usr/bin/eza", "0755" ],
+    [ "target/release/../man/eza.1", "/usr/share/man/man1/eza.1", "0644" ],
+    [ "target/release/../man/eza_colors.5", "/usr/share/man/man5/eza_colors.5", "0644" ],
+    [ "completions/bash/eza", "/usr/share/bash-completion/completions/eza", "0644" ],
+    [ "completions/zsh/_eza", "/usr/share/zsh/site-functions/_eza", "0644" ],
+    [ "completions/fish/eza.fish", "/usr/share/fish/vendor_completions.d/eza.fish", "0644" ],
+]
 
 
 [[bin]]
@@ -66,21 +84,3 @@ debug = false
 lto = true
 strip = true
 opt-level = "s"
-
-
-[package.metadata.deb]
-license-file = [ "LICENCE", "4" ]
-depends = "$auto"
-extended-description = """
-eza is a modern, maintained replacement for ls 
-"""
-section = "utils"
-priority = "optional"
-assets = [
-    [ "target/release/eza", "/usr/bin/eza", "0755" ],
-    [ "target/release/../man/eza.1", "/usr/share/man/man1/eza.1", "0644" ],
-    [ "target/release/../man/eza_colors.5", "/usr/share/man/man5/eza_colors.5", "0644" ],
-    [ "completions/bash/eza", "/usr/share/bash-completion/completions/eza", "0644" ],
-    [ "completions/zsh/_eza", "/usr/share/zsh/site-functions/_eza", "0644" ],
-    [ "completions/fish/eza.fish", "/usr/share/fish/vendor_completions.d/eza.fish", "0644" ],
-]
