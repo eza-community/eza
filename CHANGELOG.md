@@ -2,6 +2,98 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.8] - 2023-08-22
+
+### Bug Fixes
+
+- TextCell building of detailed grid view for  hyperlink and icon options
+- Block's Colours trait as for file sizes
+- --blocksize completion, new description
+- Option.views unit tests use --blocksize
+- Add missing colon before -w/--width
+- Replace exa by eza in help string
+- Change exa to eza in invalid option error
+- Add missing name section to eza_colors-explanation manpage
+- Replace exa by eza in .gitignore
+
+### Documentation
+
+- Update issue templates
+- Add git-ignore style/color information to manpage
+- --blocksize, new description
+- --blocksize, new description
+- --blocksize, new description
+- Cafkafk -> eza-community
+- Add gpg public key for the deb repository
+- Add section about debian and ubuntu installation
+
+### Features
+
+- Add `just` and `pandoc` to devShell bc they are necessary for man
+- Add `.envrc` so direnv automatically opens the nix dev environment
+- Add git-ignored color/style option
+- Match folder icon to reflect contents
+- Match folder icon to reflect contents
+- --blocksize completion, new description
+- Add script deb-package.sh
+
+### Miscellaneous Tasks
+
+- Bump libc from 0.2.93 to 0.2.147
+- Bump num_cpus from 1.13.0 to 1.16.0
+- Bump git2 from 0.16.1 to 0.17.2
+- Bump unicode-width from 0.1.8 to 0.1.10
+
+### Refactor
+
+- Fs::fields::Blocks
+- File::blocks() name, revise calculation
+- Rendering Blocksize like file sizes
+- Rename Blocks column to Blocksize
+- Use -S/--blocksize and, var BLOCKSIZE
+- Unit tests for output.render.blocks
+- Flip if (as suggested/demanded by clippy)
+
+### Build
+
+- Add charm to nix develop
+- Add tests/tmp to gitignore
+- Add initial tape
+- Add test runner sketch
+- Add test runner to justfile
+- Add out.gif to .gitignore
+- Add run_tests  NAME arg
+- Add reference main.txt
+- Add gen_test
+- Fix typo
+- Handle arbitrary NAMES
+- Remove commented out code
+- Fix code formatting
+- Add vhs-runner main function
+- Gen_test support automatic gen
+- Automatic tape detection
+- Add print_msg with ansi color
+- Slight documentation/refactor
+- Use ansi output on all output
+- Disable vhs publish ad
+- Add better tracing
+- Remove defective sed
+- Add color variables
+- Add eza-long test
+- Add itest testing dir
+- Add parallel runner
+
+### Ci
+
+- Help text in xtests
+- Nix flake check
+- Add labeler for flake
+- Add flake description
+
+### Git
+
+- Add deb package to .gitignore
+
 ## [0.10.7] - 2023-08-13
 
 ### Bug Fixes
@@ -35,6 +127,7 @@ All notable changes to this project will be documented in this file.
 
 - Add PR template
 - Bump log from 0.4.14 to 0.4.20
+- Release 0.10.7
 
 ### Refactor
 
