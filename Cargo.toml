@@ -17,7 +17,7 @@ version = "0.10.8"
 license-file = [ "LICENCE", "4" ]
 depends = "$auto"
 extended-description = """
-eza is a modern, maintained replacement for ls 
+eza is a modern, maintained replacement for ls
 """
 section = "utils"
 priority = "optional"
@@ -63,7 +63,7 @@ optional = true
 default-features = false
 
 [target.'cfg(unix)'.dependencies]
-users = "0.11"
+uzers = "0.11.1"
 
 [build-dependencies.datetime]
 version = "0.5.2"
