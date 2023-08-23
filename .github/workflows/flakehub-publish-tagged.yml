@@ -1,5 +1,5 @@
-on: workflow_dispatch
-on:
+on: 
+  workflow_dispatch
   push:
     tags:
       - "v*.*.*"
