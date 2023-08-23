@@ -2,11 +2,6 @@ on:
   push:
     tags:
       - "v*.*.*"
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: The Git tag to use, for non-rolling releases. This must be the character `v` followed by a SemVer version, e.g. `v0.1.1`.
-        required: true
 
 jobs:
   publish:
