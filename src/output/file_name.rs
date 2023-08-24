@@ -9,6 +9,8 @@ use crate::output::escape;
 use crate::output::icons::{icon_for_file, iconify_style};
 use crate::output::render::FiletypeColours;
 
+const HYPERLINK_START: &str = "\x1B]8;;";
+const HYPERLINK_END: &str = "\x1B\x5C";
 
 /// Basically a file name factory.
 #[derive(Debug, Copy, Clone)]
@@ -303,59 +305,32 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         let file_style = self.style();
         let mut bits = Vec::new();
 
-        self.escape_color_and_hyperlinks(
+        let mut display_hyperlink = false;
+        if self.options.embed_hyperlinks == EmbedHyperlinks::On {
+            if let Some(abs_path) = self.file.path.canonicalize().unwrap().as_os_str().to_str() {
+                bits.insert(0, ANSIString::from(format!(
+                    "{}file://{}{}{}",
+                    HYPERLINK_START,
+                    gethostname::gethostname().to_str().unwrap_or(""),
+                    urlencoding::encode(abs_path).replace("%2F", "/"),
+                    HYPERLINK_END,
+                )));
+                display_hyperlink = true;
+            }
+        }
+
+        escape(
+            self.file.name.clone(),
             &mut bits,
             file_style,
             self.colours.control_char(),
         );
 
+        if display_hyperlink {
+            bits.push(ANSIString::from(format!("{HYPERLINK_START}{HYPERLINK_END}")));
+        }
+
         bits
-    }
-
-    // An adapted version of escape::escape.
-    // afaik of all the calls to escape::escape, only for escaped_file_name, the call to escape needs to be checked for hyper links
-    // and if that's the case then I think it's best to not try and generalize escape::escape to this case,
-    // as this adaptation would incur some unneeded operations there
-    pub fn escape_color_and_hyperlinks(&self, bits: &mut Vec<ANSIString<'_>>, good: Style, bad: Style) {
-        let string = self.file.name.clone();
-
-        if string.chars().all(|c| c >= 0x20 as char && c != 0x7f as char) {
-            let painted = good.paint(string);
-
-            let adjusted_filename = if let EmbedHyperlinks::On = self.options.embed_hyperlinks {
-                ANSIString::from(format!("\x1B]8;;{}\x1B\x5C{}\x1B]8;;\x1B\x5C", self.file.path.display(), painted))
-            } else {
-                painted
-            };
-            bits.push(adjusted_filename);
-            return;
-        }
-
-        // again adapted from escape::escape
-        // still a slow route, but slightly improved to at least not reallocate buff + have a predetermined buff size
-        //
-        // also note that buff would never need more than len,
-        // even tho 'in total' it will be lenghier than len (as we expand with escape_default),
-        // because we clear it after an irregularity
-        let mut buff = String::with_capacity(string.len());
-        for c in string.chars() {
-            // The `escape_default` method on `char` is *almost* what we want here, but
-            // it still escapes non-ASCII UTF-8 characters, which are still printable.
-
-            if c >= 0x20 as char && c != 0x7f as char {
-                buff.push(c);
-            }
-            else {
-                if ! buff.is_empty() {
-                    bits.push(good.paint(std::mem::take(&mut buff)));
-                }
-                // biased towards regular characters, so we still collect on first sight of bad char
-                for e in c.escape_default() {
-                    buff.push(e);
-                }
-                bits.push(bad.paint(std::mem::take(&mut buff)));
-            }
-        }
     }
 
     /// Figures out which colour to paint the filename part of the output,
