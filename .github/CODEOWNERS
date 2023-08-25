@@ -38,3 +38,7 @@ Cargo.lock @cafkafk
 devtools/* @cafkafk
 tests/* @cafkafk
 xtests/* @cafkafk
+
+# Debian files
+devtools/deb-package.sh @gierens
+deb.asc @gierens
