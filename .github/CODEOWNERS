@@ -1,0 +1,44 @@
+# Lines starting with a '#' are comments.
+# Each line is a file pattern followed by one or more owners.
+
+# These owners will be the default owners for everything in the repository.
+# * @global-owner1 @global-owner2
+
+# The 'docs/*' pattern will match files like
+# 'docs/getting-started.md' but not further nested files like
+# 'docs/build-app/troubleshooting.md'.
+# docs/*  @doc-owner-team
+
+# You can also use email addresses if the user isn't on GitHub.
+# *.py admin@example.com
+
+# You can use a '*' at the end of a pattern to match all files
+# of a particular type.
+# *.* @all-file-types-owner
+
+# Order is important. The last matching pattern has the most precedence.
+# This means if a pull request touches both *.js and *.css files,
+# it will only request a review from @js-owner, not @css-owner.
+# *.js @js-owner
+# *.css @css-owner
+
+# Nix files
+*.nix @cafkafk
+
+# Documentation
+*.md @cafkafk
+
+# Configuration
+*.toml @cafkafk
+
+# Version bumps
+Cargo.lock @cafkafk
+
+# Testing, builds, etc
+devtools/* @cafkafk
+tests/* @cafkafk
+xtests/* @cafkafk
+
+# Debian files
+devtools/deb-package.sh @gierens
+deb.asc @gierens
