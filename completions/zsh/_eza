@@ -55,6 +55,7 @@ __eza() {
         {-U,--created}"[Use the created timestamp field]" \
         {-X,--dereference}"[dereference symlinks for file information]" \
         --git"[List each file's Git status, if tracked]" \
+        --no-git"[Suppress Git status]" \
         --git-repos"[List each git-repos status and branch name]" \
         --git-repos-no-status"[List each git-repos branch name (much faster)]" \
         {-@,--extended}"[List each file's extended attributes and sizes]" \
