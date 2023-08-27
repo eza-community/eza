@@ -6,7 +6,7 @@ eza_colors-explanation — more details on customizing eza colors
 
 eza provides its own built\-in set of file extension mappings that cover a large range of common file extensions, including documents, archives, media, and temporary files.
 
-Any mappings in the environment variables will override this default set: running eza with `LS_COLORS="*.zip=32"` will turn zip files green but leave the colours of other compressed files alone.
+Any mappings in the environment variables will override this default set: running eza with `LS_COLORS="*.zip=32"` will turn zip files green but leave the colors of other compressed files alone.
 
 You can also disable this built\-in set entirely by including a
 `reset` entry at the beginning of `EXA_COLORS`.
@@ -18,7 +18,7 @@ files; setting `EXA_COLORS="reset"` will highlight nothing.
 - Disable the "current user" highlighting: `EXA_COLORS="uu=0:gu=0"`
 - Turn the date column green: `EXA_COLORS="da=32"`
 - Highlight Vagrantfiles: `EXA_COLORS="Vagrantfile=1;4;33"`
-- Override the existing zip colour: `EXA_COLORS="*.zip=38;5;125"`
+- Override the existing zip color: `EXA_COLORS="*.zip=38;5;125"`
 - Markdown files a shade of green, log files a shade of grey:
 `EXA_COLORS="*.md=38;5;121:*.log=38;5;248"`
 

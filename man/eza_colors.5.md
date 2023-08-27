@@ -8,13 +8,13 @@
 NAME
 ====
 
-eza_colors — customising the file and UI colours of eza
+eza_colors — customising the file and UI colors of eza
 
 
 SYNOPSIS
 ========
 
-The `EXA_COLORS` environment variable can be used to customise the colours that `eza` uses to highlight file names, file metadata, and parts of the UI.
+The `EXA_COLORS` environment variable can be used to customise the colors that `eza` uses to highlight file names, file metadata, and parts of the UI.
 
 You can use the `dircolors` program to generate a script that sets the variable from an input file, or if you don’t mind editing long strings of text, you can just type it out directly. These variables have the following structure:
 
@@ -38,7 +38,7 @@ EXAMPLES
 : Highlight Vagrantfiles
 
 `EXA_COLORS="*.zip=38;5;125"`
-: Override the existing zip colour
+: Override the existing zip color
 
 `EXA_COLORS="*.md=38;5;121:*.log=38;5;248"`
 : Markdown files a shade of green, log files a shade of grey
@@ -226,7 +226,7 @@ Values in `EXA_COLORS` override those given in `LS_COLORS`, so you don’t need 
 LIST OF STYLES
 ==============
 
-Unlike some versions of `ls`, the given ANSI values must be valid colour codes: eza won’t just print out whichever characters are given.
+Unlike some versions of `ls`, the given ANSI values must be valid color codes: eza won’t just print out whichever characters are given.
 
 The codes accepted by eza are:
 
@@ -258,12 +258,12 @@ The codes accepted by eza are:
 : for white text
 
 `38;5;nnn`
-: for a colour from 0 to 255 (replace the `nnn` part)
+: for a color from 0 to 255 (replace the `nnn` part)
 
-Many terminals will treat bolded text as a different colour, or at least provide the option to.
+Many terminals will treat bolded text as a different color, or at least provide the option to.
 
 eza provides its own built-in set of file extension mappings that cover a large range of common file extensions, including documents, archives, media, and temporary files.
-Any mappings in the environment variables will override this default set: running eza with `LS_COLORS="*.zip=32"` will turn zip files green but leave the colours of other compressed files alone.
+Any mappings in the environment variables will override this default set: running eza with `LS_COLORS="*.zip=32"` will turn zip files green but leave the colors of other compressed files alone.
 
 You can also disable this built-in set entirely by including a `reset` entry at the beginning of `EXA_COLORS`.
 So setting `EXA_COLORS="reset:*.txt=31"` will highlight only text files; setting `EXA_COLORS="reset"` will highlight nothing.

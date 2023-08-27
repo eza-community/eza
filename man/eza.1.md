@@ -17,7 +17,7 @@ SYNOPSIS
 `eza [options] [files...]`
 
 **eza** is a modern replacement for `ls`.
-It uses colours for information by default, helping you distinguish between many types of files, such as whether you are the owner, or in the owning group.
+It uses colors for information by default, helping you distinguish between many types of files, such as whether you are the owner, or in the owning group.
 
 It also has extra features not present in the original `ls`, such as viewing the Git status for a directory, or recursing into directories with a tree view.
 
@@ -63,7 +63,7 @@ DISPLAY OPTIONS
 : Sort the grid across, rather than downwards.
 
 `--color`, `--colour=WHEN`
-: When to use terminal colours.
+: When to use terminal colors.
 Valid settings are ‘`always`’, ‘`automatic`’, and ‘`never`’.
 
 `--color-scale`, `--colour-scale`
@@ -238,13 +238,13 @@ Different terminals display icons differently, as they usually take up more than
 
 ## `NO_COLOR`
 
-Disables colours in the output (regardless of its value). Can be overridden by `--color` option.
+Disables colors in the output (regardless of its value). Can be overridden by `--color` option.
 
 See `https://no-color.org/` for details.
 
 ## `LS_COLORS`, `EXA_COLORS`
 
-Specifies the colour scheme used to highlight files based on their name and kind, as well as highlighting metadata and parts of the UI.
+Specifies the color scheme used to highlight files based on their name and kind, as well as highlighting metadata and parts of the UI.
 
 For more information on the format of these environment variables, see the [eza_colors.5.md](eza_colors.5.md) manual page.
 
