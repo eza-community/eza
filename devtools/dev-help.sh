@@ -2,7 +2,6 @@
 # in the VM. It gets executed during Vagrant provisioning and its output gets
 # dumped into /etc/motd, to print it when a user starts a new Vagrant session.
 
-
 echo -e "
 \033[1;33mThe exa development environment!\033[0m
 exa's source is available at \033[33m/vagrant\033[0m.
