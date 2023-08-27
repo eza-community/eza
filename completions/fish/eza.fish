@@ -28,7 +28,7 @@ complete -c eza -l git-ignore -d "Ignore files mentioned in '.gitignore'"
 complete -c eza -s a -l all -d "Show hidden and 'dot' files"
 complete -c eza -s d -l list-dirs -d "List directories like regular files"
 complete -c eza -s L -l level -d "Limit the depth of recursion" -x -a "1 2 3 4 5 6 7 8 9"
-complete -c eza -s w -l width -d "Limits column output of grid, 0 implies auto-width" 
+complete -c eza -s w -l width -d "Limits column output of grid, 0 implies auto-width"
 complete -c eza -s r -l reverse -d "Reverse the sort order"
 complete -c eza -s s -l sort -d "Which field to sort by" -x -a "
     accessed\t'Sort by file accessed time'
