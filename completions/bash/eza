@@ -8,7 +8,7 @@ _eza()
             return
             ;;
 
-        --colour)
+        --color)
             COMPREPLY=( $( compgen -W 'always auto never' -- "$cur" ) )
             return
             ;;
