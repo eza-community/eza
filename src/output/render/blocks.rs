@@ -8,12 +8,12 @@ use crate::output::table::SizeFormat;
 
 
 impl f::Blocksize {
-    pub fn render<C: Colours>(self, colours: &C, size_format: SizeFormat, numerics: &NumericLocale) -> TextCell {
+    pub fn render<C: Colors>(self, colors: &C, size_format: SizeFormat, numerics: &NumericLocale) -> TextCell {
         use number_prefix::NumberPrefix;
 
         let size = match self {
             Self::Some(s)             => s,
-            Self::None                => return TextCell::blank(colours.no_blocksize()),
+            Self::None                => return TextCell::blank(colors.no_blocksize()),
         };
 
         let result = match size_format {
@@ -30,12 +30,12 @@ impl f::Blocksize {
                 // But format the number directly using the locale.
                 let string = numerics.format_int(size);
 
-                return TextCell::paint(colours.blocksize(prefix), string);
+                return TextCell::paint(colors.blocksize(prefix), string);
             }
         };
 
         let (prefix, n) = match result {
-            NumberPrefix::Standalone(b)   => return TextCell::paint(colours.blocksize(None), numerics.format_int(b)),
+            NumberPrefix::Standalone(b)   => return TextCell::paint(colors.blocksize(None), numerics.format_int(b)),
             NumberPrefix::Prefixed(p, n)  => (p, n),
         };
 
@@ -50,15 +50,15 @@ impl f::Blocksize {
             // symbol is guaranteed to be ASCII since unit prefixes are hardcoded.
             width: DisplayWidth::from(&*number) + symbol.len(),
             contents: vec![
-                colours.blocksize(Some(prefix)).paint(number),
-                colours.unit(Some(prefix)).paint(symbol),
+                colors.blocksize(Some(prefix)).paint(number),
+                colors.unit(Some(prefix)).paint(symbol),
             ].into(),
         }
     }
 }
 
 
-pub trait Colours {
+pub trait Colors {
     fn blocksize(&self, prefix: Option<Prefix>) -> Style;
     fn unit(&self, prefix: Option<Prefix>)      -> Style;
     fn no_blocksize(&self)                      -> Style;
@@ -70,7 +70,7 @@ pub mod test {
     use nu_ansi_term::Style;
     use nu_ansi_term::Color::*;
 
-    use super::Colours;
+    use super::Colors;
     use crate::output::cell::{TextCell, DisplayWidth};
     use crate::output::table::SizeFormat;
     use crate::fs::fields as f;
@@ -78,9 +78,9 @@ pub mod test {
     use locale::Numeric as NumericLocale;
     use number_prefix::Prefix;
 
-    struct TestColours;
+    struct TestColors;
 
-    impl Colours for TestColours {
+    impl Colors for TestColors {
         fn blocksize(&self, _prefix: Option<Prefix>) -> Style { Fixed(66).normal() }
         fn unit(&self, _prefix: Option<Prefix>)      -> Style { Fixed(77).bold() }
         fn no_blocksize(&self)                       -> Style { Black.italic() }
@@ -91,7 +91,7 @@ pub mod test {
     fn directory() {
         let directory = f::Blocksize::None;
         let expected = TextCell::blank(Black.italic());
-        assert_eq!(expected, directory.render(&TestColours, SizeFormat::JustBytes, &NumericLocale::english()))
+        assert_eq!(expected, directory.render(&TestColors, SizeFormat::JustBytes, &NumericLocale::english()))
     }
 
 
@@ -106,7 +106,7 @@ pub mod test {
             ].into(),
         };
 
-        assert_eq!(expected, directory.render(&TestColours, SizeFormat::DecimalBytes, &NumericLocale::english()))
+        assert_eq!(expected, directory.render(&TestColors, SizeFormat::DecimalBytes, &NumericLocale::english()))
     }
 
 
@@ -121,7 +121,7 @@ pub mod test {
             ].into(),
         };
 
-        assert_eq!(expected, directory.render(&TestColours, SizeFormat::BinaryBytes, &NumericLocale::english()))
+        assert_eq!(expected, directory.render(&TestColors, SizeFormat::BinaryBytes, &NumericLocale::english()))
     }
 
 
@@ -135,6 +135,6 @@ pub mod test {
             ].into(),
         };
 
-        assert_eq!(expected, directory.render(&TestColours, SizeFormat::JustBytes, &NumericLocale::english()))
+        assert_eq!(expected, directory.render(&TestColors, SizeFormat::JustBytes, &NumericLocale::english()))
     }
 }

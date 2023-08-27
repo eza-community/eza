@@ -5,7 +5,7 @@ use crate::theme::lsc::Pair;
 
 #[derive(Debug, Default, PartialEq)]
 pub struct UiStyles {
-    pub colourful: bool,
+    pub colorful: bool,
 
     pub filekinds:        FileKinds,
     pub perms:            Permissions,

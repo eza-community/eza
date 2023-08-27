@@ -5,25 +5,25 @@ use crate::output::cell::{TextCell, DisplayWidth};
 
 
 impl f::SecurityContext<'_> {
-    pub fn render<C: Colours>(&self, colours: &C) -> TextCell {
+    pub fn render<C: Colors>(&self, colors: &C) -> TextCell {
         match &self.context {
             f::SecurityContextType::None => {
-                TextCell::paint_str(colours.none(), "?")
+                TextCell::paint_str(colors.none(), "?")
             }
             f::SecurityContextType::SELinux(context) => {
                 let mut chars = Vec::with_capacity(7);
 
                 for (i, part) in context.split(':').enumerate() {
-                    let partcolour = match i {
-                        0 => colours.selinux_user(),
-                        1 => colours.selinux_role(),
-                        2 => colours.selinux_type(),
-                        _ => colours.selinux_range()
+                    let part_color = match i {
+                        0 => colors.selinux_user(),
+                        1 => colors.selinux_role(),
+                        2 => colors.selinux_type(),
+                        _ => colors.selinux_range()
                     };
                     if i > 0 {
-                        chars.push(colours.selinux_colon().paint(":"));
+                        chars.push(colors.selinux_colon().paint(":"));
                     }
-                    chars.push(partcolour.paint(String::from(part)));
+                    chars.push(part_color.paint(String::from(part)));
                 }
 
                 TextCell {
@@ -35,7 +35,7 @@ impl f::SecurityContext<'_> {
     }
 }
 
-pub trait Colours {
+pub trait Colors {
     fn none(&self)          -> Style;
     fn selinux_colon(&self) -> Style;
     fn selinux_user(&self)  -> Style;

@@ -4,23 +4,23 @@ use nu_ansi_term::{AnsiString, Style};
 
 use crate::fs::fields as f;
 use crate::output::cell::{TextCell, DisplayWidth};
-use crate::output::render::FiletypeColours;
+use crate::output::render::FiletypeColors;
 
 pub trait PermissionsPlusRender {
-    fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> TextCell;
+    fn render<C: Colors+FiletypeColors>(&self, colors: &C) -> TextCell;
 }
 
 #[cfg(unix)]
 impl PermissionsPlusRender for Option<f::PermissionsPlus> {
-    fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> TextCell {
+    fn render<C: Colors+FiletypeColors>(&self, colors: &C) -> TextCell {
         match self {
             Some(p) => {
-                let mut chars = vec![ p.file_type.render(colours) ];
+                let mut chars = vec![ p.file_type.render(colors) ];
                 let permissions = p.permissions;
-                chars.extend(Some(permissions).render(colours, p.file_type.is_regular_file()));
+                chars.extend(Some(permissions).render(colors, p.file_type.is_regular_file()));
 
                 if p.xattrs {
-                   chars.push(colours.attribute().paint("@"));
+                   chars.push(colors.attribute().paint("@"));
                 }
 
                 // As these are all ASCII characters, we can guarantee that they’re
@@ -32,7 +32,7 @@ impl PermissionsPlusRender for Option<f::PermissionsPlus> {
                 }
             },
             None => {
-                let chars: Vec<_> = iter::repeat(colours.dash().paint("-")).take(10).collect();
+                let chars: Vec<_> = iter::repeat(colors.dash().paint("-")).take(10).collect();
                 TextCell {
                     width:    DisplayWidth::from(chars.len()),
                     contents: chars.into(),
@@ -42,9 +42,9 @@ impl PermissionsPlusRender for Option<f::PermissionsPlus> {
     }
 
     #[cfg(windows)]
-    pub fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> TextCell {
-        let mut chars = vec![ self.attributes.render_type(colours) ];
-        chars.extend(self.attributes.render(colours));
+    pub fn render<C: Colors+FiletypeColors>(&self, colors: &C) -> TextCell {
+        let mut chars = vec![ self.attributes.render_type(colors) ];
+        chars.extend(self.attributes.render(colors));
 
         TextCell {
             width:    DisplayWidth::from(chars.len()),
@@ -54,98 +54,98 @@ impl PermissionsPlusRender for Option<f::PermissionsPlus> {
 }
 
 pub trait RenderPermissions {
-    fn render<C: Colours>(&self, colours: &C, is_regular_file: bool) -> Vec<AnsiString<'static>>;
+    fn render<C: Colors>(&self, colors: &C, is_regular_file: bool) -> Vec<AnsiString<'static>>;
 }
 
 impl RenderPermissions for Option<f::Permissions> {
-    fn render<C: Colours>(&self, colours: &C, is_regular_file: bool) -> Vec<AnsiString<'static>> {
+    fn render<C: Colors>(&self, colors: &C, is_regular_file: bool) -> Vec<AnsiString<'static>> {
         match self {
             Some(p) => {
                 let bit = |bit, chr: &'static str, style: Style| {
                     if bit { style.paint(chr) }
-                      else { colours.dash().paint("-") }
+                      else { colors.dash().paint("-") }
                 };
 
                 vec![
-                    bit(p.user_read,   "r", colours.user_read()),
-                    bit(p.user_write,  "w", colours.user_write()),
-                    p.user_execute_bit(colours, is_regular_file),
-                    bit(p.group_read,  "r", colours.group_read()),
-                    bit(p.group_write, "w", colours.group_write()),
-                    p.group_execute_bit(colours),
-                    bit(p.other_read,  "r", colours.other_read()),
-                    bit(p.other_write, "w", colours.other_write()),
-                    p.other_execute_bit(colours)
+                    bit(p.user_read,   "r", colors.user_read()),
+                    bit(p.user_write,  "w", colors.user_write()),
+                    p.user_execute_bit(colors, is_regular_file),
+                    bit(p.group_read,  "r", colors.group_read()),
+                    bit(p.group_write, "w", colors.group_write()),
+                    p.group_execute_bit(colors),
+                    bit(p.other_read,  "r", colors.other_read()),
+                    bit(p.other_write, "w", colors.other_write()),
+                    p.other_execute_bit(colors)
                 ]
             },
             None => {
-                iter::repeat(colours.dash().paint("-")).take(9).collect()
+                iter::repeat(colors.dash().paint("-")).take(9).collect()
             }
         }
     }
 }
 
 impl f::Permissions {
-    fn user_execute_bit<C: Colours>(&self, colours: &C, is_regular_file: bool) -> AnsiString<'static> {
+    fn user_execute_bit<C: Colors>(&self, colors: &C, is_regular_file: bool) -> AnsiString<'static> {
         match (self.user_execute, self.setuid, is_regular_file) {
-            (false, false, _)      => colours.dash().paint("-"),
-            (true,  false, false)  => colours.user_execute_other().paint("x"),
-            (true,  false, true)   => colours.user_execute_file().paint("x"),
-            (false, true,  _)      => colours.special_other().paint("S"),
-            (true,  true,  false)  => colours.special_other().paint("s"),
-            (true,  true,  true)   => colours.special_user_file().paint("s"),
+            (false, false, _)      => colors.dash().paint("-"),
+            (true,  false, false)  => colors.user_execute_other().paint("x"),
+            (true,  false, true)   => colors.user_execute_file().paint("x"),
+            (false, true,  _)      => colors.special_other().paint("S"),
+            (true,  true,  false)  => colors.special_other().paint("s"),
+            (true,  true,  true)   => colors.special_user_file().paint("s"),
         }
     }
 
-    fn group_execute_bit<C: Colours>(&self, colours: &C) -> AnsiString<'static> {
+    fn group_execute_bit<C: Colors>(&self, colors: &C) -> AnsiString<'static> {
         match (self.group_execute, self.setgid) {
-            (false, false)  => colours.dash().paint("-"),
-            (true,  false)  => colours.group_execute().paint("x"),
-            (false, true)   => colours.special_other().paint("S"),
-            (true,  true)   => colours.special_other().paint("s"),
+            (false, false)  => colors.dash().paint("-"),
+            (true,  false)  => colors.group_execute().paint("x"),
+            (false, true)   => colors.special_other().paint("S"),
+            (true,  true)   => colors.special_other().paint("s"),
         }
     }
 
-    fn other_execute_bit<C: Colours>(&self, colours: &C) -> AnsiString<'static> {
+    fn other_execute_bit<C: Colors>(&self, colors: &C) -> AnsiString<'static> {
         match (self.other_execute, self.sticky) {
-            (false, false)  => colours.dash().paint("-"),
-            (true,  false)  => colours.other_execute().paint("x"),
-            (false, true)   => colours.special_other().paint("T"),
-            (true,  true)   => colours.special_other().paint("t"),
+            (false, false)  => colors.dash().paint("-"),
+            (true,  false)  => colors.other_execute().paint("x"),
+            (false, true)   => colors.special_other().paint("T"),
+            (true,  true)   => colors.special_other().paint("t"),
         }
     }
 }
 
 #[cfg(windows)]
 impl f::Attributes {
-    pub fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> Vec<AnsiString<'static>> {
+    pub fn render<C: Colors+FiletypeColors>(&self, colors: &C) -> Vec<AnsiString<'static>> {
         let bit = |bit, chr: &'static str, style: Style| {
             if bit { style.paint(chr) }
-              else { colours.dash().paint("-") }
+              else { colors.dash().paint("-") }
         };
 
         vec![
-            bit(self.archive,   "a", colours.normal()),
-            bit(self.readonly,  "r", colours.user_read()),
-            bit(self.hidden,    "h", colours.special_user_file()),
-            bit(self.system,    "s", colours.special_other()),
+            bit(self.archive,   "a", colors.normal()),
+            bit(self.readonly,  "r", colors.user_read()),
+            bit(self.hidden,    "h", colors.special_user_file()),
+            bit(self.system,    "s", colors.special_other()),
         ]
     }
 
-    pub fn render_type<C: Colours+FiletypeColours>(&self, colours: &C) -> AnsiString<'static> {
+    pub fn render_type<C: Colors+FiletypeColors>(&self, colors: &C) -> AnsiString<'static> {
         if self.reparse_point {
-            return colours.pipe().paint("l")
+            return colors.pipe().paint("l")
         }
         else if self.directory {
-            return colours.directory().paint("d")
+            return colors.directory().paint("d")
         }
         else {
-            return colours.dash().paint("-")
+            return colors.dash().paint("-")
         }
     }
 }
 
-pub trait Colours {
+pub trait Colors {
     fn dash(&self) -> Style;
 
     fn user_read(&self) -> Style;
@@ -171,7 +171,7 @@ pub trait Colours {
 #[cfg(test)]
 #[allow(unused_results)]
 pub mod test {
-    use super::{Colours, RenderPermissions};
+    use super::{Colors, RenderPermissions};
     use crate::output::cell::TextCellContents;
     use crate::fs::fields as f;
 
@@ -179,9 +179,9 @@ pub mod test {
     use nu_ansi_term::Style;
 
 
-    struct TestColours;
+    struct TestColors;
 
-    impl Colours for TestColours {
+    impl Colors for TestColors {
         fn dash(&self)                -> Style { Fixed(11).normal() }
         fn user_read(&self)           -> Style { Fixed(101).normal() }
         fn user_write(&self)          -> Style { Fixed(102).normal() }
@@ -213,7 +213,7 @@ pub mod test {
             Fixed(11).paint("-"),  Fixed(11).paint("-"),  Fixed(11).paint("-"),
         ]);
 
-        assert_eq!(expected, bits.render(&TestColours, false).into())
+        assert_eq!(expected, bits.render(&TestColors, false).into())
     }
 
 
@@ -231,7 +231,7 @@ pub mod test {
             Fixed(107).paint("r"),  Fixed(108).paint("w"),  Fixed(109).paint("x"),
         ]);
 
-        assert_eq!(expected, bits.render(&TestColours, true).into())
+        assert_eq!(expected, bits.render(&TestColors, true).into())
     }
 
 
@@ -249,7 +249,7 @@ pub mod test {
             Fixed(11).paint("-"),  Fixed(11).paint("-"),  Fixed(111).paint("t"),
         ]);
 
-        assert_eq!(expected, bits.render(&TestColours, true).into())
+        assert_eq!(expected, bits.render(&TestColors, true).into())
     }
 
 
@@ -267,6 +267,6 @@ pub mod test {
             Fixed(11).paint("-"),  Fixed(11).paint("-"),  Fixed(111).paint("T"),
         ]);
 
-        assert_eq!(expected, bits.render(&TestColours, true).into())
+        assert_eq!(expected, bits.render(&TestColors, true).into())
     }
 }

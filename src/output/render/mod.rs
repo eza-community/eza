@@ -1,28 +1,28 @@
 mod blocks;
-pub use self::blocks::Colours as BlocksColours;
+pub use self::blocks::Colors as BlocksColors;
 
 mod filetype;
-pub use self::filetype::Colours as FiletypeColours;
+pub use self::filetype::Colors as FiletypeColors;
 
 mod git;
-pub use self::git::Colours as GitColours;
+pub use self::git::Colors as GitColors;
 
 #[cfg(unix)]
 mod groups;
 #[cfg(unix)]
-pub use self::groups::{Colours as GroupColours, Render as GroupRender};
+pub use self::groups::{Colors as GroupColors, Render as GroupRender};
 
 mod inode;
 // inode uses just one color
 
 mod links;
-pub use self::links::Colours as LinksColours;
+pub use self::links::Colors as LinksColors;
 
 mod permissions;
-pub use self::permissions::{Colours as PermissionsColours, PermissionsPlusRender};
+pub use self::permissions::{Colors as PermissionsColors, PermissionsPlusRender};
 
 mod size;
-pub use self::size::Colours as SizeColours;
+pub use self::size::Colors as SizeColors;
 
 mod times;
 pub use self::times::Render as TimeRender;
@@ -31,7 +31,7 @@ pub use self::times::Render as TimeRender;
 #[cfg(unix)]
 mod users;
 #[cfg(unix)]
-pub use self::users::Colours as UserColours;
+pub use self::users::Colors as UserColors;
 pub use self::users::Render as UserRender;
 
 mod octal;
@@ -39,4 +39,4 @@ pub use self::octal::Render as OctalPermissionsRender;
 // octal uses just one color
 
 mod securityctx;
-pub use self::securityctx::Colours as SecurityCtxColours;
+pub use self::securityctx::Colors as SecurityCtxColors;

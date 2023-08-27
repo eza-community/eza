@@ -1,14 +1,14 @@
 use nu_ansi_term::Style;
 use nu_ansi_term::Color::*;
 
-use crate::theme::ColourScale;
+use crate::theme::ColorScale;
 use crate::theme::ui_styles::*;
 
 
 impl UiStyles {
-    pub fn default_theme(scale: ColourScale) -> Self {
+    pub fn default_theme(scale: ColorScale) -> Self {
         Self {
-            colourful: true,
+            colorful: true,
 
             filekinds: FileKinds {
                 normal:       Style::default(),
@@ -42,7 +42,7 @@ impl UiStyles {
                 attribute:           Style::default(),
             },
 
-            size: Size::colourful(scale),
+            size: Size::colorful(scale),
 
             users: Users {
                 user_you:           Yellow.bold(),
@@ -94,14 +94,14 @@ impl UiStyles {
 
 
 impl Size {
-    pub fn colourful(scale: ColourScale) -> Self {
+    pub fn colorful(scale: ColorScale) -> Self {
         match scale {
-            ColourScale::Gradient  => Self::colourful_gradient(),
-            ColourScale::Fixed     => Self::colourful_fixed(),
+            ColorScale::Gradient  => Self::colorful_gradient(),
+            ColorScale::Fixed     => Self::colorful_fixed(),
         }
     }
 
-    fn colourful_fixed() -> Self {
+    fn colorful_fixed() -> Self {
         Self {
             major:  Green.bold(),
             minor:  Green.normal(),
@@ -120,7 +120,7 @@ impl Size {
         }
     }
 
-    fn colourful_gradient() -> Self {
+    fn colorful_gradient() -> Self {
         Self {
             major:  Green.bold(),
             minor:  Green.normal(),

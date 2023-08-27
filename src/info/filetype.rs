@@ -11,7 +11,7 @@ use nu_ansi_term::Style;
 
 use crate::fs::File;
 use crate::output::icons::FileIcon;
-use crate::theme::FileColours;
+use crate::theme::FileColors;
 
 
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -274,8 +274,8 @@ impl FileExtensions {
     }
 }
 
-impl FileColours for FileExtensions {
-    fn colour_file(&self, file: &File<'_>) -> Option<Style> {
+impl FileColors for FileExtensions {
+    fn color_file(&self, file: &File<'_>) -> Option<Style> {
         use nu_ansi_term::Color::*;
 
         Some(match file {

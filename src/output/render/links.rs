@@ -6,16 +6,16 @@ use crate::output::cell::TextCell;
 
 
 impl f::Links {
-    pub fn render<C: Colours>(&self, colours: &C, numeric: &NumericLocale) -> TextCell {
-        let style = if self.multiple { colours.multi_link_file() }
-                                else { colours.normal() };
+    pub fn render<C: Colors>(&self, colors: &C, numeric: &NumericLocale) -> TextCell {
+        let style = if self.multiple { colors.multi_link_file() }
+                                else { colors.normal() };
 
         TextCell::paint(style, numeric.format_int(self.count))
     }
 }
 
 
-pub trait Colours {
+pub trait Colors {
     fn normal(&self) -> Style;
     fn multi_link_file(&self) -> Style;
 }
@@ -23,7 +23,7 @@ pub trait Colours {
 
 #[cfg(test)]
 pub mod test {
-    use super::Colours;
+    use super::Colors;
     use crate::output::cell::{TextCell, DisplayWidth};
     use crate::fs::fields as f;
 
@@ -32,9 +32,9 @@ pub mod test {
     use locale;
 
 
-    struct TestColours;
+    struct TestColors;
 
-    impl Colours for TestColours {
+    impl Colors for TestColors {
         fn normal(&self)           -> Style { Blue.normal() }
         fn multi_link_file(&self)  -> Style { Blue.on(Red) }
     }
@@ -52,7 +52,7 @@ pub mod test {
             contents: vec![ Blue.paint("1") ].into(),
         };
 
-        assert_eq!(expected, stati.render(&TestColours, &locale::Numeric::english()));
+        assert_eq!(expected, stati.render(&TestColors, &locale::Numeric::english()));
     }
 
     #[test]
@@ -67,7 +67,7 @@ pub mod test {
             contents: vec![ Blue.paint("3,005") ].into(),
         };
 
-        assert_eq!(expected, stati.render(&TestColours, &locale::Numeric::english()));
+        assert_eq!(expected, stati.render(&TestColors, &locale::Numeric::english()));
     }
 
     #[test]
@@ -82,6 +82,6 @@ pub mod test {
             contents: vec![ Blue.on(Red).paint("3,005") ].into(),
         };
 
-        assert_eq!(expected, stati.render(&TestColours, &locale::Numeric::english()));
+        assert_eq!(expected, stati.render(&TestColors, &locale::Numeric::english()));
     }
 }

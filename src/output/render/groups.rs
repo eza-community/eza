@@ -6,21 +6,21 @@ use crate::output::cell::TextCell;
 use crate::output::table::UserFormat;
 
 pub trait Render{
-    fn render<C: Colours, U: Users+Groups>(self, colours: &C, users: &U, format: UserFormat) -> TextCell;
+    fn render<C: Colors, U: Users+Groups>(self, colors: &C, users: &U, format: UserFormat) -> TextCell;
 }
 
 impl Render for Option<f::Group> {
-    fn render<C: Colours, U: Users+Groups>(self, colours: &C, users: &U, format: UserFormat) -> TextCell {
+    fn render<C: Colors, U: Users+Groups>(self, colors: &C, users: &U, format: UserFormat) -> TextCell {
         use uzers::os::unix::GroupExt;
 
-        let mut style = colours.not_yours();
+        let mut style = colors.not_yours();
 
         let group = match self {
             Some(g) => match users.get_group_by_gid(g.0) {
                 Some(g) => (*g).clone(),
                 None    => return TextCell::paint(style, g.0.to_string()),
             },
-            None => return TextCell::blank(colours.no_group()),
+            None => return TextCell::blank(colors.no_group()),
         };
 
 
@@ -30,7 +30,7 @@ impl Render for Option<f::Group> {
             if current_user.primary_group_id() == group.gid()
             || group.members().iter().any(|u| u == current_user.name())
             {
-                style = colours.yours();
+                style = colors.yours();
             }
         }
 
@@ -44,7 +44,7 @@ impl Render for Option<f::Group> {
 }
 
 
-pub trait Colours {
+pub trait Colors {
     fn yours(&self) -> Style;
     fn not_yours(&self) -> Style;
     fn no_group(&self) -> Style;
@@ -54,7 +54,7 @@ pub trait Colours {
 #[cfg(test)]
 #[allow(unused_results)]
 pub mod test {
-    use super::{Colours, Render};
+    use super::{Colors, Render};
     use crate::fs::fields as f;
     use crate::output::cell::TextCell;
     use crate::output::table::UserFormat;
@@ -66,9 +66,9 @@ pub mod test {
     use nu_ansi_term::Style;
 
 
-    struct TestColours;
+    struct TestColors;
 
-    impl Colours for TestColours {
+    impl Colors for TestColors {
         fn yours(&self)     -> Style { Fixed(80).normal() }
         fn not_yours(&self) -> Style { Fixed(81).normal() }
         fn no_group(&self)   -> Style { Black.italic() }
@@ -82,10 +82,10 @@ pub mod test {
 
         let group = Some(f::Group(100));
         let expected = TextCell::paint_str(Fixed(81).normal(), "folk");
-        assert_eq!(expected, group.render(&TestColours, &users, UserFormat::Name));
+        assert_eq!(expected, group.render(&TestColors, &users, UserFormat::Name));
 
         let expected = TextCell::paint_str(Fixed(81).normal(), "100");
-        assert_eq!(expected, group.render(&TestColours, &users, UserFormat::Numeric));
+        assert_eq!(expected, group.render(&TestColors, &users, UserFormat::Numeric));
     }
 
 
@@ -95,8 +95,8 @@ pub mod test {
 
         let group = Some(f::Group(100));
         let expected = TextCell::paint_str(Fixed(81).normal(), "100");
-        assert_eq!(expected, group.render(&TestColours, &users, UserFormat::Name));
-        assert_eq!(expected, group.render(&TestColours, &users, UserFormat::Numeric));
+        assert_eq!(expected, group.render(&TestColors, &users, UserFormat::Name));
+        assert_eq!(expected, group.render(&TestColors, &users, UserFormat::Numeric));
     }
 
     #[test]
@@ -107,7 +107,7 @@ pub mod test {
 
         let group = Some(f::Group(100));
         let expected = TextCell::paint_str(Fixed(80).normal(), "folk");
-        assert_eq!(expected, group.render(&TestColours, &users, UserFormat::Name))
+        assert_eq!(expected, group.render(&TestColors, &users, UserFormat::Name))
     }
 
     #[test]
@@ -120,13 +120,13 @@ pub mod test {
 
         let group = Some(f::Group(100));
         let expected = TextCell::paint_str(Fixed(80).normal(), "folk");
-        assert_eq!(expected, group.render(&TestColours, &users, UserFormat::Name))
+        assert_eq!(expected, group.render(&TestColors, &users, UserFormat::Name))
     }
 
     #[test]
     fn overflow() {
         let group = Some(f::Group(2_147_483_648));
         let expected = TextCell::paint_str(Fixed(81).normal(), "2147483648");
-        assert_eq!(expected, group.render(&TestColours, &MockUsers::with_current_uid(0), UserFormat::Numeric));
+        assert_eq!(expected, group.render(&TestColors, &MockUsers::with_current_uid(0), UserFormat::Numeric));
     }
 }

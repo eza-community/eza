@@ -1,12 +1,12 @@
 use nu_ansi_term::Style;
 
 use crate::fs::File;
-use crate::output::file_name::Colours as FileNameColours;
+use crate::output::file_name::Colors as FileNameColors;
 use crate::output::render;
 
 mod ui_styles;
 pub use self::ui_styles::UiStyles;
-pub use self::ui_styles::Size as SizeColours;
+pub use self::ui_styles::Size as SizeColors;
 
 mod lsc;
 pub use self::lsc::LSColors;
@@ -17,9 +17,9 @@ mod default_theme;
 #[derive(PartialEq, Eq, Debug)]
 pub struct Options {
 
-    pub use_colours: UseColours,
+    pub use_colors: UseColors,
 
-    pub colour_scale: ColourScale,
+    pub color_scale: ColorScale,
 
     pub definitions: Definitions,
 }
@@ -32,7 +32,7 @@ pub struct Options {
 /// such as `grep` or `more` not work properly. So the `Automatic` mode does
 /// this check and only displays colors when they can be truly appreciated.
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
-pub enum UseColours {
+pub enum UseColors {
 
     /// Display them even when output isn’t going to a terminal.
     Always,
@@ -45,7 +45,7 @@ pub enum UseColours {
 }
 
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
-pub enum ColourScale {
+pub enum ColorScale {
     Fixed,
     Gradient,
 }
@@ -59,7 +59,7 @@ pub struct Definitions {
 
 pub struct Theme {
     pub ui: UiStyles,
-    pub exts: Box<dyn FileColours>,
+    pub exts: Box<dyn FileColors>,
 }
 
 impl Options {
@@ -68,19 +68,19 @@ impl Options {
     pub fn to_theme(&self, isatty: bool) -> Theme {
         use crate::info::filetype::FileExtensions;
 
-        if self.use_colours == UseColours::Never || (self.use_colours == UseColours::Automatic && ! isatty) {
+        if self.use_colors == UseColors::Never || (self.use_colors == UseColors::Automatic && ! isatty) {
             let ui = UiStyles::plain();
-            let exts = Box::new(NoFileColours);
+            let exts = Box::new(NoFileColors);
             return Theme { ui, exts };
         }
 
         // Parse the environment variables into colors and extension mappings
-        let mut ui = UiStyles::default_theme(self.colour_scale);
+        let mut ui = UiStyles::default_theme(self.color_scale);
         let (exts, use_default_filetypes) = self.definitions.parse_color_vars(&mut ui);
 
         // Use between 0 and 2 file name highlighters
         let exts = match (exts.is_non_empty(), use_default_filetypes) {
-            (false, false)  => Box::new(NoFileColours)           as Box<_>,
+            (false, false)  => Box::new(NoFileColors)           as Box<_>,
             (false,  true)  => Box::new(FileExtensions)          as Box<_>,
             ( true, false)  => Box::new(exts)                    as Box<_>,
             ( true,  true)  => Box::new((exts, FileExtensions))  as Box<_>,
@@ -94,18 +94,18 @@ impl Definitions {
 
     /// Parse the environment variables into `LS_COLORS` pairs, putting file glob
     /// colors into the `ExtensionMappings` that gets returned, and using the
-    /// two-character UI codes to modify the mutable `Colours`.
+    /// two-character UI codes to modify the mutable `Colors`.
     ///
     /// Also returns if the `EXA_COLORS` variable should reset the existing file
     /// type mappings or not. The `reset` code needs to be the first one.
-    fn parse_color_vars(&self, colours: &mut UiStyles) -> (ExtensionMappings, bool) {
+    fn parse_color_vars(&self, colors: &mut UiStyles) -> (ExtensionMappings, bool) {
         use log::*;
 
         let mut exts = ExtensionMappings::default();
 
         if let Some(lsc) = &self.ls {
             LSColors(lsc).each_pair(|pair| {
-                if ! colours.set_ls(&pair) {
+                if ! colors.set_ls(&pair) {
                     match glob::Pattern::new(pair.key) {
                         Ok(pat) => {
                             exts.add(pat, pair.to_style());
@@ -127,7 +127,7 @@ impl Definitions {
             }
 
             LSColors(exa).each_pair(|pair| {
-                if ! colours.set_ls(&pair) && ! colours.set_exa(&pair) {
+                if ! colors.set_ls(&pair) && ! colors.set_exa(&pair) {
                     match glob::Pattern::new(pair.key) {
                         Ok(pat) => {
                             exts.add(pat, pair.to_style());
@@ -145,14 +145,14 @@ impl Definitions {
 }
 
 
-pub trait FileColours: std::marker::Sync {
-    fn colour_file(&self, file: &File<'_>) -> Option<Style>;
+pub trait FileColors: std::marker::Sync {
+    fn color_file(&self, file: &File<'_>) -> Option<Style>;
 }
 
 #[derive(PartialEq, Debug)]
-struct NoFileColours;
-impl FileColours for NoFileColours {
-    fn colour_file(&self, _file: &File<'_>) -> Option<Style> {
+struct NoFileColors;
+impl FileColors for NoFileColors {
+    fn color_file(&self, _file: &File<'_>) -> Option<Style> {
         None
     }
 }
@@ -161,13 +161,13 @@ impl FileColours for NoFileColours {
 // first one then try the second one. This lets the user provide their own
 // file type associations, while falling back to the default set if not set
 // explicitly.
-impl<A, B> FileColours for (A, B)
-where A: FileColours,
-      B: FileColours,
+impl<A, B> FileColors for (A, B)
+where A: FileColors,
+      B: FileColors,
 {
-    fn colour_file(&self, file: &File<'_>) -> Option<Style> {
-        self.0.colour_file(file)
-            .or_else(|| self.1.colour_file(file))
+    fn color_file(&self, file: &File<'_>) -> Option<Style> {
+        self.0.color_file(file)
+            .or_else(|| self.1.color_file(file))
     }
 }
 
@@ -180,8 +180,8 @@ struct ExtensionMappings {
 // Loop through backwards so that colors specified later in the list override
 // colors specified earlier, like we do with options and strict mode
 
-impl FileColours for ExtensionMappings {
-    fn colour_file(&self, file: &File<'_>) -> Option<Style> {
+impl FileColors for ExtensionMappings {
+    fn color_file(&self, file: &File<'_>) -> Option<Style> {
         self.mappings.iter().rev()
             .find(|t| t.0.matches(&file.name))
             .map (|t| t.1)
@@ -201,7 +201,7 @@ impl ExtensionMappings {
 
 
 
-impl render::BlocksColours for Theme {
+impl render::BlocksColors for Theme {
     fn blocksize(&self, prefix: Option<number_prefix::Prefix>) -> Style {
         use number_prefix::Prefix::*;
 
@@ -229,7 +229,7 @@ impl render::BlocksColours for Theme {
     fn no_blocksize(&self) -> Style { self.ui.punctuation }
 }
 
-impl render::FiletypeColours for Theme {
+impl render::FiletypeColors for Theme {
     fn normal(&self)       -> Style { self.ui.filekinds.normal }
     fn directory(&self)    -> Style { self.ui.filekinds.directory }
     fn pipe(&self)         -> Style { self.ui.filekinds.pipe }
@@ -240,7 +240,7 @@ impl render::FiletypeColours for Theme {
     fn special(&self)      -> Style { self.ui.filekinds.special }
 }
 
-impl render::GitColours for Theme {
+impl render::GitColors for Theme {
     fn not_modified(&self)  -> Style { self.ui.punctuation }
     #[allow(clippy::new_ret_no_self)]
     fn new(&self)           -> Style { self.ui.git.new }
@@ -253,18 +253,18 @@ impl render::GitColours for Theme {
 }
 
 #[cfg(unix)]
-impl render::GroupColours for Theme {
+impl render::GroupColors for Theme {
     fn yours(&self)      -> Style { self.ui.users.group_yours }
     fn not_yours(&self)  -> Style { self.ui.users.group_not_yours }
     fn no_group(&self)   -> Style { self.ui.punctuation }
 }
 
-impl render::LinksColours for Theme {
+impl render::LinksColors for Theme {
     fn normal(&self)           -> Style { self.ui.links.normal }
     fn multi_link_file(&self)  -> Style { self.ui.links.multi_link_file }
 }
 
-impl render::PermissionsColours for Theme {
+impl render::PermissionsColors for Theme {
     fn dash(&self)               -> Style { self.ui.punctuation }
     fn user_read(&self)          -> Style { self.ui.perms.user_read }
     fn user_write(&self)         -> Style { self.ui.perms.user_write }
@@ -281,7 +281,7 @@ impl render::PermissionsColours for Theme {
     fn attribute(&self)          -> Style { self.ui.perms.attribute }
 }
 
-impl render::SizeColours for Theme {
+impl render::SizeColors for Theme {
     fn size(&self, prefix: Option<number_prefix::Prefix>) -> Style {
         use number_prefix::Prefix::*;
 
@@ -313,13 +313,13 @@ impl render::SizeColours for Theme {
 }
 
 #[cfg(unix)]
-impl render::UserColours for Theme {
+impl render::UserColors for Theme {
     fn you(&self)           -> Style { self.ui.users.user_you }
     fn someone_else(&self)  -> Style { self.ui.users.user_someone_else }
     fn no_user(&self)       -> Style { self.ui.punctuation }
 }
 
-impl FileNameColours for Theme {
+impl FileNameColors for Theme {
     fn normal_arrow(&self)        -> Style { self.ui.punctuation }
     fn broken_symlink(&self)      -> Style { self.ui.broken_symlink }
     fn broken_filename(&self)     -> Style { apply_overlay(self.ui.broken_symlink, self.ui.broken_path_overlay) }
@@ -328,12 +328,12 @@ impl FileNameColours for Theme {
     fn symlink_path(&self)        -> Style { self.ui.symlink_path }
     fn executable_file(&self)     -> Style { self.ui.filekinds.executable }
 
-    fn colour_file(&self, file: &File<'_>) -> Style {
-        self.exts.colour_file(file).unwrap_or(self.ui.filekinds.normal)
+    fn color_file(&self, file: &File<'_>) -> Style {
+        self.exts.color_file(file).unwrap_or(self.ui.filekinds.normal)
     }
 }
 
-impl render::SecurityCtxColours for Theme {
+impl render::SecurityCtxColors for Theme {
     fn none(&self)          -> Style { self.ui.security_context.none }
     fn selinux_colon(&self) -> Style { self.ui.security_context.selinux.colon }
     fn selinux_user(&self)  -> Style { self.ui.security_context.selinux.user }
@@ -370,7 +370,6 @@ fn apply_overlay(mut base: Style, overlay: Style) -> Style {
 
     base
 }
-// TODO: move this function to the ansi_term crate
 
 
 #[cfg(test)]
@@ -380,7 +379,7 @@ mod customs_test {
     use nu_ansi_term::Color::*;
 
     macro_rules! test {
-        ($name:ident:  ls $ls:expr, exa $exa:expr  =>  colours $expected:ident -> $process_expected:expr) => {
+        ($name:ident:  ls $ls:expr, exa $exa:expr  =>  colors $expected:ident -> $process_expected:expr) => {
             #[test]
             fn $name() {
                 let mut $expected = UiStyles::default();
@@ -413,10 +412,10 @@ mod customs_test {
                 assert_eq!(ExtensionMappings { mappings }, result);
             }
         };
-        ($name:ident:  ls $ls:expr, exa $exa:expr  =>  colours $expected:ident -> $process_expected:expr, exts $mappings:expr) => {
+        ($name:ident:  ls $ls:expr, exa $exa:expr  =>  colors $expected:ident -> $process_expected:expr, exts $mappings:expr) => {
             #[test]
             fn $name() {
-                let mut $expected = UiStyles::colourful(false);
+                let mut $expected = UiStyles::colorful(false);
                 $process_expected();
 
                 let mappings: Vec<(glob::Pattern, Style)>
@@ -429,7 +428,7 @@ mod customs_test {
                     exa: Some($exa.into()),
                 };
 
-                let mut meh = UiStyles::colourful(false);
+                let mut meh = UiStyles::colorful(false);
                 let (result, _reset) = definitions.parse_color_vars(&vars, &mut meh);
                 assert_eq!(ExtensionMappings { mappings }, result);
                 assert_eq!($expected, meh);
@@ -439,55 +438,55 @@ mod customs_test {
 
 
     // LS_COLORS can affect all of these colors:
-    test!(ls_di:   ls "di=31", exa ""  =>  colours c -> { c.filekinds.directory    = Red.normal();    });
-    test!(ls_ex:   ls "ex=32", exa ""  =>  colours c -> { c.filekinds.executable   = Green.normal();  });
-    test!(ls_fi:   ls "fi=33", exa ""  =>  colours c -> { c.filekinds.normal       = Yellow.normal(); });
-    test!(ls_pi:   ls "pi=34", exa ""  =>  colours c -> { c.filekinds.pipe         = Blue.normal();   });
-    test!(ls_so:   ls "so=35", exa ""  =>  colours c -> { c.filekinds.socket       = Purple.normal(); });
-    test!(ls_bd:   ls "bd=36", exa ""  =>  colours c -> { c.filekinds.block_device = Cyan.normal();   });
-    test!(ls_cd:   ls "cd=35", exa ""  =>  colours c -> { c.filekinds.char_device  = Purple.normal(); });
-    test!(ls_ln:   ls "ln=34", exa ""  =>  colours c -> { c.filekinds.symlink      = Blue.normal();   });
-    test!(ls_or:   ls "or=33", exa ""  =>  colours c -> { c.broken_symlink         = Yellow.normal(); });
+    test!(ls_di:   ls "di=31", exa ""  =>  colors c -> { c.filekinds.directory    = Red.normal();    });
+    test!(ls_ex:   ls "ex=32", exa ""  =>  colors c -> { c.filekinds.executable   = Green.normal();  });
+    test!(ls_fi:   ls "fi=33", exa ""  =>  colors c -> { c.filekinds.normal       = Yellow.normal(); });
+    test!(ls_pi:   ls "pi=34", exa ""  =>  colors c -> { c.filekinds.pipe         = Blue.normal();   });
+    test!(ls_so:   ls "so=35", exa ""  =>  colors c -> { c.filekinds.socket       = Purple.normal(); });
+    test!(ls_bd:   ls "bd=36", exa ""  =>  colors c -> { c.filekinds.block_device = Cyan.normal();   });
+    test!(ls_cd:   ls "cd=35", exa ""  =>  colors c -> { c.filekinds.char_device  = Purple.normal(); });
+    test!(ls_ln:   ls "ln=34", exa ""  =>  colors c -> { c.filekinds.symlink      = Blue.normal();   });
+    test!(ls_or:   ls "or=33", exa ""  =>  colors c -> { c.broken_symlink         = Yellow.normal(); });
 
     // EXA_COLORS can affect all those colors too:
-    test!(exa_di:  ls "", exa "di=32"  =>  colours c -> { c.filekinds.directory    = Green.normal();  });
-    test!(exa_ex:  ls "", exa "ex=33"  =>  colours c -> { c.filekinds.executable   = Yellow.normal(); });
-    test!(exa_fi:  ls "", exa "fi=34"  =>  colours c -> { c.filekinds.normal       = Blue.normal();   });
-    test!(exa_pi:  ls "", exa "pi=35"  =>  colours c -> { c.filekinds.pipe         = Purple.normal(); });
-    test!(exa_so:  ls "", exa "so=36"  =>  colours c -> { c.filekinds.socket       = Cyan.normal();   });
-    test!(exa_bd:  ls "", exa "bd=35"  =>  colours c -> { c.filekinds.block_device = Purple.normal(); });
-    test!(exa_cd:  ls "", exa "cd=34"  =>  colours c -> { c.filekinds.char_device  = Blue.normal();   });
-    test!(exa_ln:  ls "", exa "ln=33"  =>  colours c -> { c.filekinds.symlink      = Yellow.normal(); });
-    test!(exa_or:  ls "", exa "or=32"  =>  colours c -> { c.broken_symlink         = Green.normal();  });
+    test!(exa_di:  ls "", exa "di=32"  =>  colors c -> { c.filekinds.directory    = Green.normal();  });
+    test!(exa_ex:  ls "", exa "ex=33"  =>  colors c -> { c.filekinds.executable   = Yellow.normal(); });
+    test!(exa_fi:  ls "", exa "fi=34"  =>  colors c -> { c.filekinds.normal       = Blue.normal();   });
+    test!(exa_pi:  ls "", exa "pi=35"  =>  colors c -> { c.filekinds.pipe         = Purple.normal(); });
+    test!(exa_so:  ls "", exa "so=36"  =>  colors c -> { c.filekinds.socket       = Cyan.normal();   });
+    test!(exa_bd:  ls "", exa "bd=35"  =>  colors c -> { c.filekinds.block_device = Purple.normal(); });
+    test!(exa_cd:  ls "", exa "cd=34"  =>  colors c -> { c.filekinds.char_device  = Blue.normal();   });
+    test!(exa_ln:  ls "", exa "ln=33"  =>  colors c -> { c.filekinds.symlink      = Yellow.normal(); });
+    test!(exa_or:  ls "", exa "or=32"  =>  colors c -> { c.broken_symlink         = Green.normal();  });
 
     // EXA_COLORS will even override options from LS_COLORS:
-    test!(ls_exa_di: ls "di=31", exa "di=32"  =>  colours c -> { c.filekinds.directory  = Green.normal();  });
-    test!(ls_exa_ex: ls "ex=32", exa "ex=33"  =>  colours c -> { c.filekinds.executable = Yellow.normal(); });
-    test!(ls_exa_fi: ls "fi=33", exa "fi=34"  =>  colours c -> { c.filekinds.normal     = Blue.normal();   });
+    test!(ls_exa_di: ls "di=31", exa "di=32"  =>  colors c -> { c.filekinds.directory  = Green.normal();  });
+    test!(ls_exa_ex: ls "ex=32", exa "ex=33"  =>  colors c -> { c.filekinds.executable = Yellow.normal(); });
+    test!(ls_exa_fi: ls "fi=33", exa "fi=34"  =>  colors c -> { c.filekinds.normal     = Blue.normal();   });
 
-    // But more importantly, EXA_COLORS has its own, special list of colours:
-    test!(exa_ur:  ls "", exa "ur=38;5;100"  =>  colours c -> { c.perms.user_read           = Fixed(100).normal(); });
-    test!(exa_uw:  ls "", exa "uw=38;5;101"  =>  colours c -> { c.perms.user_write          = Fixed(101).normal(); });
-    test!(exa_ux:  ls "", exa "ux=38;5;102"  =>  colours c -> { c.perms.user_execute_file   = Fixed(102).normal(); });
-    test!(exa_ue:  ls "", exa "ue=38;5;103"  =>  colours c -> { c.perms.user_execute_other  = Fixed(103).normal(); });
-    test!(exa_gr:  ls "", exa "gr=38;5;104"  =>  colours c -> { c.perms.group_read          = Fixed(104).normal(); });
-    test!(exa_gw:  ls "", exa "gw=38;5;105"  =>  colours c -> { c.perms.group_write         = Fixed(105).normal(); });
-    test!(exa_gx:  ls "", exa "gx=38;5;106"  =>  colours c -> { c.perms.group_execute       = Fixed(106).normal(); });
-    test!(exa_tr:  ls "", exa "tr=38;5;107"  =>  colours c -> { c.perms.other_read          = Fixed(107).normal(); });
-    test!(exa_tw:  ls "", exa "tw=38;5;108"  =>  colours c -> { c.perms.other_write         = Fixed(108).normal(); });
-    test!(exa_tx:  ls "", exa "tx=38;5;109"  =>  colours c -> { c.perms.other_execute       = Fixed(109).normal(); });
-    test!(exa_su:  ls "", exa "su=38;5;110"  =>  colours c -> { c.perms.special_user_file   = Fixed(110).normal(); });
-    test!(exa_sf:  ls "", exa "sf=38;5;111"  =>  colours c -> { c.perms.special_other       = Fixed(111).normal(); });
-    test!(exa_xa:  ls "", exa "xa=38;5;112"  =>  colours c -> { c.perms.attribute           = Fixed(112).normal(); });
+    // But more importantly, EXA_COLORS has its own, special list of colors:
+    test!(exa_ur:  ls "", exa "ur=38;5;100"  =>  colors c -> { c.perms.user_read           = Fixed(100).normal(); });
+    test!(exa_uw:  ls "", exa "uw=38;5;101"  =>  colors c -> { c.perms.user_write          = Fixed(101).normal(); });
+    test!(exa_ux:  ls "", exa "ux=38;5;102"  =>  colors c -> { c.perms.user_execute_file   = Fixed(102).normal(); });
+    test!(exa_ue:  ls "", exa "ue=38;5;103"  =>  colors c -> { c.perms.user_execute_other  = Fixed(103).normal(); });
+    test!(exa_gr:  ls "", exa "gr=38;5;104"  =>  colors c -> { c.perms.group_read          = Fixed(104).normal(); });
+    test!(exa_gw:  ls "", exa "gw=38;5;105"  =>  colors c -> { c.perms.group_write         = Fixed(105).normal(); });
+    test!(exa_gx:  ls "", exa "gx=38;5;106"  =>  colors c -> { c.perms.group_execute       = Fixed(106).normal(); });
+    test!(exa_tr:  ls "", exa "tr=38;5;107"  =>  colors c -> { c.perms.other_read          = Fixed(107).normal(); });
+    test!(exa_tw:  ls "", exa "tw=38;5;108"  =>  colors c -> { c.perms.other_write         = Fixed(108).normal(); });
+    test!(exa_tx:  ls "", exa "tx=38;5;109"  =>  colors c -> { c.perms.other_execute       = Fixed(109).normal(); });
+    test!(exa_su:  ls "", exa "su=38;5;110"  =>  colors c -> { c.perms.special_user_file   = Fixed(110).normal(); });
+    test!(exa_sf:  ls "", exa "sf=38;5;111"  =>  colors c -> { c.perms.special_other       = Fixed(111).normal(); });
+    test!(exa_xa:  ls "", exa "xa=38;5;112"  =>  colors c -> { c.perms.attribute           = Fixed(112).normal(); });
 
-    test!(exa_sn:  ls "", exa "sn=38;5;113" => colours c -> {
+    test!(exa_sn:  ls "", exa "sn=38;5;113" => colors c -> {
         c.size.number_byte = Fixed(113).normal();
         c.size.number_kilo = Fixed(113).normal();
         c.size.number_mega = Fixed(113).normal();
         c.size.number_giga = Fixed(113).normal();
         c.size.number_huge = Fixed(113).normal();
     });
-    test!(exa_sb:  ls "", exa "sb=38;5;114" => colours c -> {
+    test!(exa_sb:  ls "", exa "sb=38;5;114" => colors c -> {
         c.size.unit_byte = Fixed(114).normal();
         c.size.unit_kilo = Fixed(114).normal();
         c.size.unit_mega = Fixed(114).normal();
@@ -495,43 +494,43 @@ mod customs_test {
         c.size.unit_huge = Fixed(114).normal();
     });
 
-    test!(exa_nb:  ls "", exa "nb=38;5;115"  =>  colours c -> { c.size.number_byte          = Fixed(115).normal(); });
-    test!(exa_nk:  ls "", exa "nk=38;5;116"  =>  colours c -> { c.size.number_kilo          = Fixed(116).normal(); });
-    test!(exa_nm:  ls "", exa "nm=38;5;117"  =>  colours c -> { c.size.number_mega          = Fixed(117).normal(); });
-    test!(exa_ng:  ls "", exa "ng=38;5;118"  =>  colours c -> { c.size.number_giga          = Fixed(118).normal(); });
-    test!(exa_nh:  ls "", exa "nh=38;5;119"  =>  colours c -> { c.size.number_huge          = Fixed(119).normal(); });
+    test!(exa_nb:  ls "", exa "nb=38;5;115"  =>  colors c -> { c.size.number_byte          = Fixed(115).normal(); });
+    test!(exa_nk:  ls "", exa "nk=38;5;116"  =>  colors c -> { c.size.number_kilo          = Fixed(116).normal(); });
+    test!(exa_nm:  ls "", exa "nm=38;5;117"  =>  colors c -> { c.size.number_mega          = Fixed(117).normal(); });
+    test!(exa_ng:  ls "", exa "ng=38;5;118"  =>  colors c -> { c.size.number_giga          = Fixed(118).normal(); });
+    test!(exa_nh:  ls "", exa "nh=38;5;119"  =>  colors c -> { c.size.number_huge          = Fixed(119).normal(); });
 
-    test!(exa_ub:  ls "", exa "ub=38;5;115"  =>  colours c -> { c.size.unit_byte            = Fixed(115).normal(); });
-    test!(exa_uk:  ls "", exa "uk=38;5;116"  =>  colours c -> { c.size.unit_kilo            = Fixed(116).normal(); });
-    test!(exa_um:  ls "", exa "um=38;5;117"  =>  colours c -> { c.size.unit_mega            = Fixed(117).normal(); });
-    test!(exa_ug:  ls "", exa "ug=38;5;118"  =>  colours c -> { c.size.unit_giga            = Fixed(118).normal(); });
-    test!(exa_uh:  ls "", exa "uh=38;5;119"  =>  colours c -> { c.size.unit_huge            = Fixed(119).normal(); });
+    test!(exa_ub:  ls "", exa "ub=38;5;115"  =>  colors c -> { c.size.unit_byte            = Fixed(115).normal(); });
+    test!(exa_uk:  ls "", exa "uk=38;5;116"  =>  colors c -> { c.size.unit_kilo            = Fixed(116).normal(); });
+    test!(exa_um:  ls "", exa "um=38;5;117"  =>  colors c -> { c.size.unit_mega            = Fixed(117).normal(); });
+    test!(exa_ug:  ls "", exa "ug=38;5;118"  =>  colors c -> { c.size.unit_giga            = Fixed(118).normal(); });
+    test!(exa_uh:  ls "", exa "uh=38;5;119"  =>  colors c -> { c.size.unit_huge            = Fixed(119).normal(); });
 
-    test!(exa_df:  ls "", exa "df=38;5;115"  =>  colours c -> { c.size.major                = Fixed(115).normal(); });
-    test!(exa_ds:  ls "", exa "ds=38;5;116"  =>  colours c -> { c.size.minor                = Fixed(116).normal(); });
+    test!(exa_df:  ls "", exa "df=38;5;115"  =>  colors c -> { c.size.major                = Fixed(115).normal(); });
+    test!(exa_ds:  ls "", exa "ds=38;5;116"  =>  colors c -> { c.size.minor                = Fixed(116).normal(); });
 
-    test!(exa_uu:  ls "", exa "uu=38;5;117"  =>  colours c -> { c.users.user_you            = Fixed(117).normal(); });
-    test!(exa_un:  ls "", exa "un=38;5;118"  =>  colours c -> { c.users.user_someone_else   = Fixed(118).normal(); });
-    test!(exa_gu:  ls "", exa "gu=38;5;119"  =>  colours c -> { c.users.group_yours         = Fixed(119).normal(); });
-    test!(exa_gn:  ls "", exa "gn=38;5;120"  =>  colours c -> { c.users.group_not_yours     = Fixed(120).normal(); });
+    test!(exa_uu:  ls "", exa "uu=38;5;117"  =>  colors c -> { c.users.user_you            = Fixed(117).normal(); });
+    test!(exa_un:  ls "", exa "un=38;5;118"  =>  colors c -> { c.users.user_someone_else   = Fixed(118).normal(); });
+    test!(exa_gu:  ls "", exa "gu=38;5;119"  =>  colors c -> { c.users.group_yours         = Fixed(119).normal(); });
+    test!(exa_gn:  ls "", exa "gn=38;5;120"  =>  colors c -> { c.users.group_not_yours     = Fixed(120).normal(); });
 
-    test!(exa_lc:  ls "", exa "lc=38;5;121"  =>  colours c -> { c.links.normal              = Fixed(121).normal(); });
-    test!(exa_lm:  ls "", exa "lm=38;5;122"  =>  colours c -> { c.links.multi_link_file     = Fixed(122).normal(); });
+    test!(exa_lc:  ls "", exa "lc=38;5;121"  =>  colors c -> { c.links.normal              = Fixed(121).normal(); });
+    test!(exa_lm:  ls "", exa "lm=38;5;122"  =>  colors c -> { c.links.multi_link_file     = Fixed(122).normal(); });
 
-    test!(exa_ga:  ls "", exa "ga=38;5;123"  =>  colours c -> { c.git.new                   = Fixed(123).normal(); });
-    test!(exa_gm:  ls "", exa "gm=38;5;124"  =>  colours c -> { c.git.modified              = Fixed(124).normal(); });
-    test!(exa_gd:  ls "", exa "gd=38;5;125"  =>  colours c -> { c.git.deleted               = Fixed(125).normal(); });
-    test!(exa_gv:  ls "", exa "gv=38;5;126"  =>  colours c -> { c.git.renamed               = Fixed(126).normal(); });
-    test!(exa_gt:  ls "", exa "gt=38;5;127"  =>  colours c -> { c.git.typechange            = Fixed(127).normal(); });
+    test!(exa_ga:  ls "", exa "ga=38;5;123"  =>  colors c -> { c.git.new                   = Fixed(123).normal(); });
+    test!(exa_gm:  ls "", exa "gm=38;5;124"  =>  colors c -> { c.git.modified              = Fixed(124).normal(); });
+    test!(exa_gd:  ls "", exa "gd=38;5;125"  =>  colors c -> { c.git.deleted               = Fixed(125).normal(); });
+    test!(exa_gv:  ls "", exa "gv=38;5;126"  =>  colors c -> { c.git.renamed               = Fixed(126).normal(); });
+    test!(exa_gt:  ls "", exa "gt=38;5;127"  =>  colors c -> { c.git.typechange            = Fixed(127).normal(); });
 
-    test!(exa_xx:  ls "", exa "xx=38;5;128"  =>  colours c -> { c.punctuation               = Fixed(128).normal(); });
-    test!(exa_da:  ls "", exa "da=38;5;129"  =>  colours c -> { c.date                      = Fixed(129).normal(); });
-    test!(exa_in:  ls "", exa "in=38;5;130"  =>  colours c -> { c.inode                     = Fixed(130).normal(); });
-    test!(exa_bl:  ls "", exa "bl=38;5;131"  =>  colours c -> { c.blocks                    = Fixed(131).normal(); });
-    test!(exa_hd:  ls "", exa "hd=38;5;132"  =>  colours c -> { c.header                    = Fixed(132).normal(); });
-    test!(exa_lp:  ls "", exa "lp=38;5;133"  =>  colours c -> { c.symlink_path              = Fixed(133).normal(); });
-    test!(exa_cc:  ls "", exa "cc=38;5;134"  =>  colours c -> { c.control_char              = Fixed(134).normal(); });
-    test!(exa_bo:  ls "", exa "bO=4"         =>  colours c -> { c.broken_path_overlay       = Style::default().underline(); });
+    test!(exa_xx:  ls "", exa "xx=38;5;128"  =>  colors c -> { c.punctuation               = Fixed(128).normal(); });
+    test!(exa_da:  ls "", exa "da=38;5;129"  =>  colors c -> { c.date                      = Fixed(129).normal(); });
+    test!(exa_in:  ls "", exa "in=38;5;130"  =>  colors c -> { c.inode                     = Fixed(130).normal(); });
+    test!(exa_bl:  ls "", exa "bl=38;5;131"  =>  colors c -> { c.blocks                    = Fixed(131).normal(); });
+    test!(exa_hd:  ls "", exa "hd=38;5;132"  =>  colors c -> { c.header                    = Fixed(132).normal(); });
+    test!(exa_lp:  ls "", exa "lp=38;5;133"  =>  colors c -> { c.symlink_path              = Fixed(133).normal(); });
+    test!(exa_cc:  ls "", exa "cc=38;5;134"  =>  colors c -> { c.control_char              = Fixed(134).normal(); });
+    test!(exa_bo:  ls "", exa "bO=4"         =>  colors c -> { c.broken_path_overlay       = Style::default().underline(); });
 
     // All the while, LS_COLORS treats them as filenames:
     test!(ls_uu:   ls "uu=38;5;117", exa ""  =>  exts [ ("uu", Fixed(117).normal()) ]);
@@ -559,6 +558,6 @@ mod customs_test {
     ]);
 
     // Finally, colors get applied right-to-left:
-    test!(ls_overwrite:  ls "pi=31:pi=32:pi=33", exa ""  =>  colours c -> { c.filekinds.pipe = Yellow.normal(); });
-    test!(exa_overwrite: ls "", exa "da=36:da=35:da=34"  =>  colours c -> { c.date = Blue.normal(); });
+    test!(ls_overwrite:  ls "pi=31:pi=32:pi=33", exa ""  =>  colors c -> { c.filekinds.pipe = Yellow.normal(); });
+    test!(exa_overwrite: ls "", exa "da=36:da=35:da=34"  =>  colors c -> { c.date = Blue.normal(); });
 }

@@ -41,7 +41,7 @@ impl<'var> LSColors<'var> {
 }
 
 
-fn parse_into_high_colour<'a, I>(iter: &mut Peekable<I>) -> Option<Color>
+fn parse_into_high_color<'a, I>(iter: &mut Peekable<I>) -> Option<Color>
 where I: Iterator<Item = &'a str>
 {
     match iter.peek() {
@@ -118,7 +118,7 @@ impl<'var> Pair<'var> {
                 "35" => style = style.fg(Purple),
                 "36" => style = style.fg(Cyan),
                 "37" => style = style.fg(White),
-                "38" => if let Some(c) = parse_into_high_colour(&mut iter) { style = style.fg(c) },
+                "38" => if let Some(c) = parse_into_high_color(&mut iter) { style = style.fg(c) },
 
                 // Background colors
                 "40" => style = style.on(Black),
@@ -129,7 +129,7 @@ impl<'var> Pair<'var> {
                 "45" => style = style.on(Purple),
                 "46" => style = style.on(Cyan),
                 "47" => style = style.on(White),
-                "48" => if let Some(c) = parse_into_high_colour(&mut iter) { style = style.on(c) },
+                "48" => if let Some(c) = parse_into_high_color(&mut iter) { style = style.on(c) },
 
                  _   => {/* ignore the error and do nothing */},
             }

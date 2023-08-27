@@ -4,12 +4,12 @@ use crate::fs::fields as f;
 
 
 impl f::Git {
-    pub fn render(self, colours: &dyn Colours) -> TextCell {
+    pub fn render(self, colors: &dyn Colors) -> TextCell {
         TextCell {
             width: DisplayWidth::from(2),
             contents: vec![
-                self.staged.render(colours),
-                self.unstaged.render(colours),
+                self.staged.render(colors),
+                self.unstaged.render(colors),
             ].into(),
         }
     }
@@ -42,22 +42,22 @@ impl f::SubdirGitRepo {
 }
 
 impl f::GitStatus {
-    fn render(self, colours: &dyn Colours) -> AnsiString<'static> {
+    fn render(self, colors: &dyn Colors) -> AnsiString<'static> {
         match self {
-            Self::NotModified  => colours.not_modified().paint("-"),
-            Self::New          => colours.new().paint("N"),
-            Self::Modified     => colours.modified().paint("M"),
-            Self::Deleted      => colours.deleted().paint("D"),
-            Self::Renamed      => colours.renamed().paint("R"),
-            Self::TypeChange   => colours.type_change().paint("T"),
-            Self::Ignored      => colours.ignored().paint("I"),
-            Self::Conflicted   => colours.conflicted().paint("U"),
+            Self::NotModified  => colors.not_modified().paint("-"),
+            Self::New          => colors.new().paint("N"),
+            Self::Modified     => colors.modified().paint("M"),
+            Self::Deleted      => colors.deleted().paint("D"),
+            Self::Renamed      => colors.renamed().paint("R"),
+            Self::TypeChange   => colors.type_change().paint("T"),
+            Self::Ignored      => colors.ignored().paint("I"),
+            Self::Conflicted   => colors.conflicted().paint("U"),
         }
     }
 }
 
 
-pub trait Colours {
+pub trait Colors {
     fn not_modified(&self) -> Style;
     // FIXME: this amount of allows needed to keep clippy happy should be enough
     // of an argument that new needs to be renamed.
@@ -74,7 +74,7 @@ pub trait Colours {
 
 #[cfg(test)]
 pub mod test {
-    use super::Colours;
+    use super::Colors;
     use crate::output::cell::{TextCell, DisplayWidth};
     use crate::fs::fields as f;
 
@@ -82,9 +82,9 @@ pub mod test {
     use nu_ansi_term::Style;
 
 
-    struct TestColours;
+    struct TestColors;
 
-    impl Colours for TestColours {
+    impl Colors for TestColors {
         fn not_modified(&self) -> Style { Fixed(90).normal() }
         fn new(&self)          -> Style { Fixed(91).normal() }
         fn modified(&self)     -> Style { Fixed(92).normal() }
@@ -111,7 +111,7 @@ pub mod test {
             ].into(),
         };
 
-        assert_eq!(expected, stati.render(&TestColours))
+        assert_eq!(expected, stati.render(&TestColors))
     }
 
 
@@ -130,6 +130,6 @@ pub mod test {
             ].into(),
         };
 
-        assert_eq!(expected, stati.render(&TestColours))
+        assert_eq!(expected, stati.render(&TestColors))
     }
 }

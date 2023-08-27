@@ -61,7 +61,7 @@ impl TextCell {
     }
 
     /// Creates a new “blank” text cell that contains a single hyphen in the
-    /// given style, which should be the “punctuation” style from a `Colours`
+    /// given style, which should be the “punctuation” style from a `Colors`
     /// value.
     ///
     /// This is used in place of empty table cells, as it is easier to read
