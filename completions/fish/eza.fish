@@ -11,10 +11,10 @@ complete -c eza -s R -l recurse -d "Recurse into directories"
 complete -c eza -s T -l tree -d "Recurse into directories as a tree"
 complete -c eza -s F -l classify -d "Display type indicator by file names"
 complete -c eza -l color \
-    -l colour -d "When to use terminal colours" -x -a "
-    always\t'Always use colour'
-    auto\t'Use colour if standard output is a terminal'
-    never\t'Never use colour'
+    -l colour -d "When to use terminal colors" -x -a "
+    always\t'Always use color'
+    auto\t'Use color if standard output is a terminal'
+    never\t'Never use color'
 "
 complete -c eza -l color-scale \
     -l colour-scale -d "Highlight levels of file sizes distinctly"
