@@ -65,7 +65,7 @@ use std::mem::MaybeUninit;
 use std::path::PathBuf;
 use std::vec::IntoIter as VecIntoIter;
 
-use ansi_term::Style;
+use nu_ansi_term::Style;
 use scoped_threadpool::Pool;
 
 use crate::fs::{Dir, File};

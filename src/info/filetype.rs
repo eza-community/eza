@@ -7,7 +7,7 @@
 //! # Contributors
 //! Please keep these lists sorted. If you're using vim, :sort i
 
-use ansi_term::Style;
+use nu_ansi_term::Style;
 
 use crate::fs::File;
 use crate::output::icons::FileIcon;
@@ -276,7 +276,7 @@ impl FileExtensions {
 
 impl FileColours for FileExtensions {
     fn colour_file(&self, file: &File<'_>) -> Option<Style> {
-        use ansi_term::Colour::*;
+        use nu_ansi_term::Color::*;
 
         Some(match file {
             f if self.is_compiled(f)    => Yellow.normal(),

@@ -1,6 +1,6 @@
 use std::io::{self, Write};
 
-use ansi_term::ANSIStrings;
+use nu_ansi_term::AnsiStrings;
 
 use crate::fs::File;
 use crate::fs::filter::FileFilter;
@@ -22,7 +22,7 @@ impl<'a> Render<'a> {
         self.filter.sort_files(&mut self.files);
         for file in &self.files {
             let name_cell = self.render_file(file);
-            writeln!(w, "{}", ANSIStrings(&name_cell))?;
+            writeln!(w, "{}", AnsiStrings(&name_cell))?;
         }
 
         Ok(())

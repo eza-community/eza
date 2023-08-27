@@ -1,6 +1,6 @@
 use std::iter;
 
-use ansi_term::{ANSIString, Style};
+use nu_ansi_term::{AnsiString, Style};
 
 use crate::fs::fields as f;
 use crate::output::cell::{TextCell, DisplayWidth};
@@ -54,11 +54,11 @@ impl PermissionsPlusRender for Option<f::PermissionsPlus> {
 }
 
 pub trait RenderPermissions {
-    fn render<C: Colours>(&self, colours: &C, is_regular_file: bool) -> Vec<ANSIString<'static>>;
+    fn render<C: Colours>(&self, colours: &C, is_regular_file: bool) -> Vec<AnsiString<'static>>;
 }
 
 impl RenderPermissions for Option<f::Permissions> {
-    fn render<C: Colours>(&self, colours: &C, is_regular_file: bool) -> Vec<ANSIString<'static>> {
+    fn render<C: Colours>(&self, colours: &C, is_regular_file: bool) -> Vec<AnsiString<'static>> {
         match self {
             Some(p) => {
                 let bit = |bit, chr: &'static str, style: Style| {
@@ -86,7 +86,7 @@ impl RenderPermissions for Option<f::Permissions> {
 }
 
 impl f::Permissions {
-    fn user_execute_bit<C: Colours>(&self, colours: &C, is_regular_file: bool) -> ANSIString<'static> {
+    fn user_execute_bit<C: Colours>(&self, colours: &C, is_regular_file: bool) -> AnsiString<'static> {
         match (self.user_execute, self.setuid, is_regular_file) {
             (false, false, _)      => colours.dash().paint("-"),
             (true,  false, false)  => colours.user_execute_other().paint("x"),
@@ -97,7 +97,7 @@ impl f::Permissions {
         }
     }
 
-    fn group_execute_bit<C: Colours>(&self, colours: &C) -> ANSIString<'static> {
+    fn group_execute_bit<C: Colours>(&self, colours: &C) -> AnsiString<'static> {
         match (self.group_execute, self.setgid) {
             (false, false)  => colours.dash().paint("-"),
             (true,  false)  => colours.group_execute().paint("x"),
@@ -106,7 +106,7 @@ impl f::Permissions {
         }
     }
 
-    fn other_execute_bit<C: Colours>(&self, colours: &C) -> ANSIString<'static> {
+    fn other_execute_bit<C: Colours>(&self, colours: &C) -> AnsiString<'static> {
         match (self.other_execute, self.sticky) {
             (false, false)  => colours.dash().paint("-"),
             (true,  false)  => colours.other_execute().paint("x"),
@@ -118,7 +118,7 @@ impl f::Permissions {
 
 #[cfg(windows)]
 impl f::Attributes {
-    pub fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> Vec<ANSIString<'static>> {
+    pub fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> Vec<AnsiString<'static>> {
         let bit = |bit, chr: &'static str, style: Style| {
             if bit { style.paint(chr) }
               else { colours.dash().paint("-") }
@@ -132,7 +132,7 @@ impl f::Attributes {
         ]
     }
 
-    pub fn render_type<C: Colours+FiletypeColours>(&self, colours: &C) -> ANSIString<'static> {
+    pub fn render_type<C: Colours+FiletypeColours>(&self, colours: &C) -> AnsiString<'static> {
         if self.reparse_point {
             return colours.pipe().paint("l")
         }
@@ -175,8 +175,8 @@ pub mod test {
     use crate::output::cell::TextCellContents;
     use crate::fs::fields as f;
 
-    use ansi_term::Colour::*;
-    use ansi_term::Style;
+    use nu_ansi_term::Color::*;
+    use nu_ansi_term::Style;
 
 
     struct TestColours;

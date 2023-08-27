@@ -1,10 +1,10 @@
-use ansi_term::{ANSIString, Style};
+use nu_ansi_term::{AnsiString, Style};
 
 use crate::fs::fields as f;
 
 
 impl f::Type {
-    pub fn render<C: Colours>(self, colours: &C) -> ANSIString<'static> {
+    pub fn render<C: Colours>(self, colours: &C) -> AnsiString<'static> {
         match self {
             Self::File         => colours.normal().paint("."),
             Self::Directory    => colours.directory().paint("d"),

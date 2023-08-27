@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use std::path::Path;
 
-use ansi_term::{ANSIString, Style};
+use nu_ansi_term::{AnsiString, Style};
 
 use crate::fs::{File, FileTarget};
 use crate::output::cell::TextCellContents;
@@ -233,7 +233,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
 
     /// Adds the bits of the parent path to the given bits vector.
     /// The path gets its characters escaped based on the colours.
-    fn add_parent_bits(&self, bits: &mut Vec<ANSIString<'_>>, parent: &Path) {
+    fn add_parent_bits(&self, bits: &mut Vec<AnsiString<'_>>, parent: &Path) {
         let coconut = parent.components().count();
 
         if coconut == 1 && parent.has_root() {
@@ -299,7 +299,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     ///
     /// So in that situation, those characters will be escaped and highlighted in
     /// a different colour.
-    fn escaped_file_name<'unused>(&self) -> Vec<ANSIString<'unused>> {
+    fn escaped_file_name<'unused>(&self) -> Vec<AnsiString<'unused>> {
         let file_style = self.style();
         let mut bits = Vec::new();
 
@@ -316,14 +316,14 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     // afaik of all the calls to escape::escape, only for escaped_file_name, the call to escape needs to be checked for hyper links
     // and if that's the case then I think it's best to not try and generalize escape::escape to this case,
     // as this adaptation would incur some unneeded operations there
-    pub fn escape_color_and_hyperlinks(&self, bits: &mut Vec<ANSIString<'_>>, good: Style, bad: Style) {
+    pub fn escape_color_and_hyperlinks(&self, bits: &mut Vec<AnsiString<'_>>, good: Style, bad: Style) {
         let string = self.file.name.clone();
 
         if string.chars().all(|c| c >= 0x20 as char && c != 0x7f as char) {
             let painted = good.paint(string);
 
             let adjusted_filename = if let EmbedHyperlinks::On = self.options.embed_hyperlinks {
-                ANSIString::from(format!("\x1B]8;;{}\x1B\x5C{}\x1B]8;;\x1B\x5C", self.file.path.display(), painted))
+                AnsiString::from(format!("\x1B]8;;{}\x1B\x5C{}\x1B]8;;\x1B\x5C", self.file.path.display(), painted))
             } else {
                 painted
             };

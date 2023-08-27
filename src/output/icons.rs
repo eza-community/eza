@@ -1,4 +1,4 @@
-use ansi_term::Style;
+use nu_ansi_term::Style;
 
 use crate::fs::File;
 use crate::info::filetype::FileExtensions;

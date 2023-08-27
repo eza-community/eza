@@ -1,8 +1,8 @@
 use std::iter::Peekable;
 use std::ops::FnMut;
 
-use ansi_term::{Colour, Style};
-use ansi_term::Colour::*;
+use nu_ansi_term::{Color, Style};
+use nu_ansi_term::Color::*;
 
 
 // Parsing the LS_COLORS environment variable into a map of names to Style values.
@@ -41,7 +41,7 @@ impl<'var> LSColors<'var> {
 }
 
 
-fn parse_into_high_colour<'a, I>(iter: &mut Peekable<I>) -> Option<Colour>
+fn parse_into_high_colour<'a, I>(iter: &mut Peekable<I>) -> Option<Color>
 where I: Iterator<Item = &'a str>
 {
     match iter.peek() {
@@ -73,7 +73,7 @@ where I: Iterator<Item = &'a str>
                                                       iter.next().and_then(|s| s.parse().ok()),
                                                       iter.next().and_then(|s| s.parse().ok()))
                 {
-                    return Some(RGB(r, g, b));
+                    return Some(Rgb(r, g, b));
                 }
             }
         }
@@ -143,7 +143,7 @@ impl<'var> Pair<'var> {
 #[cfg(test)]
 mod ansi_test {
     use super::*;
-    use ansi_term::Style;
+    use nu_ansi_term::Style;
 
     macro_rules! test {
         ($name:ident: $input:expr => $result:expr) => {
@@ -180,10 +180,10 @@ mod ansi_test {
     test!(hibo:  "48;5;1;1"  => Style::default().on(Fixed(1)).bold());
     test!(hiund: "4;48;5;1"  => Style::default().on(Fixed(1)).underline());
 
-    test!(rgb:   "38;2;255;100;0"     => Style::default().fg(RGB(255, 100, 0)));
-    test!(rgbi:  "38;2;255;100;0;3"   => Style::default().fg(RGB(255, 100, 0)).italic());
-    test!(rgbbg: "48;2;255;100;0"     => Style::default().on(RGB(255, 100, 0)));
-    test!(rgbbi: "48;2;255;100;0;3"   => Style::default().on(RGB(255, 100, 0)).italic());
+    test!(rgb:   "38;2;255;100;0"     => Style::default().fg(Rgb(255, 100, 0)));
+    test!(rgbi:  "38;2;255;100;0;3"   => Style::default().fg(Rgb(255, 100, 0)).italic());
+    test!(rgbbg: "48;2;255;100;0"     => Style::default().on(Rgb(255, 100, 0)));
+    test!(rgbbi: "48;2;255;100;0;3"   => Style::default().on(Rgb(255, 100, 0)).italic());
 
     test!(fgbg:  "38;5;121;48;5;212"  => Fixed(121).on(Fixed(212)));
     test!(bgfg:  "48;5;121;38;5;212"  => Fixed(212).on(Fixed(121)));

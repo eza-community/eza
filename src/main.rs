@@ -27,7 +27,7 @@ use std::ffi::{OsStr, OsString};
 use std::io::{self, Write, ErrorKind};
 use std::path::{Component, PathBuf};
 
-use ansi_term::{ANSIStrings, Style};
+use nu_ansi_term::{AnsiStrings, Style};
 
 use log::*;
 
@@ -57,7 +57,7 @@ fn main() {
     logger::configure(env::var_os(vars::EXA_DEBUG));
 
     #[cfg(windows)]
-    if let Err(e) = ansi_term::enable_ansi_support() {
+    if let Err(e) = nu_ansi_term::enable_ansi_support() {
         warn!("Failed to enable ANSI support: {}", e);
     }
 
@@ -225,7 +225,7 @@ impl<'args> Exa<'args> {
             if ! is_only_dir {
                 let mut bits = Vec::new();
                 escape(dir.path.display().to_string(), &mut bits, Style::default(), Style::default());
-                writeln!(&mut self.writer, "{}:", ANSIStrings(&bits))?;
+                writeln!(&mut self.writer, "{}:", AnsiStrings(&bits))?;
             }
 
             let mut children = Vec::new();
