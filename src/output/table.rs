@@ -1,11 +1,14 @@
 use std::cmp::max;
+#[cfg(unix)]
 use std::env;
 use std::ops::Deref;
 #[cfg(unix)]
 use std::sync::{Mutex, MutexGuard};
 
 use datetime::TimeZone;
-use zoneinfo_compiled::{CompiledData, Result as TZResult};
+#[cfg(unix)]
+use zoneinfo_compiled::CompiledData;
+use zoneinfo_compiled::Result as TZResult;
 
 use lazy_static::lazy_static;
 use log::*;
@@ -15,11 +18,11 @@ use uzers::UsersCache;
 use crate::fs::{File, fields as f};
 use crate::fs::feature::git::GitCache;
 use crate::output::cell::TextCell;
+use crate::output::render::{PermissionsPlusRender, TimeRender};
+#[cfg(unix)]
 use crate::output::render::{
     GroupRender,
     OctalPermissionsRender,
-    PermissionsPlusRender,
-    TimeRender,
     UserRender
 };
 use crate::output::time::TimeFormat;
@@ -104,6 +107,7 @@ impl Columns {
             columns.push(Column::Group);
         }
 
+        #[cfg(target_os = "linux")]
         if self.security_context {
             columns.push(Column::SecurityContext);
         }
@@ -429,6 +433,7 @@ pub struct Table<'a> {
     widths: TableWidths,
     time_format: TimeFormat,
     size_format: SizeFormat,
+    #[cfg(unix)]
     user_format: UserFormat,
     git: Option<&'a GitCache>,
 }
@@ -452,6 +457,7 @@ impl<'a> Table<'a> {
             env,
             time_format: options.time_format,
             size_format: options.size_format,
+            #[cfg(unix)]
             user_format: options.user_format,
         }
     }
@@ -480,14 +486,22 @@ impl<'a> Table<'a> {
         self.widths.add_widths(row);
     }
 
+    #[cfg(unix)]
     fn permissions_plus(&self, file: &File<'_>, xattrs: bool) -> Option<f::PermissionsPlus> {
         file.permissions().map(|p| f::PermissionsPlus {
             file_type: file.type_char(),
-            #[cfg(unix)]
             permissions: p,
+            xattrs
+        })
+    }
+
+    #[cfg(windows)]
+    fn permissions_plus(&self, file: &File<'_>, xattrs: bool) -> Option<f::PermissionsPlus> {
+        Some(f::PermissionsPlus {
+            file_type: file.type_char(),
             #[cfg(windows)]
             attributes: file.attributes(),
-            xattrs
+            xattrs,
         })
     }
 

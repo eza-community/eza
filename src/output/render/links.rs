@@ -1,10 +1,13 @@
 use ansi_term::Style;
+#[cfg(unix)]
 use locale::Numeric as NumericLocale;
 
+#[cfg(unix)]
 use crate::fs::fields as f;
+#[cfg(unix)]
 use crate::output::cell::TextCell;
 
-
+#[cfg(unix)]
 impl f::Links {
     pub fn render<C: Colours>(&self, colours: &C, numeric: &NumericLocale) -> TextCell {
         let style = if self.multiple { colours.multi_link_file() }
@@ -24,11 +27,14 @@ pub trait Colours {
 #[cfg(test)]
 pub mod test {
     use super::Colours;
+    #[cfg(unix)]   
     use crate::output::cell::{TextCell, DisplayWidth};
+    #[cfg(unix)]
     use crate::fs::fields as f;
 
     use ansi_term::Colour::*;
     use ansi_term::Style;
+    #[cfg(unix)]
     use locale;
 
 
@@ -41,6 +47,7 @@ pub mod test {
 
 
     #[test]
+    #[cfg(unix)]
     fn regular_file() {
         let stati = f::Links {
             count:    1,
@@ -56,6 +63,7 @@ pub mod test {
     }
 
     #[test]
+    #[cfg(unix)]
     fn regular_directory() {
         let stati = f::Links {
             count:    3005,
@@ -71,6 +79,7 @@ pub mod test {
     }
 
     #[test]
+    #[cfg(unix)]
     fn popular_file() {
         let stati = f::Links {
             count:    3005,

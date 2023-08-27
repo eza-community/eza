@@ -10,8 +10,8 @@ pub trait PermissionsPlusRender {
     fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> TextCell;
 }
 
-#[cfg(unix)]
 impl PermissionsPlusRender for Option<f::PermissionsPlus> {
+    #[cfg(unix)]
     fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> TextCell {
         match self {
             Some(p) => {
@@ -42,13 +42,23 @@ impl PermissionsPlusRender for Option<f::PermissionsPlus> {
     }
 
     #[cfg(windows)]
-    pub fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> TextCell {
-        let mut chars = vec![ self.attributes.render_type(colours) ];
-        chars.extend(self.attributes.render(colours));
+    fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> TextCell {
+        match self {
+            Some(p) => {
+                let mut chars = vec![ p.attributes.render_type(colours) ];
+                chars.extend(p.attributes.render(colours));
 
-        TextCell {
-            width:    DisplayWidth::from(chars.len()),
-            contents: chars.into(),
+                TextCell {
+                    width:    DisplayWidth::from(chars.len()),
+                    contents: chars.into(),
+                }        
+            },
+            None => {
+                TextCell {
+                    width:    DisplayWidth::from(0),
+                    contents: vec![].into(),
+                }        
+            }
         }
     }
 }

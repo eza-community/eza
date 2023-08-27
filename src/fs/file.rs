@@ -6,7 +6,9 @@ use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
 #[cfg(windows)]
 use std::os::windows::fs::MetadataExt;
 use std::path::{Path, PathBuf};
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::SystemTime;
+#[cfg(unix)]
+use std::time::{Duration, UNIX_EPOCH};
 
 use log::*;
 
@@ -361,6 +363,7 @@ impl<'dir> File<'dir> {
 
     /// The ID of the user that own this file. If dereferencing links, the links
     /// may be broken, in which case `None` will be returned.
+    #[cfg(unix)]
     pub fn user(&self) -> Option<f::User> {
         if self.is_link() && self.deref_links {
             match self.link_target_recurse() {
@@ -372,6 +375,7 @@ impl<'dir> File<'dir> {
     }
 
     /// The ID of the group that owns this file.
+    #[cfg(unix)]
     pub fn group(&self) -> Option<f::Group> {
         if self.is_link() && self.deref_links {
             match self.link_target_recurse() {
@@ -431,7 +435,6 @@ impl<'dir> File<'dir> {
     // The naive approach, as one would think that this info may have been cached.
     // but as mentioned in the size function comment above, different filesystems
     // make it difficult to get any info about a dir by it's size, so this may be it.
-    #[cfg(unix)]
     pub fn is_empty_dir(&self) -> bool {
         if self.is_directory() {
             match Dir::read_dir(self.path.clone()) {
