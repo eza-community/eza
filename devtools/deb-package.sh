@@ -26,7 +26,7 @@ Architecture: ${ARCH}
 Depends: libc6
 Maintainer: Sandro-Alessio Gierens <sandro@gierens.de>
 Description: Modern replacement for ls
- eza is a modern replacement for ls.  It uses colours for information by
+ eza is a modern replacement for ls.  It uses colors for information by
  default, helping you distinguish between many types of files, such as whether
  you are the owner, or in the owning group.
  .

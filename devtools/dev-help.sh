@@ -15,6 +15,6 @@ Binaries get built into \033[33m/home/vagrant/target\033[0m.
 \033[32;1mcompile-exa\033[0m (or \033[32;1mc\033[0m) to run the above three
 \033[32;1mdebug\033[0m to toggle printing logs
 \033[32;1mstrict\033[0m to toggle strict mode
-\033[32;1mcolors\033[0m to toggle custom colours
+\033[32;1mcolors\033[0m to toggle custom colors
 \033[32;1mhalp\033[0m to show all this again
 "

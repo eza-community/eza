@@ -10,7 +10,7 @@ bash /vagrant/devtools/dev-versions.sh
 
 # Configure the Cool Prompt™ (not actually trademarked).
 # The Cool Prompt tells you whether you’re in debug or strict mode, whether
-# you have colours configured, and whether your last command failed.
+# you have colors configured, and whether your last command failed.
 nonzero_return() { RETVAL=$?; [ "$RETVAL" -ne 0 ] && echo "$RETVAL "; }
 debug_mode()  { [ "$EXA_DEBUG" == "trace" ] && echo -n "trace-"; [ -n "$EXA_DEBUG" ] && echo "debug "; }
 strict_mode() { [ -n "$EXA_STRICT" ] && echo "strict "; }
@@ -44,7 +44,7 @@ strict() {
 
 # The ‘colors’ function sets or unsets the ‘LS_COLORS’ and ‘EXA_COLORS’
 # environment variables. There’s also a ‘hacker’ theme which turns everything
-# green, which is usually used for checking that all colour codes work, and
+# green, which is usually used for checking that all color codes work, and
 # for looking cool while you phreak some mainframes or whatever.
 colors() {
   case "$1" in
