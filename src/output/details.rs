@@ -34,7 +34,7 @@
 //! displayed next to its name.
 //!
 //! The table holds a vector of all the column types. For each file and column, a
-//! `Cell` value containing the ANSI-coloured text and Unicode width of each cell
+//! `Cell` value containing the ANSI-colored text and Unicode width of each cell
 //! is generated, with the row and column determined by indexing into both arrays.
 //!
 //! The column types vector does not actually include the filename. This is
@@ -405,7 +405,7 @@ pub struct Row {
     /// have cells.
     pub cells: Option<TableRow>,
 
-    /// This file’s name, in coloured output. The name is treated separately
+    /// This file’s name, in colored output. The name is treated separately
     /// from the other cells, as it never requires padding.
     pub name: TextCell,
 

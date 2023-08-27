@@ -29,7 +29,7 @@ pub struct File<'dir> {
     ///
     /// This is used to compare against certain filenames (such as checking if
     /// it’s “Makefile” or something) and to highlight only the filename in
-    /// colour when displaying the path.
+    /// color when displaying the path.
     pub name: String,
 
     /// The file’s name’s extension, if present, extracted from the name.
@@ -265,7 +265,7 @@ impl<'dir> File<'dir> {
     ///
     /// For a working symlink that the user is allowed to follow,
     /// this will be the `File` object at the other end, which can then have
-    /// its name, colour, and other details read.
+    /// its name, color, and other details read.
     ///
     /// For a broken symlink, returns where the file *would* be, if it
     /// existed. If this file cannot be read at all, returns the error that
@@ -306,7 +306,7 @@ impl<'dir> File<'dir> {
     ///
     /// For a working symlink that the user is allowed to follow,
     /// this will be the `File` object at the other end, which can then have
-    /// its name, colour, and other details read.
+    /// its name, color, and other details read.
     ///
     /// For a broken symlink, returns where the file *would* be, if it
     /// existed. If this file cannot be read at all, returns the error that
@@ -525,7 +525,7 @@ impl<'dir> File<'dir> {
     /// This file’s ‘type’.
     ///
     /// This is used a the leftmost character of the permissions column.
-    /// The file type can usually be guessed from the colour of the file, but
+    /// The file type can usually be guessed from the color of the file, but
     /// ls puts this character there.
     #[cfg(unix)]
     pub fn type_char(&self) -> f::Type {

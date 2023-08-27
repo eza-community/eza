@@ -9,7 +9,7 @@ use nu_ansi_term::Color::*;
 //
 // This is sitting around undocumented at the moment because it’s a feature
 // that should really be unnecessary! exa highlights its output by creating a
-// theme of one Style value per part of the interface that can be coloured,
+// theme of one Style value per part of the interface that can be colored,
 // then reading styles from that theme. The LS_COLORS variable, on the other
 // hand, can contain arbitrary characters that ls is supposed to add to the
 // output, without needing to know what they actually do. This puts exa in the
@@ -109,7 +109,7 @@ impl<'var> Pair<'var> {
                 "8" => style = style.hidden(),
                 "9" => style = style.strikethrough(),
 
-                // Foreground colours
+                // Foreground colors
                 "30" => style = style.fg(Black),
                 "31" => style = style.fg(Red),
                 "32" => style = style.fg(Green),
@@ -120,7 +120,7 @@ impl<'var> Pair<'var> {
                 "37" => style = style.fg(White),
                 "38" => if let Some(c) = parse_into_high_colour(&mut iter) { style = style.fg(c) },
 
-                // Background colours
+                // Background colors
                 "40" => style = style.on(Black),
                 "41" => style = style.on(Red),
                 "42" => style = style.on(Green),
@@ -174,7 +174,7 @@ mod ansi_test {
     test!(nines: "99999999"  => Style::default());
     test!(word:  "GREEN"     => Style::default());
 
-    // Higher colours
+    // Higher colors
     test!(hifg:  "38;5;149"  => Fixed(149).normal());
     test!(hibg:  "48;5;1"    => Style::default().on(Fixed(1)));
     test!(hibo:  "48;5;1;1"  => Style::default().on(Fixed(1)).bold());
@@ -214,12 +214,12 @@ mod test {
     test!(starts:     "=di"  => []);
     test!(ends:     "id="    => []);
 
-    // Foreground colours
+    // Foreground colors
     test!(green:   "cb=32"   => [ ("cb", Green.normal()) ]);
     test!(red:     "di=31"   => [ ("di", Red.normal()) ]);
     test!(blue:    "la=34"   => [ ("la", Blue.normal()) ]);
 
-    // Background colours
+    // Background colors
     test!(yellow:  "do=43"   => [ ("do", Style::default().on(Yellow)) ]);
     test!(purple:  "re=45"   => [ ("re", Style::default().on(Purple)) ]);
     test!(cyan:    "mi=46"   => [ ("mi", Style::default().on(Cyan)) ]);

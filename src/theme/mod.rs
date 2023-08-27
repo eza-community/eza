@@ -24,13 +24,13 @@ pub struct Options {
     pub definitions: Definitions,
 }
 
-/// Under what circumstances we should display coloured, rather than plain,
+/// Under what circumstances we should display colored, rather than plain,
 /// output to the terminal.
 ///
-/// By default, we want to display the colours when stdout can display them.
+/// By default, we want to display the colors when stdout can display them.
 /// Turning them on when output is going to, say, a pipe, would make programs
 /// such as `grep` or `more` not work properly. So the `Automatic` mode does
-/// this check and only displays colours when they can be truly appreciated.
+/// this check and only displays colors when they can be truly appreciated.
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum UseColours {
 
@@ -74,7 +74,7 @@ impl Options {
             return Theme { ui, exts };
         }
 
-        // Parse the environment variables into colours and extension mappings
+        // Parse the environment variables into colors and extension mappings
         let mut ui = UiStyles::default_theme(self.colour_scale);
         let (exts, use_default_filetypes) = self.definitions.parse_color_vars(&mut ui);
 
@@ -93,7 +93,7 @@ impl Options {
 impl Definitions {
 
     /// Parse the environment variables into `LS_COLORS` pairs, putting file glob
-    /// colours into the `ExtensionMappings` that gets returned, and using the
+    /// colors into the `ExtensionMappings` that gets returned, and using the
     /// two-character UI codes to modify the mutable `Colours`.
     ///
     /// Also returns if the `EXA_COLORS` variable should reset the existing file
@@ -157,7 +157,7 @@ impl FileColours for NoFileColours {
     }
 }
 
-// When getting the colour of a file from a *pair* of colourisers, try the
+// When getting the color of a file from a *pair* of colorizers, try the
 // first one then try the second one. This lets the user provide their own
 // file type associations, while falling back to the default set if not set
 // explicitly.
@@ -177,8 +177,8 @@ struct ExtensionMappings {
     mappings: Vec<(glob::Pattern, Style)>,
 }
 
-// Loop through backwards so that colours specified later in the list override
-// colours specified earlier, like we do with options and strict mode
+// Loop through backwards so that colors specified later in the list override
+// colors specified earlier, like we do with options and strict mode
 
 impl FileColours for ExtensionMappings {
     fn colour_file(&self, file: &File<'_>) -> Option<Style> {
@@ -344,7 +344,7 @@ impl render::SecurityCtxColours for Theme {
 
 
 /// Some of the styles are **overlays**: although they have the same attribute
-/// set as regular styles (foreground and background colours, bold, underline,
+/// set as regular styles (foreground and background colors, bold, underline,
 /// etc), they’re intended to be used to *amend* existing styles.
 ///
 /// For example, the target path of a broken symlink is displayed in a red,
@@ -438,7 +438,7 @@ mod customs_test {
     }
 
 
-    // LS_COLORS can affect all of these colours:
+    // LS_COLORS can affect all of these colors:
     test!(ls_di:   ls "di=31", exa ""  =>  colours c -> { c.filekinds.directory    = Red.normal();    });
     test!(ls_ex:   ls "ex=32", exa ""  =>  colours c -> { c.filekinds.executable   = Green.normal();  });
     test!(ls_fi:   ls "fi=33", exa ""  =>  colours c -> { c.filekinds.normal       = Yellow.normal(); });
@@ -449,7 +449,7 @@ mod customs_test {
     test!(ls_ln:   ls "ln=34", exa ""  =>  colours c -> { c.filekinds.symlink      = Blue.normal();   });
     test!(ls_or:   ls "or=33", exa ""  =>  colours c -> { c.broken_symlink         = Yellow.normal(); });
 
-    // EXA_COLORS can affect all those colours too:
+    // EXA_COLORS can affect all those colors too:
     test!(exa_di:  ls "", exa "di=32"  =>  colours c -> { c.filekinds.directory    = Green.normal();  });
     test!(exa_ex:  ls "", exa "ex=33"  =>  colours c -> { c.filekinds.executable   = Yellow.normal(); });
     test!(exa_fi:  ls "", exa "fi=34"  =>  colours c -> { c.filekinds.normal       = Blue.normal();   });
@@ -558,7 +558,7 @@ mod customs_test {
         ("1*1", Red.normal()), ("2*2", Green.normal()), ("3*3", Yellow.bold()), ("4*4", Blue.bold()), ("5*5", Purple.underline())
     ]);
 
-    // Finally, colours get applied right-to-left:
+    // Finally, colors get applied right-to-left:
     test!(ls_overwrite:  ls "pi=31:pi=32:pi=33", exa ""  =>  colours c -> { c.filekinds.pipe = Yellow.normal(); });
     test!(exa_overwrite: ls "", exa "da=36:da=35:da=34"  =>  colours c -> { c.date = Blue.normal(); });
 }

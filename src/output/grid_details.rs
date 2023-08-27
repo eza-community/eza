@@ -61,7 +61,7 @@ pub struct Render<'a> {
     /// hold a reference to it.
     pub files: Vec<File<'a>>,
 
-    /// How to colour various pieces of text.
+    /// How to color various pieces of text.
     pub theme: &'a Theme,
 
     /// How to format filenames.

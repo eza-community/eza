@@ -130,7 +130,7 @@ pub struct Exa<'args> {
     pub input_paths: Vec<&'args OsStr>,
 
     /// The theme that has been configured from the command-line options and
-    /// environment variables. If colours are disabled, this is a theme with
+    /// environment variables. If colors are disabled, this is a theme with
     /// every style set to the default.
     pub theme: Theme,
 

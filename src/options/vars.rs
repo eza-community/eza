@@ -3,7 +3,7 @@ use std::ffi::OsString;
 
 // General variables
 
-/// Environment variable used to colour files, both by their filesystem type
+/// Environment variable used to color files, both by their filesystem type
 /// (symlink, socket, directory) and their file name or extension (image,
 /// video, archive);
 pub static LS_COLORS: &str = "LS_COLORS";
@@ -21,8 +21,8 @@ pub static NO_COLOR: &str = "NO_COLOR";
 
 // exa-specific variables
 
-/// Environment variable used to colour exa’s interface when colours are
-/// enabled. This includes all the colours that `LS_COLORS` would recognise,
+/// Environment variable used to colors exa’s interface when colors are
+/// enabled. This includes all the colors that `LS_COLORS` would recognise,
 /// overriding them if necessary. It can also contain exa-specific codes.
 pub static EXA_COLORS: &str = "EXA_COLORS";
 

@@ -45,12 +45,12 @@ impl Options {
 #[derive(PartialEq, Debug, Copy, Clone)]
 enum LinkStyle {
 
-    /// Just display the file names, but colour them differently if they’re
+    /// Just display the file names, but color them differently if they’re
     /// a broken link or can’t be followed.
     JustFilenames,
 
     /// Display all files in their usual style, but follow each link with an
-    /// arrow pointing to their path, colouring the path differently if it’s
+    /// arrow pointing to their path, coloring the path differently if it’s
     /// a broken link, and doing nothing if it can’t be followed.
     FullLinkPaths,
 }
@@ -102,7 +102,7 @@ pub struct FileName<'a, 'dir, C> {
     /// A reference to the file that we’re getting the name of.
     file: &'a File<'dir>,
 
-    /// The colours used to paint the file name and its surrounding text.
+    /// The colors used to paint the file name and its surrounding text.
     colours: &'a C,
 
     /// The file that this file points to if it’s a link.
@@ -126,8 +126,8 @@ impl<'a, 'dir, C> FileName<'a, 'dir, C> {
 
 impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
 
-    /// Paints the name of the file using the colours, resulting in a vector
-    /// of coloured cells that can be printed to the terminal.
+    /// Paints the name of the file using the colors, resulting in a vector
+    /// of colored cells that can be printed to the terminal.
     ///
     /// This method returns some `TextCellContents`, rather than a `TextCell`,
     /// because for the last cell in a table, it doesn’t need to have its
@@ -155,12 +155,12 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         }
 
         if ! self.file.name.is_empty() {
-        	// The “missing file” colour seems like it should be used here,
+        	// The “missing file” color seems like it should be used here,
         	// but it’s not! In a grid view, where there’s no space to display
         	// link targets, the filename has to have a different style to
         	// indicate this fact. But when showing targets, we can just
-        	// colour the path instead (see below), and leave the broken
-        	// link’s filename as the link colour.
+        	// color the path instead (see below), and leave the broken
+        	// link’s filename as the link color.
             for bit in self.escaped_file_name() {
                 bits.push(bit);
             }
@@ -232,7 +232,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     }
 
     /// Adds the bits of the parent path to the given bits vector.
-    /// The path gets its characters escaped based on the colours.
+    /// The path gets its characters escaped based on the colors.
     fn add_parent_bits(&self, bits: &mut Vec<AnsiString<'_>>, parent: &Path) {
         let coconut = parent.components().count();
 
@@ -360,7 +360,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
 
     /// Figures out which colour to paint the filename part of the output,
     /// depending on which “type” of file it appears to be — either from the
-    /// class on the filesystem or from its name. (Or the broken link colour,
+    /// class on the filesystem or from its name. (Or the broken link color,
     /// if there’s nowhere else for that fact to be shown.)
     pub fn style(&self) -> Style {
         if let LinkStyle::JustFilenames = self.link_style {
@@ -396,7 +396,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
 }
 
 
-/// The set of colours that are needed to paint a file name.
+/// The set of colors that are needed to paint a file name.
 pub trait Colours: FiletypeColours {
 
     /// The style to paint the path of a symlink’s target, up to but not

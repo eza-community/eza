@@ -129,7 +129,7 @@ impl UiStyles {
 
 impl UiStyles {
 
-    /// Sets a value on this set of colours using one of the keys understood
+    /// Sets a value on this set of colors using one of the keys understood
     /// by the `LS_COLORS` environment variable. Invalid keys set nothing, but
     /// return false.
     pub fn set_ls(&mut self, pair: &Pair<'_>) -> bool {
@@ -151,7 +151,7 @@ impl UiStyles {
         true
     }
 
-    /// Sets a value on this set of colours using one of the keys understood
+    /// Sets a value on this set of colors using one of the keys understood
     /// by the `EXA_COLORS` environment variable. Invalid keys set nothing,
     /// but return false. This doesn’t take the `LS_COLORS` keys into account,
     /// so `set_ls` should have been run first.

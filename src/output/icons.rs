@@ -34,8 +34,8 @@ impl Icons {
 /// Converts the style used to paint a file name into the style that should be
 /// used to paint an icon.
 ///
-/// - The background colour should be preferred to the foreground colour, as
-///   if one is set, it’s the more “obvious” colour choice.
+/// - The background color should be preferred to the foreground color, as
+///   if one is set, it’s the more “obvious” color choice.
 /// - If neither is set, just use the default style.
 /// - Attributes such as bold or underline should not be used to paint the
 ///   icon, as they can make it look weird.

@@ -13,7 +13,7 @@ mod groups;
 pub use self::groups::{Colours as GroupColours, Render as GroupRender};
 
 mod inode;
-// inode uses just one colour
+// inode uses just one color
 
 mod links;
 pub use self::links::Colours as LinksColours;
@@ -36,7 +36,7 @@ pub use self::users::Render as UserRender;
 
 mod octal;
 pub use self::octal::Render as OctalPermissionsRender;
-// octal uses just one colour
+// octal uses just one color
 
 mod securityctx;
 pub use self::securityctx::Colours as SecurityCtxColours;

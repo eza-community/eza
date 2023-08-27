@@ -6,7 +6,7 @@ use crate::fs::File;
 impl<'a> File<'a> {
 
     /// For this file, return a vector of alternate file paths that, if any of
-    /// them exist, mean that *this* file should be coloured as “compiled”.
+    /// them exist, mean that *this* file should be colored as “compiled”.
     ///
     /// The point of this is to highlight compiled files such as `foo.js` when
     /// their source file `foo.coffee` exists in the same directory.
