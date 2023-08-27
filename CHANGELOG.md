@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Bug Fixes
 
 - TextCell building of detailed grid view for  hyperlink and icon options
-- Block's Colours trait as for file sizes
+- Block's Colors trait as for file sizes
 - --blocksize completion, new description
 - Option.views unit tests use --blocksize
 - Add missing colon before -w/--width
@@ -144,7 +144,7 @@ All notable changes to this project will be documented in this file.
 - Clippy::extra_unused_lifetimes
 - Allow clippy::wildcard_in_or_patterns
 - Clippy::uninlined_format_args
-- Allow Colours::new call with self
+- Allow Colors::new call with self
 - Clippy::explicit_iter_loop
 - Clippy::uninlined_format_args
 - Clippy::needless_late_init
