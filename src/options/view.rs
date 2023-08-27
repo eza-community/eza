@@ -220,8 +220,8 @@ impl Columns {
         let time_types = TimeTypes::deduce(matches)?;
 
         let git = matches.has(&flags::GIT)? && !matches.has(&flags::NO_GIT)?;
-        let subdir_git_repos = matches.has(&flags::GIT_REPOS)?;
-        let subdir_git_repos_no_stat = !subdir_git_repos && matches.has(&flags::GIT_REPOS_NO_STAT)?;
+        let subdir_git_repos = matches.has(&flags::GIT_REPOS)? && !matches.has(&flags::NO_GIT)?;
+        let subdir_git_repos_no_stat = !subdir_git_repos && matches.has(&flags::GIT_REPOS_NO_STAT)? && !matches.has(&flags::NO_GIT)?;
 
         let blocksize        = matches.has(&flags::BLOCKSIZE)?;
         let group            = matches.has(&flags::GROUP)?;
