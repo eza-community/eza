@@ -109,11 +109,11 @@ alias itest := integration_tests
 @man-1-preview: man
     man "${CARGO_TARGET_DIR:-target}/man/eza.1"
 
-# build and preview the colour configuration man page (eza_colors.5)
+# build and preview the color configuration man page (eza_colors.5)
 @man-5-preview: man
     man "${CARGO_TARGET_DIR:-target}/man/eza_colors.5"
 
-# build and preview the colour configuration man page (eza_colors.5)
+# build and preview the color configuration man page (eza_colors.5)
 @man-5-explanations-preview: man
     man "${CARGO_TARGET_DIR:-target}/man/eza_colors-explanation.5"
 
