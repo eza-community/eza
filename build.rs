@@ -151,6 +151,7 @@ fn create_file_icon_hash_file() -> io::Result<()> {
 
 /// Generate mapping from full filenames to file type. For file types see info/filetype.rs
 fn generate_filename_type_map(file: &mut File) -> io::Result<()> {
+    writeln!(file, "#[allow(clippy::unreadable_literal)]")?;
     writeln!(file, "static FILENAME_TYPES: phf::Map<&'static str, FileType> = {};\n",
              phf_codegen::Map::new()
                  /* Immediate file - kick off the build of a project */
@@ -207,6 +208,7 @@ fn generate_filename_type_map(file: &mut File) -> io::Result<()> {
 /// info/filetype.rs
 fn generate_extension_type_map(file: &mut File) -> io::Result<()> {
     // Extension are converted to lower case for comparison
+    writeln!(file, "#[allow(clippy::unreadable_literal)]")?;
     writeln!(file, "static EXTENSION_TYPES: phf::Map<&'static str, FileType> = {};\n",
              phf_codegen::Map::new()
                  /* Immediate file - kick off the build of a project */
@@ -368,6 +370,7 @@ fn generate_extension_type_map(file: &mut File) -> io::Result<()> {
 /// "dot" directories that have a custom icon.  See output/render/icons.rs for a partial list of
 /// icon constants.
 fn generate_filename_icon_map(file: &mut File) -> io::Result<()> {
+    writeln!(file, "#[allow(clippy::unreadable_literal)]")?;
     writeln!(file, "static FILENAME_ICONS: phf::Map<&'static str, char> = {};\n",
              phf_codegen::Map::new()
                  .entry(".atom",              "'\u{e764}'") // 
@@ -425,6 +428,7 @@ fn generate_filename_icon_map(file: &mut File) -> io::Result<()> {
 /// extension is add also update the extension filetype map.  See output/render/icons.rs for
 /// a partial list of icon constants.
 fn generate_extension_icon_map(file: &mut File) -> io::Result<()> {
+    writeln!(file, "#[allow(clippy::unreadable_literal)]")?;
     writeln!(file, "static EXTENSION_ICONS: phf::Map<&'static str, char> = {};\n",
              phf_codegen::Map::new()
                  .entry("7z",            "'\u{f410}'")  // 
