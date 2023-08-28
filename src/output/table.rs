@@ -196,7 +196,7 @@ impl Column {
     }
 
     #[cfg(windows)]
-    pub fn alignment(&self) -> Alignment {
+    pub fn alignment(self) -> Alignment {
         match self {
             Self::FileSize   |
             Self::GitStatus  => Alignment::Right,
@@ -396,6 +396,7 @@ fn determine_time_zone() -> TZResult<TimeZone> {
     }
 }
 
+#[allow(clippy::unnecessary_wraps)] // Needs to match Unix function
 #[cfg(windows)]
 fn determine_time_zone() -> TZResult<TimeZone> {
     use datetime::zone::{FixedTimespan, FixedTimespanSet, StaticTimeZone, TimeZoneSource};
@@ -410,7 +411,7 @@ fn determine_time_zone() -> TZResult<TimeZone> {
                 name: Cow::Borrowed("ZONE_A"),
             },
             rest: &[(
-                1206838800,
+                1_206_838_800, // Sun Mar 30 2008 01:00:00 GMT+0000
                 FixedTimespan {
                     offset: 3600,
                     is_dst: false,
@@ -495,6 +496,7 @@ impl<'a> Table<'a> {
         })
     }
 
+    #[allow(clippy::unnecessary_wraps)] // Needs to match Unix function
     #[cfg(windows)]
     fn permissions_plus(&self, file: &File<'_>, xattrs: bool) -> Option<f::PermissionsPlus> {
         Some(f::PermissionsPlus {

@@ -498,7 +498,7 @@ impl<'dir> File<'dir> {
 
     #[cfg(windows)]
     pub fn changed_time(&self) -> Option<SystemTime> {
-        return self.modified_time()
+        self.modified_time()
     }
 
     /// This file’s last accessed timestamp, if available on this platform.

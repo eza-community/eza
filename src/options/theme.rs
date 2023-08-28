@@ -146,13 +146,13 @@ mod terminal_test {
     impl Vars for MockVars {
         fn get(&self, name: &'static str) -> Option<OsString> {
             if name == vars::LS_COLORS && ! self.ls.is_empty() {
-                Some(OsString::from(self.ls.clone()))
+                Some(OsString::from(self.ls))
             }
             else if name == vars::EXA_COLORS && ! self.exa.is_empty() {
-                Some(OsString::from(self.exa.clone()))
+                Some(OsString::from(self.exa))
             }
             else if name == vars::NO_COLOR && ! self.no_color.is_empty() {
-                Some(OsString::from(self.no_color.clone()))
+                Some(OsString::from(self.no_color))
             }
             else {
                 None

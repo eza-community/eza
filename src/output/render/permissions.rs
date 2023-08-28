@@ -128,7 +128,7 @@ impl f::Permissions {
 
 #[cfg(windows)]
 impl f::Attributes {
-    pub fn render<C: Colours+FiletypeColours>(&self, colours: &C) -> Vec<ANSIString<'static>> {
+    pub fn render<C: Colours+FiletypeColours>(self, colours: &C) -> Vec<ANSIString<'static>> {
         let bit = |bit, chr: &'static str, style: Style| {
             if bit { style.paint(chr) }
               else { colours.dash().paint("-") }
@@ -142,16 +142,14 @@ impl f::Attributes {
         ]
     }
 
-    pub fn render_type<C: Colours+FiletypeColours>(&self, colours: &C) -> ANSIString<'static> {
+    pub fn render_type<C: Colours+FiletypeColours>(self, colours: &C) -> ANSIString<'static> {
         if self.reparse_point {
             return colours.pipe().paint("l")
         }
         else if self.directory {
             return colours.directory().paint("d")
         }
-        else {
-            return colours.dash().paint("-")
-        }
+        colours.dash().paint("-")
     }
 }
 
