@@ -37,7 +37,10 @@ FILTERING AND SORTING OPTIONS
   -D, --only-dirs            list only directories
   -I, --ignore-glob GLOBS    glob patterns (pipe-separated) of files to ignore";
 
-  static USAGE_PART2: &str = "  \
+static GIT_FILTER_HELP: &str = "  \
+  --git-ignore               ignore files mentioned in '.gitignore'";
+
+static USAGE_PART2: &str = "  \
   Valid sort fields:         name, Name, extension, Extension, size, type,
                              modified, accessed, created, inode, and none.
                              date, time, old, and new all refer to modified.
@@ -63,8 +66,6 @@ LONG VIEW OPTIONS
   --no-user                suppress the user field
   --no-time                suppress the time field";
 
-static GIT_FILTER_HELP: &str = "  \
-  --git-ignore             ignore files mentioned in '.gitignore'";
 static GIT_VIEW_HELP:   &str = "  \
   --git                    list each file's Git status, if tracked or ignored
   --no-git                 suppress Git status (always overrides --git, --git-repos, --git-repos-no-status)
