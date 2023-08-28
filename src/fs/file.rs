@@ -662,22 +662,6 @@ impl<'dir> File<'dir> {
         }
     }
 
-    /// Whether this file’s extension is any of the strings that get passed in.
-    ///
-    /// This will always return `false` if the file has no extension.
-    pub fn extension_is_one_of(&self, choices: &[&str]) -> bool {
-        match &self.ext {
-            Some(ext)  => choices.contains(&&ext[..]),
-            None       => false,
-        }
-    }
-
-    /// Whether this file’s name, including extension, is any of the strings
-    /// that get passed in.
-    pub fn name_is_one_of(&self, choices: &[&str]) -> bool {
-        choices.contains(&&self.name[..])
-    }
-
     /// This file’s security context field.
     pub fn security_context(&self) -> f::SecurityContext<'_> {
         let context = match &self.extended_attributes.iter().find(|a| a.name == "security.selinux") {

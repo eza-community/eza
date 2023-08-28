@@ -62,11 +62,19 @@ version = "0.18"
 optional = true
 default-features = false
 
+[dependencies.phf]
+version = "0.11.2"
+default-features = false
+
 [target.'cfg(unix)'.dependencies]
 uzers = "0.11.2"
 
 [build-dependencies.datetime]
 version = "0.5.2"
+default-features = false
+
+[build-dependencies.phf_codegen]
+version = "0.11.2"
 default-features = false
 
 [features]
