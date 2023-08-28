@@ -53,5 +53,5 @@ LONG VIEW OPTIONS
   --no-user                suppress the user field
   --no-time                suppress the time field
   --git                    list each file's Git status, if tracked or ignored
-  --no-git                 suppress Git status (always overrides --git)
+  --no-git                 suppress Git status (always overrides --git, --git-repos, --git-repos-no-status)
   -@, --extended           list each file's extended attributes and sizes
