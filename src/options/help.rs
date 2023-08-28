@@ -67,6 +67,7 @@ static GIT_FILTER_HELP: &str = "  \
   --git-ignore             ignore files mentioned in '.gitignore'";
 static GIT_VIEW_HELP:   &str = "  \
   --git                    list each file's Git status, if tracked or ignored
+  --no-git                 suppress Git status (always overrides --git, --git-repos, --git-repos-no-status)
   --git-repos              list root of git-tree status";
 static EXTENDED_HELP:   &str = "  \
   -@, --extended           list each file's extended attributes and sizes";

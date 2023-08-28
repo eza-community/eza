@@ -67,6 +67,7 @@ pub static NO_ICONS: Arg = Arg { short: None, long: "no-icons", takes_value: Tak
 
 // optional feature options
 pub static GIT:               Arg = Arg { short: None,       long: "git",                  takes_value: TakesValue::Forbidden };
+pub static NO_GIT:            Arg = Arg { short: None,       long: "no-git",               takes_value: TakesValue::Forbidden };
 pub static GIT_REPOS:         Arg = Arg { short: None,       long: "git-repos",            takes_value: TakesValue::Forbidden };
 pub static GIT_REPOS_NO_STAT: Arg = Arg { short: None,       long: "git-repos-no-status",  takes_value: TakesValue::Forbidden };
 pub static EXTENDED:          Arg = Arg { short: Some(b'@'), long: "extended",             takes_value: TakesValue::Forbidden };
@@ -87,5 +88,6 @@ pub static ALL_ARGS: Args = Args(&[
     &BLOCKSIZE, &TIME, &ACCESSED, &CREATED, &TIME_STYLE, &HYPERLINK,
     &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &NO_ICONS,
 
-    &GIT, &GIT_REPOS, &GIT_REPOS_NO_STAT, &EXTENDED, &OCTAL, &SECURITY_CONTEXT
+    &GIT, &NO_GIT, &GIT_REPOS, &GIT_REPOS_NO_STAT,
+    &EXTENDED, &OCTAL, &SECURITY_CONTEXT
 ]);

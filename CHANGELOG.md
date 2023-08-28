@@ -2,6 +2,49 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.9] - 2023-08-28
+
+### Bug Fixes
+
+- Respect git-repos flags
+
+### Documentation
+
+- Add badge for eza gitter/matrix room
+- Fix matrix link
+- Add ignored flags to readme
+- Add ignored flags to manual
+- Add ignored flags to help
+- Add ignored flags to xtest
+
+### Features
+
+- `--no-git` option
+
+### Miscellaneous Tasks
+
+- Add funding.yml
+
+### Build
+
+- Add convco to dev
+
+### Ci
+
+- Create flakehub-publish-tagged.yml
+- Add workflow_dispatch to flakehub-pub
+- Edit workflow_dispath
+- Refactor workflow_dispath
+- Refactor workflow_dispath
+- Remove broken dispatch
+- Add flakehub-backfill
+- Add codeowners
+- Add gierens as .deb codeowner
+
+### Deps
+
+- Change users depedency to uzers
+
 ## [0.10.8] - 2023-08-22
 
 ### Bug Fixes
@@ -43,6 +86,7 @@ All notable changes to this project will be documented in this file.
 - Bump num_cpus from 1.13.0 to 1.16.0
 - Bump git2 from 0.16.1 to 0.17.2
 - Bump unicode-width from 0.1.8 to 0.1.10
+- Release 0.10.8
 
 ### Refactor
 
@@ -53,6 +97,7 @@ All notable changes to this project will be documented in this file.
 - Use -S/--blocksize and, var BLOCKSIZE
 - Unit tests for output.render.blocks
 - Flip if (as suggested/demanded by clippy)
+- Migrate to uzers lib
 
 ### Build
 
