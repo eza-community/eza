@@ -88,7 +88,7 @@ impl Mode {
                 }
             }
 
-            if matches.has(&flags::GIT)? {
+            if matches.has(&flags::GIT)? && !matches.has(&flags::NO_GIT)? {
                 return Err(OptionsError::Useless(&flags::GIT, false, &flags::LONG));
             }
             else if matches.has(&flags::LEVEL)? && ! matches.has(&flags::RECURSE)? && ! matches.has(&flags::TREE)? {
@@ -219,9 +219,9 @@ impl Columns {
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
         let time_types = TimeTypes::deduce(matches)?;
 
-        let git = matches.has(&flags::GIT)?;
-        let subdir_git_repos = matches.has(&flags::GIT_REPOS)?;
-        let subdir_git_repos_no_stat = !subdir_git_repos && matches.has(&flags::GIT_REPOS_NO_STAT)?;
+        let git = matches.has(&flags::GIT)? && !matches.has(&flags::NO_GIT)?;
+        let subdir_git_repos = matches.has(&flags::GIT_REPOS)? && !matches.has(&flags::NO_GIT)?;
+        let subdir_git_repos_no_stat = !subdir_git_repos && matches.has(&flags::GIT_REPOS_NO_STAT)? && !matches.has(&flags::NO_GIT)?;
 
         let blocksize        = matches.has(&flags::BLOCKSIZE)?;
         let group            = matches.has(&flags::GROUP)?;

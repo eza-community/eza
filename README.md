@@ -179,6 +179,7 @@ These options are available when running with `--long` (`-l`):
 - **-@**, **--extended**: list each file’s extended attributes and sizes
 - **--changed**: use the changed timestamp field
 - **--git**: list each file’s Git status, if tracked or ignored
+- **--no-git**: suppress Git status (always overrides `--git`, `--git-repos`, `--git-repos-no-status`)
 - **--time-style**: how to format timestamps
 - **--no-permissions**: suppress the permissions field
 - **-o**, **--octal-permissions**: list each file's permission in octal format
