@@ -45,6 +45,7 @@ log = "0.4"
 natord = "1.0"
 num_cpus = "1.16"
 number_prefix = "0.4"
+phf = { version = "0.11.2", features = ["macros"]}
 scoped_threadpool = "0.1"
 term_grid = "0.1"
 terminal_size = "0.2.6"
@@ -62,19 +63,11 @@ version = "0.18"
 optional = true
 default-features = false
 
-[dependencies.phf]
-version = "0.11.2"
-default-features = false
-
 [target.'cfg(unix)'.dependencies]
 uzers = "0.11.2"
 
 [build-dependencies.datetime]
 version = "0.5.2"
-default-features = false
-
-[build-dependencies.phf_codegen]
-version = "0.11.2"
 default-features = false
 
 [features]
