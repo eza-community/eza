@@ -427,6 +427,16 @@ impl<'dir> File<'dir> {
         }
     }
 
+    #[cfg(windows)]
+    pub fn size(&self) -> f::Size {
+        if self.is_directory() {
+            f::Size::None
+        }
+        else {
+            f::Size::Some(self.metadata.len())
+        }
+    }
+
     // To display icons for empty folders.
     #[cfg(unix)]
     pub fn is_empty_dir(&self) -> bool {
@@ -463,16 +473,6 @@ impl<'dir> File<'dir> {
             // . & .. are skipped, if the returned iterator has .next(), it's not empty
             Ok(has_files) => has_files.files(super::DotFilter::Dotfiles, None, false, false).next().is_none(),
             Err(_) => false,
-        }
-    }
-
-    #[cfg(windows)]
-    pub fn size(&self) -> f::Size {
-        if self.is_directory() {
-            f::Size::None
-        }
-        else {
-            f::Size::Some(self.metadata.len())
         }
     }
 
