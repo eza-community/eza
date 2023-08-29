@@ -434,10 +434,19 @@ impl<'dir> File<'dir> {
     #[cfg(unix)]
     pub fn is_empty_dir(&self) -> bool {
         if self.is_directory() {
-            match Dir::read_dir(self.path.clone()) {
-                // . & .. are skipped, if the returned iterator has .next(), it's not empty
-                Ok(has_files) => has_files.files(super::DotFilter::Dotfiles, None, false, false).next().is_none(),
-                Err(_) => false,
+            if self.metadata.nlink() > 2 {
+                // Directories will have a link count of two if they do not have any subdirectories.
+                // The '.' entry is a link to itself and the '..' is a link to the parent directory.
+                // A subdirectory will have a link to its parent directory increasing the link count
+                // above two.  This will avoid the expensive read_dir call below when a directory
+                // has subdirectories.
+                false
+            } else {
+                match Dir::read_dir(self.path.clone()) {
+                    // . & .. are skipped, if the returned iterator has .next(), it's not empty
+                    Ok(has_files) => has_files.files(super::DotFilter::Dotfiles, None, false, false).next().is_none(),
+                    Err(_) => false,
+                }
             }
         } else {
             false
