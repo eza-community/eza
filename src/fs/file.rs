@@ -427,6 +427,10 @@ impl<'dir> File<'dir> {
         }
     }
 
+    /// Returns the size of the file or indicates no size if it's a directory.
+    ///
+    /// For Windows platforms, the size of directories is not computed and will 
+    /// return `Size::None`.
     #[cfg(windows)]
     pub fn size(&self) -> f::Size {
         if self.is_directory() {
@@ -438,6 +442,13 @@ impl<'dir> File<'dir> {
     }
 
     // To display icons for empty folders.
+    /// Determines if the directory is empty or not.
+    ///
+    /// For Unix platforms, this function first checks the link count to quickly 
+    /// determine non-empty directories. If the link count is less than or equal to 2,
+    /// it then checks the directory contents to determine if it's truly empty.
+    /// The naive approach used here checks the contents directly, as certain filesystems 
+    /// make it difficult to infer emptiness based on directory size alone.
     #[cfg(unix)]
     pub fn is_empty_dir(&self) -> bool {
         if self.is_directory() {
@@ -456,6 +467,11 @@ impl<'dir> File<'dir> {
         }
     }
 
+    /// Determines if the directory is empty or not.
+    ///
+    /// For Windows platforms, this function checks the directory contents directly 
+    /// to determine if it's empty. Since certain filesystems on Windows make it 
+    /// challenging to infer emptiness based on directory size, this approach is used.
     #[cfg(windows)]
     pub fn is_empty_dir(&self) -> bool {
         if self.is_directory() {
@@ -465,9 +481,14 @@ impl<'dir> File<'dir> {
         }
     }
 
-    // The naive approach, as one would think that this info may have been cached.
-    // but as mentioned in the size function comment above, different filesystems
-    // make it difficult to get any info about a dir by it's size, so this may be it.
+    /// Checks the contents of the directory to determine if it's empty.
+    ///
+    /// This function avoids counting '.' and '..' when determining if the directory is 
+    /// empty. If any other entries are found, it returns `false`.
+    ///
+    /// The naive approach, as one would think that this info may have been cached.
+    /// but as mentioned in the size function comment above, different filesystems
+    /// make it difficult to get any info about a dir by it's size, so this may be it.
     fn is_empty_directory(&self) -> bool {
         match Dir::read_dir(self.path.clone()) {
             // . & .. are skipped, if the returned iterator has .next(), it's not empty
