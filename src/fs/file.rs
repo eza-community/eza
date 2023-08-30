@@ -441,14 +441,15 @@ impl<'dir> File<'dir> {
         }
     }
 
-    // To display icons for empty folders.
     /// Determines if the directory is empty or not.
     ///
     /// For Unix platforms, this function first checks the link count to quickly 
-    /// determine non-empty directories. If the link count is less than or equal to 2,
-    /// it then checks the directory contents to determine if it's truly empty.
-    /// The naive approach used here checks the contents directly, as certain filesystems 
-    /// make it difficult to infer emptiness based on directory size alone.
+    /// determine non-empty directories. On most UNIX filesystems the link count
+    /// is two plus the number of subdirectories. If the link count is less than
+    /// or equal to 2, it then checks the directory contents to determine if
+    /// it's truly empty. The naive approach used here checks the contents
+    /// directly, as certain filesystems make it difficult to infer emptiness
+    /// based on directory size alone.
     #[cfg(unix)]
     pub fn is_empty_dir(&self) -> bool {
         if self.is_directory() {
