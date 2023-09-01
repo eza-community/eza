@@ -66,7 +66,7 @@ impl Options {
 
     #[allow(trivial_casts)]   // the `as Box<_>` stuff below warns about this for some reason
     pub fn to_theme(&self, isatty: bool) -> Theme {
-        use crate::info::filetype::FileExtensions;
+        use crate::info::filetype::FileTypeClassifier;
 
         if self.use_colours == UseColours::Never || (self.use_colours == UseColours::Automatic && ! isatty) {
             let ui = UiStyles::plain();
@@ -80,10 +80,10 @@ impl Options {
 
         // Use between 0 and 2 file name highlighters
         let exts = match (exts.is_non_empty(), use_default_filetypes) {
-            (false, false)  => Box::new(NoFileColours)           as Box<_>,
-            (false,  true)  => Box::new(FileExtensions)          as Box<_>,
-            ( true, false)  => Box::new(exts)                    as Box<_>,
-            ( true,  true)  => Box::new((exts, FileExtensions))  as Box<_>,
+            (false, false)  => Box::new(NoFileColours)              as Box<_>,
+            (false,  true)  => Box::new(FileTypeClassifier)         as Box<_>,
+            ( true, false)  => Box::new(exts)                       as Box<_>,
+            ( true,  true)  => Box::new((exts, FileTypeClassifier)) as Box<_>,
         };
 
         Theme { ui, exts }
