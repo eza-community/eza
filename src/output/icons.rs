@@ -500,6 +500,8 @@ pub fn iconify_style(style: Style) -> Style {
          .unwrap_or_default()
 }
 
+/// Lookup the icon for a file based on the file's name, if the entry is a
+/// directory, or by the lowercase file extension.
 pub fn icon_for_file(file: &File<'_>) -> char {
     if let Some(icon) = FILENAME_ICONS.get(file.name.as_str()) {
         *icon

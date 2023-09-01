@@ -233,9 +233,12 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
 };
 
 #[derive(Debug)]
-pub struct FileExtensions;
+pub struct FileTypeClassifier;
 
-impl FileExtensions {
+impl FileTypeClassifier {
+    /// Lookup the file type based on the file's name, by the file name
+    /// lowercase extension, or if the file could be compiled from related
+    /// source code.
     fn get_file_type(file: &File<'_>) -> Option<FileType> {
         // Case-insensitive readme is checked first for backwards compatibility.
         if file.name.to_lowercase().starts_with("readme") {
@@ -259,11 +262,12 @@ impl FileExtensions {
     }
 }
 
-impl FileColours for FileExtensions {
+impl FileColours for FileTypeClassifier {
+    /// Map from the file type to the display style/color for the file.
     fn colour_file(&self, file: &File<'_>) -> Option<Style> {
         use ansi_term::Colour::*;
 
-        match FileExtensions::get_file_type(file) {
+        match FileTypeClassifier::get_file_type(file) {
             Some(FileType::Compiled)   => Some(Yellow.normal()),
             Some(FileType::Compressed) => Some(Red.normal()),
             Some(FileType::Crypto)     => Some(Green.bold()),
