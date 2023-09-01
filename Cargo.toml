@@ -63,7 +63,7 @@ optional = true
 default-features = false
 
 [target.'cfg(unix)'.dependencies]
-uzers = "0.11.1"
+uzers = "0.11.2"
 
 [build-dependencies.datetime]
 version = "0.5.2"
