@@ -345,9 +345,9 @@ dependencies = [
 
 [[package]]
 name = "uzers"
-version = "0.11.1"
+version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "76f77f08efdd6dfbf13363b13db3649431d35d682f1c074edc476a04afaba466"
+checksum = "49546562f3f91dcad51aab95b9664113f099dd829c5dcd8ba1486fddb7d3bccc"
 dependencies = [
  "libc",
  "log",
