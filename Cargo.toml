@@ -47,8 +47,8 @@ num_cpus = "1.16"
 number_prefix = "0.4"
 scoped_threadpool = "0.1"
 term_grid = "0.1"
-terminal_size = "0.1.16"
-timeago = { version = "0.3.1", default-features = false }
+terminal_size = "0.2.6"
+timeago = { version = "0.4.1", default-features = false }
 unicode-width = "0.1"
 zoneinfo_compiled = "0.5.1"
 
@@ -58,12 +58,12 @@ default-features = false
 features = ["format"]
 
 [dependencies.git2]
-version = "0.17"
+version = "0.18"
 optional = true
 default-features = false
 
 [target.'cfg(unix)'.dependencies]
-uzers = "0.11.1"
+uzers = "0.11.2"
 
 [build-dependencies.datetime]
 version = "0.5.2"
