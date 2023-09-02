@@ -14,7 +14,7 @@ use crate::fs::File;
 use crate::theme::FileColours;
 
 #[derive(Debug, Clone)]
-enum FileType {
+pub enum FileType {
     Image,
     Video,
     Music,
@@ -232,17 +232,14 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "zwc"        => FileType::Compiled,
 };
 
-#[derive(Debug)]
-pub struct FileTypeClassifier;
-
-impl FileTypeClassifier {
+impl FileType {
     /// Lookup the file type based on the file's name, by the file name
     /// lowercase extension, or if the file could be compiled from related
     /// source code.
     fn get_file_type(file: &File<'_>) -> Option<FileType> {
         // Case-insensitive readme is checked first for backwards compatibility.
         if file.name.to_lowercase().starts_with("readme") {
-            return Some(FileType::Immediate)
+            return Some(Self::Immediate)
         }
         if let Some(file_type) = FILENAME_TYPES.get(&file.name) {
             return Some(file_type.clone())
@@ -251,23 +248,26 @@ impl FileTypeClassifier {
             return Some(file_type.clone())
         }
         if file.name.ends_with('~') || (file.name.starts_with('#') && file.name.ends_with('#')) {
-            return Some(FileType::Temp)
+            return Some(Self::Temp)
         }
         if let Some(dir) = file.parent_dir {
             if file.get_source_files().iter().any(|path| dir.contains(path)) {
-                return Some(FileType::Compiled)
+                return Some(Self::Compiled)
             }
         }
         None
     }
 }
 
-impl FileColours for FileTypeClassifier {
+#[derive(Debug)]
+pub struct FileTypeColor;
+
+impl FileColours for FileTypeColor {
     /// Map from the file type to the display style/color for the file.
     fn colour_file(&self, file: &File<'_>) -> Option<Style> {
         use ansi_term::Colour::*;
 
-        match FileTypeClassifier::get_file_type(file) {
+        match FileType::get_file_type(file) {
             Some(FileType::Compiled)   => Some(Yellow.normal()),
             Some(FileType::Compressed) => Some(Red.normal()),
             Some(FileType::Crypto)     => Some(Green.bold()),
