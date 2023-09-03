@@ -45,6 +45,7 @@ log = "0.4"
 natord = "1.0"
 num_cpus = "1.16"
 number_prefix = "0.4"
+phf = { version = "0.11.2", features = ["macros"]}
 scoped_threadpool = "0.1"
 term_grid = "0.1"
 terminal_size = "0.2.6"
