@@ -508,12 +508,12 @@ fn bytes_to_os_str(b: &[u8]) -> &OsStr{
 }
 
 #[cfg(windows)]
-fn os_str_to_bytes<'b>(s: &'b OsStr) ->  &'b [u8]{
+fn os_str_to_bytes(s: &OsStr) ->  &[u8]{
     return s.to_str().unwrap().as_bytes()
 }
 
 #[cfg(windows)]
-fn bytes_to_os_str<'b>(b:  &'b [u8]) ->  &'b OsStr{
+fn bytes_to_os_str(b:  &[u8]) ->  &OsStr{
     use std::str;
 
     return OsStr::new(str::from_utf8(b).unwrap());

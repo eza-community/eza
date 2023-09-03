@@ -200,6 +200,7 @@ impl ExtensionMappings {
 
 
 
+#[cfg(unix)]
 impl render::BlocksColours for Theme {
     fn blocksize(&self, prefix: Option<number_prefix::Prefix>) -> Style {
         use number_prefix::Prefix::*;
@@ -373,6 +374,7 @@ fn apply_overlay(mut base: Style, overlay: Style) -> Style {
 
 
 #[cfg(test)]
+#[cfg(unix)]
 mod customs_test {
     use super::*;
     use crate::theme::ui_styles::UiStyles;

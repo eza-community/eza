@@ -2,7 +2,9 @@
 
 #![allow(trivial_casts)]  // for ARM
 
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 use std::cmp::Ordering;
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 use std::ffi::CString;
 use std::io;
 use std::path::Path;
@@ -94,6 +96,7 @@ fn get_secattr(lister: &lister::Lister, c_path: &std::ffi::CString) -> io::Resul
     }])
 }
 
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 pub fn list_attrs(lister: &lister::Lister, path: &Path) -> io::Result<Vec<Attribute>> {
     let c_path = CString::new(path.to_str().ok_or(io::Error::new(io::ErrorKind::Other, "Error: path not convertible to string"))?).map_err(|e| {
         io::Error::new(io::ErrorKind::Other, e)

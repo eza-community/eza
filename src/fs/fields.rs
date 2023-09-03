@@ -134,6 +134,7 @@ pub struct Inode(pub ino_t);
 
 /// A file's size of allocated file system blocks.
 #[derive(Copy, Clone)]
+#[cfg(unix)]
 pub enum Blocksize {
 
     /// This file has the given number of blocks.

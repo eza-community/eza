@@ -6,7 +6,9 @@ use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
 #[cfg(windows)]
 use std::os::windows::fs::MetadataExt;
 use std::path::{Path, PathBuf};
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::SystemTime;
+#[cfg(unix)]
+use std::time::{Duration, UNIX_EPOCH};
 
 use log::*;
 
@@ -361,6 +363,7 @@ impl<'dir> File<'dir> {
 
     /// The ID of the user that own this file. If dereferencing links, the links
     /// may be broken, in which case `None` will be returned.
+    #[cfg(unix)]
     pub fn user(&self) -> Option<f::User> {
         if self.is_link() && self.deref_links {
             match self.link_target_recurse() {
@@ -372,6 +375,7 @@ impl<'dir> File<'dir> {
     }
 
     /// The ID of the group that owns this file.
+    #[cfg(unix)]
     pub fn group(&self) -> Option<f::Group> {
         if self.is_link() && self.deref_links {
             match self.link_target_recurse() {
@@ -539,7 +543,7 @@ impl<'dir> File<'dir> {
 
     #[cfg(windows)]
     pub fn changed_time(&self) -> Option<SystemTime> {
-        return self.modified_time()
+        self.modified_time()
     }
 
     /// This file’s last accessed timestamp, if available on this platform.

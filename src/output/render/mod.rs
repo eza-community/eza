@@ -1,4 +1,6 @@
+#[cfg(unix)]
 mod blocks;
+#[cfg(unix)]
 pub use self::blocks::Colours as BlocksColours;
 
 mod filetype;
@@ -12,6 +14,7 @@ mod groups;
 #[cfg(unix)]
 pub use self::groups::{Colours as GroupColours, Render as GroupRender};
 
+#[cfg(unix)]
 mod inode;
 // inode uses just one colour
 
@@ -32,6 +35,7 @@ pub use self::times::Render as TimeRender;
 mod users;
 #[cfg(unix)]
 pub use self::users::Colours as UserColours;
+#[cfg(unix)]
 pub use self::users::Render as UserRender;
 
 mod octal;
