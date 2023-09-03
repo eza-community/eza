@@ -1,35 +1,490 @@
 use ansi_term::Style;
+use phf::{phf_map, Map};
 
 use crate::fs::File;
-use crate::info::filetype::FileExtensions;
-use lazy_static::lazy_static;
-use std::collections::HashMap;
 
-
-pub trait FileIcon {
-    fn icon_file(&self, file: &File<'_>) -> Option<char>;
-}
-
-
-#[derive(Copy, Clone)]
-pub enum Icons {
-    Audio,
-    Image,
-    Video,
-    Compressed,
-}
+#[non_exhaustive]
+struct Icons;
 
 impl Icons {
-    pub fn value(self) -> char {
-        match self {
-            Self::Audio  => '\u{f001}', // 
-            Self::Image  => '\u{f1c5}', // 
-            Self::Video  => '\u{f03d}', // 
-            Self::Compressed => '\u{f410}', // 
-        }
-    }
+    const AUDIO: char           = '\u{f001}';  // 
+    const BINARY: char          = '\u{eae8}';  // 
+    const BOOK: char            = '\u{e28b}';  // 
+    const CALENDAR: char        = '\u{eab0}';  // 
+    const COMPRESSED: char      = '\u{f410}';  // 
+    const CONFIG: char          = '\u{e615}';  // 
+    const CONFIG_FOLDER: char   = '\u{e5fc}';  // 
+    const CSS3: char            = '\u{e749}';  // 
+    const DATABASE: char        = '\u{f1c0}';  // 
+    const DIFF: char            = '\u{f440}';  // 
+    const DISK_IMAGE: char      = '\u{e271}';  // 
+    const DOCKER: char          = '\u{e650}';  // 
+    const DOCUMENT: char        = '\u{f1c2}';  // 
+    const EMACS: char           = '\u{e632}';  // 
+    const FONT: char            = '\u{f031}';  // 
+    const GIST_SECRET: char     = '\u{eafa}';  // 
+    const GIT: char             = '\u{f1d3}';  // 
+    const GRADLE: char          = '\u{e660}';  // 
+    const GRUNT: char           = '\u{e611}';  // 
+    const GULP: char            = '\u{e610}';  // 
+    const HEADER: char          = '\u{f0fd}';  // 
+    const HTML5: char           = '\u{f13b}';  // 
+    const IMAGE: char           = '\u{f1c5}';  // 
+    const INTELLIJ: char        = '\u{e7b5}';  // 
+    const KEY: char             = '\u{eb11}';  // 
+    const KEYPASS: char         = '\u{f23e}';  // 
+    const JSON: char            = '\u{e60b}';  // 
+    const LANG_ASSEMBLY: char   = '\u{e637}';  // 
+    const LANG_C: char          = '\u{e61e}';  // 
+    const LANG_CPP: char        = '\u{e61d}';  // 
+    const LANG_CSHARP: char     = '\u{f031b}'; // 󰌛
+    const LANG_ELIXIR: char     = '\u{e62d}';  // 
+    const LANG_FSHARP: char     = '\u{e7a7}';  // 
+    const LANG_GO: char         = '\u{e724}';  // 
+    const LANG_HASKELL: char    = '\u{e777}';  // 
+    const LANG_JAVA: char       = '\u{e256}';  // 
+    const LANG_JAVASCRIPT: char = '\u{e74e}';  // 
+    const LANG_OCAML: char      = '\u{e67a}';  // 
+    const LANG_PERL: char       = '\u{e769}';  // 
+    const LANG_PHP: char        = '\u{e73d}';  // 
+    const LANG_PYTHON: char     = '\u{e606}';  // 
+    const LANG_R: char          = '\u{f25d}';  // 
+    const LANG_RUBY: char       = '\u{e21e}';  // 
+    const LANG_RUBYRAILS: char  = '\u{e73b}';  // 
+    const LANG_RUST: char       = '\u{e7a8}';  // 
+    const LANG_STYLUS: char     = '\u{e600}';  // 
+    const LANG_TEX: char        = '\u{e69b}';  // 
+    const LANG_TYPESCRIPT: char = '\u{e628}';  // 
+    const LOCK: char            = '\u{f023}';  // 
+    const LICENSE: char         = '\u{f02d}';  // 
+    const MARKDOWN: char        = '\u{f48a}';  // 
+    const MUSTACHE: char        = '\u{e60f}';  // 
+    const NODEJS: char          = '\u{e718}';  // 
+    const NPM: char             = '\u{e71e}';  // 
+    const OS_APPLE: char        = '\u{f179}';  // 
+    const OS_ANDROID: char      = '\u{e70e}';  // 
+    const OS_LINUX: char        = '\u{f17c}';  // 
+    const OS_WINDOWS: char      = '\u{f17a}';  // 
+    const OS_WINDOWS_CMD: char  = '\u{ebc4}';  // 
+    const POWERSHELL: char      = '\u{ebc7}';  // 
+    const REACT: char           = '\u{e7ba}';  // 
+    const RAZOR: char           = '\u{f1fa}';  // 
+    const SHEET: char           = '\u{f1c3}';  // 
+    const SHELL: char           = '\u{f489}';  // 
+    const SLIDE: char           = '\u{f1c4}';  // 
+    const TEXT: char            = '\u{f15c}';  // 
+    const UNITY: char           = '\u{e721}';  // 
+    const VIDEO: char           = '\u{f03d}';  // 
+    const VIM: char             = '\u{e7c5}';  // 
+    const XML: char             = '\u{f05c0}'; // 󰗀
+    const YAML: char            = '\u{f481}';  //  - Find better icon
 }
 
+/// Mapping from full filenames to file type. This mapping should also contain all the "dot"
+/// files/directories that have a custom icon.
+const FILENAME_ICONS: Map<&'static str, char> = phf_map! {
+    ".atom"               => '\u{e764}',            // 
+    ".bashprofile"        => Icons::CONFIG,         // 
+    ".bashrc"             => Icons::SHELL,          // 
+    ".emacs"              => Icons::EMACS,          // 
+    ".git"                => Icons::GIT,            // 
+    ".gitattributes"      => Icons::GIT,            // 
+    ".gitconfig"          => Icons::GIT,            // 
+    ".github"             => '\u{f408}',            // 
+    ".gitignore"          => Icons::GIT,            // 
+    ".gitignore_global"   => Icons::GIT,            // 
+    ".gitmodules"         => Icons::GIT,            // 
+    ".idea"               => Icons::INTELLIJ,       // 
+    ".rvm"                => Icons::LANG_RUBY,      // 
+    ".Trash"              => '\u{f1f8}',            // 
+    ".vimrc"              => Icons::VIM,            // 
+    ".vscode"             => '\u{f0a1e}',           // 󰨞
+    ".zshrc"              => Icons::SHELL,          // 
+    "bin"                 => Icons::CONFIG_FOLDER,  // 
+    "Cargo.lock"          => Icons::LANG_RUST,      // 
+    "config"              => Icons::CONFIG_FOLDER,  // 
+    "docker-compose.yml"  => Icons::DOCKER,         // 
+    "Dockerfile"          => Icons::DOCKER,         // 
+    "ds_store"            => Icons::OS_APPLE,       // 
+    "Earthfile"           => '\u{f0ac}',            // 
+    "gitignore_global"    => Icons::GIT,            // 
+    "gitlab-ci.yml"       => '\u{f296}',            // 
+    "go.mod"              => Icons::LANG_GO,        // 
+    "go.sum"              => Icons::LANG_GO,        // 
+    "gradle"              => Icons::GRADLE,         // 
+    "gruntfile.coffee"    => Icons::GRUNT,          // 
+    "gruntfile.js"        => Icons::GRUNT,          // 
+    "gruntfile.ls"        => Icons::GRUNT,          // 
+    "gulpfile.coffee"     => Icons::GULP,           // 
+    "gulpfile.js"         => Icons::GULP,           // 
+    "gulpfile.ls"         => Icons::GULP,           // 
+    "hidden"              => Icons::LOCK,           // 
+    "include"             => Icons::CONFIG_FOLDER,  // 
+    "lib"                 => '\u{f121}',            // 
+    "LICENSE"             => Icons::LICENSE,        // 
+    "localized"           => Icons::OS_APPLE,       // 
+    "Makefile"            => Icons::SHELL,          // 
+    "node_modules"        => Icons::NODEJS,         // 
+    "npmignore"           => Icons::NPM,            // 
+    "PKGBUILD"            => '\u{f303}',            // 
+    "rubydoc"             => Icons::LANG_RUBYRAILS, // 
+    "Vagrantfile"         => '\u{2371}',            // ⍱
+    "yarn.lock"           => '\u{e6a7}',            // 
+};
+
+/// Mapping from lowercase file extension to icons.  If an image, video, or audio extension is add
+/// also update the extension filetype map.
+const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
+    "7z"             => Icons::COMPRESSED,       // 
+    "a"              => Icons::OS_LINUX,         // 
+    "acc"            => Icons::AUDIO,            // 
+    "acf"            => '\u{f1b6}',              // 
+    "ai"             => '\u{e7b4}',              // 
+    "alac"           => Icons::AUDIO,            // 
+    "android"        => Icons::OS_ANDROID,       // 
+    "ape"            => Icons::AUDIO,            // 
+    "apk"            => Icons::OS_ANDROID,       // 
+    "apple"          => Icons::OS_APPLE,         // 
+    "ar"             => Icons::COMPRESSED,       // 
+    "arw"            => Icons::IMAGE,            // 
+    "asm"            => Icons::LANG_ASSEMBLY,    // 
+    "avi"            => Icons::VIDEO,            // 
+    "avif"           => Icons::IMAGE,            // 
+    "avro"           => Icons::JSON,             // 
+    "awk"            => Icons::SHELL,            // 
+    "bash"           => Icons::SHELL,            // 
+    "bashrc"         => Icons::SHELL,            // 
+    "bash_history"   => Icons::SHELL,            // 
+    "bash_profile"   => Icons::SHELL,            // 
+    "bat"            => Icons::OS_WINDOWS_CMD,   // 
+    "bats"           => Icons::SHELL,            // 
+    "bib"            => Icons::LANG_TEX,         // 
+    "bin"            => Icons::BINARY,           // 
+    "bmp"            => Icons::IMAGE,            // 
+    "bst"            => Icons::LANG_TEX,         // 
+    "bz"             => Icons::COMPRESSED,       // 
+    "bz2"            => Icons::COMPRESSED,       // 
+    "c"              => Icons::LANG_C,           // 
+    "c++"            => Icons::LANG_CPP,         // 
+    "cab"            => Icons::OS_WINDOWS,       // 
+    "cbr"            => Icons::IMAGE,            // 
+    "cbz"            => Icons::IMAGE,            // 
+    "cc"             => Icons::LANG_CPP,         // 
+    "cert"           => Icons::GIST_SECRET,      // 
+    "cfg"            => Icons::CONFIG,           // 
+    "cjs"            => Icons::LANG_JAVASCRIPT,  // 
+    "class"          => Icons::LANG_JAVA,        // 
+    "clj"            => '\u{e768}',              // 
+    "cljs"           => '\u{e76a}',              // 
+    "cls"            => Icons::LANG_TEX,         // 
+    "cmd"            => Icons::OS_WINDOWS,       // 
+    "coffee"         => '\u{f0f4}',              // 
+    "conf"           => Icons::CONFIG,           // 
+    "config"         => Icons::CONFIG,           // 
+    "cp"             => Icons::LANG_CPP,         // 
+    "cpio"           => Icons::COMPRESSED,       // 
+    "cpp"            => Icons::LANG_CPP,         // 
+    "cr2"            => Icons::IMAGE,            // 
+    "crt"            => Icons::GIST_SECRET,      // 
+    "cs"             => Icons::LANG_CSHARP,      // 󰌛
+    "csh"            => Icons::SHELL,            // 
+    "cshtml"         => Icons::RAZOR,            // 
+    "csproj"         => Icons::LANG_CSHARP,      // 󰌛
+    "css"            => Icons::CSS3,             // 
+    "csv"            => Icons::SHEET,            // 
+    "csx"            => Icons::LANG_CSHARP,      // 󰌛
+    "cts"            => Icons::LANG_TYPESCRIPT,  // 
+    "cu"             => '\u{e64b}',              // 
+    "cxx"            => Icons::LANG_CPP,         // 
+    "d"              => '\u{e7af}',              // 
+    "dart"           => '\u{e798}',              // 
+    "db"             => Icons::DATABASE,         // 
+    "deb"            => '\u{e77d}',              // 
+    "desktop"        => '\u{ebd1}',              // 
+    "diff"           => Icons::DIFF,             // 
+    "djv"            => Icons::DOCUMENT,         // 
+    "djvu"           => Icons::DOCUMENT,         // 
+    "dll"            => Icons::OS_WINDOWS,       // 
+    "dmg"            => Icons::DISK_IMAGE,       // 
+    "doc"            => Icons::DOCUMENT,         // 
+    "docx"           => Icons::DOCUMENT,         // 
+    "drawio"         => '\u{ebba}',              // 
+    "ds_store"       => Icons::OS_APPLE,         // 
+    "dump"           => Icons::DATABASE,         // 
+    "dvi"            => Icons::IMAGE,            // 
+    "ebook"          => Icons::BOOK,             // 
+    "ebuild"         => '\u{f30d}',              // 
+    "editorconfig"   => Icons::CONFIG,           // 
+    "ejs"            => '\u{e618}',              // 
+    "el"             => Icons::EMACS,            // 
+    "elm"            => '\u{e62c}',              // 
+    "eml"            => '\u{f003}',              // 
+    "env"            => '\u{f462}',              // 
+    "eot"            => Icons::FONT,             // 
+    "eps"            => Icons::IMAGE,            // 
+    "epub"           => Icons::BOOK,             // 
+    "erb"            => Icons::LANG_RUBYRAILS,   // 
+    "erl"            => '\u{e7b1}',              // 
+    "ex"             => Icons::LANG_ELIXIR,      // 
+    "exe"            => Icons::OS_WINDOWS,       // 
+    "exs"            => Icons::LANG_ELIXIR,      // 
+    "fish"           => Icons::SHELL,            // 
+    "flac"           => Icons::AUDIO,            // 
+    "flv"            => Icons::VIDEO,            // 
+    "font"           => Icons::FONT,             // 
+    "fs"             => Icons::LANG_FSHARP,      // 
+    "fsi"            => Icons::LANG_FSHARP,      // 
+    "fsx"            => Icons::LANG_FSHARP,      // 
+    "gdoc"           => Icons::DOCUMENT,         // 
+    "gem"            => Icons::LANG_RUBY,        // 
+    "gemfile"        => Icons::LANG_RUBY,        // 
+    "gemspec"        => Icons::LANG_RUBY,        // 
+    "gform"          => '\u{f298}',              // 
+    "gif"            => Icons::IMAGE,            // 
+    "git"            => Icons::GIT,              // 
+    "gitattributes"  => Icons::GIT,              // 
+    "gitignore"      => Icons::GIT,              // 
+    "gitmodules"     => Icons::GIT,              // 
+    "go"             => Icons::LANG_GO,          // 
+    "gpg"            => '\u{e60a}',              // 
+    "gradle"         => Icons::GRADLE,           // 
+    "groovy"         => '\u{e775}',              // 
+    "gsheet"         => Icons::SHEET,            // 
+    "gslides"        => Icons::SLIDE,            // 
+    "guardfile"      => Icons::LANG_RUBY,        // 
+    "gz"             => Icons::COMPRESSED,       // 
+    "h"              => Icons::HEADER,           // 
+    "hbs"            => Icons::MUSTACHE,         // 
+    "heic"           => Icons::VIDEO,            // 
+    "heif"           => Icons::IMAGE,            // 
+    "hpp"            => Icons::HEADER,           // 
+    "hs"             => Icons::LANG_HASKELL,     // 
+    "htm"            => Icons::HTML5,            // 
+    "html"           => Icons::HTML5,            // 
+    "hxx"            => Icons::HEADER,           // 
+    "ical"           => Icons::CALENDAR,         // 
+    "icalendar"      => Icons::CALENDAR,         // 
+    "ico"            => Icons::IMAGE,            // 
+    "ics"            => Icons::CALENDAR,         // 
+    "ifb"            => Icons::CALENDAR,         // 
+    "image"          => Icons::IMAGE,            // 
+    "img"            => Icons::DISK_IMAGE,       // 
+    "iml"            => Icons::INTELLIJ,         // 
+    "ini"            => Icons::OS_WINDOWS,       // 
+    "ipynb"          => '\u{e678}',              // 
+    "iso"            => Icons::DISK_IMAGE,       // 
+    "j2c"            => Icons::IMAGE,            // 
+    "j2k"            => Icons::IMAGE,            // 
+    "jad"            => Icons::LANG_JAVA,        // 
+    "jar"            => Icons::LANG_JAVA,        // 
+    "java"           => Icons::LANG_JAVA,        // 
+    "jfi"            => Icons::IMAGE,            // 
+    "jfif"           => Icons::IMAGE,            // 
+    "jif"            => Icons::IMAGE,            // 
+    "jl"             => '\u{e624}',              // 
+    "jmd"            => Icons::MARKDOWN,         // 
+    "jp2"            => Icons::IMAGE,            // 
+    "jpe"            => Icons::IMAGE,            // 
+    "jpeg"           => Icons::IMAGE,            // 
+    "jpf"            => Icons::IMAGE,            // 
+    "jpg"            => Icons::IMAGE,            // 
+    "jpx"            => Icons::IMAGE,            // 
+    "js"             => Icons::LANG_JAVASCRIPT,  // 
+    "json"           => Icons::JSON,             // 
+    "jsx"            => Icons::REACT,            // 
+    "jxl"            => Icons::IMAGE,            // 
+    "kdb"            => Icons::KEYPASS,          // 
+    "kdbx"           => Icons::KEYPASS,          // 
+    "key"            => Icons::KEY,              // 
+    "ko"             => Icons::OS_LINUX,         // 
+    "ksh"            => Icons::SHELL,            // 
+    "latex"          => Icons::LANG_TEX,         // 
+    "less"           => '\u{e758}',              // 
+    "lhs"            => Icons::LANG_HASKELL,     // 
+    "license"        => Icons::LICENSE,          // 
+    "localized"      => Icons::OS_APPLE,         // 
+    "lock"           => Icons::LOCK,             // 
+    "log"            => '\u{f18d}',              // 
+    "lua"            => '\u{e620}',              // 
+    "lz"             => Icons::COMPRESSED,       // 
+    "lz4"            => Icons::COMPRESSED,       // 
+    "lzh"            => Icons::COMPRESSED,       // 
+    "lzma"           => Icons::COMPRESSED,       // 
+    "lzo"            => Icons::COMPRESSED,       // 
+    "m"              => Icons::LANG_C,           // 
+    "m2ts"           => Icons::VIDEO,            // 
+    "m2v"            => Icons::VIDEO,            // 
+    "m4a"            => Icons::AUDIO,            // 
+    "m4v"            => Icons::VIDEO,            // 
+    "magnet"         => '\u{f076}',              // 
+    "markdown"       => Icons::MARKDOWN,         // 
+    "md"             => Icons::MARKDOWN,         // 
+    "mjs"            => Icons::LANG_JAVASCRIPT,  // 
+    "mk"             => Icons::SHELL,            // 
+    "mka"            => Icons::AUDIO,            // 
+    "mkd"            => Icons::MARKDOWN,         // 
+    "mkv"            => Icons::VIDEO,            // 
+    "ml"             => Icons::LANG_OCAML,       // 
+    "mli"            => Icons::LANG_OCAML,       // 
+    "mll"            => Icons::LANG_OCAML,       // 
+    "mly"            => Icons::LANG_OCAML,       // 
+    "mm"             => Icons::LANG_CPP,         // 
+    "mobi"           => Icons::BOOK,             // 
+    "mov"            => Icons::VIDEO,            // 
+    "mp2"            => Icons::AUDIO,            // 
+    "mp3"            => Icons::AUDIO,            // 
+    "mp4"            => Icons::VIDEO,            // 
+    "mpeg"           => Icons::VIDEO,            // 
+    "mpg"            => Icons::VIDEO,            // 
+    "msi"            => Icons::OS_WINDOWS,       // 
+    "mts"            => Icons::LANG_TYPESCRIPT,  // 
+    "mustache"       => Icons::MUSTACHE,         // 
+    "nef"            => Icons::IMAGE,            // 
+    "ninja"          => '\u{f0774}',             // 󰝴
+    "nix"            => '\u{f313}',              // 
+    "node"           => '\u{f0399}',             // 󰎙
+    "npmignore"      => Icons::NPM,              // 
+    "o"              => Icons::BINARY,           // 
+    "odp"            => Icons::SLIDE,            // 
+    "ods"            => Icons::SHEET,            // 
+    "odt"            => Icons::DOCUMENT,         // 
+    "ogg"            => Icons::AUDIO,            // 
+    "ogm"            => Icons::VIDEO,            // 
+    "ogv"            => Icons::VIDEO,            // 
+    "opus"           => Icons::AUDIO,            // 
+    "orf"            => Icons::IMAGE,            // 
+    "org"            => '\u{e633}',              // 
+    "otf"            => Icons::FONT,             // 
+    "out"            => '\u{eb2c}',              // 
+    "par"            => Icons::COMPRESSED,       // 
+    "part"           => '\u{f43a}',              // 
+    "patch"          => Icons::DIFF,             // 
+    "pbm"            => Icons::IMAGE,            // 
+    "pdf"            => '\u{f1c1}',              // 
+    "pem"            => Icons::KEY,              // 
+    "pgm"            => Icons::IMAGE,            // 
+    "php"            => Icons::LANG_PHP,         // 
+    "pl"             => Icons::LANG_PERL,        // 
+    "plx"            => Icons::LANG_PERL,        // 
+    "pm"             => Icons::LANG_PERL,        // 
+    "png"            => Icons::IMAGE,            // 
+    "pnm"            => Icons::IMAGE,            // 
+    "pod"            => Icons::LANG_PERL,        // 
+    "ppm"            => Icons::IMAGE,            // 
+    "ppt"            => Icons::SLIDE,            // 
+    "pptx"           => Icons::SLIDE,            // 
+    "procfile"       => Icons::LANG_RUBY,        //   - Can not find a reference to procfile being Ruby
+    "properties"     => Icons::JSON,             // 
+    "ps"             => Icons::IMAGE,            // 
+    "ps1"            => Icons::POWERSHELL,       // 
+    "psd"            => '\u{e7b8}',              // 
+    "psd1"           => Icons::POWERSHELL,       // 
+    "psm1"           => Icons::POWERSHELL,       // 
+    "pxm"            => Icons::IMAGE,            // 
+    "py"             => Icons::LANG_PYTHON,      // 
+    "pyc"            => Icons::LANG_PYTHON,      // 
+    "qcow2"          => Icons::DISK_IMAGE,       // 
+    "r"              => Icons::LANG_R,           // 
+    "rakefile"       => Icons::LANG_RUBY,        // 
+    "rar"            => Icons::COMPRESSED,       // 
+    "raw"            => Icons::IMAGE,            // 
+    "razor"          => Icons::RAZOR,            // 
+    "rb"             => Icons::LANG_RUBY,        // 
+    "rdata"          => Icons::LANG_R,           // 
+    "rdb"            => '\u{e76d}',              // 
+    "rdoc"           => Icons::MARKDOWN,         // 
+    "rds"            => Icons::LANG_R,           // 
+    "readme"         => Icons::MARKDOWN,         // 
+    "rlib"           => Icons::LANG_RUST,        // 
+    "rmd"            => Icons::MARKDOWN,         // 
+    "rmeta"          => Icons::LANG_RUST,        // 
+    "rpm"            => '\u{e7bb}',              // 
+    "rs"             => Icons::LANG_RUST,        // 
+    "rspec"          => Icons::LANG_RUBY,        // 
+    "rspec_parallel" => Icons::LANG_RUBY,        // 
+    "rspec_status"   => Icons::LANG_RUBY,        // 
+    "rss"            => '\u{f09e}',              // 
+    "rst"            => Icons::TEXT,             // 
+    "rtf"            => Icons::TEXT,             // 
+    "ru"             => Icons::LANG_RUBY,        // 
+    "rubydoc"        => Icons::LANG_RUBYRAILS,   // 
+    "s"              => Icons::LANG_ASSEMBLY,    // 
+    "sass"           => '\u{e603}',              // 
+    "scala"          => '\u{e737}',              // 
+    "scss"           => Icons::CSS3,             // 
+    "service"        => '\u{eba2}',              // 
+    "sh"             => Icons::SHELL,            // 
+    "shell"          => Icons::SHELL,            // 
+    "slim"           => Icons::LANG_RUBYRAILS,   // 
+    "sln"            => '\u{e70c}',              // 
+    "so"             => Icons::OS_LINUX,         // 
+    "sql"            => Icons::DATABASE,         // 
+    "sqlite3"        => '\u{e7c4}',              // 
+    "stl"            => Icons::IMAGE,            // 
+    "sty"            => Icons::LANG_TEX,         // 
+    "styl"           => Icons::LANG_STYLUS,      // 
+    "stylus"         => Icons::LANG_STYLUS,      // 
+    "svelte"         => '\u{e697}',              // 
+    "svg"            => Icons::IMAGE,            // 
+    "swift"          => '\u{e755}',              // 
+    "t"              => Icons::LANG_PERL,        // 
+    "tar"            => Icons::COMPRESSED,       // 
+    "taz"            => Icons::COMPRESSED,       // 
+    "tbz"            => Icons::COMPRESSED,       // 
+    "tbz2"           => Icons::COMPRESSED,       // 
+    "tc"             => Icons::COMPRESSED,       // 
+    "tex"            => Icons::LANG_TEX,         // 
+    "tgz"            => Icons::COMPRESSED,       // 
+    "tif"            => Icons::IMAGE,            // 
+    "tiff"           => Icons::IMAGE,            // 
+    "tlz"            => Icons::COMPRESSED,       // 
+    "toml"           => Icons::CONFIG,           // 
+    "torrent"        => '\u{e275}',              // 
+    "ts"             => Icons::LANG_TYPESCRIPT,  // 
+    "tsv"            => Icons::SHEET,            // 
+    "tsx"            => Icons::REACT,            // 
+    "ttf"            => Icons::FONT,             // 
+    "twig"           => '\u{e61c}',              // 
+    "txt"            => Icons::TEXT,             // 
+    "txz"            => Icons::COMPRESSED,       // 
+    "tz"             => Icons::COMPRESSED,       // 
+    "tzo"            => Icons::COMPRESSED,       // 
+    "unity"          => Icons::UNITY,            // 
+    "unity3d"        => Icons::UNITY,            // 
+    "vdi"            => Icons::DISK_IMAGE,       // 
+    "vhd"            => Icons::DISK_IMAGE,       // 
+    "video"          => Icons::VIDEO,            // 
+    "vim"            => Icons::VIM,              // 
+    "vmdk"           => Icons::DISK_IMAGE,       // 
+    "vob"            => Icons::VIDEO,            // 
+    "vue"            => '\u{f0844}',             // 󰡄
+    "war"            => Icons::LANG_JAVA,        // 
+    "wav"            => Icons::AUDIO,            // 
+    "webm"           => Icons::VIDEO,            // 
+    "webp"           => Icons::IMAGE,            // 
+    "windows"        => Icons::OS_WINDOWS,       // 
+    "wma"            => Icons::AUDIO,            // 
+    "wmv"            => Icons::VIDEO,            // 
+    "woff"           => Icons::FONT,             // 
+    "woff2"          => Icons::FONT,             // 
+    "xhtml"          => Icons::HTML5,            // 
+    "xls"            => Icons::SHEET,            // 
+    "xlsm"           => Icons::SHEET,            // 
+    "xlsx"           => Icons::SHEET,            // 
+    "xml"            => Icons::XML,              // 󰗀
+    "xpm"            => Icons::IMAGE,            // 
+    "xul"            => Icons::XML,              // 󰗀
+    "xz"             => Icons::COMPRESSED,       // 
+    "yaml"           => Icons::YAML,             // 
+    "yml"            => Icons::YAML,             // 
+    "z"              => Icons::COMPRESSED,       // 
+    "zig"            => '\u{21af}',              // ↯
+    "zip"            => Icons::COMPRESSED,       // 
+    "zsh"            => Icons::SHELL,            // 
+    "zsh-theme"      => Icons::SHELL,            // 
+    "zshrc"          => Icons::SHELL,            // 
+    "zst"            => Icons::COMPRESSED,       // 
+};
 
 /// Converts the style used to paint a file name into the style that should be
 /// used to paint an icon.
@@ -45,394 +500,20 @@ pub fn iconify_style(style: Style) -> Style {
          .unwrap_or_default()
 }
 
-
-
-lazy_static! {
-    static ref MAP_BY_NAME: HashMap<&'static str, char> = {
-        let mut m = HashMap::new();
-        m.insert(".Trash", '\u{f1f8}'); // 
-        m.insert(".atom", '\u{e764}'); // 
-        m.insert(".bashprofile", '\u{e615}'); // 
-        m.insert(".bashrc", '\u{f489}'); // 
-        m.insert(".git", '\u{f1d3}'); // 
-        m.insert(".gitattributes", '\u{f1d3}'); // 
-        m.insert(".gitconfig", '\u{f1d3}'); // 
-        m.insert(".github", '\u{f408}'); // 
-        m.insert(".gitignore", '\u{f1d3}'); // 
-        m.insert(".gitignore_global", '\u{f1d3}'); // 
-        m.insert(".gitmodules", '\u{f1d3}'); // 
-        m.insert(".rvm", '\u{e21e}'); // 
-        m.insert(".vimrc", '\u{e7c5}'); // 
-        m.insert(".vscode", '\u{e70c}'); // 
-        m.insert(".zshrc", '\u{f489}'); // 
-        m.insert(".emacs", '\u{e632}'); // 
-        m.insert("LICENSE", '\u{f02d}'); // 
-        m.insert("Cargo.lock", '\u{e7a8}'); // 
-        m.insert("bin", '\u{e5fc}'); // 
-        m.insert("config", '\u{e5fc}'); // 
-        m.insert("docker-compose.yml", '\u{f308}'); // 
-        m.insert("Dockerfile", '\u{f308}'); // 
-        m.insert("Earthfile", '\u{f0ac}'); // 
-        m.insert("ds_store", '\u{f179}'); // 
-        m.insert("gitignore_global", '\u{f1d3}'); // 
-        m.insert("gitlab-ci.yml", '\u{f296}'); // 
-        m.insert("go.mod", '\u{e626}'); // 
-        m.insert("go.sum", '\u{e626}'); // 
-        m.insert("gradle", '\u{e256}'); // 
-        m.insert("gruntfile.coffee", '\u{e611}'); // 
-        m.insert("gruntfile.js", '\u{e611}'); // 
-        m.insert("gruntfile.ls", '\u{e611}'); // 
-        m.insert("gulpfile.coffee", '\u{e610}'); // 
-        m.insert("gulpfile.js", '\u{e610}'); // 
-        m.insert("gulpfile.ls", '\u{e610}'); // 
-        m.insert("hidden", '\u{f023}'); // 
-        m.insert("include", '\u{e5fc}'); // 
-        m.insert("lib", '\u{f121}'); // 
-        m.insert("localized", '\u{f179}'); // 
-        m.insert("Makefile", '\u{f489}'); // 
-        m.insert("node_modules", '\u{e718}'); // 
-        m.insert("npmignore", '\u{e71e}'); // 
-        m.insert("PKGBUILD", '\u{f303}'); // 
-        m.insert("rubydoc", '\u{e73b}'); // 
-        m.insert("yarn.lock", '\u{e718}'); // 
-        m.insert("Vagrantfile", '\u{2371}'); //⍱
-
-        m
-    };
-}
-
+/// Lookup the icon for a file based on the file's name, if the entry is a
+/// directory, or by the lowercase file extension.
 pub fn icon_for_file(file: &File<'_>) -> char {
-    let extensions = Box::new(FileExtensions);
-
-    if let Some(icon) = MAP_BY_NAME.get(file.name.as_str()) { *icon }
-    else if file.points_to_directory() {
+    if let Some(icon) = FILENAME_ICONS.get(file.name.as_str()) {
+        *icon
+    } else if file.points_to_directory() {
         if file.is_empty_dir() {
-          return '\u{f115}'  // 
+            '\u{f115}' // 
+        } else {
+            '\u{f07b}' // 
         }
-        match file.name.as_str() {
-            "bin"           => '\u{e5fc}', // 
-            ".git"          => '\u{f1d3}', // 
-            ".idea"         => '\u{e7b5}', // 
-            _               => '\u{f07b}'  // 
-
-        }
-    }
-    else if let Some(icon) = extensions.icon_file(file) { icon }
-    else if let Some(ext) = file.ext.as_ref() {
-        match ext.as_str() {
-            "7z"            => '\u{f410}', // 
-            "a"             => '\u{f17c}', // 
-            "acf"           => '\u{f1b6}', // 
-            "ai"            => '\u{e7b4}', // 
-            "android"       => '\u{e70e}', // 
-            "apk"           => '\u{e70e}', // 
-            "apple"         => '\u{f179}', // 
-            "asm"           => '\u{e637}', // 
-            "avi"           => '\u{f03d}', // 
-            "avif"          => '\u{f1c5}', // 
-            "avro"          => '\u{e60b}', // 
-            "awk"           => '\u{f489}', // 
-            "bash"          => '\u{f489}', // 
-            "bash_history"  => '\u{f489}', // 
-            "bash_profile"  => '\u{f489}', // 
-            "bashrc"        => '\u{f489}', // 
-            "bat"           => '\u{ebc4}', //  
-            "bats"          => '\u{f489}', // 
-            "bib"           => '\u{e69b}', // 
-            "bin"           => '\u{eae8}', // 
-            "bmp"           => '\u{f1c5}', // 
-            "bst"           => '\u{e69b}', // 
-            "bz"            => '\u{f410}', // 
-            "bz2"           => '\u{f410}', // 
-            "c"             => '\u{e61e}', // 
-            "c++"           => '\u{e61d}', // 
-            "cab"           => '\u{e70f}', // 
-            "cc"            => '\u{e61d}', // 
-            "cert"          => '\u{eafa}', // 
-            "cfg"           => '\u{e615}', // 
-            "cjs"           => '\u{e74e}', // 
-            "class"         => '\u{e256}', // 
-            "clj"           => '\u{e768}', // 
-            "cljs"          => '\u{e76a}', // 
-            "cls"           => '\u{e69b}', // 
-            "cmd"           => '\u{e70f}', // 
-            "coffee"        => '\u{f0f4}', // 
-            "conf"          => '\u{e615}', // 
-            "config"        => '\u{e615}', // 
-            "cp"            => '\u{e61d}', // 
-            "cpio"          => '\u{f410}', // 
-            "cpp"           => '\u{e61d}', // 
-            "crt"           => '\u{eafa}', // 
-            "cs"            => '\u{f031b}', // 󰌛
-            "csh"           => '\u{f489}', // 
-            "cshtml"        => '\u{f1fa}', // 
-            "csproj"        => '\u{f031b}', // 󰌛
-            "css"           => '\u{e749}', // 
-            "csv"           => '\u{f1c3}', // 
-            "csx"           => '\u{f031b}', // 󰌛
-            "cts"           => '\u{e628}', // 
-            "cu"            => '\u{e64b}', // 
-            "cxx"           => '\u{e61d}', // 
-            "d"             => '\u{e7af}', // 
-            "dart"          => '\u{e798}', // 
-            "db"            => '\u{f1c0}', // 
-            "deb"           => '\u{e77d}', // 
-            "desktop"       => '\u{ebd1}', // 
-            "diff"          => '\u{f440}', // 
-            "djvu"          => '\u{f02d}', // 
-            "dll"           => '\u{e70f}', // 
-            "doc"           => '\u{f1c2}', // 
-            "docx"          => '\u{f1c2}', // 
-            "drawio"        => '\u{ebba}', // 
-            "ds_store"      => '\u{f179}', // 
-            "DS_store"      => '\u{f179}', // 
-            "dump"          => '\u{f1c0}', // 
-            "ebook"         => '\u{e28b}', // 
-            "ebuild"        => '\u{f30d}', // 
-            "editorconfig"  => '\u{e615}', // 
-            "ejs"           => '\u{e618}', // 
-            "el"            => '\u{e632}', // 
-            "elm"           => '\u{e62c}', // 
-            "eml"           => '\u{f003}', //  
-            "env"           => '\u{f462}', // 
-            "eot"           => '\u{f031}', // 
-            "epub"          => '\u{e28a}', // 
-            "erb"           => '\u{e73b}', // 
-            "erl"           => '\u{e7b1}', // 
-            "ex"            => '\u{e62d}', // 
-            "exe"           => '\u{f17a}', // 
-            "exs"           => '\u{e62d}', // 
-            "fish"          => '\u{f489}', // 
-            "flac"          => '\u{f001}', // 
-            "flv"           => '\u{f03d}', // 
-            "font"          => '\u{f031}', // 
-            "fs"            => '\u{e7a7}', // 
-            "fsi"           => '\u{e7a7}', // 
-            "fsx"           => '\u{e7a7}', // 
-            "gdoc"          => '\u{f1c2}', // 
-            "gem"           => '\u{e21e}', // 
-            "gemfile"       => '\u{e21e}', // 
-            "gemspec"       => '\u{e21e}', // 
-            "gform"         => '\u{f298}', // 
-            "gif"           => '\u{f1c5}', // 
-            "git"           => '\u{f1d3}', // 
-            "gitattributes" => '\u{f1d3}', // 
-            "gitignore"     => '\u{f1d3}', // 
-            "gitmodules"    => '\u{f1d3}', // 
-            "go"            => '\u{e626}', // 
-            "gpg"           => '\u{e60a}', // 
-            "gradle"        => '\u{e256}', // 
-            "groovy"        => '\u{e775}', // 
-            "gsheet"        => '\u{f1c3}', // 
-            "gslides"       => '\u{f1c4}', // 
-            "guardfile"     => '\u{e21e}', // 
-            "gz"            => '\u{f410}', // 
-            "h"             => '\u{f0fd}', // 
-            "hbs"           => '\u{e60f}', // 
-            "hpp"           => '\u{f0fd}', // 
-            "hs"            => '\u{e777}', // 
-            "htm"           => '\u{f13b}', // 
-            "html"          => '\u{f13b}', // 
-            "hxx"           => '\u{f0fd}', // 
-            "ical"          => '\u{eab0}', // 
-            "icalendar"     => '\u{eab0}', // 
-            "ico"           => '\u{f1c5}', // 
-            "ics"           => '\u{eab0}', // 
-            "ifb"           => '\u{eab0}', // 
-            "image"         => '\u{f1c5}', // 
-            "img"           => '\u{e271}', // 
-            "iml"           => '\u{e7b5}', // 
-            "ini"           => '\u{f17a}', // 
-            "ipynb"         => '\u{e678}', // 
-            "iso"           => '\u{e271}', // 
-            "j2c"           => '\u{f1c5}', // 
-            "j2k"           => '\u{f1c5}', // 
-            "jad"           => '\u{e256}', // 
-            "jar"           => '\u{e256}', // 
-            "java"          => '\u{e256}', // 
-            "jfi"           => '\u{f1c5}', // 
-            "jfif"          => '\u{f1c5}', // 
-            "jif"           => '\u{f1c5}', // 
-            "jl"            => '\u{e624}', // 
-            "jmd"           => '\u{f48a}', // 
-            "jp2"           => '\u{f1c5}', // 
-            "jpe"           => '\u{f1c5}', // 
-            "jpeg"          => '\u{f1c5}', // 
-            "jpg"           => '\u{f1c5}', // 
-            "jpx"           => '\u{f1c5}', // 
-            "js"            => '\u{e74e}', // 
-            "json"          => '\u{e60b}', // 
-            "jsx"           => '\u{e7ba}', // 
-            "jxl"           => '\u{f1c5}', // 
-            "kdb"           => '\u{f23e}', // 
-            "kdbx"          => '\u{f23e}', // 
-            "key"           => '\u{eb11}', // 
-            "ko"            => '\u{f17c}', // 
-            "ksh"           => '\u{f489}', // 
-            "latex"         => '\u{e69b}', // 
-            "less"          => '\u{e758}', // 
-            "lhs"           => '\u{e777}', // 
-            "license"       => '\u{f02d}', // 
-            "localized"     => '\u{f179}', // 
-            "lock"          => '\u{f023}', // 
-            "log"           => '\u{f18d}', // 
-            "lua"           => '\u{e620}', // 
-            "lz"            => '\u{f410}', // 
-            "lz4"           => '\u{f410}', // 
-            "lzh"           => '\u{f410}', // 
-            "lzma"          => '\u{f410}', // 
-            "lzo"           => '\u{f410}', // 
-            "m"             => '\u{e61e}', // 
-            "ml"            => '\u{e67a}', // 
-            "mli"           => '\u{e67a}', // 
-            "mll"           => '\u{e67a}', // 
-            "mly"           => '\u{e67a}', // 
-            "mm"            => '\u{e61d}', // 
-            "m4a"           => '\u{f001}', // 
-            "magnet"        => '\u{f076}', // 
-            "markdown"      => '\u{f48a}', // 
-            "md"            => '\u{f48a}', // 
-            "mjs"           => '\u{e74e}', // 
-            "mk"            => '\u{f489}', // 
-            "mkd"           => '\u{f48a}', // 
-            "mkv"           => '\u{f03d}', // 
-            "mobi"          => '\u{e28b}', // 
-            "mov"           => '\u{f03d}', // 
-            "mp2"           => '\u{f001}', // 
-            "mp3"           => '\u{f001}', // 
-            "mp4"           => '\u{f03d}', // 
-            "msi"           => '\u{e70f}', // 
-            "mts"           => '\u{e628}', // 
-            "mustache"      => '\u{e60f}', // 
-            "nix"           => '\u{f313}', // 
-            "node"          => '\u{f0399}', // 󰎙
-            "npmignore"     => '\u{e71e}', // 
-            "o"             => '\u{eae8}', // 
-            "odp"           => '\u{f1c4}', // 
-            "ods"           => '\u{f1c3}', // 
-            "odt"           => '\u{f1c2}', // 
-            "ogg"           => '\u{f001}', // 
-            "ogv"           => '\u{f03d}', // 
-            "org"           => '\u{e633}', // 
-            "otf"           => '\u{f031}', // 
-            "out"           => '\u{eb2c}', // 
-            "part"          => '\u{f43a}', // 
-            "patch"         => '\u{f440}', // 
-            "pdf"           => '\u{f1c1}', // 
-            "pem"           => '\u{eb11}', // 
-            "php"           => '\u{e73d}', // 
-            "pl"            => '\u{e769}', // 
-            "plx"           => '\u{e769}', // 
-            "pm"            => '\u{e769}', // 
-            "png"           => '\u{f1c5}', // 
-            "pod"           => '\u{e769}', // 
-            "ppt"           => '\u{f1c4}', // 
-            "pptx"          => '\u{f1c4}', // 
-            "procfile"      => '\u{e21e}', // 
-            "properties"    => '\u{e60b}', // 
-            "ps1"           => '\u{ebc7}', //  
-            "psd"           => '\u{e7b8}', // 
-            "psd1"          => '\u{ebc7}', //  
-            "psm1"          => '\u{ebc7}', //  
-            "pxm"           => '\u{f1c5}', // 
-            "py"            => '\u{e606}', // 
-            "pyc"           => '\u{e606}', // 
-            "qcow2"         => '\u{e271}', // 
-            "r"             => '\u{f25d}', // 
-            "rakefile"      => '\u{e21e}', // 
-            "rar"           => '\u{f410}', // 
-            "razor"         => '\u{f1fa}', // 
-            "rb"            => '\u{e21e}', // 
-            "rdata"         => '\u{f25d}', // 
-            "rdb"           => '\u{e76d}', // 
-            "rdoc"          => '\u{f48a}', // 
-            "rds"           => '\u{f25d}', // 
-            "readme"        => '\u{f48a}', // 
-            "rlib"          => '\u{e7a8}', // 
-            "rmd"           => '\u{f48a}', // 
-            "rmeta"         => '\u{e7a8}', // 
-            "rpm"           => '\u{e7bb}', // 
-            "rs"            => '\u{e7a8}', // 
-            "rspec"         => '\u{e21e}', // 
-            "rspec_parallel"=> '\u{e21e}', // 
-            "rspec_status"  => '\u{e21e}', // 
-            "rss"           => '\u{f09e}', // 
-            "rst"           => '\u{f15c}', // 
-            "rtf"           => '\u{f0219}', // 󰈙
-            "ru"            => '\u{e21e}', // 
-            "rubydoc"       => '\u{e73b}', // 
-            "s"             => '\u{e637}', // 
-            "sass"          => '\u{e603}', // 
-            "scala"         => '\u{e737}', // 
-            "scss"          => '\u{e749}', // 
-            "service"       => '\u{eba2}', // 
-            "sh"            => '\u{f489}', // 
-            "shell"         => '\u{f489}', // 
-            "slim"          => '\u{e73b}', // 
-            "sln"           => '\u{e70c}', // 
-            "so"            => '\u{f17c}', // 
-            "sql"           => '\u{f1c0}', // 
-            "sqlite3"       => '\u{e7c4}', // 
-            "sty"           => '\u{e69b}', // 
-            "styl"          => '\u{e600}', // 
-            "stylus"        => '\u{e600}', // 
-            "svg"           => '\u{f1c5}', // 
-            "swift"         => '\u{e755}', // 
-            "t"             => '\u{e769}', // 
-            "tar"           => '\u{f410}', // 
-            "taz"           => '\u{f410}', // 
-            "tbz"           => '\u{f410}', // 
-            "tbz2"          => '\u{f410}', // 
-            "tex"           => '\u{e69b}', // 
-            "tgz"           => '\u{f410}', // 
-            "tiff"          => '\u{f1c5}', // 
-            "tlz"           => '\u{f410}', // 
-            "toml"          => '\u{e615}', // 
-            "torrent"       => '\u{e275}', // 
-            "ts"            => '\u{e628}', // 
-            "tsv"           => '\u{f1c3}', // 
-            "tsx"           => '\u{e7ba}', // 
-            "ttf"           => '\u{f031}', // 
-            "twig"          => '\u{e61c}', // 
-            "txt"           => '\u{f15c}', // 
-            "txz"           => '\u{f410}', // 
-            "tz"            => '\u{f410}', // 
-            "tzo"           => '\u{f410}', // 
-            "unity"         => '\u{e721}', // 
-            "unity3d"       => '\u{e721}', // 
-            "vdi"           => '\u{e271}', // 
-            "vhd"           => '\u{e271}', // 
-            "video"         => '\u{f03d}', // 
-            "vim"           => '\u{e7c5}', // 
-            "vmdk"          => '\u{e271}', // 
-            "vue"           => '\u{f0844}', // 󰡄
-            "war"           => '\u{e256}', // 
-            "wav"           => '\u{f001}', // 
-            "webm"          => '\u{f03d}', // 
-            "webp"          => '\u{f1c5}', // 
-            "windows"       => '\u{f17a}', // 
-            "woff"          => '\u{f031}', // 
-            "woff2"         => '\u{f031}', // 
-            "xhtml"         => '\u{f13b}', // 
-            "xls"           => '\u{f1c3}', // 
-            "xlsm"          => '\u{f1c3}', // 
-            "xlsx"          => '\u{f1c3}', // 
-            "xml"           => '\u{f05c0}', // 󰗀
-            "xul"           => '\u{f05c0}', // 󰗀
-            "xz"            => '\u{f410}', // 
-            "yaml"          => '\u{f481}', // 
-            "yml"           => '\u{f481}', // 
-            "zig"           => '\u{21af}', // ↯
-            "zip"           => '\u{f410}', // 
-            "zsh"           => '\u{f489}', // 
-            "zsh-theme"     => '\u{f489}', // 
-            "zshrc"         => '\u{f489}', // 
-            "zst"           => '\u{f410}', // 
-            "svelte"        => '\u{e697}', // 
-            _               => '\u{f15b}'  // 
-        }
-    }
-    else {
-        '\u{f016}'
+    } else if let Some(ext) = file.ext.as_ref() {
+        *EXTENSION_ICONS.get(ext.as_str()).unwrap_or(&'\u{f15b}') // 
+    } else {
+        '\u{f016}' // 
     }
 }
