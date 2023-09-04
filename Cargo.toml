@@ -62,6 +62,9 @@ features = ["format"]
 version = "0.18"
 optional = true
 default-features = false
+# This builds libgit2 into the binary to avoid dependency problems on systems
+# that don't have the required version of libgit2 yet.
+# See: https://github.com/eza-community/eza/pull/192
 features = ["vendored-libgit2"]
 
 [target.'cfg(unix)'.dependencies]
