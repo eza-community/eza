@@ -220,6 +220,9 @@ LIST OF CODES
 `bO`
 : the overlay style for broken symlink paths
 
+`mp`
+: a mount point
+
 Values in `EXA_COLORS` override those given in `LS_COLORS`, so you don’t need to re-write an existing `LS_COLORS` variable with proprietary extensions.
 
 

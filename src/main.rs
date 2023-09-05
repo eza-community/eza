@@ -22,6 +22,7 @@
 #![allow(clippy::upper_case_acronyms)]
 #![allow(clippy::wildcard_imports)]
 
+use std::collections::HashMap;
 use std::env;
 use std::ffi::{OsStr, OsString};
 use std::io::{self, Write, ErrorKind};
@@ -31,6 +32,13 @@ use ansi_term::{ANSIStrings, Style};
 
 use log::*;
 
+#[cfg(target_os = "linux")]
+use proc_mounts::MountList;
+
+#[macro_use]
+extern crate lazy_static;
+
+use crate::fs::mounts::MountedFs;
 use crate::fs::{Dir, File};
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::GitIgnore;
@@ -45,6 +53,27 @@ mod options;
 mod output;
 mod theme;
 
+lazy_static! {
+    static ref ALL_MOUNTS: HashMap<PathBuf, MountedFs> = {
+        #[cfg(target_os = "linux")]
+        match MountList::new() {
+            Ok(mount_list) => {
+                let mut m = HashMap::new();
+                mount_list.0.iter().for_each(|mount| {
+                    m.insert(mount.dest.clone(), MountedFs {
+                        dest: mount.dest.to_string_lossy().into_owned(),
+                        fstype: mount.fstype.clone(),
+                        source: mount.source.to_string_lossy().into(),
+                    });
+                });
+                m
+            }
+            Err(_) => HashMap::new()
+        }
+        #[cfg(not(target_os = "linux"))]
+        HashMap::new()
+    };
+}
 
 fn main() {
     use std::process::exit;
