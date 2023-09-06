@@ -7,15 +7,15 @@ Type "cd tests/itest"
 Enter
 Sleep 1s
 
-Type "cargo run -q -- -l"
+Type "cargo run -q -- -l --no-user --no-time --no-filesize"
 Enter
 Sleep 3s
 
-Type "cargo run -q -- -l --grid"
+Type "cargo run -q -- -l --no-user --no-time --no-filesize"
 Enter
 Sleep 3s
 
-Type "cargo run -q -- -l --grid --icons"
+Type "cargo run -q -- -l --grid --icons --grid --no-user --no-time"
 Enter
 Sleep 3s
 
