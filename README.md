@@ -60,7 +60,7 @@ If you want to pass arguments this way, use e.g. `nix run github:eza-community/e
 <h1>Installation</h1>
 </a>
 
-eza is available for macOS and Linux.
+eza is available for Windows, macOS and Linux.
 
 ### Cargo (crates.io)
 
@@ -87,7 +87,19 @@ Cargo will build the `eza` binary and place it in `$HOME/.cargo`.
 
 Eza is available in the [AUR](https://aur.archlinux.org/packages/eza-git).
 
-### Nix
+### Debian and Ubuntu
+Eza is available from [deb.gierens.de](http://deb.gierens.de). The GPG public
+key is in this repo under [deb.asc](/deb.asc).
+
+To install eza from this repo use:
+```bash
+wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo tee /etc/apt/trusted.gpg.d/gierens.asc
+echo "deb http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+sudo apt update
+sudo apt install -y eza
+```
+
+### Nix (Linux, MacOS)
 [![nixpkgs unstable package](https://repology.org/badge/version-for-repo/nix_unstable/eza.svg)](https://repology.org/project/eza/versions)
 
 Eza is available from [Nixpkgs](https://github.com/NixOS/nixpkgs).
@@ -104,18 +116,18 @@ For `nix-env` users:
 nix-env -i eza
 ```
 
-### Debian and Ubuntu
-Eza is available from [deb.gierens.de](http://deb.gierens.de). The GPG public
-key is in this repo under [deb.asc](/deb.asc).
+### Brew (MacOS)
 
-To install eza from this repo use:
-```bash
-wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo tee /etc/apt/trusted.gpg.d/gierens.asc
-echo "deb http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
-sudo apt update
-sudo apt install -y eza
+[![Homebrew package](https://repology.org/badge/version-for-repo/homebrew/eza.svg)](https://repology.org/project/eza/versions)
+
+
+Eza is available from [Homebrew](https://formulae.brew.sh/formula/eza#default).
+
+To install eza, run:
+
+```shell
+brew install eza
 ```
-
 
 ---
 Click sections to expand.
