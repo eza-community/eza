@@ -1,5 +1,7 @@
 Output outfile
 
+Set DisableRender true
+
 Set Shell fish
 Sleep 2s
 
