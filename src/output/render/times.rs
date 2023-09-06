@@ -1,7 +1,7 @@
 use std::time::SystemTime;
 
 use datetime::TimeZone;
-use ansi_term::Style;
+use ansiterm::Style;
 
 use crate::output::cell::TextCell;
 use crate::output::time::TimeFormat;

@@ -1,4 +1,4 @@
-use ansi_term::Style;
+use ansiterm::Style;
 use locale::Numeric as NumericLocale;
 use number_prefix::Prefix;
 
@@ -67,8 +67,8 @@ pub trait Colours {
 
 #[cfg(test)]
 pub mod test {
-    use ansi_term::Style;
-    use ansi_term::Colour::*;
+    use ansiterm::Style;
+    use ansiterm::Colour::*;
 
     use super::Colours;
     use crate::output::cell::{TextCell, DisplayWidth};
