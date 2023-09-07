@@ -53,6 +53,17 @@ mod options;
 mod output;
 mod theme;
 
+// A lazily initialised static map of all mounted file systems.
+//
+// The map contains a mapping from the mounted directory path to the
+// corresponding mount information. On Linux systems, this map is populated
+// using the `proc-mounts` crate. If there's an error retrieving the mount
+// list or if we're not running on Linux, the map will be empty.
+//
+// Initialise this at application start so we don't have to look the details
+// up for every directory. Ideally this would only be done if the --mounts
+// option is specified which will be significantly easier once the move
+// to `clap` is complete.
 lazy_static! {
     static ref ALL_MOUNTS: HashMap<PathBuf, MountedFs> = {
         #[cfg(target_os = "linux")]
