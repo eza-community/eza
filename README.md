@@ -306,3 +306,7 @@ For this reason, Vagrant isn’t a *necessary* development step — it’s there
 It can still be built and compiled on any target triple that it supports, VM or no VM, with `cargo build` and `cargo test`.
 
 </details>
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=eza-community/eza&type=Date)](https://star-history.com/#eza-community/eza&Date)
