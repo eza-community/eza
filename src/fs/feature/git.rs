@@ -32,7 +32,7 @@ impl GitCache {
 
     pub fn get(&self, index: &Path, prefix_lookup: bool) -> f::Git {
         self.repos.iter()
-            .find(|e| e.has_path(index))
+            .find(|repo| repo.has_path(index))
             .map(|repo| repo.search(index, prefix_lookup))
             .unwrap_or_default()
     }
@@ -235,6 +235,9 @@ fn repo_to_statuses(repo: &git2::Repository, workdir: &Path) -> Git {
                 let elem = (path, e.status());
                 statuses.push(elem);
             }
+            // We manually add the `.git` at the root of the repo as ignored, since it is in practice.
+            // Also we want to avoid `eza --tree --all --git-ignore` to display files inside `.git`.
+            statuses.push((workdir.join(".git"), git2::Status::IGNORED));
         }
         Err(e) => {
             error!("Error looking up Git statuses: {:?}", e);
