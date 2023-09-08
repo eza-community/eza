@@ -561,7 +561,7 @@ impl<'dir> File<'dir> {
     }
 
     #[cfg(windows)]
-    pub fn changed_time(&self) -> Option<SystemTime> {
+    pub fn changed_time(&self) -> Option<NaiveDateTime> {
         self.modified_time()
     }
 

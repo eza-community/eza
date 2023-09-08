@@ -357,34 +357,8 @@ impl Environment {
         #[cfg(unix)]
         let users = Mutex::new(UsersCache::new());
 
-        Self { time_offset, numeric, users }
+        Self { time_offset, numeric, #[cfg(unix)] users }
     }
-}
-
-#[allow(clippy::unnecessary_wraps)] // Needs to match Unix function
-#[cfg(windows)]
-fn determine_time_zone() -> TZResult<TimeZone> {
-    use datetime::zone::{FixedTimespan, FixedTimespanSet, StaticTimeZone, TimeZoneSource};
-    use std::borrow::Cow;
-
-    Ok(TimeZone(TimeZoneSource::Static(&StaticTimeZone {
-        name: "Unsupported",
-        fixed_timespans: FixedTimespanSet {
-            first: FixedTimespan {
-                offset: 0,
-                is_dst: false,
-                name: Cow::Borrowed("ZONE_A"),
-            },
-            rest: &[(
-                1_206_838_800, // Sun Mar 30 2008 01:00:00 GMT+0000
-                FixedTimespan {
-                    offset: 3600,
-                    is_dst: false,
-                    name: Cow::Borrowed("ZONE_B"),
-                },
-            )],
-        },
-    })))
 }
 
 lazy_static! {
