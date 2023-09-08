@@ -396,16 +396,7 @@ fn current_branch(repo: &git2::Repository) -> Option<String> {
         }
     };
 
-    if let Some(h) = head {
-        if let Some(s) = h.shorthand() {
-            let branch_name = s.to_owned();
-            if branch_name.len() > 10 {
-                return Some(branch_name[..8].to_string() + "..");
-            }
-            return Some(branch_name);
-        }
-    }
-    None
+    head.and_then(|h| h.shorthand().map(std::string::ToString::to_string))
 }
 
 impl f::SubdirGitRepo {
