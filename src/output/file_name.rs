@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use std::path::Path;
 
-use ansi_term::{ANSIString, Style};
+use ansiterm::{ANSIString, Style};
 
 use crate::fs::mounts::MountedFs;
 use crate::fs::{File, FileTarget};

@@ -1,4 +1,4 @@
-use ansi_term::Style;
+use ansiterm::Style;
 
 use crate::theme::lsc::Pair;
 

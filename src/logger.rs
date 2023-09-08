@@ -2,7 +2,7 @@
 
 use std::ffi::OsStr;
 
-use ansi_term::{Colour, ANSIString};
+use ansiterm::{Colour, ANSIString};
 
 
 /// Sets the internal logger, changing the log level based on the value of an

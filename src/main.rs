@@ -28,7 +28,7 @@ use std::ffi::{OsStr, OsString};
 use std::io::{self, Write, ErrorKind};
 use std::path::{Component, PathBuf};
 
-use ansi_term::{ANSIStrings, Style};
+use ansiterm::{ANSIStrings, Style};
 
 use log::*;
 
@@ -97,7 +97,7 @@ fn main() {
     logger::configure(env::var_os(vars::EXA_DEBUG));
 
     #[cfg(windows)]
-    if let Err(e) = ansi_term::enable_ansi_support() {
+    if let Err(e) = ansiterm::enable_ansi_support() {
         warn!("Failed to enable ANSI support: {}", e);
     }
 

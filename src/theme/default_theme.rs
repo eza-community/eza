@@ -1,5 +1,5 @@
-use ansi_term::Style;
-use ansi_term::Colour::*;
+use ansiterm::Style;
+use ansiterm::Colour::*;
 
 use crate::theme::ColourScale;
 use crate::theme::ui_styles::*;

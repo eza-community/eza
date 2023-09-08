@@ -3,7 +3,7 @@
 use std::iter::Sum;
 use std::ops::{Add, Deref, DerefMut};
 
-use ansi_term::{Style, ANSIString, ANSIStrings};
+use ansiterm::{Style, ANSIString, ANSIStrings};
 use unicode_width::UnicodeWidthStr;
 
 
