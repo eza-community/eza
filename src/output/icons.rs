@@ -1,4 +1,4 @@
-use ansi_term::Style;
+use ansiterm::Style;
 use phf::{phf_map, Map};
 
 use crate::fs::File;

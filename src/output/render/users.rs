@@ -1,4 +1,4 @@
-use ansi_term::Style;
+use ansiterm::Style;
 use uzers::Users;
 
 use crate::fs::fields as f;
@@ -45,8 +45,8 @@ pub mod test {
 
     use uzers::User;
     use uzers::mock::MockUsers;
-    use ansi_term::Colour::*;
-    use ansi_term::Style;
+    use ansiterm::Colour::*;
+    use ansiterm::Style;
 
 
     struct TestColours;

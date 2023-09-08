@@ -1,6 +1,6 @@
 use std::iter;
 
-use ansi_term::{ANSIString, Style};
+use ansiterm::{ANSIString, Style};
 
 use crate::fs::fields as f;
 use crate::output::cell::{TextCell, DisplayWidth};
@@ -183,8 +183,8 @@ pub mod test {
     use crate::output::cell::TextCellContents;
     use crate::fs::fields as f;
 
-    use ansi_term::Colour::*;
-    use ansi_term::Style;
+    use ansiterm::Colour::*;
+    use ansiterm::Style;
 
 
     struct TestColours;

@@ -1,4 +1,4 @@
-use ansi_term::Style;
+use ansiterm::Style;
 use locale::Numeric as NumericLocale;
 use number_prefix::Prefix;
 
@@ -95,8 +95,8 @@ pub mod test {
     use crate::fs::fields as f;
 
     use locale::Numeric as NumericLocale;
-    use ansi_term::Colour::*;
-    use ansi_term::Style;
+    use ansiterm::Colour::*;
+    use ansiterm::Style;
     use number_prefix::Prefix;
 
 

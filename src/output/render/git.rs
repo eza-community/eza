@@ -1,4 +1,4 @@
-use ansi_term::{ANSIString, Style, Color};
+use ansiterm::{ANSIString, Style, Color};
 
 use crate::output::cell::{TextCell, DisplayWidth};
 use crate::fs::fields as f;
@@ -79,8 +79,8 @@ pub mod test {
     use crate::output::cell::{TextCell, DisplayWidth};
     use crate::fs::fields as f;
 
-    use ansi_term::Colour::*;
-    use ansi_term::Style;
+    use ansiterm::Colour::*;
+    use ansiterm::Style;
 
 
     struct TestColours;
