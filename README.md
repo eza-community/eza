@@ -37,7 +37,7 @@ By deliberately making some decisions differently, eza attempts to be a more fea
  -   Selinux context output.
  -   Git repo status output.
  -   Human readable relative dates.
- -   Several security fixes (see [dependabot](https://github.com/eza-community/eza/security/dependabot?q=is%3Aclosed))
+ -   Several security fixes.
  -   Many smaller bug fixes/changes!
 
 ---
