@@ -51,13 +51,10 @@ pub trait Colours {
 impl f::SubdirGitRepo {
     pub fn render(self, colours: &dyn RepoColours) -> TextCell {
         let branch_name = match self.branch {
-            Some(name) => {
-                if name == "main" || name == "master" {
-                    colours.branch_main().paint(name)
-                } else {
-                    colours.branch_other().paint(name)
-                }
-            }
+            Some(name) => match name.as_ref() {
+                "main" | "master" => colours.branch_main().paint(name),
+                _ => colours.branch_other().paint(name),
+            },
             None => colours.no_repo().paint("-"),
         };
 

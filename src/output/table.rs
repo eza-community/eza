@@ -224,7 +224,7 @@ impl Column {
             #[cfg(unix)]
             Self::Inode => "inode",
             Self::GitStatus => "Git",
-            Self::SubdirGitRepo(_) => "Repo",
+            Self::SubdirGitRepo(_) => "Git Repo",
             #[cfg(unix)]
             Self::Octal => "Octal",
             #[cfg(unix)]
