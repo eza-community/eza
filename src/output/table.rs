@@ -563,7 +563,7 @@ impl<'a> Table<'a> {
                 file.modified_time().render(self.theme.ui.date, &self.env.tz, self.time_format)
             }
             Column::Timestamp(TimeType::Changed)   => {
-                Some(file.changed_time()).render(self.theme.ui.date, &self.env.tz, self.time_format)
+                file.changed_time().render(self.theme.ui.date, &self.env.tz, self.time_format)
             }
             Column::Timestamp(TimeType::Created)   => {
                 file.created_time().render(self.theme.ui.date, &self.env.tz, self.time_format)

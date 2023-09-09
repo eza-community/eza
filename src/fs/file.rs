@@ -533,11 +533,11 @@ impl<'dir> File<'dir> {
             }
 
             let duration = Duration::new(sec.unsigned_abs(), nanosec.unsigned_abs() as u32);
-            UNIX_EPOCH - duration
+            Some(UNIX_EPOCH - duration)
         }
         else {
             let duration = Duration::new(sec as u64, nanosec as u32);
-            UNIX_EPOCH + duration
+            Some(UNIX_EPOCH + duration)
         }
     }
 
