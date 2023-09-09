@@ -82,7 +82,8 @@ impl Mode {
         // user about flags that won’t have any effect.
         if matches.is_strict() {
             for option in &[ &flags::BINARY, &flags::BYTES, &flags::INODE, &flags::LINKS,
-                             &flags::HEADER, &flags::BLOCKSIZE, &flags::TIME, &flags::GROUP, &flags::NUMERIC ] {
+                             &flags::HEADER, &flags::BLOCKSIZE, &flags::TIME, &flags::GROUP, &flags::NUMERIC,
+                             &flags::MOUNTS ] {
                 if matches.has(option)? {
                     return Err(OptionsError::Useless(option, false, &flags::LONG));
                 }
@@ -119,6 +120,7 @@ impl details::Options {
             header: false,
             xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
             secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
+            mounts: matches.has(&flags::MOUNTS)?,
         };
 
         Ok(details)
@@ -139,6 +141,7 @@ impl details::Options {
             header: matches.has(&flags::HEADER)?,
             xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
             secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
+            mounts: matches.has(&flags::MOUNTS)?,
         })
     }
 }

@@ -34,6 +34,7 @@ By deliberately making some decisions differently, eza attempts to be a more fea
 
  -   Fixes [“The Grid Bug”](https://github.com/eza-community/eza/issues/66#issuecomment-1656758327) introduced in exa 2021.
  -   Hyperlink support.
+ -   Mount point details.
  -   Selinux context output.
  -   Git repo status output.
  -   Human readable relative dates.
@@ -189,6 +190,7 @@ These options are available when running with `--long` (`-l`):
 - **-H**, **--links**: list each file’s number of hard links
 - **-i**, **--inode**: list each file’s inode number
 - **-m**, **--modified**: use the modified timestamp field
+- **-M**, **--mounts**: Show mount details (Linux only).
 - **-S**, **--blocksize**: show size of allocated file system blocks
 - **-t**, **--time=(field)**: which timestamp field to use
 - **-u**, **--accessed**: use the accessed timestamp field

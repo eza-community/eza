@@ -12,7 +12,7 @@ impl<'a> File<'a> {
     /// their source file `foo.coffee` exists in the same directory.
     /// For example, `foo.js` is perfectly valid without `foo.coffee`, so we
     /// don’t want to always blindly highlight `*.js` as compiled.
-    /// (See also `FileExtensions#is_compiled`)
+    /// (See also `FileType`)
     pub fn get_source_files(&self) -> Vec<PathBuf> {
         if let Some(ext) = &self.ext {
             match &ext[..] {
@@ -21,7 +21,6 @@ impl<'a> File<'a> {
                 "mjs"   => vec![self.path.with_extension("mts")],  // JavaScript ES Modules source
                 "cjs"   => vec![self.path.with_extension("cts")],  // JavaScript Commonjs Modules source
                 "js"    => vec![self.path.with_extension("coffee"), self.path.with_extension("ts")],  // CoffeeScript, TypeScript
-
                 "aux" |                                          // TeX: auxiliary file
                 "bbl" |                                          // BibTeX bibliography file
                 "bcf" |                                          // biblatex control file
@@ -32,8 +31,8 @@ impl<'a> File<'a> {
                 "lof" |                                          // TeX list of figures
                 "log" |                                          // TeX log file
                 "lot" |                                          // TeX list of tables
-                "out" => vec![self.path.with_extension("tex")],  // hyperref list of bookmarks
-                "toc" => vec![self.path.with_extension("tex")],  // TeX table of contents
+                "out" |                                          // hyperref list of bookmarks
+                "toc" |                                          // TeX table of contents
                 "xdv" => vec![self.path.with_extension("tex")],  // XeTeX dvi
 
                 _ => vec![],  // No source files if none of the above

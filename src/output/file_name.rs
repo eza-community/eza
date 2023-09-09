@@ -3,12 +3,15 @@ use std::path::Path;
 
 use ansiterm::{ANSIString, Style};
 
+use crate::fs::mounts::MountedFs;
 use crate::fs::{File, FileTarget};
 use crate::output::cell::TextCellContents;
 use crate::output::escape;
 use crate::output::icons::{icon_for_file, iconify_style};
 use crate::output::render::FiletypeColours;
 
+const HYPERLINK_START: &str = "\x1B]8;;";
+const HYPERLINK_END: &str = "\x1B\x5C";
 
 /// Basically a file name factory.
 #[derive(Debug, Copy, Clone)]
@@ -35,7 +38,9 @@ impl Options {
             link_style: LinkStyle::JustFilenames,
             options:    self,
             target:     if file.is_link() { Some(file.link_target()) }
-                                     else { None }
+                                     else { None },
+            mount_style: MountStyle::JustDirectoryNames,
+            mounted_fs: file.mount_point_info(),
         }
     }
 }
@@ -74,6 +79,18 @@ impl Default for Classify {
     }
 }
 
+/// When displaying a directory name, there needs to be some way to handle
+/// mount details, depending on how long the resulting Cell can be.
+#[derive(PartialEq, Debug, Copy, Clone)]
+enum MountStyle {
+
+    /// Just display the directory names.
+    JustDirectoryNames,
+
+    /// Display mount points as directories and include information about
+    /// the filesystem that's mounted there.
+    MountInfo,
+}
 
 /// Whether and how to show icons.
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
@@ -112,6 +129,12 @@ pub struct FileName<'a, 'dir, C> {
     link_style: LinkStyle,
 
     pub options: Options,
+
+    /// The filesystem details for a mounted filesystem.
+    mounted_fs: Option<&'a MountedFs>,
+
+    /// How to handle displaying a mounted filesystem.
+    mount_style: MountStyle,
 }
 
 impl<'a, 'dir, C> FileName<'a, 'dir, C> {
@@ -120,6 +143,17 @@ impl<'a, 'dir, C> FileName<'a, 'dir, C> {
     /// arrow followed by their path.
     pub fn with_link_paths(mut self) -> Self {
         self.link_style = LinkStyle::FullLinkPaths;
+        self
+    }
+
+    /// Sets the flag on this file name to display mounted filesystem
+    ///details.
+    pub fn with_mount_details(mut self, enable: bool) -> Self {
+        self.mount_style = if enable {
+            MountStyle::MountInfo
+        } else {
+            MountStyle::JustDirectoryNames
+        };
         self
     }
 }
@@ -190,6 +224,8 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                             target: None,
                             link_style: LinkStyle::FullLinkPaths,
                             options: target_options,
+                            mounted_fs: None,
+                            mount_style: MountStyle::JustDirectoryNames,
                         };
 
                         for bit in target_name.escaped_file_name() {
@@ -226,6 +262,15 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
             if let Some(class) = self.classify_char(self.file) {
                 bits.push(Style::default().paint(class));
             }
+        }
+
+        if let (MountStyle::MountInfo, Some(mount_details)) = (self.mount_style, self.mounted_fs.as_ref()) {
+            // This is a filesystem mounted on the directory, output its details
+            bits.push(Style::default().paint(" ["));
+            bits.push(Style::default().paint(mount_details.source.clone()));
+            bits.push(Style::default().paint(" ("));
+            bits.push(Style::default().paint(mount_details.fstype.clone()));
+            bits.push(Style::default().paint(")]"));
         }
 
         bits.into()
@@ -303,59 +348,32 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         let file_style = self.style();
         let mut bits = Vec::new();
 
-        self.escape_color_and_hyperlinks(
+        let mut display_hyperlink = false;
+        if self.options.embed_hyperlinks == EmbedHyperlinks::On {
+            if let Some(abs_path) = self.file.path.canonicalize().unwrap().as_os_str().to_str() {
+                bits.insert(0, ANSIString::from(format!(
+                    "{}file://{}{}{}",
+                    HYPERLINK_START,
+                    gethostname::gethostname().to_str().unwrap_or(""),
+                    urlencoding::encode(abs_path).replace("%2F", "/"),
+                    HYPERLINK_END,
+                )));
+                display_hyperlink = true;
+            }
+        }
+
+        escape(
+            self.file.name.clone(),
             &mut bits,
             file_style,
             self.colours.control_char(),
         );
 
+        if display_hyperlink {
+            bits.push(ANSIString::from(format!("{HYPERLINK_START}{HYPERLINK_END}")));
+        }
+
         bits
-    }
-
-    // An adapted version of escape::escape.
-    // afaik of all the calls to escape::escape, only for escaped_file_name, the call to escape needs to be checked for hyper links
-    // and if that's the case then I think it's best to not try and generalize escape::escape to this case,
-    // as this adaptation would incur some unneeded operations there
-    pub fn escape_color_and_hyperlinks(&self, bits: &mut Vec<ANSIString<'_>>, good: Style, bad: Style) {
-        let string = self.file.name.clone();
-
-        if string.chars().all(|c| c >= 0x20 as char && c != 0x7f as char) {
-            let painted = good.paint(string);
-
-            let adjusted_filename = if let EmbedHyperlinks::On = self.options.embed_hyperlinks {
-                ANSIString::from(format!("\x1B]8;;{}\x1B\x5C{}\x1B]8;;\x1B\x5C", self.file.path.display(), painted))
-            } else {
-                painted
-            };
-            bits.push(adjusted_filename);
-            return;
-        }
-
-        // again adapted from escape::escape
-        // still a slow route, but slightly improved to at least not reallocate buff + have a predetermined buff size
-        //
-        // also note that buff would never need more than len,
-        // even tho 'in total' it will be lenghier than len (as we expand with escape_default),
-        // because we clear it after an irregularity
-        let mut buff = String::with_capacity(string.len());
-        for c in string.chars() {
-            // The `escape_default` method on `char` is *almost* what we want here, but
-            // it still escapes non-ASCII UTF-8 characters, which are still printable.
-
-            if c >= 0x20 as char && c != 0x7f as char {
-                buff.push(c);
-            }
-            else {
-                if ! buff.is_empty() {
-                    bits.push(good.paint(std::mem::take(&mut buff)));
-                }
-                // biased towards regular characters, so we still collect on first sight of bad char
-                for e in c.escape_default() {
-                    buff.push(e);
-                }
-                bits.push(bad.paint(std::mem::take(&mut buff)));
-            }
-        }
     }
 
     /// Figures out which colour to paint the filename part of the output,
@@ -372,6 +390,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         }
 
         match self.file {
+            f if f.is_mount_point()      => self.colours.mount_point(),
             f if f.is_directory()        => self.colours.directory(),
             #[cfg(unix)]
             f if f.is_executable_file()  => self.colours.executable_file(),
@@ -423,6 +442,9 @@ pub trait Colours: FiletypeColours {
 
     /// The style to paint a file that has its executable bit set.
     fn executable_file(&self) -> Style;
+
+    /// The style to paint a directory that has a filesystem mounted on it.
+    fn mount_point(&self) -> Style;
 
     fn colour_file(&self, file: &File<'_>) -> Style;
 }

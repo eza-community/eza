@@ -54,7 +54,8 @@ pub static TIME:       Arg = Arg { short: Some(b't'), long: "time",       takes_
 pub static ACCESSED:   Arg = Arg { short: Some(b'u'), long: "accessed",   takes_value: TakesValue::Forbidden };
 pub static CREATED:    Arg = Arg { short: Some(b'U'), long: "created",    takes_value: TakesValue::Forbidden };
 pub static TIME_STYLE: Arg = Arg { short: None,       long: "time-style", takes_value: TakesValue::Necessary(Some(TIME_STYLES)) };
-pub static HYPERLINK:  Arg = Arg { short: None,       long: "hyperlink",  takes_value: TakesValue::Forbidden};
+pub static HYPERLINK:  Arg = Arg { short: None,       long: "hyperlink",  takes_value: TakesValue::Forbidden };
+pub static MOUNTS:     Arg = Arg { short: Some(b'M'), long: "mounts",     takes_value: TakesValue::Forbidden };
 const TIMES: Values = &["modified", "changed", "accessed", "created"];
 const TIME_STYLES: Values = &["default", "long-iso", "full-iso", "iso", "relative"];
 
@@ -85,7 +86,7 @@ pub static ALL_ARGS: Args = Args(&[
     &IGNORE_GLOB, &GIT_IGNORE, &ONLY_DIRS,
 
     &BINARY, &BYTES, &GROUP, &NUMERIC, &HEADER, &ICONS, &INODE, &LINKS, &MODIFIED, &CHANGED,
-    &BLOCKSIZE, &TIME, &ACCESSED, &CREATED, &TIME_STYLE, &HYPERLINK,
+    &BLOCKSIZE, &TIME, &ACCESSED, &CREATED, &TIME_STYLE, &HYPERLINK, &MOUNTS,
     &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &NO_ICONS,
 
     &GIT, &NO_GIT, &GIT_REPOS, &GIT_REPOS_NO_STAT,
