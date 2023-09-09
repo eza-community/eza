@@ -89,6 +89,7 @@ complete -c eza -s o -l octal-permissions -d "List each file's permission in oct
 complete -c eza -l no-filesize -d "Suppress the filesize field"
 complete -c eza -l no-user -d "Suppress the user field"
 complete -c eza -l no-time -d "Suppress the time field"
+complete -c eza -s M -l mounts -d "Show mount details"
 
 # Optional extras
 complete -c eza -l git -d "List each file's Git status, if tracked"

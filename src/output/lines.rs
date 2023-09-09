@@ -5,7 +5,7 @@ use ansiterm::ANSIStrings;
 use crate::fs::File;
 use crate::fs::filter::FileFilter;
 use crate::output::cell::TextCellContents;
-use crate::output::file_name::{Options as FileStyle};
+use crate::output::file_name::Options as FileStyle;
 use crate::theme::Theme;
 
 
@@ -32,6 +32,7 @@ impl<'a> Render<'a> {
         self.file_style
             .for_file(file, self.theme)
             .with_link_paths()
+            .with_mount_details(false)
             .paint()
     }
 }
