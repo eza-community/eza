@@ -7,7 +7,7 @@
 //! # Contributors
 //! Please keep these lists sorted. If you're using vim, :sort i
 
-use ansi_term::Style;
+use ansiterm::Style;
 use phf::{phf_map, Map};
 
 use crate::fs::File;
@@ -298,7 +298,7 @@ pub struct FileTypeColor;
 impl FileColours for FileTypeColor {
     /// Map from the file type to the display style/color for the file.
     fn colour_file(&self, file: &File<'_>) -> Option<Style> {
-        use ansi_term::Colour::*;
+        use ansiterm::Colour::*;
 
         match FileType::get_file_type(file) {
             Some(FileType::Compiled)   => Some(Yellow.normal()),

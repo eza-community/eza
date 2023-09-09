@@ -2,6 +2,52 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.0] - 2023-09-04
+
+### Bug Fixes
+
+- Add windows implementation of is_empty_dir
+- Re-align `--git-ignore` in help message
+- Avoid direnv error if nix isn't installed
+
+### Documentation
+
+- Empty dir functions
+- Document is_empty_dir functions
+- Add function documentation for get_file_type and icon_for_file.
+
+### Features
+
+- Optimize checking for empty directories when a directory has subdirectories
+- Use perfect hash tables for file types and icons
+
+### Miscellaneous Tasks
+
+- Bump git2 from 0.17.2 to 0.18.0
+- Bump uzers from 0.11.1 to 0.11.2
+- Bump glob from 0.3.0 to 0.3.1
+- Bump DeterminateSystems/nix-installer-action from 3 to 4
+- Bump terminal_size from 0.1.16 to 0.2.6
+- Bump timeago from 0.3.1 to 0.4.1
+
+### Refactor
+
+- Use phf macros instead of codegen to create icon and filetype tables
+- Add constants for most of the commonly used icons
+- Add constants for the rest of icons used multiple times
+- Rename class FileExtension to FileTypeClassifier to better reflect the purpose
+- Move get_file_type to FileType enum
+
+### Styling
+
+- Is_empty_dir() was put between the unix size() and windows size()
+
+### Build
+
+- Use rust stable
+- Add unstable package
+- Disable clippy check 'unreadable_literal' in generated files
+
 ## [0.10.9] - 2023-08-28
 
 ### Bug Fixes
@@ -23,7 +69,13 @@ All notable changes to this project will be documented in this file.
 
 ### Miscellaneous Tasks
 
+- Bump DeterminateSystems/flake-checker-action from 4 to 5
 - Add funding.yml
+- Release 0.10.9
+
+### Tree-wide
+
+- Fix Windows build
 
 ### Build
 
@@ -40,6 +92,7 @@ All notable changes to this project will be documented in this file.
 - Add flakehub-backfill
 - Add codeowners
 - Add gierens as .deb codeowner
+- Add windows to CI
 
 ### Deps
 
@@ -171,6 +224,7 @@ All notable changes to this project will be documented in this file.
 ### Miscellaneous Tasks
 
 - Add PR template
+- Bump actions/stale from 5 to 8
 - Bump log from 0.4.14 to 0.4.20
 - Release 0.10.7
 

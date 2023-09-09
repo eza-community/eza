@@ -1,5 +1,5 @@
-use ansi_term::Style;
-use ansi_term::Colour::*;
+use ansiterm::Style;
+use ansiterm::Colour::*;
 
 use crate::theme::ColourScale;
 use crate::theme::ui_styles::*;
@@ -20,6 +20,7 @@ impl UiStyles {
                 socket:       Red.bold(),
                 special:      Yellow.normal(),
                 executable:   Green.bold(),
+                mount_point:  Blue.bold().underline(),
             },
 
             perms: Permissions {

@@ -1,8 +1,10 @@
 Output outfile
 
+Set DisableRender true
+
 Set Shell fish
 Sleep 2s
-Type "cargo run -q -- -l"
+Type "cargo run -q -- -l --no-user --no-time --no-filesize"
 Enter
 Sleep 3s
 Sleep 3s

@@ -1,8 +1,8 @@
 use std::iter::Peekable;
 use std::ops::FnMut;
 
-use ansi_term::{Colour, Style};
-use ansi_term::Colour::*;
+use ansiterm::{Colour, Style};
+use ansiterm::Colour::*;
 
 
 // Parsing the LS_COLORS environment variable into a map of names to Style values.
@@ -143,7 +143,7 @@ impl<'var> Pair<'var> {
 #[cfg(test)]
 mod ansi_test {
     use super::*;
-    use ansi_term::Style;
+    use ansiterm::Style;
 
     macro_rules! test {
         ($name:ident: $input:expr => $result:expr) => {
