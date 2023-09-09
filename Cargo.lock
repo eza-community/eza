@@ -95,6 +95,7 @@ dependencies = [
  "num_cpus",
  "number_prefix",
  "phf",
+ "proc-mounts",
  "scoped_threadpool",
  "term_grid",
  "terminal_size",
@@ -301,6 +302,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "partition-identity"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9fa925f9becb532d758b0014b472c576869910929cf4c3f8054b386f19ab9e21"
+dependencies = [
+ "thiserror",
+]
+
+[[package]]
 name = "percent-encoding"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -361,6 +371,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "18fb31db3f9bddb2ea821cde30a9f70117e3f119938b5ee630b7403aa6e2ead9"
 dependencies = [
  "unicode-ident",
+]
+
+[[package]]
+name = "proc-mounts"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0d652f8435d0ab70bf4f3590a6a851d59604831a458086541b95238cc51ffcf2"
+dependencies = [
+ "partition-identity",
 ]
 
 [[package]]
@@ -447,6 +466,26 @@ checksum = "8e6bf6f19e9f8ed8d4048dc22981458ebcf406d67e94cd422e5ecd73d63b3237"
 dependencies = [
  "rustix",
  "windows-sys",
+]
+
+[[package]]
+name = "thiserror"
+version = "1.0.47"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "97a802ec30afc17eee47b2855fc72e0c4cd62be9b4efe6591edde0ec5bd68d8f"
+dependencies = [
+ "thiserror-impl",
+]
+
+[[package]]
+name = "thiserror-impl"
+version = "1.0.47"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6bb623b56e39ab7dcd4b1b98bb6c8f8d907ed255b18de254088016b27a8ee19b"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
