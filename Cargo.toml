@@ -64,10 +64,6 @@ features = ["format"]
 version = "0.18"
 optional = true
 default-features = false
-# This builds libgit2 into the binary to avoid dependency problems on systems
-# that don't have the required version of libgit2 yet.
-# See: https://github.com/eza-community/eza/pull/192
-features = ["vendored-libgit2"]
 
 [target.'cfg(target_os = "linux")'.dependencies]
 proc-mounts = "0.3"
@@ -83,6 +79,7 @@ default-features = false
 default = [ "git" ]
 git = [ "git2" ]
 vendored-openssl = ["git2/vendored-openssl"]
+vendored-libgit2 = ["git2/vendored-libgit2"]
 
 
 # make dev builds faster by excluding debug symbols
