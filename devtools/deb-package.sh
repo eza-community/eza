@@ -17,6 +17,9 @@ ARCH="amd64"
 DEB_TMP_DIR="${NAME}_${VERSION}_${ARCH}"
 DEB_PACKAGE="${NAME}_${VERSION}_${ARCH}.deb"
 
+cargo build --release --features vendored-libgit2
+just man
+
 read -r -d '' DEB_CONTROL << EOM
 Package: ${NAME}
 Version: ${VERSION}
