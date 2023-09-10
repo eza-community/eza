@@ -78,7 +78,7 @@ impl UiStyles {
                 },
             },
 
-            punctuation:  Black.bold(),
+            punctuation:  DarkGray.bold(),
             date:         Blue.normal(),
             inode:        Purple.normal(),
             blocks:       Cyan.normal(),
