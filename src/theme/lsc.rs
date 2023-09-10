@@ -118,6 +118,15 @@ impl<'var> Pair<'var> {
                 "35" => style = style.fg(Purple),
                 "36" => style = style.fg(Cyan),
                 "37" => style = style.fg(White),
+                // Bright foreground colours
+                "90" => style = style.fg(DarkGray),
+                "91" => style = style.fg(BrightRed),
+                "92" => style = style.fg(BrightGreen),
+                "93" => style = style.fg(BrightYellow),
+                "94" => style = style.fg(BrightBlue),
+                "95" => style = style.fg(BrightPurple),
+                "96" => style = style.fg(BrightCyan),
+                "97" => style = style.fg(BrightGray),
                 "38" => if let Some(c) = parse_into_high_colour(&mut iter) { style = style.fg(c) },
 
                 // Background colours
@@ -129,8 +138,16 @@ impl<'var> Pair<'var> {
                 "45" => style = style.on(Purple),
                 "46" => style = style.on(Cyan),
                 "47" => style = style.on(White),
+                // Bright background colours
+                "100" => style = style.on(DarkGray),
+                "101" => style = style.on(BrightRed),
+                "102" => style = style.on(BrightGreen),
+                "103" => style = style.on(BrightYellow),
+                "104" => style = style.on(BrightBlue),
+                "105" => style = style.on(BrightPurple),
+                "106" => style = style.on(BrightCyan),
+                "107" => style = style.on(BrightGray),
                 "48" => if let Some(c) = parse_into_high_colour(&mut iter) { style = style.on(c) },
-
                  _   => {/* ignore the error and do nothing */},
             }
         }
