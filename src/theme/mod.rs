@@ -347,7 +347,7 @@ impl FileNameColours for Theme {
     fn mount_point(&self)         -> Style { self.ui.filekinds.mount_point }
 
     fn colour_file(&self, file: &File<'_>) -> Style {
-        self.exts.colour_file(file, &self).unwrap_or(self.ui.filekinds.normal)
+        self.exts.colour_file(file, self).unwrap_or(self.ui.filekinds.normal)
     }
 }
 
