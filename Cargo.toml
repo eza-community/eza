@@ -65,7 +65,7 @@ default-features = false
 proc-mounts = "0.3"
 
 [target.'cfg(unix)'.dependencies]
-uzers = "0.11.2"
+uzers = "0.11.3"
 
 [build-dependencies]
 chrono = "0.4"
