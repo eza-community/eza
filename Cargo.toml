@@ -10,7 +10,7 @@ readme = "README.md"
 homepage = "https://github.com/eza-community/eza"
 license = "MIT"
 repository = "https://github.com/eza-community/eza"
-version = "0.11.0"
+version = "0.11.1"
 
 
 [package.metadata.deb]
@@ -65,7 +65,7 @@ default-features = false
 proc-mounts = "0.3"
 
 [target.'cfg(unix)'.dependencies]
-uzers = "0.11.2"
+uzers = "0.11.3"
 
 [build-dependencies]
 chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
