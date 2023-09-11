@@ -142,9 +142,27 @@ alias itest := integration_tests
 # usage: cross
 @cross: 
     rustup toolchain install stable
+    mkdir -p ./target/"bin-$(convco version)"
+
+    # Build
+    ## Linux
     cross build --target x86_64-unknown-linux-gnu --release
+    tar czvf ./target/"bin-$(convco version)"/eza_x86_64-unknown-linux-gnu.tar.gz -C ./target/x86_64-unknown-linux-gnu/release/ ./eza
     cross build --target aarch64-unknown-linux-gnu --release
+    tar czvf ./target/"bin-$(convco version)"/eza_aarch64-unknown-linux-gnu.tar.gz -C ./target/aarch64-unknown-linux-gnu/release/ ./eza
     cross build --target arm-unknown-linux-gnueabihf --release
-    # cross build --target aarch64-apple-darwin --release
+    tar czvf ./target/"bin-$(convco version)"/arm-unknown-linux-gnueabihf.tar.gz -C ./target/arm-unknown-linux-gnueabihf/release/ ./eza
+    ## Windows
     cross build --target x86_64-pc-windows-gnu --release
-    # cross build --target aarch64-pc-windows-gnullvm --release
+    zip -j ./target/"bin-$(convco version)"/x86_64-pc-windows-gnu.zip ./target/x86_64-pc-windows-gnu/release/eza.exe
+
+    # Generate Checksums
+    echo "# Checksums"
+    echo "## sha256sum"
+    echo "```"
+    sha256sum ./target/"bin-$(convco version)"/*
+    echo "```"
+    echo "## md5sum"
+    echo "```"
+    md5sum ./target/"bin-$(convco version)"/*
+    echo "```"
