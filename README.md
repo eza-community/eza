@@ -40,7 +40,7 @@ By deliberately making some decisions differently, eza attempts to be a more fea
  -   Human readable relative dates.
  -   Several security fixes.
  -   Many smaller bug fixes/changes!
-
+ -   Support for `bright` terminal colours.
 ---
 
 <a id="try-it">
