@@ -42,9 +42,13 @@ pub struct Opts {
     /// when to use terminal colours (always, auto, never).
     #[arg(long)]
     pub color: Option<OsString>,
+    #[arg(long)]
+    pub colour: Option<OsString>,
     /// highlight levels of file sizes distinctly.
     #[arg(long, action = clap::ArgAction::Count)]
     pub color_scale: u8,
+    #[arg(long, action = clap::ArgAction::Count)]
+    pub colour_scale: u8,
     ///
     #[arg(short = 'A', long, action = clap::ArgAction::Count)]
     pub almost_all: u8,
@@ -157,7 +161,7 @@ pub struct Opts {
     #[arg(short ='?', long, action = clap::ArgAction::Help)]
     pub help: Option<bool>,
     /// show mount details (Linux only)
-    #[arg(short = 'm', long, action = clap::ArgAction::Count)]
+    #[arg(short = 'M', long, action = clap::ArgAction::Count)]
     pub mount: u8,
 }
 
@@ -216,6 +220,8 @@ impl Opts {
             help: Some(false),
             no_git: 0,
             mount: 0,
+            colour: None,
+            colour_scale: 0,
         }
     }
 }

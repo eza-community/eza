@@ -20,7 +20,6 @@ impl Options {
     }
 }
 
-
 impl UseColours {
     fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
         let default_value = match vars.get(vars::NO_COLOR) {
@@ -28,8 +27,23 @@ impl UseColours {
             None => Self::Automatic,
         };
 
-        let Some(ref word) = matches.color else { return Ok(default_value) };
+        let color = match matches.color {
+            Some(ref w) => Some(w),
+            None => None,
+        };
+        let colour = match matches.colour {
+            Some(ref w) => Some(w),
+            None => None,
+        };
+        match (color, colour) {
+            (Some(ref w), None) => self::UseColours::get_color(w.to_string_lossy().to_string()),
+            (None, Some(ref w)) => self::UseColours::get_color(w.to_string_lossy().to_string()),
+            (None, None) => Ok(default_value),
+            (Some(_), Some(_)) => Err(OptionsError::BadArgument("--color".to_string(), "--colour".to_string())),
+        }
+    }
 
+    fn get_color(word: String) -> Result<Self, OptionsError> {
         if word == "always" {
             Ok(Self::Always)
         }
@@ -40,7 +54,7 @@ impl UseColours {
             Ok(Self::Never)
         }
         else {
-            Err(OptionsError::BadArgument("--color".to_string(), word.to_string_lossy().to_string()))
+            Err(OptionsError::BadArgument("--color".to_string(), word))
         }
     }
 }
@@ -48,7 +62,7 @@ impl UseColours {
 
 impl ColourScale {
     fn deduce(matches: &Opts) -> Self {
-        if matches.color_scale > 0 {
+        if matches.color_scale > 0 || matches.colour_scale > 0{
             return Self::Gradient;
         }
         Self::Fixed

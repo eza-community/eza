@@ -105,7 +105,6 @@ fn main() {
     }
 
     let cli = Opts::parse();
-
     let mut input_paths: Vec<&OsStr> = cli.paths.iter().map(OsString::as_os_str).collect();
     if input_paths.is_empty() {
        input_paths.push(OsStr::new(".")); 
