@@ -38,7 +38,7 @@ name = "eza"
 [dependencies]
 ansiterm = "0.12.2"
 gethostname = "0.4.3"
-chrono = "0.4"
+chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
 glob = "0.3"
 lazy_static = "1.3"
 libc = "0.2"
@@ -68,7 +68,7 @@ proc-mounts = "0.3"
 uzers = "0.11.2"
 
 [build-dependencies]
-chrono = "0.4"
+chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
 
 [features]
 default = [ "git" ]
