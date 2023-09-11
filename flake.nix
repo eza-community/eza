@@ -109,6 +109,18 @@
             inherit buildInputs;
           };
 
+          # Run `nix build .#itest` to integration test
+          itest = pkgs.runCommand "itest" {
+            buildInputs = with pkgs; [ fish gnused vhs ];
+            src = ./.;
+          } ''
+            mkdir $out
+            cp $src/tests $out -r
+            cd $out/
+            HOME=$out
+            fish tests/vhs-runner.sh
+          '';
+
           vhs = pkgs.buildGoModule rec {
             pname = "vhs";
             version = "0.6.0";
