@@ -144,6 +144,7 @@ alias itest := integration_tests
     rustup toolchain install stable
     cross build --target x86_64-unknown-linux-gnu --release
     cross build --target aarch64-unknown-linux-gnu --release
+    cross build --target arm-unknown-linux-gnueabihf --release
     # cross build --target aarch64-apple-darwin --release
     cross build --target x86_64-pc-windows-gnu --release
     # cross build --target aarch64-pc-windows-gnullvm --release
