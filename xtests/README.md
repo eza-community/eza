@@ -1,5 +1,7 @@
 # exa › xtests
 
+NOTE: THE XTESTS IS DEPRECATED AND WILL PROBABLY BE REMOVED SOON
+
 These are the **extended tests**. They are integration tests: they run the `exa` binary with select configurations of parameters and environment variables, and assert that the program prints the correct text to standard output and error, and exits with the correct status code.
 
 They test things like:
