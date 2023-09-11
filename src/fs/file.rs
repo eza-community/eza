@@ -82,12 +82,8 @@ pub struct File<'dir> {
     /// The extended attributes of this file.
     pub extended_attributes: Vec<Attribute>,
 
-    // TODO: Resolving an absolute path can be an expensive call.  We only
-    // TODO: need the absolute path if we are displaying mounts.  Make this
-    // TODO: conditional on the --mount command line option.  Maybe resolve
-    // TODO: value when requested.
     /// The absolute value of this path, used to look up mount points.
-    absolute_path: Option<PathBuf>,
+    pub absolute_path: Option<PathBuf>,
 }
 
 impl<'dir> File<'dir> {
