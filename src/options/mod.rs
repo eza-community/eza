@@ -69,35 +69,24 @@
 //! it’s clear what the user wants.
 
 
-use std::ffi::OsStr;
-
 use crate::fs::dir_action::DirAction;
 use crate::fs::filter::{FileFilter, GitIgnore};
 use crate::output::{View, Mode, details, grid_details};
 use crate::theme::Options as ThemeOptions;
+use crate::options::parser::Opts;
 
 mod dir_action;
 mod file_name;
 mod filter;
-mod flags;
 mod theme;
 mod view;
+pub(crate) mod parser;
 
 mod error;
 pub use self::error::{OptionsError, NumberSource};
 
-mod help;
-use self::help::HelpString;
-
-mod parser;
-use self::parser::MatchedFlags;
-
 pub mod vars;
 pub use self::vars::Vars;
-
-mod version;
-use self::version::VersionString;
-
 
 /// These **options** represent a parsed, error-checked versions of the
 /// user’s command-line options.
@@ -123,41 +112,6 @@ pub struct Options {
 
 impl Options {
 
-    /// Parse the given iterator of command-line strings into an Options
-    /// struct and a list of free filenames, using the environment variables
-    /// for extra options.
-    #[allow(unused_results)]
-    pub fn parse<'args, I, V>(args: I, vars: &V) -> OptionsResult<'args>
-    where I: IntoIterator<Item = &'args OsStr>,
-          V: Vars,
-    {
-        use crate::options::parser::{Matches, Strictness};
-
-        let strictness = match vars.get(vars::EXA_STRICT) {
-            None                         => Strictness::UseLastArguments,
-            Some(ref t) if t.is_empty()  => Strictness::UseLastArguments,
-            Some(_)                      => Strictness::ComplainAboutRedundantArguments,
-        };
-
-        let Matches { flags, frees } = match flags::ALL_ARGS.parse(args, strictness) {
-            Ok(m)    => m,
-            Err(pe)  => return OptionsResult::InvalidOptions(OptionsError::Parse(pe)),
-        };
-
-        if let Some(help) = HelpString::deduce(&flags) {
-            return OptionsResult::Help(help);
-        }
-
-        if let Some(version) = VersionString::deduce(&flags) {
-            return OptionsResult::Version(version);
-        }
-
-        match Self::deduce(&flags, vars) {
-            Ok(options)  => OptionsResult::Ok(options, frees),
-            Err(oe)      => OptionsResult::InvalidOptions(oe),
-        }
-    }
-
     /// Whether the View specified in this set of options includes a Git
     /// status column. It’s only worth trying to discover a repository if the
     /// results will end up being displayed.
@@ -175,17 +129,22 @@ impl Options {
 
     /// Determines the complete set of options based on the given command-line
     /// arguments, after they’ve been parsed.
-    fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
+    pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
         if cfg!(not(feature = "git")) &&
-                matches.has_where_any(|f| f.matches(&flags::GIT) || f.matches(&flags::GIT_IGNORE)).is_some() {
+               (matches.git > 0 || matches.git_ignore > 0) {
             return Err(OptionsError::Unsupported(String::from(
                 "Options --git and --git-ignore can't be used because `git` feature was disabled in this build of exa"
             )));
         }
 
-        let view = View::deduce(matches, vars)?;
-        let dir_action = DirAction::deduce(matches, matches!(view.mode, Mode::Details(_)))?;
-        let filter = FileFilter::deduce(matches)?;
+        let strictness = match vars.get(vars::EXA_STRICT) {
+            None => false,
+            Some(s) => ! s.is_empty()
+        };
+
+        let view = View::deduce(matches, vars, strictness)?;
+        let dir_action = DirAction::deduce(matches, matches!(view.mode, Mode::Details(_)), strictness)?;
+        let filter = FileFilter::deduce(matches, strictness)?;
         let theme = ThemeOptions::deduce(matches, vars)?;
 
         Ok(Self { dir_action, filter, view, theme })
@@ -193,61 +152,42 @@ impl Options {
 }
 
 
-/// The result of the `Options::getopts` function.
-#[derive(Debug)]
-pub enum OptionsResult<'args> {
+// #[cfg(test)]
+// pub mod test {
+//     use crate::options::parser::{Arg, MatchedFlags};
+//     use std::ffi::OsStr;
 
-    /// The options were parsed successfully.
-    Ok(Options, Vec<&'args OsStr>),
+//     #[derive(PartialEq, Eq, Debug)]
+//     pub enum Strictnesses {
+//         Last,
+//         Complain,
+//         Both,
+//     }
 
-    /// There was an error parsing the arguments.
-    InvalidOptions(OptionsError),
+//     /// This function gets used by the other testing modules.
+//     /// It can run with one or both strictness values: if told to run with
+//     /// both, then both should resolve to the same result.
+//     ///
+//     /// It returns a vector with one or two elements in.
+//     /// These elements can then be tested with `assert_eq` or what have you.
+//     pub fn parse_for_test<T, F>(inputs: &[&str], args: &'static [&'static Arg], strictnesses: Strictnesses, get: F) -> Vec<T>
+//     where F: Fn(&MatchedFlags<'_>) -> T
+//     {
+//         use self::Strictnesses::*;
 
-    /// One of the arguments was `--help`, so display help.
-    Help(HelpString),
+//         let bits = inputs.iter().map(OsStr::new).collect::<Vec<_>>();
+//         let mut result = Vec::new();
 
-    /// One of the arguments was `--version`, so display the version number.
-    Version(VersionString),
-}
+//         if strictnesses == Last || strictnesses == Both {
+//             let results = Args(args).parse(bits.clone(), Strictness::UseLastArguments);
+//             result.push(get(&results.unwrap().flags));
+//         }
 
+//         if strictnesses == Complain || strictnesses == Both {
+//             let results = Args(args).parse(bits, Strictness::ComplainAboutRedundantArguments);
+//             result.push(get(&results.unwrap().flags));
+//         }
 
-#[cfg(test)]
-pub mod test {
-    use crate::options::parser::{Arg, MatchedFlags};
-    use std::ffi::OsStr;
-
-    #[derive(PartialEq, Eq, Debug)]
-    pub enum Strictnesses {
-        Last,
-        Complain,
-        Both,
-    }
-
-    /// This function gets used by the other testing modules.
-    /// It can run with one or both strictness values: if told to run with
-    /// both, then both should resolve to the same result.
-    ///
-    /// It returns a vector with one or two elements in.
-    /// These elements can then be tested with `assert_eq` or what have you.
-    pub fn parse_for_test<T, F>(inputs: &[&str], args: &'static [&'static Arg], strictnesses: Strictnesses, get: F) -> Vec<T>
-    where F: Fn(&MatchedFlags<'_>) -> T
-    {
-        use self::Strictnesses::*;
-        use crate::options::parser::{Args, Strictness};
-
-        let bits = inputs.iter().map(OsStr::new).collect::<Vec<_>>();
-        let mut result = Vec::new();
-
-        if strictnesses == Last || strictnesses == Both {
-            let results = Args(args).parse(bits.clone(), Strictness::UseLastArguments);
-            result.push(get(&results.unwrap().flags));
-        }
-
-        if strictnesses == Complain || strictnesses == Both {
-            let results = Args(args).parse(bits, Strictness::ComplainAboutRedundantArguments);
-            result.push(get(&results.unwrap().flags));
-        }
-
-        result
-    }
-}
+//         result
+//     }
+// }

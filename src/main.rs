@@ -26,6 +26,7 @@ use std::env;
 use std::ffi::{OsStr, OsString};
 use std::io::{self, Write, ErrorKind};
 use std::path::{Component, PathBuf};
+use clap::Parser;
 
 use ansi_term::{ANSIStrings, Style};
 
@@ -34,9 +35,10 @@ use log::*;
 use crate::fs::{Dir, File};
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::GitIgnore;
-use crate::options::{Options, Vars, vars, OptionsResult};
+use crate::options::{Options, Vars, vars};
 use crate::output::{escape, lines, grid, grid_details, details, View, Mode};
 use crate::theme::Theme;
+use crate::options::parser::Opts;
 
 mod fs;
 mod info;
@@ -44,6 +46,7 @@ mod logger;
 mod options;
 mod output;
 mod theme;
+
 
 
 fn main() {
@@ -61,56 +64,40 @@ fn main() {
         warn!("Failed to enable ANSI support: {}", e);
     }
 
-    let args: Vec<_> = env::args_os().skip(1).collect();
-    match Options::parse(args.iter().map(std::convert::AsRef::as_ref), &LiveVars) {
-        OptionsResult::Ok(options, mut input_paths) => {
+    let cli = Opts::parse();
 
-            // List the current directory by default.
-            // (This has to be done here, otherwise git_options won’t see it.)
-            if input_paths.is_empty() {
-                input_paths = vec![ OsStr::new(".") ];
-            }
-
-            let git = git_options(&options, &input_paths);
-            let writer = io::stdout();
-
-            let console_width = options.view.width.actual_terminal_width();
-            let theme = options.theme.to_theme(terminal_size::terminal_size().is_some());
-            let exa = Exa { options, writer, input_paths, theme, console_width, git };
-
-            match exa.run() {
-                Ok(exit_status) => {
-                    exit(exit_status);
-                }
-
-                Err(e) if e.kind() == ErrorKind::BrokenPipe => {
-                    warn!("Broken pipe error: {e}");
-                    exit(exits::SUCCESS);
-                }
-
-                Err(e) => {
-                    eprintln!("{e}");
-                    exit(exits::RUNTIME_ERROR);
-                }
-            }
-        }
-
-        OptionsResult::Help(help_text) => {
-            print!("{help_text}");
-        }
-
-        OptionsResult::Version(version_str) => {
-            print!("{version_str}");
-        }
-
-        OptionsResult::InvalidOptions(error) => {
-            eprintln!("eza: {error}");
-
-            if let Some(s) = error.suggestion() {
-                eprintln!("{s}");
-            }
-
+    let mut input_paths: Vec<&OsStr> = cli.paths.iter().map(OsString::as_os_str).collect();
+    if input_paths.is_empty() {
+       input_paths.push(OsStr::new(".")); 
+    }
+    let options = match Options::deduce(&cli, &LiveVars) {
+        Ok(o) => {o},
+        Err(e) => {
+            eprintln!("{e}");
             exit(exits::OPTIONS_ERROR);
+        }
+    };
+
+    let git = git_options(&options, &input_paths);
+    let writer = io::stdout();
+
+    let console_width = options.view.width.actual_terminal_width();
+    let theme = options.theme.to_theme(terminal_size::terminal_size().is_some());
+    let exa = Exa { options, writer, input_paths, theme, console_width, git };
+
+    match exa.run() {
+        Ok(exit_status) => {
+            exit(exit_status);
+        }
+
+        Err(e) if e.kind() == ErrorKind::BrokenPipe => {
+            warn!("Broken pipe error: {e}");
+            exit(exits::SUCCESS);
+        }
+
+        Err(e) => {
+            eprintln!("{e}");
+            exit(exits::RUNTIME_ERROR);
         }
     }
 }
