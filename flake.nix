@@ -111,12 +111,15 @@
 
           # Run `nix build .#itest` to integration test
           itest = pkgs.runCommand "itest" {
-            buildInputs = with pkgs; [ fish gnused vhs ];
+            buildInputs = with pkgs; [ fish gnused vhs packages.default ];
             src = ./.;
           } ''
             mkdir $out
             cp $src/tests $out -r
             cd $out/
+            chown $(whoami) . -R
+            chmod 755 . -R
+            mkdir $out/tests/tmp
             HOME=$out
             fish tests/vhs-runner.sh
           '';
