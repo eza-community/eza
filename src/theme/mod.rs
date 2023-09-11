@@ -143,7 +143,7 @@ impl Definitions {
 }
 
 
-pub trait FileColours: std::marker::Sync {
+pub trait FileColours: Sync {
     fn colour_file(&self, file: &File<'_>, theme: &Theme) -> Option<Style>;
 }
 
@@ -211,7 +211,7 @@ impl FileColours for FileTypes {
             Some(FileType::Compressed) => Some(theme.ui.file_type.compressed),
             Some(FileType::Temp)       => Some(theme.ui.file_type.temp),
             Some(FileType::Compiled)   => Some(theme.ui.file_type.compiled),
-            Some(FileType::Immediate)  => Some(theme.ui.file_type.immediate),
+            Some(FileType::Build)      => Some(theme.ui.file_type.build),
             None                       => None
         }
     }
@@ -337,12 +337,12 @@ impl render::UserColours for Theme {
 }
 
 impl FileNameColours for Theme {
+    fn symlink_path(&self)        -> Style { self.ui.symlink_path }
     fn normal_arrow(&self)        -> Style { self.ui.punctuation }
     fn broken_symlink(&self)      -> Style { self.ui.broken_symlink }
     fn broken_filename(&self)     -> Style { apply_overlay(self.ui.broken_symlink, self.ui.broken_path_overlay) }
-    fn broken_control_char(&self) -> Style { apply_overlay(self.ui.control_char,   self.ui.broken_path_overlay) }
     fn control_char(&self)        -> Style { self.ui.control_char }
-    fn symlink_path(&self)        -> Style { self.ui.symlink_path }
+    fn broken_control_char(&self) -> Style { apply_overlay(self.ui.control_char,   self.ui.broken_path_overlay) }
     fn executable_file(&self)     -> Style { self.ui.filekinds.executable }
     fn mount_point(&self)         -> Style { self.ui.filekinds.mount_point }
 
@@ -563,7 +563,7 @@ mod customs_test {
     test!(exa_co:  ls "", exa "co=38;5;134"  =>  colours c -> { c.file_type.compressed      = Fixed(134).normal(); });
     test!(exa_tm:  ls "", exa "tm=38;5;135"  =>  colours c -> { c.file_type.temp            = Fixed(135).normal(); });
     test!(exa_cm:  ls "", exa "cm=38;5;136"  =>  colours c -> { c.file_type.compiled        = Fixed(136).normal(); });
-    test!(exa_ie:  ls "", exa "ie=38;5;137"  =>  colours c -> { c.file_type.immediate       = Fixed(137).normal(); });
+    test!(exa_ie:  ls "", exa "bu=38;5;137"  =>  colours c -> { c.file_type.build           = Fixed(137).normal(); });
 
     // All the while, LS_COLORS treats them as filenames:
     test!(ls_uu:   ls "uu=38;5;117", exa ""  =>  exts [ ("uu", Fixed(117).normal()) ]);

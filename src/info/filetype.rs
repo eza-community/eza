@@ -22,7 +22,7 @@ pub enum FileType {
     Compressed,
     Temp,
     Compiled,
-    Immediate // An “immediate” file is something that can be run or activated somehow in order to
+    Build     // A “build file is something that can be run or activated somehow in order to
               // kick off the build of a project. It’s usually only present in directories full of
               // source code.
 }
@@ -30,47 +30,47 @@ pub enum FileType {
 /// Mapping from full filenames to file type.
 const FILENAME_TYPES: Map<&'static str, FileType> = phf_map! {
     /* Immediate file - kick off the build of a project */
-    "Brewfile"           => FileType::Immediate,
-    "bsconfig.json"      => FileType::Immediate,
-    "BUILD"              => FileType::Immediate,
-    "BUILD.bazel"        => FileType::Immediate,
-    "build.gradle"       => FileType::Immediate,
-    "build.sbt"          => FileType::Immediate,
-    "build.xml"          => FileType::Immediate,
-    "Cargo.toml"         => FileType::Immediate,
-    "CMakeLists.txt"     => FileType::Immediate,
-    "composer.json"      => FileType::Immediate,
-    "configure"          => FileType::Immediate,
-    "Containerfile"      => FileType::Immediate,
-    "Dockerfile"         => FileType::Immediate,
-    "Earthfile"          => FileType::Immediate,
-    "flake.nix"          => FileType::Immediate,
-    "Gemfile"            => FileType::Immediate,
-    "GNUmakefile"        => FileType::Immediate,
-    "Gruntfile.coffee"   => FileType::Immediate,
-    "Gruntfile.js"       => FileType::Immediate,
-    "jsconfig.json"      => FileType::Immediate,
-    "Justfile"           => FileType::Immediate,
-    "justfile"           => FileType::Immediate,
-    "Makefile"           => FileType::Immediate,
-    "makefile"           => FileType::Immediate,
-    "meson.build"        => FileType::Immediate,
-    "mix.exs"            => FileType::Immediate,
-    "package.json"       => FileType::Immediate,
-    "Pipfile"            => FileType::Immediate,
-    "PKGBUILD"           => FileType::Immediate,
-    "Podfile"            => FileType::Immediate,
-    "pom.xml"            => FileType::Immediate,
-    "Procfile"           => FileType::Immediate,
-    "pyproject.toml"     => FileType::Immediate,
-    "Rakefile"           => FileType::Immediate,
-    "RoboFile.php"       => FileType::Immediate,
-    "SConstruct"         => FileType::Immediate,
-    "tsconfig.json"      => FileType::Immediate,
-    "Vagrantfile"        => FileType::Immediate,
-    "webpack.config.cjs" => FileType::Immediate,
-    "webpack.config.js"  => FileType::Immediate,
-    "WORKSPACE"          => FileType::Immediate,
+    "Brewfile"           => FileType::Build,
+    "bsconfig.json"      => FileType::Build,
+    "BUILD"              => FileType::Build,
+    "BUILD.bazel"        => FileType::Build,
+    "build.gradle"       => FileType::Build,
+    "build.sbt"          => FileType::Build,
+    "build.xml"          => FileType::Build,
+    "Cargo.toml"         => FileType::Build,
+    "CMakeLists.txt"     => FileType::Build,
+    "composer.json"      => FileType::Build,
+    "configure"          => FileType::Build,
+    "Containerfile"      => FileType::Build,
+    "Dockerfile"         => FileType::Build,
+    "Earthfile"          => FileType::Build,
+    "flake.nix"          => FileType::Build,
+    "Gemfile"            => FileType::Build,
+    "GNUmakefile"        => FileType::Build,
+    "Gruntfile.coffee"   => FileType::Build,
+    "Gruntfile.js"       => FileType::Build,
+    "jsconfig.json"      => FileType::Build,
+    "Justfile"           => FileType::Build,
+    "justfile"           => FileType::Build,
+    "Makefile"           => FileType::Build,
+    "makefile"           => FileType::Build,
+    "meson.build"        => FileType::Build,
+    "mix.exs"            => FileType::Build,
+    "package.json"       => FileType::Build,
+    "Pipfile"            => FileType::Build,
+    "PKGBUILD"           => FileType::Build,
+    "Podfile"            => FileType::Build,
+    "pom.xml"            => FileType::Build,
+    "Procfile"           => FileType::Build,
+    "pyproject.toml"     => FileType::Build,
+    "Rakefile"           => FileType::Build,
+    "RoboFile.php"       => FileType::Build,
+    "SConstruct"         => FileType::Build,
+    "tsconfig.json"      => FileType::Build,
+    "Vagrantfile"        => FileType::Build,
+    "webpack.config.cjs" => FileType::Build,
+    "webpack.config.js"  => FileType::Build,
+    "WORKSPACE"          => FileType::Build,
     /* Cryptology files */
     "id_dsa"             => FileType::Crypto,
     "id_ecdsa"           => FileType::Crypto,
@@ -84,7 +84,7 @@ const FILENAME_TYPES: Map<&'static str, FileType> = phf_map! {
 /// extension is added also update the extension icon map.
 const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     /* Immediate file - kick off the build of a project */
-    "ninja"      => FileType::Immediate,
+    "ninja"      => FileType::Build,
     /* Image files */
     "arw"        => FileType::Image,
     "avif"       => FileType::Image,
@@ -270,7 +270,7 @@ impl FileType {
     pub(crate) fn get_file_type(file: &File<'_>) -> Option<FileType> {
         // Case-insensitive readme is checked first for backwards compatibility.
         if file.name.to_lowercase().starts_with("readme") {
-            return Some(Self::Immediate)
+            return Some(Self::Build)
         }
         if let Some(file_type) = FILENAME_TYPES.get(&file.name) {
             return Some(file_type.clone())

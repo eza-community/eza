@@ -25,9 +25,7 @@ files; setting `EXA_COLORS="reset"` will highlight nothing.
 
 - eza now supports bright colours! As supported by most modern 256\-colour terminals, you can now choose from `bright` colour codes when selecting your custom colours in your `#EXA_COLORS` environment variable.
 
-"Immediate" files are the files you should look at when downloading and building a project for the first time: READMEs, Makefiles, Cargo.toml, and others.
-They are highlighted in _yellow_ and _underlined_.
-
+- Build (Makefile, Cargo.toml, package.json) are yellow and underlined.
 - Images (png, jpeg, gif) are purple.
 - Videos (mp4, ogv, m2ts) are a slightly purpler purple.
 - Music (mp3, m4a, ogg) is a deeper purple.

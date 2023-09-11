@@ -88,7 +88,7 @@ impl UiStyles {
                 compressed: Red.normal(),
                 temp: White.normal(),
                 compiled: Yellow.normal(),
-                immediate: Yellow.bold().underline()
+                build: Yellow.bold().underline()
             },
 
             punctuation:  DarkGray.bold(),

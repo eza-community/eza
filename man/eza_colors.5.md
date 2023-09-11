@@ -224,34 +224,34 @@ LIST OF CODES
 : a mount point
 
 `im`
-: image files
+: a regular file that is an image
 
 `vi`
-: video files
+: a regular file that is a video
 
 `mu`
-: music files
+: a regular file that is lossy music
 
 `lo`
-: lossless music files
+: a regular file that is lossless music
 
 `cr`
-: cryptographic files
+: a regular file that is related to cryptography (ex: key or certificate)
 
 `do`
-: document files
+: a regular file that is a document (ex: office suite document or PDF)
 
 `co`
-: compressed files
+: a regular file this is compressed
 
 `tm`
-: temporary files
+: a regular file that is temporary (ex: a text editor's backup file)
 
 `cm`
-: compiled files
+: a regular file that is a compilation artifact (ex: Java class file)
 
-`ie`
-: immediate files
+`bu`
+: a regular file that is used to build a project (ex: Makefile)
 
 Values in `EXA_COLORS` override those given in `LS_COLORS`, so you don’t need to re-write an existing `LS_COLORS` variable with proprietary extensions.
 

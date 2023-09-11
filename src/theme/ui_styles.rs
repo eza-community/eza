@@ -133,7 +133,7 @@ pub struct FileType {
     pub compressed: Style,
     pub temp: Style,
     pub compiled: Style,
-    pub immediate: Style,
+    pub build: Style,
 }
 
 impl UiStyles {
@@ -237,7 +237,7 @@ impl UiStyles {
             "co" => self.file_type.compressed     = pair.to_style(),
             "tm" => self.file_type.temp           = pair.to_style(),
             "cm" => self.file_type.compiled       = pair.to_style(),
-            "ie" => self.file_type.immediate      = pair.to_style(),
+            "bu" => self.file_type.build          = pair.to_style(),
 
              _   => return false,
         }
