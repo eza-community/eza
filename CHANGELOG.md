@@ -2,6 +2,57 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.1] - 2023-09-11
+
+### Bug Fixes
+
+- Add vendored-libgit2 feature to git2 dependency
+- Filename escaping (last character lost sometimes, no hyperlink)
+- Build for Windows with chrono
+
+### Documentation
+
+- Explain vendored-libgit2
+- Add homebrew, misc fixes
+- Fix code of conduct link
+- Update archlinux
+- Add star history
+- Add informaton about lazy_static
+- Remove broken dependabot link
+- Add bright color options in man pages
+- Add bright color support in readme changelog
+
+### Features
+
+- Add highlighting of mounted directories (Linux only)
+- Add backlog of icons from various exa pull requests and others
+- Mark `.git` as ignored, which hides it when using `--git-ignore`
+- Add backlog of icons from various exa issues
+- Expose git2 feature vendored-libgit2
+- Add build commands to deb-package.sh
+- Support the MSRV of Rust (1.65.0)
+- Add bright colour options, change punctuation default
+- Use chrono crate to handle datetime-related features
+
+### Miscellaneous Tasks
+
+- Bump actions/checkout from 3 to 4
+
+### Testing
+
+- Stabilize testing without sandbox
+- Disable gif rendering
+
+### Build
+
+- Add release binaries
+- Fix binary gen
+- Add armhf binary
+
+### Deps
+
+- Change ansi_term to ansiterm from rustadopt
+
 ## [0.11.0] - 2023-09-04
 
 ### Bug Fixes
@@ -29,6 +80,7 @@ All notable changes to this project will be documented in this file.
 - Bump DeterminateSystems/nix-installer-action from 3 to 4
 - Bump terminal_size from 0.1.16 to 0.2.6
 - Bump timeago from 0.3.1 to 0.4.1
+- Release 0.11.0
 
 ### Refactor
 
