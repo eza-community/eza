@@ -25,7 +25,7 @@ complete -c eza -l hyperlink -d "Display entries as hyperlinks"
 # Filtering and sorting options
 complete -c eza -l group-directories-first -d "Sort directories before other files"
 complete -c eza -l git-ignore -d "Ignore files mentioned in '.gitignore'"
-complete -c eza -s a -l all -d "Show hidden and 'dot' files"
+complete -c eza -s a -l all -d "Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories"
 complete -c eza -s d -l list-dirs -d "List directories like regular files"
 complete -c eza -s L -l level -d "Limit the depth of recursion" -x -a "1 2 3 4 5 6 7 8 9"
 complete -c eza -s w -l width -d "Limits column output of grid, 0 implies auto-width" 
