@@ -7,11 +7,9 @@
 //! # Contributors
 //! Please keep these lists sorted. If you're using vim, :sort i
 
-use ansiterm::Style;
 use phf::{phf_map, Map};
 
 use crate::fs::File;
-use crate::theme::FileColours;
 
 #[derive(Debug, Clone)]
 pub enum FileType {
@@ -269,7 +267,7 @@ impl FileType {
     /// Lookup the file type based on the file's name, by the file name
     /// lowercase extension, or if the file could be compiled from related
     /// source code.
-    fn get_file_type(file: &File<'_>) -> Option<FileType> {
+    pub(crate) fn get_file_type(file: &File<'_>) -> Option<FileType> {
         // Case-insensitive readme is checked first for backwards compatibility.
         if file.name.to_lowercase().starts_with("readme") {
             return Some(Self::Immediate)
@@ -289,29 +287,5 @@ impl FileType {
             }
         }
         None
-    }
-}
-
-#[derive(Debug)]
-pub struct FileTypeColor;
-
-impl FileColours for FileTypeColor {
-    /// Map from the file type to the display style/color for the file.
-    fn colour_file(&self, file: &File<'_>) -> Option<Style> {
-        use ansiterm::Colour::*;
-
-        match FileType::get_file_type(file) {
-            Some(FileType::Compiled)   => Some(Yellow.normal()),
-            Some(FileType::Compressed) => Some(Red.normal()),
-            Some(FileType::Crypto)     => Some(Green.bold()),
-            Some(FileType::Document)   => Some(Green.normal()),
-            Some(FileType::Image)      => Some(Purple.normal()),
-            Some(FileType::Immediate)  => Some(Yellow.bold().underline()),
-            Some(FileType::Lossless)   => Some(Cyan.bold()),
-            Some(FileType::Music)      => Some(Cyan.normal()),
-            Some(FileType::Temp)       => Some(White.normal()),
-            Some(FileType::Video)      => Some(Purple.bold()),
-            _                          => None
-        }
     }
 }

@@ -78,6 +78,19 @@ impl UiStyles {
                 },
             },
 
+            file_type: FileType {
+                image: Purple.normal(),
+                video: Purple.bold(),
+                music: Cyan.normal(),
+                lossless: Cyan.bold(),
+                crypto: Green.bold(),
+                document: Green.normal(),
+                compressed: Red.normal(),
+                temp: White.normal(),
+                compiled: Yellow.normal(),
+                immediate: Yellow.bold().underline()
+            },
+
             punctuation:  DarkGray.bold(),
             date:         Blue.normal(),
             inode:        Purple.normal(),

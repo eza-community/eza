@@ -14,6 +14,7 @@ pub struct UiStyles {
     pub links:            Links,
     pub git:              Git,
     pub security_context: SecurityContext,
+    pub file_type:        FileType,
 
     pub punctuation:  Style,
     pub date:         Style,
@@ -121,6 +122,20 @@ pub struct SecurityContext {
     pub selinux: SELinuxContext,
 }
 
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct FileType {
+    pub image: Style,
+    pub video: Style,
+    pub music: Style,
+    pub lossless: Style,
+    pub crypto: Style,
+    pub document: Style,
+    pub compressed: Style,
+    pub temp: Style,
+    pub compiled: Style,
+    pub immediate: Style,
+}
+
 impl UiStyles {
     pub fn plain() -> Self {
         Self::default()
@@ -212,6 +227,17 @@ impl UiStyles {
             "bO" => self.broken_path_overlay      = pair.to_style(),
 
             "mp" => self.filekinds.mount_point    = pair.to_style(),
+
+            "im" => self.file_type.image          = pair.to_style(),
+            "vi" => self.file_type.video          = pair.to_style(),
+            "mu" => self.file_type.music          = pair.to_style(),
+            "lo" => self.file_type.lossless       = pair.to_style(),
+            "cr" => self.file_type.crypto         = pair.to_style(),
+            "do" => self.file_type.document       = pair.to_style(),
+            "co" => self.file_type.compressed     = pair.to_style(),
+            "tm" => self.file_type.temp           = pair.to_style(),
+            "cm" => self.file_type.compiled       = pair.to_style(),
+            "ie" => self.file_type.immediate      = pair.to_style(),
 
              _   => return false,
         }
