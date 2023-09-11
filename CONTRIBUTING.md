@@ -1,5 +1,4 @@
 # Contributing
-This document is heavily WIP.
 
 If you wanna contribute to `eza`, here are the absolute basics:
 - your commit summary should follow conventional commits.
@@ -58,3 +57,29 @@ option just like the normal grid view.
 
 Resolves #129
 ```
+
+### Additional Examples
+
+- feat: add column selection
+- fix(output): fix width issue with columns
+- test(fs): add tests for filesystem metadata
+- feat!: breaking change / feat(config)!: implement config file
+- chore(deps): update dependencies
+
+### Commit types
+
+- build: Changes that affect the build system or external dependencies (example libgit2)
+- ci: Changes to CI configuration files and scripts (example scopes: Nix, Vagrant, Docker)
+- chore: Changes which do not change source code or tests (example: changes to the build process, auxiliary tools, libraries)
+- docs: Documentation, README, completions, manpage only
+- feat: A new feature
+- fix: A bug fix
+- perf: A code change that improves or addresses a performance issue
+- refactor: A code change that neither fixes a bug nor adds a feature
+- revert: Revert something
+- style: Changes that do not affect the meaning of the code (example: clippy)
+- test: Adding missing tests or correcting existing tests
+
+### Reminders
+Put newline before extended commit body
+More details at conventionalcommits.org
