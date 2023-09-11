@@ -1,2 +1,2 @@
 bin.name = "eza"
-args = "--icons"
+args = "tests/itest --icons"
