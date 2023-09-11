@@ -156,6 +156,9 @@ pub struct Opts {
     /// show list of command-line options.
     #[arg(short ='?', long, action = clap::ArgAction::Help)]
     pub help: Option<bool>,
+    /// show mount details (Linux only)
+    #[arg(short = 'm', long, action = clap::ArgAction::Count)]
+    pub mount: u8,
 }
 
 impl Opts {
@@ -212,6 +215,7 @@ impl Opts {
             security_context: 0,
             help: Some(false),
             no_git: 0,
+            mount: 0,
         }
     }
 }

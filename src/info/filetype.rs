@@ -7,7 +7,7 @@
 //! # Contributors
 //! Please keep these lists sorted. If you're using vim, :sort i
 
-use ansi_term::Style;
+use ansiterm::Style;
 use phf::{phf_map, Map};
 
 use crate::fs::File;
@@ -39,27 +39,23 @@ const FILENAME_TYPES: Map<&'static str, FileType> = phf_map! {
     "build.gradle"       => FileType::Immediate,
     "build.sbt"          => FileType::Immediate,
     "build.xml"          => FileType::Immediate,
-    "Cargo.lock"         => FileType::Immediate,
     "Cargo.toml"         => FileType::Immediate,
     "CMakeLists.txt"     => FileType::Immediate,
     "composer.json"      => FileType::Immediate,
-    "configure.ac"       => FileType::Immediate,
-    "Configure.ac"       => FileType::Immediate,
+    "configure"          => FileType::Immediate,
     "Containerfile"      => FileType::Immediate,
     "Dockerfile"         => FileType::Immediate,
     "Earthfile"          => FileType::Immediate,
-    "flake.lock"         => FileType::Immediate,
     "flake.nix"          => FileType::Immediate,
     "Gemfile"            => FileType::Immediate,
     "GNUmakefile"        => FileType::Immediate,
     "Gruntfile.coffee"   => FileType::Immediate,
     "Gruntfile.js"       => FileType::Immediate,
+    "jsconfig.json"      => FileType::Immediate,
     "Justfile"           => FileType::Immediate,
     "justfile"           => FileType::Immediate,
     "Makefile"           => FileType::Immediate,
     "makefile"           => FileType::Immediate,
-    "Makefile.in"        => FileType::Immediate,
-    "makefile.in"        => FileType::Immediate,
     "meson.build"        => FileType::Immediate,
     "mix.exs"            => FileType::Immediate,
     "package.json"       => FileType::Immediate,
@@ -68,6 +64,7 @@ const FILENAME_TYPES: Map<&'static str, FileType> = phf_map! {
     "Podfile"            => FileType::Immediate,
     "pom.xml"            => FileType::Immediate,
     "Procfile"           => FileType::Immediate,
+    "pyproject.toml"     => FileType::Immediate,
     "Rakefile"           => FileType::Immediate,
     "RoboFile.php"       => FileType::Immediate,
     "SConstruct"         => FileType::Immediate,
@@ -76,6 +73,13 @@ const FILENAME_TYPES: Map<&'static str, FileType> = phf_map! {
     "webpack.config.cjs" => FileType::Immediate,
     "webpack.config.js"  => FileType::Immediate,
     "WORKSPACE"          => FileType::Immediate,
+    /* Cryptology files */
+    "id_dsa"             => FileType::Crypto,
+    "id_ecdsa"           => FileType::Crypto,
+    "id_ecdsa_sk"        => FileType::Crypto,
+    "id_ed25519"         => FileType::Crypto,
+    "id_ed25519_sk"      => FileType::Crypto,
+    "id_rsa"             => FileType::Crypto,
 };
 
 /// Mapping from lowercase file extension to file type.  If an image, video, music, or lossless
@@ -93,6 +97,7 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "dvi"        => FileType::Image,
     "eps"        => FileType::Image,
     "gif"        => FileType::Image,
+    "heic"       => FileType::Image,
     "heif"       => FileType::Image,
     "ico"        => FileType::Image,
     "j2c"        => FileType::Image,
@@ -115,6 +120,7 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "pnm"        => FileType::Image,
     "ppm"        => FileType::Image,
     "ps"         => FileType::Image,
+    "psd"        => FileType::Image,
     "pxm"        => FileType::Image,
     "raw"        => FileType::Image,
     "stl"        => FileType::Image,
@@ -122,11 +128,12 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "tif"        => FileType::Image,
     "tiff"       => FileType::Image,
     "webp"       => FileType::Image,
+    "xcf"        => FileType::Image,
     "xpm"        => FileType::Image,
     /* Video files */
     "avi"        => FileType::Video,
     "flv"        => FileType::Video,
-    "heic"       => FileType::Video,
+    "heics"      => FileType::Video,
     "m2ts"       => FileType::Video,
     "m2v"        => FileType::Video,
     "m4v"        => FileType::Video,
@@ -137,6 +144,7 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "mpg"        => FileType::Video,
     "ogm"        => FileType::Video,
     "ogv"        => FileType::Video,
+    "video"      => FileType::Video,
     "vob"        => FileType::Video,
     "webm"       => FileType::Video,
     "wmv"        => FileType::Video,
@@ -155,24 +163,34 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "flac"       => FileType::Lossless,
     "wav"        => FileType::Lossless,
     /* Cryptology files */
-    "asc"        => FileType::Crypto,
-    "enc"        => FileType::Crypto,
-    "gpg"        => FileType::Crypto,
-    "p12"        => FileType::Crypto,
-    "pfx"        => FileType::Crypto,
-    "pgp"        => FileType::Crypto,
-    "sig"        => FileType::Crypto,
-    "signature"  => FileType::Crypto,
+    "asc"        => FileType::Crypto, // GnuPG ASCII armored file
+    "gpg"        => FileType::Crypto, // GnuPG encrypted file
+    "kbx"        => FileType::Crypto, // GnuPG keybox
+    "md5"        => FileType::Crypto, // MD5 checksum
+    "p12"        => FileType::Crypto, // PKCS#12 certificate (Netscape)
+    "pem"        => FileType::Crypto, // Privacy enhanced mail certificate
+    "pfx"        => FileType::Crypto, // PKCS#12 certificate (Microsoft)
+    "pgp"        => FileType::Crypto, // PGP security key
+    "pub"        => FileType::Crypto, // Public key
+    "sha1"       => FileType::Crypto, // SHA-1 hash
+    "sha224"     => FileType::Crypto, // SHA-224 hash
+    "sha256"     => FileType::Crypto, // SHA-256 hash
+    "sha384"     => FileType::Crypto, // SHA-384 hash
+    "sha512"     => FileType::Crypto, // SHA-512 hash
+    "sig"        => FileType::Crypto, // GnuPG signed file
+    "signature"  => FileType::Crypto, // e-Filing Digital Signature File (India)
     /* Document files */
     "djvu"       => FileType::Document,
     "doc"        => FileType::Document,
     "docx"       => FileType::Document,
     "eml"        => FileType::Document,
     "fotd"       => FileType::Document,
+    "gdoc"       => FileType::Document,
     "key"        => FileType::Document,
     "keynote"    => FileType::Document,
     "numbers"    => FileType::Document,
     "odp"        => FileType::Document,
+    "ods"        => FileType::Document,
     "odt"        => FileType::Document,
     "pages"      => FileType::Document,
     "pdf"        => FileType::Document,
@@ -180,13 +198,15 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "pptx"       => FileType::Document,
     "rtf"        => FileType::Document,
     "xls"        => FileType::Document,
+    "xlsm"       => FileType::Document,
     "xlsx"       => FileType::Document,
     /* Compressed/archive files */
     "7z"         => FileType::Compressed,
-    "a"          => FileType::Compressed,
     "ar"         => FileType::Compressed,
+    "br"         => FileType::Compressed,
     "bz"         => FileType::Compressed,
     "bz2"        => FileType::Compressed,
+    "bz3"        => FileType::Compressed,
     "cpio"       => FileType::Compressed,
     "deb"        => FileType::Compressed,
     "dmg"        => FileType::Compressed,
@@ -197,7 +217,9 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "lzh"        => FileType::Compressed,
     "lzma"       => FileType::Compressed,
     "lzo"        => FileType::Compressed,
-    "par"        => FileType::Compressed,
+    "phar"       => FileType::Compressed,
+    "qcow"       => FileType::Compressed,
+    "qcow2"      => FileType::Compressed,
     "rar"        => FileType::Compressed,
     "rpm"        => FileType::Compressed,
     "tar"        => FileType::Compressed,
@@ -209,8 +231,10 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "tlz"        => FileType::Compressed,
     "txz"        => FileType::Compressed,
     "tz"         => FileType::Compressed,
-    "tzo"        => FileType::Compressed,
     "xz"         => FileType::Compressed,
+    "vdi"        => FileType::Compressed,
+    "vhd"        => FileType::Compressed,
+    "vmdk"       => FileType::Compressed,
     "z"          => FileType::Compressed,
     "zip"        => FileType::Compressed,
     "zst"        => FileType::Compressed,
@@ -218,18 +242,27 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "bak"        => FileType::Temp,
     "bk"         => FileType::Temp,
     "bkp"        => FileType::Temp,
+    "download"   => FileType::Temp,
     "swn"        => FileType::Temp,
     "swo"        => FileType::Temp,
     "swp"        => FileType::Temp,
     "tmp"        => FileType::Temp,
     /* Compiler output files */
-    "class"      => FileType::Compiled,
-    "elc"        => FileType::Compiled,
-    "hi"         => FileType::Compiled,
-    "ko"         => FileType::Compiled,
-    "o"          => FileType::Compiled,
-    "pyc"        => FileType::Compiled,
-    "zwc"        => FileType::Compiled,
+    "a"          => FileType::Compiled, // Unix static library
+    "bundle"     => FileType::Compiled, // Mac OS X application bundle
+    "class"      => FileType::Compiled, // Java class file
+    "dll"        => FileType::Compiled, // Windows dynamic link library
+    "dylib"      => FileType::Compiled, // Mach-O dynamic library
+    "elc"        => FileType::Compiled, // Emacs compiled lisp
+    "ko"         => FileType::Compiled, // Linux kernel module
+    "lib"        => FileType::Compiled, // Windows static library
+    "o"          => FileType::Compiled, // Compiled object file
+    "obj"        => FileType::Compiled, // Compiled object file
+    "pyc"        => FileType::Compiled, // Python compiled code
+    "pyd"        => FileType::Compiled, // Python dynamic module
+    "pyo"        => FileType::Compiled, // Python optimized code
+    "so"         => FileType::Compiled, // Unix shared library
+    "zwc"        => FileType::Compiled, // zsh compiled file
 };
 
 impl FileType {
@@ -265,7 +298,7 @@ pub struct FileTypeColor;
 impl FileColours for FileTypeColor {
     /// Map from the file type to the display style/color for the file.
     fn colour_file(&self, file: &File<'_>) -> Option<Style> {
-        use ansi_term::Colour::*;
+        use ansiterm::Colour::*;
 
         match FileType::get_file_type(file) {
             Some(FileType::Compiled)   => Some(Yellow.normal()),

@@ -1,7 +1,5 @@
 //! Parsing the options for `FileFilter`.
 
-use clap::Error;
-
 use crate::fs::DotFilter;
 use crate::fs::filter::{FileFilter, SortField, SortCase, IgnorePatterns, GitIgnore};
 

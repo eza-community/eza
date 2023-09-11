@@ -1,4 +1,4 @@
-use ansi_term::Style;
+use ansiterm::Style;
 #[cfg(unix)]
 use locale::Numeric as NumericLocale;
 
@@ -32,8 +32,8 @@ pub mod test {
     #[cfg(unix)]
     use crate::fs::fields as f;
 
-    use ansi_term::Colour::*;
-    use ansi_term::Style;
+    use ansiterm::Colour::*;
+    use ansiterm::Style;
     #[cfg(unix)]
     use locale;
 

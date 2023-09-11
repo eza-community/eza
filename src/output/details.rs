@@ -65,7 +65,7 @@ use std::mem::MaybeUninit;
 use std::path::PathBuf;
 use std::vec::IntoIter as VecIntoIter;
 
-use ansi_term::Style;
+use ansiterm::Style;
 use scoped_threadpool::Pool;
 
 use crate::fs::{Dir, File};
@@ -92,6 +92,7 @@ use crate::theme::Theme;
 ///
 /// Almost all the heavy lifting is done in a Table object, which handles the
 /// columns for each row.
+#[allow(clippy::struct_excessive_bools)] /// This clearly isn't a state machine
 #[derive(PartialEq, Eq, Debug)]
 pub struct Options {
 
@@ -109,6 +110,9 @@ pub struct Options {
 
     /// Whether to show each file's security attribute.
     pub secattr: bool,
+
+    /// Whether to show a directory's mounted filesystem details
+    pub mounts: bool,
 }
 
 
@@ -288,6 +292,7 @@ impl<'a> Render<'a> {
 
             let file_name = self.file_style.for_file(egg.file, self.theme)
                                 .with_link_paths()
+                                .with_mount_details(self.opts.mounts)
                                 .paint()
                                 .promote();
 

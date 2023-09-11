@@ -17,7 +17,7 @@
 
 
 ────────────────────────────────────────────────────────────────────────────────
-> cargo run -q --
+> cargo run -q -- -l --no-user --no-time --no-filesize
 
 
 
@@ -36,7 +36,7 @@
 
 
 ────────────────────────────────────────────────────────────────────────────────
-> cargo run -q --
+> cargo run -q -- -l --no-user --no-time --no-filesize
 
 
 
@@ -55,60 +55,60 @@
 
 
 ────────────────────────────────────────────────────────────────────────────────
-> cargo run -q --
-build.rs            CONTRIBUTING.md  out.gif              src
-Cargo.lock          devtools         README.md            target
-Cargo.toml          flake.lock       result               tests
-CHANGELOG.md        flake.nix        rust-toolchain.toml  treefmt.nix
-cliff.toml          Justfile         screenshots.png      Vagrantfile
-CODE_OF_CONDUCT.md  LICENCE          SECURITY.md          xtests
-completions         man              snap
->
-
-
-
-
-
-
-
-
-
+> cargo run -q -- -l --no-user --no-time --no-filesize
+.rw-r--r-- build.rs
+.rw-r--r-- Cargo.lock
+.rw-r--r-- Cargo.toml
+.rw-r--r-- CHANGELOG.md
+.rw-r--r-- cliff.toml
+.rw-r--r-- CODE_OF_CONDUCT.md
+drwxr-xr-x completions
+.rw-r--r-- CONTRIBUTING.md
+.rw-r--r-- deb.asc
+drwxr-xr-x devtools
+.rw-r--r-- flake.lock
+.rw-r--r-- flake.nix
+.rw-r--r-- Justfile
+.rw-r--r-- LICENCE
+drwxr-xr-x man
+.rw-r--r-- out.gif
+.rw-r--r-- README.md
 ────────────────────────────────────────────────────────────────────────────────
-> cargo run -q --
-build.rs            CONTRIBUTING.md  out.gif              src
-Cargo.lock          devtools         README.md            target
-Cargo.toml          flake.lock       result               tests
-CHANGELOG.md        flake.nix        rust-toolchain.toml  treefmt.nix
-cliff.toml          Justfile         screenshots.png      Vagrantfile
-CODE_OF_CONDUCT.md  LICENCE          SECURITY.md          xtests
-completions         man              snap
->
-
-
-
-
-
-
-
-
-
+> cargo run -q -- -l --no-user --no-time --no-filesize
+.rw-r--r-- build.rs
+.rw-r--r-- Cargo.lock
+.rw-r--r-- Cargo.toml
+.rw-r--r-- CHANGELOG.md
+.rw-r--r-- cliff.toml
+.rw-r--r-- CODE_OF_CONDUCT.md
+drwxr-xr-x completions
+.rw-r--r-- CONTRIBUTING.md
+.rw-r--r-- deb.asc
+drwxr-xr-x devtools
+.rw-r--r-- flake.lock
+.rw-r--r-- flake.nix
+.rw-r--r-- Justfile
+.rw-r--r-- LICENCE
+drwxr-xr-x man
+.rw-r--r-- out.gif
+.rw-r--r-- README.md
 ────────────────────────────────────────────────────────────────────────────────
-> cargo run -q --
-build.rs            CONTRIBUTING.md  out.gif              src
-Cargo.lock          devtools         README.md            target
-Cargo.toml          flake.lock       result               tests
-CHANGELOG.md        flake.nix        rust-toolchain.toml  treefmt.nix
-cliff.toml          Justfile         screenshots.png      Vagrantfile
-CODE_OF_CONDUCT.md  LICENCE          SECURITY.md          xtests
-completions         man              snap
->
-
-
-
-
-
-
-
-
-
+> cargo run -q -- -l --no-user --no-time --no-filesize
+.rw-r--r-- build.rs
+.rw-r--r-- Cargo.lock
+.rw-r--r-- Cargo.toml
+.rw-r--r-- CHANGELOG.md
+.rw-r--r-- cliff.toml
+.rw-r--r-- CODE_OF_CONDUCT.md
+drwxr-xr-x completions
+.rw-r--r-- CONTRIBUTING.md
+.rw-r--r-- deb.asc
+drwxr-xr-x devtools
+.rw-r--r-- flake.lock
+.rw-r--r-- flake.nix
+.rw-r--r-- Justfile
+.rw-r--r-- LICENCE
+drwxr-xr-x man
+.rw-r--r-- out.gif
+.rw-r--r-- README.md
 ────────────────────────────────────────────────────────────────────────────────

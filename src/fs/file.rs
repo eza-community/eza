@@ -6,16 +6,18 @@ use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
 #[cfg(windows)]
 use std::os::windows::fs::MetadataExt;
 use std::path::{Path, PathBuf};
-use std::time::SystemTime;
-#[cfg(unix)]
-use std::time::{Duration, UNIX_EPOCH};
+
+use chrono::prelude::*;
 
 use log::*;
 
+use crate::ALL_MOUNTS;
 use crate::fs::dir::Dir;
 use crate::fs::feature::xattr;
 use crate::fs::feature::xattr::{FileAttributes, Attribute};
 use crate::fs::fields as f;
+
+use super::mounts::MountedFs;
 
 
 /// A **File** is a wrapper around one of Rust’s `PathBuf` values, along with
@@ -79,7 +81,9 @@ pub struct File<'dir> {
     pub deref_links: bool,
     /// The extended attributes of this file.
     pub extended_attributes: Vec<Attribute>,
-}
+
+    /// The absolute value of this path, used to look up mount points.
+    pub absolute_path: PathBuf,}
 
 impl<'dir> File<'dir> {
     pub fn from_args<PD, FN>(path: PathBuf, parent_dir: PD, filename: FN, deref_links: bool) -> io::Result<File<'dir>>
@@ -94,8 +98,9 @@ impl<'dir> File<'dir> {
         let metadata   = std::fs::symlink_metadata(&path)?;
         let is_all_all = false;
         let extended_attributes = File::gather_extended_attributes(&path);
+        let absolute_path = std::fs::canonicalize(&path)?;
 
-        Ok(File { name, ext, path, metadata, parent_dir, is_all_all, deref_links, extended_attributes })
+        Ok(File { name, ext, path, metadata, parent_dir, is_all_all, deref_links, extended_attributes, absolute_path })
     }
 
     pub fn new_aa_current(parent_dir: &'dir Dir) -> io::Result<File<'dir>> {
@@ -107,8 +112,9 @@ impl<'dir> File<'dir> {
         let is_all_all = true;
         let parent_dir = Some(parent_dir);
         let extended_attributes = File::gather_extended_attributes(&path);
+        let absolute_path = std::fs::canonicalize(&path)?;
 
-        Ok(File { path, parent_dir, metadata, ext, name: ".".into(), is_all_all, deref_links: false, extended_attributes })
+        Ok(File { path, parent_dir, metadata, ext, name: ".".into(), is_all_all, deref_links: false, extended_attributes, absolute_path })
     }
 
     pub fn new_aa_parent(path: PathBuf, parent_dir: &'dir Dir) -> io::Result<File<'dir>> {
@@ -119,8 +125,9 @@ impl<'dir> File<'dir> {
         let is_all_all = true;
         let parent_dir = Some(parent_dir);
         let extended_attributes = File::gather_extended_attributes(&path);
+        let absolute_path = std::fs::canonicalize(&path)?;
 
-        Ok(File { path, parent_dir, metadata, ext, name: "..".into(), is_all_all, deref_links: false, extended_attributes })
+        Ok(File { path, parent_dir, metadata, ext, name: "..".into(), is_all_all, deref_links: false, extended_attributes, absolute_path })
     }
 
     /// A file’s name is derived from its string. This needs to handle directories
@@ -243,6 +250,21 @@ impl<'dir> File<'dir> {
         self.metadata.file_type().is_socket()
     }
 
+    /// Whether this file is a mount point
+    pub fn is_mount_point(&self) -> bool {
+        if cfg!(target_os = "linux") && self.is_directory() {
+            return ALL_MOUNTS.contains_key(&self.absolute_path);
+        }
+        false
+    }
+
+    /// The filesystem device and type for a mount point
+    pub fn mount_point_info(&self) -> Option<&MountedFs> {
+        if cfg!(target_os = "linux") {
+            return ALL_MOUNTS.get(&self.absolute_path);
+        }
+        None
+    }
 
     /// Re-prefixes the path pointed to by this file, if it’s a symlink, to
     /// make it an absolute path that can be accessed from whichever
@@ -293,7 +315,17 @@ impl<'dir> File<'dir> {
                 let ext  = File::ext(&path);
                 let name = File::filename(&path);
                 let extended_attributes = File::gather_extended_attributes(&absolute_path);
-                let file = File { parent_dir: None, path, ext, metadata, name, is_all_all: false, deref_links: self.deref_links, extended_attributes };
+                let file = File {
+                    parent_dir: None,
+                    path,
+                    ext,
+                    metadata,
+                    name,
+                    is_all_all: false,
+                    deref_links: self.deref_links,
+                    extended_attributes,
+                    absolute_path
+                };
                 FileTarget::Ok(Box::new(file))
             }
             Err(e) => {
@@ -503,71 +535,56 @@ impl<'dir> File<'dir> {
     }
 
     /// This file’s last modified timestamp, if available on this platform.
-    pub fn modified_time(&self) -> Option<SystemTime> {
+    pub fn modified_time(&self) -> Option<NaiveDateTime> {
         if self.is_link() && self.deref_links {
-            match self.link_target_recurse() {
-                FileTarget::Ok(f) => f.metadata.modified().ok(),
+            return match self.link_target_recurse() {
+                FileTarget::Ok(f) => f.modified_time(),
                 _ => None, 
-            }
-        } else {
-            self.metadata.modified().ok()
+            };
         }
+        self.metadata.modified().map(|st| DateTime::<Utc>::from(st).naive_utc()).ok()
     }
 
     /// This file’s last changed timestamp, if available on this platform.
     #[cfg(unix)]
-    pub fn changed_time(&self) -> Option<SystemTime> {
+    pub fn changed_time(&self) -> Option<NaiveDateTime> {
         if self.is_link() && self.deref_links {
-            match self.link_target_recurse() {
-                FileTarget::Ok(f) => return f.changed_time(),
-                _ => return None,
-            }
+            return match self.link_target_recurse() {
+                FileTarget::Ok(f) => f.changed_time(),
+                _ => None,
+            };
         }
-        
-        let (mut sec, mut nanosec) = (self.metadata.ctime(), self.metadata.ctime_nsec());
-
-        if sec < 0 {
-            if nanosec > 0 {
-                sec += 1;
-                nanosec -= 1_000_000_000;
-            }
-
-            let duration = Duration::new(sec.unsigned_abs(), nanosec.unsigned_abs() as u32);
-            Some(UNIX_EPOCH - duration)
-        }
-        else {
-            let duration = Duration::new(sec as u64, nanosec as u32);
-            Some(UNIX_EPOCH + duration)
-        }
+        NaiveDateTime::from_timestamp_opt(
+            self.metadata.ctime(),
+            self.metadata.ctime_nsec() as u32,
+        )
     }
 
     #[cfg(windows)]
-    pub fn changed_time(&self) -> Option<SystemTime> {
+    pub fn changed_time(&self) -> Option<NaiveDateTime> {
         self.modified_time()
     }
 
     /// This file’s last accessed timestamp, if available on this platform.
-    pub fn accessed_time(&self) -> Option<SystemTime> {
+    pub fn accessed_time(&self) -> Option<NaiveDateTime> {
         if self.is_link() && self.deref_links {
-            match self.link_target_recurse() {
-                FileTarget::Ok(f) => f.metadata.accessed().ok(),
+            return match self.link_target_recurse() {
+                FileTarget::Ok(f) => f.accessed_time(),
                 _ => None, 
-            }
-        } else {
-            self.metadata.accessed().ok()
+            };
         }
+        self.metadata.accessed().map(|st| DateTime::<Utc>::from(st).naive_utc()).ok()
     }
 
     /// This file’s created timestamp, if available on this platform.
-    pub fn created_time(&self) -> Option<SystemTime> {
+    pub fn created_time(&self) -> Option<NaiveDateTime> {
         if self.is_link() && self.deref_links {
-            match self.link_target_recurse() {
-                FileTarget::Ok(f) => f.metadata.created().ok(),
-                _ => None, 
-            }
-        } else {
-            self.metadata.created().ok()
+            return match self.link_target_recurse() {
+                FileTarget::Ok(f) => f.created_time(),
+                _ => None,
+            };
         }
+        self.metadata.created().map(|st| DateTime::<Utc>::from(st).naive_utc()).ok()
     }
 
     /// This file’s ‘type’.

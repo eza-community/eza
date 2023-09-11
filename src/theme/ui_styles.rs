@@ -1,4 +1,4 @@
-use ansi_term::Style;
+use ansiterm::Style;
 
 use crate::theme::lsc::Pair;
 
@@ -39,6 +39,7 @@ pub struct FileKinds {
     pub socket: Style,
     pub special: Style,
     pub executable: Style,
+    pub mount_point: Style,
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -209,6 +210,8 @@ impl UiStyles {
             "lp" => self.symlink_path             = pair.to_style(),
             "cc" => self.control_char             = pair.to_style(),
             "bO" => self.broken_path_overlay      = pair.to_style(),
+
+            "mp" => self.filekinds.mount_point    = pair.to_style(),
 
              _   => return false,
         }

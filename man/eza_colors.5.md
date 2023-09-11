@@ -220,6 +220,9 @@ LIST OF CODES
 `bO`
 : the overlay style for broken symlink paths
 
+`mp`
+: a mount point
+
 Values in `EXA_COLORS` override those given in `LS_COLORS`, so you don’t need to re-write an existing `LS_COLORS` variable with proprietary extensions.
 
 
@@ -256,6 +259,30 @@ The codes accepted by eza are:
 
 `37`
 : for white text
+
+`90`
+: for dark gray text
+
+`91`
+: for bright red text
+
+`92`
+: for bright green text
+
+`93`
+: for bright yellow text
+
+`94`
+: for bright blue text
+
+`95`
+: for bright purple text
+
+`96`
+: for bright cyan text
+
+`97`
+: for bright  text
 
 `38;5;nnn`
 : for a colour from 0 to 255 (replace the `nnn` part)

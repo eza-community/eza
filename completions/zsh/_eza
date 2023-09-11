@@ -26,7 +26,7 @@ __eza() {
         --hyperlink"[Display entries as hyperlinks]" \
         --group-directories-first"[Sort directories before other files]" \
         --git-ignore"[Ignore files mentioned in '.gitignore']" \
-        {-a,--all}"[Show hidden and 'dot' files]" \
+        {-a,--all}"[Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories]" \
         {-d,--list-dirs}"[List directories like regular files]" \
         {-D,--only-dirs}"[List only directories]" \
         {-L,--level}"+[Limit the depth of recursion]" \
@@ -60,6 +60,7 @@ __eza() {
         --git-repos-no-status"[List each git-repos branch name (much faster)]" \
         {-@,--extended}"[List each file's extended attributes and sizes]" \
         {-Z,--context}"[List each file's security context]" \
+        {-M,--mounts}"[Show mount details (long mode only)]" \
         '*:filename:_files'
 }
 

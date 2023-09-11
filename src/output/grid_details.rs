@@ -2,7 +2,7 @@
 
 use std::io::{self, Write};
 
-use ansi_term::ANSIStrings;
+use ansiterm::ANSIStrings;
 use term_grid as grid;
 
 use crate::fs::{Dir, File};

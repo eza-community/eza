@@ -7,7 +7,7 @@ eza is a modern, maintained replacement for ls, built on [exa](https://github.co
 **README Sections:** [Options](#options) — [Installation](#installation) — [Development](#development)
 
 [![Built with Nix](https://img.shields.io/badge/Built_With-Nix-5277C3.svg?logo=nixos&labelColor=73C3D5)](https://nixos.org)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 <a href="https://matrix.to/#/#eza:gitter.im"><img alt="Gitter" src="https://img.shields.io/gitter/room/eza-community/eza?logo=element&link=https%3A%2F%2Fapp.gitter.im%2F%23%2Froom%2F%23eza%3Agitter.im&link=Gitter%20matrix%20room%20for%20Eza"></a>
 
 [![Unit tests](https://github.com/eza-community/eza/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/eza-community/eza/actions/workflows/unit-tests.yml)
@@ -34,12 +34,13 @@ By deliberately making some decisions differently, eza attempts to be a more fea
 
  -   Fixes [“The Grid Bug”](https://github.com/eza-community/eza/issues/66#issuecomment-1656758327) introduced in exa 2021.
  -   Hyperlink support.
+ -   Mount point details.
  -   Selinux context output.
  -   Git repo status output.
  -   Human readable relative dates.
- -   Several security fixes (see [dependabot](https://github.com/eza-community/eza/security/dependabot?q=is%3Aclosed))
+ -   Several security fixes.
  -   Many smaller bug fixes/changes!
-
+ -   Support for `bright` terminal colours.
 ---
 
 <a id="try-it">
@@ -60,7 +61,7 @@ If you want to pass arguments this way, use e.g. `nix run github:eza-community/e
 <h1>Installation</h1>
 </a>
 
-eza is available for macOS and Linux.
+eza is available for Windows, macOS and Linux.
 
 ### Cargo (crates.io)
 
@@ -83,11 +84,30 @@ If you already have a Rust environment set up, you can use the `cargo install` c
 Cargo will build the `eza` binary and place it in `$HOME/.cargo`.
 
 ### Arch Linux
-[![AUR package](https://repology.org/badge/version-for-repo/aur/eza.svg)](https://repology.org/project/eza/versions)
 
-Eza is available in the [AUR](https://aur.archlinux.org/packages/eza-git).
+[![Arch Linux package](https://repology.org/badge/version-for-repo/arch/eza.svg)](https://repology.org/project/eza/versions)
 
-### Nix
+Eza is available in the [\[extra\]](https://archlinux.org/packages/extra/x86_64/eza/) repository of Arch Linux.
+
+```bash
+pacman -S eza
+```
+
+### Debian and Ubuntu
+
+Eza is available from [deb.gierens.de](http://deb.gierens.de). The GPG public
+key is in this repo under [deb.asc](/deb.asc).
+
+To install eza from this repo use:
+```bash
+wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo tee /etc/apt/trusted.gpg.d/gierens.asc
+echo "deb http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+sudo apt update
+sudo apt install -y eza
+```
+
+### Nix (Linux, MacOS)
+
 [![nixpkgs unstable package](https://repology.org/badge/version-for-repo/nix_unstable/eza.svg)](https://repology.org/project/eza/versions)
 
 Eza is available from [Nixpkgs](https://github.com/NixOS/nixpkgs).
@@ -104,18 +124,18 @@ For `nix-env` users:
 nix-env -i eza
 ```
 
-### Debian and Ubuntu
-Eza is available from [deb.gierens.de](http://deb.gierens.de). The GPG public
-key is in this repo under [deb.asc](/deb.asc).
+### Brew (MacOS)
 
-To install eza from this repo use:
-```bash
-wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo tee /etc/apt/trusted.gpg.d/gierens.asc
-echo "deb http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
-sudo apt update
-sudo apt install -y eza
+[![Homebrew package](https://repology.org/badge/version-for-repo/homebrew/eza.svg)](https://repology.org/project/eza/versions)
+
+
+Eza is available from [Homebrew](https://formulae.brew.sh/formula/eza#default).
+
+To install eza, run:
+
+```shell
+brew install eza
 ```
-
 
 ---
 Click sections to expand.
@@ -170,6 +190,7 @@ These options are available when running with `--long` (`-l`):
 - **-H**, **--links**: list each file’s number of hard links
 - **-i**, **--inode**: list each file’s inode number
 - **-m**, **--modified**: use the modified timestamp field
+- **-M**, **--mounts**: Show mount details (Linux only).
 - **-S**, **--blocksize**: show size of allocated file system blocks
 - **-t**, **--time=(field)**: which timestamp field to use
 - **-u**, **--accessed**: use the accessed timestamp field
@@ -287,3 +308,7 @@ For this reason, Vagrant isn’t a *necessary* development step — it’s there
 It can still be built and compiled on any target triple that it supports, VM or no VM, with `cargo build` and `cargo test`.
 
 </details>
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=eza-community/eza&type=Date)](https://star-history.com/#eza-community/eza&Date)

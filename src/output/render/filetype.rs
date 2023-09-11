@@ -1,4 +1,4 @@
-use ansi_term::{ANSIString, Style};
+use ansiterm::{ANSIString, Style};
 
 use crate::fs::fields as f;
 

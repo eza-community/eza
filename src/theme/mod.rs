@@ -1,4 +1,4 @@
-use ansi_term::Style;
+use ansiterm::Style;
 
 use crate::fs::File;
 use crate::output::file_name::Colours as FileNameColours;
@@ -327,6 +327,7 @@ impl FileNameColours for Theme {
     fn control_char(&self)        -> Style { self.ui.control_char }
     fn symlink_path(&self)        -> Style { self.ui.symlink_path }
     fn executable_file(&self)     -> Style { self.ui.filekinds.executable }
+    fn mount_point(&self)         -> Style { self.ui.filekinds.mount_point }
 
     fn colour_file(&self, file: &File<'_>) -> Style {
         self.exts.colour_file(file).unwrap_or(self.ui.filekinds.normal)
@@ -370,7 +371,7 @@ fn apply_overlay(mut base: Style, overlay: Style) -> Style {
 
     base
 }
-// TODO: move this function to the ansi_term crate
+// TODO: move this function to the ansiterm crate
 
 
 #[cfg(test)]
@@ -378,7 +379,7 @@ fn apply_overlay(mut base: Style, overlay: Style) -> Style {
 mod customs_test {
     use super::*;
     use crate::theme::ui_styles::UiStyles;
-    use ansi_term::Colour::*;
+    use ansiterm::Colour::*;
 
     macro_rules! test {
         ($name:ident:  ls $ls:expr, exa $exa:expr  =>  colours $expected:ident -> $process_expected:expr) => {
@@ -533,6 +534,8 @@ mod customs_test {
     test!(exa_lp:  ls "", exa "lp=38;5;133"  =>  colours c -> { c.symlink_path              = Fixed(133).normal(); });
     test!(exa_cc:  ls "", exa "cc=38;5;134"  =>  colours c -> { c.control_char              = Fixed(134).normal(); });
     test!(exa_bo:  ls "", exa "bO=4"         =>  colours c -> { c.broken_path_overlay       = Style::default().underline(); });
+
+    test!(exa_mp:  ls "", exa "mp=1;34;4"    =>  colours c -> { c.filekinds.mount_point     = Blue.bold().underline(); });
 
     // All the while, LS_COLORS treats them as filenames:
     test!(ls_uu:   ls "uu=38;5;117", exa ""  =>  exts [ ("uu", Fixed(117).normal()) ]);

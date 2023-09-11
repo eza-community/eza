@@ -95,6 +95,8 @@ impl Mode {
                 return Err(OptionsError::Useless("--group".to_string(), false, "--long".to_string()));
             } else if matches.numeric > 0 {
                 return Err(OptionsError::Useless("--numeric".to_string(), false, "--long".to_string()));
+            } else if matches.mount > 0 {
+                return Err(OptionsError::Useless("--mount".to_string(), false, "--long".to_string()));
             }
         }
         Ok(())
@@ -116,6 +118,7 @@ impl details::Options {
             header: false,
             xattr: xattr::ENABLED && matches.extended > 0,
             secattr: xattr::ENABLED && matches.security_context > 0,
+            mounts: matches.mount > 0,
         }
     }
 
@@ -134,6 +137,7 @@ impl details::Options {
             header: matches.header > 0,
             xattr: xattr::ENABLED && matches.extended > 0,
             secattr: xattr::ENABLED && matches.security_context > 0,
+            mounts: matches.mount > 0,
         })
     }
 }
@@ -550,6 +554,7 @@ mod test {
             header: false,
             xattr: xattr::ENABLED && matches.extended > 0,
             secattr: xattr::ENABLED && matches.security_context > 0,
+            mounts: matches.mount > 0,
         });
     }
 }
