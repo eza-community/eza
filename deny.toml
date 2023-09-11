@@ -265,8 +265,8 @@ allow-git = []
 
 [sources.allow-org]
 # 1 or more github.com organizations to allow git sources for
-github = [""]
-# 1 or more gitlab.com organizations to allow git sources for
-gitlab = [""]
-# 1 or more bitbucket.org organizations to allow git sources for
-bitbucket = [""]
+# github = [""]
+# # 1 or more gitlab.com organizations to allow git sources for
+# gitlab = [""]
+# # 1 or more bitbucket.org organizations to allow git sources for
+# bitbucket = [""]
