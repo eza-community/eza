@@ -223,6 +223,36 @@ LIST OF CODES
 `mp`
 : a mount point
 
+`im`
+: image files
+
+`vi`
+: video files
+
+`mu`
+: music files
+
+`lo`
+: lossless music files
+
+`cr`
+: cryptographic files
+
+`do`
+: document files
+
+`co`
+: compressed files
+
+`tm`
+: temporary files
+
+`cm`
+: compiled files
+
+`ie`
+: immediate files
+
 Values in `EXA_COLORS` override those given in `LS_COLORS`, so you don’t need to re-write an existing `LS_COLORS` variable with proprietary extensions.
 
 
