@@ -124,6 +124,16 @@ For `nix-env` users:
 nix-env -i eza
 ```
 
+### Gentoo
+
+[![Gentoo package](https://repology.org/badge/version-for-repo/gentoo/eza.svg)](https://repology.org/project/eza/versions)
+
+On Gentoo, eza is available as a package [`sys-apps/exa`](https://packages.gentoo.org/packages/sys-apps/eza):
+
+```bash
+emerge --ask sys-apps/eza
+```
+
 ### Brew (MacOS)
 
 [![Homebrew package](https://repology.org/badge/version-for-repo/homebrew/eza.svg)](https://repology.org/project/eza/versions)
