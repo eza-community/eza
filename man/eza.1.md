@@ -200,7 +200,7 @@ These options are available when running with `--long` (`-l`):
 
 This adds a two-character column indicating the staged and unstaged statuses respectively. The status character can be ‘`-`’ for not modified, ‘`M`’ for a modified file, ‘`N`’ for a new file, ‘`D`’ for deleted, ‘`R`’ for renamed, ‘`T`’ for type-change, ‘`I`’ for ignored, and ‘`U`’ for conflicted.
 
-Directories will be shown to have the status of their contents, which is how ‘deleted’ is possible: if a directory contains a file that has a certain status, it will be shown to have that status.
+Directories will be shown to have the status of their contents, which is how ‘deleted’ is possible: if a directory contains a file that has a certain status, it will be shown to have that status. Symbols shown are `|` (green) for clean, `+` (red) for dirty, and `-`(green) for unknown. 
 
 `--no-git`
 : Don't show Git status (always overrides `--git`, `--git-repos`, `--git-repos-no-status`)
