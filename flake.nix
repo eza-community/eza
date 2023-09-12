@@ -108,6 +108,17 @@
             mode = "clippy";
             inherit buildInputs;
           };
+
+          # Run `nix build .#clippy` to lint code
+          trybuild = naersk'.buildPackage {
+            src = ./.;
+            mode = "test";
+            TRYCMD="dump";
+            postInstall = ''
+              cp dump $out -r
+            '';
+            inherit buildInputs;
+          };
         };
 
         # For `nix develop`:
