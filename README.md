@@ -141,6 +141,36 @@ On Gentoo, eza is available as a package [`sys-apps/eza`](https://packages.gento
 emerge --ask sys-apps/eza
 ```
 
+### openSUSE
+
+Eza is available at [openSUSE:Factory/eza](https://build.opensuse.org/package/show/openSUSE:Factory/eza):
+
+```bash
+zypper ar https://download.opensuse.org/tumbleweed/repo/oss/ factory-oss
+zypper in eza
+```
+
+The preceding repository also contains the Bash, Fish, and Zsh completions.
+
+### Fedora
+
+You can install Eza from [openSUSE:Factory/eza](https://build.opensuse.org/package/show/openSUSE:Factory/eza):
+
+```bash
+tee /etc/yum.repos.d/opensuse-tumbleweed-oss.repo <<EOL
+[opensuse-tumbleweed-oss]
+name=OpenSUSE Tumbleweed OSS
+baseurl=https://download.opensuse.org/tumbleweed/repo/oss/
+enabled=1
+gpgcheck=1
+gpgkey=https://download.opensuse.org/tumbleweed/repo/oss/repodata/repomd.xml.key
+EOL
+
+dnf install eza
+```
+
+The preceding repository also contains the Bash, Fish, and Zsh completions.
+
 ### Brew (MacOS)
 
 [![Homebrew package](https://repology.org/badge/version-for-repo/homebrew/eza.svg)](https://repology.org/project/eza/versions)
