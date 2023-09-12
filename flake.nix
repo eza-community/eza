@@ -109,8 +109,8 @@
             inherit buildInputs;
           };
 
-          # Run `nix build .#clippy` to lint code
-          trybuild = naersk'.buildPackage {
+          # Run `nix build .#trydump` to dump testing files
+          trydump = naersk'.buildPackage {
             src = ./.;
             mode = "test";
             TRYCMD="dump";
