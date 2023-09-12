@@ -62,7 +62,7 @@ mod theme;
 // to `clap` is complete.
 lazy_static! {
     static ref ALL_MOUNTS: HashMap<PathBuf, mounts::MountedFs> = {
-        // Allow unused_mut for windows
+        // Allow unused_mut for windows build
         #[allow(unused_mut)]
         let mut mount_map: HashMap<PathBuf, mounts::MountedFs> = HashMap::new();
 

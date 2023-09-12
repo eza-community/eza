@@ -35,8 +35,8 @@ impl std::fmt::Display for Error {
             #[cfg(target_os = "macos")]
             Error::GetFSStatError(err) => write!(f, "getfsstat failed: {err}"),
             #[cfg(target_os = "linux")]
-            Error::IOError(err) => write!(f, "failed to read /proc/mounts: {err}"),
-            _ => write!(f, "Unknown error"),
+            Error::IOError(err)        => write!(f, "failed to read /proc/mounts: {err}"),
+            _                          => write!(f, "Unknown error"),
         }
     }
 }
