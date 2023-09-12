@@ -36,10 +36,6 @@ all-release: build-release test-release
 @test-release:
     cargo test --workspace --release --verbose
 
-alias itest := integration_tests
-@integration_tests:
-    VHS_PUBLISH=false ./tests/vhs-runner.sh
-
 #------------------------#
 # running extended tests #
 #------------------------#
