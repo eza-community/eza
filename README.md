@@ -106,6 +106,13 @@ sudo apt update
 sudo apt install -y eza
 ```
 
+**Note:** on some systems like Docker containers apt might require the key
+to be in dearmored format, then use this command instead:
+```bash
+wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/gierens.asc
+```
+before proceeding with the others from above.
+
 ### Nix (Linux, MacOS)
 
 [![nixpkgs unstable package](https://repology.org/badge/version-for-repo/nix_unstable/eza.svg)](https://repology.org/project/eza/versions)
@@ -124,6 +131,46 @@ For `nix-env` users:
 nix-env -i eza
 ```
 
+### Gentoo
+
+[![Gentoo package](https://repology.org/badge/version-for-repo/gentoo/eza.svg)](https://repology.org/project/eza/versions)
+
+On Gentoo, eza is available as a package [`sys-apps/eza`](https://packages.gentoo.org/packages/sys-apps/eza):
+
+```bash
+emerge --ask sys-apps/eza
+```
+
+### openSUSE
+
+Eza is available at [openSUSE:Factory/eza](https://build.opensuse.org/package/show/openSUSE:Factory/eza):
+
+```bash
+zypper ar https://download.opensuse.org/tumbleweed/repo/oss/ factory-oss
+zypper in eza
+```
+
+The preceding repository also contains the Bash, Fish, and Zsh completions.
+
+### Fedora
+
+You can install Eza from [openSUSE:Factory/eza](https://build.opensuse.org/package/show/openSUSE:Factory/eza):
+
+```bash
+tee /etc/yum.repos.d/opensuse-tumbleweed-oss.repo <<EOL
+[opensuse-tumbleweed-oss]
+name=OpenSUSE Tumbleweed OSS
+baseurl=https://download.opensuse.org/tumbleweed/repo/oss/
+enabled=1
+gpgcheck=1
+gpgkey=https://download.opensuse.org/tumbleweed/repo/oss/repodata/repomd.xml.key
+EOL
+
+dnf install eza
+```
+
+The preceding repository also contains the Bash, Fish, and Zsh completions.
+
 ### Brew (MacOS)
 
 [![Homebrew package](https://repology.org/badge/version-for-repo/homebrew/eza.svg)](https://repology.org/project/eza/versions)
@@ -135,6 +182,18 @@ To install eza, run:
 
 ```shell
 brew install eza
+```
+
+### MacPorts (macOS)
+
+[![MacPorts port](https://repology.org/badge/version-for-repo/macports/eza.svg)](https://repology.org/project/eza/versions)
+
+On macOS, eza is also available via [MacPorts](https://ports.macports.org/port/eza/).
+
+To install eza, run:
+
+```shell
+sudo port install eza
 ```
 
 ---
@@ -270,44 +329,6 @@ The Nix Flake has a few features:
 - Run `nix build .#test` to run `cargo test` via the flake.
 - Run `nix build .#clippy` to lint with clippy (still work in progress).
 
-
-### Testing with Vagrant
-
-eza uses [Vagrant][] to configure virtual machines for testing.
-
-Programs such as eza that are basically interfaces to the system are [notoriously difficult to test][testing].
-Although the internal components have unit tests, it’s impossible to do a complete end-to-end test without mandating the current user’s name, the time zone, the locale, and directory structure to test.
-(And yes, these tests are worth doing. I have missed an edge case on many an occasion.)
-
-The initial attempt to solve the problem was just to create a directory of “awkward” test cases, run eza on it, and make sure it produced the correct output.
-But even this output would change if, say, the user’s locale formats dates in a different way.
-These can be mocked inside the code, but at the cost of making that code more complicated to read and understand.
-
-An alternative solution is to fake *everything*: create a virtual machine with a known state and run the tests on *that*.
-This is what Vagrant does.
-Although it takes a while to download and set up, it gives everyone the same development environment to test for any obvious regressions.
-
-[Vagrant]: https://www.vagrantup.com/
-[testing]: https://eev.ee/blog/2016/08/22/testing-for-people-who-hate-testing/#troublesome-cases
-
-First, initialise the VM:
-
-    host$ vagrant up
-
-The first command downloads the virtual machine image, and then runs our provisioning script, which installs Rust and eza’s build-time dependencies, configures the environment, and generates some awkward files and folders to use as test cases.
-Once this is done, you can SSH in, and build and test:
-
-    host$ vagrant ssh
-    vm$ cd /vagrant
-    vm$ cargo build
-    vm$ ./xtests/run
-    All the tests passed!
-
-Of course, the drawback of having a standard development environment is that you stop noticing bugs that occur outside of it.
-For this reason, Vagrant isn’t a *necessary* development step — it’s there if you’d like to use it, but eza still gets used and tested on other platforms.
-It can still be built and compiled on any target triple that it supports, VM or no VM, with `cargo build` and `cargo test`.
-
-</details>
 
 ## Star History
 
