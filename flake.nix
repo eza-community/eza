@@ -113,7 +113,13 @@
           trycmd = naersk'.buildPackage {
             src = ./.;
             mode = "test";
-            # cargoTestOptions = opts: opts ++ [ "--test cli_tests" ];
+            doCheck = true;
+            # No reason to wait for release build
+            release = false;
+            # buildPhase files differ between dep and main phase
+            singleStep = true;
+            # set itests files creation date to unix epoch
+            buildPhase = ''cd tests/itest; touch --date=@0 *'';
             cargoTestOptions = opts: opts ++ [ "--features nix" ];
             inherit buildInputs;
           };
