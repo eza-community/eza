@@ -134,7 +134,7 @@
             # buildPhase files differ between dep and main phase
             singleStep = true;
             # set itests files creation date to unix epoch
-            buildPhase = ''touch --date=@0 tests/itest/*'';
+            buildPhase = ''touch --date=@0 tests/itest/*; rm tests/cmd/*.stdout; rm tests/cmd/*.stderr;'';
             cargoTestOptions = opts: opts ++ [ "--features nix" ];
             TRYCMD="dump";
             postInstall = ''
