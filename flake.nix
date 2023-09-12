@@ -109,10 +109,19 @@
             inherit buildInputs;
           };
 
+          # Run `nix build .#trycmd` to run integration tests
+          trycmd = naersk'.buildPackage {
+            src = ./.;
+            mode = "test";
+            # cargoTestOptions = opts: opts ++ [ "--test cli_tests" ];
+            inherit buildInputs;
+          };
+
           # Run `nix build .#trydump` to dump testing files
           trydump = naersk'.buildPackage {
             src = ./.;
             mode = "test";
+            # cargoTestOptions = opts: opts ++ [ "--test cli_tests" ];
             TRYCMD="dump";
             postInstall = ''
               cp dump $out -r
