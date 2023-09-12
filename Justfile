@@ -36,26 +36,6 @@ all-release: build-release test-release
 @test-release:
     cargo test --workspace --release --verbose
 
-#------------------------#
-# running extended tests #
-#------------------------#
-
-# run extended tests
-@xtests:
-    echo "XTESTS ARE DEPRECATED DON'T USE"
-    .xtests/run.sh
-
-# run extended tests (using the release mode exa)
-@xtests-release:
-    echo "XTESTS ARE DEPRECATED DON'T USE"
-    .xtests/run.sh --release
-
-# display the number of extended tests that get run
-@count-xtests:
-    echo "XTESTS ARE DEPRECATED DON'T USE"
-    grep -F '[[cmd]]' -R .xtests | wc -l
-
-
 #-----------------------#
 # code quality and misc #
 #-----------------------#
@@ -80,13 +60,6 @@ all-release: build-release test-release
 @check-features:
     command -v cargo-hack >/dev/null || (echo "cargo-hack not installed" && exit 1)
     cargo hack check --feature-powerset
-
-# build exa and run extended tests with features disabled
-@feature-checks *args:
-    echo "XTESTS ARE DEPRECATED DON'T USE"
-    cargo build --no-default-features
-    specsheet .xtests/features/none.toml -shide {{args}} \
-        -O cmd.target.exa="${CARGO_TARGET_DIR:-../../target}/debug/exa"
 
 # print versions of the necessary build tools
 @versions:
@@ -166,3 +139,23 @@ all-release: build-release test-release
     echo "```"
     md5sum ./target/"bin-$(convco version)"/*
     echo "```"
+
+#---------------------#
+# Integration testing #
+#---------------------#
+
+# Runs integration tests in nix sandbox
+#
+# Required nix, likely won't work on windows.
+@itest:
+    nix build -L ./#trycmd
+
+# Runs integration tests in nix sandbox, and dumps outputs.
+#
+# WARNING: this can cause loss of work
+@idump:
+    rm ./tests/cmd/*nix.stderr -f || echo  
+    rm ./tests/cmd/*nix.stdout -f || echo
+    nix build -L ./#trydump
+    cp ./result/dump/*nix.* ./tests/cmd/
+
