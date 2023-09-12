@@ -166,3 +166,23 @@ all-release: build-release test-release
     echo "```"
     md5sum ./target/"bin-$(convco version)"/*
     echo "```"
+
+#---------------------#
+# Integration testing #
+#---------------------#
+
+# Runs integration tests in nix sandbox
+#
+# Required nix, likely won't work on windows.
+@itest:
+    nix build -L ./#trycmd
+
+# Runs integration tests in nix sandbox, and dumps outputs.
+#
+# WARNING: this can cause loss of work
+@idump:
+    rm ./tests/cmd/*nix.stderr -f || echo  
+    rm ./tests/cmd/*nix.stdout -f || echo
+    nix build -L ./#trydump
+    cp ./result/dump/*nix.* ./tests/cmd/
+
