@@ -29,5 +29,5 @@ stage
 out.gif
 tests/tmp
 
-#vscode
+# Visual Studio Code
 .vscode
