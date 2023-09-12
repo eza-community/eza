@@ -33,7 +33,6 @@ pub struct Opts {
     /// display type indicator by file names.
     #[arg(short = 'F', long, action = clap::ArgAction::Count)]
     pub classify: u8,
-    /// 
     #[arg(short = 'X', long, action = clap::ArgAction::Count)]
     pub dereference: u8,
     /// set screen width in columns.
@@ -49,7 +48,6 @@ pub struct Opts {
     pub color_scale: u8,
     #[arg(long, action = clap::ArgAction::Count)]
     pub colour_scale: u8,
-    ///
     #[arg(short = 'A', long, action = clap::ArgAction::Count)]
     pub almost_all: u8,
     /// list directories as files; don't list their contents.

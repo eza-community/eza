@@ -88,7 +88,6 @@ lazy_static! {
     };
 }
 
-
 fn main() {
     use std::process::exit;
 
