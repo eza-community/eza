@@ -100,7 +100,7 @@ key is in this repo under [deb.asc](/deb.asc).
 
 To install eza from this repo use:
 ```bash
-wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo tee /etc/apt/trusted.gpg.d/gierens.asc
+wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/gierens.asc
 echo "deb http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
 sudo apt update
 sudo apt install -y eza
