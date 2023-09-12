@@ -27,17 +27,11 @@ impl UseColours {
             None => Self::Automatic,
         };
 
-        let color = match matches.color {
-            Some(ref w) => Some(w),
-            None => None,
-        };
-        let colour = match matches.colour {
-            Some(ref w) => Some(w),
-            None => None,
-        };
-        match (color, colour) {
-            (Some(ref w), None) => self::UseColours::get_color(w.to_string_lossy().to_string()),
-            (None, Some(ref w)) => self::UseColours::get_color(w.to_string_lossy().to_string()),
+        let color_us = matches.color.as_ref();
+        let colour_en = matches.colour.as_ref();
+        match (color_us, colour_en) {
+            (Some(w), None) => self::UseColours::get_color(w.to_string_lossy().to_string()),
+            (None, Some(w)) => self::UseColours::get_color(w.to_string_lossy().to_string()),
             (None, None) => Ok(default_value),
             (Some(_), Some(_)) => Err(OptionsError::BadArgument("--color".to_string(), "--colour".to_string())),
         }
