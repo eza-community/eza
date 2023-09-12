@@ -147,6 +147,18 @@ To install eza, run:
 brew install eza
 ```
 
+### MacPorts (macOS)
+
+[![MacPorts port](https://repology.org/badge/version-for-repo/macports/eza.svg)](https://repology.org/project/eza/versions)
+
+On macOS, eza is also available via [MacPorts](https://ports.macports.org/port/eza/).
+
+To install eza, run:
+
+```shell
+sudo port install eza
+```
+
 ---
 Click sections to expand.
 
