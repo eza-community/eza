@@ -17,3 +17,10 @@ fn cli_windows_tests() {
     trycmd::TestCases::new()
         .case("tests/cmd/*_windows.toml");
 }
+
+#[test]
+#[cfg(feature="nix")]
+fn cli_nix_tests() {
+    trycmd::TestCases::new()
+        .case("tests/cmd/*_nix.toml");
+}

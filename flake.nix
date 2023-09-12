@@ -108,6 +108,40 @@
             mode = "clippy";
             inherit buildInputs;
           };
+
+          # Run `nix build .#trycmd` to run integration tests
+          trycmd = naersk'.buildPackage {
+            src = ./.;
+            mode = "test";
+            doCheck = true;
+            # No reason to wait for release build
+            release = false;
+            # buildPhase files differ between dep and main phase
+            singleStep = true;
+            # set itests files creation date to unix epoch
+            buildPhase = ''touch --date=@0 tests/itest/*'';
+            cargoTestOptions = opts: opts ++ [ "--features nix" ];
+            inherit buildInputs;
+          };
+
+          # Run `nix build .#trydump` to dump testing files
+          trydump = naersk'.buildPackage {
+            src = ./.;
+            mode = "test";
+            doCheck = true;
+            # No reason to wait for release build
+            release = false;
+            # buildPhase files differ between dep and main phase
+            singleStep = true;
+            # set itests files creation date to unix epoch
+            buildPhase = ''touch --date=@0 tests/itest/*; rm tests/cmd/*.stdout; rm tests/cmd/*.stderr;'';
+            cargoTestOptions = opts: opts ++ [ "--features nix" ];
+            TRYCMD="dump";
+            postInstall = ''
+              cp dump $out -r
+            '';
+            inherit buildInputs;
+          };
         };
 
         # For `nix develop`:

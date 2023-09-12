@@ -43,7 +43,7 @@ jobs:
         run: cargo install cargo-hack@0.5.27
 
       - name: Run unit tests
-        run: cargo hack test --feature-powerset
+        run: cargo hack test 
 
       - name: Run clippy lints
         run: cargo clippy -- -D warnings 
