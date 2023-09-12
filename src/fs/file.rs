@@ -253,7 +253,7 @@ impl<'dir> File<'dir> {
 
     /// Whether this file is a mount point
     pub fn is_mount_point(&self) -> bool {
-        if cfg!(target_os = "linux") && self.is_directory() {
+        if cfg!(any(target_os = "linux", target_os = "macos")) && self.is_directory() {
             return match self.absolute_path.as_ref() {
                 Some(path) => ALL_MOUNTS.contains_key(path),
                 None => false,
@@ -264,7 +264,7 @@ impl<'dir> File<'dir> {
 
     /// The filesystem device and type for a mount point
     pub fn mount_point_info(&self) -> Option<&MountedFs> {
-        if cfg!(target_os = "linux") {
+        if cfg!(any(target_os = "linux",target_os = "macos")) {
             return self.absolute_path.as_ref().and_then(|p|ALL_MOUNTS.get(p));
         }
         None
