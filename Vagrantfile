@@ -1,5 +1,7 @@
 Vagrant.configure(2) do |config|
 
+  # NOTE: XTESTS ARE DEPRECATED DO NOT USE THEM
+
   # We use Ubuntu instead of Debian because the image comes with two-way
   # shared folder support by default.
   UBUNTU = 'hashicorp/bionic64'

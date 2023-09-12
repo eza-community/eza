@@ -46,15 +46,18 @@ alias itest := integration_tests
 
 # run extended tests
 @xtests:
-    xtests/run.sh
+    echo "XTESTS ARE DEPRECATED DON'T USE"
+    .xtests/run.sh
 
 # run extended tests (using the release mode exa)
 @xtests-release:
-    xtests/run.sh --release
+    echo "XTESTS ARE DEPRECATED DON'T USE"
+    .xtests/run.sh --release
 
 # display the number of extended tests that get run
 @count-xtests:
-    grep -F '[[cmd]]' -R xtests | wc -l
+    echo "XTESTS ARE DEPRECATED DON'T USE"
+    grep -F '[[cmd]]' -R .xtests | wc -l
 
 
 #-----------------------#
@@ -84,8 +87,9 @@ alias itest := integration_tests
 
 # build exa and run extended tests with features disabled
 @feature-checks *args:
+    echo "XTESTS ARE DEPRECATED DON'T USE"
     cargo build --no-default-features
-    specsheet xtests/features/none.toml -shide {{args}} \
+    specsheet .xtests/features/none.toml -shide {{args}} \
         -O cmd.target.exa="${CARGO_TARGET_DIR:-../../target}/debug/exa"
 
 # print versions of the necessary build tools
