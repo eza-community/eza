@@ -128,7 +128,7 @@ nix-env -i eza
 
 [![Gentoo package](https://repology.org/badge/version-for-repo/gentoo/eza.svg)](https://repology.org/project/eza/versions)
 
-On Gentoo, eza is available as a package [`sys-apps/exa`](https://packages.gentoo.org/packages/sys-apps/eza):
+On Gentoo, eza is available as a package [`sys-apps/eza`](https://packages.gentoo.org/packages/sys-apps/eza):
 
 ```bash
 emerge --ask sys-apps/eza
