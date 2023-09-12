@@ -108,47 +108,11 @@
             mode = "clippy";
             inherit buildInputs;
           };
-
-          vhs = pkgs.buildGoModule rec {
-            pname = "vhs";
-            version = "0.6.0";
-
-            src = pkgs.fetchFromGitHub {
-              owner = "PThorpe92";
-              repo = pname;
-              rev = "70ff84c3b192a2f3379adf56dd873c63bc8163ac";
-              hash = "sha256-QgE9XpJKZSJDjY2Z2GC1ndWgwXOJaB1fzvGUGFFf5XM=";
-            };
-
-            vendorHash = "sha256-zugGnhLrqqqVjMFZrO4rrSj3UzyHWpLra1rxyGG2ga4=";
-
-            nativeBuildInputs = with pkgs; [installShellFiles makeWrapper];
-
-            ldflags = ["-s" "-w" "-X=main.Version=${version}"];
-
-            postInstall = ''
-              wrapProgram $out/bin/vhs --prefix PATH : ${pkgs.lib.makeBinPath (pkgs.lib.optionals pkgs.stdenv.isLinux [pkgs.chromium] ++ [pkgs.ffmpeg pkgs.ttyd])}
-              $out/bin/vhs man > vhs.1
-              installManPage vhs.1
-              installShellCompletion --cmd vhs \
-                --bash <($out/bin/vhs completion bash) \
-                --fish <($out/bin/vhs completion fish) \
-                --zsh <($out/bin/vhs completion zsh)
-            '';
-
-            meta = with pkgs.lib; {
-              description = "A tool for generating terminal GIFs with code";
-              homepage = "https://github.com/charmbracelet/vhs";
-              changelog = "https://github.com/charmbracelet/vhs/releases/tag/v${version}";
-              license = licenses.mit;
-              maintainers = with maintainers; [cafkafk];
-            };
-          };
         };
 
         # For `nix develop`:
         devShells.default = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [rustup toolchain just pandoc packages.vhs convco];
+          nativeBuildInputs = with pkgs; [rustup toolchain just pandoc convco];
         };
 
         # For `nix flake check`
