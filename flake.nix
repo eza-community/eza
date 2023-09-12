@@ -114,6 +114,7 @@
             src = ./.;
             mode = "test";
             # cargoTestOptions = opts: opts ++ [ "--test cli_tests" ];
+            cargoTestOptions = opts: opts ++ [ "--features nix" ];
             inherit buildInputs;
           };
 
@@ -122,6 +123,7 @@
             src = ./.;
             mode = "test";
             # cargoTestOptions = opts: opts ++ [ "--test cli_tests" ];
+            cargoTestOptions = opts: opts ++ [ "--features nix" ];
             TRYCMD="dump";
             postInstall = ''
               cp dump $out -r
