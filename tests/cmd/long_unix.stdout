@@ -3,10 +3,13 @@
 .rw-r--r-- c
 .rw-r--r-- d
 .rw-r--r-- e
+drwxr-xr-x exa
 .rw-r--r-- f
 .rw-r--r-- g
 .rw-r--r-- h
 .rw-r--r-- i
+.rw-r--r-- image.jpg.img.c.rs.log.png
+.rw-r--r-- index.svg
 .rw-r--r-- j
 .rw-r--r-- k
 .rw-r--r-- l
@@ -15,3 +18,4 @@
 .rw-r--r-- o
 .rw-r--r-- p
 .rw-r--r-- q
+drwxr-xr-x vagrant
