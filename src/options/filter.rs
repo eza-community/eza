@@ -212,114 +212,197 @@ impl GitIgnore {
     }
 }
 
+#[cfg(test)]
+mod test{
+    use super::*;
 
-// #[cfg(test)]
-// mod test {
-//     use super::*;
-//     use std::ffi::OsString;
-//     use crate::options::flags;
-//     use crate::options::parser::Flag;
+    #[test]
+    fn deduce_git_ignore_ok() {
+        let opts = Opts {
+            git_ignore: 1,
+            ..Opts::default()
+        };
+        assert_eq!(GitIgnore::deduce(&opts).unwrap(), GitIgnore::CheckAndIgnore);
+    }
 
-//     macro_rules! test {
-//         ($name:ident: $type:ident <- $inputs:expr; $stricts:expr => $result:expr) => {
-//             #[test]
-//             fn $name() {
-//                 use crate::options::parser::Arg;
-//                 use crate::options::test::parse_for_test;
-//                 use crate::options::test::Strictnesses::*;
+    #[test]
+    fn deduce_git_ignore_conflict() {
+        let opts = Opts {
+            git_ignore: 1,
+            no_git: 1,
+            ..Opts::default()
+        };
+        assert_eq!(GitIgnore::deduce(&opts).unwrap_err(), OptionsError::Conflict("GIT_IGNORE".to_string(), "NO_GIT".to_string()));
+    }
 
-//                 static TEST_ARGS: &[&Arg] = &[ &flags::SORT, &flags::ALL, &flags::ALMOST_ALL, &flags::TREE, &flags::IGNORE_GLOB, &flags::GIT_IGNORE ];
-//                 for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| $type::deduce(mf)) {
-//                     assert_eq!(result, $result);
-//                 }
-//             }
-//         };
-//     }
+    #[test]
+    fn deduce_ignore_patterns() {
+        let opts = Opts {
+            ..Opts::default()
+        };
+        assert_eq!(IgnorePatterns::deduce(&opts).unwrap(), IgnorePatterns::empty());
+    }
 
-//     mod sort_fields {
-//         use super::*;
+    #[test]
+    fn deduce_dot_filter_just_files() {
+        let opts = Opts {
+            ..Opts::default()
+        };
+        assert_eq!(DotFilter::deduce(&opts, false).unwrap(), DotFilter::JustFiles);
+    }
 
-//         // Default behaviour
-//         test!(empty:         SortField <- [];                  Both => Ok(SortField::default()));
+    #[test]
+    fn deduce_dot_filter_dotfiles() {
+        let opts = Opts {
+            all: 1,
+            ..Opts::default()
+        };
+        assert_eq!(DotFilter::deduce(&opts, false).unwrap(), DotFilter::Dotfiles);
+    }
 
-//         // Sort field arguments
-//         test!(one_arg:       SortField <- ["--sort=mod"];      Both => Ok(SortField::ModifiedDate));
-//         test!(one_long:      SortField <- ["--sort=size"];     Both => Ok(SortField::Size));
-//         test!(one_short:     SortField <- ["-saccessed"];      Both => Ok(SortField::AccessedDate));
-//         test!(lowercase:     SortField <- ["--sort", "name"];  Both => Ok(SortField::Name(SortCase::AaBbCc)));
-//         test!(uppercase:     SortField <- ["--sort", "Name"];  Both => Ok(SortField::Name(SortCase::ABCabc)));
-//         test!(old:           SortField <- ["--sort", "new"];   Both => Ok(SortField::ModifiedDate));
-//         test!(oldest:        SortField <- ["--sort=newest"];   Both => Ok(SortField::ModifiedDate));
-//         test!(new:           SortField <- ["--sort", "old"];   Both => Ok(SortField::ModifiedAge));
-//         test!(newest:        SortField <- ["--sort=oldest"];   Both => Ok(SortField::ModifiedAge));
-//         test!(age:           SortField <- ["-sage"];           Both => Ok(SortField::ModifiedAge));
+    #[test]
+    fn deduce_dot_filter_dotfiles_and_dots() {
+        let opts = Opts {
+            all: 2,
+            ..Opts::default()
+        };
+        assert_eq!(DotFilter::deduce(&opts, false).unwrap(), DotFilter::DotfilesAndDots);
+    }
 
-//         test!(mix_hidden_lowercase:     SortField <- ["--sort", ".name"];  Both => Ok(SortField::NameMixHidden(SortCase::AaBbCc)));
-//         test!(mix_hidden_uppercase:     SortField <- ["--sort", ".Name"];  Both => Ok(SortField::NameMixHidden(SortCase::ABCabc)));
+    #[test]
+    fn deduce_dot_filter_tree_all_all() {
+        let opts = Opts {
+            all: 2,
+            tree: 1,
+            ..Opts::default()
+        };
+        assert_eq!(DotFilter::deduce(&opts, false).unwrap_err(), OptionsError::TreeAllAll);
+    }
 
-//         // Errors
-//         test!(error:         SortField <- ["--sort=colour"];   Both => Err(OptionsError::BadArgument(&flags::SORT, OsString::from("colour"))));
+    #[test]
+    fn deduce_dot_filter_all_all() {
+        let opts = Opts {
+            all: 2,
+            ..Opts::default()
+        };
+        assert_eq!(DotFilter::deduce(&opts, true).unwrap_err(), OptionsError::Conflict("ALL".to_string(), "ALL".to_string()));
+    }
+    
+    #[test]
+    fn deduce_sort_field_name() {
+        let opts = Opts {
+            sort: Some("name".into()),
+            ..Opts::default()
+        };
+        assert_eq!(SortField::deduce(&opts).unwrap(), SortField::Name(SortCase::AaBbCc));
+    }
 
-//         // Overriding
-//         test!(overridden:    SortField <- ["--sort=cr",       "--sort", "mod"];     Last => Ok(SortField::ModifiedDate));
-//         test!(overridden_2:  SortField <- ["--sort", "none",  "--sort=Extension"];  Last => Ok(SortField::Extension(SortCase::ABCabc)));
-//         test!(overridden_3:  SortField <- ["--sort=cr",       "--sort", "mod"];     Complain => Err(OptionsError::Duplicate(Flag::Long("sort"), Flag::Long("sort"))));
-//         test!(overridden_4:  SortField <- ["--sort", "none",  "--sort=Extension"];  Complain => Err(OptionsError::Duplicate(Flag::Long("sort"), Flag::Long("sort"))));
-//     }
+    #[test]
+    fn deduce_sort_field_name_mix_hidden() {
+        let opts = Opts {
+            sort: Some(".name".into()),
+            ..Opts::default()
+        };
+        assert_eq!(SortField::deduce(&opts).unwrap(), SortField::NameMixHidden(SortCase::AaBbCc));
+    }
 
+    #[test]
+    fn deduce_sort_field_size() {
+        let opts = Opts {
+            sort: Some("size".into()),
+            ..Opts::default()
+        };
+        assert_eq!(SortField::deduce(&opts).unwrap(), SortField::Size);
+    }
 
-//     mod dot_filters {
-//         use super::*;
+    #[test]
+    fn deduce_sort_field_extension() {
+        let opts = Opts {
+            sort: Some("ext".into()),
+            ..Opts::default()
+        };
+        assert_eq!(SortField::deduce(&opts).unwrap(), SortField::Extension(SortCase::AaBbCc));
+    }
 
-//         // Default behaviour
-//         test!(empty:        DotFilter <- [];               Both => Ok(DotFilter::JustFiles));
+    #[test]
+    fn deduce_sort_field_modified_date() {
+        let opts = Opts {
+            sort: Some("date".into()),
+            ..Opts::default()
+        };
+        assert_eq!(SortField::deduce(&opts).unwrap(), SortField::ModifiedDate);
+    }
 
-//         // --all
-//         test!(all:              DotFilter <- ["--all"];        Both => Ok(DotFilter::Dotfiles));
-//         test!(all_all:          DotFilter <- ["--all", "-a"];  Both => Ok(DotFilter::DotfilesAndDots));
-//         test!(all_all_2:        DotFilter <- ["-aa"];          Both => Ok(DotFilter::DotfilesAndDots));
+    #[test]
+    fn deduce_sort_field_modified_age() {
+        let opts = Opts {
+            sort: Some("age".into()),
+            ..Opts::default()
+        };
+        assert_eq!(SortField::deduce(&opts).unwrap(), SortField::ModifiedAge);
+    }
 
-//         test!(all_all_3:        DotFilter <- ["-aaa"];         Last => Ok(DotFilter::DotfilesAndDots));
-//         test!(all_all_4:        DotFilter <- ["-aaa"];         Complain => Err(OptionsError::Conflict(&flags::ALL, &flags::ALL)));
+    #[test]
+    fn deduce_sort_field_changed_date() {
+        let opts = Opts {
+            sort: Some("ch".into()),
+            ..Opts::default()
+        };
+        assert_eq!(SortField::deduce(&opts).unwrap(), SortField::ChangedDate);
+    }
 
-//         // --all and --tree
-//         test!(tree_a:           DotFilter <- ["-Ta"];          Both => Ok(DotFilter::Dotfiles));
-//         test!(tree_aa:          DotFilter <- ["-Taa"];         Both => Err(OptionsError::TreeAllAll));
-//         test!(tree_aaa:         DotFilter <- ["-Taaa"];        Both => Err(OptionsError::TreeAllAll));
+    #[test]
+    fn deduce_sort_field_accessed_date() {
+        let opts = Opts {
+            sort: Some("acc".into()),
+            ..Opts::default()
+        };
+        assert_eq!(SortField::deduce(&opts).unwrap(), SortField::AccessedDate);
+    }
 
-//         // --almost-all
-//         test!(almost_all:       DotFilter <- ["--almost-all"]; Both => Ok(DotFilter::Dotfiles));
-//         test!(almost_all_all:   DotFilter <- ["-Aa"];          Both => Ok(DotFilter::Dotfiles));
-//         test!(almost_all_all_2: DotFilter <- ["-Aaa"];         Both => Ok(DotFilter::DotfilesAndDots));
-//     }
+    #[test]
+    fn deduce_sort_field_created_date() {
+        let opts = Opts {
+            sort: Some("cr".into()),
+            ..Opts::default()
+        };
+        assert_eq!(SortField::deduce(&opts).unwrap(), SortField::CreatedDate);
+    }
 
+    #[cfg(unix)]
+    #[test]
+    fn deduce_sort_field_inode() {
+        let opts = Opts {
+            sort: Some("inode".into()),
+            ..Opts::default()
+        };
+        assert_eq!(SortField::deduce(&opts).unwrap(), SortField::FileInode);
+    }
 
-//     mod ignore_patterns {
-//         use super::*;
-//         use std::iter::FromIterator;
+    #[test]
+    fn deduce_sort_field_file_type() {
+        let opts = Opts {
+            sort: Some("type".into()),
+            ..Opts::default()
+        };
+        assert_eq!(SortField::deduce(&opts).unwrap(), SortField::FileType);
+    }
 
-//         fn pat(string: &'static str) -> glob::Pattern {
-//             glob::Pattern::new(string).unwrap()
-//         }
+    #[test]
+    fn deduce_sort_field_unsorted() {
+        let opts = Opts {
+            sort: Some("none".into()),
+            ..Opts::default()
+        };
+        assert_eq!(SortField::deduce(&opts).unwrap(), SortField::Unsorted);
+    }
 
-//         // Various numbers of globs
-//         test!(none:   IgnorePatterns <- [];                                        Both => Ok(IgnorePatterns::empty()));
-//         test!(one:    IgnorePatterns <- ["--ignore-glob", "*.ogg"];                Both => Ok(IgnorePatterns::from_iter(vec![ pat("*.ogg") ])));
-//         test!(two:    IgnorePatterns <- ["--ignore-glob=*.ogg|*.MP3"];             Both => Ok(IgnorePatterns::from_iter(vec![ pat("*.ogg"), pat("*.MP3") ])));
-//         test!(loads:  IgnorePatterns <- ["-I*|?|.|*"];                             Both => Ok(IgnorePatterns::from_iter(vec![ pat("*"), pat("?"), pat("."), pat("*") ])));
-
-//         // Overriding
-//         test!(overridden:   IgnorePatterns <- ["-I=*.ogg",    "-I", "*.mp3"];      Last => Ok(IgnorePatterns::from_iter(vec![ pat("*.mp3") ])));
-//         test!(overridden_2: IgnorePatterns <- ["-I", "*.OGG", "-I*.MP3"];          Last => Ok(IgnorePatterns::from_iter(vec![ pat("*.MP3") ])));
-//         test!(overridden_3: IgnorePatterns <- ["-I=*.ogg",    "-I", "*.mp3"];  Complain => Err(OptionsError::Duplicate(Flag::Short(b'I'), Flag::Short(b'I'))));
-//         test!(overridden_4: IgnorePatterns <- ["-I", "*.OGG", "-I*.MP3"];      Complain => Err(OptionsError::Duplicate(Flag::Short(b'I'), Flag::Short(b'I'))));
-//     }
-
-
-//     mod git_ignores {
-//         use super::*;
-
-//         test!(off:  GitIgnore <- [];                Both => Ok(GitIgnore::Off));
-//         test!(on:   GitIgnore <- ["--git-ignore"];  Both => Ok(GitIgnore::CheckAndIgnore));
-//     }
-// }
+    #[test]
+    fn deduce_sort_field_bad_argument() {
+        let opts = Opts {
+            sort: Some("bad".into()),
+            ..Opts::default()
+        };
+        assert_eq!(SortField::deduce(&opts).unwrap_err(), OptionsError::BadArgument("SORT".to_string(), "bad".to_string()));
+    }
+}
