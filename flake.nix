@@ -120,7 +120,7 @@
             singleStep = true;
             # set itests files creation date to unix epoch
             buildPhase = ''touch --date=@0 tests/itest/*'';
-            cargoTestOptions = opts: opts ++ [ "--features nix" ];
+            cargoTestOptions = opts: opts ++ ["--features nix"];
             inherit buildInputs;
           };
 
@@ -135,8 +135,8 @@
             singleStep = true;
             # set itests files creation date to unix epoch
             buildPhase = ''touch --date=@0 tests/itest/*; rm tests/cmd/*.stdout || echo; rm tests/cmd/*.stderr || echo;'';
-            cargoTestOptions = opts: opts ++ [ "--features nix" ];
-            TRYCMD="dump";
+            cargoTestOptions = opts: opts ++ ["--features nix"];
+            TRYCMD = "dump";
             postInstall = ''
               cp dump $out -r
             '';
@@ -155,6 +155,7 @@
           build = packages.check;
           test = packages.test;
           lint = packages.clippy;
+          trycmd = packages.trycmd;
         };
       }
     );
