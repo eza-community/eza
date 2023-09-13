@@ -150,7 +150,7 @@ These options are available when running with `--long` (`-l`):
 : Use the modified timestamp field.
 
 `-M`, `--mounts`
-: Show mount details (Linux only)
+: Show mount details (Linux and Mac only)
 
 `-n`, `--numeric`
 : List numeric user and group IDs.
