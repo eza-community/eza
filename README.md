@@ -100,11 +100,18 @@ key is in this repo under [deb.asc](/deb.asc).
 
 To install eza from this repo use:
 ```bash
-wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/gierens.asc
+wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo tee /etc/apt/trusted.gpg.d/gierens.asc
 echo "deb http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
 sudo apt update
 sudo apt install -y eza
 ```
+
+**Note:** on some systems like Docker containers apt might require the key
+to be in dearmored format, then use this command instead:
+```bash
+wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/gierens.asc
+```
+before proceeding with the others from above.
 
 ### Nix (Linux, MacOS)
 
@@ -134,6 +141,36 @@ On Gentoo, eza is available as a package [`sys-apps/eza`](https://packages.gento
 emerge --ask sys-apps/eza
 ```
 
+### openSUSE
+
+Eza is available at [openSUSE:Factory/eza](https://build.opensuse.org/package/show/openSUSE:Factory/eza):
+
+```bash
+zypper ar https://download.opensuse.org/tumbleweed/repo/oss/ factory-oss
+zypper in eza
+```
+
+The preceding repository also contains the Bash, Fish, and Zsh completions.
+
+### Fedora
+
+You can install Eza from [openSUSE:Factory/eza](https://build.opensuse.org/package/show/openSUSE:Factory/eza):
+
+```bash
+tee /etc/yum.repos.d/opensuse-tumbleweed-oss.repo <<EOL
+[opensuse-tumbleweed-oss]
+name=OpenSUSE Tumbleweed OSS
+baseurl=https://download.opensuse.org/tumbleweed/repo/oss/
+enabled=1
+gpgcheck=1
+gpgkey=https://download.opensuse.org/tumbleweed/repo/oss/repodata/repomd.xml.key
+EOL
+
+dnf install eza
+```
+
+The preceding repository also contains the Bash, Fish, and Zsh completions.
+
 ### Brew (MacOS)
 
 [![Homebrew package](https://repology.org/badge/version-for-repo/homebrew/eza.svg)](https://repology.org/project/eza/versions)
@@ -157,6 +194,19 @@ To install eza, run:
 
 ```shell
 sudo port install eza
+```
+
+### Scoop (Windows)
+
+[![Windows package](https://repology.org/badge/version-for-repo/scoop/eza.svg)](https://repology.org/project/eza/versions)
+
+
+Eza is available from [Scoop](https://scoop.sh/#/apps?q=eza&id=a52070d25f94bbcc884f80bef53eb47ed1268198).
+
+To install eza, run:
+
+```shell
+scoop install eza
 ```
 
 ---
