@@ -196,6 +196,19 @@ To install eza, run:
 sudo port install eza
 ```
 
+### Scoop (Windows)
+
+[![Windows package](https://repology.org/badge/version-for-repo/scoop/eza.svg)](https://repology.org/project/eza/versions)
+
+
+Eza is available from [Scoop](https://scoop.sh/#/apps?q=eza&id=a52070d25f94bbcc884f80bef53eb47ed1268198).
+
+To install eza, run:
+
+```shell
+scoop install eza
+```
+
 ---
 Click sections to expand.
 
