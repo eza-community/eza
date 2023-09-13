@@ -254,7 +254,10 @@ impl<'dir> File<'dir> {
     /// Whether this file is a mount point
     pub fn is_mount_point(&self) -> bool {
         if cfg!(target_os = "linux") && self.is_directory() {
-            return self.absolute_path.as_ref().is_some_and(|p|ALL_MOUNTS.contains_key(p));
+            return match self.absolute_path.as_ref() {
+                Some(path) => ALL_MOUNTS.contains_key(path),
+                None => false,
+            }
         }
         false
     }
