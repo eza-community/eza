@@ -1,0 +1,3 @@
+bin.name = "eza"
+args = "tests/itest --only-dirs --recurse --long --no-time --no-user --no-file-size"
+status.code = 3

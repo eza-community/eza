@@ -1,0 +1,47 @@
+0644 .rw-r--r-- a
+0644 .rw-r--r-- b
+0644 .rw-r--r-- c
+0644 .rw-r--r-- d
+0644 .rw-r--r-- e
+0755 drwxr-xr-x exa
+0644 .rw-r--r-- f
+0644 .rw-r--r-- g
+0644 .rw-r--r-- h
+0644 .rw-r--r-- i
+0644 .rw-r--r-- image.jpg.img.c.rs.log.png
+0644 .rw-r--r-- index.svg
+0644 .rw-r--r-- j
+0644 .rw-r--r-- k
+0644 .rw-r--r-- l
+0644 .rw-r--r-- m
+0644 .rw-r--r-- n
+0644 .rw-r--r-- o
+0644 .rw-r--r-- p
+0644 .rw-r--r-- q
+0755 drwxr-xr-x vagrant
+
+tests/itest/exa:
+0777 lrwxrwxrwx file.c -> djihisudjuhfius
+0755 drwxr-xr-x sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+
+tests/itest/exa/sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss:
+0644 .rw-r--r-- Makefile
+
+tests/itest/vagrant:
+0755 drwxr-xr-x debug
+0755 drwxr-xr-x dev
+0755 drwxr-xr-x log
+
+tests/itest/vagrant/debug:
+0777 lrwxrwxrwx symlinking -> a
+
+tests/itest/vagrant/dev:
+0644 .rw-r--r-- main.bf
+
+tests/itest/vagrant/log:
+0644 .rw-r--r-- file.png
+0755 drwxr-xr-x run
+
+tests/itest/vagrant/log/run:
+0644 .rw-r--r-- run.log.text
+0644 .rw-r--r-- sps.log.text

@@ -1,0 +1,47 @@
+.rw-r--r-- 1 a
+.rw-r--r-- 1 b
+.rw-r--r-- 1 c
+.rw-r--r-- 1 d
+.rw-r--r-- 1 e
+drwxr-xr-x 3 exa
+.rw-r--r-- 1 f
+.rw-r--r-- 1 g
+.rw-r--r-- 1 h
+.rw-r--r-- 1 i
+.rw-r--r-- 1 image.jpg.img.c.rs.log.png
+.rw-r--r-- 1 index.svg
+.rw-r--r-- 1 j
+.rw-r--r-- 1 k
+.rw-r--r-- 1 l
+.rw-r--r-- 1 m
+.rw-r--r-- 1 n
+.rw-r--r-- 1 o
+.rw-r--r-- 1 p
+.rw-r--r-- 1 q
+drwxr-xr-x 5 vagrant
+
+tests/itest/exa:
+lrwxrwxrwx 1 file.c -> djihisudjuhfius
+drwxr-xr-x 2 sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+
+tests/itest/exa/sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss:
+.rw-r--r-- 1 Makefile
+
+tests/itest/vagrant:
+drwxr-xr-x 2 debug
+drwxr-xr-x 2 dev
+drwxr-xr-x 3 log
+
+tests/itest/vagrant/debug:
+lrwxrwxrwx 1 symlinking -> a
+
+tests/itest/vagrant/dev:
+.rw-r--r-- 1 main.bf
+
+tests/itest/vagrant/log:
+.rw-r--r-- 1 file.png
+drwxr-xr-x 2 run
+
+tests/itest/vagrant/log/run:
+.rw-r--r-- 1 run.log.text
+.rw-r--r-- 1 sps.log.text
