@@ -83,7 +83,8 @@ pub struct File<'dir> {
     pub extended_attributes: Vec<Attribute>,
 
     /// The absolute value of this path, used to look up mount points.
-    pub absolute_path: PathBuf,}
+    pub absolute_path: Option<PathBuf>,
+}
 
 impl<'dir> File<'dir> {
     pub fn from_args<PD, FN>(path: PathBuf, parent_dir: PD, filename: FN, deref_links: bool) -> io::Result<File<'dir>>
@@ -98,7 +99,7 @@ impl<'dir> File<'dir> {
         let metadata   = std::fs::symlink_metadata(&path)?;
         let is_all_all = false;
         let extended_attributes = File::gather_extended_attributes(&path);
-        let absolute_path = std::fs::canonicalize(&path)?;
+        let absolute_path = std::fs::canonicalize(&path).ok();
 
         Ok(File { name, ext, path, metadata, parent_dir, is_all_all, deref_links, extended_attributes, absolute_path })
     }
@@ -112,7 +113,7 @@ impl<'dir> File<'dir> {
         let is_all_all = true;
         let parent_dir = Some(parent_dir);
         let extended_attributes = File::gather_extended_attributes(&path);
-        let absolute_path = std::fs::canonicalize(&path)?;
+        let absolute_path = std::fs::canonicalize(&path).ok();
 
         Ok(File { path, parent_dir, metadata, ext, name: ".".into(), is_all_all, deref_links: false, extended_attributes, absolute_path })
     }
@@ -125,7 +126,7 @@ impl<'dir> File<'dir> {
         let is_all_all = true;
         let parent_dir = Some(parent_dir);
         let extended_attributes = File::gather_extended_attributes(&path);
-        let absolute_path = std::fs::canonicalize(&path)?;
+        let absolute_path = std::fs::canonicalize(&path).ok();
 
         Ok(File { path, parent_dir, metadata, ext, name: "..".into(), is_all_all, deref_links: false, extended_attributes, absolute_path })
     }
@@ -253,7 +254,7 @@ impl<'dir> File<'dir> {
     /// Whether this file is a mount point
     pub fn is_mount_point(&self) -> bool {
         if cfg!(target_os = "linux") && self.is_directory() {
-            return ALL_MOUNTS.contains_key(&self.absolute_path);
+            return self.absolute_path.as_ref().is_some_and(|p|ALL_MOUNTS.contains_key(p));
         }
         false
     }
@@ -261,7 +262,7 @@ impl<'dir> File<'dir> {
     /// The filesystem device and type for a mount point
     pub fn mount_point_info(&self) -> Option<&MountedFs> {
         if cfg!(target_os = "linux") {
-            return ALL_MOUNTS.get(&self.absolute_path);
+            return self.absolute_path.as_ref().and_then(|p|ALL_MOUNTS.get(p));
         }
         None
     }
@@ -324,7 +325,7 @@ impl<'dir> File<'dir> {
                     is_all_all: false,
                     deref_links: self.deref_links,
                     extended_attributes,
-                    absolute_path
+                    absolute_path: Some(absolute_path)
                 };
                 FileTarget::Ok(Box::new(file))
             }
