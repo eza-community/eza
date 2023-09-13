@@ -109,46 +109,44 @@
             inherit buildInputs;
           };
 
-          vhs = pkgs.buildGoModule rec {
-            pname = "vhs";
-            version = "0.6.0";
+          # Run `nix build .#trycmd` to run integration tests
+          trycmd = naersk'.buildPackage {
+            src = ./.;
+            mode = "test";
+            doCheck = true;
+            # No reason to wait for release build
+            release = false;
+            # buildPhase files differ between dep and main phase
+            singleStep = true;
+            # set itests files creation date to unix epoch
+            buildPhase = ''touch --date=@0 tests/itest/*'';
+            cargoTestOptions = opts: opts ++ [ "--features nix" ];
+            inherit buildInputs;
+          };
 
-            src = pkgs.fetchFromGitHub {
-              owner = "PThorpe92";
-              repo = pname;
-              rev = "70ff84c3b192a2f3379adf56dd873c63bc8163ac";
-              hash = "sha256-QgE9XpJKZSJDjY2Z2GC1ndWgwXOJaB1fzvGUGFFf5XM=";
-            };
-
-            vendorHash = "sha256-zugGnhLrqqqVjMFZrO4rrSj3UzyHWpLra1rxyGG2ga4=";
-
-            nativeBuildInputs = with pkgs; [installShellFiles makeWrapper];
-
-            ldflags = ["-s" "-w" "-X=main.Version=${version}"];
-
+          # Run `nix build .#trydump` to dump testing files
+          trydump = naersk'.buildPackage {
+            src = ./.;
+            mode = "test";
+            doCheck = true;
+            # No reason to wait for release build
+            release = false;
+            # buildPhase files differ between dep and main phase
+            singleStep = true;
+            # set itests files creation date to unix epoch
+            buildPhase = ''touch --date=@0 tests/itest/*; rm tests/cmd/*.stdout || echo; rm tests/cmd/*.stderr || echo;'';
+            cargoTestOptions = opts: opts ++ [ "--features nix" ];
+            TRYCMD="dump";
             postInstall = ''
-              wrapProgram $out/bin/vhs --prefix PATH : ${pkgs.lib.makeBinPath (pkgs.lib.optionals pkgs.stdenv.isLinux [pkgs.chromium] ++ [pkgs.ffmpeg pkgs.ttyd])}
-              $out/bin/vhs man > vhs.1
-              installManPage vhs.1
-              installShellCompletion --cmd vhs \
-                --bash <($out/bin/vhs completion bash) \
-                --fish <($out/bin/vhs completion fish) \
-                --zsh <($out/bin/vhs completion zsh)
+              cp dump $out -r
             '';
-
-            meta = with pkgs.lib; {
-              description = "A tool for generating terminal GIFs with code";
-              homepage = "https://github.com/charmbracelet/vhs";
-              changelog = "https://github.com/charmbracelet/vhs/releases/tag/v${version}";
-              license = licenses.mit;
-              maintainers = with maintainers; [cafkafk];
-            };
+            inherit buildInputs;
           };
         };
 
         # For `nix develop`:
         devShells.default = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [rustup toolchain just pandoc packages.vhs convco];
+          nativeBuildInputs = with pkgs; [rustup toolchain just pandoc convco];
         };
 
         # For `nix flake check`
