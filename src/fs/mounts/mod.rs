@@ -29,11 +29,14 @@ impl std::error::Error for Error {}
 
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // Allow unreachable_patterns for windows build
+        #[allow(unreachable_patterns)]
         match self {
             #[cfg(target_os = "macos")]
             Error::GetFSStatError(err) => write!(f, "getfsstat failed: {err}"),
             #[cfg(target_os = "linux")]
-            Error::IOError(err) => write!(f, "failed to read /proc/mounts: {err}")
+            Error::IOError(err) => write!(f, "failed to read /proc/mounts: {err}"),
+            _ => write!(f, "Unknown error"),
         }
     }
 }

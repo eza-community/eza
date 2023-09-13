@@ -62,6 +62,8 @@ mod theme;
 // to `clap` is complete.
 lazy_static! {
     static ref ALL_MOUNTS: HashMap<PathBuf, mounts::MountedFs> = {
+        // Allow unused_mut for windows
+        #[allow(unused_mut)]
         let mut mount_map: HashMap<PathBuf, mounts::MountedFs> = HashMap::new();
 
         #[cfg(any(target_os = "linux", target_os = "macos"))]
