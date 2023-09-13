@@ -20,7 +20,7 @@ TARGETS["arm64"]="aarch64-unknown-linux-gnu"
 TARGETS["armhf"]="arm-unknown-linux-gnueabihf"
 
 echo "download release notes"
-RELEASE_NOTES=$(curl -s "${REPO_URL}/releases/tag/${TAG}")
+RELEASE_NOTES=$(curl -s ${REPO_URL}/releases/tag/"${TAG}")
 
 for ARCH in "${!TARGETS[@]}"; do
     echo "building ${ARCH} package:"
@@ -41,28 +41,28 @@ for ARCH in "${!TARGETS[@]}"; do
 
     echo " -> creating directory structure"
     mkdir -p "${DEB_TMP_DIR}"
-    mkdir -p "${DEB_TMP_DIR}${DESTDIR}"
-    mkdir -p "${DEB_TMP_DIR}${DOCDIR}"
-    mkdir -p "${DEB_TMP_DIR}${DOCDIR}/man1"
-    mkdir -p "${DEB_TMP_DIR}${DOCDIR}/man5"
-    mkdir -p "${DEB_TMP_DIR}/DEBIAN"
-    mkdir -p "${DEB_TMP_DIR}/usr/share/doc/${NAME}"
+    mkdir -p "${DEB_TMP_DIR}"${DESTDIR}
+    mkdir -p "${DEB_TMP_DIR}"${DOCDIR}
+    mkdir -p "${DEB_TMP_DIR}"${DOCDIR}/man1
+    mkdir -p "${DEB_TMP_DIR}"${DOCDIR}/man5
+    mkdir -p "${DEB_TMP_DIR}"/DEBIAN
+    mkdir -p "${DEB_TMP_DIR}"/usr/share/doc/${NAME}
     chmod 755 -R "${DEB_TMP_DIR}"
-
+    
     echo " -> extract executable"
     tar -xzf "${ARCH}.tar.gz"
-    cp ${NAME} "${DEB_TMP_DIR}${DESTDIR}"
-    chmod 755 "${DEB_TMP_DIR}${DESTDIR}/${NAME}"
+    cp ${NAME} "${DEB_TMP_DIR}"${DESTDIR}
+    chmod 755 "${DEB_TMP_DIR}"${DESTDIR}/${NAME}
 
     echo " -> compress man pages"
-    gzip -cn9 target/man/eza.1 > "${DEB_TMP_DIR}${DOCDIR}man1/eza.1.gz"
-    gzip -cn9 target/man/eza_colors.5 > "${DEB_TMP_DIR}${DOCDIR}man5/eza_colors.5.gz"
-    gzip -cn9 target/man/eza_colors-explanation.5 > "${DEB_TMP_DIR}${DOCDIR}man5/eza_colors-explanation.5.gz"
-    chmod 644 "${DEB_TMP_DIR}${DOCDIR}"/**/*.gz
-
+    gzip -cn9 target/man/eza.1 > "${DEB_TMP_DIR}"${DOCDIR}man1/eza.1.gz
+    gzip -cn9 target/man/eza_colors.5 > "${DEB_TMP_DIR}"${DOCDIR}man5/eza_colors.5.gz
+    gzip -cn9 target/man/eza_colors-explanation.5 > "${DEB_TMP_DIR}"${DOCDIR}man5/eza_colors-explanation.5.gz
+    chmod 644 "${DEB_TMP_DIR}"${DOCDIR}/**/*.gz
+    
     echo " -> create control file"
-    touch "${DEB_TMP_DIR}/DEBIAN/control"
-    cat > "${DEB_TMP_DIR}/DEBIAN/control" <<EOM
+    touch "${DEB_TMP_DIR}"/DEBIAN/control
+    cat > "${DEB_TMP_DIR}"/DEBIAN/control <<EOM
 Package: ${NAME}
 Version: ${VERSION}
 Section: utils
@@ -78,17 +78,17 @@ Description: Modern replacement for ls
  It also has extra features not present in the original ls, such as viewing the
  Git status for a directory, or recursing into directories with a tree view.
 EOM
-    chmod 644 "${DEB_TMP_DIR}/DEBIAN/control"
-
+    chmod 644 "${DEB_TMP_DIR}"/DEBIAN/control
+    
     echo " -> copy changelog"
-    cp CHANGELOG.md "${DEB_TMP_DIR}/usr/share/doc/${NAME}/changelog"
-    gzip -cn9 "${DEB_TMP_DIR}/usr/share/doc/${NAME}/changelog" > "${DEB_TMP_DIR}/usr/share/doc/${NAME}/changelog.gz"
-    rm "${DEB_TMP_DIR}/usr/share/doc/${NAME}/changelog"
-    chmod 644 "${DEB_TMP_DIR}/usr/share/doc/${NAME}/changelog.gz"
-
+    cp CHANGELOG.md "${DEB_TMP_DIR}"/usr/share/doc/${NAME}/changelog
+    gzip -cn9 "${DEB_TMP_DIR}"/usr/share/doc/${NAME}/changelog > "${DEB_TMP_DIR}"/usr/share/doc/${NAME}/changelog.gz
+    rm "${DEB_TMP_DIR}"/usr/share/doc/${NAME}/changelog
+    chmod 644 "${DEB_TMP_DIR}"/usr/share/doc/${NAME}/changelog.gz
+    
     echo " -> create copyright file"
-    touch "${DEB_TMP_DIR}/usr/share/doc/${NAME}/copyright"
-    cat > "${DEB_TMP_DIR}/usr/share/doc/${NAME}/copyright" << EOM
+    touch "${DEB_TMP_DIR}"/usr/share/doc/${NAME}/copyright
+    cat > "${DEB_TMP_DIR}"/usr/share/doc/${NAME}/copyright << EOM
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: ${NAME}
 Upstream-Contact: Christina Sørensen <christina@cafkafk.com>
@@ -121,14 +121,14 @@ License: MIT
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
 EOM
-    chmod 644 "${DEB_TMP_DIR}/usr/share/doc/${NAME}/copyright"
-
+    chmod 644 "${DEB_TMP_DIR}"/usr/share/doc/${NAME}/copyright
+    
     echo " -> build ${ARCH} package"
     dpkg-deb --build --root-owner-group "${DEB_TMP_DIR}" > /dev/null
-
+    
     echo " -> cleanup"
-    rm -rf "${DEB_TMP_DIR}" "${ARCH}.tar.gz" "${NAME}"
-
+    rm -rf "${DEB_TMP_DIR}" "${ARCH}".tar.gz ${NAME}
+    
     # gierens: this does not work on my arch at the moment and
     #          i'm verifying on the repo host anyway thus the || true
     echo " -> lint ${ARCH} package"
