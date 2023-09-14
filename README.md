@@ -219,7 +219,7 @@ scoop install eza
    
 ```sh
 git clone https://github.com/eza-community/eza.git
-\```
+```
 
 **Add the completion path to your zsh configuration**:
    
@@ -227,13 +227,14 @@ Replace `<path_to_eza>` with the actual path where you cloned the `eza` reposito
 
 ```sh
 echo 'export FPATH="<path_to_eza>/completions/zsh:$FPATH"' >> ~/.zshrc
-\```
+```
 
 **Reload your zsh configuration**:
    
 ```sh
 source ~/.zshrc
-\```
+```
+
 ---
 
 Click sections to expand.
