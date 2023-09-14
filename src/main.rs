@@ -231,6 +231,10 @@ impl<'args> Exa<'args> {
                         trace!("matching on to_dir");
                         match f.to_dir() {
                             Ok(d)   => dirs.push(d),
+                            Err(e) if e.kind() == ErrorKind::PermissionDenied => {
+                                warn!("Permission Denied: {e}");
+                                exit(exits::PERMISSION_DENIED);
+                            },
                             Err(e)  => writeln!(io::stderr(), "{file_path:?}: {e}")?,
                         }
                     }
