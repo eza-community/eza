@@ -38,8 +38,8 @@ By deliberately making some decisions differently, eza attempts to be a more fea
 - Git repo status output.
 - Human readable relative dates.
 - Several security fixes.
-- Many smaller bug fixes/changes!
 - Support for `bright` terminal colours.
+- Many smaller bug fixes/changes!
 
 ---
 
@@ -210,15 +210,30 @@ To install eza, run:
 scoop install eza
 ```
 
-## Install Compeltions (manually)
+### For zsh:
 
-zsh:
+> **Note**
+> Change `~/.zshrc` to your preferred zsh config file.
 
+**Clone the repository**:
+   
 ```sh
 git clone https://github.com/eza-community/eza.git
-echo 'export FPATH="<path to exa>/completions/zsh:$FPATH" >> ~/.zshrc
-```
+\```
 
+**Add the completion path to your zsh configuration**:
+   
+Replace `<path_to_eza>` with the actual path where you cloned the `eza` repository.
+
+```sh
+echo 'export FPATH="<path_to_eza>/completions/zsh:$FPATH"' >> ~/.zshrc
+\```
+
+**Reload your zsh configuration**:
+   
+```sh
+source ~/.zshrc
+\```
 ---
 
 Click sections to expand.
