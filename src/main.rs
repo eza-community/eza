@@ -35,7 +35,7 @@ use crate::fs::feature::git::GitCache;
 use crate::fs::filter::GitIgnore;
 use crate::fs::{Dir, File};
 use crate::options::{vars, Options, OptionsResult, Vars};
-use crate::output::{details, escape, grid, grid_details, lines, Mode, View};
+use crate::output::{details, escape, file_name, grid, grid_details, lines, Mode, View};
 use crate::theme::Theme;
 
 mod fs;
@@ -231,6 +231,10 @@ impl<'args> Exa<'args> {
         is_only_dir: bool,
         exit_status: i32,
     ) -> io::Result<i32> {
+        let View {
+            file_style: file_name::Options { quote_style, .. },
+            ..
+        } = self.options.view;
         for dir in dir_files {
             // Put a gap between directories, or between the list of files and
             // the first directory.
@@ -247,6 +251,7 @@ impl<'args> Exa<'args> {
                     &mut bits,
                     Style::default(),
                     Style::default(),
+                    quote_style,
                 );
                 writeln!(&mut self.writer, "{}:", ANSIStrings(&bits))?;
             }

@@ -19,6 +19,9 @@ pub struct Options {
     /// Whether to prepend icon characters before file names.
     pub show_icons: ShowIcons,
 
+    /// How to display file names with spaces (with or without quotes).
+    pub quote_style: QuoteStyle,
+
     /// Whether to make file names hyperlinks.
     pub embed_hyperlinks: EmbedHyperlinks,
 }
@@ -106,6 +109,17 @@ pub enum ShowIcons {
 pub enum EmbedHyperlinks {
     Off,
     On,
+}
+
+/// Whether or not to wrap file names with spaces in quotes.
+#[derive(PartialEq, Debug, Copy, Clone)]
+pub enum QuoteStyle {
+    /// Don't ever quote file names.
+    NoQuotes,
+
+    /// Use single quotes for file names that contain spaces and no single quotes
+    /// Use double quotes for file names that contain single quotes.
+    QuoteSpaces,
 }
 
 /// A **file name** holds all the information necessary to display the name
@@ -208,6 +222,9 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                         let target_options = Options {
                             classify: Classify::JustFilenames,
                             show_icons: ShowIcons::Off,
+
+                            quote_style: QuoteStyle::QuoteSpaces,
+
                             embed_hyperlinks: EmbedHyperlinks::Off,
                         };
 
@@ -243,6 +260,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                         &mut bits,
                         self.colours.broken_filename(),
                         self.colours.broken_control_char(),
+                        self.options.quote_style,
                     );
                 }
 
@@ -287,6 +305,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                 bits,
                 self.colours.symlink_path(),
                 self.colours.control_char(),
+                self.options.quote_style,
             );
             bits.push(
                 self.colours
@@ -373,6 +392,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
             &mut bits,
             file_style,
             self.colours.control_char(),
+            self.options.quote_style,
         );
 
         if display_hyperlink {
