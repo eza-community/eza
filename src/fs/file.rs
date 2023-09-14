@@ -204,6 +204,7 @@ impl<'dir> File<'dir> {
     /// Returns an IO error upon failure, but this shouldn’t be used to check
     /// if a `File` is a directory or not! For that, just use `is_directory()`.
     pub fn to_dir(&self) -> io::Result<Dir> {
+        trace!("to_dir: reading dir");
         Dir::read_dir(self.path.clone())
     }
 
@@ -531,6 +532,7 @@ impl<'dir> File<'dir> {
     /// but as mentioned in the size function comment above, different filesystems
     /// make it difficult to get any info about a dir by it's size, so this may be it.
     fn is_empty_directory(&self) -> bool {
+        trace!("is_empty_directory: reading dir");
         match Dir::read_dir(self.path.clone()) {
             // . & .. are skipped, if the returned iterator has .next(), it's not empty
             Ok(has_files) => has_files.files(super::DotFilter::Dotfiles, None, false, false).next().is_none(),
