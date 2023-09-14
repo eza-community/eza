@@ -294,8 +294,8 @@ Some of the options accept parameters:
     <summary> Development </summary>
 <h1>Development
 
-<a href="https://blog.rust-lang.org/2022/08/11/Rust-1.63.0.html">
-    <img src="https://img.shields.io/badge/rustc-1.63.0+-lightgray.svg" alt="Rust 1.63.0+" />
+<a href="https://blog.rust-lang.org/2023/06/01/Rust-1.70.0.html">
+    <img src="https://img.shields.io/badge/rustc-1.70.0+-lightgray.svg" alt="Rust 1.70.0" />
 </a>
 
 </h1></a>
