@@ -298,9 +298,6 @@ Some of the options accept parameters:
     <img src="https://img.shields.io/badge/rustc-1.63.0+-lightgray.svg" alt="Rust 1.63.0+" />
 </a>
 
-<a href="https://github.com/eza-community/eza/blob/master/LICENCE">
-    <img src="https://img.shields.io/badge/licence-MIT-green" alt="MIT Licence" />
-</a>
 </h1></a>
 
 eza is written in [Rust](https://www.rust-lang.org/).
