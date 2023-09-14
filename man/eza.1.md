@@ -201,7 +201,7 @@ This adds a two-character column indicating the staged and unstaged statuses res
 
 `--git-repos` [if eza was built with git support]
 : List each directory’s Git status, if tracked.
-Symbols shown are `|` (green) for clean, `+` (red) for dirty, and `-`(green) for unknown.
+Symbols shown are `|`= clean, `+`= dirty, and `~`= for unknown.
 
 `--git-repos-no-status` [if eza was built with git support]
 : List if a directory is a Git repository, but not its status.
