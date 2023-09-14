@@ -2,16 +2,16 @@
 
 use std::io::{self, Write};
 
-use ansi_term::ANSIStrings;
+use ansiterm::ANSIStrings;
 use term_grid as grid;
 
 use crate::fs::{Dir, File};
 use crate::fs::feature::git::GitCache;
-use crate::fs::feature::xattr::FileAttributes;
 use crate::fs::filter::FileFilter;
-use crate::output::cell::TextCell;
+use crate::output::cell::{TextCell, DisplayWidth};
 use crate::output::details::{Options as DetailsOptions, Row as DetailsRow, Render as DetailsRender};
 use crate::output::file_name::Options as FileStyle;
+use crate::output::file_name::{ShowIcons, EmbedHyperlinks};
 use crate::output::grid::Options as GridOptions;
 use crate::output::table::{Table, Row as TableRow, Options as TableOptions};
 use crate::output::tree::{TreeParams, TreeDepth};
@@ -150,12 +150,27 @@ impl<'a> Render<'a> {
         let (first_table, _) = self.make_table(options, &drender);
 
         let rows = self.files.iter()
-                       .map(|file| first_table.row_for_file(file, file_has_xattrs(file)))
+                       .map(|file| first_table.row_for_file(file, drender.show_xattr_hint(file)))
                        .collect::<Vec<_>>();
 
         let file_names = self.files.iter()
-                             .map(|file| self.file_style.for_file(file, self.theme).paint().promote())
-                             .collect::<Vec<_>>();
+            .map(|file| {
+                let filename = self.file_style.for_file(file, self.theme);
+                let contents = filename.paint();
+                let width = match (filename.options.embed_hyperlinks, filename.options.show_icons) {
+                    (EmbedHyperlinks::On, ShowIcons::On(spacing)) => filename.bare_width() + 1 + (spacing as usize),
+                    (EmbedHyperlinks::On, ShowIcons::Off) => filename.bare_width(),
+                    (EmbedHyperlinks::Off, _) => *contents.width(),
+                };
+
+                TextCell {
+                    contents,
+                    // with hyperlink escape sequences,
+                    // the actual *contents.width() is larger than actually needed, so we take only the filename
+                    width: DisplayWidth::from(width),
+                }
+            })
+            .collect::<Vec<_>>();
 
         let mut last_working_grid = self.make_grid(1, options, &file_names, rows.clone(), &drender);
 
@@ -228,7 +243,7 @@ impl<'a> Render<'a> {
         let original_height = divide_rounding_up(rows.len(), column_count);
         let height = divide_rounding_up(num_cells, column_count);
 
-        for (i, (file_name, row)) in file_names.iter().zip(rows.into_iter()).enumerate() {
+        for (i, (file_name, row)) in file_names.iter().zip(rows).enumerate() {
             let index = if self.grid.across {
                     i % column_count
                 }
@@ -263,7 +278,6 @@ impl<'a> Render<'a> {
                         let cell = grid::Cell {
                             contents: ANSIStrings(&column[row].contents).to_string(),
                             width:    *column[row].width,
-                            alignment: grid::Alignment::Left,
                         };
 
                         grid.add(cell);
@@ -273,11 +287,10 @@ impl<'a> Render<'a> {
         }
         else {
             for column in &columns {
-                for cell in column.iter() {
+                for cell in column {
                     let cell = grid::Cell {
                         contents: ANSIStrings(&cell.contents).to_string(),
                         width:    *cell.width,
-                        alignment: grid::Alignment::Left,
                     };
 
                     grid.add(cell);
@@ -298,12 +311,4 @@ fn divide_rounding_up(a: usize, b: usize) -> usize {
     }
 
     result
-}
-
-
-fn file_has_xattrs(file: &File<'_>) -> bool {
-    match file.path.attributes() {
-        Ok(attrs)  => ! attrs.is_empty(),
-        Err(_)     => false,
-    }
 }

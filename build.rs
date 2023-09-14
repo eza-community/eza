@@ -15,15 +15,15 @@ use std::fs::File;
 use std::io::{self, Write};
 use std::path::PathBuf;
 
-use datetime::{LocalDateTime, ISO};
+use chrono::prelude::*;
 
 
 /// The build script entry point.
 fn main() -> io::Result<()> {
     #![allow(clippy::write_with_newline)]
 
-    let tagline = "exa - list files on the command-line";
-    let url     = "https://the.exa.website/";
+    let tagline = "eza - A modern, maintained replacement for ls";
+    let url     = "https://github.com/eza-community/eza";
 
     let ver =
         if is_debug_build() {
@@ -60,7 +60,7 @@ fn git_hash() -> String {
 
     String::from_utf8_lossy(
         &Command::new("git")
-            .args(&["rev-parse", "--short", "HEAD"])
+            .args(["rev-parse", "--short", "HEAD"])
             .output().unwrap()
             .stdout).trim().to_string()
 }
@@ -97,7 +97,7 @@ fn version_string() -> String {
 
 /// Finds whether a feature is enabled by examining the Cargo variable.
 fn feature_enabled(name: &str) -> bool {
-    env::var(&format!("CARGO_FEATURE_{}", name))
+    env::var(format!("CARGO_FEATURE_{}", name))
         .map(|e| ! e.is_empty())
         .unwrap_or(false)
 }
@@ -118,6 +118,6 @@ fn nonstandard_features_string() -> String {
 
 /// Formats the current date as an ISO 8601 string.
 fn build_date() -> String {
-    let now = LocalDateTime::now();
-    format!("{}", now.date().iso())
+    let now = Local::now();
+    now.date_naive().format("%Y-%m-%d").to_string()
 }

@@ -71,7 +71,7 @@ impl fmt::Display for Flag {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
             Self::Short(short)  => write!(f, "-{}", *short as char),
-            Self::Long(long)    => write!(f, "--{}", long),
+            Self::Long(long)    => write!(f, "--{long}"),
         }
     }
 }
@@ -164,7 +164,7 @@ impl Args {
             // the pair “-- --arg”, without it getting matched as a flag that
             // doesn’t exist.
             if ! parsing {
-                frees.push(arg)
+                frees.push(arg);
             }
             else if arg == "--" {
                 parsing = false;
@@ -194,7 +194,7 @@ impl Args {
                     let flag = Flag::Long(arg.long);
                     match arg.takes_value {
                         TakesValue::Forbidden => {
-                            result_flags.push((flag, None))
+                            result_flags.push((flag, None));
                         }
                         TakesValue::Necessary(values) => {
                             if let Some(next_arg) = inputs.next() {
@@ -283,7 +283,7 @@ impl Args {
                         let flag = Flag::Short(*byte);
                         match arg.takes_value {
                             TakesValue::Forbidden => {
-                                result_flags.push((flag, None))
+                                result_flags.push((flag, None));
                             }
                             TakesValue::Necessary(values) |
                             TakesValue::Optional(values) => {
@@ -316,7 +316,7 @@ impl Args {
 
             // Otherwise, it’s a free string, usually a file name.
             else {
-                frees.push(arg)
+                frees.push(arg);
             }
         }
 
@@ -330,7 +330,7 @@ impl Args {
         }
     }
 
-    fn lookup_long<'b>(&self, long: &'b OsStr) -> Result<&Arg, ParseError> {
+    fn lookup_long(&self, long: &OsStr) -> Result<&Arg, ParseError> {
         match self.0.iter().find(|arg| arg.long == long) {
             Some(arg)  => Ok(arg),
             None       => Err(ParseError::UnknownArgument { attempt: long.to_os_string() })
@@ -484,9 +484,9 @@ pub enum ParseError {
 impl fmt::Display for ParseError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::NeedsValue { flag, values: None }      => write!(f, "Flag {} needs a value", flag),
-            Self::NeedsValue { flag, values: Some(cs) }  => write!(f, "Flag {} needs a value ({})", flag, Choices(cs)),
-            Self::ForbiddenValue { flag }                => write!(f, "Flag {} cannot take a value", flag),
+            Self::NeedsValue { flag, values: None }      => write!(f, "Flag {flag} needs a value"),
+            Self::NeedsValue { flag, values: Some(cs) }  => write!(f, "Flag {flag} needs a value ({})", Choices(cs)),
+            Self::ForbiddenValue { flag }                => write!(f, "Flag {flag} cannot take a value"),
             Self::UnknownShortArgument { attempt }       => write!(f, "Unknown argument -{}", *attempt as char),
             Self::UnknownArgument { attempt }            => write!(f, "Unknown argument --{}", attempt.to_string_lossy()),
         }
@@ -494,26 +494,26 @@ impl fmt::Display for ParseError {
 }
 
 #[cfg(unix)]
-fn os_str_to_bytes<'b>(s: &'b OsStr) ->  &'b [u8]{
+fn os_str_to_bytes(s: &OsStr) -> &[u8]{
     use std::os::unix::ffi::OsStrExt;
 
     return s.as_bytes()
 }
 
 #[cfg(unix)]
-fn bytes_to_os_str<'b>(b:  &'b [u8]) ->  &'b OsStr{
+fn bytes_to_os_str(b: &[u8]) -> &OsStr{
     use std::os::unix::ffi::OsStrExt;
 
     return OsStr::from_bytes(b);
 }
 
 #[cfg(windows)]
-fn os_str_to_bytes<'b>(s: &'b OsStr) ->  &'b [u8]{
+fn os_str_to_bytes(s: &OsStr) ->  &[u8]{
     return s.to_str().unwrap().as_bytes()
 }
 
 #[cfg(windows)]
-fn bytes_to_os_str<'b>(b:  &'b [u8]) ->  &'b OsStr{
+fn bytes_to_os_str(b:  &[u8]) ->  &OsStr{
     use std::str;
 
     return OsStr::new(str::from_utf8(b).unwrap());

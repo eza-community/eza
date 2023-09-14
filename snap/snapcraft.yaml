@@ -1,4 +1,4 @@
-name: exa
+name: eza
 version: 'latest'
 summary: Replacement for 'ls' written in Rust
 description: |
@@ -6,17 +6,17 @@ description: |
   many types of files, such as whether you are the owner, or in the owning
   group. It also has extra features not present in the original ls, such as
   viewing the Git status for a directory, or recursing into directories with a
-  tree view. exa is written in Rust, so it’s small, fast, and portable.
+  tree view. eza is written in Rust, and it’s small, fast, and portable.
 
 grade: stable
 confinement: classic
 
 apps:
-  exa:
-    command: exa
+  eza:
+    command: eza
 
 parts:
-  exa:
+  eza:
     plugin: rust
     source: .
     stage-packages:

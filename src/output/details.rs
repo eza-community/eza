@@ -65,13 +65,14 @@ use std::mem::MaybeUninit;
 use std::path::PathBuf;
 use std::vec::IntoIter as VecIntoIter;
 
-use ansi_term::Style;
+use ansiterm::Style;
 use scoped_threadpool::Pool;
 
 use crate::fs::{Dir, File};
 use crate::fs::dir_action::RecurseOptions;
 use crate::fs::feature::git::GitCache;
-use crate::fs::feature::xattr::{Attribute, FileAttributes};
+use crate::fs::feature::xattr::Attribute;
+use crate::fs::fields::SecurityContextType;
 use crate::fs::filter::FileFilter;
 use crate::output::cell::TextCell;
 use crate::output::file_name::Options as FileStyle;
@@ -91,6 +92,7 @@ use crate::theme::Theme;
 ///
 /// Almost all the heavy lifting is done in a Table object, which handles the
 /// columns for each row.
+#[allow(clippy::struct_excessive_bools)] /// This clearly isn't a state machine
 #[derive(PartialEq, Eq, Debug)]
 pub struct Options {
 
@@ -105,6 +107,12 @@ pub struct Options {
 
     /// Whether to show each file’s extended attributes.
     pub xattr: bool,
+
+    /// Whether to show each file's security attribute.
+    pub secattr: bool,
+
+    /// Whether to show a directory's mounted filesystem details
+    pub mounts: bool,
 }
 
 
@@ -132,7 +140,7 @@ pub struct Render<'a> {
 
 struct Egg<'a> {
     table_row: Option<TableRow>,
-    xattrs:    Vec<Attribute>,
+    xattrs:    &'a [Attribute],
     errors:    Vec<(io::Error, Option<PathBuf>)>,
     dir:       Option<Dir>,
     file:      &'a File<'a>,
@@ -175,25 +183,36 @@ impl<'a> Render<'a> {
             self.add_files_to_table(&mut pool, &mut table, &mut rows, &self.files, TreeDepth::root());
 
             for row in self.iterate_with_table(table.unwrap(), rows) {
-                writeln!(w, "{}", row.strings())?
+                writeln!(w, "{}", row.strings())?;
             }
         }
         else {
             self.add_files_to_table(&mut pool, &mut None, &mut rows, &self.files, TreeDepth::root());
 
             for row in self.iterate(rows) {
-                writeln!(w, "{}", row.strings())?
+                writeln!(w, "{}", row.strings())?;
             }
         }
 
         Ok(())
     }
 
+    /// Whether to show the extended attribute hint
+    pub fn show_xattr_hint(&self, file: &File<'_>) -> bool {
+        // Do not show the hint '@' if the only extended attribute is the security
+        // attribute and the security attribute column is active.
+        let xattr_count = file.extended_attributes.len();
+        let selinux_ctx_shown = self.opts.secattr && match file.security_context().context {
+            SecurityContextType::SELinux(_) => true,
+            SecurityContextType::None       => false,
+        };
+        xattr_count > 1 || (xattr_count == 1 && !selinux_ctx_shown)
+    }
+
     /// Adds files to the table, possibly recursively. This is easily
     /// parallelisable, and uses a pool of threads.
     fn add_files_to_table<'dir>(&self, pool: &mut Pool, table: &mut Option<Table<'a>>, rows: &mut Vec<Row>, src: &[File<'dir>], depth: TreeDepth) {
         use std::sync::{Arc, Mutex};
-        use log::*;
         use crate::fs::feature::xattr;
 
         let mut file_eggs = (0..src.len()).map(|_| MaybeUninit::uninit()).collect::<Vec<_>>();
@@ -207,7 +226,6 @@ impl<'a> Render<'a> {
 
                 scoped.execute(move || {
                     let mut errors = Vec::new();
-                    let mut xattrs = Vec::new();
 
                     // There are three “levels” of extended attribute support:
                     //
@@ -216,7 +234,7 @@ impl<'a> Render<'a> {
                     // 2. If the feature is enabled and the --extended flag
                     //    has been specified, then display an @ in the
                     //    permissions column for files with attributes, the
-                    //    names of all attributes and their lengths, and any
+                    //    names of all attributes and their values, and any
                     //    errors encountered when getting them.
                     // 3. If the --extended flag *hasn’t* been specified, then
                     //    display the @, but don’t display anything else.
@@ -231,28 +249,14 @@ impl<'a> Render<'a> {
                     // printed unless the user passes --extended to signify
                     // that they want to see them.
 
-                    if xattr::ENABLED {
-                        match file.path.attributes() {
-                            Ok(xs) => {
-                                xattrs.extend(xs);
-                            }
-                            Err(e) => {
-                                if self.opts.xattr {
-                                    errors.push((e, None));
-                                }
-                                else {
-                                    error!("Error looking up xattr for {:?}: {:#?}", file.path, e);
-                                }
-                            }
-                        }
-                    }
+                    let xattrs: &[Attribute] = if xattr::ENABLED && self.opts.xattr {
+                        &file.extended_attributes
+                    } else {
+                        &[]
+                    };
 
                     let table_row = table.as_ref()
-                                         .map(|t| t.row_for_file(file, ! xattrs.is_empty()));
-
-                    if ! self.opts.xattr {
-                        xattrs.clear();
-                    }
+                                         .map(|t| t.row_for_file(file, self.show_xattr_hint(file)));
 
                     let mut dir = None;
                     if let Some(r) = self.recurse {
@@ -288,6 +292,7 @@ impl<'a> Render<'a> {
 
             let file_name = self.file_style.for_file(egg.file, self.theme)
                                 .with_link_paths()
+                                .with_mount_details(self.opts.mounts)
                                 .paint()
                                 .promote();
 
@@ -300,7 +305,7 @@ impl<'a> Render<'a> {
             rows.push(row);
 
             if let Some(ref dir) = egg.dir {
-                for file_to_add in dir.files(self.filter.dot_filter, self.git, self.git_ignoring) {
+                for file_to_add in dir.files(self.filter.dot_filter, self.git, self.git_ignoring, egg.file.deref_links) {
                     match file_to_add {
                         Ok(f) => {
                             files.push(f);
@@ -315,7 +320,7 @@ impl<'a> Render<'a> {
 
                 if ! files.is_empty() {
                     for xattr in egg.xattrs {
-                        rows.push(self.render_xattr(&xattr, TreeParams::new(depth.deeper(), false)));
+                        rows.push(self.render_xattr(xattr, TreeParams::new(depth.deeper(), false)));
                     }
 
                     for (error, path) in errors {
@@ -328,9 +333,9 @@ impl<'a> Render<'a> {
             }
 
             let count = egg.xattrs.len();
-            for (index, xattr) in egg.xattrs.into_iter().enumerate() {
+            for (index, xattr) in egg.xattrs.iter().enumerate() {
                 let params = TreeParams::new(depth.deeper(), errors.is_empty() && index == count - 1);
-                let r = self.render_xattr(&xattr, params);
+                let r = self.render_xattr(xattr, params);
                 rows.push(r);
             }
 
@@ -357,7 +362,7 @@ impl<'a> Render<'a> {
         let error_message = if let Some(path) = path {
             format!("<{}: {}>", path.display(), error)
         } else {
-            format!("<{}>", error)
+            format!("<{error}>")
         };
 
         // TODO: broken_symlink() doesn’t quite seem like the right name for
@@ -367,7 +372,7 @@ impl<'a> Render<'a> {
     }
 
     fn render_xattr(&self, xattr: &Attribute, tree: TreeParams) -> Row {
-        let name = TextCell::paint(self.theme.ui.perms.attribute, format!("{} (len {})", xattr.name, xattr.size));
+        let name = TextCell::paint(self.theme.ui.perms.attribute, format!("{}=\"{}\"", xattr.name, xattr.value));
         Row { cells: None, name, tree }
     }
 

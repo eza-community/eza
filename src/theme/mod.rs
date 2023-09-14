@@ -1,4 +1,4 @@
-use ansi_term::Style;
+use ansiterm::Style;
 
 use crate::fs::File;
 use crate::output::file_name::Colours as FileNameColours;
@@ -6,7 +6,6 @@ use crate::output::render;
 
 mod ui_styles;
 pub use self::ui_styles::UiStyles;
-pub use self::ui_styles::Size as SizeColours;
 
 mod lsc;
 pub use self::lsc::LSColors;
@@ -66,7 +65,7 @@ impl Options {
 
     #[allow(trivial_casts)]   // the `as Box<_>` stuff below warns about this for some reason
     pub fn to_theme(&self, isatty: bool) -> Theme {
-        use crate::info::filetype::FileExtensions;
+        use crate::info::filetype::FileTypeColor;
 
         if self.use_colours == UseColours::Never || (self.use_colours == UseColours::Automatic && ! isatty) {
             let ui = UiStyles::plain();
@@ -80,10 +79,10 @@ impl Options {
 
         // Use between 0 and 2 file name highlighters
         let exts = match (exts.is_non_empty(), use_default_filetypes) {
-            (false, false)  => Box::new(NoFileColours)           as Box<_>,
-            (false,  true)  => Box::new(FileExtensions)          as Box<_>,
-            ( true, false)  => Box::new(exts)                    as Box<_>,
-            ( true,  true)  => Box::new((exts, FileExtensions))  as Box<_>,
+            (false, false)  => Box::new(NoFileColours)         as Box<_>,
+            (false,  true)  => Box::new(FileTypeColor)         as Box<_>,
+            ( true, false)  => Box::new(exts)                  as Box<_>,
+            ( true,  true)  => Box::new((exts, FileTypeColor)) as Box<_>,
         };
 
         Theme { ui, exts }
@@ -194,16 +193,40 @@ impl ExtensionMappings {
     }
 
     fn add(&mut self, pattern: glob::Pattern, style: Style) {
-        self.mappings.push((pattern, style))
+        self.mappings.push((pattern, style));
     }
 }
 
 
 
 
+#[cfg(unix)]
 impl render::BlocksColours for Theme {
-    fn block_count(&self)  -> Style { self.ui.blocks }
-    fn no_blocks(&self)    -> Style { self.ui.punctuation }
+    fn blocksize(&self, prefix: Option<number_prefix::Prefix>) -> Style {
+        use number_prefix::Prefix::*;
+
+        match prefix {
+            Some(Kilo | Kibi) => self.ui.size.number_kilo,
+            Some(Mega | Mebi) => self.ui.size.number_mega,
+            Some(Giga | Gibi) => self.ui.size.number_giga,
+            Some(_)           => self.ui.size.number_huge,
+            None              => self.ui.size.number_byte,
+        }
+    }
+
+    fn unit(&self, prefix: Option<number_prefix::Prefix>) -> Style {
+        use number_prefix::Prefix::*;
+
+        match prefix {
+            Some(Kilo | Kibi) => self.ui.size.unit_kilo,
+            Some(Mega | Mebi) => self.ui.size.unit_mega,
+            Some(Giga | Gibi) => self.ui.size.unit_giga,
+            Some(_)           => self.ui.size.unit_huge,
+            None              => self.ui.size.unit_byte,
+        }
+    }
+
+    fn no_blocksize(&self) -> Style { self.ui.punctuation }
 }
 
 impl render::FiletypeColours for Theme {
@@ -233,6 +256,7 @@ impl render::GitColours for Theme {
 impl render::GroupColours for Theme {
     fn yours(&self)      -> Style { self.ui.users.group_yours }
     fn not_yours(&self)  -> Style { self.ui.users.group_not_yours }
+    fn no_group(&self)   -> Style { self.ui.punctuation }
 }
 
 impl render::LinksColours for Theme {
@@ -292,6 +316,7 @@ impl render::SizeColours for Theme {
 impl render::UserColours for Theme {
     fn you(&self)           -> Style { self.ui.users.user_you }
     fn someone_else(&self)  -> Style { self.ui.users.user_someone_else }
+    fn no_user(&self)       -> Style { self.ui.punctuation }
 }
 
 impl FileNameColours for Theme {
@@ -302,10 +327,20 @@ impl FileNameColours for Theme {
     fn control_char(&self)        -> Style { self.ui.control_char }
     fn symlink_path(&self)        -> Style { self.ui.symlink_path }
     fn executable_file(&self)     -> Style { self.ui.filekinds.executable }
+    fn mount_point(&self)         -> Style { self.ui.filekinds.mount_point }
 
     fn colour_file(&self, file: &File<'_>) -> Style {
         self.exts.colour_file(file).unwrap_or(self.ui.filekinds.normal)
     }
+}
+
+impl render::SecurityCtxColours for Theme {
+    fn none(&self)          -> Style { self.ui.security_context.none }
+    fn selinux_colon(&self) -> Style { self.ui.security_context.selinux.colon }
+    fn selinux_user(&self)  -> Style { self.ui.security_context.selinux.user }
+    fn selinux_role(&self)  -> Style { self.ui.security_context.selinux.role }
+    fn selinux_type(&self)  -> Style { self.ui.security_context.selinux.typ }
+    fn selinux_range(&self) -> Style { self.ui.security_context.selinux.range }
 }
 
 
@@ -336,14 +371,15 @@ fn apply_overlay(mut base: Style, overlay: Style) -> Style {
 
     base
 }
-// TODO: move this function to the ansi_term crate
+// TODO: move this function to the ansiterm crate
 
 
 #[cfg(test)]
+#[cfg(unix)]
 mod customs_test {
     use super::*;
     use crate::theme::ui_styles::UiStyles;
-    use ansi_term::Colour::*;
+    use ansiterm::Colour::*;
 
     macro_rules! test {
         ($name:ident:  ls $ls:expr, exa $exa:expr  =>  colours $expected:ident -> $process_expected:expr) => {
@@ -498,6 +534,8 @@ mod customs_test {
     test!(exa_lp:  ls "", exa "lp=38;5;133"  =>  colours c -> { c.symlink_path              = Fixed(133).normal(); });
     test!(exa_cc:  ls "", exa "cc=38;5;134"  =>  colours c -> { c.control_char              = Fixed(134).normal(); });
     test!(exa_bo:  ls "", exa "bO=4"         =>  colours c -> { c.broken_path_overlay       = Style::default().underline(); });
+
+    test!(exa_mp:  ls "", exa "mp=1;34;4"    =>  colours c -> { c.filekinds.mount_point     = Blue.bold().underline(); });
 
     // All the while, LS_COLORS treats them as filenames:
     test!(ls_uu:   ls "uu=38;5;117", exa ""  =>  exts [ ("uu", Fixed(117).normal()) ]);

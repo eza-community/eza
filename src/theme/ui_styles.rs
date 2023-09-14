@@ -1,4 +1,4 @@
-use ansi_term::Style;
+use ansiterm::Style;
 
 use crate::theme::lsc::Pair;
 
@@ -7,12 +7,13 @@ use crate::theme::lsc::Pair;
 pub struct UiStyles {
     pub colourful: bool,
 
-    pub filekinds:  FileKinds,
-    pub perms:      Permissions,
-    pub size:       Size,
-    pub users:      Users,
-    pub links:      Links,
-    pub git:        Git,
+    pub filekinds:        FileKinds,
+    pub perms:            Permissions,
+    pub size:             Size,
+    pub users:            Users,
+    pub links:            Links,
+    pub git:              Git,
+    pub security_context: SecurityContext,
 
     pub punctuation:  Style,
     pub date:         Style,
@@ -38,6 +39,7 @@ pub struct FileKinds {
     pub socket: Style,
     pub special: Style,
     pub executable: Style,
+    pub mount_point: Style,
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -102,6 +104,21 @@ pub struct Git {
     pub typechange: Style,
     pub ignored: Style,
     pub conflicted: Style,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct SELinuxContext {
+    pub colon: Style,
+    pub user:  Style,
+    pub role:  Style,
+    pub typ:   Style,
+    pub range: Style,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct SecurityContext {
+    pub none:    Style,
+    pub selinux: SELinuxContext,
 }
 
 impl UiStyles {
@@ -183,6 +200,7 @@ impl UiStyles {
             "gd" => self.git.deleted              = pair.to_style(),
             "gv" => self.git.renamed              = pair.to_style(),
             "gt" => self.git.typechange           = pair.to_style(),
+            "gi" => self.git.ignored              = pair.to_style(),
 
             "xx" => self.punctuation              = pair.to_style(),
             "da" => self.date                     = pair.to_style(),
@@ -192,6 +210,8 @@ impl UiStyles {
             "lp" => self.symlink_path             = pair.to_style(),
             "cc" => self.control_char             = pair.to_style(),
             "bO" => self.broken_path_overlay      = pair.to_style(),
+
+            "mp" => self.filekinds.mount_point    = pair.to_style(),
 
              _   => return false,
         }

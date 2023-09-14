@@ -27,10 +27,7 @@ impl UseColours {
             None => Self::Automatic,
         };
 
-        let word = match matches.get_where(|f| f.matches(&flags::COLOR) || f.matches(&flags::COLOUR))? {
-            Some(w)  => w,
-            None => return Ok(default_value),
-        };
+        let Some(word) = matches.get_where(|f| f.matches(&flags::COLOR) || f.matches(&flags::COLOUR))? else { return Ok(default_value) };
 
         if word == "always" {
             Ok(Self::Always)
@@ -149,13 +146,13 @@ mod terminal_test {
     impl Vars for MockVars {
         fn get(&self, name: &'static str) -> Option<OsString> {
             if name == vars::LS_COLORS && ! self.ls.is_empty() {
-                Some(OsString::from(self.ls.clone()))
+                Some(OsString::from(self.ls))
             }
             else if name == vars::EXA_COLORS && ! self.exa.is_empty() {
-                Some(OsString::from(self.exa.clone()))
+                Some(OsString::from(self.exa))
             }
             else if name == vars::NO_COLOR && ! self.no_color.is_empty() {
-                Some(OsString::from(self.no_color.clone()))
+                Some(OsString::from(self.no_color))
             }
             else {
                 None

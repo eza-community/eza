@@ -3,7 +3,7 @@
 use std::iter::Sum;
 use std::ops::{Add, Deref, DerefMut};
 
-use ansi_term::{Style, ANSIString, ANSIStrings};
+use ansiterm::{Style, ANSIString, ANSIStrings};
 use unicode_width::UnicodeWidthStr;
 
 
@@ -143,7 +143,7 @@ impl Deref for TextCellContents {
     type Target = [ANSIString<'static>];
 
     fn deref(&self) -> &Self::Target {
-        &*self.0
+        &self.0
     }
 }
 

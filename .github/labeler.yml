@@ -1,0 +1,11 @@
+"features › icon":
+  - src/output/icons.rs 
+
+"features › ui":
+  - src/info/filetype.rs 
+
+"packaging › snap":
+  - snap/**/*
+
+"flake/nix ❄️":
+  - flake.*

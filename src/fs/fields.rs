@@ -11,13 +11,8 @@
 //! The `output::details` module, among others, uses these types to render and
 //! display the information as formatted strings.
 
-// C-style `blkcnt_t` types don’t follow Rust’s rules!
 #![allow(non_camel_case_types)]
 #![allow(clippy::struct_excessive_bools)]
-
-
-/// The type of a file’s block count.
-pub type blkcnt_t = u64;
 
 /// The type of a file’s group ID.
 pub type gid_t = u32;
@@ -82,7 +77,7 @@ pub struct Permissions {
     pub setuid:         bool,
 }
 
-/// The file's FileAttributes field, available only on Windows.
+/// The file's `FileAttributes` field, available only on Windows.
 #[derive(Copy, Clone)]
 pub struct Attributes {
     pub archive:         bool,
@@ -137,12 +132,13 @@ pub struct Links {
 pub struct Inode(pub ino_t);
 
 
-/// The number of blocks that a file takes up on the filesystem, if any.
+/// A file's size of allocated file system blocks.
 #[derive(Copy, Clone)]
-pub enum Blocks {
+#[cfg(unix)]
+pub enum Blocksize {
 
     /// This file has the given number of blocks.
-    Some(blkcnt_t),
+    Some(u64),
 
     /// This file isn’t of a type that can take up blocks.
     None,
@@ -256,6 +252,39 @@ impl Default for Git {
         Self {
             staged: GitStatus::NotModified,
             unstaged: GitStatus::NotModified,
+        }
+    }
+}
+
+pub enum SecurityContextType<'a> {
+    SELinux(&'a str),
+    None
+}
+
+pub struct SecurityContext<'a> {
+    pub context: SecurityContextType<'a>,
+}
+
+#[allow(dead_code)]
+#[derive(PartialEq, Copy, Clone)]
+pub enum SubdirGitRepoStatus{
+    NoRepo,
+    GitClean,
+    GitDirty,
+    GitUnknown
+}
+
+#[derive(Clone)]
+pub struct SubdirGitRepo{
+    pub status : SubdirGitRepoStatus,
+    pub branch : Option<String>
+}
+
+impl Default for SubdirGitRepo{
+    fn default() -> Self {
+        Self{
+            status : SubdirGitRepoStatus::NoRepo,
+            branch : None
         }
     }
 }

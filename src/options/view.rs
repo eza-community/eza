@@ -11,9 +11,10 @@ use crate::output::time::TimeFormat;
 impl View {
     pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
         let mode = Mode::deduce(matches, vars)?;
-        let width = TerminalWidth::deduce(vars)?;
+        let width = TerminalWidth::deduce(matches, vars)?;
         let file_style = FileStyle::deduce(matches, vars)?;
-        Ok(Self { mode, width, file_style })
+        let deref_links = matches.has(&flags::DEREF_LINKS)?;
+        Ok(Self { mode, width, file_style, deref_links })
     }
 }
 
@@ -32,7 +33,7 @@ impl Mode {
         let flag = matches.has_where_any(|f| f.matches(&flags::LONG) || f.matches(&flags::ONE_LINE)
                                           || f.matches(&flags::GRID) || f.matches(&flags::TREE));
 
-        let flag = if let Some(f) = flag { f } else {
+        let Some(flag) = flag else {
             Self::strict_check_long_flags(matches)?;
             let grid = grid::Options::deduce(matches)?;
             return Ok(Self::Grid(grid));
@@ -81,13 +82,14 @@ impl Mode {
         // user about flags that won’t have any effect.
         if matches.is_strict() {
             for option in &[ &flags::BINARY, &flags::BYTES, &flags::INODE, &flags::LINKS,
-                             &flags::HEADER, &flags::BLOCKS, &flags::TIME, &flags::GROUP, &flags::NUMERIC ] {
+                             &flags::HEADER, &flags::BLOCKSIZE, &flags::TIME, &flags::GROUP, &flags::NUMERIC,
+                             &flags::MOUNTS ] {
                 if matches.has(option)? {
-                    return Err(OptionsError::Useless(*option, false, &flags::LONG));
+                    return Err(OptionsError::Useless(option, false, &flags::LONG));
                 }
             }
 
-            if matches.has(&flags::GIT)? {
+            if matches.has(&flags::GIT)? && !matches.has(&flags::NO_GIT)? {
                 return Err(OptionsError::Useless(&flags::GIT, false, &flags::LONG));
             }
             else if matches.has(&flags::LEVEL)? && ! matches.has(&flags::RECURSE)? && ! matches.has(&flags::TREE)? {
@@ -117,6 +119,8 @@ impl details::Options {
             table: None,
             header: false,
             xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
+            secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
+            mounts: matches.has(&flags::MOUNTS)?,
         };
 
         Ok(details)
@@ -136,16 +140,34 @@ impl details::Options {
             table: Some(TableOptions::deduce(matches, vars)?),
             header: matches.has(&flags::HEADER)?,
             xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
+            secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
+            mounts: matches.has(&flags::MOUNTS)?,
         })
     }
 }
 
 
 impl TerminalWidth {
-    fn deduce<V: Vars>(vars: &V) -> Result<Self, OptionsError> {
+    fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
         use crate::options::vars;
 
-        if let Some(columns) = vars.get(vars::COLUMNS).and_then(|s| s.into_string().ok()) {
+        if let Some(width) = matches.get(&flags::WIDTH)? {
+            let arg_str = width.to_string_lossy();
+            match arg_str.parse() {
+                Ok(w) => {
+                    if w >= 1 {
+                        Ok(Self::Set(w))
+                    } else {
+                        Ok(Self::Automatic)
+                    }
+                }
+                Err(e) => {
+                    let source = NumberSource::Arg(&flags::WIDTH);
+                    Err(OptionsError::FailedParse(arg_str.to_string(), source, e))
+                }
+            }
+        }
+        else if let Some(columns) = vars.get(vars::COLUMNS).and_then(|s| s.into_string().ok()) {
             match columns.parse() {
                 Ok(width) => {
                     Ok(Self::Set(width))
@@ -199,19 +221,23 @@ impl TableOptions {
 impl Columns {
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
         let time_types = TimeTypes::deduce(matches)?;
-        let git = matches.has(&flags::GIT)?;
 
-        let blocks = matches.has(&flags::BLOCKS)?;
-        let group  = matches.has(&flags::GROUP)?;
-        let inode  = matches.has(&flags::INODE)?;
-        let links  = matches.has(&flags::LINKS)?;
-        let octal  = matches.has(&flags::OCTAL)?;
+        let git = matches.has(&flags::GIT)? && !matches.has(&flags::NO_GIT)?;
+        let subdir_git_repos = matches.has(&flags::GIT_REPOS)? && !matches.has(&flags::NO_GIT)?;
+        let subdir_git_repos_no_stat = !subdir_git_repos && matches.has(&flags::GIT_REPOS_NO_STAT)? && !matches.has(&flags::NO_GIT)?;
+
+        let blocksize        = matches.has(&flags::BLOCKSIZE)?;
+        let group            = matches.has(&flags::GROUP)?;
+        let inode            = matches.has(&flags::INODE)?;
+        let links            = matches.has(&flags::LINKS)?;
+        let octal            = matches.has(&flags::OCTAL)?;
+        let security_context = xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?;
 
         let permissions = ! matches.has(&flags::NO_PERMISSIONS)?;
         let filesize =    ! matches.has(&flags::NO_FILESIZE)?;
         let user =        ! matches.has(&flags::NO_USER)?;
 
-        Ok(Self { time_types, inode, links, blocks, group, git, octal, permissions, filesize, user })
+        Ok(Self { time_types, inode, links, blocksize, group, git, subdir_git_repos, subdir_git_repos_no_stat, octal, security_context, permissions, filesize, user })
     }
 }
 
@@ -254,20 +280,13 @@ impl TimeFormat {
                 }
             };
 
-        if &word == "default" {
-            Ok(Self::DefaultFormat)
-        }
-        else if &word == "iso" {
-            Ok(Self::ISOFormat)
-        }
-        else if &word == "long-iso" {
-            Ok(Self::LongISO)
-        }
-        else if &word == "full-iso" {
-            Ok(Self::FullISO)
-        }
-        else {
-            Err(OptionsError::BadArgument(&flags::TIME_STYLE, word))
+        match word.to_string_lossy().as_ref() {
+            "default"  => Ok(Self::DefaultFormat),
+            "relative" => Ok(Self::Relative),
+            "iso"      => Ok(Self::ISOFormat),
+            "long-iso" => Ok(Self::LongISO),
+            "full-iso" => Ok(Self::FullISO),
+            _ => Err(OptionsError::BadArgument(&flags::TIME_STYLE, word))
         }
     }
 }
@@ -359,7 +378,7 @@ mod test {
                                    &flags::TIME,   &flags::MODIFIED, &flags::CHANGED,
                                    &flags::CREATED, &flags::ACCESSED,
                                    &flags::HEADER, &flags::GROUP,  &flags::INODE, &flags::GIT,
-                                   &flags::LINKS,  &flags::BLOCKS, &flags::LONG,  &flags::LEVEL,
+                                   &flags::LINKS,  &flags::BLOCKSIZE, &flags::LONG,  &flags::LEVEL,
                                    &flags::GRID,   &flags::ACROSS, &flags::ONE_LINE, &flags::TREE,
                                    &flags::NUMERIC ];
 
@@ -464,6 +483,7 @@ mod test {
         // Individual settings
         test!(default:   TimeFormat <- ["--time-style=default"], None;      Both => like Ok(TimeFormat::DefaultFormat));
         test!(iso:       TimeFormat <- ["--time-style", "iso"], None;       Both => like Ok(TimeFormat::ISOFormat));
+        test!(relative:  TimeFormat <- ["--time-style", "relative"], None;  Both => like Ok(TimeFormat::Relative));
         test!(long_iso:  TimeFormat <- ["--time-style=long-iso"], None;     Both => like Ok(TimeFormat::LongISO));
         test!(full_iso:  TimeFormat <- ["--time-style", "full-iso"], None;  Both => like Ok(TimeFormat::FullISO));
 
@@ -563,26 +583,26 @@ mod test {
         test!(long_across:   Mode <- ["--long", "--across"],   None;  Last => like Ok(Mode::Details(_)));
 
         // Options that do nothing without --long
-        test!(just_header:   Mode <- ["--header"],   None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_group:    Mode <- ["--group"],    None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_inode:    Mode <- ["--inode"],    None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_links:    Mode <- ["--links"],    None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_blocks:   Mode <- ["--blocks"],   None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_binary:   Mode <- ["--binary"],   None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_bytes:    Mode <- ["--bytes"],    None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_numeric:  Mode <- ["--numeric"],  None;  Last => like Ok(Mode::Grid(_)));
+        test!(just_header:   Mode <- ["--header"],    None;  Last => like Ok(Mode::Grid(_)));
+        test!(just_group:    Mode <- ["--group"],     None;  Last => like Ok(Mode::Grid(_)));
+        test!(just_inode:    Mode <- ["--inode"],     None;  Last => like Ok(Mode::Grid(_)));
+        test!(just_links:    Mode <- ["--links"],     None;  Last => like Ok(Mode::Grid(_)));
+        test!(just_blocks:   Mode <- ["--blocksize"], None;  Last => like Ok(Mode::Grid(_)));
+        test!(just_binary:   Mode <- ["--binary"],    None;  Last => like Ok(Mode::Grid(_)));
+        test!(just_bytes:    Mode <- ["--bytes"],     None;  Last => like Ok(Mode::Grid(_)));
+        test!(just_numeric:  Mode <- ["--numeric"],   None;  Last => like Ok(Mode::Grid(_)));
 
         #[cfg(feature = "git")]
-        test!(just_git:      Mode <- ["--git"],    None;  Last => like Ok(Mode::Grid(_)));
+        test!(just_git:      Mode <- ["--git"],       None;  Last => like Ok(Mode::Grid(_)));
 
-        test!(just_header_2: Mode <- ["--header"],   None;  Complain => err OptionsError::Useless(&flags::HEADER,  false, &flags::LONG));
-        test!(just_group_2:  Mode <- ["--group"],    None;  Complain => err OptionsError::Useless(&flags::GROUP,   false, &flags::LONG));
-        test!(just_inode_2:  Mode <- ["--inode"],    None;  Complain => err OptionsError::Useless(&flags::INODE,   false, &flags::LONG));
-        test!(just_links_2:  Mode <- ["--links"],    None;  Complain => err OptionsError::Useless(&flags::LINKS,   false, &flags::LONG));
-        test!(just_blocks_2: Mode <- ["--blocks"],   None;  Complain => err OptionsError::Useless(&flags::BLOCKS,  false, &flags::LONG));
-        test!(just_binary_2: Mode <- ["--binary"],   None;  Complain => err OptionsError::Useless(&flags::BINARY,  false, &flags::LONG));
-        test!(just_bytes_2:  Mode <- ["--bytes"],    None;  Complain => err OptionsError::Useless(&flags::BYTES,   false, &flags::LONG));
-        test!(just_numeric2: Mode <- ["--numeric"],  None;  Complain => err OptionsError::Useless(&flags::NUMERIC, false, &flags::LONG));
+        test!(just_header_2: Mode <- ["--header"],    None;  Complain => err OptionsError::Useless(&flags::HEADER,  false, &flags::LONG));
+        test!(just_group_2:  Mode <- ["--group"],     None;  Complain => err OptionsError::Useless(&flags::GROUP,   false, &flags::LONG));
+        test!(just_inode_2:  Mode <- ["--inode"],     None;  Complain => err OptionsError::Useless(&flags::INODE,   false, &flags::LONG));
+        test!(just_links_2:  Mode <- ["--links"],     None;  Complain => err OptionsError::Useless(&flags::LINKS,   false, &flags::LONG));
+        test!(just_blocks_2: Mode <- ["--blocksize"], None;  Complain => err OptionsError::Useless(&flags::BLOCKSIZE,  false, &flags::LONG));
+        test!(just_binary_2: Mode <- ["--binary"],    None;  Complain => err OptionsError::Useless(&flags::BINARY,  false, &flags::LONG));
+        test!(just_bytes_2:  Mode <- ["--bytes"],     None;  Complain => err OptionsError::Useless(&flags::BYTES,   false, &flags::LONG));
+        test!(just_numeric2: Mode <- ["--numeric"],   None;  Complain => err OptionsError::Useless(&flags::NUMERIC, false, &flags::LONG));
 
         #[cfg(feature = "git")]
         test!(just_git_2:    Mode <- ["--git"],    None;  Complain => err OptionsError::Useless(&flags::GIT,    false, &flags::LONG));

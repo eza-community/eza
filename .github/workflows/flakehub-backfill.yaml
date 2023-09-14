@@ -1,0 +1,25 @@
+name: "Push to FlakeHub (manual)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to publish to FlakeHub"
+        type: "string"
+        required: true
+
+jobs:
+  push:
+    runs-on: "ubuntu-22.04"
+    permissions:
+      id-token: "write"
+      contents: "read"
+    steps:
+      - uses: "actions/checkout@v4"
+        with:
+          ref: "refs/tags/${{ inputs.tag }}"
+      - uses: "DeterminateSystems/nix-installer-action@main"
+      - uses: "DeterminateSystems/flakehub-push@main"
+        with:
+          visibility: "public"
+          tag: "${{ inputs.tag }}"

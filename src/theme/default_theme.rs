@@ -1,5 +1,5 @@
-use ansi_term::Style;
-use ansi_term::Colour::*;
+use ansiterm::Style;
+use ansiterm::Colour::*;
 
 use crate::theme::ColourScale;
 use crate::theme::ui_styles::*;
@@ -20,6 +20,7 @@ impl UiStyles {
                 socket:       Red.bold(),
                 special:      Yellow.normal(),
                 executable:   Green.bold(),
+                mount_point:  Blue.bold().underline(),
             },
 
             perms: Permissions {
@@ -66,7 +67,18 @@ impl UiStyles {
                 conflicted:  Red.normal(),
             },
 
-            punctuation:  Fixed(244).normal(),
+            security_context: SecurityContext {
+                none:       Style::default(),
+                selinux: SELinuxContext {
+                    colon: Style::default().dimmed(),
+                    user:  Blue.normal(),
+                    role:  Green.normal(),
+                    typ:   Yellow.normal(),
+                    range: Cyan.normal(),
+                },
+            },
+
+            punctuation:  DarkGray.bold(),
             date:         Blue.normal(),
             inode:        Purple.normal(),
             blocks:       Cyan.normal(),
@@ -114,17 +126,17 @@ impl Size {
             major:  Green.bold(),
             minor:  Green.normal(),
 
-            number_byte: Fixed(118).normal(),
-            number_kilo: Fixed(190).normal(),
-            number_mega: Fixed(226).normal(),
-            number_giga: Fixed(220).normal(),
-            number_huge: Fixed(214).normal(),
+            number_byte: Green.normal(),
+            number_kilo: Green.bold(),
+            number_mega: Yellow.normal(),
+            number_giga: Red.normal(),
+            number_huge: Purple.normal(),
 
             unit_byte: Green.normal(),
-            unit_kilo: Green.normal(),
-            unit_mega: Green.normal(),
-            unit_giga: Green.normal(),
-            unit_huge: Green.normal(),
+            unit_kilo: Green.bold(),
+            unit_mega: Yellow.normal(),
+            unit_giga: Red.normal(),
+            unit_huge: Purple.normal(),
         }
     }
 }

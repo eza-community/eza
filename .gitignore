@@ -1,3 +1,6 @@
+# Nix Flake stuff
+result
+
 # Rust stuff
 target
 
@@ -7,10 +10,11 @@ target
 
 # Compiled artifacts
 # (see devtools/*-package-for-*.sh)
-/exa-linux-x86_64
-/exa-linux-x86_64-*.zip
-/exa-macos-x86_64
-/exa-macos-x86_64-*.zip
+/eza-linux-x86_64
+/eza-linux-x86_64-*.zip
+/eza-macos-x86_64
+/eza-macos-x86_64-*.zip
+/eza_*.deb
 /MD5SUMS
 /SHA1SUMS
 
@@ -19,3 +23,8 @@ parts
 prime
 stage
 *.snap
+.direnv
+
+# VHS testing stuff
+out.gif
+tests/tmp
