@@ -27,6 +27,7 @@ use std::env;
 use std::ffi::{OsStr, OsString};
 use std::io::{self, Write, ErrorKind};
 use std::path::{Component, PathBuf};
+use std::process::exit;
 
 use ansiterm::{ANSIStrings, Style};
 
@@ -87,8 +88,6 @@ lazy_static! {
 }
 
 fn main() {
-    use std::process::exit;
-
     #[cfg(unix)]
     unsafe {
         libc::signal(libc::SIGPIPE, libc::SIG_DFL);
