@@ -24,3 +24,10 @@ fn cli_nix_tests() {
     trycmd::TestCases::new()
         .case("tests/cmd/*_nix.toml");
 }
+
+#[test]
+#[cfg(feature="powertest")]
+fn cli_powertest_tests() {
+    trycmd::TestCases::new()
+        .case("tests/ptests/*.toml");
+}

@@ -120,7 +120,7 @@
             singleStep = true;
             # set itests files creation date to unix epoch
             buildPhase = ''touch --date=@0 tests/itest/*'';
-            cargoTestOptions = opts: opts ++ ["--features nix"];
+            cargoTestOptions = opts: opts ++ ["--features nix" "--features powertest"];
             inherit buildInputs;
           };
 
@@ -134,8 +134,8 @@
             # buildPhase files differ between dep and main phase
             singleStep = true;
             # set itests files creation date to unix epoch
-            buildPhase = ''touch --date=@0 tests/itest/*; rm tests/cmd/*.stdout || echo; rm tests/cmd/*.stderr || echo;'';
-            cargoTestOptions = opts: opts ++ ["--features nix"];
+            buildPhase = ''touch --date=@0 tests/itest/*; rm tests/cmd/*.stdout || echo; rm tests/cmd/*.stderr || echo; rm tests/ptests/*.stdout || echo; rm tests/ptests/*.stderr || echo;'';
+            cargoTestOptions = opts: opts ++ ["--features nix" "--features powertest"];
             TRYCMD = "dump";
             postInstall = ''
               cp dump $out -r

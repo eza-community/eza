@@ -80,6 +80,9 @@ vendored-openssl = ["git2/vendored-openssl"]
 vendored-libgit2 = ["git2/vendored-libgit2"]
 # Should only be used inside of flake.nix
 nix = []
+# Should only be used inside of flake.nix
+# Shouldn't ever be used in CI (slow!)
+powertest = []
 
 
 # make dev builds faster by excluding debug symbols
