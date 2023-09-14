@@ -1,0 +1,2 @@
+bin.name = "eza"
+args = "-1 --only"

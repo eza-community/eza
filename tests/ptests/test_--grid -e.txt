@@ -1,0 +1,2 @@
+bin.name = "eza"
+args = "--grid -e"
