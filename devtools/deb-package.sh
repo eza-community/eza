@@ -47,6 +47,9 @@ for ARCH in "${!TARGETS[@]}"; do
     mkdir -p "${DEB_TMP_DIR}${DOCDIR}/man5"
     mkdir -p "${DEB_TMP_DIR}/DEBIAN"
     mkdir -p "${DEB_TMP_DIR}/usr/share/doc/${NAME}"
+    mkdir -p "${DEB_TMP_DIR}/usr/share/bash-completion/completions/"
+    mkdir -p "${DEB_TMP_DIR}/usr/share/fish/vendor_completions.d/"
+    mkdir -p "${DEB_TMP_DIR}/usr/share/zsh/vendor-completions/"
     chmod 755 -R "${DEB_TMP_DIR}"
 
     echo " -> extract executable"
@@ -59,6 +62,11 @@ for ARCH in "${!TARGETS[@]}"; do
     gzip -cn9 target/man/eza_colors.5 > "${DEB_TMP_DIR}${DOCDIR}man5/eza_colors.5.gz"
     gzip -cn9 target/man/eza_colors-explanation.5 > "${DEB_TMP_DIR}${DOCDIR}man5/eza_colors-explanation.5.gz"
     chmod 644 "${DEB_TMP_DIR}${DOCDIR}"/**/*.gz
+
+    echo " -> copy completions"
+    cp completions/bash/eza "${DEB_TMP_DIR}/usr/share/bash-completion/completions/"
+    cp completions/fish/eza.fish "${DEB_TMP_DIR}/usr/share/fish/vendor_completions.d/"
+    cp completions/zsh/_eza "${DEB_TMP_DIR}/usr/share/zsh/vendor-completions/"
 
     echo " -> create control file"
     touch "${DEB_TMP_DIR}/DEBIAN/control"
