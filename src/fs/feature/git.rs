@@ -332,7 +332,7 @@ fn reorient(path: &Path) -> PathBuf {
 
 #[cfg(windows)]
 fn reorient(path: &Path) -> PathBuf {
-    let unc_path = path.canonicalize().unwrap();
+    let unc_path = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
     // On Windows UNC path is returned. We need to strip the prefix for it to work.
     let normal_path = unc_path.as_os_str().to_str().unwrap().trim_start_matches("\\\\?\\");
     PathBuf::from(normal_path)
