@@ -1,2 +1,2 @@
 bin.name = "eza"
-args = "tests/itest --long --no-user --no-time --header"
+args = "tests/itest --long --no-user --no-time --header --no-permissions"

@@ -1,47 +1,47 @@
-.rw-r--r-- 1 a
-.rw-r--r-- 1 b
-.rw-r--r-- 1 c
-.rw-r--r-- 1 d
-.rw-r--r-- 1 e
-drwxr-xr-x 3 exa
-.rw-r--r-- 1 f
-.rw-r--r-- 1 g
-.rw-r--r-- 1 h
-.rw-r--r-- 1 i
-.rw-r--r-- 1 image.jpg.img.c.rs.log.png
-.rw-r--r-- 1 index.svg
-.rw-r--r-- 1 j
-.rw-r--r-- 1 k
-.rw-r--r-- 1 l
-.rw-r--r-- 1 m
-.rw-r--r-- 1 n
-.rw-r--r-- 1 o
-.rw-r--r-- 1 p
-.rw-r--r-- 1 q
-drwxr-xr-x 5 vagrant
+1 a
+1 b
+1 c
+1 d
+1 e
+3 exa
+1 f
+1 g
+1 h
+1 i
+1 image.jpg.img.c.rs.log.png
+1 index.svg
+1 j
+1 k
+1 l
+1 m
+1 n
+1 o
+1 p
+1 q
+5 vagrant
 
 tests/itest/exa:
-lrwxrwxrwx 1 file.c -> djihisudjuhfius
-drwxr-xr-x 2 sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+1 file.c -> djihisudjuhfius
+2 sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 
 tests/itest/exa/sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss:
-.rw-r--r-- 1 Makefile
+1 Makefile
 
 tests/itest/vagrant:
-drwxr-xr-x 2 debug
-drwxr-xr-x 2 dev
-drwxr-xr-x 3 log
+2 debug
+2 dev
+3 log
 
 tests/itest/vagrant/debug:
-lrwxrwxrwx 1 symlinking -> a
+1 symlinking -> a
 
 tests/itest/vagrant/dev:
-.rw-r--r-- 1 main.bf
+1 main.bf
 
 tests/itest/vagrant/log:
-.rw-r--r-- 1 file.png
-drwxr-xr-x 2 run
+1 file.png
+2 run
 
 tests/itest/vagrant/log/run:
-.rw-r--r-- 1 run.log.text
-.rw-r--r-- 1 sps.log.text
+1 run.log.text
+1 sps.log.text

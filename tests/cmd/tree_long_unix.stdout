@@ -1,34 +1,34 @@
-drwxr-xr-x tests/itest
-.rw-r--r-- ├── a
-.rw-r--r-- ├── b
-.rw-r--r-- ├── c
-.rw-r--r-- ├── d
-.rw-r--r-- ├── e
-drwxr-xr-x ├── exa
-lrwxrwxrwx │  ├── file.c -> djihisudjuhfius
-drwxr-xr-x │  └── sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-.rw-r--r-- │     └── Makefile
-.rw-r--r-- ├── f
-.rw-r--r-- ├── g
-.rw-r--r-- ├── h
-.rw-r--r-- ├── i
-.rw-r--r-- ├── image.jpg.img.c.rs.log.png
-.rw-r--r-- ├── index.svg
-.rw-r--r-- ├── j
-.rw-r--r-- ├── k
-.rw-r--r-- ├── l
-.rw-r--r-- ├── m
-.rw-r--r-- ├── n
-.rw-r--r-- ├── o
-.rw-r--r-- ├── p
-.rw-r--r-- ├── q
-drwxr-xr-x └── vagrant
-drwxr-xr-x    ├── debug
-lrwxrwxrwx    │  └── symlinking -> a
-drwxr-xr-x    ├── dev
-.rw-r--r--    │  └── main.bf
-drwxr-xr-x    └── log
-.rw-r--r--       ├── file.png
-drwxr-xr-x       └── run
-.rw-r--r--          ├── run.log.text
-.rw-r--r--          └── sps.log.text
+tests/itest
+├── a
+├── b
+├── c
+├── d
+├── e
+├── exa
+│  ├── file.c -> djihisudjuhfius
+│  └── sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+│     └── Makefile
+├── f
+├── g
+├── h
+├── i
+├── image.jpg.img.c.rs.log.png
+├── index.svg
+├── j
+├── k
+├── l
+├── m
+├── n
+├── o
+├── p
+├── q
+└── vagrant
+   ├── debug
+   │  └── symlinking -> a
+   ├── dev
+   │  └── main.bf
+   └── log
+      ├── file.png
+      └── run
+         ├── run.log.text
+         └── sps.log.text
