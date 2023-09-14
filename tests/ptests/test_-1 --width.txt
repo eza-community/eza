@@ -1,2 +1,0 @@
-bin.name = "eza"
-args = "-1 --width"
