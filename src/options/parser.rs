@@ -147,7 +147,7 @@ pub struct Opts {
     #[arg(long = "git-repos-no-status", action = clap::ArgAction::Count)]
     pub git_repos_no_status: u8,
     /// list each file's permission in octal format.
-    #[arg(short = 'o', long, action = clap::ArgAction::Count)]
+    #[arg(short = 'o', long, alias = "octal-permission", alias = "octal-permissions", action = clap::ArgAction::Count)]
     pub octal: u8,
     /// Display the number of hard links to file.
     #[arg(short = 'Z', long = "context", action = clap::ArgAction::Count)]
