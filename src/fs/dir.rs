@@ -42,7 +42,7 @@ impl Dir {
                           .map(|result| result.map(|entry| entry.path()))
                           .collect::<Result<_, _>>()?;
 
-        info!("Read directory succes {:?}", &path);
+        info!("Read directory success {:?}", &path);
         Ok(Self { contents, path })
     }
 
