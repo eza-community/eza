@@ -24,9 +24,8 @@ pub struct Options {
     pub show_icons: ShowIcons,
 
     /// How to display file names with spaces (with or without quotes).
-    pub quote_style: QuoteStyle
+    pub quote_style: QuoteStyle,
 
-    
     /// Whether to make file names hyperlinks.
     pub embed_hyperlinks: EmbedHyperlinks,
 
@@ -234,7 +233,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                             classify: Classify::JustFilenames,
                             show_icons: ShowIcons::Off,
 
-                            quote_style: QuoteStyle::QuoteSpaces
+                            quote_style: QuoteStyle::QuoteSpaces,
 
                             embed_hyperlinks: EmbedHyperlinks::Off,
                         };

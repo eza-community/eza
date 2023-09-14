@@ -13,12 +13,11 @@ impl Options {
         let show_icons = ShowIcons::deduce(matches, vars)?;
 
         let quote_style = QuoteStyle::deduce(matches)?;
+        let embed_hyperlinks = EmbedHyperlinks::deduce(matches)?; 
 
-        Ok(Self { classify, show_icons, quote_style })
+         Ok(Self { classify, show_icons, embed_hyperlinks, quote_style  })
+        
 
-        let embed_hyperlinks = EmbedHyperlinks::deduce(matches)?;
-
-        Ok(Self { classify, show_icons, embed_hyperlinks })
     }
 }
 

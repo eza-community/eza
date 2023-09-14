@@ -9,7 +9,7 @@ pub fn escape(string: String, bits: &mut Vec<ANSIString<'_>>, good: Style, bad: 
 
     if string.chars().all(|c| c >= 0x20 as char && c != 0x7f as char) {
 
-        bits.push(good.paint(string));
+        bits.push(good.paint(string.clone()));
     }
     else {
         for c in string.chars() {
@@ -30,9 +30,10 @@ pub fn escape(string: String, bits: &mut Vec<ANSIString<'_>>, good: Style, bad: 
     if quote_style != QuoteStyle::NoQuotes && needs_quotes {
         bits.insert(0, quote_bit.clone());
         bits.push(quote_bit);
+    }
 
     // the lengthier string of non control character can’t be bigger than the whole string
-    let mut regular_char_buff = String::with_capacity(string.len());
+    let mut regular_char_buff = String::with_capacity(string.capacity());
     for c in string.chars() {
         // The `escape_default` method on `char` is *almost* what we want here, but
         // it still escapes non-ASCII UTF-8 characters, which are still printable.
