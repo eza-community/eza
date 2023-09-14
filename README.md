@@ -210,18 +210,20 @@ To install eza, run:
 scoop install eza
 ```
 
-### For zsh:
+### Completions
+
+#### For zsh:
 
 > **Note**
 > Change `~/.zshrc` to your preferred zsh config file.
 
-**Clone the repository**:
+##### Clone the repository:
    
 ```sh
 git clone https://github.com/eza-community/eza.git
 ```
 
-**Add the completion path to your zsh configuration**:
+##### Add the completion path to your zsh configuration:
    
 Replace `<path_to_eza>` with the actual path where you cloned the `eza` repository.
 
@@ -229,7 +231,7 @@ Replace `<path_to_eza>` with the actual path where you cloned the `eza` reposito
 echo 'export FPATH="<path_to_eza>/completions/zsh:$FPATH"' >> ~/.zshrc
 ```
 
-**Reload your zsh configuration**:
+##### Reload your zsh configuration:
    
 ```sh
 source ~/.zshrc
