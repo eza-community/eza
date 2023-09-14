@@ -68,6 +68,8 @@ use std::vec::IntoIter as VecIntoIter;
 use ansiterm::Style;
 use scoped_threadpool::Pool;
 
+use log::*;
+
 use crate::fs::{Dir, File};
 use crate::fs::dir_action::RecurseOptions;
 use crate::fs::feature::git::GitCache;
@@ -261,6 +263,7 @@ impl<'a> Render<'a> {
                     let mut dir = None;
                     if let Some(r) = self.recurse {
                         if file.is_directory() && r.tree && ! r.is_too_deep(depth.0) {
+                            trace!("matching on to_dir");
                             match file.to_dir() {
                                 Ok(d) => {
                                     dir = Some(d);
