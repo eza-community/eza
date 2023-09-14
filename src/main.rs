@@ -121,7 +121,7 @@ fn main() {
             info!("matching on exa.run");
             match exa.run() {
                 Ok(exit_status) => {
-                    trace!("exa.run exit Ok(exit_status)");
+                    trace!("exa.run: exit Ok(exit_status)");
                     exit(exit_status);
                 }
 
@@ -132,7 +132,7 @@ fn main() {
 
                 Err(e) => {
                     eprintln!("{e}");
-                    trace!("exa.run exit RUNTIME_ERROR");
+                    trace!("exa.run: exit RUNTIME_ERROR");
                     exit(exits::RUNTIME_ERROR);
                 }
             }
