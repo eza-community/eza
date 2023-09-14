@@ -205,7 +205,7 @@ Symbols shown are `|`= clean, `+`= dirty, and `~`= for unknown.
 
 `--git-repos-no-status` [if eza was built with git support]
 : List if a directory is a Git repository, but not its status.
-All Git repository directories will be shown as `-` (green) without status indicated.
+All Git repository directories will be shown as (themed) `-` without status indicated.
 
 
 `--no-git`
