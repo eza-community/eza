@@ -1,0 +1,2 @@
+bin.name = "eza"
+args = "tests/itest --long --no-user --no-permissions --no-time --no-filesize --recurse --level 2"
