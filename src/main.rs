@@ -387,6 +387,6 @@ mod exits {
     /// Exit code for when the command-line options are invalid.
     pub const OPTIONS_ERROR: i32 = 3;
 
-    /// Exit code for when the you don't have permissions for the file.
+    /// Exit code for missing file permissions
     pub const PERMISSION_DENIED: i32 = 13;
 }
