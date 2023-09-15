@@ -130,8 +130,17 @@ impl<'dir, 'ig> Files<'dir, 'ig> {
                     }
                 }
 
-                return Some(File::from_args(path.clone(), self.dir, filename, self.deref_links)
-                                 .map_err(|e| (path.clone(), e)))
+                let file = File::from_args(path.clone(), self.dir, filename, self.deref_links)
+                                 .map_err(|e| (path.clone(), e));
+
+                // Windows has its own concept of hidden files, when dotfiles are
+                // hidden Windows hidden files should also be filtered out
+                #[cfg(windows)]
+                if !self.dotfiles && file.as_ref().is_ok_and(|f| f.attributes().hidden) {
+                    continue;
+                }
+
+                return Some(file);
             }
 
             return None
