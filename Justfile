@@ -159,10 +159,14 @@ alias c := cross
     ### arm
     just binary eza arm-unknown-linux-gnueabihf
 
+    ## MacOS
+    # TODO: just binary eza x86_64-apple-darwin
+
     ## Windows
     ### x86
     just binary eza.exe x86_64-pc-windows-gnu
-    -just binary eza.exe x86_64-pc-windows-msvc
+    # TODO: just binary eza.exe x86_64-pc-windows-gnullvm
+    # TODO: just binary eza.exe x86_64-pc-windows-msvc
 
     # Generate Checksums
     just checksum
