@@ -1,0 +1,15 @@
+name: Publish to Winget
+
+on:
+  release:
+    types: [released]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: vedantmgoyal2009/winget-releaser@v2
+        with:
+          identifier: eza-community.eza
+          installers-regex: '-pc-windows-gnu\.zip$'
+          token: ${{ secrets.WINGET_TOKEN }}

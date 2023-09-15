@@ -28,7 +28,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        rust: [1.65.0, stable, beta, nightly]
+        rust: [1.70.0, stable, beta, nightly]
 
     steps:
       - name: Checkout repository
@@ -40,7 +40,11 @@ jobs:
           toolchain: ${{ matrix.rust }}
 
       - name: Install cargo-hack
-        run: cargo install cargo-hack@0.5.27
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 5
+          max_attemps: 5
+          command: cargo install cargo-hack
 
       - name: Run unit tests
         run: cargo hack test 

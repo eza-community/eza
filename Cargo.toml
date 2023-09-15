@@ -4,13 +4,13 @@ description = "A modern replacement for ls"
 authors = ["Christina Sørensen <christina@cafkafk.com>"]
 categories = ["command-line-utilities"]
 edition = "2021"
-rust-version = "1.65.0"
-exclude = ["/devtools/*", "/Justfile", "/Vagrantfile", "/screenshots.png"]
+rust-version = "1.70.0"
+exclude = ["/devtools/*", "/Justfile", "/Vagrantfile", "/screenshots.png", "/tests"]
 readme = "README.md"
 homepage = "https://github.com/eza-community/eza"
 license = "MIT"
 repository = "https://github.com/eza-community/eza"
-version = "0.11.1"
+version = "0.12.0"
 
 
 [package.metadata.deb]
@@ -25,6 +25,7 @@ assets = [
     [ "target/release/eza", "/usr/bin/eza", "0755" ],
     [ "target/release/../man/eza.1", "/usr/share/man/man1/eza.1", "0644" ],
     [ "target/release/../man/eza_colors.5", "/usr/share/man/man5/eza_colors.5", "0644" ],
+    [ "target/release/../man/eza_colors-explanation.5", "/usr/share/man/man5/eza_colors-explanation.5", "0644" ],
     [ "completions/bash/eza", "/usr/share/bash-completion/completions/eza", "0644" ],
     [ "completions/zsh/_eza", "/usr/share/zsh/site-functions/_eza", "0644" ],
     [ "completions/fish/eza.fish", "/usr/share/fish/vendor_completions.d/eza.fish", "0644" ],
@@ -71,11 +72,12 @@ uzers = "0.11.3"
 chrono = { version = "0.4.30", default-features = false, features = ["clock"] }
 
 [dev-dependencies]
+criterion = { version = "0.5.1", features = ["html_reports"] }
 trycmd = "0.14"
 
 [features]
-default = [ "git" ]
-git = [ "git2" ]
+default = ["git"]
+git = ["git2"]
 vendored-openssl = ["git2/vendored-openssl"]
 vendored-libgit2 = ["git2/vendored-libgit2"]
 # Should only be used inside of flake.nix
@@ -90,4 +92,8 @@ debug = false
 [profile.release]
 lto = true
 strip = true
-opt-level = "s"
+opt-level = 3
+
+[[bench]]
+name = "my_benchmark"
+harness = false

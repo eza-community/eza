@@ -2,6 +2,146 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.0] - 2023-09-14
+
+### Bug Fixes
+
+- Expand `--all` help
+- RUSTSEC-2020-0071
+- Generalize gitignore to ignore all eza deb packages
+- Canonicalize errors when the destination of a symbolic link is bad
+- Handle other canonicalize errors in hyperlinks and git
+- Fix windows build when canonicalize returns an error
+- Change trycmd config to use test/itest folder for testing
+- Revert to old apt install command suggestion and add hint
+- Remove stray backslashes
+- Is_some_and is an unstable Rust feature until 1.70
+- Revert "Support for Windows Hidden Files"
+- Shellcheck warnings
+- Revert "Support for Windows Hidden Files"
+- Shellcheck warnings
+- Exit 13 on os error 13
+- Rewrite comment
+- Improve trace strings
+- Tracing typo
+
+### Documentation
+
+- Expand `--all` documentation
+- Add pthorpe92 gist
+- Remove xtests section from readme
+- Add deprecation warning to xtests/readme
+- Add deprecation warning to just xtest commands
+- Add deprecation warning to vagrantfile
+- Add MacPorts install info
+- Add gentoo
+- Fix gentoo install
+- Add docs for --git-repos & --git-repos-no-status
+- Fix gpg armor flag for deb release in readme
+- Add better explanation of git repos + no status
+- Add scoop install info
+- Remove color specifications. change unknown git repo status to `~`
+- Fix missing color specification from man page
+
+### Features
+
+- Add audit workflow
+- Add trycmd as dev-dependency
+- Add minimal trycmd binary
+- Add a few trycmd tests as example
+- Document and change output for --git-repos
+- Add apt installation workflow
+- Adds filtering on Windows hidden files
+- Adds filtering on Windows hidden files
+- Adds filtering on Windows hidden files
+- Added shellcheck to treefmt
+- Adds filtering on Windows hidden files
+- Add PERMISSION_DENIED exit code
+
+### Miscellaneous Tasks
+
+- Bump chrono from 0.4.27 to 0.4.30
+- Removal of xtests
+- Removal of vagrant
+- Remove deprecated devtools
+- Run spellcheck
+
+### Refactor
+
+- Over-engineer deb-package.sh
+- Hide xtests folder
+- Split trycmd into tests for all, unix and windows
+- Limit unit-tests run on workflow change to unit-tests itself
+- Moved generateTest.sh to devtools/
+- Renamed the file
+- Add tracing to various code parts
+- Make std::process::exit global
+
+### Revert
+
+- "Support for Windows Hidden Files"
+
+### Styling
+
+- Remove TODO message on the absolute_path property
+- Fix shellcheck issues in deb-package.sh
+- Fix shellcheck issues in deb-package.sh
+- Fix shellcheck issues in deb-package.sh
+
+### Testing
+
+- Remove vhs from flake
+- Remove vhs-runner files
+- Dump trycmd from nix sandbox
+- Fix name of trydump
+- Add trycmd
+- Add nix feature
+- Add example long tests for sandbox
+- Set itests files to unix epoch
+- Set itest files to unix epoch
+- Refactor setting unix epoch
+- Auto discard old definitions
+- Fix test reference
+- Add long_all_nix.toml
+- Add long_blocksize_nix.toml
+- Add long_extended_nix.toml
+- Add long_git_nix.toml
+- Add long_git_repos_nix.toml
+- Add long_git_repos_no_status_nix.toml
+- Add long_grid_nix.toml
+- Add long_header_nix.toml
+- Add long_icons_nix.toml
+- Add long_octal_nix.toml
+- Add long_time_style_relative_nix.toml
+- Freeze nix tests
+- Fix trydump when no files to delete
+- Adding more content to test
+- Modified unix and all tests
+- Regenerate nix tests
+- Convert windows tests with new itest dir
+- Fixed windows tests being wrong
+- Added a test generator
+- Add more unix_tests
+- Fixed unix tests to remove any distro specific
+- Removed git test breaking on nix
+
+### Build
+
+- Add compression, checksum gen for bin
+- Update flake.lock, cargo.lock
+- Add deny.toml
+- Remove org warnings
+- Remove itest
+- Update flake.lock
+- Add itest, idump
+- Make trycmd part of checks
+
+### Ci
+
+- Don't use nix feature on ci
+- Enforce conventional commits
+- Enforce conventional commits
+
 ## [0.11.1] - 2023-09-11
 
 ### Bug Fixes
@@ -37,6 +177,8 @@ All notable changes to this project will be documented in this file.
 ### Miscellaneous Tasks
 
 - Bump actions/checkout from 3 to 4
+- Bump uzers to v0.11.3
+- Release 0.11.1
 
 ### Testing
 
@@ -174,6 +316,7 @@ All notable changes to this project will be documented in this file.
 - Cafkafk -> eza-community
 - Add gpg public key for the deb repository
 - Add section about debian and ubuntu installation
+- Add guidelines for commit messages
 
 ### Features
 

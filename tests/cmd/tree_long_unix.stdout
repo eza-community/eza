@@ -1,0 +1,34 @@
+tests/itest
+├── a
+├── b
+├── c
+├── d
+├── e
+├── exa
+│  ├── file.c -> djihisudjuhfius
+│  └── sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+│     └── Makefile
+├── f
+├── g
+├── h
+├── i
+├── image.jpg.img.c.rs.log.png
+├── index.svg
+├── j
+├── k
+├── l
+├── m
+├── n
+├── o
+├── p
+├── q
+└── vagrant
+   ├── debug
+   │  └── symlinking -> a
+   ├── dev
+   │  └── main.bf
+   └── log
+      ├── file.png
+      └── run
+         ├── run.log.text
+         └── sps.log.text
