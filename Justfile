@@ -216,6 +216,25 @@ gen_test_dir:
     cd ..
     
     # END git
+    
+    # BEGIN test_root
+    
+    sudo mkdir root
+    sudo chmod 777 root
+    sudo mkdir root/empty
+    
+    # END test_root
+    
+    # BEGIN mknod
+    
+    mkdir -p specials
+    
+    sudo mknod specials/block-device b  3 60
+    sudo mknod specials/char-device  c 14 40
+    sudo mknod specials/named-pipe   p
+
+    # END test_root
+    
     eza -l --grid;
 
 # Runs integration tests in nix sandbox
