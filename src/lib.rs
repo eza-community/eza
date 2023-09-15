@@ -1,9 +1,12 @@
 #[macro_use]
 extern crate lazy_static;
-use std::collections::HashMap;
+
 use crate::fs::mounts::MountedFs;
+
 use proc_mounts::MountList;
+use std::collections::HashMap;
 use std::path::PathBuf;
+
 // A lazily initialised static map of all mounted file systems.
 //
 // The map contains a mapping from the mounted directory path to the
@@ -22,15 +25,18 @@ lazy_static! {
             Ok(mount_list) => {
                 let mut m = HashMap::new();
                 mount_list.0.iter().for_each(|mount| {
-                    m.insert(mount.dest.clone(), MountedFs {
-                        dest: mount.dest.to_string_lossy().into_owned(),
-                        fstype: mount.fstype.clone(),
-                        source: mount.source.to_string_lossy().into(),
-                    });
+                    m.insert(
+                        mount.dest.clone(),
+                        MountedFs {
+                            dest: mount.dest.to_string_lossy().into_owned(),
+                            fstype: mount.fstype.clone(),
+                            source: mount.source.to_string_lossy().into(),
+                        },
+                    );
                 });
                 m
             }
-            Err(_) => HashMap::new()
+            Err(_) => HashMap::new(),
         }
         #[cfg(not(target_os = "linux"))]
         HashMap::new()
