@@ -2,12 +2,6 @@
 extern crate lazy_static;
 use std::collections::HashMap;
 use crate::fs::mounts::MountedFs;
-use crate::fs::{Dir, File};
-use crate::fs::feature::git::GitCache;
-use crate::fs::filter::GitIgnore;
-use crate::options::{Options, Vars, vars, OptionsResult};
-use crate::output::{escape, lines, grid, grid_details, details, View, Mode};
-use crate::theme::Theme;
 use proc_mounts::MountList;
 use std::path::PathBuf;
 // A lazily initialised static map of all mounted file systems.
@@ -43,9 +37,15 @@ lazy_static! {
     };
 }
 
+#[allow(unused)]
 pub mod fs;
+#[allow(unused)]
 pub mod info;
+#[allow(unused)]
 pub mod logger;
+#[allow(unused)]
 pub mod options;
+#[allow(unused)]
 pub mod output;
+#[allow(unused)]
 pub mod theme;
