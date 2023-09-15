@@ -121,6 +121,8 @@ all-release: build-release test-release
     ## Linux
     cross build --target x86_64-unknown-linux-gnu --release
     tar czvf ./target/"bin-$(convco version)"/eza_x86_64-unknown-linux-gnu.tar.gz -C ./target/x86_64-unknown-linux-gnu/release/ ./eza
+    cross build --release --target=x86_64-unknown-linux-musl
+    tar czvf ./target/"bin-$(convco version)"/eza_x86_64-unknown-linux-musl.tar.gz -C ./target/x86_64-unknown-linux-musl/release/ ./eza
     cross build --target aarch64-unknown-linux-gnu --release
     tar czvf ./target/"bin-$(convco version)"/eza_aarch64-unknown-linux-gnu.tar.gz -C ./target/aarch64-unknown-linux-gnu/release/ ./eza
     cross build --target arm-unknown-linux-gnueabihf --release
