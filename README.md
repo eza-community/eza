@@ -158,22 +158,9 @@ The preceding repository also contains the Bash, Fish, and Zsh completions.
 
 ### Fedora
 
-You can install Eza from [openSUSE:Factory/eza](https://build.opensuse.org/package/show/openSUSE:Factory/eza):
+Fedora support is in the works.
 
-```bash
-tee /etc/yum.repos.d/opensuse-tumbleweed-oss.repo <<EOL
-[opensuse-tumbleweed-oss]
-name=OpenSUSE Tumbleweed OSS
-baseurl=https://download.opensuse.org/tumbleweed/repo/oss/
-enabled=1
-gpgcheck=1
-gpgkey=https://download.opensuse.org/tumbleweed/repo/oss/repodata/repomd.xml.key
-EOL
-
-dnf install eza
-```
-
-The preceding repository also contains the Bash, Fish, and Zsh completions.
+https://bugzilla.redhat.com/show_bug.cgi?id=2238264
 
 ### Brew (MacOS)
 
