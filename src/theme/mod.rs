@@ -59,7 +59,7 @@ pub struct Definitions {
 
 pub struct Theme {
     pub ui: UiStyles,
-    pub exts: Box<dyn FileColours>,
+    pub exts: Box<dyn FileStyle>,
 }
 
 impl Options {
@@ -68,7 +68,7 @@ impl Options {
     pub fn to_theme(&self, isatty: bool) -> Theme {
         if self.use_colours == UseColours::Never || (self.use_colours == UseColours::Automatic && ! isatty) {
             let ui = UiStyles::plain();
-            let exts = Box::new(NoFileColours);
+            let exts = Box::new(NoFileStyle);
             return Theme { ui, exts };
         }
 
@@ -78,7 +78,7 @@ impl Options {
 
         // Use between 0 and 2 file name highlighters
         let exts = match (exts.is_non_empty(), use_default_filetypes) {
-            (false, false)  => Box::new(NoFileColours)     as Box<_>,
+            (false, false)  => Box::new(NoFileStyle)     as Box<_>,
             (false,  true)  => Box::new(FileTypes)         as Box<_>,
             ( true, false)  => Box::new(exts)              as Box<_>,
             ( true,  true)  => Box::new((exts, FileTypes)) as Box<_>,
@@ -143,14 +143,18 @@ impl Definitions {
 }
 
 
-pub trait FileColours: Sync {
-    fn colour_file(&self, file: &File<'_>, theme: &Theme) -> Option<Style>;
+/// Determine the style to paint the text for the filename part of the output.
+pub trait FileStyle: Sync {
+    /// Return the style to paint the filename text for `file` from the given
+    /// `theme`.
+    fn get_style(&self, file: &File<'_>, theme: &Theme) -> Option<Style>;
 }
 
 #[derive(PartialEq, Debug)]
-struct NoFileColours;
-impl FileColours for NoFileColours {
-    fn colour_file(&self, _file: &File<'_>, _theme: &Theme) -> Option<Style> {
+struct NoFileStyle;
+
+impl FileStyle for NoFileStyle {
+    fn get_style(&self, _file: &File<'_>, _theme: &Theme) -> Option<Style> {
         None
     }
 }
@@ -159,13 +163,13 @@ impl FileColours for NoFileColours {
 // first one then try the second one. This lets the user provide their own
 // file type associations, while falling back to the default set if not set
 // explicitly.
-impl<A, B> FileColours for (A, B)
-where A: FileColours,
-      B: FileColours,
+impl<A, B> FileStyle for (A, B)
+where A: FileStyle,
+      B: FileStyle,
 {
-    fn colour_file(&self, file: &File<'_>, theme: &Theme) -> Option<Style> {
-        self.0.colour_file(file, theme)
-            .or_else(|| self.1.colour_file(file, theme))
+    fn get_style(&self, file: &File<'_>, theme: &Theme) -> Option<Style> {
+        self.0.get_style(file, theme)
+            .or_else(|| self.1.get_style(file, theme))
     }
 }
 
@@ -188,8 +192,8 @@ impl ExtensionMappings {
 // Loop through backwards so that colours specified later in the list override
 // colours specified earlier, like we do with options and strict mode
 
-impl FileColours for ExtensionMappings {
-    fn colour_file(&self, file: &File<'_>, _theme: &Theme) -> Option<Style> {
+impl FileStyle for ExtensionMappings {
+    fn get_style(&self, file: &File<'_>, _theme: &Theme) -> Option<Style> {
         self.mappings.iter().rev()
             .find(|t| t.0.matches(&file.name))
             .map (|t| t.1)
@@ -199,8 +203,8 @@ impl FileColours for ExtensionMappings {
 #[derive(Debug)]
 struct FileTypes;
 
-impl FileColours for FileTypes {
-    fn colour_file(&self, file: &File<'_>, theme: &Theme) -> Option<Style> {
+impl FileStyle for FileTypes {
+    fn get_style(&self, file: &File<'_>, theme: &Theme) -> Option<Style> {
         match FileType::get_file_type(file) {
             Some(FileType::Image)      => Some(theme.ui.file_type.image),
             Some(FileType::Video)      => Some(theme.ui.file_type.video),
@@ -347,7 +351,7 @@ impl FileNameColours for Theme {
     fn mount_point(&self)         -> Style { self.ui.filekinds.mount_point }
 
     fn colour_file(&self, file: &File<'_>) -> Style {
-        self.exts.colour_file(file, self).unwrap_or(self.ui.filekinds.normal)
+        self.exts.get_style(file, self).unwrap_or(self.ui.filekinds.normal)
     }
 }
 

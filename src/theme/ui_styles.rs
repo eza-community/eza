@@ -122,18 +122,19 @@ pub struct SecurityContext {
     pub selinux: SELinuxContext,
 }
 
+/// Drawing styles based on the type of file (video, image, compressed, etc)
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct FileType {
-    pub image: Style,
-    pub video: Style,
-    pub music: Style,
-    pub lossless: Style,
-    pub crypto: Style,
-    pub document: Style,
-    pub compressed: Style,
-    pub temp: Style,
-    pub compiled: Style,
-    pub build: Style,
+    pub image: Style,       // im - image file
+    pub video: Style,       // vi - video file
+    pub music: Style,       // mu - lossy music
+    pub lossless: Style,    // lo - lossless music
+    pub crypto: Style,      // cr - related to cryptography
+    pub document: Style,    // do - document file
+    pub compressed: Style,  // co - compressed file
+    pub temp: Style,        // tm - temporary file
+    pub compiled: Style,    // cm - compilation artifact
+    pub build: Style,       // bu - file that is used to build a project
 }
 
 impl UiStyles {
