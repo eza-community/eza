@@ -40,7 +40,11 @@ jobs:
           toolchain: ${{ matrix.rust }}
 
       - name: Install cargo-hack
-        run: cargo install cargo-hack@0.5.27
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 5
+          max_attemps: 5
+          command: cargo install cargo-hack
 
       - name: Run unit tests
         run: cargo hack test 
