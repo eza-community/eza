@@ -91,4 +91,4 @@ debug = false
 [profile.release]
 lto = true
 strip = true
-opt-level = "s"
+opt-level = 3
