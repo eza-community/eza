@@ -351,6 +351,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         let mut display_hyperlink = false;
         if self.options.embed_hyperlinks == EmbedHyperlinks::On {
             if let Some(abs_path) = self.file.absolute_path.as_ref().and_then(|p| p.as_os_str().to_str()) {
+                #[cfg(not(target_os = "windows"))]
                 bits.insert(0, ANSIString::from(format!(
                     "{}file://{}{}{}",
                     HYPERLINK_START,
@@ -358,6 +359,14 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                     urlencoding::encode(abs_path).replace("%2F", "/"),
                     HYPERLINK_END,
                 )));
+                #[cfg(target_os = "windows")]
+                bits.insert(0, ANSIString::from(format!(
+                    "{}file://{}{}",
+                    HYPERLINK_START,
+                    abs_path.replace("\\\\?\\", ""),
+                    HYPERLINK_END,
+                )));
+
                 display_hyperlink = true;
             }
         }
