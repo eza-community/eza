@@ -175,6 +175,49 @@ alias c := cross
 # Integration testing #
 #---------------------#
 
+alias gen := gen_test_dir
+
+test_dir := "tests/test_dir"
+
+gen_test_dir:
+    #!/usr/bin/env bash
+    rm {{test_dir}} -r;
+    mkdir -p {{test_dir}}
+    cd {{test_dir}};
+
+    # BEGIN grid
+    mkdir -p grid
+    cd grid
+
+    mkdir $(seq -w 001 1000);
+    seq 0001 1000 | split -l 1 -a 3 -d - file_
+
+    # Set time to unix epoch
+    touch --date=@0 *;
+
+    cd ..
+
+    # END grid
+
+    # BEGIN git
+    
+    mkdir -p git
+    cd git
+
+    mkdir $(seq -w 001 10);
+    for f in ./*
+    do
+        cd $f
+        git init
+        seq 01 10 | split -l 1 -a 3 -d - file_
+        cd ..
+    done
+
+    cd ..
+    
+    # END git
+    eza -l --grid;
+
 # Runs integration tests in nix sandbox
 #
 # Required nix, likely won't work on windows.
