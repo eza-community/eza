@@ -28,3 +28,6 @@ stage
 # VHS testing stuff
 out.gif
 tests/tmp
+
+## Dynamically generated
+tests/test_dir
