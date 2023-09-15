@@ -114,22 +114,48 @@ all-release: build-release test-release
 # 
 # usage: cross
 @cross: 
+    # Install Toolchains/Targets
     rustup toolchain install stable
+
+    ## Linux
+    ### x86
+    rustup target add x86_64-unknown-linux-gnu
+    rustup target add x86_64-unknown-linux-musl
+
+    ### aarch
+    rustup target add aarch64-unknown-linux-gnu
+
+    ### arm
+    rustup target add arm-unknown-linux-gnueabihf
+
+    ## Windows
+    ### x86
+    rustup target add x86_64-pc-windows-gnu
+    rustup target add x86_64-pc-windows-msvc
+
+    # Setup Output Directory
     mkdir -p ./target/"bin-$(convco version)"
 
     # Build
     ## Linux
+    ### x86
     cross build --target x86_64-unknown-linux-gnu --release
     tar czvf ./target/"bin-$(convco version)"/eza_x86_64-unknown-linux-gnu.tar.gz -C ./target/x86_64-unknown-linux-gnu/release/ ./eza
+
     cross build --release --target=x86_64-unknown-linux-musl
     tar czvf ./target/"bin-$(convco version)"/eza_x86_64-unknown-linux-musl.tar.gz -C ./target/x86_64-unknown-linux-musl/release/ ./eza
+
     cross build --target aarch64-unknown-linux-gnu --release
     tar czvf ./target/"bin-$(convco version)"/eza_aarch64-unknown-linux-gnu.tar.gz -C ./target/aarch64-unknown-linux-gnu/release/ ./eza
+
     cross build --target arm-unknown-linux-gnueabihf --release
     tar czvf ./target/"bin-$(convco version)"/arm-unknown-linux-gnueabihf.tar.gz -C ./target/arm-unknown-linux-gnueabihf/release/ ./eza
+
     ## Windows
     cross build --target x86_64-pc-windows-gnu --release
     zip -j ./target/"bin-$(convco version)"/x86_64-pc-windows-gnu.zip ./target/x86_64-pc-windows-gnu/release/eza.exe
+    cross build --target x86_64-pc-windows-msvc --release
+    zip -j ./target/"bin-$(convco version)"/x86_64-pc-windows-msvc.zip ./target/x86_64-pc-windows-gnu/release/eza.exe
 
     # Generate Checksums
     echo "# Checksums"
