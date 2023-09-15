@@ -198,6 +198,19 @@ To install eza, run:
 sudo port install eza
 ```
 
+### Winget (Windows)
+
+[![Windows package](https://repology.org/badge/version-for-repo/winget/eza.svg)](https://repology.org/project/eza/versions)
+
+
+Eza is available on Winget.
+
+To install eza, run:
+
+```shell
+winget install eza-community.eza
+```
+
 ### Scoop (Windows)
 
 [![Windows package](https://repology.org/badge/version-for-repo/scoop/eza.svg)](https://repology.org/project/eza/versions)
