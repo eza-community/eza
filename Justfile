@@ -134,13 +134,13 @@ all-release: build-release test-release
     # Generate Checksums
     echo "# Checksums"
     echo "## sha256sum"
-    echo "```"
+    echo '```'
     sha256sum ./target/"bin-$(convco version)"/*
-    echo "```"
+    echo '```'
     echo "## md5sum"
-    echo "```"
+    echo '```'
     md5sum ./target/"bin-$(convco version)"/*
-    echo "```"
+    echo '```'
 
 #---------------------#
 # Integration testing #
