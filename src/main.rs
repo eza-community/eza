@@ -27,6 +27,7 @@ use std::env;
 use std::ffi::{OsStr, OsString};
 use std::io::{self, Write, ErrorKind};
 use std::path::{Component, PathBuf};
+use std::process::exit;
 
 use ansiterm::{ANSIStrings, Style};
 
@@ -87,8 +88,6 @@ lazy_static! {
 }
 
 fn main() {
-    use std::process::exit;
-
     #[cfg(unix)]
     unsafe {
         libc::signal(libc::SIGPIPE, libc::SIG_DFL);
@@ -118,8 +117,11 @@ fn main() {
             let theme = options.theme.to_theme(terminal_size::terminal_size().is_some());
             let exa = Exa { options, writer, input_paths, theme, console_width, git };
 
+
+            info!("matching on exa.run");
             match exa.run() {
                 Ok(exit_status) => {
+                    trace!("exa.run: exit Ok(exit_status)");
                     exit(exit_status);
                 }
 
@@ -130,6 +132,7 @@ fn main() {
 
                 Err(e) => {
                     eprintln!("{e}");
+                    trace!("exa.run: exit RUNTIME_ERROR");
                     exit(exits::RUNTIME_ERROR);
                 }
             }
@@ -225,8 +228,13 @@ impl<'args> Exa<'args> {
 
                 Ok(f) => {
                     if f.points_to_directory() && ! self.options.dir_action.treat_dirs_as_files() {
+                        trace!("matching on to_dir");
                         match f.to_dir() {
                             Ok(d)   => dirs.push(d),
+                            Err(e) if e.kind() == ErrorKind::PermissionDenied => {
+                                warn!("Permission Denied: {e}");
+                                exit(exits::PERMISSION_DENIED);
+                            },
                             Err(e)  => writeln!(io::stderr(), "{file_path:?}: {e}")?,
                         }
                     }
@@ -378,4 +386,7 @@ mod exits {
 
     /// Exit code for when the command-line options are invalid.
     pub const OPTIONS_ERROR: i32 = 3;
+
+    /// Exit code for missing file permissions
+    pub const PERMISSION_DENIED: i32 = 13;
 }
