@@ -3,6 +3,7 @@ extern crate lazy_static;
 
 use crate::fs::mounts::MountedFs;
 
+#[cfg(target_os = "linux")]
 use proc_mounts::MountList;
 use std::collections::HashMap;
 use std::path::PathBuf;
