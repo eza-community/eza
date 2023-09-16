@@ -31,3 +31,5 @@ tests/tmp
 
 # Visual Studio Code
 .vscode
+## Dynamically generated
+tests/test_dir
