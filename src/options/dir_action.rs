@@ -20,10 +20,10 @@ impl DirAction {
         if strictness {
             // Early check for --level when it wouldn’t do anything
             if ! recurse && ! tree && matches.level.is_some() {
-                return Err(OptionsError::Useless2("--level".to_string(), "--recurce".to_string(), "--tree".to_string()));
+                return Err(OptionsError::Useless2("--level".to_string(), "--recurse".to_string(), "--tree".to_string()));
             }
             else if recurse && as_file {
-                return Err(OptionsError::Conflict("--recurce".to_string(), "--list-dirs".to_string()));
+                return Err(OptionsError::Conflict("--recurse".to_string(), "--list-dirs".to_string()));
             }
             else if tree && as_file {
                 return Err(OptionsError::Conflict("--tree".to_string(), "--list-dirs".to_string()));
