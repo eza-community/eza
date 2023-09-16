@@ -1,17 +1,22 @@
+use lazy_static::lazy_static;
+
+use std::collections::HashMap;
+use std::path::PathBuf;
+
 #[cfg(target_os = "linux")]
 mod linux;
 #[cfg(target_os = "macos")]
 mod macos;
 
 #[cfg(target_os = "linux")]
-pub use linux::mounts;
+use linux::mounts;
 #[cfg(target_os = "macos")]
-pub use macos::mounts;
+use macos::mounts;
 
 /// Details of a mounted filesystem.
 #[derive(Clone)]
 pub struct MountedFs {
-    pub dest: std::path::PathBuf,
+    pub dest: PathBuf,
     pub fstype: String,
     pub source: String,
 }
@@ -39,4 +44,31 @@ impl std::fmt::Display for Error {
             _                          => write!(f, "Unknown error"),
         }
     }
+}
+
+// A lazily initialised static map of all mounted file systems.
+//
+// The map contains a mapping from the mounted directory path to the
+// corresponding mount information. If there's an error retrieving the mount
+// list or if we're not running on Linux or Mac, the map will be empty.
+//
+// Initialise this at application start so we don't have to look the details
+// up for every directory. Ideally this would only be done if the --mounts
+// option is specified which will be significantly easier once the move
+// to `clap` is complete.
+lazy_static! {
+    pub(crate) static ref ALL_MOUNTS: HashMap<PathBuf, MountedFs> = {
+        // Allow unused_mut for windows build
+        #[allow(unused_mut)]
+        let mut mount_map: HashMap<PathBuf, MountedFs> = HashMap::new();
+
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
+        if let Ok(mounts)  = mounts() {
+            for mount in mounts {
+                mount_map.insert(mount.dest.clone(), mount);
+            }
+        }
+
+        mount_map
+    };
 }

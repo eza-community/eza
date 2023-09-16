@@ -11,12 +11,12 @@ use chrono::prelude::*;
 
 use log::*;
 
-use crate::ALL_MOUNTS;
 use crate::fs::dir::Dir;
 use crate::fs::feature::xattr;
 use crate::fs::feature::xattr::{FileAttributes, Attribute};
 use crate::fs::fields as f;
 
+use super::mounts::ALL_MOUNTS;
 use super::mounts::MountedFs;
 
 

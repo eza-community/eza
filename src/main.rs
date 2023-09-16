@@ -22,7 +22,6 @@
 #![allow(clippy::upper_case_acronyms)]
 #![allow(clippy::wildcard_imports)]
 
-use std::collections::HashMap;
 use std::env;
 use std::ffi::{OsStr, OsString};
 use std::io::{self, Write, ErrorKind};
@@ -33,10 +32,6 @@ use ansiterm::{ANSIStrings, Style};
 
 use log::*;
 
-#[macro_use]
-extern crate lazy_static;
-
-use crate::fs::mounts;
 use crate::fs::{Dir, File};
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::GitIgnore;
@@ -50,33 +45,6 @@ mod logger;
 mod options;
 mod output;
 mod theme;
-
-// A lazily initialised static map of all mounted file systems.
-//
-// The map contains a mapping from the mounted directory path to the
-// corresponding mount information. If there's an error retrieving the mount
-// list or if we're not running on Linux or Mac, the map will be empty.
-//
-// Initialise this at application start so we don't have to look the details
-// up for every directory. Ideally this would only be done if the --mounts
-// option is specified which will be significantly easier once the move
-// to `clap` is complete.
-lazy_static! {
-    static ref ALL_MOUNTS: HashMap<PathBuf, mounts::MountedFs> = {
-        // Allow unused_mut for windows build
-        #[allow(unused_mut)]
-        let mut mount_map: HashMap<PathBuf, mounts::MountedFs> = HashMap::new();
-
-        #[cfg(any(target_os = "linux", target_os = "macos"))]
-        if let Ok(mounts)  = mounts::mounts() {
-            for mount in mounts {
-                mount_map.insert(mount.dest.clone(), mount);
-            }
-        }
-
-        mount_map
-    };
-}
 
 fn main() {
     #[cfg(unix)]
