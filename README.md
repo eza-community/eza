@@ -99,7 +99,14 @@ pacman -S eza
 Eza is available from [deb.gierens.de](http://deb.gierens.de). The GPG public
 key is in this repo under [deb.asc](/deb.asc).
 
-To install eza from this repo use:
+First make sure you have the `gpg` command, and otherwise install it via:
+
+```bash
+sudo apt update
+sudo apt install -y gpg
+```
+
+Then install eza via:
 
 ```bash
 sudo mkdir -p /etc/apt/keyrings
