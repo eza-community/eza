@@ -11,12 +11,12 @@ use chrono::prelude::*;
 
 use log::*;
 
-use crate::ALL_MOUNTS;
 use crate::fs::dir::Dir;
 use crate::fs::feature::xattr;
 use crate::fs::feature::xattr::{FileAttributes, Attribute};
 use crate::fs::fields as f;
 
+use super::mounts::all_mounts;
 use super::mounts::MountedFs;
 
 
@@ -254,19 +254,15 @@ impl<'dir> File<'dir> {
 
     /// Whether this file is a mount point
     pub fn is_mount_point(&self) -> bool {
-        if cfg!(target_os = "linux") && self.is_directory() {
-            return match self.absolute_path.as_ref() {
-                Some(path) => ALL_MOUNTS.contains_key(path),
-                None => false,
-            }
-        }
-        false
+        cfg!(any(target_os = "linux", target_os = "macos")) &&
+            self.is_directory() &&
+            self.absolute_path.as_ref().is_some_and(|p| all_mounts().contains_key(p))
     }
 
     /// The filesystem device and type for a mount point
     pub fn mount_point_info(&self) -> Option<&MountedFs> {
-        if cfg!(target_os = "linux") {
-            return self.absolute_path.as_ref().and_then(|p|ALL_MOUNTS.get(p));
+        if cfg!(any(target_os = "linux",target_os = "macos")) {
+            return self.absolute_path.as_ref().and_then(|p| all_mounts().get(p));
         }
         None
     }
