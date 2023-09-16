@@ -1,7 +1,6 @@
-use lazy_static::lazy_static;
-
 use std::collections::HashMap;
 use std::path::PathBuf;
+use std::sync::OnceLock;
 
 #[cfg(target_os = "linux")]
 mod linux;
@@ -56,8 +55,10 @@ impl std::fmt::Display for Error {
 // up for every directory. Ideally this would only be done if the --mounts
 // option is specified which will be significantly easier once the move
 // to `clap` is complete.
-lazy_static! {
-    pub(crate) static ref ALL_MOUNTS: HashMap<PathBuf, MountedFs> = {
+pub(super) fn all_mounts() -> &'static HashMap<PathBuf, MountedFs> {
+    static ALL_MOUNTS: OnceLock<HashMap<PathBuf, MountedFs>> = OnceLock::new();
+
+    ALL_MOUNTS.get_or_init(|| {
         // Allow unused_mut for windows build
         #[allow(unused_mut)]
         let mut mount_map: HashMap<PathBuf, MountedFs> = HashMap::new();
@@ -70,5 +71,5 @@ lazy_static! {
         }
 
         mount_map
-    };
+    })
 }
