@@ -1,6 +1,7 @@
 use ansiterm::Style;
 
 use crate::fs::File;
+use crate::info::filetype::FileType;
 use crate::output::file_name::Colours as FileNameColours;
 use crate::output::render;
 
@@ -58,18 +59,16 @@ pub struct Definitions {
 
 pub struct Theme {
     pub ui: UiStyles,
-    pub exts: Box<dyn FileColours>,
+    pub exts: Box<dyn FileStyle>,
 }
 
 impl Options {
 
     #[allow(trivial_casts)]   // the `as Box<_>` stuff below warns about this for some reason
     pub fn to_theme(&self, isatty: bool) -> Theme {
-        use crate::info::filetype::FileTypeColor;
-
         if self.use_colours == UseColours::Never || (self.use_colours == UseColours::Automatic && ! isatty) {
             let ui = UiStyles::plain();
-            let exts = Box::new(NoFileColours);
+            let exts = Box::new(NoFileStyle);
             return Theme { ui, exts };
         }
 
@@ -79,10 +78,10 @@ impl Options {
 
         // Use between 0 and 2 file name highlighters
         let exts = match (exts.is_non_empty(), use_default_filetypes) {
-            (false, false)  => Box::new(NoFileColours)         as Box<_>,
-            (false,  true)  => Box::new(FileTypeColor)         as Box<_>,
-            ( true, false)  => Box::new(exts)                  as Box<_>,
-            ( true,  true)  => Box::new((exts, FileTypeColor)) as Box<_>,
+            (false, false)  => Box::new(NoFileStyle)     as Box<_>,
+            (false,  true)  => Box::new(FileTypes)         as Box<_>,
+            ( true, false)  => Box::new(exts)              as Box<_>,
+            ( true,  true)  => Box::new((exts, FileTypes)) as Box<_>,
         };
 
         Theme { ui, exts }
@@ -144,14 +143,18 @@ impl Definitions {
 }
 
 
-pub trait FileColours: std::marker::Sync {
-    fn colour_file(&self, file: &File<'_>) -> Option<Style>;
+/// Determine the style to paint the text for the filename part of the output.
+pub trait FileStyle: Sync {
+    /// Return the style to paint the filename text for `file` from the given
+    /// `theme`.
+    fn get_style(&self, file: &File<'_>, theme: &Theme) -> Option<Style>;
 }
 
 #[derive(PartialEq, Debug)]
-struct NoFileColours;
-impl FileColours for NoFileColours {
-    fn colour_file(&self, _file: &File<'_>) -> Option<Style> {
+struct NoFileStyle;
+
+impl FileStyle for NoFileStyle {
+    fn get_style(&self, _file: &File<'_>, _theme: &Theme) -> Option<Style> {
         None
     }
 }
@@ -160,13 +163,13 @@ impl FileColours for NoFileColours {
 // first one then try the second one. This lets the user provide their own
 // file type associations, while falling back to the default set if not set
 // explicitly.
-impl<A, B> FileColours for (A, B)
-where A: FileColours,
-      B: FileColours,
+impl<A, B> FileStyle for (A, B)
+where A: FileStyle,
+      B: FileStyle,
 {
-    fn colour_file(&self, file: &File<'_>) -> Option<Style> {
-        self.0.colour_file(file)
-            .or_else(|| self.1.colour_file(file))
+    fn get_style(&self, file: &File<'_>, theme: &Theme) -> Option<Style> {
+        self.0.get_style(file, theme)
+            .or_else(|| self.1.get_style(file, theme))
     }
 }
 
@@ -174,17 +177,6 @@ where A: FileColours,
 #[derive(PartialEq, Debug, Default)]
 struct ExtensionMappings {
     mappings: Vec<(glob::Pattern, Style)>,
-}
-
-// Loop through backwards so that colours specified later in the list override
-// colours specified earlier, like we do with options and strict mode
-
-impl FileColours for ExtensionMappings {
-    fn colour_file(&self, file: &File<'_>) -> Option<Style> {
-        self.mappings.iter().rev()
-            .find(|t| t.0.matches(&file.name))
-            .map (|t| t.1)
-    }
 }
 
 impl ExtensionMappings {
@@ -197,8 +189,37 @@ impl ExtensionMappings {
     }
 }
 
+// Loop through backwards so that colours specified later in the list override
+// colours specified earlier, like we do with options and strict mode
 
+impl FileStyle for ExtensionMappings {
+    fn get_style(&self, file: &File<'_>, _theme: &Theme) -> Option<Style> {
+        self.mappings.iter().rev()
+            .find(|t| t.0.matches(&file.name))
+            .map (|t| t.1)
+    }
+}
 
+#[derive(Debug)]
+struct FileTypes;
+
+impl FileStyle for FileTypes {
+    fn get_style(&self, file: &File<'_>, theme: &Theme) -> Option<Style> {
+        match FileType::get_file_type(file) {
+            Some(FileType::Image)      => Some(theme.ui.file_type.image),
+            Some(FileType::Video)      => Some(theme.ui.file_type.video),
+            Some(FileType::Music)      => Some(theme.ui.file_type.music),
+            Some(FileType::Lossless)   => Some(theme.ui.file_type.lossless),
+            Some(FileType::Crypto)     => Some(theme.ui.file_type.crypto),
+            Some(FileType::Document)   => Some(theme.ui.file_type.document),
+            Some(FileType::Compressed) => Some(theme.ui.file_type.compressed),
+            Some(FileType::Temp)       => Some(theme.ui.file_type.temp),
+            Some(FileType::Compiled)   => Some(theme.ui.file_type.compiled),
+            Some(FileType::Build)      => Some(theme.ui.file_type.build),
+            None                       => None
+        }
+    }
+}
 
 #[cfg(unix)]
 impl render::BlocksColours for Theme {
@@ -320,17 +341,17 @@ impl render::UserColours for Theme {
 }
 
 impl FileNameColours for Theme {
+    fn symlink_path(&self)        -> Style { self.ui.symlink_path }
     fn normal_arrow(&self)        -> Style { self.ui.punctuation }
     fn broken_symlink(&self)      -> Style { self.ui.broken_symlink }
     fn broken_filename(&self)     -> Style { apply_overlay(self.ui.broken_symlink, self.ui.broken_path_overlay) }
-    fn broken_control_char(&self) -> Style { apply_overlay(self.ui.control_char,   self.ui.broken_path_overlay) }
     fn control_char(&self)        -> Style { self.ui.control_char }
-    fn symlink_path(&self)        -> Style { self.ui.symlink_path }
+    fn broken_control_char(&self) -> Style { apply_overlay(self.ui.control_char,   self.ui.broken_path_overlay) }
     fn executable_file(&self)     -> Style { self.ui.filekinds.executable }
     fn mount_point(&self)         -> Style { self.ui.filekinds.mount_point }
 
     fn colour_file(&self, file: &File<'_>) -> Style {
-        self.exts.colour_file(file).unwrap_or(self.ui.filekinds.normal)
+        self.exts.get_style(file, self).unwrap_or(self.ui.filekinds.normal)
     }
 }
 
@@ -536,6 +557,17 @@ mod customs_test {
     test!(exa_bo:  ls "", exa "bO=4"         =>  colours c -> { c.broken_path_overlay       = Style::default().underline(); });
 
     test!(exa_mp:  ls "", exa "mp=1;34;4"    =>  colours c -> { c.filekinds.mount_point     = Blue.bold().underline(); });
+
+    test!(exa_im:  ls "", exa "im=38;5;128"  =>  colours c -> { c.file_type.image           = Fixed(128).normal(); });
+    test!(exa_vi:  ls "", exa "vi=38;5;129"  =>  colours c -> { c.file_type.video           = Fixed(129).normal(); });
+    test!(exa_mu:  ls "", exa "mu=38;5;130"  =>  colours c -> { c.file_type.music           = Fixed(130).normal(); });
+    test!(exa_lo:  ls "", exa "lo=38;5;131"  =>  colours c -> { c.file_type.lossless        = Fixed(131).normal(); });
+    test!(exa_cr:  ls "", exa "cr=38;5;132"  =>  colours c -> { c.file_type.crypto          = Fixed(132).normal(); });
+    test!(exa_do:  ls "", exa "do=38;5;133"  =>  colours c -> { c.file_type.document        = Fixed(133).normal(); });
+    test!(exa_co:  ls "", exa "co=38;5;134"  =>  colours c -> { c.file_type.compressed      = Fixed(134).normal(); });
+    test!(exa_tm:  ls "", exa "tm=38;5;135"  =>  colours c -> { c.file_type.temp            = Fixed(135).normal(); });
+    test!(exa_cm:  ls "", exa "cm=38;5;136"  =>  colours c -> { c.file_type.compiled        = Fixed(136).normal(); });
+    test!(exa_ie:  ls "", exa "bu=38;5;137"  =>  colours c -> { c.file_type.build           = Fixed(137).normal(); });
 
     // All the while, LS_COLORS treats them as filenames:
     test!(ls_uu:   ls "uu=38;5;117", exa ""  =>  exts [ ("uu", Fixed(117).normal()) ]);
