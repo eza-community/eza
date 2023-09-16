@@ -6,6 +6,7 @@ use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
 #[cfg(windows)]
 use std::os::windows::fs::MetadataExt;
 use std::path::{Path, PathBuf};
+use std::sync::OnceLock;
 
 use chrono::prelude::*;
 
@@ -79,11 +80,12 @@ pub struct File<'dir> {
     /// dereferencing is enabled, the size of the target will be displayed
     /// instead.
     pub deref_links: bool,
+
     /// The extended attributes of this file.
-    pub extended_attributes: Vec<Attribute>,
+    extended_attributes: OnceLock<Vec<Attribute>>,
 
     /// The absolute value of this path, used to look up mount points.
-    pub absolute_path: Option<PathBuf>,
+    absolute_path: OnceLock<Option<PathBuf>>,
 }
 
 impl<'dir> File<'dir> {
@@ -98,8 +100,8 @@ impl<'dir> File<'dir> {
         debug!("Statting file {:?}", &path);
         let metadata   = std::fs::symlink_metadata(&path)?;
         let is_all_all = false;
-        let extended_attributes = File::gather_extended_attributes(&path);
-        let absolute_path = std::fs::canonicalize(&path).ok();
+        let extended_attributes = OnceLock::new();
+        let absolute_path = OnceLock::new();
 
         Ok(File { name, ext, path, metadata, parent_dir, is_all_all, deref_links, extended_attributes, absolute_path })
     }
@@ -112,8 +114,8 @@ impl<'dir> File<'dir> {
         let metadata   = std::fs::symlink_metadata(&path)?;
         let is_all_all = true;
         let parent_dir = Some(parent_dir);
-        let extended_attributes = File::gather_extended_attributes(&path);
-        let absolute_path = std::fs::canonicalize(&path).ok();
+        let extended_attributes = OnceLock::new();
+        let absolute_path = OnceLock::new();
 
         Ok(File { path, parent_dir, metadata, ext, name: ".".into(), is_all_all, deref_links: false, extended_attributes, absolute_path })
     }
@@ -125,8 +127,8 @@ impl<'dir> File<'dir> {
         let metadata   = std::fs::symlink_metadata(&path)?;
         let is_all_all = true;
         let parent_dir = Some(parent_dir);
-        let extended_attributes = File::gather_extended_attributes(&path);
-        let absolute_path = std::fs::canonicalize(&path).ok();
+        let extended_attributes = OnceLock::new();
+        let absolute_path = OnceLock::new();
 
         Ok(File { path, parent_dir, metadata, ext, name: "..".into(), is_all_all, deref_links: false, extended_attributes, absolute_path })
     }
@@ -174,6 +176,11 @@ impl<'dir> File<'dir> {
         } else {
             Vec::new()
         }
+    }
+
+    /// Get the extended attributes of a file path on demand.
+    pub fn extended_attributes(&self) -> &Vec<Attribute> {
+        self.extended_attributes.get_or_init(||File::gather_extended_attributes(&self.path))
     }
 
     /// Whether this file is a directory on the filesystem.
@@ -252,17 +259,22 @@ impl<'dir> File<'dir> {
         self.metadata.file_type().is_socket()
     }
 
+    /// Determine the full path resolving all symbolic links on demand.
+    pub fn absolute_path(&self) -> Option<&PathBuf> {
+        self.absolute_path.get_or_init(|| std::fs::canonicalize(&self.path).ok()).as_ref()
+    }
+
     /// Whether this file is a mount point
     pub fn is_mount_point(&self) -> bool {
         cfg!(any(target_os = "linux", target_os = "macos")) &&
             self.is_directory() &&
-            self.absolute_path.as_ref().is_some_and(|p| all_mounts().contains_key(p))
+            self.absolute_path().is_some_and(|p| all_mounts().contains_key(p))
     }
 
     /// The filesystem device and type for a mount point
     pub fn mount_point_info(&self) -> Option<&MountedFs> {
         if cfg!(any(target_os = "linux",target_os = "macos")) {
-            return self.absolute_path.as_ref().and_then(|p| all_mounts().get(p));
+            return self.absolute_path().and_then(|p| all_mounts().get(p));
         }
         None
     }
@@ -315,7 +327,8 @@ impl<'dir> File<'dir> {
             Ok(metadata) => {
                 let ext  = File::ext(&path);
                 let name = File::filename(&path);
-                let extended_attributes = File::gather_extended_attributes(&absolute_path);
+                let extended_attributes = OnceLock::new();
+                let absolute_path_cell = OnceLock::from(Some(absolute_path));
                 let file = File {
                     parent_dir: None,
                     path,
@@ -325,7 +338,7 @@ impl<'dir> File<'dir> {
                     is_all_all: false,
                     deref_links: self.deref_links,
                     extended_attributes,
-                    absolute_path: Some(absolute_path)
+                    absolute_path: absolute_path_cell,
                 };
                 FileTarget::Ok(Box::new(file))
             }
@@ -687,7 +700,7 @@ impl<'dir> File<'dir> {
 
     /// This file’s security context field.
     pub fn security_context(&self) -> f::SecurityContext<'_> {
-        let context = match &self.extended_attributes.iter().find(|a| a.name == "security.selinux") {
+        let context = match self.extended_attributes().iter().find(|a| a.name == "security.selinux") {
             Some(attr) => f::SecurityContextType::SELinux(&attr.value),
             None       => f::SecurityContextType::None
         };

@@ -203,7 +203,7 @@ impl<'a> Render<'a> {
     pub fn show_xattr_hint(&self, file: &File<'_>) -> bool {
         // Do not show the hint '@' if the only extended attribute is the security
         // attribute and the security attribute column is active.
-        let xattr_count = file.extended_attributes.len();
+        let xattr_count = file.extended_attributes().len();
         let selinux_ctx_shown = self.opts.secattr && match file.security_context().context {
             SecurityContextType::SELinux(_) => true,
             SecurityContextType::None       => false,
@@ -252,7 +252,7 @@ impl<'a> Render<'a> {
                     // that they want to see them.
 
                     let xattrs: &[Attribute] = if xattr::ENABLED && self.opts.xattr {
-                        &file.extended_attributes
+                        file.extended_attributes()
                     } else {
                         &[]
                     };
