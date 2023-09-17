@@ -162,6 +162,16 @@ Fedora support is in the works.
 
 https://bugzilla.redhat.com/show_bug.cgi?id=2238264
 
+### Void Linux
+
+[![Void Linux package](https://repology.org/badge/version-for-repo/void_x86_64/eza.svg)](https://repology.org/project/eza/versions)
+
+Eza is available as the [eza](https://github.com/void-linux/void-packages/tree/master/srcpkgs/eza) package in the official Void Linux repository.
+
+```bash
+sudo xbps-install eza
+```
+
 ### Brew (MacOS)
 
 [![Homebrew package](https://repology.org/badge/version-for-repo/homebrew/eza.svg)](https://repology.org/project/eza/versions)
