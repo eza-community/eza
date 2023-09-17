@@ -119,7 +119,7 @@ LIST OF CODES
 : the extended attribute indicator
 
 `sn`
-: the numbers of a file’s size (sets `nb`, `nk`, `nm`, `ng` and `nh`)
+: the numbers of a file’s size (sets `nb`, `nk`, `nm`, `ng` and `nt`)
 
 `nb`
 : the numbers of a file’s size if it is lower than 1 KB/Kib
@@ -137,7 +137,7 @@ LIST OF CODES
 : the numbers of a file’s size if it is 1 TB/TiB or higher
 
 `sb`
-: the units of a file’s size (sets `ub`, `uk`, `um`, `ug` and `uh`)
+: the units of a file’s size (sets `ub`, `uk`, `um`, `ug` and `ut`)
 
 `ub`
 : the units of a file’s size if it is lower than 1 KB/Kib
