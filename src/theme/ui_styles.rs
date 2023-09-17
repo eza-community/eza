@@ -21,7 +21,7 @@ pub struct UiStyles {
     pub inode:        Style,          // in
     pub blocks:       Style,          // bl
     pub header:       Style,          // hd
-    pub octal:        Style,
+    pub octal:        Style,          // oc
 
     pub symlink_path:         Style,  // lp
     pub control_char:         Style,  // cc
@@ -38,7 +38,7 @@ pub struct FileKinds {
     pub block_device: Style,  // bd
     pub char_device: Style,   // cd
     pub socket: Style,        // so
-    pub special: Style,
+    pub special: Style,       // sp
     pub executable: Style,    // ex
     pub mount_point: Style,   // mp
 }
@@ -104,21 +104,21 @@ pub struct Git {
     pub renamed: Style,     // gv
     pub typechange: Style,  // gt
     pub ignored: Style,     // gi
-    pub conflicted: Style,
+    pub conflicted: Style,  // gc
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct SELinuxContext {
     pub colon: Style,
-    pub user:  Style,
-    pub role:  Style,
-    pub typ:   Style,
-    pub range: Style,
+    pub user:  Style,  // Su
+    pub role:  Style,  // Sr
+    pub typ:   Style,  // St
+    pub range: Style,  // Sl
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct SecurityContext {
-    pub none:    Style,
+    pub none:    Style, // Sn
     pub selinux: SELinuxContext,
 }
 
@@ -174,71 +174,80 @@ impl UiStyles {
     /// so `set_ls` should have been run first.
     pub fn set_exa(&mut self, pair: &Pair<'_>) -> bool {
         match pair.key {
-            "ur" => self.perms.user_read          = pair.to_style(),
-            "uw" => self.perms.user_write         = pair.to_style(),
-            "ux" => self.perms.user_execute_file  = pair.to_style(),
-            "ue" => self.perms.user_execute_other = pair.to_style(),
-            "gr" => self.perms.group_read         = pair.to_style(),
-            "gw" => self.perms.group_write        = pair.to_style(),
-            "gx" => self.perms.group_execute      = pair.to_style(),
-            "tr" => self.perms.other_read         = pair.to_style(),
-            "tw" => self.perms.other_write        = pair.to_style(),
-            "tx" => self.perms.other_execute      = pair.to_style(),
-            "su" => self.perms.special_user_file  = pair.to_style(),
-            "sf" => self.perms.special_other      = pair.to_style(),
-            "xa" => self.perms.attribute          = pair.to_style(),
+            "ur" => self.perms.user_read                = pair.to_style(),
+            "uw" => self.perms.user_write               = pair.to_style(),
+            "ux" => self.perms.user_execute_file        = pair.to_style(),
+            "ue" => self.perms.user_execute_other       = pair.to_style(),
+            "gr" => self.perms.group_read               = pair.to_style(),
+            "gw" => self.perms.group_write              = pair.to_style(),
+            "gx" => self.perms.group_execute            = pair.to_style(),
+            "tr" => self.perms.other_read               = pair.to_style(),
+            "tw" => self.perms.other_write              = pair.to_style(),
+            "tx" => self.perms.other_execute            = pair.to_style(),
+            "su" => self.perms.special_user_file        = pair.to_style(),
+            "sf" => self.perms.special_other            = pair.to_style(),
+            "xa" => self.perms.attribute                = pair.to_style(),
 
             "sn" => self.set_number_style(pair.to_style()),
             "sb" => self.set_unit_style(pair.to_style()),
-            "nb" => self.size.number_byte         = pair.to_style(),
-            "nk" => self.size.number_kilo         = pair.to_style(),
-            "nm" => self.size.number_mega         = pair.to_style(),
-            "ng" => self.size.number_giga         = pair.to_style(),
-            "nt" => self.size.number_huge         = pair.to_style(),
-            "ub" => self.size.unit_byte           = pair.to_style(),
-            "uk" => self.size.unit_kilo           = pair.to_style(),
-            "um" => self.size.unit_mega           = pair.to_style(),
-            "ug" => self.size.unit_giga           = pair.to_style(),
-            "ut" => self.size.unit_huge           = pair.to_style(),
-            "df" => self.size.major               = pair.to_style(),
-            "ds" => self.size.minor               = pair.to_style(),
+            "nb" => self.size.number_byte               = pair.to_style(),
+            "nk" => self.size.number_kilo               = pair.to_style(),
+            "nm" => self.size.number_mega               = pair.to_style(),
+            "ng" => self.size.number_giga               = pair.to_style(),
+            "nt" => self.size.number_huge               = pair.to_style(),
+            "ub" => self.size.unit_byte                 = pair.to_style(),
+            "uk" => self.size.unit_kilo                 = pair.to_style(),
+            "um" => self.size.unit_mega                 = pair.to_style(),
+            "ug" => self.size.unit_giga                 = pair.to_style(),
+            "ut" => self.size.unit_huge                 = pair.to_style(),
+            "df" => self.size.major                     = pair.to_style(),
+            "ds" => self.size.minor                     = pair.to_style(),
 
-            "uu" => self.users.user_you           = pair.to_style(),
-            "un" => self.users.user_someone_else  = pair.to_style(),
-            "gu" => self.users.group_yours        = pair.to_style(),
-            "gn" => self.users.group_not_yours    = pair.to_style(),
+            "uu" => self.users.user_you                 = pair.to_style(),
+            "un" => self.users.user_someone_else        = pair.to_style(),
+            "gu" => self.users.group_yours              = pair.to_style(),
+            "gn" => self.users.group_not_yours          = pair.to_style(),
 
-            "lc" => self.links.normal             = pair.to_style(),
-            "lm" => self.links.multi_link_file    = pair.to_style(),
+            "lc" => self.links.normal                   = pair.to_style(),
+            "lm" => self.links.multi_link_file          = pair.to_style(),
 
-            "ga" => self.git.new                  = pair.to_style(),
-            "gm" => self.git.modified             = pair.to_style(),
-            "gd" => self.git.deleted              = pair.to_style(),
-            "gv" => self.git.renamed              = pair.to_style(),
-            "gt" => self.git.typechange           = pair.to_style(),
-            "gi" => self.git.ignored              = pair.to_style(),
+            "ga" => self.git.new                        = pair.to_style(),
+            "gm" => self.git.modified                   = pair.to_style(),
+            "gd" => self.git.deleted                    = pair.to_style(),
+            "gv" => self.git.renamed                    = pair.to_style(),
+            "gt" => self.git.typechange                 = pair.to_style(),
+            "gi" => self.git.ignored                    = pair.to_style(),
+            "gc" => self.git.conflicted                 = pair.to_style(),
 
-            "xx" => self.punctuation              = pair.to_style(),
-            "da" => self.date                     = pair.to_style(),
-            "in" => self.inode                    = pair.to_style(),
-            "bl" => self.blocks                   = pair.to_style(),
-            "hd" => self.header                   = pair.to_style(),
-            "lp" => self.symlink_path             = pair.to_style(),
-            "cc" => self.control_char             = pair.to_style(),
-            "bO" => self.broken_path_overlay      = pair.to_style(),
+            "xx" => self.punctuation                    = pair.to_style(),
+            "da" => self.date                           = pair.to_style(),
+            "in" => self.inode                          = pair.to_style(),
+            "bl" => self.blocks                         = pair.to_style(),
+            "hd" => self.header                         = pair.to_style(),
+            "oc" => self.octal                          = pair.to_style(),
+            "lp" => self.symlink_path                   = pair.to_style(),
+            "cc" => self.control_char                   = pair.to_style(),
+            "bO" => self.broken_path_overlay            = pair.to_style(),
 
-            "mp" => self.filekinds.mount_point    = pair.to_style(),
+            "mp" => self.filekinds.mount_point          = pair.to_style(),
+            "sp" => self.filekinds.special              = pair.to_style(),  // Catch-all for unrecognized file kind
 
-            "im" => self.file_type.image          = pair.to_style(),
-            "vi" => self.file_type.video          = pair.to_style(),
-            "mu" => self.file_type.music          = pair.to_style(),
-            "lo" => self.file_type.lossless       = pair.to_style(),
-            "cr" => self.file_type.crypto         = pair.to_style(),
-            "do" => self.file_type.document       = pair.to_style(),
-            "co" => self.file_type.compressed     = pair.to_style(),
-            "tm" => self.file_type.temp           = pair.to_style(),
-            "cm" => self.file_type.compiled       = pair.to_style(),
-            "bu" => self.file_type.build          = pair.to_style(),
+            "im" => self.file_type.image                = pair.to_style(),
+            "vi" => self.file_type.video                = pair.to_style(),
+            "mu" => self.file_type.music                = pair.to_style(),
+            "lo" => self.file_type.lossless             = pair.to_style(),
+            "cr" => self.file_type.crypto               = pair.to_style(),
+            "do" => self.file_type.document             = pair.to_style(),
+            "co" => self.file_type.compressed           = pair.to_style(),
+            "tm" => self.file_type.temp                 = pair.to_style(),
+            "cm" => self.file_type.compiled             = pair.to_style(),
+            "bu" => self.file_type.build                = pair.to_style(),
+
+            "Sn" => self.security_context.none          = pair.to_style(),
+            "Su" => self.security_context.selinux.user  = pair.to_style(),
+            "Sr" => self.security_context.selinux.role  = pair.to_style(),
+            "St" => self.security_context.selinux.typ   = pair.to_style(),
+            "Sl" => self.security_context.selinux.range = pair.to_style(),
 
              _   => return false,
         }

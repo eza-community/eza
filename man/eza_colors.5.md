@@ -79,6 +79,9 @@ LIST OF CODES
 
 `EXA_COLORS` can use many more:
 
+`oc`
+: the permissions displayed as octal
+
 `ur`
 : the user-read permission bit
 
@@ -196,6 +199,9 @@ LIST OF CODES
 `gi`
 : an ignored flag in Git
 
+`gc`
+: a conflicted flag in Git
+
 `xx`
 : “punctuation”, including many background UI elements
 
@@ -219,6 +225,9 @@ LIST OF CODES
 
 `bO`
 : the overlay style for broken symlink paths
+
+`sp`
+: special (not file, dir, mount, exec, pipe, socket, block device, char device, or link)
 
 `mp`
 : a mount point
@@ -252,6 +261,21 @@ LIST OF CODES
 
 `bu`
 : a regular file that is used to build a project (ex: Makefile)
+
+`Sn`
+: No security context on a file
+
+`Su`
+: SELinux user
+
+`Sr`
+: SELinux role
+
+`St`
+: SELinux type
+
+`Sl`
+: SELinux level
 
 Values in `EXA_COLORS` override those given in `LS_COLORS`, so you don’t need to re-write an existing `LS_COLORS` variable with proprietary extensions.
 
