@@ -312,6 +312,8 @@ These options are available when running with `--long` (`-l`):
 - **-@**, **--extended**: list each file’s extended attributes and sizes
 - **--changed**: use the changed timestamp field
 - **--git**: list each file’s Git status, if tracked or ignored
+- **--git-repos**: list each directory’s Git status, if tracked
+- **--git-repos-no-status**:  list whether a directory is a Git repository, but not its status (faster)
 - **--no-git**: suppress Git status (always overrides `--git`, `--git-repos`, `--git-repos-no-status`)
 - **--time-style**: how to format timestamps
 - **--no-permissions**: suppress the permissions field
