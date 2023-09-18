@@ -99,23 +99,23 @@ pacman -S eza
 Eza is available from [deb.gierens.de](http://deb.gierens.de). The GPG public
 key is in this repo under [deb.asc](/deb.asc).
 
-To install eza from this repo use:
+First make sure you have the `gpg` command, and otherwise install it via:
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo tee /etc/apt/trusted.gpg.d/gierens.asc
-echo "deb http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+sudo apt update
+sudo apt install -y gpg
+```
+
+Then install eza via:
+
+```bash
+sudo mkdir -p /etc/apt/keyrings
+wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
 sudo apt update
 sudo apt install -y eza
 ```
-
-**Note:** on some systems like Docker containers apt might require the key
-to be in dearmored format, then use this command instead:
-
-```bash
-wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/gierens.asc
-```
-
-before proceeding with the others from above.
 
 ### Nix (Linux, MacOS)
 
@@ -161,6 +161,16 @@ The preceding repository also contains the Bash, Fish, and Zsh completions.
 Fedora support is in the works.
 
 https://bugzilla.redhat.com/show_bug.cgi?id=2238264
+
+### Void Linux
+
+[![Void Linux package](https://repology.org/badge/version-for-repo/void_x86_64/eza.svg)](https://repology.org/project/eza/versions)
+
+Eza is available as the [eza](https://github.com/void-linux/void-packages/tree/master/srcpkgs/eza) package in the official Void Linux repository.
+
+```bash
+sudo xbps-install eza
+```
 
 ### Brew (MacOS)
 
