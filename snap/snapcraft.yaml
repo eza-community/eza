@@ -7,14 +7,11 @@ description: |
   group. It also has extra features not present in the original ls, such as
   viewing the Git status for a directory, or recursing into directories with a
   tree view. eza is written in Rust, and it’s small, fast, and portable.
-
 grade: stable
 confinement: classic
-
 apps:
   eza:
     command: eza
-
 parts:
   eza:
     plugin: rust
