@@ -266,6 +266,12 @@ The codes accepted by eza are:
 `1`
 : for bold
 
+`2`
+: for dimmed
+
+`3`
+: for italic
+
 `4`
 : for underline
 
