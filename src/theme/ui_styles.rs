@@ -16,94 +16,94 @@ pub struct UiStyles {
     pub security_context: SecurityContext,
     pub file_type:        FileType,
 
-    pub punctuation:  Style,
-    pub date:         Style,
-    pub inode:        Style,
-    pub blocks:       Style,
-    pub header:       Style,
+    pub punctuation:  Style,          // xx
+    pub date:         Style,          // da
+    pub inode:        Style,          // in
+    pub blocks:       Style,          // bl
+    pub header:       Style,          // hd
     pub octal:        Style,
 
-    pub symlink_path:         Style,
-    pub control_char:         Style,
-    pub broken_symlink:       Style,
-    pub broken_path_overlay:  Style,
+    pub symlink_path:         Style,  // lp
+    pub control_char:         Style,  // cc
+    pub broken_symlink:       Style,  // or
+    pub broken_path_overlay:  Style,  // bO
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct FileKinds {
-    pub normal: Style,
-    pub directory: Style,
-    pub symlink: Style,
-    pub pipe: Style,
-    pub block_device: Style,
-    pub char_device: Style,
-    pub socket: Style,
+    pub normal: Style,        // fi
+    pub directory: Style,     // di
+    pub symlink: Style,       // ln
+    pub pipe: Style,          // pi
+    pub block_device: Style,  // bd
+    pub char_device: Style,   // cd
+    pub socket: Style,        // so
     pub special: Style,
-    pub executable: Style,
-    pub mount_point: Style,
+    pub executable: Style,    // ex
+    pub mount_point: Style,   // mp
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Permissions {
-    pub user_read:          Style,
-    pub user_write:         Style,
-    pub user_execute_file:  Style,
-    pub user_execute_other: Style,
+    pub user_read:          Style,  // ur
+    pub user_write:         Style,  // uw
+    pub user_execute_file:  Style,  // ux
+    pub user_execute_other: Style,  // ue
 
-    pub group_read:    Style,
-    pub group_write:   Style,
-    pub group_execute: Style,
+    pub group_read:    Style,       // gr
+    pub group_write:   Style,       // gw
+    pub group_execute: Style,       // gx
 
-    pub other_read:    Style,
-    pub other_write:   Style,
-    pub other_execute: Style,
+    pub other_read:    Style,       // tr
+    pub other_write:   Style,       // tw
+    pub other_execute: Style,       // tx
 
-    pub special_user_file: Style,
-    pub special_other:     Style,
+    pub special_user_file: Style,   // su
+    pub special_other:     Style,   // sf
 
-    pub attribute: Style,
+    pub attribute: Style,           // xa
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Size {
-    pub major: Style,
-    pub minor: Style,
+    pub major: Style,        // df
+    pub minor: Style,        // ds
 
-    pub number_byte: Style,
-    pub number_kilo: Style,
-    pub number_mega: Style,
-    pub number_giga: Style,
-    pub number_huge: Style,
+    pub number_byte: Style,  // sn nb
+    pub number_kilo: Style,  // sn nk
+    pub number_mega: Style,  // sn nm
+    pub number_giga: Style,  // sn ng
+    pub number_huge: Style,  // sn nt
 
-    pub unit_byte: Style,
-    pub unit_kilo: Style,
-    pub unit_mega: Style,
-    pub unit_giga: Style,
-    pub unit_huge: Style,
+    pub unit_byte: Style,    // sb ub
+    pub unit_kilo: Style,    // sb uk
+    pub unit_mega: Style,    // sb um
+    pub unit_giga: Style,    // sb ug
+    pub unit_huge: Style,    // sb ut
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Users {
-    pub user_you: Style,
-    pub user_someone_else: Style,
-    pub group_yours: Style,
-    pub group_not_yours: Style,
+    pub user_you: Style,           // uu
+    pub user_someone_else: Style,  // un
+    pub group_yours: Style,        // gu
+    pub group_not_yours: Style,    // gn
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Links {
-    pub normal: Style,
-    pub multi_link_file: Style,
+    pub normal: Style,           // lc
+    pub multi_link_file: Style,  // lm
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Git {
-    pub new: Style,
-    pub modified: Style,
-    pub deleted: Style,
-    pub renamed: Style,
-    pub typechange: Style,
-    pub ignored: Style,
+    pub new: Style,         // ga
+    pub modified: Style,    // gm
+    pub deleted: Style,     // gd
+    pub renamed: Style,     // gv
+    pub typechange: Style,  // gt
+    pub ignored: Style,     // gi
     pub conflicted: Style,
 }
 
@@ -194,12 +194,12 @@ impl UiStyles {
             "nk" => self.size.number_kilo         = pair.to_style(),
             "nm" => self.size.number_mega         = pair.to_style(),
             "ng" => self.size.number_giga         = pair.to_style(),
-            "nh" => self.size.number_huge         = pair.to_style(),
+            "nt" => self.size.number_huge         = pair.to_style(),
             "ub" => self.size.unit_byte           = pair.to_style(),
             "uk" => self.size.unit_kilo           = pair.to_style(),
             "um" => self.size.unit_mega           = pair.to_style(),
             "ug" => self.size.unit_giga           = pair.to_style(),
-            "uh" => self.size.unit_huge           = pair.to_style(),
+            "ut" => self.size.unit_huge           = pair.to_style(),
             "df" => self.size.major               = pair.to_style(),
             "ds" => self.size.minor               = pair.to_style(),
 
