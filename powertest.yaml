@@ -1,4 +1,4 @@
-dump_dir: ptests
+dump_dir: tests/ptests
 depth: 2
 binary: ./target/debug/eza
 args: tests/itest
