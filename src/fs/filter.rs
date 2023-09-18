@@ -78,7 +78,7 @@ impl FileFilter {
             }
             (false, true) => {
                 // On pass -'-only-files' flag only
-                files.retain(File::is_file)
+                files.retain(File::is_file);
             }
             _ => {}
         }
