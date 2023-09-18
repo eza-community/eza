@@ -31,8 +31,8 @@ impl f::SubdirGitRepo {
         let s = match self.status {
             f::SubdirGitRepoStatus::NoRepo => style.paint("- "),
             f::SubdirGitRepoStatus::GitClean => style.fg(Color::Green).paint("| "),
-            f::SubdirGitRepoStatus::GitDirty => style.bold().fg(Color::Red).paint("- "),
-            f::SubdirGitRepoStatus::GitUnknown => style.paint("- "),
+            f::SubdirGitRepoStatus::GitDirty => style.bold().fg(Color::Red).paint("+ "),
+            f::SubdirGitRepoStatus::GitUnknown => style.fg(Color::Green).bold().paint("~ "),
         };
 
         TextCell {

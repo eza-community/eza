@@ -160,6 +160,7 @@
         checks = {
           formatting = treefmtEval.config.build.check self;
           build = packages.check;
+          default = packages.default;
           test = packages.test;
           lint = packages.clippy;
           trycmd = packages.trycmd;

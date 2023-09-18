@@ -223,6 +223,36 @@ LIST OF CODES
 `mp`
 : a mount point
 
+`im`
+: a regular file that is an image
+
+`vi`
+: a regular file that is a video
+
+`mu`
+: a regular file that is lossy music
+
+`lo`
+: a regular file that is lossless music
+
+`cr`
+: a regular file that is related to cryptography (ex: key or certificate)
+
+`do`
+: a regular file that is a document (ex: office suite document or PDF)
+
+`co`
+: a regular file this is compressed
+
+`tm`
+: a regular file that is temporary (ex: a text editor's backup file)
+
+`cm`
+: a regular file that is a compilation artifact (ex: Java class file)
+
+`bu`
+: a regular file that is used to build a project (ex: Makefile)
+
 Values in `EXA_COLORS` override those given in `LS_COLORS`, so you don’t need to re-write an existing `LS_COLORS` variable with proprietary extensions.
 
 
@@ -235,6 +265,12 @@ The codes accepted by eza are:
 
 `1`
 : for bold
+
+`2`
+: for dimmed
+
+`3`
+: for italic
 
 `4`
 : for underline
