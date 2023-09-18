@@ -43,7 +43,7 @@ jobs:
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 5
-          max_attemps: 5
+          max_attempts: 5
           command: cargo install cargo-hack
 
       - name: Run unit tests
