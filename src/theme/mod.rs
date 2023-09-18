@@ -415,7 +415,7 @@ mod customs_test {
                 };
 
                 let mut result = UiStyles::default();
-                let (_exts, _reset) = definitions.parse_color_vars(&mut result);
+                let (_, _) = definitions.parse_color_vars(&mut result);
                 assert_eq!($expected, result);
             }
         };
@@ -432,18 +432,18 @@ mod customs_test {
                     exa: Some($exa.into()),
                 };
 
-                let (result, _reset) = definitions.parse_color_vars(&mut UiStyles::default());
+                let (result, _) = definitions.parse_color_vars(&mut UiStyles::default());
                 assert_eq!(ExtensionMappings { mappings }, result);
             }
         };
         ($name:ident:  ls $ls:expr, exa $exa:expr  =>  colours $expected:ident -> $process_expected:expr, exts $mappings:expr) => {
             #[test]
             fn $name() {
-                let mut $expected = UiStyles::colourful(false);
+                let mut $expected = UiStyles::default();
                 $process_expected();
 
                 let mappings: Vec<(glob::Pattern, Style)>
-                    = $mappings.into_iter()
+                    = $mappings.iter()
                                .map(|t| (glob::Pattern::new(t.0).unwrap(), t.1))
                                .collect();
 
@@ -452,10 +452,10 @@ mod customs_test {
                     exa: Some($exa.into()),
                 };
 
-                let mut meh = UiStyles::colourful(false);
-                let (result, _reset) = definitions.parse_color_vars(&vars, &mut meh);
-                assert_eq!(ExtensionMappings { mappings }, result);
-                assert_eq!($expected, meh);
+                let mut result = UiStyles::default();
+                let (exts, _) = definitions.parse_color_vars(&mut result);
+                assert_eq!(ExtensionMappings { mappings }, exts);
+                assert_eq!($expected, result);
             }
         };
     }
@@ -587,8 +587,9 @@ mod customs_test {
     // can’t be tested here, because they’ll both be added to the same vec
 
     // Values get separated by colons:
-    test!(ls_multi:   ls "*.txt=31:*.rtf=32", exa ""  =>  exts [ ("*.txt", Red.normal()),   ("*.rtf", Green.normal()) ]);
-    test!(exa_multi:  ls "", exa "*.tmp=37:*.log=37"  =>  exts [ ("*.tmp", White.normal()), ("*.log", White.normal()) ]);
+    test!(ls_multi:     ls "*.txt=31:*.rtf=32", exa ""  => exts [ ("*.txt", Red.normal()),   ("*.rtf", Green.normal()) ]);
+    test!(exa_multi:    ls "", exa "*.tmp=37:*.log=37"  => exts [ ("*.tmp", White.normal()), ("*.log", White.normal()) ]);
+    test!(ls_exa_multi: ls "*.txt=31", exa "*.rtf=32"   => exts [ ("*.txt", Red.normal()),   ("*.rtf", Green.normal())]);
 
     test!(ls_five: ls "1*1=31:2*2=32:3*3=1;33:4*4=34;1:5*5=35;4", exa ""  =>  exts [
         ("1*1", Red.normal()), ("2*2", Green.normal()), ("3*3", Yellow.bold()), ("4*4", Blue.bold()), ("5*5", Purple.underline())
@@ -597,4 +598,10 @@ mod customs_test {
     // Finally, colours get applied right-to-left:
     test!(ls_overwrite:  ls "pi=31:pi=32:pi=33", exa ""  =>  colours c -> { c.filekinds.pipe = Yellow.normal(); });
     test!(exa_overwrite: ls "", exa "da=36:da=35:da=34"  =>  colours c -> { c.date = Blue.normal(); });
+
+    // Parse keys and extensions
+    test!(ls_fi_ls_txt:   ls "fi=33:*.txt=31", exa "" => colours c -> { c.filekinds.normal = Yellow.normal(); }, exts [ ("*.txt", Red.normal()) ]);
+    test!(ls_fi_exa_txt:  ls "fi=33", exa "*.txt=31"  => colours c -> { c.filekinds.normal = Yellow.normal(); }, exts [ ("*.txt", Red.normal()) ]);
+    test!(ls_txt_exa_fi:  ls "*.txt=31", exa "fi=33"  => colours c -> { c.filekinds.normal = Yellow.normal(); }, exts [ ("*.txt", Red.normal()) ]);
+    test!(eza_fi_exa_txt: ls "", exa "fi=33:*.txt=31" => colours c -> { c.filekinds.normal = Yellow.normal(); }, exts [ ("*.txt", Red.normal()) ]);
 }
