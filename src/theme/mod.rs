@@ -415,7 +415,7 @@ mod customs_test {
                 };
 
                 let mut result = UiStyles::default();
-                let (_exts, _reset) = definitions.parse_color_vars(&mut result);
+                let (_, _) = definitions.parse_color_vars(&mut result);
                 assert_eq!($expected, result);
             }
         };
@@ -432,7 +432,7 @@ mod customs_test {
                     exa: Some($exa.into()),
                 };
 
-                let (result, _reset) = definitions.parse_color_vars(&mut UiStyles::default());
+                let (result, _) = definitions.parse_color_vars(&mut UiStyles::default());
                 assert_eq!(ExtensionMappings { mappings }, result);
             }
         };
@@ -453,8 +453,8 @@ mod customs_test {
                 };
 
                 let mut result = UiStyles::default();
-                let (_exts, _reset) = definitions.parse_color_vars(&mut result);
-                assert_eq!(ExtensionMappings { mappings }, _exts);
+                let (exts, _) = definitions.parse_color_vars(&mut result);
+                assert_eq!(ExtensionMappings { mappings }, exts);
                 assert_eq!($expected, result);
             }
         };
