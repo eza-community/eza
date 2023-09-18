@@ -242,7 +242,7 @@ LIST OF CODES
 : a regular file that is a document (ex: office suite document or PDF)
 
 `co`
-: a regular file this is compressed
+: a regular file that is compressed
 
 `tm`
 : a regular file that is temporary (ex: a text editor's backup file)
