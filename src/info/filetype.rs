@@ -7,7 +7,9 @@
 //! # Contributors
 //! Please keep these lists sorted. If you're using vim, :sort i
 
+use lazy_static::lazy_static;
 use phf::{phf_map, Map};
+use regex::Regex;
 
 use crate::fs::File;
 
@@ -28,57 +30,76 @@ pub enum FileType {
 }
 
 /// Mapping from full filenames to file type.
-const FILENAME_TYPES: Map<&'static str, FileType> = phf_map! {
-    /* Immediate file - kick off the build of a project */
-    "Brewfile"           => FileType::Build,
-    "bsconfig.json"      => FileType::Build,
-    "BUILD"              => FileType::Build,
-    "BUILD.bazel"        => FileType::Build,
-    "build.gradle"       => FileType::Build,
-    "build.sbt"          => FileType::Build,
-    "build.xml"          => FileType::Build,
-    "Cargo.toml"         => FileType::Build,
-    "CMakeLists.txt"     => FileType::Build,
-    "composer.json"      => FileType::Build,
-    "configure"          => FileType::Build,
-    "Containerfile"      => FileType::Build,
-    "Dockerfile"         => FileType::Build,
-    "Earthfile"          => FileType::Build,
-    "flake.nix"          => FileType::Build,
-    "Gemfile"            => FileType::Build,
-    "GNUmakefile"        => FileType::Build,
-    "Gruntfile.coffee"   => FileType::Build,
-    "Gruntfile.js"       => FileType::Build,
-    "jsconfig.json"      => FileType::Build,
-    "Justfile"           => FileType::Build,
-    "justfile"           => FileType::Build,
-    "Makefile"           => FileType::Build,
-    "makefile"           => FileType::Build,
-    "meson.build"        => FileType::Build,
-    "mix.exs"            => FileType::Build,
-    "package.json"       => FileType::Build,
-    "Pipfile"            => FileType::Build,
-    "PKGBUILD"           => FileType::Build,
-    "Podfile"            => FileType::Build,
-    "pom.xml"            => FileType::Build,
-    "Procfile"           => FileType::Build,
-    "pyproject.toml"     => FileType::Build,
-    "Rakefile"           => FileType::Build,
-    "RoboFile.php"       => FileType::Build,
-    "SConstruct"         => FileType::Build,
-    "tsconfig.json"      => FileType::Build,
-    "Vagrantfile"        => FileType::Build,
-    "webpack.config.cjs" => FileType::Build,
-    "webpack.config.js"  => FileType::Build,
-    "WORKSPACE"          => FileType::Build,
-    /* Cryptology files */
-    "id_dsa"             => FileType::Crypto,
-    "id_ecdsa"           => FileType::Crypto,
-    "id_ecdsa_sk"        => FileType::Crypto,
-    "id_ed25519"         => FileType::Crypto,
-    "id_ed25519_sk"      => FileType::Crypto,
-    "id_rsa"             => FileType::Crypto,
-};
+// const FILENAME_TYPES: Map<&'static str, FileType> = phf_map! {
+//     /* Immediate file - kick off the build of a project */
+//     "Brewfile"           => FileType::Build,
+//     "bsconfig.json"      => FileType::Build,
+//     "BUILD"              => FileType::Build,
+//     "BUILD.bazel"        => FileType::Build,
+//     "build.gradle"       => FileType::Build,
+//     "build.sbt"          => FileType::Build,
+//     "build.xml"          => FileType::Build,
+//     "Cargo.toml"         => FileType::Build,
+//     "CMakeLists.txt"     => FileType::Build,
+//     "composer.json"      => FileType::Build,
+//     "configure"          => FileType::Build,
+//     "Containerfile"      => FileType::Build,
+//     "Dockerfile"         => FileType::Build,
+//     "Earthfile"          => FileType::Build,
+//     "flake.nix"          => FileType::Build,
+//     "Gemfile"            => FileType::Build,
+//     "GNUmakefile"        => FileType::Build,
+//     "Gruntfile.coffee"   => FileType::Build,
+//     "Gruntfile.js"       => FileType::Build,
+//     "jsconfig.json"      => FileType::Build,
+//     "Justfile"           => FileType::Build,
+//     "justfile"           => FileType::Build,
+//     "Makefile"           => FileType::Build,
+//     "makefile"           => FileType::Build,
+//     "meson.build"        => FileType::Build,
+//     "mix.exs"            => FileType::Build,
+//     "package.json"       => FileType::Build,
+//     "Pipfile"            => FileType::Build,
+//     "PKGBUILD"           => FileType::Build,
+//     "Podfile"            => FileType::Build,
+//     "pom.xml"            => FileType::Build,
+//     "Procfile"           => FileType::Build,
+//     "pyproject.toml"     => FileType::Build,
+//     "Rakefile"           => FileType::Build,
+//     "RoboFile.php"       => FileType::Build,
+//     "SConstruct"         => FileType::Build,
+//     "tsconfig.json"      => FileType::Build,
+//     "Vagrantfile"        => FileType::Build,
+//     "webpack.config.cjs" => FileType::Build,
+//     "webpack.config.js"  => FileType::Build,
+//     "WORKSPACE"          => FileType::Build,
+//     /* Cryptology files */
+//     "id_dsa"             => FileType::Crypto,
+//     "id_ecdsa"           => FileType::Crypto,
+//     "id_ecdsa_sk"        => FileType::Crypto,
+//     "id_ed25519"         => FileType::Crypto,
+//     "id_ed25519_sk"      => FileType::Crypto,
+//     "id_rsa"             => FileType::Crypto,
+// };
+
+
+lazy_static! {
+    static ref FILE_TYPE_REGEX: Vec<(Regex, FileType)> = vec![
+        (Regex::new(r#"\bBrewfile\b"#).unwrap(), FileType::Build),
+        (Regex::new(r#"(?i)\bMakefile\b"#).unwrap(), FileType::Build), // case Case-insensitive
+                                                                       // (Regex::new(r#"^\bbsconfig\.json\b"#).unwrap(), FileType::Build),
+(Regex::new(r#"^\bBUILD\b"#).unwrap(), FileType::Build),
+(Regex::new(r#"^\bBUILD\.bazel\b"#).unwrap(), FileType::Build),   
+(Regex::new(r#"^\bCargo\.toml\b"#).unwrap(), FileType::Build),   
+// [...]                                                         
+(Regex::new(r#"^\bid_dsa\b"#).unwrap(), FileType::Crypto),      
+(Regex::new(r#"^\bid_ecdsa\b"#).unwrap(), FileType::Crypto),       
+(Regex::new(r#"^\bid_ecdsa_sk\b"#).unwrap(), FileType::Crypto),    
+(Regex::new(r#"^\bid_ed25519\b"#).unwrap(), FileType::Crypto),
+    ];
+}
+
+
 
 /// Mapping from lowercase file extension to file type.  If an image, video, music, or lossless
 /// extension is added also update the extension icon map.
@@ -272,9 +293,14 @@ impl FileType {
         if file.name.to_lowercase().starts_with("readme") {
             return Some(Self::Build)
         }
-        if let Some(file_type) = FILENAME_TYPES.get(&file.name) {
-            return Some(file_type.clone())
+        // if let Some(file_type) = FILENAME_TYPES.get(&file.name) {
+        //     return Some(file_type.clone())
+        // }
+            for (regex, file_type) in &*FILE_TYPE_REGEX {
+        if regex.is_match(&file.name) {
+            return Some(file_type.clone());
         }
+    }
         if let Some(file_type) = file.ext.as_ref().and_then(|ext| EXTENSION_TYPES.get(ext)) {
             return Some(file_type.clone())
         }

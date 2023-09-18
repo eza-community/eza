@@ -373,6 +373,7 @@ dependencies = [
  "number_prefix",
  "phf",
  "proc-mounts",
+ "regex",
  "scoped_threadpool",
  "term_grid",
  "terminal_size",
