@@ -156,9 +156,9 @@ all-release: build-release test-release
 @idump:
     rm ./tests/cmd/*nix.stderr -f || echo  
     rm ./tests/cmd/*nix.stdout -f || echo
-    rm ./tests/ptests/test_tests*.stderr -f || echo  
-    rm ./tests/ptests/test_tests*.stdout -f || echo
+    rm ./tests/ptests/ptest_tests*.stderr -f || echo  
+    rm ./tests/ptests/ptest_tests*.stdout -f || echo
     nix build -L ./#trydump
     cp ./result/dump/*nix.* ./tests/cmd/
-    cp ./result/dump/test_tests*.* ./tests/ptests/
+    cp ./result/dump/ptest_tests*.* ./tests/ptests/
 

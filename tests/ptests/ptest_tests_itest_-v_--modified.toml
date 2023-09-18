@@ -1,2 +1,0 @@
-bin.name = "./target/debug/eza"
-args = "tests/itest -v --modified"

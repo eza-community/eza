@@ -1,2 +1,2 @@
-bin.name = "./target/debug/eza"
+bin.name = "eza"
 args = "tests/itest --version"

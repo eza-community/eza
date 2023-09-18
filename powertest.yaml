@@ -1,6 +1,6 @@
 dump_dir: tests/ptests
-depth: 2
-binary: ./target/debug/eza
+depth: 1
+binary: eza
 args: tests/itest
 commands:
   ? - null
