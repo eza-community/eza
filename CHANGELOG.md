@@ -2,6 +2,85 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-rc.1] - 2023-09-18
+
+### Bug Fixes
+
+- Crate can't contain broken symlink
+- Remove executable flag from fish completion file
+- Use proc_mounts only on linux
+- Hotfix harmful documentation
+- Fix hyperlinks on Windows
+- Nix flake check also builds the package
+- [**breaking**] Change number_huge and unit_huge to match the man page short codes
+
+### Documentation
+
+- Added cafkafk suggestions
+- Fix codeblocks in zsh completions
+- Update README.md
+- Document filetypes theme and rename trait
+- Link directly to space
+- Add Mac support for the --mount option in the man page
+- Add SAFETY comments to unsafe code blocks
+- Update deb instructions to use keyring
+- Fix chmod in deb installation instructions
+- Add potential gpg install to deb installation instructions
+- Document character style pairs in the code and match with man page
+- Add install instructions for Void Linux
+- Documentation of 'sn' and 'sb' conflicted with later docs
+- Document dimmed and italic style codes
+
+### Features
+
+- Add completion files in deb packaging script
+- Adds filtering for Windows hidden files
+- Support --mount option on Mac
+- Lazy loading of a files extended attributes and absolute path
+
+### Miscellaneous Tasks
+
+- Augment gitter size in README
+- Release 1.0.0-rc.1
+
+### Performance
+
+- Add criterion for benchmarking
+
+### Refactor
+
+- Refactor just in crossfile
+- DRY up justfile
+- Ignore missing MSVC docker image
+- Removed unused imports, mark mods as allow unused
+- Format code
+- Move ALL_MOUNTS to fs::mounts
+- Migrate ALL_MOUNTS from lazy_static to OnceLock
+
+### Testing
+
+- Stabalised unit-tests.yml
+- Autogenerate testing dir
+- Autogenerate test dirs
+- Generate device files
+- Add unit tests that test both exa and ls style codes together
+- Address variable names
+
+### Build
+
+- Add musl binary for linux
+- Fix checksums
+- Add TODOs to targets
+- Set optlevel to 3
+
+### Ci
+
+- Add nix Flake check to flake.yml
+- Removed nix build in favor of nix flake check
+- Include bash completion script in treefmt and fixed shellcheck formatting in completion script
+- Fix windows build
+- Fix spelling attemps -> attempts
+
 ## [0.12.0] - 2023-09-14
 
 ### Bug Fixes
@@ -40,8 +119,13 @@ All notable changes to this project will be documented in this file.
 - Fix gpg armor flag for deb release in readme
 - Add better explanation of git repos + no status
 - Add scoop install info
+- Add Winget install info
+- Added instructions to install completions of eza to the readme
 - Remove color specifications. change unknown git repo status to `~`
 - Fix missing color specification from man page
+- Remove license from developemnt section
+- Update rust badge
+- Add missing man page for debian release
 
 ### Features
 
@@ -64,10 +148,13 @@ All notable changes to this project will be documented in this file.
 - Removal of xtests
 - Removal of vagrant
 - Remove deprecated devtools
+- [**breaking**] MSRV 1.70
 - Run spellcheck
+- Release 0.12.0
 
 ### Refactor
 
+- Rename FileType::Immediate to more obvious FileType::Build
 - Over-engineer deb-package.sh
 - Hide xtests folder
 - Split trycmd into tests for all, unix and windows
@@ -124,6 +211,7 @@ All notable changes to this project will be documented in this file.
 - Add more unix_tests
 - Fixed unix tests to remove any distro specific
 - Removed git test breaking on nix
+- Remove non-deterministic test
 
 ### Build
 
@@ -139,6 +227,8 @@ All notable changes to this project will be documented in this file.
 ### Ci
 
 - Don't use nix feature on ci
+- Add Winget Releaser workflow
+- 1.65 -> 1.70
 - Enforce conventional commits
 - Enforce conventional commits
 
@@ -149,6 +239,7 @@ All notable changes to this project will be documented in this file.
 - Add vendored-libgit2 feature to git2 dependency
 - Filename escaping (last character lost sometimes, no hyperlink)
 - Build for Windows with chrono
+- Needless_borrow
 
 ### Documentation
 
@@ -161,6 +252,7 @@ All notable changes to this project will be documented in this file.
 - Remove broken dependabot link
 - Add bright color options in man pages
 - Add bright color support in readme changelog
+- Document new file type two letter codes in man page
 
 ### Features
 
@@ -173,6 +265,7 @@ All notable changes to this project will be documented in this file.
 - Support the MSRV of Rust (1.65.0)
 - Add bright colour options, change punctuation default
 - Use chrono crate to handle datetime-related features
+- Make file types themeable
 
 ### Miscellaneous Tasks
 
