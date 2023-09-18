@@ -41,6 +41,9 @@ pub struct FileFilter {
     /// Whether to only show directories.
     pub only_dirs: bool,
 
+    /// Whether to only show files.
+    pub only_files: bool,
+
     /// Which invisible “dot” files to include when listing a directory.
     ///
     /// Files starting with a single “.” are used to determine “system” or
@@ -68,9 +71,18 @@ impl FileFilter {
     pub fn filter_child_files(&self, files: &mut Vec<File<'_>>) {
         files.retain(|f| ! self.ignore_patterns.is_ignored(&f.name));
 
-        if self.only_dirs {
-            files.retain(File::is_directory);
+        match (self.only_dirs, self.only_files) {
+            (true, false) => {
+                // On pass -'-only-dirs' flag only
+                files.retain(File::is_directory);
+            }
+            (false, true) => {
+                // On pass -'-only-files' flag only
+                files.retain(File::is_file)
+            }
+            _ => {}
         }
+       
     }
 
     /// Remove every file in the given vector that does *not* pass the
