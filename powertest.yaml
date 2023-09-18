@@ -1,0 +1,54 @@
+dump_dir: ptests
+depth: 2
+binary: ./target/debug/eza
+args: tests/itest
+commands:
+  ? - null
+    - --color
+  : values:
+    - auto
+    - always
+    - never
+  ? - null
+    - --colour
+  : values:
+    - auto
+    - always
+    - never
+  ? - null
+    - --icons
+  ? - null
+    - --time-style
+  : long: time-style
+    values:
+    - default
+    - iso
+    - long-iso
+    - full-iso
+    - relative
+  ? - -s
+    - --sort
+  : short: -s
+    long: time-style
+    values:
+    - accessed
+    - age
+    - changed
+    - created
+    - date
+    - Ext
+    - ext
+    - Extension
+    - extension
+    - Filename
+    - filename
+    - inode
+    - modified
+    - Name
+    - name
+    - newest
+    - none
+    - oldest
+    - size
+    - time
+    - type
