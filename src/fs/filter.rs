@@ -9,6 +9,23 @@ use crate::fs::DotFilter;
 use crate::fs::File;
 
 
+
+/// Flags used to manage the **file filter** process
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub enum FileFilterFlags {
+    /// Whether to reverse the sorting order. This would sort the largest
+    /// files first, or files starting with Z, or the most-recently-changed
+    /// ones, depending on the sort field.
+    Reverse,
+
+    /// Whether to only show directories.
+    OnlyDirs,
+
+    /// Whether to only show files.
+    OnlyFiles
+}
+
+
 /// The **file filter** processes a list of files before displaying them to
 /// the user, by removing files they don’t want to see, and putting the list
 /// in the desired order.
@@ -33,16 +50,8 @@ pub struct FileFilter {
     /// The metadata field to sort by.
     pub sort_field: SortField,
 
-    /// Whether to reverse the sorting order. This would sort the largest
-    /// files first, or files starting with Z, or the most-recently-changed
-    /// ones, depending on the sort field.
-    pub reverse: bool,
-
-    /// Whether to only show directories.
-    pub only_dirs: bool,
-
-    /// Whether to only show files.
-    pub only_files: bool,
+    // Flags that the file filtering process follow
+    pub flags: Vec<FileFilterFlags>,
 
     /// Which invisible “dot” files to include when listing a directory.
     ///
@@ -69,9 +78,11 @@ impl FileFilter {
     /// Remove every file in the given vector that does *not* pass the
     /// filter predicate for files found inside a directory.
     pub fn filter_child_files(&self, files: &mut Vec<File<'_>>) {
+        use FileFilterFlags::{OnlyDirs, OnlyFiles};
+        
         files.retain(|f| ! self.ignore_patterns.is_ignored(&f.name));
 
-        match (self.only_dirs, self.only_files) {
+        match (self.flags.contains(&OnlyDirs), self.flags.contains(&OnlyFiles)) {
             (true, false) => {
                 // On pass -'-only-dirs' flag only
                 files.retain(File::is_directory);
@@ -108,7 +119,7 @@ impl FileFilter {
             self.sort_field.compare_files(a.as_ref(), b.as_ref())
         });
 
-        if self.reverse {
+        if self.flags.contains(&FileFilterFlags::Reverse) {
             files.reverse();
         }
 
