@@ -302,7 +302,7 @@ These options are available when running with `--long` (`-l`):
 - **-H**, **--links**: list each file’s number of hard links
 - **-i**, **--inode**: list each file’s inode number
 - **-m**, **--modified**: use the modified timestamp field
-- **-M**, **--mounts**: Show mount details (Linux only).
+- **-M**, **--mounts**: Show mount details (Linux and MacOS only).
 - **-S**, **--blocksize**: show size of allocated file system blocks
 - **-t**, **--time=(field)**: which timestamp field to use
 - **-u**, **--accessed**: use the accessed timestamp field
