@@ -302,7 +302,7 @@ These options are available when running with `--long` (`-l`):
 - **-H**, **--links**: list each file’s number of hard links
 - **-i**, **--inode**: list each file’s inode number
 - **-m**, **--modified**: use the modified timestamp field
-- **-M**, **--mounts**: Show mount details (Linux only).
+- **-M**, **--mounts**: Show mount details (Linux and MacOS only).
 - **-S**, **--blocksize**: show size of allocated file system blocks
 - **-t**, **--time=(field)**: which timestamp field to use
 - **-u**, **--accessed**: use the accessed timestamp field
@@ -312,6 +312,8 @@ These options are available when running with `--long` (`-l`):
 - **-@**, **--extended**: list each file’s extended attributes and sizes
 - **--changed**: use the changed timestamp field
 - **--git**: list each file’s Git status, if tracked or ignored
+- **--git-repos**: list each directory’s Git status, if tracked
+- **--git-repos-no-status**:  list whether a directory is a Git repository, but not its status (faster)
 - **--no-git**: suppress Git status (always overrides `--git`, `--git-repos`, `--git-repos-no-status`)
 - **--time-style**: how to format timestamps
 - **--no-permissions**: suppress the permissions field
