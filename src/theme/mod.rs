@@ -404,6 +404,7 @@ mod customs_test {
 
     macro_rules! test {
         ($name:ident:  ls $ls:expr, exa $exa:expr  =>  colours $expected:ident -> $process_expected:expr) => {
+            #[allow(non_snake_case)]
             #[test]
             fn $name() {
                 let mut $expected = UiStyles::default();
@@ -546,6 +547,8 @@ mod customs_test {
     test!(exa_gd:  ls "", exa "gd=38;5;125"  =>  colours c -> { c.git.deleted               = Fixed(125).normal(); });
     test!(exa_gv:  ls "", exa "gv=38;5;126"  =>  colours c -> { c.git.renamed               = Fixed(126).normal(); });
     test!(exa_gt:  ls "", exa "gt=38;5;127"  =>  colours c -> { c.git.typechange            = Fixed(127).normal(); });
+    test!(exa_gi:  ls "", exa "gi=38;5;128"  =>  colours c -> { c.git.ignored               = Fixed(128).normal(); });
+    test!(exa_gc:  ls "", exa "gc=38;5;129"  =>  colours c -> { c.git.conflicted            = Fixed(129).normal(); });
 
     test!(exa_xx:  ls "", exa "xx=38;5;128"  =>  colours c -> { c.punctuation               = Fixed(128).normal(); });
     test!(exa_da:  ls "", exa "da=38;5;129"  =>  colours c -> { c.date                      = Fixed(129).normal(); });
@@ -554,9 +557,11 @@ mod customs_test {
     test!(exa_hd:  ls "", exa "hd=38;5;132"  =>  colours c -> { c.header                    = Fixed(132).normal(); });
     test!(exa_lp:  ls "", exa "lp=38;5;133"  =>  colours c -> { c.symlink_path              = Fixed(133).normal(); });
     test!(exa_cc:  ls "", exa "cc=38;5;134"  =>  colours c -> { c.control_char              = Fixed(134).normal(); });
+    test!(exa_oc:  ls "", exa "oc=38;5;135"  =>  colours c -> { c.octal                     = Fixed(135).normal(); });
     test!(exa_bo:  ls "", exa "bO=4"         =>  colours c -> { c.broken_path_overlay       = Style::default().underline(); });
 
     test!(exa_mp:  ls "", exa "mp=1;34;4"    =>  colours c -> { c.filekinds.mount_point     = Blue.bold().underline(); });
+    test!(exa_sp:  ls "", exa "sp=1;35;4"    =>  colours c -> { c.filekinds.special         = Purple.bold().underline(); });
 
     test!(exa_im:  ls "", exa "im=38;5;128"  =>  colours c -> { c.file_type.image           = Fixed(128).normal(); });
     test!(exa_vi:  ls "", exa "vi=38;5;129"  =>  colours c -> { c.file_type.video           = Fixed(129).normal(); });
@@ -568,6 +573,12 @@ mod customs_test {
     test!(exa_tm:  ls "", exa "tm=38;5;135"  =>  colours c -> { c.file_type.temp            = Fixed(135).normal(); });
     test!(exa_cm:  ls "", exa "cm=38;5;136"  =>  colours c -> { c.file_type.compiled        = Fixed(136).normal(); });
     test!(exa_ie:  ls "", exa "bu=38;5;137"  =>  colours c -> { c.file_type.build           = Fixed(137).normal(); });
+
+    test!(exa_Sn:  ls "", exa "Sn=38;5;128"  =>  colours c -> { c.security_context.none          = Fixed(128).normal(); });
+    test!(exa_Su:  ls "", exa "Su=38;5;129"  =>  colours c -> { c.security_context.selinux.user  = Fixed(129).normal(); });
+    test!(exa_Sr:  ls "", exa "Sr=38;5;130"  =>  colours c -> { c.security_context.selinux.role  = Fixed(130).normal(); });
+    test!(exa_St:  ls "", exa "St=38;5;131"  =>  colours c -> { c.security_context.selinux.typ   = Fixed(131).normal(); });
+    test!(exa_Sl:  ls "", exa "Sl=38;5;132"  =>  colours c -> { c.security_context.selinux.range = Fixed(132).normal(); });
 
     // All the while, LS_COLORS treats them as filenames:
     test!(ls_uu:   ls "uu=38;5;117", exa ""  =>  exts [ ("uu", Fixed(117).normal()) ]);
