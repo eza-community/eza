@@ -133,7 +133,7 @@ impl Options {
     {
         use crate::options::parser::{Matches, Strictness};
 
-        let strictness = match vars.get(vars::EXA_STRICT) {
+        let strictness = match vars.get_with_fallback(vars::EZA_STRICT, vars::EXA_STRICT) {
             None                         => Strictness::UseLastArguments,
             Some(ref t) if t.is_empty()  => Strictness::UseLastArguments,
             Some(_)                      => Strictness::ComplainAboutRedundantArguments,
