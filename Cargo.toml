@@ -52,7 +52,7 @@ phf = { version = "0.11.2", features = ["macros"]}
 scoped_threadpool = "0.1"
 term_grid = "0.1"
 terminal_size = "0.2.6"
-timeago = { version = "0.4.1", default-features = false }
+timeago = { version = "0.4.2", default-features = false }
 unicode-width = "0.1"
 urlencoding = "2.1.3"
 zoneinfo_compiled = "0.5.1"
