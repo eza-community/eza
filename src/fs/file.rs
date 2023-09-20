@@ -456,15 +456,12 @@ impl<'dir> File<'dir> {
             f::Size::None
         }
         else if self.is_char_device() || self.is_block_device() {
-            let device_ids = self.metadata.rdev().to_be_bytes();
+            let device_id = self.metadata.rdev();
 
-            // In C-land, getting the major and minor device IDs is done with
-            // preprocessor macros called `major` and `minor` that depend on
-            // the size of `dev_t`, but we just take the second-to-last and
-            // last bytes.
             f::Size::DeviceIDs(f::DeviceIDs {
-                major: device_ids[6],
-                minor: device_ids[7],
+                // SAFETY: Calling libc function to decompose the device_id
+                major: unsafe { libc::major(device_id.try_into().unwrap()) },
+                minor: unsafe { libc::minor(device_id.try_into().unwrap()) },
             })
         }
         else if self.is_link() && self.deref_links {
