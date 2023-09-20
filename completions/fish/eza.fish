@@ -56,6 +56,7 @@ complete -c eza -s s -l sort -d "Which field to sort by" -x -a "
 
 complete -c eza -s I -l ignore-glob -d "Ignore files that match these glob patterns" -r
 complete -c eza -s D -l only-dirs -d "List only directories"
+complete -c eza -s f -l only-files -d "List only files"
 
 # Long view options
 complete -c eza -s b -l binary -d "List file sizes with binary prefixes"
