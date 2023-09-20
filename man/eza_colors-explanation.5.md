@@ -8,22 +8,22 @@ eza provides its own built\-in set of file extension mappings that cover a large
 Any mappings in the environment variables will override this default set: running eza with `LS_COLORS="*.zip=32"` will turn zip files green but leave the colours of other compressed files alone.
 
 You can also disable this built\-in set entirely by including a
-`reset` entry at the beginning of `EXA_COLORS`.
-So setting `EXA_COLORS="reset:*.txt=31"` will highlight only text
-files; setting `EXA_COLORS="reset"` will highlight nothing.
+`reset` entry at the beginning of `EZA_COLORS`.
+So setting `EZA_COLORS="reset:*.txt=31"` will highlight only text
+files; setting `EZA_COLORS="reset"` will highlight nothing.
 
 ## Examples
 
-- Disable the "current user" highlighting: `EXA_COLORS="uu=0:gu=0"`
-- Turn the date column green: `EXA_COLORS="da=32"`
-- Highlight Vagrantfiles: `EXA_COLORS="Vagrantfile=1;4;33"`
-- Override the existing zip colour: `EXA_COLORS="*.zip=38;5;125"`
+- Disable the "current user" highlighting: `EZA_COLORS="uu=0:gu=0"`
+- Turn the date column green: `EZA_COLORS="da=32"`
+- Highlight Vagrantfiles: `EZA_COLORS="Vagrantfile=1;4;33"`
+- Override the existing zip colour: `EZA_COLORS="*.zip=38;5;125"`
 - Markdown files a shade of green, log files a shade of grey:
-`EXA_COLORS="*.md=38;5;121:*.log=38;5;248"`
+`EZA_COLORS="*.md=38;5;121:*.log=38;5;248"`
 
 ## BUILT\-IN EXTENSIONS
 
-- eza now supports bright colours! As supported by most modern 256\-colour terminals, you can now choose from `bright` colour codes when selecting your custom colours in your `#EXA_COLORS` environment variable.
+- eza now supports bright colours! As supported by most modern 256\-colour terminals, you can now choose from `bright` colour codes when selecting your custom colours in your `#EZA_COLORS` environment variable.
 
 - Build (Makefile, Cargo.toml, package.json) are yellow and underlined.
 - Images (png, jpeg, gif) are purple.

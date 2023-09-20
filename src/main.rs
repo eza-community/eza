@@ -52,7 +52,7 @@ fn main() {
         libc::signal(libc::SIGPIPE, libc::SIG_DFL);
     }
 
-    logger::configure(env::var_os(vars::EXA_DEBUG));
+    logger::configure(env::var_os(vars::EZA_DEBUG).or_else(|| env::var_os(vars::EXA_DEBUG)));
 
     #[cfg(windows)]
     if let Err(e) = ansiterm::enable_ansi_support() {

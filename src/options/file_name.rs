@@ -29,13 +29,13 @@ impl ShowIcons {
         if matches.has(&flags::NO_ICONS)? || !matches.has(&flags::ICONS)? {
             Ok(Self::Off)
         }
-        else if let Some(columns) = vars.get(vars::EXA_ICON_SPACING).and_then(|s| s.into_string().ok()) {
+        else if let Some(columns) = vars.get_with_fallback(vars::EZA_ICON_SPACING, vars::EXA_ICON_SPACING).and_then(|s| s.into_string().ok()) {
             match columns.parse() {
                 Ok(width) => {
                     Ok(Self::On(width))
                 }
                 Err(e) => {
-                    let source = NumberSource::Env(vars::EXA_ICON_SPACING);
+                    let source = NumberSource::Env(vars.source(vars::EZA_ICON_SPACING, vars::EXA_ICON_SPACING).unwrap());
                     Err(OptionsError::FailedParse(columns, source, e))
                 }
             }
