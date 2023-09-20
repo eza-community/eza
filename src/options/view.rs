@@ -189,13 +189,13 @@ impl RowThreshold {
     fn deduce<V: Vars>(vars: &V) -> Result<Self, OptionsError> {
         use crate::options::vars;
 
-        if let Some(columns) = vars.get(vars::EXA_GRID_ROWS).and_then(|s| s.into_string().ok()) {
+        if let Some(columns) = vars.get_with_fallback(vars::EZA_GRID_ROWS, vars::EXA_GRID_ROWS).and_then(|s| s.into_string().ok()) {
             match columns.parse() {
                 Ok(rows) => {
                     Ok(Self::MinimumRows(rows))
                 }
                 Err(e) => {
-                    let source = NumberSource::Env(vars::EXA_GRID_ROWS);
+                    let source = NumberSource::Env(vars.source(vars::EZA_GRID_ROWS, vars::EXA_GRID_ROWS).unwrap());
                     Err(OptionsError::FailedParse(columns, source, e))
                 }
             }

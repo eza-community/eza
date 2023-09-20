@@ -59,8 +59,10 @@ impl ColourScale {
 
 impl Definitions {
     fn deduce<V: Vars>(vars: &V) -> Self {
-        let ls =  vars.get(vars::LS_COLORS) .map(|e| e.to_string_lossy().to_string());
-        let exa = vars.get(vars::EXA_COLORS).map(|e| e.to_string_lossy().to_string());
+        let ls =  vars.get(vars::LS_COLORS)
+            .map(|e| e.to_string_lossy().to_string());
+        let exa = vars.get_with_fallback(vars::EZA_COLORS, vars::EXA_COLORS)
+            .map(|e| e.to_string_lossy().to_string());
         Self { ls, exa }
     }
 }
@@ -148,7 +150,7 @@ mod terminal_test {
             if name == vars::LS_COLORS && ! self.ls.is_empty() {
                 Some(OsString::from(self.ls))
             }
-            else if name == vars::EXA_COLORS && ! self.exa.is_empty() {
+            else if (name == vars::EZA_COLORS || name == vars::EXA_COLORS) && ! self.exa.is_empty() {
                 Some(OsString::from(self.exa))
             }
             else if name == vars::NO_COLOR && ! self.no_color.is_empty() {
