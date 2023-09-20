@@ -128,11 +128,11 @@ impl Columns {
         }
 
         if self.subdir_git_repos {
-            columns.push(Column::SubdirGitRepoStatus);
+            columns.push(Column::SubdirGitRepo(true));
         }
 
         if self.subdir_git_repos_no_stat {
-            columns.push(Column::SubdirGitRepoNoStatus);
+            columns.push(Column::SubdirGitRepo(false));
         }
 
         columns
@@ -157,8 +157,7 @@ pub enum Column {
     #[cfg(unix)]
     Inode,
     GitStatus,
-    SubdirGitRepoStatus,
-    SubdirGitRepoNoStatus,
+    SubdirGitRepo(bool),
     #[cfg(unix)]
     Octal,
     #[cfg(unix)]
@@ -220,8 +219,7 @@ impl Column {
             #[cfg(unix)]
             Self::Inode         => "inode",
             Self::GitStatus     => "Git",
-            Self::SubdirGitRepoStatus => "Repo",
-            Self::SubdirGitRepoNoStatus => "Repo",
+            Self::SubdirGitRepo(_) => "Repo",
             #[cfg(unix)]
             Self::Octal         => "Octal",
             #[cfg(unix)]
@@ -488,11 +486,8 @@ impl<'a> Table<'a> {
             Column::GitStatus => {
                 self.git_status(file).render(self.theme)
             }
-            Column::SubdirGitRepoStatus => {
-                self.subdir_git_repo(file, true).render()
-            }
-            Column::SubdirGitRepoNoStatus => {
-                self.subdir_git_repo(file, false).render()
+            Column::SubdirGitRepo(status) => {
+                self.subdir_git_repo(file, status).render(self.theme)
             }
             #[cfg(unix)]
             Column::Octal => {

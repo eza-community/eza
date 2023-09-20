@@ -13,6 +13,7 @@ pub struct UiStyles {
     pub users:            Users,
     pub links:            Links,
     pub git:              Git,
+    pub git_repo:         GitRepo,
     pub security_context: SecurityContext,
     pub file_type:        FileType,
 
@@ -105,6 +106,14 @@ pub struct Git {
     pub typechange: Style,  // gt
     pub ignored: Style,     // gi
     pub conflicted: Style,  // gc
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct GitRepo {
+    pub branch_main: Style,
+    pub branch_other: Style,
+    pub git_clean: Style,
+    pub git_dirty: Style,
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
