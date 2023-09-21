@@ -27,7 +27,6 @@ DISPLAY OPTIONS
   --hyperlink        display entries as hyperlinks
   -w, --width COLS   set screen width in columns
 
-
 FILTERING AND SORTING OPTIONS
   -a, --all                  show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories
   -d, --list-dirs            list directories as files; don't list their contents
