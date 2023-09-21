@@ -53,3 +53,6 @@ jobs:
 
       - name: Run clippy lints
         run: cargo clippy -- -D warnings 
+
+      - name: Run rustfmt checks
+        run: cargo fmt --check
