@@ -8,7 +8,9 @@
 # For inspiration see: https://github.com/NixOS/nixpkgs/blob/master/.github/workflows/labels.yml
 
 name: Labeler
-on: [pull_request_target]
+on:
+  pull_request_target:
+    types: [opened]
 
 jobs:
   label:
