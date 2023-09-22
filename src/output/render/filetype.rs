@@ -5,7 +5,7 @@ use crate::fs::fields as f;
 impl f::Type {
     pub fn render<C: Colours>(self, colours: &C) -> ANSIString<'static> {
         #[rustfmt::skip]
-        match self {
+        return match self {
             Self::File         => colours.normal().paint("."),
             Self::Directory    => colours.directory().paint("d"),
             Self::Pipe         => colours.pipe().paint("|"),
@@ -14,7 +14,7 @@ impl f::Type {
             Self::CharDevice   => colours.char_device().paint("c"),
             Self::Socket       => colours.socket().paint("s"),
             Self::Special      => colours.special().paint("?"),
-        }
+        };
     }
 }
 

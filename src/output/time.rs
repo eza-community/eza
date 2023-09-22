@@ -50,13 +50,13 @@ pub enum TimeFormat {
 impl TimeFormat {
     pub fn format(self, time: &DateTime<FixedOffset>) -> String {
         #[rustfmt::skip]
-        match self {
+        return match self {
             Self::DefaultFormat  => default(time),
             Self::ISOFormat      => iso(time),
             Self::LongISO        => long(time),
             Self::FullISO        => full(time),
             Self::Relative       => relative(time),
-        }
+        };
     }
 }
 

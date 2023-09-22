@@ -161,11 +161,18 @@ impl<'a> Render<'a> {
         let mut rows = Vec::new();
 
         if let Some(ref table) = self.opts.table {
-            #[rustfmt::skip]
             match (self.git, self.dir) {
-                (Some(g), Some(d))  => if ! g.has_anything_for(&d.path) { self.git = None },
-                (Some(g), None)     => if ! self.files.iter().any(|f| g.has_anything_for(&f.path)) { self.git = None },
-                (None,    _)        => {/* Keep Git how it is */},
+                (Some(g), Some(d)) => {
+                    if !g.has_anything_for(&d.path) {
+                        self.git = None
+                    }
+                }
+                (Some(g), None) => {
+                    if !self.files.iter().any(|f| g.has_anything_for(&f.path)) {
+                        self.git = None
+                    }
+                }
+                (None, _) => { /* Keep Git how it is */ }
             }
 
             let mut table = Table::new(table, self.git, self.theme);

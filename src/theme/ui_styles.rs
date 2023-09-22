@@ -181,7 +181,7 @@ impl UiStyles {
              // Codes we don’t do anything with:
              // MULTIHARDLINK, DOOR, SETUID, SETGID, CAPABILITY,
              // STICKY_OTHER_WRITABLE, OTHER_WRITABLE, STICKY, MISSING
-        }
+        };
         true
     }
 
@@ -268,7 +268,7 @@ impl UiStyles {
             "Sl" => self.security_context.selinux.range = pair.to_style(),
 
              _   => return false,
-        }
+        };
 
         true
     }

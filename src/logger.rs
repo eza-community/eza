@@ -58,11 +58,11 @@ impl log::Log for Logger {
 
 fn level(level: log::Level) -> ANSIString<'static> {
     #[rustfmt::skip]
-    match level {
+    return match level {
         log::Level::Error => Colour::Red.paint("ERROR"),
         log::Level::Warn  => Colour::Yellow.paint("WARN"),
         log::Level::Info  => Colour::Cyan.paint("INFO"),
         log::Level::Debug => Colour::Blue.paint("DEBUG"),
         log::Level::Trace => Colour::Fixed(245).paint("TRACE"),
-    }
+    };
 }

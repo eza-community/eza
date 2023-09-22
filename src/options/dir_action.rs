@@ -15,13 +15,15 @@ impl DirAction {
         let as_file = matches.has(&flags::LIST_DIRS)?;
         let tree = matches.has(&flags::TREE)?;
 
-        #[rustfmt::skip]
         if matches.is_strict() {
             // Early check for --level when it wouldn’t do anything
-            if ! recurse && ! tree && matches.count(&flags::LEVEL) > 0 {
-                return Err(OptionsError::Useless2(&flags::LEVEL, &flags::RECURSE, &flags::TREE));
-            }
-            else if recurse && as_file {
+            if !recurse && !tree && matches.count(&flags::LEVEL) > 0 {
+                return Err(OptionsError::Useless2(
+                    &flags::LEVEL,
+                    &flags::RECURSE,
+                    &flags::TREE,
+                ));
+            } else if recurse && as_file {
                 return Err(OptionsError::Conflict(&flags::RECURSE, &flags::LIST_DIRS));
             } else if tree && as_file {
                 return Err(OptionsError::Conflict(&flags::TREE, &flags::LIST_DIRS));

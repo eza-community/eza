@@ -232,7 +232,7 @@ impl SortField {
         use self::SortCase::{ABCabc, AaBbCc};
 
         #[rustfmt::skip]
-        match self {
+        return match self {
             Self::Unsorted  => Ordering::Equal,
 
             Self::Name(ABCabc)  => natord::compare(&a.name, &b.name),
@@ -270,7 +270,7 @@ impl SortField {
                 Self::strip_dot(&a.name),
                 Self::strip_dot(&b.name)
             )
-        }
+        };
     }
 
     fn strip_dot(n: &str) -> &str {

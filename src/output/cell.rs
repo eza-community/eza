@@ -64,10 +64,9 @@ impl TextCell {
     /// This is used in place of empty table cells, as it is easier to read
     /// tabular data when there is *something* in each cell.
     pub fn blank(style: Style) -> Self {
-        #[rustfmt::skip]
         Self {
-            contents: vec![ style.paint("-") ].into(),
-            width:    DisplayWidth::from(1),
+            contents: vec![style.paint("-")].into(),
+            width: DisplayWidth::from(1),
         }
     }
 

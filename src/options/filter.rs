@@ -23,14 +23,14 @@ impl FileFilter {
         }
 
         #[rustfmt::skip]
-        Ok(Self {
+        return Ok(Self {
             list_dirs_first:  matches.has(&flags::DIRS_FIRST)?,
             flags: filter_flags,
             sort_field:       SortField::deduce(matches)?,
             dot_filter:       DotFilter::deduce(matches)?,
             ignore_patterns:  IgnorePatterns::deduce(matches)?,
             git_ignore:       GitIgnore::deduce(matches)?,
-        })
+        });
     }
 }
 

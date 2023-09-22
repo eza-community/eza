@@ -96,7 +96,7 @@ impl<'a> Render<'a> {
     /// *n* files into each column’s table, not all of them.
     fn details_for_column(&self) -> DetailsRender<'a> {
         #[rustfmt::skip]
-        DetailsRender {
+        return DetailsRender {
             dir:           self.dir,
             files:         Vec::new(),
             theme:         self.theme,
@@ -106,7 +106,7 @@ impl<'a> Render<'a> {
             filter:        self.filter,
             git_ignoring:  self.git_ignoring,
             git:           self.git,
-        }
+        };
     }
 
     /// Create a Details render for when this grid-details render doesn’t fit
@@ -115,7 +115,7 @@ impl<'a> Render<'a> {
     /// not available, so we downgrade.
     pub fn give_up(self) -> DetailsRender<'a> {
         #[rustfmt::skip]
-        DetailsRender {
+        return DetailsRender {
             dir:           self.dir,
             files:         self.files,
             theme:         self.theme,
@@ -125,7 +125,7 @@ impl<'a> Render<'a> {
             filter:        self.filter,
             git_ignoring:  self.git_ignoring,
             git:           self.git,
-        }
+        };
     }
 
     // This doesn’t take an IgnoreCache even though the details one does
@@ -229,11 +229,18 @@ impl<'a> Render<'a> {
         options: &'a TableOptions,
         drender: &DetailsRender<'_>,
     ) -> (Table<'a>, Vec<DetailsRow>) {
-        #[rustfmt::skip]
         match (self.git, self.dir) {
-            (Some(g), Some(d))  => if ! g.has_anything_for(&d.path) { self.git = None },
-            (Some(g), None)     => if ! self.files.iter().any(|f| g.has_anything_for(&f.path)) { self.git = None },
-            (None,    _)        => {/* Keep Git how it is */},
+            (Some(g), Some(d)) => {
+                if !g.has_anything_for(&d.path) {
+                    self.git = None
+                }
+            }
+            (Some(g), None) => {
+                if !self.files.iter().any(|f| g.has_anything_for(&f.path)) {
+                    self.git = None
+                }
+            }
+            (None, _) => { /* Keep Git how it is */ }
         }
 
         let mut table = Table::new(options, self.git, self.theme);

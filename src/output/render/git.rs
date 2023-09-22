@@ -15,7 +15,7 @@ impl f::Git {
 impl f::GitStatus {
     fn render(self, colours: &dyn Colours) -> ANSIString<'static> {
         #[rustfmt::skip]
-        match self {
+        return match self {
             Self::NotModified  => colours.not_modified().paint("-"),
             Self::New          => colours.new().paint("N"),
             Self::Modified     => colours.modified().paint("M"),
@@ -24,7 +24,7 @@ impl f::GitStatus {
             Self::TypeChange   => colours.type_change().paint("T"),
             Self::Ignored      => colours.ignored().paint("I"),
             Self::Conflicted   => colours.conflicted().paint("U"),
-        }
+        };
     }
 }
 

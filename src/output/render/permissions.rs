@@ -77,17 +77,16 @@ impl RenderPermissions for Option<f::Permissions> {
                     }
                 };
 
-                #[rustfmt::skip]
                 vec![
-                    bit(p.user_read,   "r", colours.user_read()),
-                    bit(p.user_write,  "w", colours.user_write()),
+                    bit(p.user_read, "r", colours.user_read()),
+                    bit(p.user_write, "w", colours.user_write()),
                     p.user_execute_bit(colours, is_regular_file),
-                    bit(p.group_read,  "r", colours.group_read()),
+                    bit(p.group_read, "r", colours.group_read()),
                     bit(p.group_write, "w", colours.group_write()),
                     p.group_execute_bit(colours),
-                    bit(p.other_read,  "r", colours.other_read()),
+                    bit(p.other_read, "r", colours.other_read()),
                     bit(p.other_write, "w", colours.other_write()),
-                    p.other_execute_bit(colours)
+                    p.other_execute_bit(colours),
                 ]
             }
             None => iter::repeat(colours.dash().paint("-")).take(9).collect(),
@@ -102,34 +101,34 @@ impl f::Permissions {
         is_regular_file: bool,
     ) -> ANSIString<'static> {
         #[rustfmt::skip]
-        match (self.user_execute, self.setuid, is_regular_file) {
+        return match (self.user_execute, self.setuid, is_regular_file) {
             (false, false, _)      => colours.dash().paint("-"),
             (true,  false, false)  => colours.user_execute_other().paint("x"),
             (true,  false, true)   => colours.user_execute_file().paint("x"),
             (false, true,  _)      => colours.special_other().paint("S"),
             (true,  true,  false)  => colours.special_other().paint("s"),
             (true,  true,  true)   => colours.special_user_file().paint("s"),
-        }
+        };
     }
 
     fn group_execute_bit<C: Colours>(&self, colours: &C) -> ANSIString<'static> {
         #[rustfmt::skip]
-        match (self.group_execute, self.setgid) {
+        return match (self.group_execute, self.setgid) {
             (false, false)  => colours.dash().paint("-"),
             (true,  false)  => colours.group_execute().paint("x"),
             (false, true)   => colours.special_other().paint("S"),
             (true,  true)   => colours.special_other().paint("s"),
-        }
+        };
     }
 
     fn other_execute_bit<C: Colours>(&self, colours: &C) -> ANSIString<'static> {
         #[rustfmt::skip]
-        match (self.other_execute, self.sticky) {
+        return match (self.other_execute, self.sticky) {
             (false, false)  => colours.dash().paint("-"),
             (true,  false)  => colours.other_execute().paint("x"),
             (false, true)   => colours.special_other().paint("T"),
             (true,  true)   => colours.special_other().paint("t"),
-        }
+        };
     }
 }
 

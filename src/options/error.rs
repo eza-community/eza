@@ -71,7 +71,7 @@ impl fmt::Display for OptionsError {
         use crate::options::parser::TakesValue;
 
         #[rustfmt::skip]
-        match self {
+        return match self {
             Self::BadArgument(arg, attempt) => {
                 if let TakesValue::Necessary(Some(values)) = arg.takes_value {
                     write!(
@@ -96,7 +96,7 @@ impl fmt::Display for OptionsError {
             Self::TreeAllAll                 => write!(f, "Option --tree is useless given --all --all"),
             Self::FailedParse(s, n, e)       => write!(f, "Value {s:?} not valid for {n}: {e}"),
             Self::FailedGlobPattern(ref e)   => write!(f, "Failed to parse glob pattern: {e}"),
-        }
+        };
     }
 }
 

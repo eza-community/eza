@@ -78,6 +78,7 @@ use crate::theme::Options as ThemeOptions;
 mod dir_action;
 mod file_name;
 mod filter;
+#[rustfmt::skip] // this module becomes unreadable with rustfmt
 mod flags;
 mod theme;
 mod view;

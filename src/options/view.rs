@@ -351,6 +351,7 @@ impl TimeTypes {
 
         let no_time = matches.has(&flags::NO_TIME)?;
 
+        #[rustfmt::skip]
         let time_types = if no_time {
             Self {
                 modified: false,
@@ -359,7 +360,6 @@ impl TimeTypes {
                 created: false,
             }
         } else if let Some(word) = possible_word {
-            #[rustfmt::skip]
             if modified {
                 return Err(OptionsError::Useless(&flags::MODIFIED, true, &flags::TIME));
             } else if changed {

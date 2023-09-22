@@ -205,7 +205,7 @@ struct FileTypes;
 impl FileStyle for FileTypes {
     fn get_style(&self, file: &File<'_>, theme: &Theme) -> Option<Style> {
         #[rustfmt::skip]
-        match FileType::get_file_type(file) {
+        return match FileType::get_file_type(file) {
             Some(FileType::Image)      => Some(theme.ui.file_type.image),
             Some(FileType::Video)      => Some(theme.ui.file_type.video),
             Some(FileType::Music)      => Some(theme.ui.file_type.music),
@@ -217,7 +217,7 @@ impl FileStyle for FileTypes {
             Some(FileType::Compiled)   => Some(theme.ui.file_type.compiled),
             Some(FileType::Build)      => Some(theme.ui.file_type.build),
             None                       => None
-        }
+        };
     }
 }
 
@@ -227,26 +227,26 @@ impl render::BlocksColours for Theme {
         use number_prefix::Prefix::*;
 
         #[rustfmt::skip]
-        match prefix {
+        return match prefix {
             Some(Kilo | Kibi) => self.ui.size.number_kilo,
             Some(Mega | Mebi) => self.ui.size.number_mega,
             Some(Giga | Gibi) => self.ui.size.number_giga,
             Some(_)           => self.ui.size.number_huge,
             None              => self.ui.size.number_byte,
-        }
+        };
     }
 
     fn unit(&self, prefix: Option<number_prefix::Prefix>) -> Style {
         use number_prefix::Prefix::*;
 
         #[rustfmt::skip]
-        match prefix {
+        return match prefix {
             Some(Kilo | Kibi) => self.ui.size.unit_kilo,
             Some(Mega | Mebi) => self.ui.size.unit_mega,
             Some(Giga | Gibi) => self.ui.size.unit_giga,
             Some(_)           => self.ui.size.unit_huge,
             None              => self.ui.size.unit_byte,
-        }
+        };
     }
 
     fn no_blocksize(&self) -> Style {
@@ -325,26 +325,26 @@ impl render::SizeColours for Theme {
         use number_prefix::Prefix::*;
 
         #[rustfmt::skip]
-        match prefix {
+        return match prefix {
             Some(Kilo | Kibi) => self.ui.size.number_kilo,
             Some(Mega | Mebi) => self.ui.size.number_mega,
             Some(Giga | Gibi) => self.ui.size.number_giga,
             Some(_)           => self.ui.size.number_huge,
             None              => self.ui.size.number_byte,
-        }
+        };
     }
 
     fn unit(&self, prefix: Option<number_prefix::Prefix>) -> Style {
         use number_prefix::Prefix::*;
 
         #[rustfmt::skip]
-        match prefix {
+        return match prefix {
             Some(Kilo | Kibi) => self.ui.size.unit_kilo,
             Some(Mega | Mebi) => self.ui.size.unit_mega,
             Some(Giga | Gibi) => self.ui.size.unit_giga,
             Some(_)           => self.ui.size.unit_huge,
             None              => self.ui.size.unit_byte,
-        }
+        };
     }
 
     #[rustfmt::skip]

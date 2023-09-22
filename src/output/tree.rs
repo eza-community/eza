@@ -58,12 +58,12 @@ impl TreePart {
     /// (Warning: not actually ASCII)
     pub fn ascii_art(self) -> &'static str {
         #[rustfmt::skip]
-        match self {
+        return match self {
             Self::Edge    => "├──",
             Self::Line    => "│  ",
             Self::Corner  => "└──",
             Self::Blank   => "   ",
-        }
+        };
     }
 }
 

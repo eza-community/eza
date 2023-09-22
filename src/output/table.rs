@@ -168,15 +168,11 @@ impl Column {
     #[cfg(unix)]
     pub fn alignment(self) -> Alignment {
         #[allow(clippy::wildcard_in_or_patterns)]
-        #[rustfmt::skip]
         match self {
-            Self::FileSize   |
-            Self::HardLinks  |
-            Self::Inode      |
-            Self::Blocksize  |
-            Self::GitStatus  => Alignment::Right,
-            Self::Timestamp(_) |
-            _                => Alignment::Left,
+            Self::FileSize | Self::HardLinks | Self::Inode | Self::Blocksize | Self::GitStatus => {
+                Alignment::Right
+            }
+            Self::Timestamp(_) | _ => Alignment::Left,
         }
     }
 
@@ -193,28 +189,27 @@ impl Column {
     /// Get the text that should be printed at the top, when the user elects
     /// to have a header row printed.
     pub fn header(self) -> &'static str {
-        #[rustfmt::skip]
         match self {
             #[cfg(unix)]
-            Self::Permissions   => "Permissions",
+            Self::Permissions => "Permissions",
             #[cfg(windows)]
-            Self::Permissions   => "Mode",
-            Self::FileSize      => "Size",
-            Self::Timestamp(t)  => t.header(),
+            Self::Permissions => "Mode",
+            Self::FileSize => "Size",
+            Self::Timestamp(t) => t.header(),
             #[cfg(unix)]
-            Self::Blocksize     => "Blocksize",
+            Self::Blocksize => "Blocksize",
             #[cfg(unix)]
-            Self::User          => "User",
+            Self::User => "User",
             #[cfg(unix)]
-            Self::Group         => "Group",
+            Self::Group => "Group",
             #[cfg(unix)]
-            Self::HardLinks     => "Links",
+            Self::HardLinks => "Links",
             #[cfg(unix)]
-            Self::Inode         => "inode",
-            Self::GitStatus     => "Git",
+            Self::Inode => "inode",
+            Self::GitStatus => "Git",
             Self::SubdirGitRepo(_) => "Repo",
             #[cfg(unix)]
-            Self::Octal         => "Octal",
+            Self::Octal => "Octal",
             #[cfg(unix)]
             Self::SecurityContext => "Security Context",
         }
@@ -272,12 +267,11 @@ pub enum TimeType {
 impl TimeType {
     /// Returns the text to use for a column’s heading in the columns output.
     pub fn header(self) -> &'static str {
-        #[rustfmt::skip]
         match self {
-            Self::Modified  => "Date Modified",
-            Self::Changed   => "Date Changed",
-            Self::Accessed  => "Date Accessed",
-            Self::Created   => "Date Created",
+            Self::Modified => "Date Modified",
+            Self::Changed => "Date Changed",
+            Self::Accessed => "Date Accessed",
+            Self::Created => "Date Created",
         }
     }
 }
@@ -301,12 +295,11 @@ impl Default for TimeTypes {
     /// By default, display just the ‘modified’ time. This is the most
     /// common option, which is why it has this shorthand.
     fn default() -> Self {
-        #[rustfmt::skip]
         Self {
             modified: true,
-            changed:  false,
+            changed: false,
             accessed: false,
-            created:  false,
+            created: false,
         }
     }
 }
@@ -446,22 +439,15 @@ impl<'a> Table<'a> {
     }
 
     fn display(&self, file: &File<'_>, column: Column, xattrs: bool) -> TextCell {
-        #[rustfmt::skip]
         match column {
-            Column::Permissions => {
-                self.permissions_plus(file, xattrs).render(self.theme)
-            }
-            Column::FileSize => {
-                file.size().render(self.theme, self.size_format, &self.env.numeric)
-            }
+            Column::Permissions => self.permissions_plus(file, xattrs).render(self.theme),
+            Column::FileSize => file
+                .size()
+                .render(self.theme, self.size_format, &self.env.numeric),
             #[cfg(unix)]
-            Column::HardLinks => {
-                file.links().render(self.theme, &self.env.numeric)
-            }
+            Column::HardLinks => file.links().render(self.theme, &self.env.numeric),
             #[cfg(unix)]
-            Column::Inode => {
-                file.inode().render(self.theme.ui.inode)
-            }
+            Column::Inode => file.inode().render(self.theme.ui.inode),
             #[cfg(unix)]
             Column::Blocksize => {
                 file.blocksize()
@@ -478,6 +464,7 @@ impl<'a> Table<'a> {
                     .render(self.theme, &*self.env.lock_users(), self.user_format)
             }
             #[cfg(unix)]
+<<<<<<< HEAD
             Column::SecurityContext => {
                 file.security_context().render(self.theme)
             }
@@ -487,23 +474,35 @@ impl<'a> Table<'a> {
             Column::SubdirGitRepo(status) => {
                 self.subdir_git_repo(file, status).render(self.theme)
             }
+=======
+            Column::SecurityContext => file.security_context().render(self.theme),
+            Column::GitStatus => self.git_status(file).render(self.theme),
+            Column::SubdirGitRepoStatus => self.subdir_git_repo(file, true).render(),
+            Column::SubdirGitRepoNoStatus => self.subdir_git_repo(file, false).render(),
+>>>>>>> 516ee70a (fix: replace rustfmt::skip on expressions because experimental)
             #[cfg(unix)]
-            Column::Octal => {
-                self.octal_permissions(file).render(self.theme.ui.octal)
-            }
+            Column::Octal => self.octal_permissions(file).render(self.theme.ui.octal),
 
-            Column::Timestamp(TimeType::Modified)  => {
-                file.modified_time().render(self.theme.ui.date, self.env.time_offset, self.time_format)
-            }
-            Column::Timestamp(TimeType::Changed)   => {
-                file.changed_time().render(self.theme.ui.date, self.env.time_offset, self.time_format)
-            }
-            Column::Timestamp(TimeType::Created)   => {
-                file.created_time().render(self.theme.ui.date, self.env.time_offset, self.time_format)
-            }
-            Column::Timestamp(TimeType::Accessed)  => {
-                file.accessed_time().render(self.theme.ui.date, self.env.time_offset, self.time_format)
-            }
+            Column::Timestamp(TimeType::Modified) => file.modified_time().render(
+                self.theme.ui.date,
+                self.env.time_offset,
+                self.time_format,
+            ),
+            Column::Timestamp(TimeType::Changed) => file.changed_time().render(
+                self.theme.ui.date,
+                self.env.time_offset,
+                self.time_format,
+            ),
+            Column::Timestamp(TimeType::Created) => file.created_time().render(
+                self.theme.ui.date,
+                self.env.time_offset,
+                self.time_format,
+            ),
+            Column::Timestamp(TimeType::Accessed) => file.accessed_time().render(
+                self.theme.ui.date,
+                self.env.time_offset,
+                self.time_format,
+            ),
         }
     }
 

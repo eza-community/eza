@@ -51,9 +51,9 @@ impl TerminalWidth {
         // where the output goes.
 
         #[rustfmt::skip]
-        match self {
+        return match self {
             Self::Set(width)  => Some(width),
             Self::Automatic   => terminal_size::terminal_size().map(|(w, _)| w.0.into()),
-        }
+        };
     }
 }

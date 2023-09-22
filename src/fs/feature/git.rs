@@ -349,7 +349,7 @@ fn reorient(path: &Path) -> PathBuf {
 /// The character to display if the file has been modified, but not staged.
 fn working_tree_status(status: git2::Status) -> f::GitStatus {
     #[rustfmt::skip]
-    match status {
+    return match status {
         s if s.contains(git2::Status::WT_NEW)         => f::GitStatus::New,
         s if s.contains(git2::Status::WT_MODIFIED)    => f::GitStatus::Modified,
         s if s.contains(git2::Status::WT_DELETED)     => f::GitStatus::Deleted,
@@ -358,21 +358,21 @@ fn working_tree_status(status: git2::Status) -> f::GitStatus {
         s if s.contains(git2::Status::IGNORED)        => f::GitStatus::Ignored,
         s if s.contains(git2::Status::CONFLICTED)     => f::GitStatus::Conflicted,
         _                                             => f::GitStatus::NotModified,
-    }
+    };
 }
 
 /// The character to display if the file has been modified and the change
 /// has been staged.
 fn index_status(status: git2::Status) -> f::GitStatus {
     #[rustfmt::skip]
-    match status {
+    return match status {
         s if s.contains(git2::Status::INDEX_NEW)         => f::GitStatus::New,
         s if s.contains(git2::Status::INDEX_MODIFIED)    => f::GitStatus::Modified,
         s if s.contains(git2::Status::INDEX_DELETED)     => f::GitStatus::Deleted,
         s if s.contains(git2::Status::INDEX_RENAMED)     => f::GitStatus::Renamed,
         s if s.contains(git2::Status::INDEX_TYPECHANGE)  => f::GitStatus::TypeChange,
         _                                                => f::GitStatus::NotModified,
-    }
+    };
 }
 
 fn current_branch(repo: &git2::Repository) -> Option<String> {

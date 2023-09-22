@@ -398,7 +398,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         }
 
         #[rustfmt::skip]
-        match self.file {
+        return match self.file {
             f if f.is_mount_point()      => self.colours.mount_point(),
             f if f.is_directory()        => self.colours.directory(),
             #[cfg(unix)]
@@ -414,7 +414,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
             f if f.is_socket()           => self.colours.socket(),
             f if ! f.is_file()           => self.colours.special(),
             _                            => self.colours.colour_file(self.file),
-        }
+        };
     }
 
     /// For grid's use, to cover the case of hyperlink escape sequences
