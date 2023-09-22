@@ -284,7 +284,7 @@ impl<'args> Exa<'args> {
                         match child_dir.to_dir() {
                             Ok(d) => child_dirs.push(d),
                             Err(e) => {
-                                writeln!(io::stderr(), "{}: {}", child_dir.path.display(), e)?
+                                writeln!(io::stderr(), "{}: {}", child_dir.path.display(), e)?;
                             }
                         }
                     }

@@ -129,7 +129,7 @@ impl<'var> Pair<'var> {
                 "97" => style = style.fg(BrightGray),
                 "38" => {
                     if let Some(c) = parse_into_high_colour(&mut iter) {
-                        style = style.fg(c)
+                        style = style.fg(c);
                     }
                 }
 
@@ -153,7 +153,7 @@ impl<'var> Pair<'var> {
                 "107" => style = style.on(BrightGray),
                 "48" => {
                     if let Some(c) = parse_into_high_colour(&mut iter) {
-                        style = style.on(c)
+                        style = style.on(c);
                     }
                 }
                 _ => { /* ignore the error and do nothing */ }

@@ -177,7 +177,7 @@ impl Args {
                     let flag = Flag::Long(arg.long);
                     match arg.takes_value {
                         TakesValue::Necessary(_) | TakesValue::Optional(_) => {
-                            result_flags.push((flag, Some(after)))
+                            result_flags.push((flag, Some(after)));
                         }
                         TakesValue::Forbidden => return Err(ParseError::ForbiddenValue { flag }),
                     }

@@ -164,12 +164,12 @@ impl<'a> Render<'a> {
             match (self.git, self.dir) {
                 (Some(g), Some(d)) => {
                     if !g.has_anything_for(&d.path) {
-                        self.git = None
+                        self.git = None;
                     }
                 }
                 (Some(g), None) => {
                     if !self.files.iter().any(|f| g.has_anything_for(&f.path)) {
-                        self.git = None
+                        self.git = None;
                     }
                 }
                 (None, _) => { /* Keep Git how it is */ }
