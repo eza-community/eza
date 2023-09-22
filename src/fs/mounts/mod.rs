@@ -26,7 +26,7 @@ pub enum Error {
     #[cfg(target_os = "macos")]
     GetFSStatError(i32),
     #[cfg(target_os = "linux")]
-    IOError(std::io::Error)
+    IOError(std::io::Error),
 }
 
 impl std::error::Error for Error {}
@@ -39,8 +39,8 @@ impl std::fmt::Display for Error {
             #[cfg(target_os = "macos")]
             Error::GetFSStatError(err) => write!(f, "getfsstat failed: {err}"),
             #[cfg(target_os = "linux")]
-            Error::IOError(err)        => write!(f, "failed to read /proc/mounts: {err}"),
-            _                          => write!(f, "Unknown error"),
+            Error::IOError(err) => write!(f, "failed to read /proc/mounts: {err}"),
+            _ => write!(f, "Unknown error"),
         }
     }
 }
@@ -64,7 +64,7 @@ pub(super) fn all_mounts() -> &'static HashMap<PathBuf, MountedFs> {
         let mut mount_map: HashMap<PathBuf, MountedFs> = HashMap::new();
 
         #[cfg(any(target_os = "linux", target_os = "macos"))]
-        if let Ok(mounts)  = mounts() {
+        if let Ok(mounts) = mounts() {
             for mount in mounts {
                 mount_map.insert(mount.dest.clone(), mount);
             }

@@ -1,6 +1,5 @@
 use std::ffi::OsString;
 
-
 // General variables
 
 /// Environment variable used to colour files, both by their filesystem type
@@ -53,7 +52,6 @@ pub static EZA_GRID_ROWS: &str = "EZA_GRID_ROWS";
 pub static EXA_ICON_SPACING: &str = "EXA_ICON_SPACING";
 pub static EZA_ICON_SPACING: &str = "EZA_ICON_SPACING";
 
-
 /// Mockable wrapper for `std::env::var_os`.
 pub trait Vars {
     fn get(&self, name: &'static str) -> Option<OsString>;
@@ -69,11 +67,10 @@ pub trait Vars {
     fn source(&self, name: &'static str, fallback: &'static str) -> Option<&'static str> {
         match self.get(name) {
             Some(_) => Some(name),
-            None    => self.get(fallback).and(Some(fallback)),
+            None => self.get(fallback).and(Some(fallback)),
         }
     }
 }
-
 
 // Test impl that just returns the value it has.
 #[cfg(test)]

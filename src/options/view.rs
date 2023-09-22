@@ -1,12 +1,11 @@
 use crate::fs::feature::xattr;
-use crate::options::{flags, OptionsError, NumberSource, Vars};
 use crate::options::parser::MatchedFlags;
-use crate::output::{View, Mode, TerminalWidth, grid, details};
-use crate::output::grid_details::{self, RowThreshold};
+use crate::options::{flags, NumberSource, OptionsError, Vars};
 use crate::output::file_name::Options as FileStyle;
-use crate::output::table::{TimeTypes, SizeFormat, UserFormat, Columns, Options as TableOptions};
+use crate::output::grid_details::{self, RowThreshold};
+use crate::output::table::{Columns, Options as TableOptions, SizeFormat, TimeTypes, UserFormat};
 use crate::output::time::TimeFormat;
-
+use crate::output::{details, grid, Mode, TerminalWidth, View};
 
 impl View {
     pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
@@ -14,13 +13,16 @@ impl View {
         let width = TerminalWidth::deduce(matches, vars)?;
         let file_style = FileStyle::deduce(matches, vars)?;
         let deref_links = matches.has(&flags::DEREF_LINKS)?;
-        Ok(Self { mode, width, file_style, deref_links })
+        Ok(Self {
+            mode,
+            width,
+            file_style,
+            deref_links,
+        })
     }
 }
 
-
 impl Mode {
-
     /// Determine which viewing mode to use based on the user’s options.
     ///
     /// As with the other options, arguments are scanned right-to-left and the
@@ -30,8 +32,12 @@ impl Mode {
     /// This is complicated a little by the fact that `--grid` and `--tree`
     /// can also combine with `--long`, so care has to be taken to use the
     pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        let flag = matches.has_where_any(|f| f.matches(&flags::LONG) || f.matches(&flags::ONE_LINE)
-                                          || f.matches(&flags::GRID) || f.matches(&flags::TREE));
+        let flag = matches.has_where_any(|f| {
+            f.matches(&flags::LONG)
+                || f.matches(&flags::ONE_LINE)
+                || f.matches(&flags::GRID)
+                || f.matches(&flags::TREE)
+        });
 
         let Some(flag) = flag else {
             Self::strict_check_long_flags(matches)?;
@@ -40,19 +46,24 @@ impl Mode {
         };
 
         if flag.matches(&flags::LONG)
-        || (flag.matches(&flags::TREE) && matches.has(&flags::LONG)?)
-        || (flag.matches(&flags::GRID) && matches.has(&flags::LONG)?)
+            || (flag.matches(&flags::TREE) && matches.has(&flags::LONG)?)
+            || (flag.matches(&flags::GRID) && matches.has(&flags::LONG)?)
         {
             let _ = matches.has(&flags::LONG)?;
             let details = details::Options::deduce_long(matches, vars)?;
 
-            let flag = matches.has_where_any(|f| f.matches(&flags::GRID) || f.matches(&flags::TREE));
+            let flag =
+                matches.has_where_any(|f| f.matches(&flags::GRID) || f.matches(&flags::TREE));
 
             if flag.is_some() && flag.unwrap().matches(&flags::GRID) {
                 let _ = matches.has(&flags::GRID)?;
                 let grid = grid::Options::deduce(matches)?;
                 let row_threshold = RowThreshold::deduce(vars)?;
-                let grid_details = grid_details::Options { grid, details, row_threshold };
+                let grid_details = grid_details::Options {
+                    grid,
+                    details,
+                    row_threshold,
+                };
                 return Ok(Self::GridDetails(grid_details));
             }
 
@@ -81,9 +92,18 @@ impl Mode {
         // If --long hasn’t been passed, then check if we need to warn the
         // user about flags that won’t have any effect.
         if matches.is_strict() {
-            for option in &[ &flags::BINARY, &flags::BYTES, &flags::INODE, &flags::LINKS,
-                             &flags::HEADER, &flags::BLOCKSIZE, &flags::TIME, &flags::GROUP, &flags::NUMERIC,
-                             &flags::MOUNTS ] {
+            for option in &[
+                &flags::BINARY,
+                &flags::BYTES,
+                &flags::INODE,
+                &flags::LINKS,
+                &flags::HEADER,
+                &flags::BLOCKSIZE,
+                &flags::TIME,
+                &flags::GROUP,
+                &flags::NUMERIC,
+                &flags::MOUNTS,
+            ] {
                 if matches.has(option)? {
                     return Err(OptionsError::Useless(option, false, &flags::LONG));
                 }
@@ -91,16 +111,21 @@ impl Mode {
 
             if matches.has(&flags::GIT)? && !matches.has(&flags::NO_GIT)? {
                 return Err(OptionsError::Useless(&flags::GIT, false, &flags::LONG));
-            }
-            else if matches.has(&flags::LEVEL)? && ! matches.has(&flags::RECURSE)? && ! matches.has(&flags::TREE)? {
-                return Err(OptionsError::Useless2(&flags::LEVEL, &flags::RECURSE, &flags::TREE));
+            } else if matches.has(&flags::LEVEL)?
+                && !matches.has(&flags::RECURSE)?
+                && !matches.has(&flags::TREE)?
+            {
+                return Err(OptionsError::Useless2(
+                    &flags::LEVEL,
+                    &flags::RECURSE,
+                    &flags::TREE,
+                ));
             }
         }
 
         Ok(())
     }
 }
-
 
 impl grid::Options {
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
@@ -111,7 +136,6 @@ impl grid::Options {
         Ok(grid)
     }
 }
-
 
 impl details::Options {
     fn deduce_tree(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
@@ -128,10 +152,9 @@ impl details::Options {
 
     fn deduce_long<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
         if matches.is_strict() {
-            if matches.has(&flags::ACROSS)? && ! matches.has(&flags::GRID)? {
+            if matches.has(&flags::ACROSS)? && !matches.has(&flags::GRID)? {
                 return Err(OptionsError::Useless(&flags::ACROSS, true, &flags::LONG));
-            }
-            else if matches.has(&flags::ONE_LINE)? {
+            } else if matches.has(&flags::ONE_LINE)? {
                 return Err(OptionsError::Useless(&flags::ONE_LINE, true, &flags::LONG));
             }
         }
@@ -145,7 +168,6 @@ impl details::Options {
         })
     }
 }
-
 
 impl TerminalWidth {
     fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
@@ -166,46 +188,43 @@ impl TerminalWidth {
                     Err(OptionsError::FailedParse(arg_str.to_string(), source, e))
                 }
             }
-        }
-        else if let Some(columns) = vars.get(vars::COLUMNS).and_then(|s| s.into_string().ok()) {
+        } else if let Some(columns) = vars.get(vars::COLUMNS).and_then(|s| s.into_string().ok()) {
             match columns.parse() {
-                Ok(width) => {
-                    Ok(Self::Set(width))
-                }
+                Ok(width) => Ok(Self::Set(width)),
                 Err(e) => {
                     let source = NumberSource::Env(vars::COLUMNS);
                     Err(OptionsError::FailedParse(columns, source, e))
                 }
             }
-        }
-        else {
+        } else {
             Ok(Self::Automatic)
         }
     }
 }
 
-
 impl RowThreshold {
     fn deduce<V: Vars>(vars: &V) -> Result<Self, OptionsError> {
         use crate::options::vars;
 
-        if let Some(columns) = vars.get_with_fallback(vars::EZA_GRID_ROWS, vars::EXA_GRID_ROWS).and_then(|s| s.into_string().ok()) {
+        if let Some(columns) = vars
+            .get_with_fallback(vars::EZA_GRID_ROWS, vars::EXA_GRID_ROWS)
+            .and_then(|s| s.into_string().ok())
+        {
             match columns.parse() {
-                Ok(rows) => {
-                    Ok(Self::MinimumRows(rows))
-                }
+                Ok(rows) => Ok(Self::MinimumRows(rows)),
                 Err(e) => {
-                    let source = NumberSource::Env(vars.source(vars::EZA_GRID_ROWS, vars::EXA_GRID_ROWS).unwrap());
+                    let source = NumberSource::Env(
+                        vars.source(vars::EZA_GRID_ROWS, vars::EXA_GRID_ROWS)
+                            .unwrap(),
+                    );
                     Err(OptionsError::FailedParse(columns, source, e))
                 }
             }
-        }
-        else {
+        } else {
             Ok(Self::AlwaysGrid)
         }
     }
 }
-
 
 impl TableOptions {
     fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
@@ -213,10 +232,14 @@ impl TableOptions {
         let size_format = SizeFormat::deduce(matches)?;
         let user_format = UserFormat::deduce(matches)?;
         let columns = Columns::deduce(matches)?;
-        Ok(Self { size_format, time_format, user_format, columns })
+        Ok(Self {
+            size_format,
+            time_format,
+            user_format,
+            columns,
+        })
     }
 }
-
 
 impl Columns {
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
@@ -224,26 +247,40 @@ impl Columns {
 
         let git = matches.has(&flags::GIT)? && !matches.has(&flags::NO_GIT)?;
         let subdir_git_repos = matches.has(&flags::GIT_REPOS)? && !matches.has(&flags::NO_GIT)?;
-        let subdir_git_repos_no_stat = !subdir_git_repos && matches.has(&flags::GIT_REPOS_NO_STAT)? && !matches.has(&flags::NO_GIT)?;
+        let subdir_git_repos_no_stat = !subdir_git_repos
+            && matches.has(&flags::GIT_REPOS_NO_STAT)?
+            && !matches.has(&flags::NO_GIT)?;
 
-        let blocksize        = matches.has(&flags::BLOCKSIZE)?;
-        let group            = matches.has(&flags::GROUP)?;
-        let inode            = matches.has(&flags::INODE)?;
-        let links            = matches.has(&flags::LINKS)?;
-        let octal            = matches.has(&flags::OCTAL)?;
+        let blocksize = matches.has(&flags::BLOCKSIZE)?;
+        let group = matches.has(&flags::GROUP)?;
+        let inode = matches.has(&flags::INODE)?;
+        let links = matches.has(&flags::LINKS)?;
+        let octal = matches.has(&flags::OCTAL)?;
         let security_context = xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?;
 
-        let permissions = ! matches.has(&flags::NO_PERMISSIONS)?;
-        let filesize =    ! matches.has(&flags::NO_FILESIZE)?;
-        let user =        ! matches.has(&flags::NO_USER)?;
+        let permissions = !matches.has(&flags::NO_PERMISSIONS)?;
+        let filesize = !matches.has(&flags::NO_FILESIZE)?;
+        let user = !matches.has(&flags::NO_USER)?;
 
-        Ok(Self { time_types, inode, links, blocksize, group, git, subdir_git_repos, subdir_git_repos_no_stat, octal, security_context, permissions, filesize, user })
+        Ok(Self {
+            time_types,
+            inode,
+            links,
+            blocksize,
+            group,
+            git,
+            subdir_git_repos,
+            subdir_git_repos_no_stat,
+            octal,
+            security_context,
+            permissions,
+            filesize,
+            user,
+        })
     }
 }
 
-
 impl SizeFormat {
-
     /// Determine which file size to use in the file size column based on
     /// the user’s options.
     ///
@@ -256,41 +293,36 @@ impl SizeFormat {
         let flag = matches.has_where(|f| f.matches(&flags::BINARY) || f.matches(&flags::BYTES))?;
 
         Ok(match flag {
-            Some(f) if f.matches(&flags::BINARY)  => Self::BinaryBytes,
-            Some(f) if f.matches(&flags::BYTES)   => Self::JustBytes,
-            _                                     => Self::DecimalBytes,
+            Some(f) if f.matches(&flags::BINARY) => Self::BinaryBytes,
+            Some(f) if f.matches(&flags::BYTES) => Self::JustBytes,
+            _ => Self::DecimalBytes,
         })
     }
 }
 
-
 impl TimeFormat {
-
     /// Determine how time should be formatted in timestamp columns.
     fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        let word =
-            if let Some(w) = matches.get(&flags::TIME_STYLE)? {
-                w.to_os_string()
+        let word = if let Some(w) = matches.get(&flags::TIME_STYLE)? {
+            w.to_os_string()
+        } else {
+            use crate::options::vars;
+            match vars.get(vars::TIME_STYLE) {
+                Some(ref t) if !t.is_empty() => t.clone(),
+                _ => return Ok(Self::DefaultFormat),
             }
-            else {
-                use crate::options::vars;
-                match vars.get(vars::TIME_STYLE) {
-                    Some(ref t) if ! t.is_empty()  => t.clone(),
-                    _                              => return Ok(Self::DefaultFormat)
-                }
-            };
+        };
 
         match word.to_string_lossy().as_ref() {
-            "default"  => Ok(Self::DefaultFormat),
+            "default" => Ok(Self::DefaultFormat),
             "relative" => Ok(Self::Relative),
-            "iso"      => Ok(Self::ISOFormat),
+            "iso" => Ok(Self::ISOFormat),
             "long-iso" => Ok(Self::LongISO),
             "full-iso" => Ok(Self::FullISO),
-            _ => Err(OptionsError::BadArgument(&flags::TIME_STYLE, word))
+            _ => Err(OptionsError::BadArgument(&flags::TIME_STYLE, word)),
         }
     }
 }
-
 
 impl UserFormat {
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
@@ -299,9 +331,7 @@ impl UserFormat {
     }
 }
 
-
 impl TimeTypes {
-
     /// Determine which of a file’s time fields should be displayed for it
     /// based on the user’s options.
     ///
@@ -315,47 +345,48 @@ impl TimeTypes {
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
         let possible_word = matches.get(&flags::TIME)?;
         let modified = matches.has(&flags::MODIFIED)?;
-        let changed  = matches.has(&flags::CHANGED)?;
+        let changed = matches.has(&flags::CHANGED)?;
         let accessed = matches.has(&flags::ACCESSED)?;
-        let created  = matches.has(&flags::CREATED)?;
+        let created = matches.has(&flags::CREATED)?;
 
         let no_time = matches.has(&flags::NO_TIME)?;
 
         let time_types = if no_time {
-            Self { modified: false, changed: false, accessed: false, created: false }
+            Self {
+                modified: false,
+                changed: false,
+                accessed: false,
+                created: false,
+            }
         } else if let Some(word) = possible_word {
+            #[rustfmt::skip]
             if modified {
                 return Err(OptionsError::Useless(&flags::MODIFIED, true, &flags::TIME));
-            }
-            else if changed {
+            } else if changed {
                 return Err(OptionsError::Useless(&flags::CHANGED, true, &flags::TIME));
-            }
-            else if accessed {
+            } else if accessed {
                 return Err(OptionsError::Useless(&flags::ACCESSED, true, &flags::TIME));
-            }
-            else if created {
+            } else if created {
                 return Err(OptionsError::Useless(&flags::CREATED, true, &flags::TIME));
-            }
-            else if word == "mod" || word == "modified" {
+            } else if word == "mod" || word == "modified" {
                 Self { modified: true,  changed: false, accessed: false, created: false }
-            }
-            else if word == "ch" || word == "changed" {
+            } else if word == "ch" || word == "changed" {
                 Self { modified: false, changed: true,  accessed: false, created: false }
-            }
-            else if word == "acc" || word == "accessed" {
+            } else if word == "acc" || word == "accessed" {
                 Self { modified: false, changed: false, accessed: true,  created: false }
-            }
-            else if word == "cr" || word == "created" {
+            } else if word == "cr" || word == "created" {
                 Self { modified: false, changed: false, accessed: false, created: true  }
-            }
-            else {
+            } else {
                 return Err(OptionsError::BadArgument(&flags::TIME, word.into()));
             }
-        }
-        else if modified || changed || accessed || created {
-            Self { modified, changed, accessed, created }
-        }
-        else {
+        } else if modified || changed || accessed || created {
+            Self {
+                modified,
+                changed,
+                accessed,
+                created,
+            }
+        } else {
             Self::default()
         };
 
@@ -363,33 +394,49 @@ impl TimeTypes {
     }
 }
 
-
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::ffi::OsString;
     use crate::options::flags;
-    use crate::options::parser::{Flag, Arg};
+    use crate::options::parser::{Arg, Flag};
+    use std::ffi::OsString;
 
     use crate::options::test::parse_for_test;
     use crate::options::test::Strictnesses::*;
 
-    static TEST_ARGS: &[&Arg] = &[ &flags::BINARY, &flags::BYTES,    &flags::TIME_STYLE,
-                                   &flags::TIME,   &flags::MODIFIED, &flags::CHANGED,
-                                   &flags::CREATED, &flags::ACCESSED,
-                                   &flags::HEADER, &flags::GROUP,  &flags::INODE, &flags::GIT,
-                                   &flags::LINKS,  &flags::BLOCKSIZE, &flags::LONG,  &flags::LEVEL,
-                                   &flags::GRID,   &flags::ACROSS, &flags::ONE_LINE, &flags::TREE,
-                                   &flags::NUMERIC ];
+    static TEST_ARGS: &[&Arg] = &[
+        &flags::BINARY,
+        &flags::BYTES,
+        &flags::TIME_STYLE,
+        &flags::TIME,
+        &flags::MODIFIED,
+        &flags::CHANGED,
+        &flags::CREATED,
+        &flags::ACCESSED,
+        &flags::HEADER,
+        &flags::GROUP,
+        &flags::INODE,
+        &flags::GIT,
+        &flags::LINKS,
+        &flags::BLOCKSIZE,
+        &flags::LONG,
+        &flags::LEVEL,
+        &flags::GRID,
+        &flags::ACROSS,
+        &flags::ONE_LINE,
+        &flags::TREE,
+        &flags::NUMERIC,
+    ];
 
     macro_rules! test {
-
         ($name:ident: $type:ident <- $inputs:expr; $stricts:expr => $result:expr) => {
             /// Macro that writes a test.
             /// If testing both strictnesses, they’ll both be done in the same function.
             #[test]
             fn $name() {
-                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| $type::deduce(mf)) {
+                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| {
+                    $type::deduce(mf)
+                }) {
                     assert_eq!(result, $result);
                 }
             }
@@ -400,7 +447,9 @@ mod test {
             /// This is needed because sometimes the Ok type doesn’t implement `PartialEq`.
             #[test]
             fn $name() {
-                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| $type::deduce(mf)) {
+                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| {
+                    $type::deduce(mf)
+                }) {
                     assert_eq!(result.unwrap_err(), $result);
                 }
             }
@@ -411,22 +460,25 @@ mod test {
             /// Instead of using `PartialEq`, this just tests if it matches a pat.
             #[test]
             fn $name() {
-                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| $type::deduce(mf)) {
+                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| {
+                    $type::deduce(mf)
+                }) {
                     println!("Testing {:?}", result);
                     match result {
                         $pat => assert!(true),
-                        _    => assert!(false),
+                        _ => assert!(false),
                     }
                 }
             }
         };
 
-
         ($name:ident: $type:ident <- $inputs:expr, $vars:expr; $stricts:expr => err $result:expr) => {
             /// Like above, but with $vars.
             #[test]
             fn $name() {
-                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| $type::deduce(mf, &$vars)) {
+                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| {
+                    $type::deduce(mf, &$vars)
+                }) {
                     assert_eq!(result.unwrap_err(), $result);
                 }
             }
@@ -436,17 +488,18 @@ mod test {
             /// Like further above, but with $vars.
             #[test]
             fn $name() {
-                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| $type::deduce(mf, &$vars)) {
+                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| {
+                    $type::deduce(mf, &$vars)
+                }) {
                     println!("Testing {:?}", result);
                     match result {
                         $pat => assert!(true),
-                        _    => assert!(false),
+                        _ => assert!(false),
                     }
                 }
             }
         };
     }
-
 
     mod size_formats {
         use super::*;
@@ -469,7 +522,6 @@ mod test {
         test!(both_7:  SizeFormat <- ["--binary", "--bytes"];   Complain => err OptionsError::Duplicate(Flag::Long("binary"), Flag::Long("bytes")));
         test!(both_8:  SizeFormat <- ["--bytes",  "--bytes"];   Complain => err OptionsError::Duplicate(Flag::Long("bytes"),  Flag::Long("bytes")));
     }
-
 
     mod time_formats {
         use super::*;
@@ -504,7 +556,6 @@ mod test {
         // If the time-style argument is given, `TIME_STYLE` is overriding.
         test!(override_env:     TimeFormat <- ["--time-style=full-iso"], Some("long-iso".into());  Both => like Ok(TimeFormat::FullISO));
     }
-
 
     mod time_types {
         use super::*;
@@ -541,7 +592,6 @@ mod test {
         // Multiples
         test!(time_uu:   TimeTypes <- ["-u", "--modified"];    Both => Ok(TimeTypes { modified: true,  changed: false, accessed: true,  created: false }));
 
-
         // Errors
         test!(time_tea:  TimeTypes <- ["--time=tea"];          Both => err OptionsError::BadArgument(&flags::TIME, OsString::from("tea")));
         test!(t_ea:      TimeTypes <- ["-tea"];                Both => err OptionsError::BadArgument(&flags::TIME, OsString::from("ea")));
@@ -551,12 +601,10 @@ mod test {
         test!(overridden_2: TimeTypes <- ["-tcr", "-tmod"];    Complain => err OptionsError::Duplicate(Flag::Short(b't'), Flag::Short(b't')));
     }
 
-
     mod views {
         use super::*;
 
         use crate::output::grid::Options as GridOptions;
-
 
         // Default
         test!(empty:         Mode <- [], None;            Both => like Ok(Mode::Grid(_)));

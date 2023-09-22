@@ -1,15 +1,15 @@
-use ansiterm::Style;
 use ansiterm::Colour::*;
+use ansiterm::Style;
 
-use crate::theme::ColourScale;
 use crate::theme::ui_styles::*;
-
+use crate::theme::ColourScale;
 
 impl UiStyles {
     pub fn default_theme(scale: ColourScale) -> Self {
         Self {
             colourful: true,
 
+            #[rustfmt::skip]
             filekinds: FileKinds {
                 normal:       Style::default(),
                 directory:    Blue.bold(),
@@ -23,6 +23,7 @@ impl UiStyles {
                 mount_point:  Blue.bold().underline(),
             },
 
+            #[rustfmt::skip]
             perms: Permissions {
                 user_read:           Yellow.bold(),
                 user_write:          Red.bold(),
@@ -45,6 +46,7 @@ impl UiStyles {
 
             size: Size::colourful(scale),
 
+            #[rustfmt::skip]
             users: Users {
                 user_you:           Yellow.bold(),
                 user_someone_else:  Style::default(),
@@ -52,11 +54,13 @@ impl UiStyles {
                 group_not_yours:    Style::default(),
             },
 
+            #[rustfmt::skip]
             links: Links {
                 normal:          Red.bold(),
                 multi_link_file: Red.on(Yellow),
             },
 
+            #[rustfmt::skip]
             git: Git {
                 new:         Green.normal(),
                 modified:    Blue.normal(),
@@ -75,7 +79,8 @@ impl UiStyles {
             },
 
             security_context: SecurityContext {
-                none:       Style::default(),
+                none: Style::default(),
+                #[rustfmt::skip]
                 selinux: SELinuxContext {
                     colon: Style::default().dimmed(),
                     user:  Blue.normal(),
@@ -85,47 +90,47 @@ impl UiStyles {
                 },
             },
 
+            #[rustfmt::skip]
             file_type: FileType {
-                image: Purple.normal(),
-                video: Purple.bold(),
-                music: Cyan.normal(),
-                lossless: Cyan.bold(),
-                crypto: Green.bold(),
-                document: Green.normal(),
+                image:      Purple.normal(),
+                video:      Purple.bold(),
+                music:      Cyan.normal(),
+                lossless:   Cyan.bold(),
+                crypto:     Green.bold(),
+                document:   Green.normal(),
                 compressed: Red.normal(),
-                temp: White.normal(),
-                compiled: Yellow.normal(),
-                build: Yellow.bold().underline()
+                temp:       White.normal(),
+                compiled:   Yellow.normal(),
+                build:      Yellow.bold().underline(),
             },
 
-            punctuation:  DarkGray.bold(),
-            date:         Blue.normal(),
-            inode:        Purple.normal(),
-            blocks:       Cyan.normal(),
-            octal:        Purple.normal(),
-            header:       Style::default().underline(),
+            punctuation: DarkGray.bold(),
+            date: Blue.normal(),
+            inode: Purple.normal(),
+            blocks: Cyan.normal(),
+            octal: Purple.normal(),
+            header: Style::default().underline(),
 
-            symlink_path:         Cyan.normal(),
-            control_char:         Red.normal(),
-            broken_symlink:       Red.normal(),
-            broken_path_overlay:  Style::default().underline(),
+            symlink_path: Cyan.normal(),
+            control_char: Red.normal(),
+            broken_symlink: Red.normal(),
+            broken_path_overlay: Style::default().underline(),
         }
     }
 }
 
-
 impl Size {
     pub fn colourful(scale: ColourScale) -> Self {
         match scale {
-            ColourScale::Gradient  => Self::colourful_gradient(),
-            ColourScale::Fixed     => Self::colourful_fixed(),
+            ColourScale::Gradient => Self::colourful_gradient(),
+            ColourScale::Fixed => Self::colourful_fixed(),
         }
     }
 
     fn colourful_fixed() -> Self {
         Self {
-            major:  Green.bold(),
-            minor:  Green.normal(),
+            major: Green.bold(),
+            minor: Green.normal(),
 
             number_byte: Green.bold(),
             number_kilo: Green.bold(),
@@ -143,8 +148,8 @@ impl Size {
 
     fn colourful_gradient() -> Self {
         Self {
-            major:  Green.bold(),
-            minor:  Green.normal(),
+            major: Green.bold(),
+            minor: Green.normal(),
 
             number_byte: Green.normal(),
             number_kilo: Green.bold(),

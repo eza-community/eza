@@ -13,10 +13,8 @@ pub use self::lsc::LSColors;
 
 mod default_theme;
 
-
 #[derive(PartialEq, Eq, Debug)]
 pub struct Options {
-
     pub use_colours: UseColours,
 
     pub colour_scale: ColourScale,
@@ -33,7 +31,6 @@ pub struct Options {
 /// this check and only displays colours when they can be truly appreciated.
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum UseColours {
-
     /// Display them even when output isn’t going to a terminal.
     Always,
 
@@ -56,17 +53,17 @@ pub struct Definitions {
     pub exa: Option<String>,
 }
 
-
 pub struct Theme {
     pub ui: UiStyles,
     pub exts: Box<dyn FileStyle>,
 }
 
 impl Options {
-
-    #[allow(trivial_casts)]   // the `as Box<_>` stuff below warns about this for some reason
+    #[allow(trivial_casts)] // the `as Box<_>` stuff below warns about this for some reason
     pub fn to_theme(&self, isatty: bool) -> Theme {
-        if self.use_colours == UseColours::Never || (self.use_colours == UseColours::Automatic && ! isatty) {
+        if self.use_colours == UseColours::Never
+            || (self.use_colours == UseColours::Automatic && !isatty)
+        {
             let ui = UiStyles::plain();
             let exts = Box::new(NoFileStyle);
             return Theme { ui, exts };
@@ -77,6 +74,7 @@ impl Options {
         let (exts, use_default_filetypes) = self.definitions.parse_color_vars(&mut ui);
 
         // Use between 0 and 2 file name highlighters
+        #[rustfmt::skip]
         let exts = match (exts.is_non_empty(), use_default_filetypes) {
             (false, false)  => Box::new(NoFileStyle)     as Box<_>,
             (false,  true)  => Box::new(FileTypes)         as Box<_>,
@@ -89,7 +87,6 @@ impl Options {
 }
 
 impl Definitions {
-
     /// Parse the environment variables into `LS_COLORS` pairs, putting file glob
     /// colours into the `ExtensionMappings` that gets returned, and using the
     /// two-character UI codes to modify the mutable `Colours`.
@@ -103,7 +100,7 @@ impl Definitions {
 
         if let Some(lsc) = &self.ls {
             LSColors(lsc).each_pair(|pair| {
-                if ! colours.set_ls(&pair) {
+                if !colours.set_ls(&pair) {
                     match glob::Pattern::new(pair.key) {
                         Ok(pat) => {
                             exts.add(pat, pair.to_style());
@@ -125,7 +122,7 @@ impl Definitions {
             }
 
             LSColors(exa).each_pair(|pair| {
-                if ! colours.set_ls(&pair) && ! colours.set_exa(&pair) {
+                if !colours.set_ls(&pair) && !colours.set_exa(&pair) {
                     match glob::Pattern::new(pair.key) {
                         Ok(pat) => {
                             exts.add(pat, pair.to_style());
@@ -141,7 +138,6 @@ impl Definitions {
         (exts, use_default_filetypes)
     }
 }
-
 
 /// Determine the style to paint the text for the filename part of the output.
 pub trait FileStyle: Sync {
@@ -164,15 +160,16 @@ impl FileStyle for NoFileStyle {
 // file type associations, while falling back to the default set if not set
 // explicitly.
 impl<A, B> FileStyle for (A, B)
-where A: FileStyle,
-      B: FileStyle,
+where
+    A: FileStyle,
+    B: FileStyle,
 {
     fn get_style(&self, file: &File<'_>, theme: &Theme) -> Option<Style> {
-        self.0.get_style(file, theme)
+        self.0
+            .get_style(file, theme)
             .or_else(|| self.1.get_style(file, theme))
     }
 }
-
 
 #[derive(PartialEq, Debug, Default)]
 struct ExtensionMappings {
@@ -181,7 +178,7 @@ struct ExtensionMappings {
 
 impl ExtensionMappings {
     fn is_non_empty(&self) -> bool {
-        ! self.mappings.is_empty()
+        !self.mappings.is_empty()
     }
 
     fn add(&mut self, pattern: glob::Pattern, style: Style) {
@@ -194,9 +191,11 @@ impl ExtensionMappings {
 
 impl FileStyle for ExtensionMappings {
     fn get_style(&self, file: &File<'_>, _theme: &Theme) -> Option<Style> {
-        self.mappings.iter().rev()
+        self.mappings
+            .iter()
+            .rev()
             .find(|t| t.0.matches(&file.name))
-            .map (|t| t.1)
+            .map(|t| t.1)
     }
 }
 
@@ -205,6 +204,7 @@ struct FileTypes;
 
 impl FileStyle for FileTypes {
     fn get_style(&self, file: &File<'_>, theme: &Theme) -> Option<Style> {
+        #[rustfmt::skip]
         match FileType::get_file_type(file) {
             Some(FileType::Image)      => Some(theme.ui.file_type.image),
             Some(FileType::Video)      => Some(theme.ui.file_type.video),
@@ -226,6 +226,7 @@ impl render::BlocksColours for Theme {
     fn blocksize(&self, prefix: Option<number_prefix::Prefix>) -> Style {
         use number_prefix::Prefix::*;
 
+        #[rustfmt::skip]
         match prefix {
             Some(Kilo | Kibi) => self.ui.size.number_kilo,
             Some(Mega | Mebi) => self.ui.size.number_mega,
@@ -238,6 +239,7 @@ impl render::BlocksColours for Theme {
     fn unit(&self, prefix: Option<number_prefix::Prefix>) -> Style {
         use number_prefix::Prefix::*;
 
+        #[rustfmt::skip]
         match prefix {
             Some(Kilo | Kibi) => self.ui.size.unit_kilo,
             Some(Mega | Mebi) => self.ui.size.unit_mega,
@@ -247,9 +249,12 @@ impl render::BlocksColours for Theme {
         }
     }
 
-    fn no_blocksize(&self) -> Style { self.ui.punctuation }
+    fn no_blocksize(&self) -> Style {
+        self.ui.punctuation
+    }
 }
 
+#[rustfmt::skip]
 impl render::FiletypeColours for Theme {
     fn normal(&self)       -> Style { self.ui.filekinds.normal }
     fn directory(&self)    -> Style { self.ui.filekinds.directory }
@@ -261,6 +266,7 @@ impl render::FiletypeColours for Theme {
     fn special(&self)      -> Style { self.ui.filekinds.special }
 }
 
+#[rustfmt::skip]
 impl render::GitColours for Theme {
     fn not_modified(&self)  -> Style { self.ui.punctuation }
     #[allow(clippy::new_ret_no_self)]
@@ -273,14 +279,16 @@ impl render::GitColours for Theme {
     fn conflicted(&self)    -> Style { self.ui.git.conflicted }
 }
 
+#[rustfmt::skip]
 impl render::GitRepoColours for Theme {
-    fn branch_main(&self) -> Style { self.ui.git_repo.branch_main }
+    fn branch_main(&self)  -> Style { self.ui.git_repo.branch_main }
     fn branch_other(&self) -> Style { self.ui.git_repo.branch_other }
-    fn no_repo(&self) -> Style { self.ui.punctuation }
-    fn git_clean(&self) -> Style { self.ui.git_repo.git_clean }
-    fn git_dirty(&self) -> Style { self.ui.git_repo.git_dirty }
+    fn no_repo(&self)      -> Style { self.ui.punctuation }
+    fn git_clean(&self)    -> Style { self.ui.git_repo.git_clean }
+    fn git_dirty(&self)    -> Style { self.ui.git_repo.git_dirty }
 }
 
+#[rustfmt::skip]
 #[cfg(unix)]
 impl render::GroupColours for Theme {
     fn yours(&self)      -> Style { self.ui.users.group_yours }
@@ -288,11 +296,13 @@ impl render::GroupColours for Theme {
     fn no_group(&self)   -> Style { self.ui.punctuation }
 }
 
+#[rustfmt::skip]
 impl render::LinksColours for Theme {
     fn normal(&self)           -> Style { self.ui.links.normal }
     fn multi_link_file(&self)  -> Style { self.ui.links.multi_link_file }
 }
 
+#[rustfmt::skip]
 impl render::PermissionsColours for Theme {
     fn dash(&self)               -> Style { self.ui.punctuation }
     fn user_read(&self)          -> Style { self.ui.perms.user_read }
@@ -314,6 +324,7 @@ impl render::SizeColours for Theme {
     fn size(&self, prefix: Option<number_prefix::Prefix>) -> Style {
         use number_prefix::Prefix::*;
 
+        #[rustfmt::skip]
         match prefix {
             Some(Kilo | Kibi) => self.ui.size.number_kilo,
             Some(Mega | Mebi) => self.ui.size.number_mega,
@@ -326,6 +337,7 @@ impl render::SizeColours for Theme {
     fn unit(&self, prefix: Option<number_prefix::Prefix>) -> Style {
         use number_prefix::Prefix::*;
 
+        #[rustfmt::skip]
         match prefix {
             Some(Kilo | Kibi) => self.ui.size.unit_kilo,
             Some(Mega | Mebi) => self.ui.size.unit_mega,
@@ -335,12 +347,17 @@ impl render::SizeColours for Theme {
         }
     }
 
+    #[rustfmt::skip]
     fn no_size(&self) -> Style { self.ui.punctuation }
+    #[rustfmt::skip]
     fn major(&self)   -> Style { self.ui.size.major }
+    #[rustfmt::skip]
     fn comma(&self)   -> Style { self.ui.punctuation }
+    #[rustfmt::skip]
     fn minor(&self)   -> Style { self.ui.size.minor }
 }
 
+#[rustfmt::skip]
 #[cfg(unix)]
 impl render::UserColours for Theme {
     fn you(&self)           -> Style { self.ui.users.user_you }
@@ -348,6 +365,7 @@ impl render::UserColours for Theme {
     fn no_user(&self)       -> Style { self.ui.punctuation }
 }
 
+#[rustfmt::skip]
 impl FileNameColours for Theme {
     fn symlink_path(&self)        -> Style { self.ui.symlink_path }
     fn normal_arrow(&self)        -> Style { self.ui.punctuation }
@@ -359,10 +377,13 @@ impl FileNameColours for Theme {
     fn mount_point(&self)         -> Style { self.ui.filekinds.mount_point }
 
     fn colour_file(&self, file: &File<'_>) -> Style {
-        self.exts.get_style(file, self).unwrap_or(self.ui.filekinds.normal)
+        self.exts
+            .get_style(file, self)
+            .unwrap_or(self.ui.filekinds.normal)
     }
 }
 
+#[rustfmt::skip]
 impl render::SecurityCtxColours for Theme {
     fn none(&self)          -> Style { self.ui.security_context.none }
     fn selinux_colon(&self) -> Style { self.ui.security_context.selinux.colon }
@@ -371,7 +392,6 @@ impl render::SecurityCtxColours for Theme {
     fn selinux_type(&self)  -> Style { self.ui.security_context.selinux.typ }
     fn selinux_range(&self) -> Style { self.ui.security_context.selinux.range }
 }
-
 
 /// Some of the styles are **overlays**: although they have the same attribute
 /// set as regular styles (foreground and background colours, bold, underline,
@@ -385,6 +405,7 @@ impl render::SecurityCtxColours for Theme {
 /// character”, there are styles for “link path”, “control character”, and
 /// “broken link overlay”, the latter of which is just set to override the
 /// underline attribute on the other two.
+#[rustfmt::skip]
 fn apply_overlay(mut base: Style, overlay: Style) -> Style {
     if let Some(fg) = overlay.foreground { base.foreground = Some(fg); }
     if let Some(bg) = overlay.background { base.background = Some(bg); }
@@ -402,7 +423,6 @@ fn apply_overlay(mut base: Style, overlay: Style) -> Style {
 }
 // TODO: move this function to the ansiterm crate
 
-
 #[cfg(test)]
 #[cfg(unix)]
 mod customs_test {
@@ -419,7 +439,7 @@ mod customs_test {
                 $process_expected();
 
                 let definitions = Definitions {
-                    ls:  Some($ls.into()),
+                    ls: Some($ls.into()),
                     exa: Some($exa.into()),
                 };
 
@@ -431,13 +451,13 @@ mod customs_test {
         ($name:ident:  ls $ls:expr, exa $exa:expr  =>  exts $mappings:expr) => {
             #[test]
             fn $name() {
-                let mappings: Vec<(glob::Pattern, Style)>
-                    = $mappings.iter()
-                               .map(|t| (glob::Pattern::new(t.0).unwrap(), t.1))
-                               .collect();
+                let mappings: Vec<(glob::Pattern, Style)> = $mappings
+                    .iter()
+                    .map(|t| (glob::Pattern::new(t.0).unwrap(), t.1))
+                    .collect();
 
                 let definitions = Definitions {
-                    ls:  Some($ls.into()),
+                    ls: Some($ls.into()),
                     exa: Some($exa.into()),
                 };
 
@@ -451,13 +471,13 @@ mod customs_test {
                 let mut $expected = UiStyles::default();
                 $process_expected();
 
-                let mappings: Vec<(glob::Pattern, Style)>
-                    = $mappings.iter()
-                               .map(|t| (glob::Pattern::new(t.0).unwrap(), t.1))
-                               .collect();
+                let mappings: Vec<(glob::Pattern, Style)> = $mappings
+                    .iter()
+                    .map(|t| (glob::Pattern::new(t.0).unwrap(), t.1))
+                    .collect();
 
                 let definitions = Definitions {
-                    ls:  Some($ls.into()),
+                    ls: Some($ls.into()),
                     exa: Some($exa.into()),
                 };
 
@@ -468,7 +488,6 @@ mod customs_test {
             }
         };
     }
-
 
     // LS_COLORS can affect all of these colours:
     test!(ls_di:   ls "di=31", exa ""  =>  colours c -> { c.filekinds.directory    = Red.normal();    });

@@ -2,9 +2,9 @@ use ansiterm::{ANSIString, Style};
 
 use crate::fs::fields as f;
 
-
 impl f::Type {
     pub fn render<C: Colours>(self, colours: &C) -> ANSIString<'static> {
+        #[rustfmt::skip]
         match self {
             Self::File         => colours.normal().paint("."),
             Self::Directory    => colours.directory().paint("d"),
@@ -17,7 +17,6 @@ impl f::Type {
         }
     }
 }
-
 
 pub trait Colours {
     fn normal(&self) -> Style;

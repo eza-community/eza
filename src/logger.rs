@@ -2,8 +2,7 @@
 
 use std::ffi::OsStr;
 
-use ansiterm::{Colour, ANSIString};
-
+use ansiterm::{ANSIString, Colour};
 
 /// Sets the internal logger, changing the log level based on the value of an
 /// environment variable.
@@ -17,8 +16,7 @@ pub fn configure<T: AsRef<OsStr>>(ev: Option<T>) {
 
     if env_var == "trace" {
         log::set_max_level(log::LevelFilter::Trace);
-    }
-    else {
+    } else {
         log::set_max_level(log::LevelFilter::Debug);
     }
 
@@ -28,7 +26,6 @@ pub fn configure<T: AsRef<OsStr>>(ev: Option<T>) {
     }
 }
 
-
 #[derive(Debug)]
 struct Logger;
 
@@ -36,7 +33,7 @@ const GLOBAL_LOGGER: &Logger = &Logger;
 
 impl log::Log for Logger {
     fn enabled(&self, _: &log::Metadata<'_>) -> bool {
-        true  // no need to filter after using ‘set_max_level’.
+        true // no need to filter after using ‘set_max_level’.
     }
 
     fn log(&self, record: &log::Record<'_>) {
@@ -44,7 +41,14 @@ impl log::Log for Logger {
         let level = level(record.level());
         let close = Colour::Fixed(243).paint("]");
 
-        eprintln!("{}{} {}{} {}", open, level, record.target(), close, record.args());
+        eprintln!(
+            "{}{} {}{} {}",
+            open,
+            level,
+            record.target(),
+            close,
+            record.args()
+        );
     }
 
     fn flush(&self) {
@@ -53,11 +57,12 @@ impl log::Log for Logger {
 }
 
 fn level(level: log::Level) -> ANSIString<'static> {
+    #[rustfmt::skip]
     match level {
-        log::Level::Error  => Colour::Red.paint("ERROR"),
-        log::Level::Warn   => Colour::Yellow.paint("WARN"),
-        log::Level::Info   => Colour::Cyan.paint("INFO"),
-        log::Level::Debug  => Colour::Blue.paint("DEBUG"),
-        log::Level::Trace  => Colour::Fixed(245).paint("TRACE"),
+        log::Level::Error => Colour::Red.paint("ERROR"),
+        log::Level::Warn  => Colour::Yellow.paint("WARN"),
+        log::Level::Info  => Colour::Cyan.paint("INFO"),
+        log::Level::Debug => Colour::Blue.paint("DEBUG"),
+        log::Level::Trace => Colour::Fixed(245).paint("TRACE"),
     }
 }

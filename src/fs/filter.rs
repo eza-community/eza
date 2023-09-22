@@ -9,7 +9,6 @@ use crate::fs::DotFilter;
 use crate::fs::File;
 
 
-
 /// Flags used to manage the **file filter** process
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum FileFilterFlags {
@@ -24,7 +23,6 @@ pub enum FileFilterFlags {
     /// Whether to only show files.
     OnlyFiles
 }
-
 
 /// The **file filter** processes a list of files before displaying them to
 /// the user, by removing files they don’t want to see, and putting the list
@@ -42,7 +40,6 @@ pub enum FileFilterFlags {
 /// performing the comparison.
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct FileFilter {
-
     /// Whether directories should be listed first, and other types of file
     /// second. Some users prefer it like this.
     pub list_dirs_first: bool,
@@ -79,8 +76,8 @@ impl FileFilter {
     /// filter predicate for files found inside a directory.
     pub fn filter_child_files(&self, files: &mut Vec<File<'_>>) {
         use FileFilterFlags::{OnlyDirs, OnlyFiles};
-        
-        files.retain(|f| ! self.ignore_patterns.is_ignored(&f.name));
+
+        files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
 
         match (self.flags.contains(&OnlyDirs), self.flags.contains(&OnlyFiles)) {
             (true, false) => {
@@ -93,7 +90,6 @@ impl FileFilter {
             }
             _ => {}
         }
-       
     }
 
     /// Remove every file in the given vector that does *not* pass the
@@ -106,18 +102,15 @@ impl FileFilter {
     /// `exa -I='*.ogg' music/*` should filter out the ogg files obtained
     /// from the glob, even though the globbing is done by the shell!
     pub fn filter_argument_files(&self, files: &mut Vec<File<'_>>) {
-        files.retain(|f| {
-            ! self.ignore_patterns.is_ignored(&f.name)
-        });
+        files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
     }
 
     /// Sort the files in the given vector based on the sort field option.
     pub fn sort_files<'a, F>(&self, files: &mut [F])
-    where F: AsRef<File<'a>>
+    where
+        F: AsRef<File<'a>>,
     {
-        files.sort_by(|a, b| {
-            self.sort_field.compare_files(a.as_ref(), b.as_ref())
-        });
+        files.sort_by(|a, b| self.sort_field.compare_files(a.as_ref(), b.as_ref()));
 
         if self.flags.contains(&FileFilterFlags::Reverse) {
             files.reverse();
@@ -127,18 +120,17 @@ impl FileFilter {
             // This relies on the fact that `sort_by` is *stable*: it will keep
             // adjacent elements next to each other.
             files.sort_by(|a, b| {
-                b.as_ref().points_to_directory()
+                b.as_ref()
+                    .points_to_directory()
                     .cmp(&a.as_ref().points_to_directory())
             });
         }
     }
 }
 
-
 /// User-supplied field to sort by.
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum SortField {
-
     /// Don’t apply any sorting. This is usually used as an optimisation in
     /// scripts, where the order doesn’t matter.
     Unsorted,
@@ -219,7 +211,6 @@ pub enum SortField {
 /// effects they have.
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum SortCase {
-
     /// Sort files case-sensitively with uppercase first, with ‘A’ coming
     /// before ‘a’.
     ABCabc,
@@ -229,7 +220,6 @@ pub enum SortCase {
 }
 
 impl SortField {
-
     /// Compares two files to determine the order they should be listed in,
     /// depending on the search field.
     ///
@@ -241,6 +231,7 @@ impl SortField {
     pub fn compare_files(self, a: &File<'_>, b: &File<'_>) -> Ordering {
         use self::SortCase::{ABCabc, AaBbCc};
 
+        #[rustfmt::skip]
         match self {
             Self::Unsorted  => Ordering::Equal,
 
@@ -285,11 +276,10 @@ impl SortField {
     fn strip_dot(n: &str) -> &str {
         match n.strip_prefix('.') {
             Some(s) => s,
-            None    => n,
+            None => n,
         }
     }
 }
-
 
 /// The **ignore patterns** are a list of globs that are tested against
 /// each filename, and if any of them match, that file isn’t displayed.
@@ -300,9 +290,9 @@ pub struct IgnorePatterns {
 }
 
 impl FromIterator<glob::Pattern> for IgnorePatterns {
-
     fn from_iter<I>(iter: I) -> Self
-    where I: IntoIterator<Item = glob::Pattern>
+    where
+        I: IntoIterator<Item = glob::Pattern>,
     {
         let patterns = iter.into_iter().collect();
         Self { patterns }
@@ -310,18 +300,19 @@ impl FromIterator<glob::Pattern> for IgnorePatterns {
 }
 
 impl IgnorePatterns {
-
     /// Create a new list from the input glob strings, turning the inputs that
     /// are valid glob patterns into an `IgnorePatterns`. The inputs that
     /// don’t parse correctly are returned separately.
-    pub fn parse_from_iter<'a, I: IntoIterator<Item = &'a str>>(iter: I) -> (Self, Vec<glob::PatternError>) {
+    pub fn parse_from_iter<'a, I: IntoIterator<Item = &'a str>>(
+        iter: I,
+    ) -> (Self, Vec<glob::PatternError>) {
         let iter = iter.into_iter();
 
         // Almost all glob patterns are valid, so it’s worth pre-allocating
         // the vector with enough space for all of them.
         let mut patterns = match iter.size_hint() {
-            (_, Some(count))  => Vec::with_capacity(count),
-             _                => Vec::new(),
+            (_, Some(count)) => Vec::with_capacity(count),
+            _ => Vec::new(),
         };
 
         // Similarly, assume there won’t be any errors.
@@ -330,7 +321,7 @@ impl IgnorePatterns {
         for input in iter {
             match glob::Pattern::new(input) {
                 Ok(pat) => patterns.push(pat),
-                Err(e)  => errors.push(e),
+                Err(e) => errors.push(e),
             }
         }
 
@@ -339,7 +330,9 @@ impl IgnorePatterns {
 
     /// Create a new empty set of patterns that matches nothing.
     pub fn empty() -> Self {
-        Self { patterns: Vec::new() }
+        Self {
+            patterns: Vec::new(),
+        }
     }
 
     /// Test whether the given file should be hidden from the results.
@@ -348,19 +341,15 @@ impl IgnorePatterns {
     }
 }
 
-
 /// Whether to ignore or display files that Git would ignore.
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum GitIgnore {
-
     /// Ignore files that Git would ignore.
     CheckAndIgnore,
 
     /// Display files, even if Git would ignore them.
     Off,
 }
-
-
 
 #[cfg(test)]
 mod test_ignores {
@@ -375,7 +364,7 @@ mod test_ignores {
 
     #[test]
     fn ignores_a_glob() {
-        let (pats, fails) = IgnorePatterns::parse_from_iter(vec![ "*.mp3" ]);
+        let (pats, fails) = IgnorePatterns::parse_from_iter(vec!["*.mp3"]);
         assert!(fails.is_empty());
         assert!(!pats.is_ignored("nothing"));
         assert!(pats.is_ignored("test.mp3"));
@@ -383,7 +372,7 @@ mod test_ignores {
 
     #[test]
     fn ignores_an_exact_filename() {
-        let (pats, fails) = IgnorePatterns::parse_from_iter(vec![ "nothing" ]);
+        let (pats, fails) = IgnorePatterns::parse_from_iter(vec!["nothing"]);
         assert!(fails.is_empty());
         assert!(pats.is_ignored("nothing"));
         assert!(!pats.is_ignored("test.mp3"));
@@ -391,7 +380,7 @@ mod test_ignores {
 
     #[test]
     fn ignores_both() {
-        let (pats, fails) = IgnorePatterns::parse_from_iter(vec![ "nothing", "*.mp3" ]);
+        let (pats, fails) = IgnorePatterns::parse_from_iter(vec!["nothing", "*.mp3"]);
         assert!(fails.is_empty());
         assert!(pats.is_ignored("nothing"));
         assert!(pats.is_ignored("test.mp3"));

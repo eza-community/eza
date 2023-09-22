@@ -10,21 +10,14 @@ use log::*;
 #[cfg(unix)]
 use uzers::UsersCache;
 
-use crate::fs::{File, fields as f};
 use crate::fs::feature::git::GitCache;
+use crate::fs::{fields as f, File};
 use crate::output::cell::TextCell;
-use crate::output::render::{PermissionsPlusRender, TimeRender};
 #[cfg(unix)]
-use crate::output::render::{
-    GroupRender,
-    OctalPermissionsRender,
-    UserRender
-};
+use crate::output::render::{GroupRender, OctalPermissionsRender, UserRender};
+use crate::output::render::{PermissionsPlusRender, TimeRender};
 use crate::output::time::TimeFormat;
 use crate::theme::Theme;
-
-
-
 
 /// Options for displaying a table.
 #[derive(PartialEq, Eq, Debug)]
@@ -39,7 +32,6 @@ pub struct Options {
 #[allow(clippy::struct_excessive_bools)]
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub struct Columns {
-
     /// At least one of these timestamps will be shown.
     pub time_types: TimeTypes,
 
@@ -139,7 +131,6 @@ impl Columns {
     }
 }
 
-
 /// A table contains these.
 #[derive(Debug, Copy, Clone)]
 pub enum Column {
@@ -173,24 +164,25 @@ pub enum Alignment {
 }
 
 impl Column {
-
     /// Get the alignment this column should use.
     #[cfg(unix)]
     pub fn alignment(self) -> Alignment {
         #[allow(clippy::wildcard_in_or_patterns)]
+        #[rustfmt::skip]
         match self {
             Self::FileSize   |
             Self::HardLinks  |
             Self::Inode      |
             Self::Blocksize  |
             Self::GitStatus  => Alignment::Right,
-            Self::Timestamp(_) | 
+            Self::Timestamp(_) |
             _                => Alignment::Left,
         }
     }
 
     #[cfg(windows)]
     pub fn alignment(self) -> Alignment {
+        #[rustfmt::skip]
         match self {
             Self::FileSize   |
             Self::GitStatus  => Alignment::Right,
@@ -201,6 +193,7 @@ impl Column {
     /// Get the text that should be printed at the top, when the user elects
     /// to have a header row printed.
     pub fn header(self) -> &'static str {
+        #[rustfmt::skip]
         match self {
             #[cfg(unix)]
             Self::Permissions   => "Permissions",
@@ -228,12 +221,10 @@ impl Column {
     }
 }
 
-
 /// Formatting options for file sizes.
 #[allow(clippy::enum_variant_names)]
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum SizeFormat {
-
     /// Format the file size using **decimal** prefixes, such as “kilo”,
     /// “mega”, or “giga”.
     DecimalBytes,
@@ -261,12 +252,10 @@ impl Default for SizeFormat {
     }
 }
 
-
 /// The types of a file’s time fields. These three fields are standard
 /// across most (all?) operating systems.
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum TimeType {
-
     /// The file’s modified time (`st_mtime`).
     Modified,
 
@@ -281,9 +270,9 @@ pub enum TimeType {
 }
 
 impl TimeType {
-
     /// Returns the text to use for a column’s heading in the columns output.
     pub fn header(self) -> &'static str {
+        #[rustfmt::skip]
         match self {
             Self::Modified  => "Date Modified",
             Self::Changed   => "Date Changed",
@@ -293,13 +282,13 @@ impl TimeType {
     }
 }
 
-
 /// Fields for which of a file’s time fields should be displayed in the
 /// columns output.
 ///
 /// There should always be at least one of these — there’s no way to disable
 /// the time columns entirely (yet).
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
+#[rustfmt::skip]
 #[allow(clippy::struct_excessive_bools)]
 pub struct TimeTypes {
     pub modified: bool,
@@ -309,10 +298,10 @@ pub struct TimeTypes {
 }
 
 impl Default for TimeTypes {
-
     /// By default, display just the ‘modified’ time. This is the most
     /// common option, which is why it has this shorthand.
     fn default() -> Self {
+        #[rustfmt::skip]
         Self {
             modified: true,
             changed:  false,
@@ -322,13 +311,11 @@ impl Default for TimeTypes {
     }
 }
 
-
 /// The **environment** struct contains any data that could change between
 /// running instances of exa, depending on the user’s computer’s configuration.
 ///
 /// Any environment field should be able to be mocked up for test runs.
 pub struct Environment {
-
     /// The computer’s current time offset, determined from time zone.
     time_offset: FixedOffset,
 
@@ -349,20 +336,24 @@ impl Environment {
     fn load_all() -> Self {
         let time_offset = *Local::now().offset();
 
-        let numeric = locale::Numeric::load_user_locale()
-                             .unwrap_or_else(|_| locale::Numeric::english());
+        let numeric =
+            locale::Numeric::load_user_locale().unwrap_or_else(|_| locale::Numeric::english());
 
         #[cfg(unix)]
         let users = Mutex::new(UsersCache::new());
 
-        Self { time_offset, numeric, #[cfg(unix)] users }
+        Self {
+            time_offset,
+            numeric,
+            #[cfg(unix)]
+            users,
+        }
     }
 }
 
 lazy_static! {
     static ref ENVIRONMENT: Environment = Environment::load_all();
 }
-
 
 pub struct Table<'a> {
     columns: Vec<Column>,
@@ -405,17 +396,21 @@ impl<'a> Table<'a> {
     }
 
     pub fn header_row(&self) -> Row {
-        let cells = self.columns.iter()
-                        .map(|c| TextCell::paint_str(self.theme.ui.header, c.header()))
-                        .collect();
+        let cells = self
+            .columns
+            .iter()
+            .map(|c| TextCell::paint_str(self.theme.ui.header, c.header()))
+            .collect();
 
         Row { cells }
     }
 
     pub fn row_for_file(&self, file: &File<'_>, xattrs: bool) -> Row {
-        let cells = self.columns.iter()
-                        .map(|c| self.display(file, *c, xattrs))
-                        .collect();
+        let cells = self
+            .columns
+            .iter()
+            .map(|c| self.display(file, *c, xattrs))
+            .collect();
 
         Row { cells }
     }
@@ -429,7 +424,7 @@ impl<'a> Table<'a> {
         file.permissions().map(|p| f::PermissionsPlus {
             file_type: file.type_char(),
             permissions: p,
-            xattrs
+            xattrs,
         })
     }
 
@@ -446,12 +441,12 @@ impl<'a> Table<'a> {
 
     #[cfg(unix)]
     fn octal_permissions(&self, file: &File<'_>) -> Option<f::OctalPermissions> {
-        file.permissions().map(|p| f::OctalPermissions {
-            permissions: p,
-        })
+        file.permissions()
+            .map(|p| f::OctalPermissions { permissions: p })
     }
 
     fn display(&self, file: &File<'_>, column: Column, xattrs: bool) -> TextCell {
+        #[rustfmt::skip]
         match column {
             Column::Permissions => {
                 self.permissions_plus(file, xattrs).render(self.theme)
@@ -469,15 +464,18 @@ impl<'a> Table<'a> {
             }
             #[cfg(unix)]
             Column::Blocksize => {
-                file.blocksize().render(self.theme, self.size_format, &self.env.numeric)
+                file.blocksize()
+                    .render(self.theme, self.size_format, &self.env.numeric)
             }
             #[cfg(unix)]
             Column::User => {
-                file.user().render(self.theme, &*self.env.lock_users(), self.user_format)
+                file.user()
+                    .render(self.theme, &*self.env.lock_users(), self.user_format)
             }
             #[cfg(unix)]
             Column::Group => {
-                file.group().render(self.theme, &*self.env.lock_users(), self.user_format)
+                file.group()
+                    .render(self.theme, &*self.env.lock_users(), self.user_format)
             }
             #[cfg(unix)]
             Column::SecurityContext => {
@@ -517,10 +515,10 @@ impl<'a> Table<'a> {
             .unwrap_or_default()
     }
 
-    fn subdir_git_repo(&self, file: &File<'_>, status : bool) -> f::SubdirGitRepo {
+    fn subdir_git_repo(&self, file: &File<'_>, status: bool) -> f::SubdirGitRepo {
         debug!("Getting subdir repo status for path {:?}", file.path);
 
-        if file.is_directory(){
+        if file.is_directory() {
             return f::SubdirGitRepo::from_path(&file.path, status);
         }
         f::SubdirGitRepo::default()
@@ -529,9 +527,7 @@ impl<'a> Table<'a> {
     pub fn render(&self, row: Row) -> TextCell {
         let mut cell = TextCell::default();
 
-        let iter = row.cells.into_iter()
-                      .zip(self.widths.iter())
-                      .enumerate();
+        let iter = row.cells.into_iter().zip(self.widths.iter()).enumerate();
 
         for (n, (this_cell, width)) in iter {
             let padding = width - *this_cell.width;
@@ -553,7 +549,6 @@ impl<'a> Table<'a> {
         cell
     }
 }
-
 
 pub struct TableWidths(Vec<usize>);
 

@@ -1,5 +1,5 @@
+#![rustfmt::skip] // the entire file becomes less readable with rustfmt 
 use crate::options::parser::{Arg, Args, TakesValue, Values};
-
 
 // exa options
 pub static VERSION: Arg = Arg { short: Some(b'v'), long: "version",  takes_value: TakesValue::Forbidden };

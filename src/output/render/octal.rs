@@ -9,6 +9,7 @@ pub trait Render {
 
 impl Render for Option<f::OctalPermissions> {
     fn render(&self, style: Style) -> TextCell {
+        #[rustfmt::skip]
         match self {
             Some(p) => {
                 let perm = &p.permissions;
@@ -30,25 +31,32 @@ impl f::OctalPermissions {
     }
 }
 
-
 #[cfg(test)]
 pub mod test {
     use super::Render;
-    use crate::output::cell::TextCell;
     use crate::fs::fields as f;
+    use crate::output::cell::TextCell;
 
     use ansiterm::Colour::*;
-
 
     #[test]
     fn normal_folder() {
         let bits = f::Permissions {
-            user_read:  true, user_write:  true,  user_execute:  true, setuid: false,
-            group_read: true, group_write: false, group_execute: true, setgid: false,
-            other_read: true, other_write: false, other_execute: true, sticky: false,
+            user_read: true,
+            user_write: true,
+            user_execute: true,
+            setuid: false,
+            group_read: true,
+            group_write: false,
+            group_execute: true,
+            setgid: false,
+            other_read: true,
+            other_write: false,
+            other_execute: true,
+            sticky: false,
         };
 
-        let octal = Some(f::OctalPermissions{ permissions: bits });
+        let octal = Some(f::OctalPermissions { permissions: bits });
 
         let expected = TextCell::paint_str(Purple.bold(), "0755");
         assert_eq!(expected, octal.render(Purple.bold()));
@@ -57,12 +65,21 @@ pub mod test {
     #[test]
     fn normal_file() {
         let bits = f::Permissions {
-            user_read:  true, user_write:  true,  user_execute:  false, setuid: false,
-            group_read: true, group_write: false, group_execute: false, setgid: false,
-            other_read: true, other_write: false, other_execute: false, sticky: false,
+            user_read: true,
+            user_write: true,
+            user_execute: false,
+            setuid: false,
+            group_read: true,
+            group_write: false,
+            group_execute: false,
+            setgid: false,
+            other_read: true,
+            other_write: false,
+            other_execute: false,
+            sticky: false,
         };
 
-        let octal = Some(f::OctalPermissions{ permissions: bits });
+        let octal = Some(f::OctalPermissions { permissions: bits });
 
         let expected = TextCell::paint_str(Purple.bold(), "0644");
         assert_eq!(expected, octal.render(Purple.bold()));
@@ -71,12 +88,21 @@ pub mod test {
     #[test]
     fn secret_file() {
         let bits = f::Permissions {
-            user_read:  true,  user_write:  true,  user_execute:  false, setuid: false,
-            group_read: false, group_write: false, group_execute: false, setgid: false,
-            other_read: false, other_write: false, other_execute: false, sticky: false,
+            user_read: true,
+            user_write: true,
+            user_execute: false,
+            setuid: false,
+            group_read: false,
+            group_write: false,
+            group_execute: false,
+            setgid: false,
+            other_read: false,
+            other_write: false,
+            other_execute: false,
+            sticky: false,
         };
 
-        let octal = Some(f::OctalPermissions{ permissions: bits });
+        let octal = Some(f::OctalPermissions { permissions: bits });
 
         let expected = TextCell::paint_str(Purple.bold(), "0600");
         assert_eq!(expected, octal.render(Purple.bold()));
@@ -85,27 +111,44 @@ pub mod test {
     #[test]
     fn sticky1() {
         let bits = f::Permissions {
-            user_read:  true, user_write:  true,  user_execute:  true, setuid: true,
-            group_read: true, group_write: true,  group_execute: true, setgid: false,
-            other_read: true, other_write: true,  other_execute: true, sticky: false,
+            user_read: true,
+            user_write: true,
+            user_execute: true,
+            setuid: true,
+            group_read: true,
+            group_write: true,
+            group_execute: true,
+            setgid: false,
+            other_read: true,
+            other_write: true,
+            other_execute: true,
+            sticky: false,
         };
 
-        let octal = Some(f::OctalPermissions{ permissions: bits });
+        let octal = Some(f::OctalPermissions { permissions: bits });
 
         let expected = TextCell::paint_str(Purple.bold(), "4777");
         assert_eq!(expected, octal.render(Purple.bold()));
-
     }
 
     #[test]
     fn sticky2() {
         let bits = f::Permissions {
-            user_read:  true, user_write:  true,  user_execute:  true, setuid: false,
-            group_read: true, group_write: true,  group_execute: true, setgid: true,
-            other_read: true, other_write: true,  other_execute: true, sticky: false,
+            user_read: true,
+            user_write: true,
+            user_execute: true,
+            setuid: false,
+            group_read: true,
+            group_write: true,
+            group_execute: true,
+            setgid: true,
+            other_read: true,
+            other_write: true,
+            other_execute: true,
+            sticky: false,
         };
 
-        let octal = Some(f::OctalPermissions{ permissions: bits });
+        let octal = Some(f::OctalPermissions { permissions: bits });
 
         let expected = TextCell::paint_str(Purple.bold(), "2777");
         assert_eq!(expected, octal.render(Purple.bold()));
@@ -114,12 +157,21 @@ pub mod test {
     #[test]
     fn sticky3() {
         let bits = f::Permissions {
-            user_read:  true, user_write:  true,  user_execute:  true, setuid: false,
-            group_read: true, group_write: true,  group_execute: true, setgid: false,
-            other_read: true, other_write: true,  other_execute: true, sticky: true,
+            user_read: true,
+            user_write: true,
+            user_execute: true,
+            setuid: false,
+            group_read: true,
+            group_write: true,
+            group_execute: true,
+            setgid: false,
+            other_read: true,
+            other_write: true,
+            other_execute: true,
+            sticky: true,
         };
 
-        let octal = Some(f::OctalPermissions{ permissions: bits });
+        let octal = Some(f::OctalPermissions { permissions: bits });
 
         let expected = TextCell::paint_str(Purple.bold(), "1777");
         assert_eq!(expected, octal.render(Purple.bold()));

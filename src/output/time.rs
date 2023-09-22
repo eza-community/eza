@@ -1,11 +1,10 @@
 //! Timestamp formatting.
 
-use core::cmp::max;
-use std::time::Duration;
 use chrono::prelude::*;
+use core::cmp::max;
 use lazy_static::lazy_static;
+use std::time::Duration;
 use unicode_width::UnicodeWidthStr;
-
 
 /// Every timestamp in exa needs to be rendered by a **time format**.
 /// Formatting times is tricky, because how a timestamp is rendered can
@@ -25,7 +24,6 @@ use unicode_width::UnicodeWidthStr;
 /// format string in an environment variable or something. Just these four.
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum TimeFormat {
-
     /// The **default format** uses the user’s locale to print month names,
     /// and specifies the timestamp down to the minute for recent times, and
     /// day for older times.
@@ -51,6 +49,7 @@ pub enum TimeFormat {
 
 impl TimeFormat {
     pub fn format(self, time: &DateTime<FixedOffset>) -> String {
+        #[rustfmt::skip]
         match self {
             Self::DefaultFormat  => default(time),
             Self::ISOFormat      => iso(time),
@@ -99,20 +98,18 @@ fn long(time: &DateTime<FixedOffset>) -> String {
 fn relative(time: &DateTime<FixedOffset>) -> String {
     timeago::Formatter::new()
         .ago("")
-        .convert(
-            Duration::from_secs(
-                max(0, Local::now().timestamp() - time.timestamp())
-                // this .unwrap is safe since the call above can never result in a 
+        .convert(Duration::from_secs(
+            max(0, Local::now().timestamp() - time.timestamp())
+                // this .unwrap is safe since the call above can never result in a
                 // value < 0
-                .try_into().unwrap()
-            )
-        )
+                .try_into()
+                .unwrap(),
+        ))
 }
 
 fn full(time: &DateTime<FixedOffset>) -> String {
     time.format("%Y-%m-%d %H:%M:%S.%f %z").to_string()
 }
-
 
 lazy_static! {
 
@@ -147,25 +144,29 @@ mod test {
     #[test]
     fn short_month_width_hindi() {
         let max_month_width = 4;
-        assert_eq!(true, [
-            "\u{091C}\u{0928}\u{0970}", // जन॰
-            "\u{092B}\u{093C}\u{0930}\u{0970}", // फ़र॰
-            "\u{092E}\u{093E}\u{0930}\u{094D}\u{091A}", // मार्च
-            "\u{0905}\u{092A}\u{094D}\u{0930}\u{0948}\u{0932}", // अप्रैल
-            "\u{092E}\u{0908}", // मई
-            "\u{091C}\u{0942}\u{0928}", // जून
-            "\u{091C}\u{0941}\u{0932}\u{0970}", // जुल॰
-            "\u{0905}\u{0917}\u{0970}", // अग॰
-            "\u{0938}\u{093F}\u{0924}\u{0970}", // सित॰
-            "\u{0905}\u{0915}\u{094D}\u{0924}\u{0942}\u{0970}", // अक्तू॰
-            "\u{0928}\u{0935}\u{0970}", // नव॰
-            "\u{0926}\u{093F}\u{0938}\u{0970}", // दिस॰
-        ].iter()
+        assert_eq!(
+            true,
+            [
+                "\u{091C}\u{0928}\u{0970}",                         // जन॰
+                "\u{092B}\u{093C}\u{0930}\u{0970}",                 // फ़र॰
+                "\u{092E}\u{093E}\u{0930}\u{094D}\u{091A}",         // मार्च
+                "\u{0905}\u{092A}\u{094D}\u{0930}\u{0948}\u{0932}", // अप्रैल
+                "\u{092E}\u{0908}",                                 // मई
+                "\u{091C}\u{0942}\u{0928}",                         // जून
+                "\u{091C}\u{0941}\u{0932}\u{0970}",                 // जुल॰
+                "\u{0905}\u{0917}\u{0970}",                         // अग॰
+                "\u{0938}\u{093F}\u{0924}\u{0970}",                 // सित॰
+                "\u{0905}\u{0915}\u{094D}\u{0924}\u{0942}\u{0970}", // अक्तू॰
+                "\u{0928}\u{0935}\u{0970}",                         // नव॰
+                "\u{0926}\u{093F}\u{0938}\u{0970}",                 // दिस॰
+            ]
+            .iter()
             .map(|month| format!(
                 "{:<width$}",
                 month,
                 width = short_month_padding(max_month_width, month)
-            )).all(|string| UnicodeWidthStr::width(string.as_str()) == max_month_width)
+            ))
+            .all(|string| UnicodeWidthStr::width(string.as_str()) == max_month_width)
         );
     }
 }

@@ -5,11 +5,9 @@ use std::num::ParseIntError;
 use crate::options::flags;
 use crate::options::parser::{Arg, Flag, ParseError};
 
-
 /// Something wrong with the combination of options the user has picked.
 #[derive(PartialEq, Eq, Debug)]
 pub enum OptionsError {
-
     /// There was an error (from `getopts`) parsing the arguments.
     Parse(ParseError),
 
@@ -46,7 +44,6 @@ pub enum OptionsError {
 /// The source of a string that failed to be parsed as a number.
 #[derive(PartialEq, Eq, Debug)]
 pub enum NumberSource {
-
     /// It came... from a command-line argument!
     Arg(&'static Arg),
 
@@ -73,12 +70,18 @@ impl fmt::Display for OptionsError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use crate::options::parser::TakesValue;
 
+        #[rustfmt::skip]
         match self {
             Self::BadArgument(arg, attempt) => {
                 if let TakesValue::Necessary(Some(values)) = arg.takes_value {
-                    write!(f, "Option {} has no {:?} setting ({})", arg, attempt, Choices(values))
-                }
-                else {
+                    write!(
+                        f,
+                        "Option {} has no {:?} setting ({})",
+                        arg,
+                        attempt,
+                        Choices(values)
+                    )
+                } else {
                     write!(f, "Option {arg} has no {attempt:?} setting")
                 }
             }
@@ -98,7 +101,6 @@ impl fmt::Display for OptionsError {
 }
 
 impl OptionsError {
-
     /// Try to second-guess what the user was trying to do, depending on what
     /// went wrong.
     pub fn suggestion(&self) -> Option<&'static str> {
@@ -110,13 +112,10 @@ impl OptionsError {
             Self::Parse(ParseError::NeedsValue { ref flag, .. }) if *flag == Flag::Short(b't') => {
                 Some("To sort newest files last, try \"--sort newest\", or just \"-snew\"")
             }
-            _ => {
-                None
-            }
+            _ => None,
         }
     }
 }
-
 
 /// A list of legal choices for an argument-taking option.
 #[derive(PartialEq, Eq, Debug)]

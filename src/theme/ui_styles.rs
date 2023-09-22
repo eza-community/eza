@@ -2,7 +2,7 @@ use ansiterm::Style;
 
 use crate::theme::lsc::Pair;
 
-
+#[rustfmt::skip]
 #[derive(Debug, Default, PartialEq)]
 pub struct UiStyles {
     pub colourful: bool,
@@ -30,6 +30,7 @@ pub struct UiStyles {
     pub broken_path_overlay:  Style,  // bO
 }
 
+#[rustfmt::skip]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct FileKinds {
     pub normal: Style,        // fi
@@ -44,6 +45,7 @@ pub struct FileKinds {
     pub mount_point: Style,   // mp
 }
 
+#[rustfmt::skip]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Permissions {
     pub user_read:          Style,  // ur
@@ -65,6 +67,7 @@ pub struct Permissions {
     pub attribute: Style,           // xa
 }
 
+#[rustfmt::skip]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Size {
     pub major: Style,        // df
@@ -83,6 +86,7 @@ pub struct Size {
     pub unit_huge: Style,    // sb ut
 }
 
+#[rustfmt::skip]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Users {
     pub user_you: Style,           // uu
@@ -91,12 +95,14 @@ pub struct Users {
     pub group_not_yours: Style,    // gn
 }
 
+#[rustfmt::skip]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Links {
     pub normal: Style,           // lc
     pub multi_link_file: Style,  // lm
 }
 
+#[rustfmt::skip]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Git {
     pub new: Style,         // ga
@@ -108,6 +114,7 @@ pub struct Git {
     pub conflicted: Style,  // gc
 }
 
+#[rustfmt::skip]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct GitRepo {
     pub branch_main: Style,
@@ -125,6 +132,7 @@ pub struct SELinuxContext {
     pub range: Style,  // Sl
 }
 
+#[rustfmt::skip]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct SecurityContext {
     pub none:    Style, // Sn
@@ -132,6 +140,7 @@ pub struct SecurityContext {
 }
 
 /// Drawing styles based on the type of file (video, image, compressed, etc)
+#[rustfmt::skip]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct FileType {
     pub image: Style,       // im - image file
@@ -152,13 +161,12 @@ impl UiStyles {
     }
 }
 
-
 impl UiStyles {
-
     /// Sets a value on this set of colours using one of the keys understood
     /// by the `LS_COLORS` environment variable. Invalid keys set nothing, but
     /// return false.
     pub fn set_ls(&mut self, pair: &Pair<'_>) -> bool {
+        #[rustfmt::skip]
         match pair.key {
             "di" => self.filekinds.directory    = pair.to_style(),  // DIR
             "ex" => self.filekinds.executable   = pair.to_style(),  // EXEC
@@ -182,6 +190,7 @@ impl UiStyles {
     /// but return false. This doesn’t take the `LS_COLORS` keys into account,
     /// so `set_ls` should have been run first.
     pub fn set_exa(&mut self, pair: &Pair<'_>) -> bool {
+        #[rustfmt::skip]
         match pair.key {
             "ur" => self.perms.user_read                = pair.to_style(),
             "uw" => self.perms.user_write               = pair.to_style(),

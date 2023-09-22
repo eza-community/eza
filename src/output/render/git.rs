@@ -1,23 +1,20 @@
 use ansiterm::{ANSIString, Style};
 
-use crate::output::cell::{TextCell, DisplayWidth};
 use crate::fs::fields as f;
-
+use crate::output::cell::{DisplayWidth, TextCell};
 
 impl f::Git {
     pub fn render(self, colours: &dyn Colours) -> TextCell {
         TextCell {
             width: DisplayWidth::from(2),
-            contents: vec![
-                self.staged.render(colours),
-                self.unstaged.render(colours),
-            ].into(),
+            contents: vec![self.staged.render(colours), self.unstaged.render(colours)].into(),
         }
     }
 }
 
 impl f::GitStatus {
     fn render(self, colours: &dyn Colours) -> ANSIString<'static> {
+        #[rustfmt::skip]
         match self {
             Self::NotModified  => colours.not_modified().paint("-"),
             Self::New          => colours.new().paint("N"),
@@ -35,7 +32,7 @@ pub trait Colours {
     fn not_modified(&self) -> Style;
     // FIXME: this amount of allows needed to keep clippy happy should be enough
     // of an argument that new needs to be renamed.
-    #[allow(clippy::new_ret_no_self,clippy::wrong_self_convention)]
+    #[allow(clippy::new_ret_no_self, clippy::wrong_self_convention)]
     fn new(&self) -> Style;
     fn modified(&self) -> Style;
     fn deleted(&self) -> Style;
@@ -44,7 +41,6 @@ pub trait Colours {
     fn ignored(&self) -> Style;
     fn conflicted(&self) -> Style;
 }
-
 
 impl f::SubdirGitRepo {
     pub fn render(self, colours: &dyn RepoColours) -> TextCell {
@@ -92,63 +88,69 @@ pub trait RepoColours {
     fn git_dirty(&self) -> Style;
 }
 
-
 #[cfg(test)]
 pub mod test {
     use super::Colours;
-    use crate::output::cell::{TextCell, DisplayWidth};
     use crate::fs::fields as f;
+    use crate::output::cell::{DisplayWidth, TextCell};
 
     use ansiterm::Colour::*;
     use ansiterm::Style;
 
-
     struct TestColours;
 
     impl Colours for TestColours {
-        fn not_modified(&self) -> Style { Fixed(90).normal() }
-        fn new(&self)          -> Style { Fixed(91).normal() }
-        fn modified(&self)     -> Style { Fixed(92).normal() }
-        fn deleted(&self)      -> Style { Fixed(93).normal() }
-        fn renamed(&self)      -> Style { Fixed(94).normal() }
-        fn type_change(&self)  -> Style { Fixed(95).normal() }
-        fn ignored(&self)      -> Style { Fixed(96).normal() }
-        fn conflicted(&self)   -> Style { Fixed(97).normal() }
+        fn not_modified(&self) -> Style {
+            Fixed(90).normal()
+        }
+        fn new(&self) -> Style {
+            Fixed(91).normal()
+        }
+        fn modified(&self) -> Style {
+            Fixed(92).normal()
+        }
+        fn deleted(&self) -> Style {
+            Fixed(93).normal()
+        }
+        fn renamed(&self) -> Style {
+            Fixed(94).normal()
+        }
+        fn type_change(&self) -> Style {
+            Fixed(95).normal()
+        }
+        fn ignored(&self) -> Style {
+            Fixed(96).normal()
+        }
+        fn conflicted(&self) -> Style {
+            Fixed(97).normal()
+        }
     }
-
 
     #[test]
     fn git_blank() {
         let stati = f::Git {
-            staged:   f::GitStatus::NotModified,
+            staged: f::GitStatus::NotModified,
             unstaged: f::GitStatus::NotModified,
         };
 
         let expected = TextCell {
             width: DisplayWidth::from(2),
-            contents: vec![
-                Fixed(90).paint("-"),
-                Fixed(90).paint("-"),
-            ].into(),
+            contents: vec![Fixed(90).paint("-"), Fixed(90).paint("-")].into(),
         };
 
         assert_eq!(expected, stati.render(&TestColours))
     }
 
-
     #[test]
     fn git_new_changed() {
         let stati = f::Git {
-            staged:   f::GitStatus::New,
+            staged: f::GitStatus::New,
             unstaged: f::GitStatus::Modified,
         };
 
         let expected = TextCell {
             width: DisplayWidth::from(2),
-            contents: vec![
-                Fixed(91).paint("N"),
-                Fixed(92).paint("M"),
-            ].into(),
+            contents: vec![Fixed(91).paint("N"), Fixed(92).paint("M")].into(),
         };
 
         assert_eq!(expected, stati.render(&TestColours))
