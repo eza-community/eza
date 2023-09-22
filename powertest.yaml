@@ -1,6 +1,7 @@
 dump_dir: tests/ptests
 depth: 1
 binary: eza
+gen_binary: target/debug/eza
 args: tests/itest
 commands:
   ? - null
@@ -17,9 +18,11 @@ commands:
       - never
   ? - null
     - --icons
-  ? - L
+  ? - -L
     - --level
-  : values:
+  : prefix:
+      --tree
+    values:
       - 1
       - 2
       - 3
