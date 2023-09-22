@@ -178,11 +178,9 @@ impl Column {
 
     #[cfg(windows)]
     pub fn alignment(self) -> Alignment {
-        #[rustfmt::skip]
         match self {
-            Self::FileSize   |
-            Self::GitStatus  => Alignment::Right,
-            _                => Alignment::Left,
+            Self::FileSize | Self::GitStatus => Alignment::Right,
+            _ => Alignment::Left,
         }
     }
 

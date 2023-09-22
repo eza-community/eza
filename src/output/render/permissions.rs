@@ -143,12 +143,11 @@ impl f::Attributes {
             }
         };
 
-        #[rustfmt::skip]
         vec![
-            bit(self.archive,   "a", colours.normal()),
-            bit(self.readonly,  "r", colours.user_read()),
-            bit(self.hidden,    "h", colours.special_user_file()),
-            bit(self.system,    "s", colours.special_other()),
+            bit(self.archive, "a", colours.normal()),
+            bit(self.readonly, "r", colours.user_read()),
+            bit(self.hidden, "h", colours.special_user_file()),
+            bit(self.system, "s", colours.special_other()),
         ]
     }
 
