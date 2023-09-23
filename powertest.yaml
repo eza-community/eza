@@ -28,7 +28,7 @@ commands:
       - 3
       - 4
       - 5
-  ? - w
+  ? - -w
     - --width
   : values:
       - 1
@@ -36,6 +36,20 @@ commands:
       - 3
       - 4
       - 5
+  ? - -t
+    - --time
+  : prefix: -l
+    values:
+      - modified
+      - accessed
+      - changed
+      - created
+  # TODO: add more globs
+  ? - -I
+    - --ignore-glob
+  : prefix: -l
+    values:
+      - "*.toml"
   ? - null
     - --time-style
   : long: time-style
@@ -49,6 +63,7 @@ commands:
     - --sort
   : short: -s
     long: time-style
+    prefix: -l
     values:
       - accessed
       - age
