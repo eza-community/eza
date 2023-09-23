@@ -462,7 +462,6 @@ impl<'a> Table<'a> {
                     .render(self.theme, &*self.env.lock_users(), self.user_format)
             }
             #[cfg(unix)]
-<<<<<<< HEAD
             Column::SecurityContext => {
                 file.security_context().render(self.theme)
             }
@@ -472,12 +471,6 @@ impl<'a> Table<'a> {
             Column::SubdirGitRepo(status) => {
                 self.subdir_git_repo(file, status).render(self.theme)
             }
-=======
-            Column::SecurityContext => file.security_context().render(self.theme),
-            Column::GitStatus => self.git_status(file).render(self.theme),
-            Column::SubdirGitRepoStatus => self.subdir_git_repo(file, true).render(),
-            Column::SubdirGitRepoNoStatus => self.subdir_git_repo(file, false).render(),
->>>>>>> 516ee70a (fix: replace rustfmt::skip on expressions because experimental)
             #[cfg(unix)]
             Column::Octal => self.octal_permissions(file).render(self.theme.ui.octal),
 
