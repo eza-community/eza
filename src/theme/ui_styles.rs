@@ -126,10 +126,10 @@ pub struct GitRepo {
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct SELinuxContext {
     pub colon: Style,
-    pub user:  Style,  // Su
-    pub role:  Style,  // Sr
-    pub typ:   Style,  // St
-    pub range: Style,  // Sl
+    pub user: Style,  // Su
+    pub role: Style,  // Sr
+    pub typ: Style,   // St
+    pub range: Style, // Sl
 }
 
 #[rustfmt::skip]

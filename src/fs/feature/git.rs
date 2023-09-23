@@ -402,21 +402,30 @@ fn current_branch(repo: &git2::Repository) -> Option<String> {
     None
 }
 
-impl f::SubdirGitRepo{
-    pub fn from_path(dir : &Path, status : bool) -> Self{
+impl f::SubdirGitRepo {
+    pub fn from_path(dir: &Path, status: bool) -> Self {
         let path = &reorient(dir);
 
         if let Ok(repo) = git2::Repository::open(path) {
             let branch = current_branch(&repo);
-            if !status{
-                return Self{ status: None, branch };
+            if !status {
+                return Self {
+                    status: None,
+                    branch,
+                };
             }
             match repo.statuses(None) {
                 Ok(es) => {
                     if es.iter().any(|s| s.status() != git2::Status::IGNORED) {
-                        return Self { status: Some(f::SubdirGitRepoStatus::GitDirty), branch };
+                        return Self {
+                            status: Some(f::SubdirGitRepoStatus::GitDirty),
+                            branch,
+                        };
                     }
-                    return Self { status: Some(f::SubdirGitRepoStatus::GitClean), branch };
+                    return Self {
+                        status: Some(f::SubdirGitRepoStatus::GitClean),
+                        branch,
+                    };
                 }
                 Err(e) => {
                     error!("Error looking up Git statuses: {e:?}");
@@ -424,7 +433,11 @@ impl f::SubdirGitRepo{
             }
         }
         f::SubdirGitRepo {
-            status: if status { Some(f::SubdirGitRepoStatus::NoRepo) } else { None },
+            status: if status {
+                Some(f::SubdirGitRepoStatus::NoRepo)
+            } else {
+                None
+            },
             branch: None,
         }
     }

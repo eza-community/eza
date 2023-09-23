@@ -462,15 +462,9 @@ impl<'a> Table<'a> {
                     .render(self.theme, &*self.env.lock_users(), self.user_format)
             }
             #[cfg(unix)]
-            Column::SecurityContext => {
-                file.security_context().render(self.theme)
-            }
-            Column::GitStatus => {
-                self.git_status(file).render(self.theme)
-            }
-            Column::SubdirGitRepo(status) => {
-                self.subdir_git_repo(file, status).render(self.theme)
-            }
+            Column::SecurityContext => file.security_context().render(self.theme),
+            Column::GitStatus => self.git_status(file).render(self.theme),
+            Column::SubdirGitRepo(status) => self.subdir_git_repo(file, status).render(self.theme),
             #[cfg(unix)]
             Column::Octal => self.octal_permissions(file).render(self.theme.ui.octal),
 

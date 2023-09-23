@@ -261,16 +261,16 @@ pub enum SubdirGitRepoStatus {
 }
 
 #[derive(Clone)]
-pub struct SubdirGitRepo{
-    pub status : Option<SubdirGitRepoStatus>,
-    pub branch : Option<String>
+pub struct SubdirGitRepo {
+    pub status: Option<SubdirGitRepoStatus>,
+    pub branch: Option<String>,
 }
 
 impl Default for SubdirGitRepo {
     fn default() -> Self {
-        Self{
+        Self {
             status: Some(SubdirGitRepoStatus::NoRepo),
-            branch: None
+            branch: None,
         }
     }
 }

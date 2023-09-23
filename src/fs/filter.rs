@@ -8,7 +8,6 @@ use std::os::unix::fs::MetadataExt;
 use crate::fs::DotFilter;
 use crate::fs::File;
 
-
 /// Flags used to manage the **file filter** process
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum FileFilterFlags {
@@ -21,7 +20,7 @@ pub enum FileFilterFlags {
     OnlyDirs,
 
     /// Whether to only show files.
-    OnlyFiles
+    OnlyFiles,
 }
 
 /// The **file filter** processes a list of files before displaying them to
@@ -79,7 +78,10 @@ impl FileFilter {
 
         files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
 
-        match (self.flags.contains(&OnlyDirs), self.flags.contains(&OnlyFiles)) {
+        match (
+            self.flags.contains(&OnlyDirs),
+            self.flags.contains(&OnlyFiles),
+        ) {
             (true, false) => {
                 // On pass -'-only-dirs' flag only
                 files.retain(File::is_directory);

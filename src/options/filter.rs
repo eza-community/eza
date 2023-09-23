@@ -1,6 +1,8 @@
 //! Parsing the options for `FileFilter`.
 
-use crate::fs::filter::{FileFilter, FileFilterFlags, GitIgnore, IgnorePatterns, SortCase, SortField};
+use crate::fs::filter::{
+    FileFilter, FileFilterFlags, GitIgnore, IgnorePatterns, SortCase, SortField,
+};
 use crate::fs::DotFilter;
 
 use crate::options::parser::MatchedFlags;
@@ -10,9 +12,9 @@ impl FileFilter {
     /// Determines which of all the file filter options to use.
     pub fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
         use FileFilterFlags as FFF;
-        let mut filter_flags:Vec<FileFilterFlags> = vec![];
+        let mut filter_flags: Vec<FileFilterFlags> = vec![];
 
-        for (has,flag) in &[
+        for (has, flag) in &[
             (matches.has(&flags::REVERSE)?, FFF::Reverse),
             (matches.has(&flags::ONLY_DIRS)?, FFF::OnlyDirs),
             (matches.has(&flags::ONLY_FILES)?, FFF::OnlyFiles),
