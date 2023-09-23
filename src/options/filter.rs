@@ -40,10 +40,14 @@ impl SortField {
     /// Returns the default sort field if none is given, or `Err` if the
     /// value doesn’t correspond to a sort field we know about.
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let Some(word) = matches.get(&flags::SORT)? else { return Ok(Self::default()) };
+        let Some(word) = matches.get(&flags::SORT)? else {
+            return Ok(Self::default());
+        };
 
         // Get String because we can’t match an OsStr
-        let Some(word) = word.to_str() else { return Err(OptionsError::BadArgument(&flags::SORT, word.into())) };
+        let Some(word) = word.to_str() else {
+            return Err(OptionsError::BadArgument(&flags::SORT, word.into()));
+        };
 
         let field = match word {
             "name" | "filename" => Self::Name(SortCase::AaBbCc),
@@ -160,7 +164,9 @@ impl IgnorePatterns {
     pub fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
         // If there are no inputs, we return a set of patterns that doesn’t
         // match anything, rather than, say, `None`.
-        let Some(inputs) = matches.get(&flags::IGNORE_GLOB)? else { return Ok(Self::empty()) };
+        let Some(inputs) = matches.get(&flags::IGNORE_GLOB)? else {
+            return Ok(Self::empty());
+        };
 
         // Awkwardly, though, a glob pattern can be invalid, and we need to
         // deal with invalid patterns somehow.
