@@ -10,9 +10,6 @@ use crate::output::escape;
 use crate::output::icons::{icon_for_file, iconify_style};
 use crate::output::render::FiletypeColours;
 
-const HYPERLINK_START: &str = "\x1B]8;;";
-const HYPERLINK_END: &str = "\x1B\x5C";
-
 /// Basically a file name factory.
 #[derive(Debug, Copy, Clone)]
 pub struct Options {
@@ -345,26 +342,25 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     /// So in that situation, those characters will be escaped and highlighted in
     /// a different colour.
     fn escaped_file_name<'unused>(&self) -> Vec<ANSIString<'unused>> {
+        use percent_encoding::{CONTROLS, utf8_percent_encode};
+
+        const HYPERLINK_START: &str = "\x1B]8;;";
+        const HYPERLINK_END: &str = "\x1B\x5C";
+
         let file_style = self.style();
         let mut bits = Vec::new();
 
         let mut display_hyperlink = false;
         if self.options.embed_hyperlinks == EmbedHyperlinks::On {
             if let Some(abs_path) = self.file.absolute_path().and_then(|p| p.as_os_str().to_str()) {
-                #[cfg(not(target_os = "windows"))]
-                bits.insert(0, ANSIString::from(format!(
-                    "{}file://{}{}{}",
-                    HYPERLINK_START,
-                    gethostname::gethostname().to_str().unwrap_or(""),
-                    urlencoding::encode(abs_path).replace("%2F", "/"),
-                    HYPERLINK_END,
-                )));
+                let abs_path = utf8_percent_encode(abs_path, CONTROLS).to_string();
+
+                // On Windows, `std::fs::canonicalize` adds the Win32 File prefix, which we need to remove
                 #[cfg(target_os = "windows")]
-                bits.insert(0, ANSIString::from(format!(
-                    "{}file://{}{}",
-                    HYPERLINK_START,
-                    abs_path.replace("\\\\?\\", ""),
-                    HYPERLINK_END,
+                let abs_path = abs_path.strip_prefix("\\\\?\\").unwrap_or(&abs_path);
+
+                bits.push(ANSIString::from(format!(
+                    "{HYPERLINK_START}file://{abs_path}{HYPERLINK_END}"
                 )));
 
                 display_hyperlink = true;
