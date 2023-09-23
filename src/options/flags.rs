@@ -5,7 +5,6 @@ pub static VERSION: Arg = Arg { short: Some(b'v'), long: "version",  takes_value
 pub static HELP:    Arg = Arg { short: Some(b'?'), long: "help",     takes_value: TakesValue::Forbidden };
 
 // display options
-
 pub static ONE_LINE:    Arg = Arg { short: Some(b'1'), long: "oneline",     takes_value: TakesValue::Forbidden };
 pub static LONG:        Arg = Arg { short: Some(b'l'), long: "long",        takes_value: TakesValue::Forbidden };
 pub static GRID:        Arg = Arg { short: Some(b'G'), long: "grid",        takes_value: TakesValue::Forbidden };
@@ -16,7 +15,6 @@ pub static CLASSIFY:    Arg = Arg { short: Some(b'F'), long: "classify",    take
 pub static DEREF_LINKS: Arg = Arg { short: Some(b'X'), long: "dereference", takes_value: TakesValue::Forbidden };
 pub static WIDTH:       Arg = Arg { short: Some(b'w'), long: "width",       takes_value: TakesValue::Necessary(None) };
 pub static NO_QUOTES:Arg = Arg { short: None,          long: "no-quotes",takes_value: TakesValue::Forbidden };
-
 
 pub static COLOR:  Arg = Arg { short: None, long: "color",  takes_value: TakesValue::Necessary(Some(COLOURS)) };
 pub static COLOUR: Arg = Arg { short: None, long: "colour", takes_value: TakesValue::Necessary(Some(COLOURS)) };
