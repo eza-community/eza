@@ -273,6 +273,14 @@ impl render::GitColours for Theme {
     fn conflicted(&self)    -> Style { self.ui.git.conflicted }
 }
 
+impl render::GitRepoColours for Theme {
+    fn branch_main(&self) -> Style { self.ui.git_repo.branch_main }
+    fn branch_other(&self) -> Style { self.ui.git_repo.branch_other }
+    fn no_repo(&self) -> Style { self.ui.punctuation }
+    fn git_clean(&self) -> Style { self.ui.git_repo.git_clean }
+    fn git_dirty(&self) -> Style { self.ui.git_repo.git_dirty }
+}
+
 #[cfg(unix)]
 impl render::GroupColours for Theme {
     fn yours(&self)      -> Style { self.ui.users.group_yours }

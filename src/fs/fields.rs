@@ -271,20 +271,19 @@ pub enum SubdirGitRepoStatus{
     NoRepo,
     GitClean,
     GitDirty,
-    GitUnknown
 }
 
 #[derive(Clone)]
 pub struct SubdirGitRepo{
-    pub status : SubdirGitRepoStatus,
+    pub status : Option<SubdirGitRepoStatus>,
     pub branch : Option<String>
 }
 
 impl Default for SubdirGitRepo{
     fn default() -> Self {
         Self{
-            status : SubdirGitRepoStatus::NoRepo,
-            branch : None
+            status: Some(SubdirGitRepoStatus::NoRepo),
+            branch: None
         }
     }
 }

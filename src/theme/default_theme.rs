@@ -67,6 +67,13 @@ impl UiStyles {
                 conflicted:  Red.normal(),
             },
 
+            git_repo: GitRepo {
+                branch_main: Green.normal(),
+                branch_other: Yellow.normal(),
+                git_clean: Green.normal(),
+                git_dirty: Yellow.bold(),
+            },
+
             security_context: SecurityContext {
                 none:       Style::default(),
                 selinux: SELinuxContext {

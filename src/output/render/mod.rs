@@ -8,6 +8,7 @@ pub use self::filetype::Colours as FiletypeColours;
 
 mod git;
 pub use self::git::Colours as GitColours;
+pub use self::git::RepoColours as GitRepoColours;
 
 #[cfg(unix)]
 mod groups;

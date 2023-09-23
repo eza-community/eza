@@ -1,4 +1,4 @@
-use ansiterm::{ANSIString, Style, Color};
+use ansiterm::{ANSIString, Style};
 
 use crate::output::cell::{TextCell, DisplayWidth};
 use crate::fs::fields as f;
@@ -12,32 +12,6 @@ impl f::Git {
                 self.staged.render(colours),
                 self.unstaged.render(colours),
             ].into(),
-        }
-    }
-}
-
-impl f::SubdirGitRepo {
-    pub fn render(self) -> TextCell {
-        let style = Style::new();
-        let branch_style = match self.branch.as_deref(){
-            Some("master") => style.fg(Color::Green),
-            Some("main") => style.fg(Color::Green),
-            Some(_) => style.fg(Color::Fixed(208)),
-            _ => style,
-        };
-        
-        let branch = branch_style.paint(self.branch.unwrap_or(String::from("-")));
-
-        let s = match self.status {
-            f::SubdirGitRepoStatus::NoRepo => style.paint("- "),
-            f::SubdirGitRepoStatus::GitClean => style.fg(Color::Green).paint("| "),
-            f::SubdirGitRepoStatus::GitDirty => style.bold().fg(Color::Red).paint("+ "),
-            f::SubdirGitRepoStatus::GitUnknown => style.fg(Color::Green).bold().paint("~ "),
-        };
-
-        TextCell {
-            width: DisplayWidth::from(2 + branch.len()),
-            contents: vec![s,branch].into(),
         }
     }
 }
@@ -57,7 +31,6 @@ impl f::GitStatus {
     }
 }
 
-
 pub trait Colours {
     fn not_modified(&self) -> Style;
     // FIXME: this amount of allows needed to keep clippy happy should be enough
@@ -70,6 +43,53 @@ pub trait Colours {
     fn type_change(&self) -> Style;
     fn ignored(&self) -> Style;
     fn conflicted(&self) -> Style;
+}
+
+
+impl f::SubdirGitRepo {
+    pub fn render(self, colours: &dyn RepoColours) -> TextCell {
+        let branch_name = match self.branch {
+            Some(name) => {
+                if name == "main" || name == "master" { colours.branch_main().paint(name) }
+                else { colours.branch_other().paint(name) }
+            },
+            None => colours.no_repo().paint("-"),
+        };
+
+        if let Some(status) = self.status {
+            TextCell {
+                width: DisplayWidth::from(2) + DisplayWidth::from(branch_name.as_str()),
+                contents: vec![
+                    status.render(colours),
+                    Style::default().paint(" "),
+                    branch_name,
+                ].into(),
+            }
+        } else {
+            TextCell {
+                width: DisplayWidth::from(branch_name.as_str()),
+                contents: vec![branch_name].into(),
+            }
+        }
+    }
+}
+
+impl f::SubdirGitRepoStatus {
+    pub fn render(self, colours: &dyn RepoColours) -> ANSIString<'static> {
+        match self {
+            Self::NoRepo => colours.no_repo().paint("-"),
+            Self::GitClean => colours.git_clean().paint("|"),
+            Self::GitDirty => colours.git_dirty().paint("+"),
+        }
+    }
+}
+
+pub trait RepoColours {
+    fn branch_main(&self) -> Style;
+    fn branch_other(&self) -> Style;
+    fn no_repo(&self) -> Style;
+    fn git_clean(&self) -> Style;
+    fn git_dirty(&self) -> Style;
 }
 
 
