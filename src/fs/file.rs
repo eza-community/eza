@@ -456,15 +456,19 @@ impl<'dir> File<'dir> {
             f::Size::None
         }
         else if self.is_char_device() || self.is_block_device() {
-            let device_ids = self.metadata.rdev().to_be_bytes();
+            let device_id = self.metadata.rdev();
 
-            // In C-land, getting the major and minor device IDs is done with
-            // preprocessor macros called `major` and `minor` that depend on
-            // the size of `dev_t`, but we just take the second-to-last and
-            // last bytes.
+            // MacOS and Linux have different arguments and return types for the
+            // functions major and minor.  On Linux the try_into().unwrap() and
+            // the "as u32" cast are not needed.  We turn off the warning to
+            // allow it to compile cleanly on Linux.
+            #[allow(trivial_numeric_casts)]
+            #[allow(clippy::unnecessary_cast)]
+            #[allow(clippy::useless_conversion)]
             f::Size::DeviceIDs(f::DeviceIDs {
-                major: device_ids[6],
-                minor: device_ids[7],
+                // SAFETY: Calling libc function to decompose the device_id
+                major: unsafe { libc::major(device_id.try_into().unwrap()) } as u32,
+                minor: unsafe { libc::minor(device_id.try_into().unwrap()) } as u32,
             })
         }
         else if self.is_link() && self.deref_links {
