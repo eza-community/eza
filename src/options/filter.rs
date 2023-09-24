@@ -1,109 +1,83 @@
 //! Parsing the options for `FileFilter`.
 
+use crate::fs::filter::{
+    FileFilter, FileFilterFlags, GitIgnore, IgnorePatterns, SortCase, SortField,
+};
 use crate::fs::DotFilter;
-use crate::fs::filter::{FileFilter,FileFilterFlags, SortField, SortCase, IgnorePatterns, GitIgnore};
 
-use crate::options::{flags, OptionsError};
 use crate::options::parser::MatchedFlags;
-
+use crate::options::{flags, OptionsError};
 
 impl FileFilter {
-
     /// Determines which of all the file filter options to use.
     pub fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
         use FileFilterFlags as FFF;
-        let mut filter_flags:Vec<FileFilterFlags> = vec![];
-            
-        for (has,flag) in &[
+        let mut filter_flags: Vec<FileFilterFlags> = vec![];
+
+        for (has, flag) in &[
             (matches.has(&flags::REVERSE)?, FFF::Reverse),
             (matches.has(&flags::ONLY_DIRS)?, FFF::OnlyDirs),
             (matches.has(&flags::ONLY_FILES)?, FFF::OnlyFiles),
         ] {
-            if *has { 
+            if *has {
                 filter_flags.push(flag.clone());
             }
         }
 
-        Ok(Self {
+        #[rustfmt::skip]
+        return Ok(Self {
             list_dirs_first:  matches.has(&flags::DIRS_FIRST)?,
             flags: filter_flags,
             sort_field:       SortField::deduce(matches)?,
             dot_filter:       DotFilter::deduce(matches)?,
             ignore_patterns:  IgnorePatterns::deduce(matches)?,
             git_ignore:       GitIgnore::deduce(matches)?,
-        })
+        });
     }
 }
 
 impl SortField {
-
     /// Determines which sort field to use based on the `--sort` argument.
     /// This argument’s value can be one of several flags, listed above.
     /// Returns the default sort field if none is given, or `Err` if the
     /// value doesn’t correspond to a sort field we know about.
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let Some(word) = matches.get(&flags::SORT)? else { return Ok(Self::default()) };
+        let Some(word) = matches.get(&flags::SORT)? else {
+            return Ok(Self::default());
+        };
 
         // Get String because we can’t match an OsStr
-        let Some(word) = word.to_str() else { return Err(OptionsError::BadArgument(&flags::SORT, word.into())) };
+        let Some(word) = word.to_str() else {
+            return Err(OptionsError::BadArgument(&flags::SORT, word.into()));
+        };
 
         let field = match word {
-            "name" | "filename" => {
-                Self::Name(SortCase::AaBbCc)
-            }
-            "Name" | "Filename" => {
-                Self::Name(SortCase::ABCabc)
-            }
-            ".name" | ".filename" => {
-                Self::NameMixHidden(SortCase::AaBbCc)
-            }
-            ".Name" | ".Filename" => {
-                Self::NameMixHidden(SortCase::ABCabc)
-            }
-            "size" | "filesize" => {
-                Self::Size
-            }
-            "ext" | "extension" => {
-                Self::Extension(SortCase::AaBbCc)
-            }
-            "Ext" | "Extension" => {
-                Self::Extension(SortCase::ABCabc)
-            }
+            "name" | "filename" => Self::Name(SortCase::AaBbCc),
+            "Name" | "Filename" => Self::Name(SortCase::ABCabc),
+            ".name" | ".filename" => Self::NameMixHidden(SortCase::AaBbCc),
+            ".Name" | ".Filename" => Self::NameMixHidden(SortCase::ABCabc),
+            "size" | "filesize" => Self::Size,
+            "ext" | "extension" => Self::Extension(SortCase::AaBbCc),
+            "Ext" | "Extension" => Self::Extension(SortCase::ABCabc),
 
             // “new” sorts oldest at the top and newest at the bottom; “old”
             // sorts newest at the top and oldest at the bottom. I think this
             // is the right way round to do this: “size” puts the smallest at
             // the top and the largest at the bottom, doesn’t it?
-            "date" | "time" | "mod" | "modified" | "new" | "newest" => {
-                Self::ModifiedDate
-            }
+            "date" | "time" | "mod" | "modified" | "new" | "newest" => Self::ModifiedDate,
 
             // Similarly, “age” means that files with the least age (the
             // newest files) get sorted at the top, and files with the most
             // age (the oldest) at the bottom.
-            "age" | "old" | "oldest" => {
-                Self::ModifiedAge
-            }
+            "age" | "old" | "oldest" => Self::ModifiedAge,
 
-            "ch" | "changed" => {
-                Self::ChangedDate
-            }
-            "acc" | "accessed" => {
-                Self::AccessedDate
-            }
-            "cr" | "created" => {
-                Self::CreatedDate
-            }
+            "ch" | "changed" => Self::ChangedDate,
+            "acc" | "accessed" => Self::AccessedDate,
+            "cr" | "created" => Self::CreatedDate,
             #[cfg(unix)]
-            "inode" => {
-                Self::FileInode
-            }
-            "type" => {
-                Self::FileType
-            }
-            "none" => {
-                Self::Unsorted
-            }
+            "inode" => Self::FileInode,
+            "type" => Self::FileType,
+            "none" => Self::Unsorted,
             _ => {
                 return Err(OptionsError::BadArgument(&flags::SORT, word.into()));
             }
@@ -112,7 +86,6 @@ impl SortField {
         Ok(field)
     }
 }
-
 
 // I’ve gone back and forth between whether to sort case-sensitively or
 // insensitively by default. The default string sort in most programming
@@ -151,9 +124,7 @@ impl Default for SortField {
     }
 }
 
-
 impl DotFilter {
-
     /// Determines the dot filter based on how many `--all` options were
     /// given: one will show dotfiles, but two will show `.` and `..` too.
     /// --almost-all is equivalent to --all, included for compatibility with
@@ -175,28 +146,29 @@ impl DotFilter {
             // either a single --all or at least one --almost-all is given
             (1, _) | (0, true) => Ok(Self::Dotfiles),
             // more than one --all
-            (c, _) => if matches.count(&flags::TREE) > 0 {
-                Err(OptionsError::TreeAllAll)
-            } else if matches.is_strict() && c > 2 {
-                Err(OptionsError::Conflict(&flags::ALL, &flags::ALL))
-            } else {
-                Ok(Self::DotfilesAndDots)
-            },
+            (c, _) => {
+                if matches.count(&flags::TREE) > 0 {
+                    Err(OptionsError::TreeAllAll)
+                } else if matches.is_strict() && c > 2 {
+                    Err(OptionsError::Conflict(&flags::ALL, &flags::ALL))
+                } else {
+                    Ok(Self::DotfilesAndDots)
+                }
+            }
         }
     }
 }
 
-
 impl IgnorePatterns {
-
     /// Determines the set of glob patterns to use based on the
     /// `--ignore-glob` argument’s value. This is a list of strings
     /// separated by pipe (`|`) characters, given in any order.
     pub fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-
         // If there are no inputs, we return a set of patterns that doesn’t
         // match anything, rather than, say, `None`.
-        let Some(inputs) = matches.get(&flags::IGNORE_GLOB)? else { return Ok(Self::empty()) };
+        let Some(inputs) = matches.get(&flags::IGNORE_GLOB)? else {
+            return Ok(Self::empty());
+        };
 
         // Awkwardly, though, a glob pattern can be invalid, and we need to
         // deal with invalid patterns somehow.
@@ -205,31 +177,28 @@ impl IgnorePatterns {
         // It can actually return more than one glob error,
         // but we only use one. (TODO)
         match errors.pop() {
-            Some(e)  => Err(e.into()),
-            None     => Ok(patterns),
+            Some(e) => Err(e.into()),
+            None => Ok(patterns),
         }
     }
 }
-
 
 impl GitIgnore {
     pub fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
         if matches.has(&flags::GIT_IGNORE)? {
             Ok(Self::CheckAndIgnore)
-        }
-        else {
+        } else {
             Ok(Self::Off)
         }
     }
 }
 
-
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::ffi::OsString;
     use crate::options::flags;
     use crate::options::parser::Flag;
+    use std::ffi::OsString;
 
     macro_rules! test {
         ($name:ident: $type:ident <- $inputs:expr; $stricts:expr => $result:expr) => {
@@ -239,8 +208,17 @@ mod test {
                 use crate::options::test::parse_for_test;
                 use crate::options::test::Strictnesses::*;
 
-                static TEST_ARGS: &[&Arg] = &[ &flags::SORT, &flags::ALL, &flags::ALMOST_ALL, &flags::TREE, &flags::IGNORE_GLOB, &flags::GIT_IGNORE ];
-                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| $type::deduce(mf)) {
+                static TEST_ARGS: &[&Arg] = &[
+                    &flags::SORT,
+                    &flags::ALL,
+                    &flags::ALMOST_ALL,
+                    &flags::TREE,
+                    &flags::IGNORE_GLOB,
+                    &flags::GIT_IGNORE,
+                ];
+                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| {
+                    $type::deduce(mf)
+                }) {
                     assert_eq!(result, $result);
                 }
             }
@@ -278,7 +256,6 @@ mod test {
         test!(overridden_4:  SortField <- ["--sort", "none",  "--sort=Extension"];  Complain => Err(OptionsError::Duplicate(Flag::Long("sort"), Flag::Long("sort"))));
     }
 
-
     mod dot_filters {
         use super::*;
 
@@ -304,7 +281,6 @@ mod test {
         test!(almost_all_all_2: DotFilter <- ["-Aaa"];         Both => Ok(DotFilter::DotfilesAndDots));
     }
 
-
     mod ignore_patterns {
         use super::*;
         use std::iter::FromIterator;
@@ -325,7 +301,6 @@ mod test {
         test!(overridden_3: IgnorePatterns <- ["-I=*.ogg",    "-I", "*.mp3"];  Complain => Err(OptionsError::Duplicate(Flag::Short(b'I'), Flag::Short(b'I'))));
         test!(overridden_4: IgnorePatterns <- ["-I", "*.OGG", "-I*.MP3"];      Complain => Err(OptionsError::Duplicate(Flag::Short(b'I'), Flag::Short(b'I'))));
     }
-
 
     mod git_ignores {
         use super::*;

@@ -14,12 +14,11 @@ use log::*;
 
 use crate::fs::dir::Dir;
 use crate::fs::feature::xattr;
-use crate::fs::feature::xattr::{FileAttributes, Attribute};
+use crate::fs::feature::xattr::{Attribute, FileAttributes};
 use crate::fs::fields as f;
 
 use super::mounts::all_mounts;
 use super::mounts::MountedFs;
-
 
 /// A **File** is a wrapper around one of Rust’s `PathBuf` values, along with
 /// associated data about the file.
@@ -29,7 +28,6 @@ use super::mounts::MountedFs;
 /// information queried at least once, so it makes sense to do all this at the
 /// start and hold on to all the information.
 pub struct File<'dir> {
-
     /// The filename portion of this file’s path, including the extension.
     ///
     /// This is used to compare against certain filenames (such as checking if
@@ -89,48 +87,84 @@ pub struct File<'dir> {
 }
 
 impl<'dir> File<'dir> {
-    pub fn from_args<PD, FN>(path: PathBuf, parent_dir: PD, filename: FN, deref_links: bool) -> io::Result<File<'dir>>
-    where PD: Into<Option<&'dir Dir>>,
-          FN: Into<Option<String>>
+    pub fn from_args<PD, FN>(
+        path: PathBuf,
+        parent_dir: PD,
+        filename: FN,
+        deref_links: bool,
+    ) -> io::Result<File<'dir>>
+    where
+        PD: Into<Option<&'dir Dir>>,
+        FN: Into<Option<String>>,
     {
         let parent_dir = parent_dir.into();
-        let name       = filename.into().unwrap_or_else(|| File::filename(&path));
-        let ext        = File::ext(&path);
+        let name = filename.into().unwrap_or_else(|| File::filename(&path));
+        let ext = File::ext(&path);
 
         debug!("Statting file {:?}", &path);
-        let metadata   = std::fs::symlink_metadata(&path)?;
+        let metadata = std::fs::symlink_metadata(&path)?;
         let is_all_all = false;
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
 
-        Ok(File { name, ext, path, metadata, parent_dir, is_all_all, deref_links, extended_attributes, absolute_path })
+        Ok(File {
+            name,
+            ext,
+            path,
+            metadata,
+            parent_dir,
+            is_all_all,
+            deref_links,
+            extended_attributes,
+            absolute_path,
+        })
     }
 
     pub fn new_aa_current(parent_dir: &'dir Dir) -> io::Result<File<'dir>> {
-        let path       = parent_dir.path.clone();
-        let ext        = File::ext(&path);
+        let path = parent_dir.path.clone();
+        let ext = File::ext(&path);
 
         debug!("Statting file {:?}", &path);
-        let metadata   = std::fs::symlink_metadata(&path)?;
+        let metadata = std::fs::symlink_metadata(&path)?;
         let is_all_all = true;
         let parent_dir = Some(parent_dir);
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
 
-        Ok(File { path, parent_dir, metadata, ext, name: ".".into(), is_all_all, deref_links: false, extended_attributes, absolute_path })
+        Ok(File {
+            path,
+            parent_dir,
+            metadata,
+            ext,
+            name: ".".into(),
+            is_all_all,
+            deref_links: false,
+            extended_attributes,
+            absolute_path,
+        })
     }
 
     pub fn new_aa_parent(path: PathBuf, parent_dir: &'dir Dir) -> io::Result<File<'dir>> {
-        let ext        = File::ext(&path);
+        let ext = File::ext(&path);
 
         debug!("Statting file {:?}", &path);
-        let metadata   = std::fs::symlink_metadata(&path)?;
+        let metadata = std::fs::symlink_metadata(&path)?;
         let is_all_all = true;
         let parent_dir = Some(parent_dir);
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
 
-        Ok(File { path, parent_dir, metadata, ext, name: "..".into(), is_all_all, deref_links: false, extended_attributes, absolute_path })
+        Ok(File {
+            path,
+            parent_dir,
+            metadata,
+            ext,
+            name: "..".into(),
+            is_all_all,
+            deref_links: false,
+            extended_attributes,
+            absolute_path,
+        })
     }
 
     /// A file’s name is derived from its string. This needs to handle directories
@@ -139,8 +173,7 @@ impl<'dir> File<'dir> {
     pub fn filename(path: &Path) -> String {
         if let Some(back) = path.components().next_back() {
             back.as_os_str().to_string_lossy().to_string()
-        }
-        else {
+        } else {
             // use the path as fallback
             error!("Path {:?} has no last component", path);
             path.display().to_string()
@@ -158,9 +191,7 @@ impl<'dir> File<'dir> {
     fn ext(path: &Path) -> Option<String> {
         let name = path.file_name().map(|f| f.to_string_lossy().to_string())?;
 
-        name.rfind('.')
-            .map(|p| name[p + 1 ..]
-            .to_ascii_lowercase())
+        name.rfind('.').map(|p| name[p + 1..].to_ascii_lowercase())
     }
 
     /// Read the extended attributes of a file path.
@@ -169,7 +200,11 @@ impl<'dir> File<'dir> {
             match path.symlink_attributes() {
                 Ok(xattrs) => xattrs,
                 Err(e) => {
-                    error!("Error looking up extended attributes for {}: {}", path.display(), e);
+                    error!(
+                        "Error looking up extended attributes for {}: {}",
+                        path.display(),
+                        e
+                    );
                     Vec::new()
                 }
             }
@@ -180,7 +215,8 @@ impl<'dir> File<'dir> {
 
     /// Get the extended attributes of a file path on demand.
     pub fn extended_attributes(&self) -> &Vec<Attribute> {
-        self.extended_attributes.get_or_init(||File::gather_extended_attributes(&self.path))
+        self.extended_attributes
+            .get_or_init(|| File::gather_extended_attributes(&self.path))
     }
 
     /// Whether this file is a directory on the filesystem.
@@ -261,19 +297,23 @@ impl<'dir> File<'dir> {
 
     /// Determine the full path resolving all symbolic links on demand.
     pub fn absolute_path(&self) -> Option<&PathBuf> {
-        self.absolute_path.get_or_init(|| std::fs::canonicalize(&self.path).ok()).as_ref()
+        self.absolute_path
+            .get_or_init(|| std::fs::canonicalize(&self.path).ok())
+            .as_ref()
     }
 
     /// Whether this file is a mount point
     pub fn is_mount_point(&self) -> bool {
-        cfg!(any(target_os = "linux", target_os = "macos")) &&
-            self.is_directory() &&
-            self.absolute_path().is_some_and(|p| all_mounts().contains_key(p))
+        cfg!(any(target_os = "linux", target_os = "macos"))
+            && self.is_directory()
+            && self
+                .absolute_path()
+                .is_some_and(|p| all_mounts().contains_key(p))
     }
 
     /// The filesystem device and type for a mount point
     pub fn mount_point_info(&self) -> Option<&MountedFs> {
-        if cfg!(any(target_os = "linux",target_os = "macos")) {
+        if cfg!(any(target_os = "linux", target_os = "macos")) {
             return self.absolute_path().and_then(|p| all_mounts().get(p));
         }
         None
@@ -285,14 +325,11 @@ impl<'dir> File<'dir> {
     fn reorient_target_path(&self, path: &Path) -> PathBuf {
         if path.is_absolute() {
             path.to_path_buf()
-        }
-        else if let Some(dir) = self.parent_dir {
+        } else if let Some(dir) = self.parent_dir {
             dir.join(path)
-        }
-        else if let Some(parent) = self.path.parent() {
+        } else if let Some(parent) = self.path.parent() {
             parent.join(path)
-        }
-        else {
+        } else {
             self.path.join(path)
         }
     }
@@ -308,15 +345,14 @@ impl<'dir> File<'dir> {
     /// existed. If this file cannot be read at all, returns the error that
     /// we got when we tried to read it.
     pub fn link_target(&self) -> FileTarget<'dir> {
-
         // We need to be careful to treat the path actually pointed to by
         // this file — which could be absolute or relative — to the path
         // we actually look up and turn into a `File` — which needs to be
         // absolute to be accessible from any directory.
         debug!("Reading link {:?}", &self.path);
         let path = match std::fs::read_link(&self.path) {
-            Ok(p)   => p,
-            Err(e)  => return FileTarget::Err(e),
+            Ok(p) => p,
+            Err(e) => return FileTarget::Err(e),
         };
 
         let absolute_path = self.reorient_target_path(&path);
@@ -325,7 +361,7 @@ impl<'dir> File<'dir> {
         // follow links.
         match std::fs::metadata(&absolute_path) {
             Ok(metadata) => {
-                let ext  = File::ext(&path);
+                let ext = File::ext(&path);
                 let name = File::filename(&path);
                 let extended_attributes = OnceLock::new();
                 let absolute_path_cell = OnceLock::from(Some(absolute_path));
@@ -401,8 +437,7 @@ impl<'dir> File<'dir> {
             // for 512 byte blocks according to the POSIX standard
             // even though the physical block size may be different.
             f::Blocksize::Some(self.metadata.blocks() * 512)
-        }
-        else {
+        } else {
             f::Blocksize::None
         }
     }
@@ -413,8 +448,8 @@ impl<'dir> File<'dir> {
     pub fn user(&self) -> Option<f::User> {
         if self.is_link() && self.deref_links {
             match self.link_target_recurse() {
-               FileTarget::Ok(f) => return f.user(),
-               _ => return None,
+                FileTarget::Ok(f) => return f.user(),
+                _ => return None,
             }
         }
         Some(f::User(self.metadata.uid()))
@@ -425,8 +460,8 @@ impl<'dir> File<'dir> {
     pub fn group(&self) -> Option<f::Group> {
         if self.is_link() && self.deref_links {
             match self.link_target_recurse() {
-               FileTarget::Ok(f) => return f.group(),
-               _ => return None,
+                FileTarget::Ok(f) => return f.group(),
+                _ => return None,
             }
         }
         Some(f::Group(self.metadata.gid()))
@@ -454,8 +489,7 @@ impl<'dir> File<'dir> {
         }
         if self.is_directory() {
             f::Size::None
-        }
-        else if self.is_char_device() || self.is_block_device() {
+        } else if self.is_char_device() || self.is_block_device() {
             let device_id = self.metadata.rdev();
 
             // MacOS and Linux have different arguments and return types for the
@@ -470,11 +504,10 @@ impl<'dir> File<'dir> {
                 major: unsafe { libc::major(device_id.try_into().unwrap()) } as u32,
                 minor: unsafe { libc::minor(device_id.try_into().unwrap()) } as u32,
             })
-        }
-        else if self.is_link() && self.deref_links {
+        } else if self.is_link() && self.deref_links {
             match self.link_target() {
                 FileTarget::Ok(f) => f.size(),
-                _ => f::Size::None
+                _ => f::Size::None,
             }
         } else {
             f::Size::Some(self.metadata.len())
@@ -483,21 +516,20 @@ impl<'dir> File<'dir> {
 
     /// Returns the size of the file or indicates no size if it's a directory.
     ///
-    /// For Windows platforms, the size of directories is not computed and will 
+    /// For Windows platforms, the size of directories is not computed and will
     /// return `Size::None`.
     #[cfg(windows)]
     pub fn size(&self) -> f::Size {
         if self.is_directory() {
             f::Size::None
-        }
-        else {
+        } else {
             f::Size::Some(self.metadata.len())
         }
     }
 
     /// Determines if the directory is empty or not.
     ///
-    /// For Unix platforms, this function first checks the link count to quickly 
+    /// For Unix platforms, this function first checks the link count to quickly
     /// determine non-empty directories. On most UNIX filesystems the link count
     /// is two plus the number of subdirectories. If the link count is less than
     /// or equal to 2, it then checks the directory contents to determine if
@@ -524,8 +556,8 @@ impl<'dir> File<'dir> {
 
     /// Determines if the directory is empty or not.
     ///
-    /// For Windows platforms, this function checks the directory contents directly 
-    /// to determine if it's empty. Since certain filesystems on Windows make it 
+    /// For Windows platforms, this function checks the directory contents directly
+    /// to determine if it's empty. Since certain filesystems on Windows make it
     /// challenging to infer emptiness based on directory size, this approach is used.
     #[cfg(windows)]
     pub fn is_empty_dir(&self) -> bool {
@@ -538,7 +570,7 @@ impl<'dir> File<'dir> {
 
     /// Checks the contents of the directory to determine if it's empty.
     ///
-    /// This function avoids counting '.' and '..' when determining if the directory is 
+    /// This function avoids counting '.' and '..' when determining if the directory is
     /// empty. If any other entries are found, it returns `false`.
     ///
     /// The naive approach, as one would think that this info may have been cached.
@@ -548,7 +580,10 @@ impl<'dir> File<'dir> {
         trace!("is_empty_directory: reading dir");
         match Dir::read_dir(self.path.clone()) {
             // . & .. are skipped, if the returned iterator has .next(), it's not empty
-            Ok(has_files) => has_files.files(super::DotFilter::Dotfiles, None, false, false).next().is_none(),
+            Ok(has_files) => has_files
+                .files(super::DotFilter::Dotfiles, None, false, false)
+                .next()
+                .is_none(),
             Err(_) => false,
         }
     }
@@ -558,10 +593,13 @@ impl<'dir> File<'dir> {
         if self.is_link() && self.deref_links {
             return match self.link_target_recurse() {
                 FileTarget::Ok(f) => f.modified_time(),
-                _ => None, 
+                _ => None,
             };
         }
-        self.metadata.modified().map(|st| DateTime::<Utc>::from(st).naive_utc()).ok()
+        self.metadata
+            .modified()
+            .map(|st| DateTime::<Utc>::from(st).naive_utc())
+            .ok()
     }
 
     /// This file’s last changed timestamp, if available on this platform.
@@ -573,10 +611,7 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        NaiveDateTime::from_timestamp_opt(
-            self.metadata.ctime(),
-            self.metadata.ctime_nsec() as u32,
-        )
+        NaiveDateTime::from_timestamp_opt(self.metadata.ctime(), self.metadata.ctime_nsec() as u32)
     }
 
     #[cfg(windows)]
@@ -589,10 +624,13 @@ impl<'dir> File<'dir> {
         if self.is_link() && self.deref_links {
             return match self.link_target_recurse() {
                 FileTarget::Ok(f) => f.accessed_time(),
-                _ => None, 
+                _ => None,
             };
         }
-        self.metadata.accessed().map(|st| DateTime::<Utc>::from(st).naive_utc()).ok()
+        self.metadata
+            .accessed()
+            .map(|st| DateTime::<Utc>::from(st).naive_utc())
+            .ok()
     }
 
     /// This file’s created timestamp, if available on this platform.
@@ -603,7 +641,10 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        self.metadata.created().map(|st| DateTime::<Utc>::from(st).naive_utc()).ok()
+        self.metadata
+            .created()
+            .map(|st| DateTime::<Utc>::from(st).naive_utc())
+            .ok()
     }
 
     /// This file’s ‘type’.
@@ -615,26 +656,19 @@ impl<'dir> File<'dir> {
     pub fn type_char(&self) -> f::Type {
         if self.is_file() {
             f::Type::File
-        }
-        else if self.is_directory() {
+        } else if self.is_directory() {
             f::Type::Directory
-        }
-        else if self.is_pipe() {
+        } else if self.is_pipe() {
             f::Type::Pipe
-        }
-        else if self.is_link() {
+        } else if self.is_link() {
             f::Type::Link
-        }
-        else if self.is_char_device() {
+        } else if self.is_char_device() {
             f::Type::CharDevice
-        }
-        else if self.is_block_device() {
+        } else if self.is_block_device() {
             f::Type::BlockDevice
-        }
-        else if self.is_socket() {
+        } else if self.is_socket() {
             f::Type::Socket
-        }
-        else {
+        } else {
             f::Type::Special
         }
     }
@@ -643,11 +677,9 @@ impl<'dir> File<'dir> {
     pub fn type_char(&self) -> f::Type {
         if self.is_file() {
             f::Type::File
-        }
-        else if self.is_directory() {
+        } else if self.is_directory() {
             f::Type::Directory
-        }
-        else {
+        } else {
             f::Type::Special
         }
     }
@@ -660,29 +692,29 @@ impl<'dir> File<'dir> {
             // return the permissions of the original link, as would have been
             // done if we were not dereferencing.
             match self.link_target_recurse() {
-                FileTarget::Ok(f)   => return f.permissions(),
-                _                   => return None,
+                FileTarget::Ok(f) => return f.permissions(),
+                _ => return None,
             }
         }
         let bits = self.metadata.mode();
         let has_bit = |bit| bits & bit == bit;
 
         Some(f::Permissions {
-            user_read:      has_bit(modes::USER_READ),
-            user_write:     has_bit(modes::USER_WRITE),
-            user_execute:   has_bit(modes::USER_EXECUTE),
+            user_read: has_bit(modes::USER_READ),
+            user_write: has_bit(modes::USER_WRITE),
+            user_execute: has_bit(modes::USER_EXECUTE),
 
-            group_read:     has_bit(modes::GROUP_READ),
-            group_write:    has_bit(modes::GROUP_WRITE),
-            group_execute:  has_bit(modes::GROUP_EXECUTE),
+            group_read: has_bit(modes::GROUP_READ),
+            group_write: has_bit(modes::GROUP_WRITE),
+            group_execute: has_bit(modes::GROUP_EXECUTE),
 
-            other_read:     has_bit(modes::OTHER_READ),
-            other_write:    has_bit(modes::OTHER_WRITE),
-            other_execute:  has_bit(modes::OTHER_EXECUTE),
+            other_read: has_bit(modes::OTHER_READ),
+            other_write: has_bit(modes::OTHER_WRITE),
+            other_execute: has_bit(modes::OTHER_EXECUTE),
 
-            sticky:         has_bit(modes::STICKY),
-            setgid:         has_bit(modes::SETGID),
-            setuid:         has_bit(modes::SETUID),
+            sticky: has_bit(modes::STICKY),
+            setgid: has_bit(modes::SETGID),
+            setuid: has_bit(modes::SETUID),
         })
     }
 
@@ -693,26 +725,29 @@ impl<'dir> File<'dir> {
 
         // https://docs.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants
         f::Attributes {
-            directory:      has_bit(0x10),
-            archive:        has_bit(0x20),
-            readonly:       has_bit(0x1),
-            hidden:         has_bit(0x2),
-            system:         has_bit(0x4),
-            reparse_point:  has_bit(0x400),
+            directory: has_bit(0x10),
+            archive: has_bit(0x20),
+            readonly: has_bit(0x1),
+            hidden: has_bit(0x2),
+            system: has_bit(0x4),
+            reparse_point: has_bit(0x400),
         }
     }
 
     /// This file’s security context field.
     pub fn security_context(&self) -> f::SecurityContext<'_> {
-        let context = match self.extended_attributes().iter().find(|a| a.name == "security.selinux") {
+        let context = match self
+            .extended_attributes()
+            .iter()
+            .find(|a| a.name == "security.selinux")
+        {
             Some(attr) => f::SecurityContextType::SELinux(&attr.value),
-            None       => f::SecurityContextType::None
+            None => f::SecurityContextType::None,
         };
 
         f::SecurityContext { context }
     }
 }
-
 
 impl<'a> AsRef<File<'a>> for File<'a> {
     fn as_ref(&self) -> &File<'a> {
@@ -720,10 +755,8 @@ impl<'a> AsRef<File<'a>> for File<'a> {
     }
 }
 
-
 /// The result of following a symlink.
 pub enum FileTarget<'dir> {
-
     /// The symlink pointed at a file that exists.
     Ok(Box<File<'dir>>),
 
@@ -735,21 +768,18 @@ pub enum FileTarget<'dir> {
     /// file isn’t a link to begin with, but also if, say, we don’t have
     /// permission to follow it.
     Err(io::Error),
-
     // Err is its own variant, instead of having the whole thing be inside an
     // `io::Result`, because being unable to follow a symlink is not a serious
     // error — we just display the error message and move on.
 }
 
 impl<'dir> FileTarget<'dir> {
-
     /// Whether this link doesn’t lead to a file, for whatever reason. This
     /// gets used to determine how to highlight the link in grid views.
     pub fn is_broken(&self) -> bool {
         matches!(self, Self::Broken(_) | Self::Err(_))
     }
 }
-
 
 /// More readable aliases for the permission bits exposed by libc.
 #[allow(trivial_numeric_casts)]
@@ -760,23 +790,22 @@ mod modes {
     // from `metadata.permissions().mode()` is always `u32`.
     pub type Mode = u32;
 
-    pub const USER_READ: Mode     = libc::S_IRUSR as Mode;
-    pub const USER_WRITE: Mode    = libc::S_IWUSR as Mode;
-    pub const USER_EXECUTE: Mode  = libc::S_IXUSR as Mode;
+    pub const USER_READ: Mode = libc::S_IRUSR as Mode;
+    pub const USER_WRITE: Mode = libc::S_IWUSR as Mode;
+    pub const USER_EXECUTE: Mode = libc::S_IXUSR as Mode;
 
-    pub const GROUP_READ: Mode    = libc::S_IRGRP as Mode;
-    pub const GROUP_WRITE: Mode   = libc::S_IWGRP as Mode;
+    pub const GROUP_READ: Mode = libc::S_IRGRP as Mode;
+    pub const GROUP_WRITE: Mode = libc::S_IWGRP as Mode;
     pub const GROUP_EXECUTE: Mode = libc::S_IXGRP as Mode;
 
-    pub const OTHER_READ: Mode    = libc::S_IROTH as Mode;
-    pub const OTHER_WRITE: Mode   = libc::S_IWOTH as Mode;
+    pub const OTHER_READ: Mode = libc::S_IROTH as Mode;
+    pub const OTHER_WRITE: Mode = libc::S_IWOTH as Mode;
     pub const OTHER_EXECUTE: Mode = libc::S_IXOTH as Mode;
 
-    pub const STICKY: Mode        = libc::S_ISVTX as Mode;
-    pub const SETGID: Mode        = libc::S_ISGID as Mode;
-    pub const SETUID: Mode        = libc::S_ISUID as Mode;
+    pub const STICKY: Mode = libc::S_ISVTX as Mode;
+    pub const SETGID: Mode = libc::S_ISGID as Mode;
+    pub const SETUID: Mode = libc::S_ISUID as Mode;
 }
-
 
 #[cfg(test)]
 mod ext_test {
@@ -798,7 +827,6 @@ mod ext_test {
         assert_eq!(None, File::ext(Path::new("jarlsberg")))
     }
 }
-
 
 #[cfg(test)]
 mod filename_test {

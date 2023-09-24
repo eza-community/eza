@@ -3,28 +3,31 @@ use locale::Numeric as NumericLocale;
 use number_prefix::Prefix;
 
 use crate::fs::fields as f;
-use crate::output::cell::{TextCell, DisplayWidth};
+use crate::output::cell::{DisplayWidth, TextCell};
 use crate::output::table::SizeFormat;
 
-
 impl f::Blocksize {
-    pub fn render<C: Colours>(self, colours: &C, size_format: SizeFormat, numerics: &NumericLocale) -> TextCell {
+    pub fn render<C: Colours>(
+        self,
+        colours: &C,
+        size_format: SizeFormat,
+        numerics: &NumericLocale,
+    ) -> TextCell {
         use number_prefix::NumberPrefix;
 
         let size = match self {
-            Self::Some(s)             => s,
-            Self::None                => return TextCell::blank(colours.no_blocksize()),
+            Self::Some(s) => s,
+            Self::None => return TextCell::blank(colours.no_blocksize()),
         };
 
         let result = match size_format {
-            SizeFormat::DecimalBytes  => NumberPrefix::decimal(size as f64),
-            SizeFormat::BinaryBytes   => NumberPrefix::binary(size as f64),
-            SizeFormat::JustBytes     => {
-
+            SizeFormat::DecimalBytes => NumberPrefix::decimal(size as f64),
+            SizeFormat::BinaryBytes => NumberPrefix::binary(size as f64),
+            SizeFormat::JustBytes => {
                 // Use the binary prefix to select a style.
                 let prefix = match NumberPrefix::binary(size as f64) {
-                    NumberPrefix::Standalone(_)   => None,
-                    NumberPrefix::Prefixed(p, _)  => Some(p),
+                    NumberPrefix::Standalone(_) => None,
+                    NumberPrefix::Prefixed(p, _) => Some(p),
                 };
 
                 // But format the number directly using the locale.
@@ -35,8 +38,10 @@ impl f::Blocksize {
         };
 
         let (prefix, n) = match result {
-            NumberPrefix::Standalone(b)   => return TextCell::paint(colours.blocksize(None), numerics.format_int(b)),
-            NumberPrefix::Prefixed(p, n)  => (p, n),
+            NumberPrefix::Standalone(b) => {
+                return TextCell::paint(colours.blocksize(None), numerics.format_int(b))
+            }
+            NumberPrefix::Prefixed(p, n) => (p, n),
         };
 
         let symbol = prefix.symbol();
@@ -52,89 +57,106 @@ impl f::Blocksize {
             contents: vec![
                 colours.blocksize(Some(prefix)).paint(number),
                 colours.unit(Some(prefix)).paint(symbol),
-            ].into(),
+            ]
+            .into(),
         }
     }
 }
 
-
+#[rustfmt::skip]
 pub trait Colours {
     fn blocksize(&self, prefix: Option<Prefix>) -> Style;
     fn unit(&self, prefix: Option<Prefix>)      -> Style;
     fn no_blocksize(&self)                      -> Style;
 }
 
-
 #[cfg(test)]
 pub mod test {
-    use ansiterm::Style;
     use ansiterm::Colour::*;
+    use ansiterm::Style;
 
     use super::Colours;
-    use crate::output::cell::{TextCell, DisplayWidth};
-    use crate::output::table::SizeFormat;
     use crate::fs::fields as f;
+    use crate::output::cell::{DisplayWidth, TextCell};
+    use crate::output::table::SizeFormat;
 
     use locale::Numeric as NumericLocale;
     use number_prefix::Prefix;
 
     struct TestColours;
 
+    #[rustfmt::skip]
     impl Colours for TestColours {
         fn blocksize(&self, _prefix: Option<Prefix>) -> Style { Fixed(66).normal() }
         fn unit(&self, _prefix: Option<Prefix>)      -> Style { Fixed(77).bold() }
         fn no_blocksize(&self)                       -> Style { Black.italic() }
     }
 
-
     #[test]
     fn directory() {
         let directory = f::Blocksize::None;
         let expected = TextCell::blank(Black.italic());
-        assert_eq!(expected, directory.render(&TestColours, SizeFormat::JustBytes, &NumericLocale::english()))
+        assert_eq!(
+            expected,
+            directory.render(
+                &TestColours,
+                SizeFormat::JustBytes,
+                &NumericLocale::english()
+            )
+        )
     }
-
 
     #[test]
     fn file_decimal() {
         let directory = f::Blocksize::Some(2_100_000);
         let expected = TextCell {
             width: DisplayWidth::from(4),
-            contents: vec![
-                Fixed(66).paint("2.1"),
-                Fixed(77).bold().paint("M"),
-            ].into(),
+            contents: vec![Fixed(66).paint("2.1"), Fixed(77).bold().paint("M")].into(),
         };
 
-        assert_eq!(expected, directory.render(&TestColours, SizeFormat::DecimalBytes, &NumericLocale::english()))
+        assert_eq!(
+            expected,
+            directory.render(
+                &TestColours,
+                SizeFormat::DecimalBytes,
+                &NumericLocale::english()
+            )
+        )
     }
-
 
     #[test]
     fn file_binary() {
         let directory = f::Blocksize::Some(1_048_576);
         let expected = TextCell {
             width: DisplayWidth::from(5),
-            contents: vec![
-                Fixed(66).paint("1.0"),
-                Fixed(77).bold().paint("Mi"),
-            ].into(),
+            contents: vec![Fixed(66).paint("1.0"), Fixed(77).bold().paint("Mi")].into(),
         };
 
-        assert_eq!(expected, directory.render(&TestColours, SizeFormat::BinaryBytes, &NumericLocale::english()))
+        assert_eq!(
+            expected,
+            directory.render(
+                &TestColours,
+                SizeFormat::BinaryBytes,
+                &NumericLocale::english()
+            )
+        )
     }
-
 
     #[test]
     fn file_bytes() {
         let directory = f::Blocksize::Some(1_048_576);
         let expected = TextCell {
             width: DisplayWidth::from(9),
-            contents: vec![
-                Fixed(66).paint("1,048,576"),
-            ].into(),
+            contents: vec![Fixed(66).paint("1,048,576")].into(),
         };
 
-        assert_eq!(expected, directory.render(&TestColours, SizeFormat::JustBytes, &NumericLocale::english()))
+        assert_eq!(
+            expected,
+            directory.render(
+                &TestColours,
+                SizeFormat::JustBytes,
+                &NumericLocale::english()
+            )
+        )
     }
 }

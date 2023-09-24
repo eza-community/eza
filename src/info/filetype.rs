@@ -22,9 +22,9 @@ pub enum FileType {
     Compressed,
     Temp,
     Compiled,
-    Build     // A “build file is something that can be run or activated somehow in order to
-              // kick off the build of a project. It’s usually only present in directories full of
-              // source code.
+    Build, // A “build file is something that can be run or activated somehow in order to
+           // kick off the build of a project. It’s usually only present in directories full of
+           // source code.
 }
 
 /// Mapping from full filenames to file type.
@@ -270,20 +270,24 @@ impl FileType {
     pub(crate) fn get_file_type(file: &File<'_>) -> Option<FileType> {
         // Case-insensitive readme is checked first for backwards compatibility.
         if file.name.to_lowercase().starts_with("readme") {
-            return Some(Self::Build)
+            return Some(Self::Build);
         }
         if let Some(file_type) = FILENAME_TYPES.get(&file.name) {
-            return Some(file_type.clone())
+            return Some(file_type.clone());
         }
         if let Some(file_type) = file.ext.as_ref().and_then(|ext| EXTENSION_TYPES.get(ext)) {
-            return Some(file_type.clone())
+            return Some(file_type.clone());
         }
         if file.name.ends_with('~') || (file.name.starts_with('#') && file.name.ends_with('#')) {
-            return Some(Self::Temp)
+            return Some(Self::Temp);
         }
         if let Some(dir) = file.parent_dir {
-            if file.get_source_files().iter().any(|path| dir.contains(path)) {
-                return Some(Self::Compiled)
+            if file
+                .get_source_files()
+                .iter()
+                .any(|path| dir.contains(path))
+            {
+                return Some(Self::Compiled);
             }
         }
         None

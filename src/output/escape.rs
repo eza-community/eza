@@ -1,6 +1,5 @@
 use ansiterm::{ANSIString, Style};
 
-
 pub fn escape(string: String, bits: &mut Vec<ANSIString<'_>>, good: Style, bad: Style) {
     // if the string has no control character
     if string.chars().all(|c| !c.is_control()) {

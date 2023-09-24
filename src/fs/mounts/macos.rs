@@ -1,10 +1,10 @@
-use std::{mem, ptr};
+use crate::fs::mounts::{Error, MountedFs};
+use libc::{__error, getfsstat, statfs, MNT_NOWAIT};
 use std::ffi::{CStr, OsStr};
 use std::os::raw::{c_char, c_int};
 use std::os::unix::ffi::OsStrExt;
 use std::path::PathBuf;
-use libc::{__error, getfsstat, MNT_NOWAIT, statfs};
-use crate::fs::mounts::{Error, MountedFs};
+use std::{mem, ptr};
 
 /// Get a list of all mounted filesystem
 pub fn mounts() -> Result<Vec<MountedFs>, Error> {
@@ -36,7 +36,7 @@ pub fn mounts() -> Result<Vec<MountedFs>, Error> {
     for mnt in &mntbuf {
         let mount_point = OsStr::from_bytes(
             // SAFETY: Converting null terminated "C" string
-            unsafe { CStr::from_ptr(mnt.f_mntonname.as_ptr().cast::<c_char>()) }.to_bytes()
+            unsafe { CStr::from_ptr(mnt.f_mntonname.as_ptr().cast::<c_char>()) }.to_bytes(),
         );
         let dest = PathBuf::from(mount_point);
         // SAFETY: Converting null terminated "C" string
@@ -47,7 +47,11 @@ pub fn mounts() -> Result<Vec<MountedFs>, Error> {
         let source = unsafe { CStr::from_ptr(mnt.f_mntfromname.as_ptr().cast::<c_char>()) }
             .to_string_lossy()
             .into();
-        mounts.push(MountedFs { dest, fstype, source });
+        mounts.push(MountedFs {
+            dest,
+            fstype,
+            source,
+        });
     }
 
     Ok(mounts)

@@ -5,7 +5,6 @@
 #![warn(rust_2018_idioms)]
 #![warn(trivial_casts, trivial_numeric_casts)]
 #![warn(unused)]
-
 #![warn(clippy::all, clippy::pedantic)]
 #![allow(clippy::cast_precision_loss)]
 #![allow(clippy::cast_possible_truncation)]
@@ -24,7 +23,7 @@
 
 use std::env;
 use std::ffi::{OsStr, OsString};
-use std::io::{self, Write, ErrorKind};
+use std::io::{self, ErrorKind, Write};
 use std::path::{Component, PathBuf};
 use std::process::exit;
 
@@ -32,11 +31,11 @@ use ansiterm::{ANSIStrings, Style};
 
 use log::*;
 
-use crate::fs::{Dir, File};
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::GitIgnore;
-use crate::options::{Options, Vars, vars, OptionsResult};
-use crate::output::{escape, lines, grid, grid_details, details, View, Mode};
+use crate::fs::{Dir, File};
+use crate::options::{vars, Options, OptionsResult, Vars};
+use crate::output::{details, escape, grid, grid_details, lines, Mode, View};
 use crate::theme::Theme;
 
 mod fs;
@@ -62,20 +61,27 @@ fn main() {
     let args: Vec<_> = env::args_os().skip(1).collect();
     match Options::parse(args.iter().map(std::convert::AsRef::as_ref), &LiveVars) {
         OptionsResult::Ok(options, mut input_paths) => {
-
             // List the current directory by default.
             // (This has to be done here, otherwise git_options won’t see it.)
             if input_paths.is_empty() {
-                input_paths = vec![ OsStr::new(".") ];
+                input_paths = vec![OsStr::new(".")];
             }
 
             let git = git_options(&options, &input_paths);
             let writer = io::stdout();
 
             let console_width = options.view.width.actual_terminal_width();
-            let theme = options.theme.to_theme(terminal_size::terminal_size().is_some());
-            let exa = Exa { options, writer, input_paths, theme, console_width, git };
-
+            let theme = options
+                .theme
+                .to_theme(terminal_size::terminal_size().is_some());
+            let exa = Exa {
+                options,
+                writer,
+                input_paths,
+                theme,
+                console_width,
+                git,
+            };
 
             info!("matching on exa.run");
             match exa.run() {
@@ -117,10 +123,8 @@ fn main() {
     }
 }
 
-
 /// The main program wrapper.
 pub struct Exa<'args> {
-
     /// List of command-line options, having been successfully parsed.
     pub options: Options,
 
@@ -161,8 +165,7 @@ impl Vars for LiveVars {
 fn git_options(options: &Options, args: &[&OsStr]) -> Option<GitCache> {
     if options.should_scan_for_git() {
         Some(args.iter().map(PathBuf::from).collect())
-    }
-    else {
+    } else {
         None
     }
 }
@@ -179,25 +182,29 @@ impl<'args> Exa<'args> {
         let mut exit_status = 0;
 
         for file_path in &self.input_paths {
-            match File::from_args(PathBuf::from(file_path), None, None, self.options.view.deref_links) {
+            match File::from_args(
+                PathBuf::from(file_path),
+                None,
+                None,
+                self.options.view.deref_links,
+            ) {
                 Err(e) => {
                     exit_status = 2;
                     writeln!(io::stderr(), "{file_path:?}: {e}")?;
                 }
 
                 Ok(f) => {
-                    if f.points_to_directory() && ! self.options.dir_action.treat_dirs_as_files() {
+                    if f.points_to_directory() && !self.options.dir_action.treat_dirs_as_files() {
                         trace!("matching on to_dir");
                         match f.to_dir() {
-                            Ok(d)   => dirs.push(d),
+                            Ok(d) => dirs.push(d),
                             Err(e) if e.kind() == ErrorKind::PermissionDenied => {
                                 warn!("Permission Denied: {e}");
                                 exit(exits::PERMISSION_DENIED);
-                            },
-                            Err(e)  => writeln!(io::stderr(), "{file_path:?}: {e}")?,
+                            }
+                            Err(e) => writeln!(io::stderr(), "{file_path:?}: {e}")?,
                         }
-                    }
-                    else {
+                    } else {
                         files.push(f);
                     }
                 }
@@ -217,52 +224,75 @@ impl<'args> Exa<'args> {
         self.print_dirs(dirs, no_files, is_only_dir, exit_status)
     }
 
-    fn print_dirs(&mut self, dir_files: Vec<Dir>, mut first: bool, is_only_dir: bool, exit_status: i32) -> io::Result<i32> {
+    fn print_dirs(
+        &mut self,
+        dir_files: Vec<Dir>,
+        mut first: bool,
+        is_only_dir: bool,
+        exit_status: i32,
+    ) -> io::Result<i32> {
         for dir in dir_files {
-
             // Put a gap between directories, or between the list of files and
             // the first directory.
             if first {
                 first = false;
-            }
-            else {
+            } else {
                 writeln!(&mut self.writer)?;
             }
 
-            if ! is_only_dir {
+            if !is_only_dir {
                 let mut bits = Vec::new();
-                escape(dir.path.display().to_string(), &mut bits, Style::default(), Style::default());
+                escape(
+                    dir.path.display().to_string(),
+                    &mut bits,
+                    Style::default(),
+                    Style::default(),
+                );
                 writeln!(&mut self.writer, "{}:", ANSIStrings(&bits))?;
             }
 
             let mut children = Vec::new();
             let git_ignore = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
-            for file in dir.files(self.options.filter.dot_filter, self.git.as_ref(), git_ignore, self.options.view.deref_links) {
+            for file in dir.files(
+                self.options.filter.dot_filter,
+                self.git.as_ref(),
+                git_ignore,
+                self.options.view.deref_links,
+            ) {
                 match file {
-                    Ok(file)        => children.push(file),
-                    Err((path, e))  => writeln!(io::stderr(), "[{}: {}]", path.display(), e)?,
+                    Ok(file) => children.push(file),
+                    Err((path, e)) => writeln!(io::stderr(), "[{}: {}]", path.display(), e)?,
                 }
-            };
+            }
 
             self.options.filter.filter_child_files(&mut children);
             self.options.filter.sort_files(&mut children);
 
             if let Some(recurse_opts) = self.options.dir_action.recurse_options() {
-                let depth = dir.path.components().filter(|&c| c != Component::CurDir).count() + 1;
-                if ! recurse_opts.tree && ! recurse_opts.is_too_deep(depth) {
-
+                let depth = dir
+                    .path
+                    .components()
+                    .filter(|&c| c != Component::CurDir)
+                    .count()
+                    + 1;
+                if !recurse_opts.tree && !recurse_opts.is_too_deep(depth) {
                     let mut child_dirs = Vec::new();
-                    for child_dir in children.iter().filter(|f| f.is_directory() && ! f.is_all_all) {
+                    for child_dir in children
+                        .iter()
+                        .filter(|f| f.is_directory() && !f.is_all_all)
+                    {
                         match child_dir.to_dir() {
-                            Ok(d)   => child_dirs.push(d),
-                            Err(e)  => writeln!(io::stderr(), "{}: {}", child_dir.path.display(), e)?,
+                            Ok(d) => child_dirs.push(d),
+                            Err(e) => {
+                                writeln!(io::stderr(), "{}: {}", child_dir.path.display(), e)?;
+                            }
                         }
                     }
 
                     self.print_files(Some(&dir), children)?;
                     match self.print_dirs(child_dirs, false, false, exit_status) {
-                        Ok(_)   => (),
-                        Err(e)  => return Err(e),
+                        Ok(_) => (),
+                        Err(e) => return Err(e),
                     }
                     continue;
                 }
@@ -281,19 +311,34 @@ impl<'args> Exa<'args> {
         }
 
         let theme = &self.theme;
-        let View { ref mode, ref file_style, .. } = self.options.view;
+        let View {
+            ref mode,
+            ref file_style,
+            ..
+        } = self.options.view;
 
         match (mode, self.console_width) {
             (Mode::Grid(ref opts), Some(console_width)) => {
                 let filter = &self.options.filter;
-                let r = grid::Render { files, theme, file_style, opts, console_width, filter };
+                let r = grid::Render {
+                    files,
+                    theme,
+                    file_style,
+                    opts,
+                    console_width,
+                    filter,
+                };
                 r.render(&mut self.writer)
             }
 
-            (Mode::Grid(_), None) |
-            (Mode::Lines,   _)    => {
+            (Mode::Grid(_), None) | (Mode::Lines, _) => {
                 let filter = &self.options.filter;
-                let r = lines::Render { files, theme, file_style, filter };
+                let r = lines::Render {
+                    files,
+                    theme,
+                    file_style,
+                    filter,
+                };
                 r.render(&mut self.writer)
             }
 
@@ -303,7 +348,17 @@ impl<'args> Exa<'args> {
 
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
                 let git = self.git.as_ref();
-                let r = details::Render { dir, files, theme, file_style, opts, recurse, filter, git_ignoring, git };
+                let r = details::Render {
+                    dir,
+                    files,
+                    theme,
+                    file_style,
+                    opts,
+                    recurse,
+                    filter,
+                    git_ignoring,
+                    git,
+                };
                 r.render(&mut self.writer)
             }
 
@@ -316,7 +371,19 @@ impl<'args> Exa<'args> {
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
                 let git = self.git.as_ref();
 
-                let r = grid_details::Render { dir, files, theme, file_style, grid, details, filter, row_threshold, git_ignoring, git, console_width };
+                let r = grid_details::Render {
+                    dir,
+                    files,
+                    theme,
+                    file_style,
+                    grid,
+                    details,
+                    filter,
+                    row_threshold,
+                    git_ignoring,
+                    git,
+                    console_width,
+                };
                 r.render(&mut self.writer)
             }
 
@@ -327,13 +394,22 @@ impl<'args> Exa<'args> {
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
 
                 let git = self.git.as_ref();
-                let r = details::Render { dir, files, theme, file_style, opts, recurse, filter, git_ignoring, git };
+                let r = details::Render {
+                    dir,
+                    files,
+                    theme,
+                    file_style,
+                    opts,
+                    recurse,
+                    filter,
+                    git_ignoring,
+                    git,
+                };
                 r.render(&mut self.writer)
             }
         }
     }
 }
-
 
 mod exits {
 

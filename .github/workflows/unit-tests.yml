@@ -48,8 +48,11 @@ jobs:
           max_attempts: 5
           command: cargo install cargo-hack
 
-      - name: Run unit tests
-        run: cargo hack test 
+      - name: Run rustfmt checks
+        run: cargo fmt --check
 
       - name: Run clippy lints
         run: cargo clippy -- -D warnings 
+
+      - name: Run unit tests
+        run: cargo hack test 

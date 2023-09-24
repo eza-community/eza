@@ -68,23 +68,23 @@
 //! --grid --long` shouldn’t complain about `--long` being given twice when
 //! it’s clear what the user wants.
 
-
 use std::ffi::OsStr;
 
 use crate::fs::dir_action::DirAction;
 use crate::fs::filter::{FileFilter, GitIgnore};
-use crate::output::{View, Mode, details, grid_details};
+use crate::output::{details, grid_details, Mode, View};
 use crate::theme::Options as ThemeOptions;
 
 mod dir_action;
 mod file_name;
 mod filter;
+#[rustfmt::skip] // this module becomes unreadable with rustfmt
 mod flags;
 mod theme;
 mod view;
 
 mod error;
-pub use self::error::{OptionsError, NumberSource};
+pub use self::error::{NumberSource, OptionsError};
 
 mod help;
 use self::help::HelpString;
@@ -98,12 +98,10 @@ pub use self::vars::Vars;
 mod version;
 use self::version::VersionString;
 
-
 /// These **options** represent a parsed, error-checked versions of the
 /// user’s command-line options.
 #[derive(Debug)]
 pub struct Options {
-
     /// The action to perform when encountering a directory rather than a
     /// regular file.
     pub dir_action: DirAction,
@@ -122,17 +120,18 @@ pub struct Options {
 }
 
 impl Options {
-
     /// Parse the given iterator of command-line strings into an Options
     /// struct and a list of free filenames, using the environment variables
     /// for extra options.
     #[allow(unused_results)]
     pub fn parse<'args, I, V>(args: I, vars: &V) -> OptionsResult<'args>
-    where I: IntoIterator<Item = &'args OsStr>,
-          V: Vars,
+    where
+        I: IntoIterator<Item = &'args OsStr>,
+        V: Vars,
     {
         use crate::options::parser::{Matches, Strictness};
 
+        #[rustfmt::skip]
         let strictness = match vars.get_with_fallback(vars::EZA_STRICT, vars::EXA_STRICT) {
             None                         => Strictness::UseLastArguments,
             Some(ref t) if t.is_empty()  => Strictness::UseLastArguments,
@@ -140,8 +139,8 @@ impl Options {
         };
 
         let Matches { flags, frees } = match flags::ALL_ARGS.parse(args, strictness) {
-            Ok(m)    => m,
-            Err(pe)  => return OptionsResult::InvalidOptions(OptionsError::Parse(pe)),
+            Ok(m) => m,
+            Err(pe) => return OptionsResult::InvalidOptions(OptionsError::Parse(pe)),
         };
 
         if let Some(help) = HelpString::deduce(&flags) {
@@ -153,8 +152,8 @@ impl Options {
         }
 
         match Self::deduce(&flags, vars) {
-            Ok(options)  => OptionsResult::Ok(options, frees),
-            Err(oe)      => OptionsResult::InvalidOptions(oe),
+            Ok(options) => OptionsResult::Ok(options, frees),
+            Err(oe) => OptionsResult::InvalidOptions(oe),
         }
     }
 
@@ -167,8 +166,18 @@ impl Options {
         }
 
         match self.view.mode {
-            Mode::Details(details::Options { table: Some(ref table), .. }) |
-            Mode::GridDetails(grid_details::Options { details: details::Options { table: Some(ref table), .. }, .. }) => table.columns.git,
+            Mode::Details(details::Options {
+                table: Some(ref table),
+                ..
+            })
+            | Mode::GridDetails(grid_details::Options {
+                details:
+                    details::Options {
+                        table: Some(ref table),
+                        ..
+                    },
+                ..
+            }) => table.columns.git,
             _ => false,
         }
     }
@@ -176,8 +185,11 @@ impl Options {
     /// Determines the complete set of options based on the given command-line
     /// arguments, after they’ve been parsed.
     fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        if cfg!(not(feature = "git")) &&
-                matches.has_where_any(|f| f.matches(&flags::GIT) || f.matches(&flags::GIT_IGNORE)).is_some() {
+        if cfg!(not(feature = "git"))
+            && matches
+                .has_where_any(|f| f.matches(&flags::GIT) || f.matches(&flags::GIT_IGNORE))
+                .is_some()
+        {
             return Err(OptionsError::Unsupported(String::from(
                 "Options --git and --git-ignore can't be used because `git` feature was disabled in this build of exa"
             )));
@@ -188,15 +200,18 @@ impl Options {
         let filter = FileFilter::deduce(matches)?;
         let theme = ThemeOptions::deduce(matches, vars)?;
 
-        Ok(Self { dir_action, filter, view, theme })
+        Ok(Self {
+            dir_action,
+            filter,
+            view,
+            theme,
+        })
     }
 }
-
 
 /// The result of the `Options::getopts` function.
 #[derive(Debug)]
 pub enum OptionsResult<'args> {
-
     /// The options were parsed successfully.
     Ok(Options, Vec<&'args OsStr>),
 
@@ -209,7 +224,6 @@ pub enum OptionsResult<'args> {
     /// One of the arguments was `--version`, so display the version number.
     Version(VersionString),
 }
-
 
 #[cfg(test)]
 pub mod test {
@@ -229,8 +243,14 @@ pub mod test {
     ///
     /// It returns a vector with one or two elements in.
     /// These elements can then be tested with `assert_eq` or what have you.
-    pub fn parse_for_test<T, F>(inputs: &[&str], args: &'static [&'static Arg], strictnesses: Strictnesses, get: F) -> Vec<T>
-    where F: Fn(&MatchedFlags<'_>) -> T
+    pub fn parse_for_test<T, F>(
+        inputs: &[&str],
+        args: &'static [&'static Arg],
+        strictnesses: Strictnesses,
+        get: F,
+    ) -> Vec<T>
+    where
+        F: Fn(&MatchedFlags<'_>) -> T,
     {
         use self::Strictnesses::*;
         use crate::options::parser::{Args, Strictness};

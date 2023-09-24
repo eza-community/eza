@@ -6,6 +6,7 @@ use crate::fs::File;
 #[non_exhaustive]
 struct Icons;
 
+#[rustfmt::skip]
 impl Icons {
     const AUDIO: char           = '\u{f001}';  // 
     const BINARY: char          = '\u{eae8}';  // 
@@ -703,9 +704,11 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
 /// - Attributes such as bold or underline should not be used to paint the
 ///   icon, as they can make it look weird.
 pub fn iconify_style(style: Style) -> Style {
-    style.background.or(style.foreground)
-         .map(Style::from)
-         .unwrap_or_default()
+    style
+        .background
+        .or(style.foreground)
+        .map(Style::from)
+        .unwrap_or_default()
 }
 
 /// Lookup the icon for a file based on the file's name, if the entry is a

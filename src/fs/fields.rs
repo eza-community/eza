@@ -29,7 +29,6 @@ pub type time_t = i64;
 /// The type of a file’s user ID.
 pub type uid_t = u32;
 
-
 /// The file’s base type, which gets displayed in the very first column of the
 /// details output.
 ///
@@ -56,9 +55,9 @@ impl Type {
     }
 }
 
-
 /// The file’s Unix permission bitfield, with one entry per bit.
 #[derive(Copy, Clone)]
+#[rustfmt::skip]
 pub struct Permissions {
     pub user_read:      bool,
     pub user_write:     bool,
@@ -79,6 +78,7 @@ pub struct Permissions {
 
 /// The file's `FileAttributes` field, available only on Windows.
 #[derive(Copy, Clone)]
+#[rustfmt::skip]
 pub struct Attributes {
     pub archive:         bool,
     pub directory:       bool,
@@ -93,14 +93,13 @@ pub struct Attributes {
 /// little more compressed.
 #[derive(Copy, Clone)]
 pub struct PermissionsPlus {
-    pub file_type:   Type,
+    pub file_type: Type,
     #[cfg(unix)]
     pub permissions: Permissions,
     #[cfg(windows)]
-    pub attributes:  Attributes,
-    pub xattrs:      bool,
+    pub attributes: Attributes,
+    pub xattrs: bool,
 }
-
 
 /// The permissions encoded as octal values
 #[derive(Copy, Clone)]
@@ -116,7 +115,6 @@ pub struct OctalPermissions {
 /// block count specifically for this case.
 #[derive(Copy, Clone)]
 pub struct Links {
-
     /// The actual link count.
     pub count: nlink_t,
 
@@ -124,26 +122,22 @@ pub struct Links {
     pub multiple: bool,
 }
 
-
 /// A file’s inode. Every directory entry on a Unix filesystem has an inode,
 /// including directories and links, so this is applicable to everything exa
 /// can deal with.
 #[derive(Copy, Clone)]
 pub struct Inode(pub ino_t);
 
-
 /// A file's size of allocated file system blocks.
 #[derive(Copy, Clone)]
 #[cfg(unix)]
 pub enum Blocksize {
-
     /// This file has the given number of blocks.
     Some(u64),
 
     /// This file isn’t of a type that can take up blocks.
     None,
 }
-
 
 /// The ID of the user that owns a file. This will only ever be a number;
 /// looking up the username is done in the `display` module.
@@ -154,12 +148,10 @@ pub struct User(pub uid_t);
 #[derive(Copy, Clone)]
 pub struct Group(pub gid_t);
 
-
 /// A file’s size, in bytes. This is usually formatted by the `number_prefix`
 /// crate into something human-readable.
 #[derive(Copy, Clone)]
 pub enum Size {
-
     /// This file has a defined size.
     Some(u64),
 
@@ -194,7 +186,6 @@ pub struct DeviceIDs {
     pub minor: u32,
 }
 
-
 /// One of a file’s timestamps (created, accessed, or modified).
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Time {
@@ -202,13 +193,11 @@ pub struct Time {
     pub nanoseconds: time_t,
 }
 
-
 /// A file’s status in a Git repository. Whether a file is in a repository or
 /// not is handled by the Git module, rather than having a “null” variant in
 /// this enum.
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum GitStatus {
-
     /// This file hasn’t changed since the last commit.
     NotModified,
 
@@ -235,18 +224,16 @@ pub enum GitStatus {
     Conflicted,
 }
 
-
 /// A file’s complete Git status. It’s possible to make changes to a file, add
 /// it to the staging area, then make *more* changes, so we need to list each
 /// file’s status for both of these.
 #[derive(Copy, Clone)]
 pub struct Git {
-    pub staged:   GitStatus,
+    pub staged: GitStatus,
     pub unstaged: GitStatus,
 }
 
 impl Default for Git {
-
     /// Create a Git status for a file with nothing done to it.
     fn default() -> Self {
         Self {
@@ -258,7 +245,7 @@ impl Default for Git {
 
 pub enum SecurityContextType<'a> {
     SELinux(&'a str),
-    None
+    None,
 }
 
 pub struct SecurityContext<'a> {
@@ -267,23 +254,23 @@ pub struct SecurityContext<'a> {
 
 #[allow(dead_code)]
 #[derive(PartialEq, Copy, Clone)]
-pub enum SubdirGitRepoStatus{
+pub enum SubdirGitRepoStatus {
     NoRepo,
     GitClean,
     GitDirty,
 }
 
 #[derive(Clone)]
-pub struct SubdirGitRepo{
-    pub status : Option<SubdirGitRepoStatus>,
-    pub branch : Option<String>
+pub struct SubdirGitRepo {
+    pub status: Option<SubdirGitRepoStatus>,
+    pub branch: Option<String>,
 }
 
-impl Default for SubdirGitRepo{
+impl Default for SubdirGitRepo {
     fn default() -> Self {
-        Self{
+        Self {
             status: Some(SubdirGitRepoStatus::NoRepo),
-            branch: None
+            branch: None,
         }
     }
 }
