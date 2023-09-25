@@ -143,7 +143,7 @@ pub struct Opts {
     /// list root of git-tree status.
     #[arg(long = "git-repos", action = clap::ArgAction::Count)]
     pub git_repos: u8,
-    ///
+    ///List each git-repos branch name (much faster)
     #[arg(long = "git-repos-no-status", action = clap::ArgAction::Count)]
     pub git_repos_no_status: u8,
     /// list each file's permission in octal format.
