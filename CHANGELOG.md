@@ -2,6 +2,72 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.13.1] - 2023-09-25
+
+### Bug Fixes
+
+- Typo `this` -> `that`
+- Error for missed semicolon
+- More than 3 bools in a struct
+- Major and minor device on MacOS
+- Linux uses u32 for major/minor device numbers
+- Respect spec on Windows and make it for with Konsole
+- Don’t show color when color is disabled
+- Enable rustfmt by removing .rustfmt.toml which disables it
+- Replace rustfmt::skip on expressions because experimental
+- Remove unnecessary rustfmt::skip's in windows code
+- Add src/options/flags.rs to rustfmt.excludes
+- Left-over merge conflict in src/output/table
+
+### Documentation
+
+- Update README.md
+- Update --mounts option to include MacOS
+- Documenting --only-files
+
+### Features
+
+- Listing files only using '--only-files' flag
+- Add EXA_COLOR bindings for un-themed items
+- Add EZA_ environment variables with fallback to EXA_
+- Add rustfmt check to unit-tests workflow
+
+### Miscellaneous Tasks
+
+- Add completion for --only-fies (zsh,fish)
+
+### Refactor
+
+- Fix rustfmt issues and place skips where needed
+- Reorder unit-tests to fmt, clippy and tests
+
+### Styling
+
+- Formatted using treefmt
+- Fix clippy warning after rustfmt
+- Fix treefmt issues in options module
+- Reapply rustfmt after rebase from main
+
+### Testing
+
+- Test for listing files only
+- Add unit tests for new style abbreviations
+- Regen git_repos_no_status
+
+### Build
+
+- Bump actions/checkout from 2 to 4
+- Bump chrono from 0.4.30 to 0.4.31
+- Bump timeago from 0.4.1 to 0.4.2
+- Bump libc from 0.2.147 to 0.2.148
+- Bump terminal_size from 0.2.6 to 0.3.0
+
+### Ci
+
+- Added formatters to treefmt
+- Make various improvements
+- Only apply labels when opening a PR
+
 ## [0.13.0] - 2023-09-18
 
 ### Bug Fixes
@@ -42,6 +108,7 @@ All notable changes to this project will be documented in this file.
 ### Miscellaneous Tasks
 
 - Augment gitter size in README
+- Release 0.13.0
 
 ### Performance
 
