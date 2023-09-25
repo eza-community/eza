@@ -1,8 +1,7 @@
-use crate::options::{vars, Vars, OptionsError};
-use crate::theme::{Options, UseColours, ColourScale, Definitions};
+use crate::options::{vars, OptionsError, Vars};
+use crate::theme::{ColourScale, Definitions, Options, UseColours};
 
 use super::parser::Opts;
-
 
 impl Options {
     pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
@@ -36,7 +35,10 @@ impl UseColours {
             (Some(w), None) => self::UseColours::get_color(w.to_string_lossy().to_string()),
             (None, Some(w)) => self::UseColours::get_color(w.to_string_lossy().to_string()),
             (None, None) => Ok(default_value),
-            (Some(_), Some(_)) => Err(OptionsError::BadArgument("--color".to_string(), "--colour".to_string())),
+            (Some(_), Some(_)) => Err(OptionsError::BadArgument(
+                "--color".to_string(),
+                "--colour".to_string(),
+            )),
         }
     }
 
@@ -47,8 +49,7 @@ impl UseColours {
             Ok(Self::Automatic)
         } else if word == "never" {
             Ok(Self::Never)
-        }
-        else {
+        } else {
             Err(OptionsError::BadArgument("--color".to_string(), word))
         }
     }
@@ -56,7 +57,7 @@ impl UseColours {
 
 impl ColourScale {
     fn deduce(matches: &Opts) -> Self {
-        if matches.color_scale > 0 || matches.colour_scale > 0{
+        if matches.color_scale > 0 || matches.colour_scale > 0 {
             return Self::Gradient;
         }
         Self::Fixed
@@ -81,9 +82,7 @@ mod tests {
 
     #[test]
     fn deduce_colour_scale() {
-        let matches = Opts {
-            ..Opts::default()
-        };
+        let matches = Opts { ..Opts::default() };
 
         assert_eq!(ColourScale::deduce(&matches), ColourScale::Fixed);
     }

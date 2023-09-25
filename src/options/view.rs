@@ -3,7 +3,6 @@ use crate::options::parser::Opts;
 use crate::options::{NumberSource, OptionsError, Vars};
 use crate::output::file_name::Options as FileStyle;
 use crate::output::grid_details::{self, RowThreshold};
-use crate::output::grid_details::{self, RowThreshold};
 use crate::output::table::{Columns, Options as TableOptions, SizeFormat, TimeTypes, UserFormat};
 use crate::output::time::TimeFormat;
 use crate::output::{details, grid, Mode, TerminalWidth, View};
@@ -339,6 +338,12 @@ impl TimeFormat {
     fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
         let word = if let Some(ref w) = matches.time_style {
             w.clone()
+        } else {
+            use crate::options::vars;
+            match vars.get(vars::TIME_STYLE) {
+                Some(ref t) if !t.is_empty() => t.clone(),
+                _ => return Ok(Self::DefaultFormat),
+            }
         };
 
         match word.to_string_lossy().as_ref() {

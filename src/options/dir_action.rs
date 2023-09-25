@@ -12,19 +12,27 @@ impl DirAction {
     /// to both be present, but the `--list-dirs` flag is used separately.
     pub fn deduce(matches: &Opts, can_tree: bool, strictness: bool) -> Result<Self, OptionsError> {
         let recurse = matches.recurse > 0;
-        let as_file = matches.list_dirs >0;
-        let tree    = matches.tree > 0;
+        let as_file = matches.list_dirs > 0;
+        let tree = matches.tree > 0;
 
         if strictness {
             // Early check for --level when it wouldn’t do anything
-            if ! recurse && ! tree && matches.level.is_some() {
-                return Err(OptionsError::Useless2("--level".to_string(), "--recurse".to_string(), "--tree".to_string()));
-            }
-            else if recurse && as_file {
-                return Err(OptionsError::Conflict("--recurse".to_string(), "--list-dirs".to_string()));
-            }
-            else if tree && as_file {
-                return Err(OptionsError::Conflict("--tree".to_string(), "--list-dirs".to_string()));
+            if !recurse && !tree && matches.level.is_some() {
+                return Err(OptionsError::Useless2(
+                    "--level".to_string(),
+                    "--recurse".to_string(),
+                    "--tree".to_string(),
+                ));
+            } else if recurse && as_file {
+                return Err(OptionsError::Conflict(
+                    "--recurse".to_string(),
+                    "--list-dirs".to_string(),
+                ));
+            } else if tree && as_file {
+                return Err(OptionsError::Conflict(
+                    "--tree".to_string(),
+                    "--list-dirs".to_string(),
+                ));
             }
         }
 
@@ -32,11 +40,9 @@ impl DirAction {
             // Tree is only appropriate in details mode, so this has to
             // examine the View, which should have already been deduced by now
             Ok(Self::Recurse(RecurseOptions::deduce(matches, true)))
-        }
-        else if recurse {
+        } else if recurse {
             Ok(Self::Recurse(RecurseOptions::deduce(matches, false)))
-        }
-        else if as_file {
+        } else if as_file {
             Ok(Self::AsFile)
         } else {
             Ok(Self::List)
@@ -52,7 +58,7 @@ impl RecurseOptions {
     pub fn deduce(matches: &Opts, tree: bool) -> Self {
         Self {
             tree,
-            max_depth: matches.level
+            max_depth: matches.level,
         }
     }
 }
@@ -63,11 +69,12 @@ mod test {
 
     #[test]
     fn deduces_list() {
-        let matches = Opts {
-            ..Opts::default()
-        };
+        let matches = Opts { ..Opts::default() };
 
-        assert_eq!(DirAction::deduce(&matches, false, false).unwrap(), DirAction::List);
+        assert_eq!(
+            DirAction::deduce(&matches, false, false).unwrap(),
+            DirAction::List
+        );
     }
 
     #[test]
@@ -76,10 +83,13 @@ mod test {
             recurse: 1,
             ..Opts::default()
         };
-        assert_eq!(DirAction::deduce(&matches, false, false).unwrap(), DirAction::Recurse(RecurseOptions {
-            tree: false,
-            max_depth: None,
-        }));
+        assert_eq!(
+            DirAction::deduce(&matches, false, false).unwrap(),
+            DirAction::Recurse(RecurseOptions {
+                tree: false,
+                max_depth: None,
+            })
+        );
     }
 
     #[test]
@@ -88,10 +98,13 @@ mod test {
             tree: 1,
             ..Opts::default()
         };
-        assert_eq!(DirAction::deduce(&matches, true, false).unwrap(), DirAction::Recurse(RecurseOptions {
-            tree: true,
-            max_depth: None,
-        }));
+        assert_eq!(
+            DirAction::deduce(&matches, true, false).unwrap(),
+            DirAction::Recurse(RecurseOptions {
+                tree: true,
+                max_depth: None,
+            })
+        );
     }
 
     #[test]
@@ -100,7 +113,10 @@ mod test {
             list_dirs: 1,
             ..Opts::default()
         };
-        assert_eq!(DirAction::deduce(&matches, false, false).unwrap(), DirAction::AsFile);
+        assert_eq!(
+            DirAction::deduce(&matches, false, false).unwrap(),
+            DirAction::AsFile
+        );
     }
 
     #[test]
@@ -144,9 +160,12 @@ mod test {
             ..Opts::default()
         };
 
-        assert_eq!(DirAction::deduce(&matches, true, false).unwrap(), DirAction::Recurse(RecurseOptions {
-            tree: true,
-            max_depth: Some(2),
-        }));
+        assert_eq!(
+            DirAction::deduce(&matches, true, false).unwrap(),
+            DirAction::Recurse(RecurseOptions {
+                tree: true,
+                max_depth: Some(2),
+            })
+        );
     }
 }

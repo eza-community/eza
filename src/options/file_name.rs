@@ -1,10 +1,8 @@
-use crate::options::{OptionsError, NumberSource};
 use crate::options::vars::{self, Vars};
-use crate::options::{flags, NumberSource, OptionsError};
+use crate::options::{NumberSource, OptionsError};
 
-use crate::output::file_name::{Options, Classify, ShowIcons, EmbedHyperlinks};
 use crate::options::parser::Opts;
-
+use crate::output::file_name::{Classify, EmbedHyperlinks, Options, ShowIcons};
 
 impl Options {
     pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
@@ -65,12 +63,14 @@ mod test {
 
     #[test]
     fn deduce_hyperlinks() {
-        assert_eq!(EmbedHyperlinks::deduce(&Opts::default()), EmbedHyperlinks::Off);
+        assert_eq!(
+            EmbedHyperlinks::deduce(&Opts::default()),
+            EmbedHyperlinks::Off
+        );
     }
 
     #[test]
     fn deduce_hyperlinks_on() {
-
         let matches = Opts {
             hyperlink: 1,
             ..Opts::default()
@@ -91,9 +91,7 @@ mod test {
 
     #[test]
     fn deduce_classify_no_classify() {
-        let matches = Opts {
-            ..Opts::default()
-        };
+        let matches = Opts { ..Opts::default() };
 
         assert_eq!(Classify::deduce(&matches), Classify::JustFilenames);
     }

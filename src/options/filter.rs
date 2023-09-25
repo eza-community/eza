@@ -9,19 +9,29 @@ use crate::options::OptionsError;
 
 use super::parser::Opts;
 
-
 impl FileFilter {
     /// Determines which of all the file filter options to use.
     pub fn deduce(matches: &Opts, strictness: bool) -> Result<Self, OptionsError> {
+        let mut filter_flags: Vec<FileFilterFlags> = vec![];
+
+        for (has, flags) in &[
+            (matches.only_dirs > 0, FileFilterFlags::OnlyDirs),
+            (matches.only_files > 0, FileFilterFlags::OnlyFiles),
+            (matches.reverse > 0, FileFilterFlags::Reverse),
+        ] {
+            if *has {
+                filter_flags.push(flags.clone());
+            }
+        }
+
         Ok(Self {
-            list_dirs_first:  matches.dirs_first > 0,
-            reverse:          matches.reverse > 0,
-            only_dirs:        matches.only_dirs > 0,
-            sort_field:       SortField::deduce(matches)?,
-            dot_filter:       DotFilter::deduce(matches, strictness)?,
-            ignore_patterns:  IgnorePatterns::deduce(matches)?,
-            git_ignore:       GitIgnore::deduce(matches)?,
-        });
+            list_dirs_first: matches.dirs_first > 0,
+            flags: filter_flags,
+            sort_field: SortField::deduce(matches)?,
+            dot_filter: DotFilter::deduce(matches, strictness)?,
+            ignore_patterns: IgnorePatterns::deduce(matches)?,
+            git_ignore: GitIgnore::deduce(matches)?,
+        })
     }
 }
 
@@ -131,13 +141,15 @@ impl DotFilter {
             // either a single --all or at least one --almost-all is given
             (1 | 0, _) => Ok(Self::Dotfiles),
             // more than one --all
-            (_, _) => if matches.tree > 0 {
-                Err(OptionsError::TreeAllAll)
-            } else if strictness {
-                Err(OptionsError::Conflict("ALL".to_string(), "ALL".to_string()))
-            } else {
-                Ok(Self::DotfilesAndDots)
-            },
+            (_, _) => {
+                if matches.tree > 0 {
+                    Err(OptionsError::TreeAllAll)
+                } else if strictness {
+                    Err(OptionsError::Conflict("ALL".to_string(), "ALL".to_string()))
+                } else {
+                    Ok(Self::DotfilesAndDots)
+                }
+            }
         }
     }
 }
@@ -147,7 +159,6 @@ impl IgnorePatterns {
     /// `--ignore-glob` argument’s value. This is a list of strings
     /// separated by pipe (`|`) characters, given in any order.
     pub fn deduce(matches: &Opts) -> Result<Self, OptionsError> {
-
         // If there are no inputs, we return a set of patterns that doesn’t
         // match anything, rather than, say, `None`.
         let Some(ref inputs) = matches.ignore_glob else { return Ok(Self::empty()) };
@@ -170,14 +181,17 @@ impl GitIgnore {
         if matches.git_ignore > 0 && matches.no_git == 0 {
             return Ok(Self::CheckAndIgnore);
         } else if matches.git_ignore > 0 && matches.no_git > 0 {
-            return Err(OptionsError::Conflict("GIT_IGNORE".to_string(), "NO_GIT".to_string()));
+            return Err(OptionsError::Conflict(
+                "GIT_IGNORE".to_string(),
+                "NO_GIT".to_string(),
+            ));
         }
         Ok(Self::Off)
     }
 }
 
 #[cfg(test)]
-mod test{
+mod test {
     use super::*;
 
     #[test]
@@ -196,23 +210,28 @@ mod test{
             no_git: 1,
             ..Opts::default()
         };
-        assert_eq!(GitIgnore::deduce(&opts).unwrap_err(), OptionsError::Conflict("GIT_IGNORE".to_string(), "NO_GIT".to_string()));
+        assert_eq!(
+            GitIgnore::deduce(&opts).unwrap_err(),
+            OptionsError::Conflict("GIT_IGNORE".to_string(), "NO_GIT".to_string())
+        );
     }
 
     #[test]
     fn deduce_ignore_patterns() {
-        let opts = Opts {
-            ..Opts::default()
-        };
-        assert_eq!(IgnorePatterns::deduce(&opts).unwrap(), IgnorePatterns::empty());
+        let opts = Opts { ..Opts::default() };
+        assert_eq!(
+            IgnorePatterns::deduce(&opts).unwrap(),
+            IgnorePatterns::empty()
+        );
     }
 
     #[test]
     fn deduce_dot_filter_just_files() {
-        let opts = Opts {
-            ..Opts::default()
-        };
-        assert_eq!(DotFilter::deduce(&opts, false).unwrap(), DotFilter::JustFiles);
+        let opts = Opts { ..Opts::default() };
+        assert_eq!(
+            DotFilter::deduce(&opts, false).unwrap(),
+            DotFilter::JustFiles
+        );
     }
 
     #[test]
@@ -221,7 +240,10 @@ mod test{
             all: 1,
             ..Opts::default()
         };
-        assert_eq!(DotFilter::deduce(&opts, false).unwrap(), DotFilter::Dotfiles);
+        assert_eq!(
+            DotFilter::deduce(&opts, false).unwrap(),
+            DotFilter::Dotfiles
+        );
     }
 
     #[test]
@@ -230,7 +252,10 @@ mod test{
             all: 2,
             ..Opts::default()
         };
-        assert_eq!(DotFilter::deduce(&opts, false).unwrap(), DotFilter::DotfilesAndDots);
+        assert_eq!(
+            DotFilter::deduce(&opts, false).unwrap(),
+            DotFilter::DotfilesAndDots
+        );
     }
 
     #[test]
@@ -240,7 +265,10 @@ mod test{
             tree: 1,
             ..Opts::default()
         };
-        assert_eq!(DotFilter::deduce(&opts, false).unwrap_err(), OptionsError::TreeAllAll);
+        assert_eq!(
+            DotFilter::deduce(&opts, false).unwrap_err(),
+            OptionsError::TreeAllAll
+        );
     }
 
     #[test]
@@ -249,16 +277,22 @@ mod test{
             all: 2,
             ..Opts::default()
         };
-        assert_eq!(DotFilter::deduce(&opts, true).unwrap_err(), OptionsError::Conflict("ALL".to_string(), "ALL".to_string()));
+        assert_eq!(
+            DotFilter::deduce(&opts, true).unwrap_err(),
+            OptionsError::Conflict("ALL".to_string(), "ALL".to_string())
+        );
     }
-    
+
     #[test]
     fn deduce_sort_field_name() {
         let opts = Opts {
             sort: Some("name".into()),
             ..Opts::default()
         };
-        assert_eq!(SortField::deduce(&opts).unwrap(), SortField::Name(SortCase::AaBbCc));
+        assert_eq!(
+            SortField::deduce(&opts).unwrap(),
+            SortField::Name(SortCase::AaBbCc)
+        );
     }
 
     #[test]
@@ -267,7 +301,10 @@ mod test{
             sort: Some(".name".into()),
             ..Opts::default()
         };
-        assert_eq!(SortField::deduce(&opts).unwrap(), SortField::NameMixHidden(SortCase::AaBbCc));
+        assert_eq!(
+            SortField::deduce(&opts).unwrap(),
+            SortField::NameMixHidden(SortCase::AaBbCc)
+        );
     }
 
     #[test]
@@ -285,7 +322,10 @@ mod test{
             sort: Some("ext".into()),
             ..Opts::default()
         };
-        assert_eq!(SortField::deduce(&opts).unwrap(), SortField::Extension(SortCase::AaBbCc));
+        assert_eq!(
+            SortField::deduce(&opts).unwrap(),
+            SortField::Extension(SortCase::AaBbCc)
+        );
     }
 
     #[test]
@@ -367,6 +407,9 @@ mod test{
             sort: Some("bad".into()),
             ..Opts::default()
         };
-        assert_eq!(SortField::deduce(&opts).unwrap_err(), OptionsError::BadArgument("SORT".to_string(), "bad".to_string()));
+        assert_eq!(
+            SortField::deduce(&opts).unwrap_err(),
+            OptionsError::BadArgument("SORT".to_string(), "bad".to_string())
+        );
     }
 }

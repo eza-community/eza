@@ -155,12 +155,15 @@ pub struct Opts {
     /// Show extended attributes.
     #[arg(short = '@', long, action = clap::ArgAction::Count)]
     pub extended: u8,
-    /// show list of command-line options.
+    /// Show list of command-line options.
     #[arg(short ='?', long, action = clap::ArgAction::Help)]
     pub help: Option<bool>,
-    /// show mount details (Linux only)
+    /// Show mount details (Linux only)
     #[arg(short = 'M', long, action = clap::ArgAction::Count)]
     pub mount: u8,
+    /// Show only files
+    #[arg(short = 'f', long = "only-files", action = clap::ArgAction::Count)]
+    pub only_files: u8,
 }
 
 impl Opts {
@@ -220,6 +223,7 @@ impl Opts {
             mount: 0,
             colour: None,
             colour_scale: 0,
+            only_files: 0,
         }
     }
 }

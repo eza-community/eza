@@ -21,11 +21,11 @@
 #![allow(clippy::upper_case_acronyms)]
 #![allow(clippy::wildcard_imports)]
 
+use clap::Parser;
 use std::env;
 use std::ffi::{OsStr, OsString};
 use std::io::{self, ErrorKind, Write};
 use std::path::{Component, PathBuf};
-use clap::Parser;
 use std::process::exit;
 
 use ansiterm::{ANSIStrings, Style};
@@ -34,10 +34,11 @@ use log::*;
 
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::GitIgnore;
-use crate::options::{Options, Vars, vars};
-use crate::output::{escape, lines, grid, grid_details, details, View, Mode};
-use crate::theme::Theme;
+use crate::fs::{Dir, File};
 use crate::options::parser::Opts;
+use crate::options::{vars, Options, Vars};
+use crate::output::{details, escape, grid, grid_details, lines, Mode, View};
+use crate::theme::Theme;
 
 mod fs;
 mod info;
@@ -62,10 +63,10 @@ fn main() {
     let cli = Opts::parse();
     let mut input_paths: Vec<&OsStr> = cli.paths.iter().map(OsString::as_os_str).collect();
     if input_paths.is_empty() {
-       input_paths.push(OsStr::new(".")); 
+        input_paths.push(OsStr::new("."));
     }
     let options = match Options::deduce(&cli, &LiveVars) {
-        Ok(o) => {o},
+        Ok(o) => o,
         Err(e) => {
             eprintln!("{e}");
             exit(exits::OPTIONS_ERROR);
@@ -76,8 +77,17 @@ fn main() {
     let writer = io::stdout();
 
     let console_width = options.view.width.actual_terminal_width();
-    let theme = options.theme.to_theme(terminal_size::terminal_size().is_some());
-    let exa = Exa { options, writer, input_paths, theme, console_width, git };
+    let theme = options
+        .theme
+        .to_theme(terminal_size::terminal_size().is_some());
+    let exa = Exa {
+        options,
+        writer,
+        input_paths,
+        theme,
+        console_width,
+        git,
+    };
 
     match exa.run() {
         Ok(exit_status) => {

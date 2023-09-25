@@ -68,19 +68,18 @@
 //! --grid --long` shouldn’t complain about `--long` being given twice when
 //! it’s clear what the user wants.
 
-
 use crate::fs::dir_action::DirAction;
 use crate::fs::filter::{FileFilter, GitIgnore};
+use crate::options::parser::Opts;
 use crate::output::{details, grid_details, Mode, View};
 use crate::theme::Options as ThemeOptions;
-use crate::options::parser::Opts;
 
 mod dir_action;
 mod file_name;
 mod filter;
+pub(crate) mod parser;
 mod theme;
 mod view;
-pub(crate) mod parser;
 
 mod error;
 pub use self::error::{NumberSource, OptionsError};
@@ -110,7 +109,6 @@ pub struct Options {
 }
 
 impl Options {
-
     /// Whether the View specified in this set of options includes a Git
     /// status column. It’s only worth trying to discover a repository if the
     /// results will end up being displayed.
@@ -139,20 +137,21 @@ impl Options {
     /// Determines the complete set of options based on the given command-line
     /// arguments, after they’ve been parsed.
     pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
-        if cfg!(not(feature = "git")) &&
-               (matches.git > 0 || matches.git_ignore > 0) {
+        if cfg!(not(feature = "git")) && (matches.git > 0 || matches.git_ignore > 0) {
             return Err(OptionsError::Unsupported(String::from(
                 "Options --git and --git-ignore can't be used because `git` feature was disabled in this build of exa"
             )));
         }
 
-        let strictness = match vars.get(vars::EXA_STRICT) {
-            None => false,
-            Some(s) => ! s.is_empty()
+        let strictness = match (vars.get(vars::EXA_STRICT), vars.get(vars::EZA_STRICT)) {
+            (None, None) => false,
+            (Some(s), _) => !s.is_empty(),
+            (_, Some(s)) => !s.is_empty(),
         };
 
         let view = View::deduce(matches, vars, strictness)?;
-        let dir_action = DirAction::deduce(matches, matches!(view.mode, Mode::Details(_)), strictness)?;
+        let dir_action =
+            DirAction::deduce(matches, matches!(view.mode, Mode::Details(_)), strictness)?;
         let filter = FileFilter::deduce(matches, strictness)?;
         let theme = ThemeOptions::deduce(matches, vars)?;
 
