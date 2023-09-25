@@ -5,18 +5,19 @@ use std::io::{self, Write};
 use ansiterm::ANSIStrings;
 use term_grid as grid;
 
-use crate::fs::{Dir, File};
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::FileFilter;
-use crate::output::cell::{TextCell, DisplayWidth};
-use crate::output::details::{Options as DetailsOptions, Row as DetailsRow, Render as DetailsRender};
+use crate::fs::{Dir, File};
+use crate::output::cell::{DisplayWidth, TextCell};
+use crate::output::details::{
+    Options as DetailsOptions, Render as DetailsRender, Row as DetailsRow,
+};
 use crate::output::file_name::Options as FileStyle;
-use crate::output::file_name::{ShowIcons, EmbedHyperlinks};
+use crate::output::file_name::{EmbedHyperlinks, ShowIcons};
 use crate::output::grid::Options as GridOptions;
-use crate::output::table::{Table, Row as TableRow, Options as TableOptions};
-use crate::output::tree::{TreeParams, TreeDepth};
+use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
+use crate::output::tree::{TreeDepth, TreeParams};
 use crate::theme::Theme;
-
 
 #[derive(PartialEq, Eq, Debug)]
 pub struct Options {
@@ -31,7 +32,6 @@ impl Options {
     }
 }
 
-
 /// The grid-details view can be configured to revert to just a details view
 /// (with one column) if it wouldn’t produce enough rows of output.
 ///
@@ -41,7 +41,6 @@ impl Options {
 /// larger directory listings.
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum RowThreshold {
-
     /// Only use grid-details view if it would result in at least this many
     /// rows of output.
     MinimumRows(usize),
@@ -50,9 +49,7 @@ pub enum RowThreshold {
     AlwaysGrid,
 }
 
-
 pub struct Render<'a> {
-
     /// The directory that’s being rendered here.
     /// We need this to know which columns to put in the output.
     pub dir: Option<&'a Dir>,
@@ -91,7 +88,6 @@ pub struct Render<'a> {
 }
 
 impl<'a> Render<'a> {
-
     /// Create a temporary Details render that gets used for the columns of
     /// the grid-details render that’s being generated.
     ///
@@ -99,7 +95,8 @@ impl<'a> Render<'a> {
     /// the table in *this* file, not in details: we only want to insert every
     /// *n* files into each column’s table, not all of them.
     fn details_for_column(&self) -> DetailsRender<'a> {
-        DetailsRender {
+        #[rustfmt::skip]
+        return DetailsRender {
             dir:           self.dir,
             files:         Vec::new(),
             theme:         self.theme,
@@ -109,7 +106,7 @@ impl<'a> Render<'a> {
             filter:        self.filter,
             git_ignoring:  self.git_ignoring,
             git:           self.git,
-        }
+        };
     }
 
     /// Create a Details render for when this grid-details render doesn’t fit
@@ -117,7 +114,8 @@ impl<'a> Render<'a> {
     /// when the user asked for a grid-details view but the terminal width is
     /// not available, so we downgrade.
     pub fn give_up(self) -> DetailsRender<'a> {
-        DetailsRender {
+        #[rustfmt::skip]
+        return DetailsRender {
             dir:           self.dir,
             files:         self.files,
             theme:         self.theme,
@@ -127,7 +125,7 @@ impl<'a> Render<'a> {
             filter:        self.filter,
             git_ignoring:  self.git_ignoring,
             git:           self.git,
-        }
+        };
     }
 
     // This doesn’t take an IgnoreCache even though the details one does
@@ -136,27 +134,35 @@ impl<'a> Render<'a> {
     pub fn render<W: Write>(mut self, w: &mut W) -> io::Result<()> {
         if let Some((grid, width)) = self.find_fitting_grid() {
             write!(w, "{}", grid.fit_into_columns(width))
-        }
-        else {
+        } else {
             self.give_up().render(w)
         }
     }
 
     pub fn find_fitting_grid(&mut self) -> Option<(grid::Grid, grid::Width)> {
-        let options = self.details.table.as_ref().expect("Details table options not given!");
+        let options = self
+            .details
+            .table
+            .as_ref()
+            .expect("Details table options not given!");
 
         let drender = self.details_for_column();
 
         let (first_table, _) = self.make_table(options, &drender);
 
-        let rows = self.files.iter()
-                       .map(|file| first_table.row_for_file(file, drender.show_xattr_hint(file)))
-                       .collect::<Vec<_>>();
+        let rows = self
+            .files
+            .iter()
+            .map(|file| first_table.row_for_file(file, drender.show_xattr_hint(file)))
+            .collect::<Vec<_>>();
 
-        let file_names = self.files.iter()
+        let file_names = self
+            .files
+            .iter()
             .map(|file| {
                 let filename = self.file_style.for_file(file, self.theme);
                 let contents = filename.paint();
+                #[rustfmt::skip]
                 let width = match (filename.options.embed_hyperlinks, filename.options.show_icons) {
                     (EmbedHyperlinks::On, ShowIcons::On(spacing)) => filename.bare_width() + 1 + (spacing as usize),
                     (EmbedHyperlinks::On, ShowIcons::Off) => filename.bare_width(),
@@ -193,12 +199,20 @@ impl<'a> Render<'a> {
             }
 
             if !the_grid_fits || column_count == file_names.len() {
-                let last_column_count = if the_grid_fits { column_count } else { column_count - 1 };
+                let last_column_count = if the_grid_fits {
+                    column_count
+                } else {
+                    column_count - 1
+                };
                 // If we’ve figured out how many columns can fit in the user’s terminal,
                 // and it turns out there aren’t enough rows to make it worthwhile
-                // (according to EXA_GRID_ROWS), then just resort to the lines view.
+                // (according to EZA_GRID_ROWS), then just resort to the lines view.
                 if let RowThreshold::MinimumRows(thresh) = self.row_threshold {
-                    if last_working_grid.fit_into_columns(last_column_count).row_count() < thresh {
+                    if last_working_grid
+                        .fit_into_columns(last_column_count)
+                        .row_count()
+                        < thresh
+                    {
                         return None;
                     }
                 }
@@ -210,11 +224,23 @@ impl<'a> Render<'a> {
         None
     }
 
-    fn make_table(&mut self, options: &'a TableOptions, drender: &DetailsRender<'_>) -> (Table<'a>, Vec<DetailsRow>) {
+    fn make_table(
+        &mut self,
+        options: &'a TableOptions,
+        drender: &DetailsRender<'_>,
+    ) -> (Table<'a>, Vec<DetailsRow>) {
         match (self.git, self.dir) {
-            (Some(g), Some(d))  => if ! g.has_anything_for(&d.path) { self.git = None },
-            (Some(g), None)     => if ! self.files.iter().any(|f| g.has_anything_for(&f.path)) { self.git = None },
-            (None,    _)        => {/* Keep Git how it is */},
+            (Some(g), Some(d)) => {
+                if !g.has_anything_for(&d.path) {
+                    self.git = None;
+                }
+            }
+            (Some(g), None) => {
+                if !self.files.iter().any(|f| g.has_anything_for(&f.path)) {
+                    self.git = None;
+                }
+            }
+            (None, _) => { /* Keep Git how it is */ }
         }
 
         let mut table = Table::new(options, self.git, self.theme);
@@ -229,9 +255,16 @@ impl<'a> Render<'a> {
         (table, rows)
     }
 
-    fn make_grid(&mut self, column_count: usize, options: &'a TableOptions, file_names: &[TextCell], rows: Vec<TableRow>, drender: &DetailsRender<'_>) -> grid::Grid {
+    fn make_grid(
+        &mut self,
+        column_count: usize,
+        options: &'a TableOptions,
+        file_names: &[TextCell],
+        rows: Vec<TableRow>,
+        drender: &DetailsRender<'_>,
+    ) -> grid::Grid {
         let mut tables = Vec::new();
-        for _ in 0 .. column_count {
+        for _ in 0..column_count {
             tables.push(self.make_table(options, drender));
         }
 
@@ -245,52 +278,58 @@ impl<'a> Render<'a> {
 
         for (i, (file_name, row)) in file_names.iter().zip(rows).enumerate() {
             let index = if self.grid.across {
-                    i % column_count
-                }
-                else {
-                    i / original_height
-                };
+                i % column_count
+            } else {
+                i / original_height
+            };
 
             let (ref mut table, ref mut rows) = tables[index];
             table.add_widths(&row);
-            let details_row = drender.render_file(row, file_name.clone(), TreeParams::new(TreeDepth::root(), false));
+            let details_row = drender.render_file(
+                row,
+                file_name.clone(),
+                TreeParams::new(TreeDepth::root(), false),
+            );
             rows.push(details_row);
         }
 
         let columns = tables
             .into_iter()
             .map(|(table, details_rows)| {
-                drender.iterate_with_table(table, details_rows)
-                       .collect::<Vec<_>>()
-                })
+                drender
+                    .iterate_with_table(table, details_rows)
+                    .collect::<Vec<_>>()
+            })
             .collect::<Vec<_>>();
 
-        let direction = if self.grid.across { grid::Direction::LeftToRight }
-                                       else { grid::Direction::TopToBottom };
+        let direction = if self.grid.across {
+            grid::Direction::LeftToRight
+        } else {
+            grid::Direction::TopToBottom
+        };
 
         let filling = grid::Filling::Spaces(4);
         let mut grid = grid::Grid::new(grid::GridOptions { direction, filling });
 
         if self.grid.across {
-            for row in 0 .. height {
+            for row in 0..height {
                 for column in &columns {
                     if row < column.len() {
                         let cell = grid::Cell {
                             contents: ANSIStrings(&column[row].contents).to_string(),
-                            width:    *column[row].width,
+                            width: *column[row].width,
                         };
 
                         grid.add(cell);
                     }
                 }
             }
-        }
-        else {
+        } else {
             for column in &columns {
                 for cell in column {
                     let cell = grid::Cell {
                         contents: ANSIStrings(&cell.contents).to_string(),
-                        width:    *cell.width,
+                        width: *cell.width,
                     };
 
                     grid.add(cell);
@@ -301,7 +340,6 @@ impl<'a> Render<'a> {
         grid
     }
 }
-
 
 fn divide_rounding_up(a: usize, b: usize) -> usize {
     let mut result = a / b;

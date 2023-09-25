@@ -1,26 +1,33 @@
 use crate::fs::feature::xattr;
-use crate::options::{OptionsError, NumberSource, Vars};
-use crate::output::{View, Mode, TerminalWidth, grid, details};
-use crate::output::grid_details::{self, RowThreshold};
-use crate::output::file_name::Options as FileStyle;
-use crate::output::table::{TimeTypes, SizeFormat, UserFormat, Columns, Options as TableOptions};
-use crate::output::time::TimeFormat;
 use crate::options::parser::Opts;
-
+use crate::options::{NumberSource, OptionsError, Vars};
+use crate::output::file_name::Options as FileStyle;
+use crate::output::grid_details::{self, RowThreshold};
+use crate::output::grid_details::{self, RowThreshold};
+use crate::output::table::{Columns, Options as TableOptions, SizeFormat, TimeTypes, UserFormat};
+use crate::output::time::TimeFormat;
+use crate::output::{details, grid, Mode, TerminalWidth, View};
 
 impl View {
-    pub fn deduce<V: Vars>(matches: &Opts, vars: &V, strictness: bool) -> Result<Self, OptionsError> {
+    pub fn deduce<V: Vars>(
+        matches: &Opts,
+        vars: &V,
+        strictness: bool,
+    ) -> Result<Self, OptionsError> {
         let mode = Mode::deduce(matches, vars, strictness)?;
         let width = TerminalWidth::deduce(matches, vars)?;
         let file_style = FileStyle::deduce(matches, vars)?;
         let deref_links = matches.dereference > 0;
-        Ok(Self { mode, width, file_style, deref_links })
+        Ok(Self {
+            mode,
+            width,
+            file_style,
+            deref_links,
+        })
     }
 }
 
-
 impl Mode {
-
     /// Determine which viewing mode to use based on the user’s options.
     ///
     /// As with the other options, arguments are scanned right-to-left and the
@@ -29,17 +36,20 @@ impl Mode {
     ///
     /// This is complicated a little by the fact that `--grid` and `--tree`
     /// can also combine with `--long`, so care has to be taken to use the
-    pub fn deduce<V: Vars>(matches: &Opts, vars: &V, strictness: bool) -> Result<Self, OptionsError> {
+    pub fn deduce<V: Vars>(
+        matches: &Opts,
+        vars: &V,
+        strictness: bool,
+    ) -> Result<Self, OptionsError> {
         let flag = matches.long > 0 || matches.oneline > 0 || matches.grid > 0 || matches.tree > 0;
 
-        if ! flag {
+        if !flag {
             Self::strict_check_long_flags(matches, strictness)?;
             let grid = grid::Options::deduce(matches);
             return Ok(Self::Grid(grid));
         };
 
-        if matches.long > 0
-        {
+        if matches.long > 0 {
             let details = details::Options::deduce_long(matches, vars, strictness)?;
 
             let flags = matches.grid > 0 || (matches.tree > 0);
@@ -47,7 +57,11 @@ impl Mode {
             if flags && matches.grid > 0 {
                 let grid = grid::Options::deduce(matches);
                 let row_threshold = RowThreshold::deduce(vars)?;
-                let grid_details = grid_details::Options { grid, details, row_threshold };
+                let grid_details = grid_details::Options {
+                    grid,
+                    details,
+                    row_threshold,
+                };
                 return Ok(Self::GridDetails(grid_details));
             }
 
@@ -76,40 +90,84 @@ impl Mode {
         // TODO strict handling
         if strictness && matches.long == 0 {
             if matches.tree > 0 {
-                return Err(OptionsError::Useless("--tree".to_string(), false, "--long".to_string()));
+                return Err(OptionsError::Useless(
+                    "--tree".to_string(),
+                    false,
+                    "--long".to_string(),
+                ));
             } else if matches.binary > 0 {
-                return Err(OptionsError::Useless("--binary".to_string(), false, "--long".to_string()));
+                return Err(OptionsError::Useless(
+                    "--binary".to_string(),
+                    false,
+                    "--long".to_string(),
+                ));
             } else if matches.bytes > 0 {
-                return Err(OptionsError::Useless("--bytes".to_string(), false, "--long".to_string()));
+                return Err(OptionsError::Useless(
+                    "--bytes".to_string(),
+                    false,
+                    "--long".to_string(),
+                ));
             } else if matches.inode > 0 {
-                return Err(OptionsError::Useless("--inode".to_string(), false, "--long".to_string()));
+                return Err(OptionsError::Useless(
+                    "--inode".to_string(),
+                    false,
+                    "--long".to_string(),
+                ));
             } else if matches.links > 0 {
-                return Err(OptionsError::Useless("--links".to_string(), false, "--long".to_string()));
+                return Err(OptionsError::Useless(
+                    "--links".to_string(),
+                    false,
+                    "--long".to_string(),
+                ));
             } else if matches.header > 0 {
-                return Err(OptionsError::Useless("--header".to_string(), false, "--long".to_string()));
+                return Err(OptionsError::Useless(
+                    "--header".to_string(),
+                    false,
+                    "--long".to_string(),
+                ));
             } else if matches.blocksize > 0 {
-                return Err(OptionsError::Useless("--blocksize".to_string(), false, "--long".to_string()));
+                return Err(OptionsError::Useless(
+                    "--blocksize".to_string(),
+                    false,
+                    "--long".to_string(),
+                ));
             } else if matches.time.is_some() {
-                return Err(OptionsError::Useless("--time".to_string(), false, "--long".to_string()));
+                return Err(OptionsError::Useless(
+                    "--time".to_string(),
+                    false,
+                    "--long".to_string(),
+                ));
             } else if matches.group > 0 {
-                return Err(OptionsError::Useless("--group".to_string(), false, "--long".to_string()));
+                return Err(OptionsError::Useless(
+                    "--group".to_string(),
+                    false,
+                    "--long".to_string(),
+                ));
             } else if matches.numeric > 0 {
-                return Err(OptionsError::Useless("--numeric".to_string(), false, "--long".to_string()));
+                return Err(OptionsError::Useless(
+                    "--numeric".to_string(),
+                    false,
+                    "--long".to_string(),
+                ));
             } else if matches.mount > 0 {
-                return Err(OptionsError::Useless("--mount".to_string(), false, "--long".to_string()));
+                return Err(OptionsError::Useless(
+                    "--mount".to_string(),
+                    false,
+                    "--long".to_string(),
+                ));
             }
         }
         Ok(())
     }
 }
 
-
 impl grid::Options {
     fn deduce(matches: &Opts) -> Self {
-        grid::Options{across: matches.across > 0}
+        grid::Options {
+            across: matches.across > 0,
+        }
     }
 }
-
 
 impl details::Options {
     fn deduce_tree(matches: &Opts) -> Self {
@@ -122,13 +180,24 @@ impl details::Options {
         }
     }
 
-    fn deduce_long<V: Vars>(matches: &Opts, vars: &V, strictness: bool) -> Result<Self, OptionsError> {
+    fn deduce_long<V: Vars>(
+        matches: &Opts,
+        vars: &V,
+        strictness: bool,
+    ) -> Result<Self, OptionsError> {
         if strictness {
-            if matches.across > 0 && ! matches.grid > 0 {
-                return Err(OptionsError::Useless("--accros".to_string(), true, "--long".to_string()));
-            }
-            else if matches.oneline > 0 {
-                return Err(OptionsError::Useless("--oneline".to_string(), true, "--long".to_string()));
+            if matches.across > 0 && !matches.grid > 0 {
+                return Err(OptionsError::Useless(
+                    "--accros".to_string(),
+                    true,
+                    "--long".to_string(),
+                ));
+            } else if matches.oneline > 0 {
+                return Err(OptionsError::Useless(
+                    "--oneline".to_string(),
+                    true,
+                    "--long".to_string(),
+                ));
             }
         }
 
@@ -142,7 +211,6 @@ impl details::Options {
     }
 }
 
-
 impl TerminalWidth {
     fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
         use crate::options::vars;
@@ -152,46 +220,40 @@ impl TerminalWidth {
                 return Ok(Self::Automatic);
             }
             Ok(Self::Set(width))
-        }
-        else if let Some(columns) = vars.get(vars::COLUMNS).and_then(|s| s.into_string().ok()) {
+        } else if let Some(columns) = vars.get(vars::COLUMNS).and_then(|s| s.into_string().ok()) {
             match columns.parse() {
-                Ok(width) => {
-                    Ok(Self::Set(width))
-                }
+                Ok(width) => Ok(Self::Set(width)),
                 Err(e) => {
                     let source = NumberSource::Var(vars::COLUMNS.to_string());
                     Err(OptionsError::FailedParse(columns, source, e))
                 }
             }
-        }
-        else {
+        } else {
             Ok(Self::Automatic)
         }
     }
 }
 
-
 impl RowThreshold {
     fn deduce<V: Vars>(vars: &V) -> Result<Self, OptionsError> {
         use crate::options::vars;
 
-        if let Some(columns) = vars.get(vars::EXA_GRID_ROWS).and_then(|s| s.into_string().ok()) {
+        if let Some(columns) = vars
+            .get_with_fallback(vars::EZA_GRID_ROWS, vars::EXA_GRID_ROWS)
+            .and_then(|s| s.into_string().ok())
+        {
             match columns.parse() {
-                Ok(rows) => {
-                    Ok(Self::MinimumRows(rows))
-                }
+                Ok(rows) => Ok(Self::MinimumRows(rows)),
                 Err(e) => {
                     let source = NumberSource::Var(vars::EXA_GRID_ROWS.to_string());
                     Err(OptionsError::FailedParse(columns, source, e))
                 }
             }
-        }
-        else {
+        } else {
             Ok(Self::AlwaysGrid)
         }
     }
 }
-
 
 impl TableOptions {
     fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
@@ -199,10 +261,14 @@ impl TableOptions {
         let size_format = SizeFormat::deduce(matches);
         let user_format = UserFormat::deduce(matches);
         let columns = Columns::deduce(matches)?;
-        Ok(Self { size_format, time_format, user_format, columns })
+        Ok(Self {
+            size_format,
+            time_format,
+            user_format,
+            columns,
+        })
     }
 }
-
 
 impl Columns {
     fn deduce(matches: &Opts) -> Result<Self, OptionsError> {
@@ -210,26 +276,39 @@ impl Columns {
 
         let git = matches.git > 0 && matches.no_git == 0;
         let subdir_git_repos = matches.git_repos > 0 && matches.no_git == 0;
-        let subdir_git_repos_no_stat = subdir_git_repos && matches.git_repos_no_status > 0 && matches.no_git == 0;
+        let subdir_git_repos_no_stat =
+            subdir_git_repos && matches.git_repos_no_status > 0 && matches.no_git == 0;
 
-        let blocksize        = matches.blocksize > 0;
-        let group            = matches.group > 0;
-        let inode            = matches.inode > 0; 
-        let links            = matches.links > 0;
-        let octal            = matches.octal > 0;
+        let blocksize = matches.blocksize > 0;
+        let group = matches.group > 0;
+        let inode = matches.inode > 0;
+        let links = matches.links > 0;
+        let octal = matches.octal > 0;
         let security_context = xattr::ENABLED && matches.security_context > 0;
 
         let permissions = matches.no_permissions == 0;
-        let filesize    = matches.no_filesize == 0;
-        let user        = matches.no_user == 0;
+        let filesize = matches.no_filesize == 0;
+        let user = matches.no_user == 0;
 
-        Ok(Self { time_types, inode, links, blocksize, group, git, subdir_git_repos, subdir_git_repos_no_stat, octal, security_context, permissions, filesize, user })
+        Ok(Self {
+            time_types,
+            inode,
+            links,
+            blocksize,
+            group,
+            git,
+            subdir_git_repos,
+            subdir_git_repos_no_stat,
+            octal,
+            security_context,
+            permissions,
+            filesize,
+            user,
+        })
     }
 }
 
-
 impl SizeFormat {
-
     /// Determine which file size to use in the file size column based on
     /// the user’s options.
     ///
@@ -255,45 +334,39 @@ impl SizeFormat {
     }
 }
 
-
 impl TimeFormat {
-
     /// Determine how time should be formatted in timestamp columns.
     fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
-        let word =
-            if let Some(ref w) = matches.time_style {
-                w.clone()
-            }
-            else {
-                use crate::options::vars;
-                match vars.get(vars::TIME_STYLE) {
-                    Some(ref t) if ! t.is_empty()  => t.clone(),
-                    _                              => return Ok(Self::DefaultFormat)
-                }
-            };
+        let word = if let Some(ref w) = matches.time_style {
+            w.clone()
+        };
 
         match word.to_string_lossy().as_ref() {
-            "default"  => Ok(Self::DefaultFormat),
+            "default" => Ok(Self::DefaultFormat),
             "relative" => Ok(Self::Relative),
-            "iso"      => Ok(Self::ISOFormat),
+            "iso" => Ok(Self::ISOFormat),
             "long-iso" => Ok(Self::LongISO),
             "full-iso" => Ok(Self::FullISO),
-            _ => Err(OptionsError::BadArgument("--time-style".to_string(), word.to_string_lossy().to_string()))
+            _ => Err(OptionsError::BadArgument(
+                "--time-style".to_string(),
+                word.to_string_lossy().to_string(),
+            )),
         }
     }
 }
 
-
 impl UserFormat {
     fn deduce(matches: &Opts) -> Self {
-        let flag = matches.numeric > 0 ;
-        if flag { Self::Numeric } else { Self::Name }
+        let flag = matches.numeric > 0;
+        if flag {
+            Self::Numeric
+        } else {
+            Self::Name
+        }
     }
 }
 
-
 impl TimeTypes {
-
     /// Determine which of a file’s time fields should be displayed for it
     /// based on the user’s options.
     ///
@@ -307,14 +380,20 @@ impl TimeTypes {
     fn deduce(matches: &Opts) -> Result<Self, OptionsError> {
         let possible_word = &matches.time;
         let modified = matches.modified > 0;
-        let changed  = matches.changed > 0;
+        let changed = matches.changed > 0;
         let accessed = matches.accessed > 0;
-        let created  = matches.created > 0;
+        let created = matches.created > 0;
 
         let no_time = matches.no_time > 0;
 
+        #[rustfmt::skip]
         let time_types = if no_time {
-            Self { modified: false, changed: false, accessed: false, created: false }
+            Self {
+                modified: false,
+                changed: false,
+                accessed: false,
+                created: false,
+            }
         } else if let Some(word) = possible_word {
             if modified {
                 return Err(OptionsError::Useless("--modified".to_string(), true, "--time".to_string()));
@@ -330,24 +409,24 @@ impl TimeTypes {
             }
             else if word == "mod" || word == "modified" {
                 Self { modified: true,  changed: false, accessed: false, created: false }
-            }
-            else if word == "ch" || word == "changed" {
+            } else if word == "ch" || word == "changed" {
                 Self { modified: false, changed: true,  accessed: false, created: false }
-            }
-            else if word == "acc" || word == "accessed" {
+            } else if word == "acc" || word == "accessed" {
                 Self { modified: false, changed: false, accessed: true,  created: false }
-            }
-            else if word == "cr" || word == "created" {
+            } else if word == "cr" || word == "created" {
                 Self { modified: false, changed: false, accessed: false, created: true  }
             }
             else {
                 return Err(OptionsError::BadArgument("--time".to_string(), word.to_string_lossy().to_string()));
             }
-        }
-        else if modified || changed || accessed || created {
-            Self { modified, changed, accessed, created }
-        }
-        else {
+        } else if modified || changed || accessed || created {
+            Self {
+                modified,
+                changed,
+                accessed,
+                created,
+            }
+        } else {
             Self::default()
         };
 
@@ -363,9 +442,7 @@ mod test {
 
     #[test]
     fn deduce_time_type() {
-        let matches = Opts {
-            ..Opts::default()
-        };
+        let matches = Opts { ..Opts::default() };
 
         assert_eq!(TimeTypes::deduce(&matches).unwrap(), TimeTypes::default());
     }
@@ -377,7 +454,13 @@ mod test {
             ..Opts::default()
         };
 
-        assert_eq!(TimeTypes::deduce(&matches).unwrap(), TimeTypes { modified: true, ..TimeTypes::default() });
+        assert_eq!(
+            TimeTypes::deduce(&matches).unwrap(),
+            TimeTypes {
+                modified: true,
+                ..TimeTypes::default()
+            }
+        );
     }
 
     #[test]
@@ -387,7 +470,14 @@ mod test {
             ..Opts::default()
         };
 
-        assert_eq!(TimeTypes::deduce(&matches).unwrap(), TimeTypes { changed: true, modified: false, ..TimeTypes::default() });
+        assert_eq!(
+            TimeTypes::deduce(&matches).unwrap(),
+            TimeTypes {
+                changed: true,
+                modified: false,
+                ..TimeTypes::default()
+            }
+        );
     }
 
     #[test]
@@ -397,7 +487,14 @@ mod test {
             ..Opts::default()
         };
 
-        assert_eq!(TimeTypes::deduce(&matches).unwrap(), TimeTypes { accessed: true, modified: false,..TimeTypes::default() });
+        assert_eq!(
+            TimeTypes::deduce(&matches).unwrap(),
+            TimeTypes {
+                accessed: true,
+                modified: false,
+                ..TimeTypes::default()
+            }
+        );
     }
 
     #[test]
@@ -407,7 +504,14 @@ mod test {
             ..Opts::default()
         };
 
-        assert_eq!(TimeTypes::deduce(&matches).unwrap(), TimeTypes { created: true, modified: false, ..TimeTypes::default() });
+        assert_eq!(
+            TimeTypes::deduce(&matches).unwrap(),
+            TimeTypes {
+                created: true,
+                modified: false,
+                ..TimeTypes::default()
+            }
+        );
     }
 
     #[test]
@@ -417,7 +521,13 @@ mod test {
             ..Opts::default()
         };
 
-        assert_eq!(TimeTypes::deduce(&matches).unwrap(), TimeTypes { modified: true, ..TimeTypes::default() });
+        assert_eq!(
+            TimeTypes::deduce(&matches).unwrap(),
+            TimeTypes {
+                modified: true,
+                ..TimeTypes::default()
+            }
+        );
     }
 
     #[test]
@@ -427,7 +537,14 @@ mod test {
             ..Opts::default()
         };
 
-        assert_eq!(TimeTypes::deduce(&matches).unwrap(), TimeTypes { changed: true, modified: false, ..TimeTypes::default() });
+        assert_eq!(
+            TimeTypes::deduce(&matches).unwrap(),
+            TimeTypes {
+                changed: true,
+                modified: false,
+                ..TimeTypes::default()
+            }
+        );
     }
 
     #[test]
@@ -437,7 +554,14 @@ mod test {
             ..Opts::default()
         };
 
-        assert_eq!(TimeTypes::deduce(&matches).unwrap(), TimeTypes { accessed: true, modified: false, ..TimeTypes::default() });
+        assert_eq!(
+            TimeTypes::deduce(&matches).unwrap(),
+            TimeTypes {
+                accessed: true,
+                modified: false,
+                ..TimeTypes::default()
+            }
+        );
     }
 
     #[test]
@@ -447,7 +571,14 @@ mod test {
             ..Opts::default()
         };
 
-        assert_eq!(TimeTypes::deduce(&matches).unwrap(), TimeTypes { created: true, modified: false, ..TimeTypes::default() });
+        assert_eq!(
+            TimeTypes::deduce(&matches).unwrap(),
+            TimeTypes {
+                created: true,
+                modified: false,
+                ..TimeTypes::default()
+            }
+        );
     }
 
     #[test]
@@ -496,9 +627,7 @@ mod test {
 
     #[test]
     fn deduce_user_format() {
-        let matches = Opts {
-            ..Opts::default()
-        };
+        let matches = Opts { ..Opts::default() };
 
         assert_eq!(UserFormat::deduce(&matches), UserFormat::Name);
     }
@@ -515,9 +644,7 @@ mod test {
 
     #[test]
     fn deduce_size_format() {
-        let matches = Opts {
-            ..Opts::default()
-        };
+        let matches = Opts { ..Opts::default() };
 
         assert_eq!(SizeFormat::deduce(&matches), SizeFormat::DecimalBytes);
     }
@@ -549,12 +676,15 @@ mod test {
             ..Opts::default()
         };
 
-        assert_eq!(details::Options::deduce_tree(&matches), details::Options {
-            table: None,
-            header: false,
-            xattr: xattr::ENABLED && matches.extended > 0,
-            secattr: xattr::ENABLED && matches.security_context > 0,
-            mounts: matches.mount > 0,
-        });
+        assert_eq!(
+            details::Options::deduce_tree(&matches),
+            details::Options {
+                table: None,
+                header: false,
+                xattr: xattr::ENABLED && matches.extended > 0,
+                secattr: xattr::ENABLED && matches.security_context > 0,
+                mounts: matches.mount > 0,
+            }
+        );
     }
 }

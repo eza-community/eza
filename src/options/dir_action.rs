@@ -5,9 +5,7 @@ use crate::options::OptionsError;
 use crate::fs::dir_action::{DirAction, RecurseOptions};
 use crate::options::parser::Opts;
 
-
 impl DirAction {
-
     /// Determine which action to perform when trying to list a directory.
     /// There are three possible actions, and they overlap somewhat: the
     /// `--tree` flag is another form of recursion, so those two are allowed
@@ -40,16 +38,13 @@ impl DirAction {
         }
         else if as_file {
             Ok(Self::AsFile)
-        }
-        else {
+        } else {
             Ok(Self::List)
         }
     }
 }
 
-
 impl RecurseOptions {
-
     /// Determine which files should be recursed into, based on the `--level`
     /// flag’s value, and whether the `--tree` flag was passed, which was
     /// determined earlier. The maximum level should be a number, and this

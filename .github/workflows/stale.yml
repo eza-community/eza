@@ -20,8 +20,6 @@ jobs:
     steps:
     - uses: actions/stale@v8
       with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        
         days-before-pr-stale: 30
         days-before-pr-close: 14
         stale-pr-message: 'This pull request is stale because it has been open for 30 days with no activity.'

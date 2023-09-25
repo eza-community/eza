@@ -10,13 +10,16 @@ impl Options {
         let colour_scale = ColourScale::deduce(matches);
 
         let definitions = if use_colours == UseColours::Never {
-                Definitions::default()
-            }
-            else {
-                Definitions::deduce(vars)
-            };
+            Definitions::default()
+        } else {
+            Definitions::deduce(vars)
+        };
 
-        Ok(Self { use_colours, colour_scale, definitions })
+        Ok(Self {
+            use_colours,
+            colour_scale,
+            definitions,
+        })
     }
 }
 
@@ -40,11 +43,9 @@ impl UseColours {
     fn get_color(word: String) -> Result<Self, OptionsError> {
         if word == "always" {
             Ok(Self::Always)
-        }
-        else if word == "auto" || word == "automatic" {
+        } else if word == "auto" || word == "automatic" {
             Ok(Self::Automatic)
-        }
-        else if word == "never" {
+        } else if word == "never" {
             Ok(Self::Never)
         }
         else {
@@ -52,7 +53,6 @@ impl UseColours {
         }
     }
 }
-
 
 impl ColourScale {
     fn deduce(matches: &Opts) -> Self {
@@ -63,15 +63,17 @@ impl ColourScale {
     }
 }
 
-
 impl Definitions {
     fn deduce<V: Vars>(vars: &V) -> Self {
-        let ls =  vars.get(vars::LS_COLORS) .map(|e| e.to_string_lossy().to_string());
-        let exa = vars.get(vars::EXA_COLORS).map(|e| e.to_string_lossy().to_string());
+        let ls = vars
+            .get(vars::LS_COLORS)
+            .map(|e| e.to_string_lossy().to_string());
+        let exa = vars
+            .get_with_fallback(vars::EZA_COLORS, vars::EXA_COLORS)
+            .map(|e| e.to_string_lossy().to_string());
         Self { ls, exa }
     }
 }
-
 
 #[cfg(test)]
 mod tests {

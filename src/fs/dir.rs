@@ -1,14 +1,13 @@
 use crate::fs::feature::git::GitCache;
 use crate::fs::fields::GitStatus;
-use std::io;
 use std::fs;
+use std::io;
 use std::path::{Path, PathBuf};
 use std::slice::Iter as SliceIter;
 
 use log::*;
 
 use crate::fs::File;
-
 
 /// A **Dir** provides a cached list of the file paths in a directory that’s
 /// being listed.
@@ -17,7 +16,6 @@ use crate::fs::File;
 /// check the existence of surrounding files, then highlight themselves
 /// accordingly. (See `File#get_source_files`)
 pub struct Dir {
-
     /// A vector of the files that have been read from this directory.
     contents: Vec<PathBuf>,
 
@@ -26,7 +24,6 @@ pub struct Dir {
 }
 
 impl Dir {
-
     /// Create a new Dir object filled with all the files in the directory
     /// pointed to by the given path. Fails if the directory can’t be read, or
     /// isn’t actually a directory, or if there’s an IO error that occurs at
@@ -39,8 +36,8 @@ impl Dir {
         info!("Reading directory {:?}", &path);
 
         let contents = fs::read_dir(&path)?
-                          .map(|result| result.map(|entry| entry.path()))
-                          .collect::<Result<_, _>>()?;
+            .map(|result| result.map(|entry| entry.path()))
+            .collect::<Result<_, _>>()?;
 
         info!("Read directory success {:?}", &path);
         Ok(Self { contents, path })
@@ -48,12 +45,18 @@ impl Dir {
 
     /// Produce an iterator of IO results of trying to read all the files in
     /// this directory.
-    pub fn files<'dir, 'ig>(&'dir self, dots: DotFilter, git: Option<&'ig GitCache>, git_ignoring: bool, deref_links: bool) -> Files<'dir, 'ig> {
+    pub fn files<'dir, 'ig>(
+        &'dir self,
+        dots: DotFilter,
+        git: Option<&'ig GitCache>,
+        git_ignoring: bool,
+        deref_links: bool,
+    ) -> Files<'dir, 'ig> {
         Files {
-            inner:     self.contents.iter(),
-            dir:       self,
-            dotfiles:  dots.shows_dotfiles(),
-            dots:      dots.dots(),
+            inner: self.contents.iter(),
+            dir: self,
+            dotfiles: dots.shows_dotfiles(),
+            dots: dots.dots(),
             git,
             git_ignoring,
             deref_links,
@@ -71,10 +74,8 @@ impl Dir {
     }
 }
 
-
 /// Iterator over reading the contents of a directory as `File` objects.
 pub struct Files<'dir, 'ig> {
-
     /// The internal iterator over the paths that have been read already.
     inner: SliceIter<'dir, PathBuf>,
 
@@ -112,26 +113,26 @@ impl<'dir, 'ig> Files<'dir, 'ig> {
         loop {
             if let Some(path) = self.inner.next() {
                 let filename = File::filename(path);
-                if ! self.dotfiles && filename.starts_with('.') {
+                if !self.dotfiles && filename.starts_with('.') {
                     continue;
                 }
 
                 // Also hide _prefix files on Windows because it's used by old applications
                 // as an alternative to dot-prefix files.
                 #[cfg(windows)]
-                if ! self.dotfiles && filename.starts_with('_') {
+                if !self.dotfiles && filename.starts_with('_') {
                     continue;
                 }
 
                 if self.git_ignoring {
                     let git_status = self.git.map(|g| g.get(path, false)).unwrap_or_default();
                     if git_status.unstaged == GitStatus::Ignored {
-                         continue;
+                        continue;
                     }
                 }
 
                 let file = File::from_args(path.clone(), self.dir, filename, self.deref_links)
-                                 .map_err(|e| (path.clone(), e));
+                    .map_err(|e| (path.clone(), e));
 
                 // Windows has its own concept of hidden files, when dotfiles are
                 // hidden Windows hidden files should also be filtered out
@@ -143,7 +144,7 @@ impl<'dir, 'ig> Files<'dir, 'ig> {
                 return Some(file);
             }
 
-            return None
+            return None;
         }
     }
 }
@@ -151,7 +152,6 @@ impl<'dir, 'ig> Files<'dir, 'ig> {
 /// The dot directories that need to be listed before actual files, if any.
 /// If these aren’t being printed, then `FilesNext` is used to skip them.
 enum DotsNext {
-
     /// List the `.` directory next.
     Dot,
 
@@ -169,30 +169,24 @@ impl<'dir, 'ig> Iterator for Files<'dir, 'ig> {
         match self.dots {
             DotsNext::Dot => {
                 self.dots = DotsNext::DotDot;
-                Some(File::new_aa_current(self.dir)
-                          .map_err(|e| (Path::new(".").to_path_buf(), e)))
+                Some(File::new_aa_current(self.dir).map_err(|e| (Path::new(".").to_path_buf(), e)))
             }
 
             DotsNext::DotDot => {
                 self.dots = DotsNext::Files;
-                Some(File::new_aa_parent(self.parent(), self.dir)
-                          .map_err(|e| (self.parent(), e)))
+                Some(File::new_aa_parent(self.parent(), self.dir).map_err(|e| (self.parent(), e)))
             }
 
-            DotsNext::Files => {
-                self.next_visible_file()
-            }
+            DotsNext::Files => self.next_visible_file(),
         }
     }
 }
-
 
 /// Usually files in Unix use a leading dot to be hidden or visible, but two
 /// entries in particular are “extra-hidden”: `.` and `..`, which only become
 /// visible after an extra `-a` option.
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum DotFilter {
-
     /// Shows files, dotfiles, and `.` and `..`.
     DotfilesAndDots,
 
@@ -210,12 +204,11 @@ impl Default for DotFilter {
 }
 
 impl DotFilter {
-
     /// Whether this filter should show dotfiles in a listing.
     fn shows_dotfiles(self) -> bool {
         match self {
-            Self::JustFiles       => false,
-            Self::Dotfiles        => true,
+            Self::JustFiles => false,
+            Self::Dotfiles => true,
             Self::DotfilesAndDots => true,
         }
     }
@@ -223,9 +216,9 @@ impl DotFilter {
     /// Whether this filter should add dot directories to a listing.
     fn dots(self) -> DotsNext {
         match self {
-            Self::JustFiles        => DotsNext::Files,
-            Self::Dotfiles         => DotsNext::Files,
-            Self::DotfilesAndDots  => DotsNext::Dot,
+            Self::JustFiles => DotsNext::Files,
+            Self::Dotfiles => DotsNext::Files,
+            Self::DotfilesAndDots => DotsNext::Dot,
         }
     }
 }

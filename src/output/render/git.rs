@@ -1,50 +1,21 @@
-use ansiterm::{ANSIString, Style, Color};
+use ansiterm::{ANSIString, Style};
 
-use crate::output::cell::{TextCell, DisplayWidth};
 use crate::fs::fields as f;
-
+use crate::output::cell::{DisplayWidth, TextCell};
 
 impl f::Git {
     pub fn render(self, colours: &dyn Colours) -> TextCell {
         TextCell {
             width: DisplayWidth::from(2),
-            contents: vec![
-                self.staged.render(colours),
-                self.unstaged.render(colours),
-            ].into(),
-        }
-    }
-}
-
-impl f::SubdirGitRepo {
-    pub fn render(self) -> TextCell {
-        let style = Style::new();
-        let branch_style = match self.branch.as_deref(){
-            Some("master") => style.fg(Color::Green),
-            Some("main") => style.fg(Color::Green),
-            Some(_) => style.fg(Color::Fixed(208)),
-            _ => style,
-        };
-        
-        let branch = branch_style.paint(self.branch.unwrap_or(String::from("-")));
-
-        let s = match self.status {
-            f::SubdirGitRepoStatus::NoRepo => style.paint("- "),
-            f::SubdirGitRepoStatus::GitClean => style.fg(Color::Green).paint("| "),
-            f::SubdirGitRepoStatus::GitDirty => style.bold().fg(Color::Red).paint("+ "),
-            f::SubdirGitRepoStatus::GitUnknown => style.fg(Color::Green).bold().paint("~ "),
-        };
-
-        TextCell {
-            width: DisplayWidth::from(2 + branch.len()),
-            contents: vec![s,branch].into(),
+            contents: vec![self.staged.render(colours), self.unstaged.render(colours)].into(),
         }
     }
 }
 
 impl f::GitStatus {
     fn render(self, colours: &dyn Colours) -> ANSIString<'static> {
-        match self {
+        #[rustfmt::skip]
+        return match self {
             Self::NotModified  => colours.not_modified().paint("-"),
             Self::New          => colours.new().paint("N"),
             Self::Modified     => colours.modified().paint("M"),
@@ -53,16 +24,15 @@ impl f::GitStatus {
             Self::TypeChange   => colours.type_change().paint("T"),
             Self::Ignored      => colours.ignored().paint("I"),
             Self::Conflicted   => colours.conflicted().paint("U"),
-        }
+        };
     }
 }
-
 
 pub trait Colours {
     fn not_modified(&self) -> Style;
     // FIXME: this amount of allows needed to keep clippy happy should be enough
     // of an argument that new needs to be renamed.
-    #[allow(clippy::new_ret_no_self,clippy::wrong_self_convention)]
+    #[allow(clippy::new_ret_no_self, clippy::wrong_self_convention)]
     fn new(&self) -> Style;
     fn modified(&self) -> Style;
     fn deleted(&self) -> Style;
@@ -72,63 +42,119 @@ pub trait Colours {
     fn conflicted(&self) -> Style;
 }
 
+impl f::SubdirGitRepo {
+    pub fn render(self, colours: &dyn RepoColours) -> TextCell {
+        let branch_name = match self.branch {
+            Some(name) => {
+                if name == "main" || name == "master" {
+                    colours.branch_main().paint(name)
+                } else {
+                    colours.branch_other().paint(name)
+                }
+            }
+            None => colours.no_repo().paint("-"),
+        };
+
+        if let Some(status) = self.status {
+            TextCell {
+                width: DisplayWidth::from(2) + DisplayWidth::from(branch_name.as_str()),
+                contents: vec![
+                    status.render(colours),
+                    Style::default().paint(" "),
+                    branch_name,
+                ]
+                .into(),
+            }
+        } else {
+            TextCell {
+                width: DisplayWidth::from(branch_name.as_str()),
+                contents: vec![branch_name].into(),
+            }
+        }
+    }
+}
+
+impl f::SubdirGitRepoStatus {
+    pub fn render(self, colours: &dyn RepoColours) -> ANSIString<'static> {
+        match self {
+            Self::NoRepo => colours.no_repo().paint("-"),
+            Self::GitClean => colours.git_clean().paint("|"),
+            Self::GitDirty => colours.git_dirty().paint("+"),
+        }
+    }
+}
+
+pub trait RepoColours {
+    fn branch_main(&self) -> Style;
+    fn branch_other(&self) -> Style;
+    fn no_repo(&self) -> Style;
+    fn git_clean(&self) -> Style;
+    fn git_dirty(&self) -> Style;
+}
 
 #[cfg(test)]
 pub mod test {
     use super::Colours;
-    use crate::output::cell::{TextCell, DisplayWidth};
     use crate::fs::fields as f;
+    use crate::output::cell::{DisplayWidth, TextCell};
 
     use ansiterm::Colour::*;
     use ansiterm::Style;
 
-
     struct TestColours;
 
     impl Colours for TestColours {
-        fn not_modified(&self) -> Style { Fixed(90).normal() }
-        fn new(&self)          -> Style { Fixed(91).normal() }
-        fn modified(&self)     -> Style { Fixed(92).normal() }
-        fn deleted(&self)      -> Style { Fixed(93).normal() }
-        fn renamed(&self)      -> Style { Fixed(94).normal() }
-        fn type_change(&self)  -> Style { Fixed(95).normal() }
-        fn ignored(&self)      -> Style { Fixed(96).normal() }
-        fn conflicted(&self)   -> Style { Fixed(97).normal() }
+        fn not_modified(&self) -> Style {
+            Fixed(90).normal()
+        }
+        fn new(&self) -> Style {
+            Fixed(91).normal()
+        }
+        fn modified(&self) -> Style {
+            Fixed(92).normal()
+        }
+        fn deleted(&self) -> Style {
+            Fixed(93).normal()
+        }
+        fn renamed(&self) -> Style {
+            Fixed(94).normal()
+        }
+        fn type_change(&self) -> Style {
+            Fixed(95).normal()
+        }
+        fn ignored(&self) -> Style {
+            Fixed(96).normal()
+        }
+        fn conflicted(&self) -> Style {
+            Fixed(97).normal()
+        }
     }
-
 
     #[test]
     fn git_blank() {
         let stati = f::Git {
-            staged:   f::GitStatus::NotModified,
+            staged: f::GitStatus::NotModified,
             unstaged: f::GitStatus::NotModified,
         };
 
         let expected = TextCell {
             width: DisplayWidth::from(2),
-            contents: vec![
-                Fixed(90).paint("-"),
-                Fixed(90).paint("-"),
-            ].into(),
+            contents: vec![Fixed(90).paint("-"), Fixed(90).paint("-")].into(),
         };
 
         assert_eq!(expected, stati.render(&TestColours))
     }
 
-
     #[test]
     fn git_new_changed() {
         let stati = f::Git {
-            staged:   f::GitStatus::New,
+            staged: f::GitStatus::New,
             unstaged: f::GitStatus::Modified,
         };
 
         let expected = TextCell {
             width: DisplayWidth::from(2),
-            contents: vec![
-                Fixed(91).paint("N"),
-                Fixed(92).paint("M"),
-            ].into(),
+            contents: vec![Fixed(91).paint("N"), Fixed(92).paint("M")].into(),
         };
 
         assert_eq!(expected, stati.render(&TestColours))

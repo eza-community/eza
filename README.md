@@ -99,23 +99,23 @@ pacman -S eza
 Eza is available from [deb.gierens.de](http://deb.gierens.de). The GPG public
 key is in this repo under [deb.asc](/deb.asc).
 
-To install eza from this repo use:
+First make sure you have the `gpg` command, and otherwise install it via:
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo tee /etc/apt/trusted.gpg.d/gierens.asc
-echo "deb http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+sudo apt update
+sudo apt install -y gpg
+```
+
+Then install eza via:
+
+```bash
+sudo mkdir -p /etc/apt/keyrings
+wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
 sudo apt update
 sudo apt install -y eza
 ```
-
-**Note:** on some systems like Docker containers apt might require the key
-to be in dearmored format, then use this command instead:
-
-```bash
-wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/gierens.asc
-```
-
-before proceeding with the others from above.
 
 ### Nix (Linux, MacOS)
 
@@ -161,6 +161,16 @@ The preceding repository also contains the Bash, Fish, and Zsh completions.
 Fedora support is in the works.
 
 https://bugzilla.redhat.com/show_bug.cgi?id=2238264
+
+### Void Linux
+
+[![Void Linux package](https://repology.org/badge/version-for-repo/void_x86_64/eza.svg)](https://repology.org/project/eza/versions)
+
+Eza is available as the [eza](https://github.com/void-linux/void-packages/tree/master/srcpkgs/eza) package in the official Void Linux repository.
+
+```bash
+sudo xbps-install eza
+```
 
 ### Brew (MacOS)
 
@@ -276,6 +286,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s.
 - **-s**, **--sort=(field)**: which field to sort by
 - **--group-directories-first**: list directories before other files
 - **-D**, **--only-dirs**: list only directories
+- **-f**, **--only-files**: list only files
 - **--git-ignore**: ignore files mentioned in `.gitignore`
 - **-I**, **--ignore-glob=(globs)**: glob patterns (pipe-separated) of files to ignore
 
@@ -292,7 +303,7 @@ These options are available when running with `--long` (`-l`):
 - **-H**, **--links**: list each file’s number of hard links
 - **-i**, **--inode**: list each file’s inode number
 - **-m**, **--modified**: use the modified timestamp field
-- **-M**, **--mounts**: Show mount details (Linux only).
+- **-M**, **--mounts**: Show mount details (Linux and MacOS only).
 - **-S**, **--blocksize**: show size of allocated file system blocks
 - **-t**, **--time=(field)**: which timestamp field to use
 - **-u**, **--accessed**: use the accessed timestamp field
@@ -302,6 +313,8 @@ These options are available when running with `--long` (`-l`):
 - **-@**, **--extended**: list each file’s extended attributes and sizes
 - **--changed**: use the changed timestamp field
 - **--git**: list each file’s Git status, if tracked or ignored
+- **--git-repos**: list each directory’s Git status, if tracked
+- **--git-repos-no-status**:  list whether a directory is a Git repository, but not its status (faster)
 - **--no-git**: suppress Git status (always overrides `--git`, `--git-repos`, `--git-repos-no-status`)
 - **--time-style**: how to format timestamps
 - **--no-permissions**: suppress the permissions field

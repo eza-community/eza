@@ -14,7 +14,7 @@ eza_colors — customising the file and UI colours of eza
 SYNOPSIS
 ========
 
-The `EXA_COLORS` environment variable can be used to customise the colours that `eza` uses to highlight file names, file metadata, and parts of the UI.
+The `EZA_COLORS` environment variable can be used to customise the colours that `eza` uses to highlight file names, file metadata, and parts of the UI.
 
 You can use the `dircolors` program to generate a script that sets the variable from an input file, or if you don’t mind editing long strings of text, you can just type it out directly. These variables have the following structure:
 
@@ -24,23 +24,25 @@ You can use the `dircolors` program to generate a script that sets the variable 
 
 The key half of the pair can either be a two-letter code or a file glob, and anything that’s not a valid code will be treated as a glob, including keys that happen to be two letters long.
 
+For backwards compatability `EXA_COLORS` environment variables is checked if `EZA_COLORS` is unset.
+
 
 EXAMPLES
 ========
 
-`EXA_COLORS="uu=0:gu=0"`
+`EZA_COLORS="uu=0:gu=0"`
 : Disable the “current user” highlighting
 
-`EXA_COLORS="da=32"`
+`EZA_COLORS="da=32"`
 : Turn the date column green
 
-`EXA_COLORS="Vagrantfile=1;4;33"`
+`EZA_COLORS="Vagrantfile=1;4;33"`
 : Highlight Vagrantfiles
 
-`EXA_COLORS="*.zip=38;5;125"`
+`EZA_COLORS="*.zip=38;5;125"`
 : Override the existing zip colour
 
-`EXA_COLORS="*.md=38;5;121:*.log=38;5;248"`
+`EZA_COLORS="*.md=38;5;121:*.log=38;5;248"`
 : Markdown files a shade of green, log files a shade of grey
 
 
@@ -77,7 +79,10 @@ LIST OF CODES
 : symlinks with no target
 
 
-`EXA_COLORS` can use many more:
+`EZA_COLORS` can use many more:
+
+`oc`
+: the permissions displayed as octal
 
 `ur`
 : the user-read permission bit
@@ -119,7 +124,7 @@ LIST OF CODES
 : the extended attribute indicator
 
 `sn`
-: the numbers of a file’s size (sets `nb`, `nk`, `nm`, `ng` and `nh`)
+: the numbers of a file’s size (sets `nb`, `nk`, `nm`, `ng` and `nt`)
 
 `nb`
 : the numbers of a file’s size if it is lower than 1 KB/Kib
@@ -137,7 +142,7 @@ LIST OF CODES
 : the numbers of a file’s size if it is 1 TB/TiB or higher
 
 `sb`
-: the units of a file’s size (sets `ub`, `uk`, `um`, `ug` and `uh`)
+: the units of a file’s size (sets `ub`, `uk`, `um`, `ug` and `ut`)
 
 `ub`
 : the units of a file’s size if it is lower than 1 KB/Kib
@@ -196,6 +201,9 @@ LIST OF CODES
 `gi`
 : an ignored flag in Git
 
+`gc`
+: a conflicted flag in Git
+
 `xx`
 : “punctuation”, including many background UI elements
 
@@ -220,6 +228,9 @@ LIST OF CODES
 `bO`
 : the overlay style for broken symlink paths
 
+`sp`
+: special (not file, dir, mount, exec, pipe, socket, block device, char device, or link)
+
 `mp`
 : a mount point
 
@@ -242,7 +253,7 @@ LIST OF CODES
 : a regular file that is a document (ex: office suite document or PDF)
 
 `co`
-: a regular file this is compressed
+: a regular file that is compressed
 
 `tm`
 : a regular file that is temporary (ex: a text editor's backup file)
@@ -252,6 +263,21 @@ LIST OF CODES
 
 `bu`
 : a regular file that is used to build a project (ex: Makefile)
+
+`Sn`
+: No security context on a file
+
+`Su`
+: SELinux user
+
+`Sr`
+: SELinux role
+
+`St`
+: SELinux type
+
+`Sl`
+: SELinux level
 
 Values in `EXA_COLORS` override those given in `LS_COLORS`, so you don’t need to re-write an existing `LS_COLORS` variable with proprietary extensions.
 
@@ -265,6 +291,12 @@ The codes accepted by eza are:
 
 `1`
 : for bold
+
+`2`
+: for dimmed
+
+`3`
+: for italic
 
 `4`
 : for underline
@@ -322,8 +354,8 @@ Many terminals will treat bolded text as a different colour, or at least provide
 eza provides its own built-in set of file extension mappings that cover a large range of common file extensions, including documents, archives, media, and temporary files.
 Any mappings in the environment variables will override this default set: running eza with `LS_COLORS="*.zip=32"` will turn zip files green but leave the colours of other compressed files alone.
 
-You can also disable this built-in set entirely by including a `reset` entry at the beginning of `EXA_COLORS`.
-So setting `EXA_COLORS="reset:*.txt=31"` will highlight only text files; setting `EXA_COLORS="reset"` will highlight nothing.
+You can also disable this built-in set entirely by including a `reset` entry at the beginning of `EZA_COLORS`.
+So setting `EZA_COLORS="reset:*.txt=31"` will highlight only text files; setting `EZA_COLORS="reset"` will highlight nothing.
 
 
 AUTHOR

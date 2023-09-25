@@ -74,7 +74,7 @@ impl fmt::Display for OptionsError {
             Self::TreeAllAll                 => write!(f, "Option --tree is useless given --all --all"),
             Self::FailedParse(s, n, e)       => write!(f, "Value {s:?} not valid for {n}: {e}"),
             Self::FailedGlobPattern(ref e)   => write!(f, "Failed to parse glob pattern: {e}"),
-        }
+        };
     }
 }
 

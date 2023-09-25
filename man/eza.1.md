@@ -119,6 +119,9 @@ Sort fields starting with a capital letter will sort uppercase before lowercase:
 `-D`, `--only-dirs`
 : List only directories, not files.
 
+`-f`, `--only-files`
+: List only files, not directories.
+
 
 LONG VIEW OPTIONS
 =================
@@ -197,7 +200,7 @@ These options are available when running with `--long` (`-l`):
 
 `--git`  [if eza was built with git support]
 : List each file’s Git status, if tracked.
-This adds a two-character column indicating the staged and unstaged statuses respectively. The status character can be ‘`-`’ for not modified, ‘`M`’ for a modified file, ‘`N`’ for a new file, ‘`D`’ for deleted, ‘`R`’ for renamed, ‘`T`’ for type-change, ‘`I`’ for ignored, and ‘`U`’ for conflicted. :Directories will be shown to have the status of their contents, which is how ‘deleted’ is possible if a directory contains a file that has a certain status, it will be shown to have that status.  
+This adds a two-character column indicating the staged and unstaged statuses respectively. The status character can be ‘`-`’ for not modified, ‘`M`’ for a modified file, ‘`N`’ for a new file, ‘`D`’ for deleted, ‘`R`’ for renamed, ‘`T`’ for type-change, ‘`I`’ for ignored, and ‘`U`’ for conflicted. Directories will be shown to have the status of their contents, which is how ‘deleted’ is possible if a directory contains a file that has a certain status, it will be shown to have that status.  
 
 `--git-repos` [if eza was built with git support]
 : List each directory’s Git status, if tracked.
@@ -215,6 +218,8 @@ All Git repository directories will be shown as (themed) `-` without status indi
 ENVIRONMENT VARIABLES
 =====================
 
+If an environment variable prefixed with `EZA_` is not set, for backward compatibility, it will default to its counterpart starting with `EXA_`.
+
 eza responds to the following environment variables:
 
 ## `COLUMNS`
@@ -225,7 +230,7 @@ For example, ‘`COLUMNS=80 eza`’ will show a grid view with a maximum width o
 
 This option won’t do anything when eza’s output doesn’t wrap, such as when using the `--long` view.
 
-## `EXA_STRICT`
+## `EZA_STRICT`
 
 Enables _strict mode_, which will make eza error when two command-line options are incompatible.
 
@@ -235,14 +240,14 @@ In strict mode, the two options will not co-operate, and eza will error.
 
 This option is intended for use with automated scripts and other situations where you want to be certain you’re typing in the right command.
 
-## `EXA_GRID_ROWS`
+## `EZA_GRID_ROWS`
 
 Limits the grid-details view (‘`eza --grid --long`’) so it’s only activated when at least the given number of rows of output would be generated.
 
 With widescreen displays, it’s possible for the grid to look very wide and sparse, on just one or two lines with none of the columns lining up.
 By specifying a minimum number of rows, you can only use the view if it’s going to be worth using.
 
-## `EXA_ICON_SPACING`
+## `EZA_ICON_SPACING`
 
 Specifies the number of spaces to print between an icon (see the ‘`--icons`’ option) and its file name.
 
@@ -254,7 +259,7 @@ Disables colours in the output (regardless of its value). Can be overridden by `
 
 See `https://no-color.org/` for details.
 
-## `LS_COLORS`, `EXA_COLORS`
+## `LS_COLORS`, `EZA_COLORS`
 
 Specifies the colour scheme used to highlight files based on their name and kind, as well as highlighting metadata and parts of the UI.
 

@@ -71,7 +71,7 @@
 
 use crate::fs::dir_action::DirAction;
 use crate::fs::filter::{FileFilter, GitIgnore};
-use crate::output::{View, Mode, details, grid_details};
+use crate::output::{details, grid_details, Mode, View};
 use crate::theme::Options as ThemeOptions;
 use crate::options::parser::Opts;
 
@@ -83,7 +83,7 @@ mod view;
 pub(crate) mod parser;
 
 mod error;
-pub use self::error::{OptionsError, NumberSource};
+pub use self::error::{NumberSource, OptionsError};
 
 pub mod vars;
 pub use self::vars::Vars;
@@ -92,7 +92,6 @@ pub use self::vars::Vars;
 /// user’s command-line options.
 #[derive(Debug)]
 pub struct Options {
-
     /// The action to perform when encountering a directory rather than a
     /// regular file.
     pub dir_action: DirAction,
@@ -121,8 +120,18 @@ impl Options {
         }
 
         match self.view.mode {
-            Mode::Details(details::Options { table: Some(ref table), .. }) |
-            Mode::GridDetails(grid_details::Options { details: details::Options { table: Some(ref table), .. }, .. }) => table.columns.git,
+            Mode::Details(details::Options {
+                table: Some(ref table),
+                ..
+            })
+            | Mode::GridDetails(grid_details::Options {
+                details:
+                    details::Options {
+                        table: Some(ref table),
+                        ..
+                    },
+                ..
+            }) => table.columns.git,
             _ => false,
         }
     }
@@ -147,6 +156,11 @@ impl Options {
         let filter = FileFilter::deduce(matches, strictness)?;
         let theme = ThemeOptions::deduce(matches, vars)?;
 
-        Ok(Self { dir_action, filter, view, theme })
+        Ok(Self {
+            dir_action,
+            filter,
+            view,
+            theme,
+        })
     }
 }

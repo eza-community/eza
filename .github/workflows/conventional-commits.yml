@@ -6,14 +6,15 @@ on:
   pull_request:
     branches: [ main ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Conventional Commits
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: webiny/action-conventional-commits@v1.1.0
-        # optional, required for private repos
-        # with:
-        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

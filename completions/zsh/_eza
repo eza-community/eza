@@ -29,6 +29,7 @@ __eza() {
         {-a,--all}"[Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories]" \
         {-d,--list-dirs}"[List directories like regular files]" \
         {-D,--only-dirs}"[List only directories]" \
+        {-f,--only-files}"[List only files]" \
         {-L,--level}"+[Limit the depth of recursion]" \
         {-w,--width}"+[Limits column output of grid, 0 implies auto-width]" \
         {-r,--reverse}"[Reverse the sort order]" \

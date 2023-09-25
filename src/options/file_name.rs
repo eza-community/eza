@@ -1,5 +1,6 @@
 use crate::options::{OptionsError, NumberSource};
 use crate::options::vars::{self, Vars};
+use crate::options::{flags, NumberSource, OptionsError};
 
 use crate::output::file_name::{Options, Classify, ShowIcons, EmbedHyperlinks};
 use crate::options::parser::Opts;
@@ -11,7 +12,11 @@ impl Options {
         let show_icons = ShowIcons::deduce(matches, vars)?;
         let embed_hyperlinks = EmbedHyperlinks::deduce(matches);
 
-        Ok(Self { classify, show_icons, embed_hyperlinks })
+        Ok(Self {
+            classify,
+            show_icons,
+            embed_hyperlinks,
+        })
     }
 }
 
@@ -28,19 +33,18 @@ impl ShowIcons {
     pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
         if matches.no_icons > 0 || matches.icons == 0 {
             Ok(Self::Off)
-        }
-        else if let Some(columns) = vars.get(vars::EXA_ICON_SPACING).and_then(|s| s.into_string().ok()) {
+        } else if let Some(columns) = vars
+            .get_with_fallback(vars::EZA_ICON_SPACING, vars::EXA_ICON_SPACING)
+            .and_then(|s| s.into_string().ok())
+        {
             match columns.parse() {
-                Ok(width) => {
-                    Ok(Self::On(width))
-                }
+                Ok(width) => Ok(Self::On(width)),
                 Err(e) => {
                     let source = NumberSource::Var(vars::EXA_ICON_SPACING.to_string());
                     Err(OptionsError::FailedParse(columns, source, e))
                 }
             }
-        }
-        else {
+        } else {
             Ok(Self::On(1))
         }
     }
