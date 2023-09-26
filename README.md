@@ -121,19 +121,8 @@ sudo apt install -y eza
 
 [![nixpkgs unstable package](https://repology.org/badge/version-for-repo/nix_unstable/eza.svg)](https://repology.org/project/eza/versions)
 
-Eza is available from [Nixpkgs](https://github.com/NixOS/nixpkgs).
-
-For `nix profile` users:
-
-```shell
-nix profile install nixpkgs#eza
-```
-
-For `nix-env` users:
-
-```shell
-nix-env -i eza
-```
+Eza is available from [Nixpkgs](https://github.com/NixOS/nixpkgs) and from the
+flake in this repository.
 
 ### Gentoo
 
