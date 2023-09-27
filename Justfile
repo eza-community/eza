@@ -125,6 +125,12 @@ binary BINARY TARGET:
     just tar {{BINARY}} {{TARGET}}
     just zip {{BINARY}} {{TARGET}}
 
+binary_static BINARY TARGET:
+    rustup target add {{TARGET}}
+    RUSTFLAGS='-C target-feature=+crt-static' cross build --release --target {{TARGET}}
+    just tar {{BINARY}} {{TARGET}}
+    just zip {{BINARY}} {{TARGET}}
+
 checksum:
     echo "# Checksums"
     echo "## sha256sum"
@@ -151,13 +157,17 @@ alias c := cross
     ## Linux
     ### x86
     just binary eza x86_64-unknown-linux-gnu
+    just binary_static eza x86_64-unknown-linux-gnu
     just binary eza x86_64-unknown-linux-musl
+    just binary_static eza x86_64-unknown-linux-musl
 
     ### aarch
     just binary eza aarch64-unknown-linux-gnu
+    just binary_static eza aarch64-unknown-linux-gnu
 
     ### arm
     just binary eza arm-unknown-linux-gnueabihf
+    just binary_static eza arm-unknown-linux-gnueabihf
 
     ## MacOS
     # TODO: just binary eza x86_64-apple-darwin
@@ -165,6 +175,7 @@ alias c := cross
     ## Windows
     ### x86
     just binary eza.exe x86_64-pc-windows-gnu
+    just binary_static eza.exe x86_64-pc-windows-gnu
     # TODO: just binary eza.exe x86_64-pc-windows-gnullvm
     # TODO: just binary eza.exe x86_64-pc-windows-msvc
 
