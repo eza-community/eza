@@ -1,4 +1,4 @@
-% eza_colors(5) v0.9.0
+% eza_colors(5) $version
 
 <!-- This is the eza_colors(5) man page, written in Markdown. -->
 <!-- To generate the roff version, run `just man`, -->
