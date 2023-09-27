@@ -25,6 +25,8 @@ impl Render for Option<f::User> {
 
         let style = if users.get_current_uid() == uid {
             colours.you()
+        } else if uid == 0 {
+            colours.root()
         } else {
             colours.someone_else()
         };
@@ -35,6 +37,7 @@ impl Render for Option<f::User> {
 pub trait Colours {
     fn you(&self) -> Style;
     fn someone_else(&self) -> Style;
+    fn root(&self) -> Style;
     fn no_user(&self) -> Style;
 }
 
@@ -57,6 +60,7 @@ pub mod test {
     impl Colours for TestColours {
         fn you(&self)          -> Style { Red.bold() }
         fn someone_else(&self) -> Style { Blue.underline() }
+        fn root(&self)         -> Style { Blue.underline() }
         fn no_user(&self)      -> Style { Black.italic() }
     }
 

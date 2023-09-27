@@ -90,9 +90,11 @@ pub struct Size {
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Users {
     pub user_you: Style,           // uu
-    pub user_someone_else: Style,  // un
+    pub user_root: Style,          // uR
+    pub user_other: Style,         // un
     pub group_yours: Style,        // gu
-    pub group_not_yours: Style,    // gn
+    pub group_other: Style,        // gn
+    pub group_root: Style,         // gR
 }
 
 #[rustfmt::skip]
@@ -222,9 +224,11 @@ impl UiStyles {
             "ds" => self.size.minor                     = pair.to_style(),
 
             "uu" => self.users.user_you                 = pair.to_style(),
-            "un" => self.users.user_someone_else        = pair.to_style(),
+            "un" => self.users.user_other               = pair.to_style(),
+            "uR" => self.users.user_root                = pair.to_style(),
             "gu" => self.users.group_yours              = pair.to_style(),
-            "gn" => self.users.group_not_yours          = pair.to_style(),
+            "gn" => self.users.group_other              = pair.to_style(),
+            "gR" => self.users.group_root               = pair.to_style(),
 
             "lc" => self.links.normal                   = pair.to_style(),
             "lm" => self.links.multi_link_file          = pair.to_style(),
