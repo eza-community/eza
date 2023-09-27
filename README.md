@@ -318,7 +318,7 @@ These options are available when running with `--long` (`-l`):
 - **--no-git**: suppress Git status (always overrides `--git`, `--git-repos`, `--git-repos-no-status`)
 - **--time-style**: how to format timestamps
 - **--no-permissions**: suppress the permissions field
-- **-o**, **--octal-permissions**: list each file's permission in octal format
+- **-o**, **--octal**: list each file's permission in octal format
 - **--no-filesize**: suppress the filesize field
 - **--no-user**: suppress the user field
 - **--no-time**: suppress the time field
