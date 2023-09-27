@@ -121,7 +121,7 @@ sudo apt install -y eza
 
 [![nixpkgs unstable package](https://repology.org/badge/version-for-repo/nix_unstable/eza.svg)](https://repology.org/project/eza/versions)
 
-> **Info**
+> **Note**
 > Installing packages imperatively isn't idiomatic Nix, as this can lead to [many issues](https://stop-using-nix-env.privatevoid.net/).
 
 Eza is available from [Nixpkgs](https://github.com/NixOS/nixpkgs) and from the
