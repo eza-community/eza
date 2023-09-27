@@ -24,6 +24,7 @@
 use std::env;
 use std::ffi::{OsStr, OsString};
 use std::io::{self, ErrorKind, Write};
+use std::os::fd::AsRawFd;
 use std::path::{Component, PathBuf};
 use std::process::exit;
 
@@ -71,9 +72,9 @@ fn main() {
             let writer = io::stdout();
 
             let console_width = options.view.width.actual_terminal_width();
-            let theme = options
-                .theme
-                .to_theme(terminal_size::terminal_size().is_some());
+            let stdout_istty =
+                terminal_size::terminal_size_using_fd(io::stdout().as_raw_fd()).is_some();
+            let theme = options.theme.to_theme(stdout_istty);
             let exa = Exa {
                 options,
                 writer,
