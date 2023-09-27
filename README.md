@@ -121,8 +121,29 @@ sudo apt install -y eza
 
 [![nixpkgs unstable package](https://repology.org/badge/version-for-repo/nix_unstable/eza.svg)](https://repology.org/project/eza/versions)
 
+> **Info**
+> Installing packages imperatively isn't idiomatic Nix, as this can lead to [many issues](https://stop-using-nix-env.privatevoid.net/).
+
 Eza is available from [Nixpkgs](https://github.com/NixOS/nixpkgs) and from the
 flake in this repository.
+
+For `nix profile` users:
+
+```shell
+nix profile install nixpkgs#eza
+```
+
+For `nix-env` users:
+
+```shell
+nix-env -i eza
+```
+
+**Declarative Nix Installations**
+- Simple NixOS installation: [rfaulhaber/dotfiles](https://github.com/rfaulhaber/dotfiles/blob/a8d084d178efd0592b7ac02d34a450fb58913aca/nix/modules/programs/eza/default.nix#L15)
+- Using the flake via NixOS: [hallettj/home.nix](https://github.com/hallettj/home.nix/blob/a8388483e5d78e110be73c5af0e7f0e3ca8f8aa3/flake.nix#L19)
+- Using home-manager on NixOS: [Misterio77/nix-config](https://github.com/Misterio77/nix-config/blob/6867d66a2fe7899c608b9c8e5a8f9aee279d188b/home/misterio/features/cli/fish.nix#L6)
+
 
 ### Gentoo
 
