@@ -75,6 +75,9 @@ Valid settings are ‘`always`’, ‘`automatic`’, and ‘`never`’.
 `--no-icons`
 : Don't display icons. (Always overrides --icons)
 
+`--no-quotes`
+: Don't quote file names with spaces.
+
 `--hyperlink`
 : Display entries as hyperlinks
 

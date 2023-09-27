@@ -23,6 +23,7 @@ DISPLAY OPTIONS
   --colo[u]r-scale   highlight levels of file sizes distinctly
   --icons            display icons
   --no-icons         don't display icons (always overrides --icons)
+  --no-quotes        don't quote file names with spaces
   --hyperlink        display entries as hyperlinks
   -w, --width COLS   set screen width in columns
 
