@@ -1,3 +1,4 @@
+#![rustfmt::skip]
 use crate::options::parser::{Arg, Args, TakesValue, Values};
 
 // exa options
