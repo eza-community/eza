@@ -140,6 +140,7 @@ nix-env -i eza
 ```
 
 **Declarative Nix Installations**
+
 - Simple NixOS installation: [rfaulhaber/dotfiles](https://github.com/rfaulhaber/dotfiles/blob/a8d084d178efd0592b7ac02d34a450fb58913aca/nix/modules/programs/eza/default.nix#L15)
 - Using the flake via NixOS: [hallettj/home.nix](https://github.com/hallettj/home.nix/blob/a8388483e5d78e110be73c5af0e7f0e3ca8f8aa3/flake.nix#L19)
 - Using home-manager on NixOS: [Misterio77/nix-config](https://github.com/Misterio77/nix-config/blob/6867d66a2fe7899c608b9c8e5a8f9aee279d188b/home/misterio/features/cli/fish.nix#L6)
@@ -209,7 +210,6 @@ sudo port install eza
 
 [![Windows package](https://repology.org/badge/version-for-repo/winget/eza.svg)](https://repology.org/project/eza/versions)
 
-
 Eza is available on Winget.
 
 To install eza, run:
@@ -238,13 +238,13 @@ scoop install eza
 > Change `~/.zshrc` to your preferred zsh config file.
 
 ##### Clone the repository:
-   
+
 ```sh
 git clone https://github.com/eza-community/eza.git
 ```
 
 ##### Add the completion path to your zsh configuration:
-   
+
 Replace `<path_to_eza>` with the actual path where you cloned the `eza` repository.
 
 ```sh
@@ -252,7 +252,7 @@ echo 'export FPATH="<path_to_eza>/completions/zsh:$FPATH"' >> ~/.zshrc
 ```
 
 ##### Reload your zsh configuration:
-   
+
 ```sh
 source ~/.zshrc
 ```
@@ -323,9 +323,9 @@ These options are available when running with `--long` (`-l`):
 - **--changed**: use the changed timestamp field
 - **--git**: list each file’s Git status, if tracked or ignored
 - **--git-repos**: list each directory’s Git status, if tracked
-- **--git-repos-no-status**:  list whether a directory is a Git repository, but not its status (faster)
+- **--git-repos-no-status**: list whether a directory is a Git repository, but not its status (faster)
 - **--no-git**: suppress Git status (always overrides `--git`, `--git-repos`, `--git-repos-no-status`)
-- **--time-style**: how to format timestamps
+- **--time-style**: how to format timestamps. valid timestamp styles are ‘`default`’, ‘`iso`’, ‘`long-iso`’, ‘`full-iso`’, ‘`relative`', or you can use a `custom` style with '`+`' as prefix. (Ex: "`+%Y/%m/%d, %H:%M`" => "`2023/9/30, 12:00`"). [more about format syntax](https://docs.rs/chrono/latest/chrono/format/strftime/index.html).
 - **--no-permissions**: suppress the permissions field
 - **-o**, **--octal-permissions**: list each file's permission in octal format
 - **--no-filesize**: suppress the filesize field
