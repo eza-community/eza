@@ -22,7 +22,7 @@ use unicode_width::UnicodeWidthStr;
 ///
 /// Currently exa does not support *custom* styles, where the user enters a
 /// format string in an environment variable or something. Just these four.
-#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub enum TimeFormat {
     /// The **default format** uses the user’s locale to print month names,
     /// and specifies the timestamp down to the minute for recent times, and
@@ -45,17 +45,21 @@ pub enum TimeFormat {
 
     /// Use a relative but fixed width representation.
     Relative,
+
+    /// Use a custom format
+    Custom { fmt: String },
 }
 
 impl TimeFormat {
     pub fn format(self, time: &DateTime<FixedOffset>) -> String {
         #[rustfmt::skip]
         return match self {
-            Self::DefaultFormat  => default(time),
-            Self::ISOFormat      => iso(time),
-            Self::LongISO        => long(time),
-            Self::FullISO        => full(time),
-            Self::Relative       => relative(time),
+            Self::DefaultFormat           => default(time),
+            Self::ISOFormat               => iso(time),
+            Self::LongISO                 => long(time),
+            Self::FullISO                 => full(time),
+            Self::Relative                => relative(time),
+            Self::Custom  {fmt}   => custom(time, &fmt),
         };
     }
 }
@@ -109,6 +113,10 @@ fn relative(time: &DateTime<FixedOffset>) -> String {
 
 fn full(time: &DateTime<FixedOffset>) -> String {
     time.format("%Y-%m-%d %H:%M:%S.%f %z").to_string()
+}
+
+fn custom(time: &DateTime<FixedOffset>, fmt: &str) -> String {
+    time.format(fmt).to_string()
 }
 
 lazy_static! {
