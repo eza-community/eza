@@ -168,11 +168,17 @@ LIST OF CODES
 `uu`
 : a user that’s you
 
+`uR`
+: a user that's root
+
 `un`
 : a user that’s someone else
 
 `gu`
 : a group that you belong to
+
+`gR`
+: a group realted to root
 
 `gn`
 : a group you aren’t a member of
