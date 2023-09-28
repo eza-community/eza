@@ -24,7 +24,6 @@
 use std::env;
 use std::ffi::{OsStr, OsString};
 use std::io::{self, ErrorKind, Write};
-use std::os::fd::AsRawFd;
 use std::path::{Component, PathBuf};
 use std::process::exit;
 
@@ -58,6 +57,20 @@ fn main() {
     if let Err(e) = ansiterm::enable_ansi_support() {
         warn!("Failed to enable ANSI support: {}", e);
     }
+    #[cfg(unix)]
+    let stdout_istty = {
+        use std::os::fd::AsRawFd;
+        terminal_size::terminal_size_using_fd(io::stdout().as_raw_fd()).is_some()
+    };
+    #[cfg(windows)]
+    let stdout_istty = {
+        use std::os::windows::io::RawHandle;
+        use windows_sys::Win32::System::Console::{GetStdHandle, STD_OUTPUT_HANDLE};
+        terminal_size::terminal_size_using_handle(unsafe {
+            GetStdHandle(STD_OUTPUT_HANDLE) as RawHandle
+        })
+        .is_some()
+    };
 
     let args: Vec<_> = env::args_os().skip(1).collect();
     match Options::parse(args.iter().map(std::convert::AsRef::as_ref), &LiveVars) {
@@ -72,8 +85,6 @@ fn main() {
             let writer = io::stdout();
 
             let console_width = options.view.width.actual_terminal_width();
-            let stdout_istty =
-                terminal_size::terminal_size_using_fd(io::stdout().as_raw_fd()).is_some();
             let theme = options.theme.to_theme(stdout_istty);
             let exa = Exa {
                 options,
