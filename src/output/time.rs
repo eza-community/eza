@@ -54,12 +54,12 @@ impl TimeFormat {
     pub fn format(self, time: &DateTime<FixedOffset>) -> String {
         #[rustfmt::skip]
         return match self {
-            Self::DefaultFormat           => default(time),
-            Self::ISOFormat               => iso(time),
-            Self::LongISO                 => long(time),
-            Self::FullISO                 => full(time),
-            Self::Relative                => relative(time),
-            Self::Custom  {fmt}   => custom(time, &fmt),
+            Self::DefaultFormat  => default(time),
+            Self::ISOFormat      => iso(time),
+            Self::LongISO        => long(time),
+            Self::FullISO        => full(time),
+            Self::Relative       => relative(time),
+            Self::Custom { fmt } => custom(time, &fmt),
         };
     }
 }
