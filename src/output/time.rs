@@ -20,7 +20,7 @@ use unicode_width::UnicodeWidthStr;
 /// own enum variants. It’s not worth looking the locale up if the formatter
 /// prints month names as numbers.
 ///
-/// Currently exa does not support *custom* styles, where the user enters a
+/// Also, eza supports *custom* styles, where the user enters a
 /// format string in an environment variable or something. Just these four.
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum TimeFormat {
