@@ -14,6 +14,7 @@ complete -c eza -l color \
     -l colour -d "When to use terminal colours" -x -a "
     always\t'Always use colour'
     auto\t'Use colour if standard output is a terminal'
+    automatic\t'Use colour if standard output is a terminal'
     never\t'Never use colour'
 "
 complete -c eza -l color-scale \
