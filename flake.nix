@@ -34,14 +34,14 @@
         };
 
         treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
-        buildInputs = with pkgs; lib.optionals stdenv.isDarwin [libiconv darwin.apple_sdk.frameworks.Security];
+        buildInputs = with pkgs; [zlib] ++ lib.optionals stdenv.isDarwin [libiconv darwin.apple_sdk.frameworks.Security];
       in rec {
         # For `nix fmt`
         formatter = treefmtEval.config.build.wrapper;
 
         packages = {
           # For `nix build` `nix run`, & `nix profile install`:
-          default = naersk'.buildPackage {
+          default = naersk'.buildPackage rec {
             pname = "eza";
             version = "latest";
 
@@ -50,7 +50,7 @@
 
             # buildInputs = with pkgs; [ zlib ]
             #   ++ lib.optionals stdenv.isDarwin [ libiconv Security ];
-            buildInputs = buildInputs ++ (with pkgs; [zlib]);
+            inherit buildInputs;
 
             nativeBuildInputs = with pkgs; [cmake pkg-config installShellFiles pandoc];
 
@@ -61,9 +61,9 @@
             # outputs = [ "out" "man" ];
 
             postInstall = ''
-              pandoc --standalone -f markdown -t man man/eza.1.md > man/eza.1
-              pandoc --standalone -f markdown -t man man/eza_colors.5.md > man/eza_colors.5
-              pandoc --standalone -f markdown -t man man/eza_colors-explanation.5.md > man/eza_colors-explanation.5
+              pandoc --standalone -f markdown -t man <(cat "man/eza.1.md" | sed "s/\$version/${version}/g") > man/eza.1
+              pandoc --standalone -f markdown -t man <(cat "man/eza_colors.5.md" | sed "s/\$version/${version}/g") > man/eza_colors.5
+              pandoc --standalone -f markdown -t man <(cat "man/eza_colors-explanation.5.md" | sed "s/\$version/${version}/g")> man/eza_colors-explanation.5
               installManPage man/eza.1 man/eza_colors.5 man/eza_colors-explanation.5
               installShellCompletion \
                 --bash completions/bash/eza \

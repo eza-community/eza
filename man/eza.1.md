@@ -1,4 +1,4 @@
-% eza(1) v0.9.0
+% eza(1) $version
 
 <!-- This is the eza(1) man page, written in Markdown. -->
 <!-- To generate the roff version, run `just man`, -->

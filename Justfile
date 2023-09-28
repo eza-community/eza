@@ -74,9 +74,10 @@ all-release: build-release test-release
 # build the man pages
 @man:
     mkdir -p "${CARGO_TARGET_DIR:-target}/man"
-    pandoc --standalone -f markdown -t man man/eza.1.md        > "${CARGO_TARGET_DIR:-target}/man/eza.1"
-    pandoc --standalone -f markdown -t man man/eza_colors.5.md > "${CARGO_TARGET_DIR:-target}/man/eza_colors.5"
-    pandoc --standalone -f markdown -t man man/eza_colors-explanation.5.md > "${CARGO_TARGET_DIR:-target}/man/eza_colors-explanation.5"
+    version=$(cat Cargo.toml | grep ^version | head -n 1 | awk '{print $NF}' | tr -d '"'); \
+    for page in eza.1 eza_colors.5 eza_colors-explanation.5; do \
+        pandoc --standalone -f markdown -t man <(cat "man/${page}.md" | sed "s/\$version/v${version}/g") > "${CARGO_TARGET_DIR:-target}/man/${page}"; \
+    done;
 
 # build and preview the main man page (eza.1)
 @man-1-preview: man

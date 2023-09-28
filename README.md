@@ -181,6 +181,14 @@ Eza is available as the [eza](https://github.com/void-linux/void-packages/tree/m
 sudo xbps-install eza
 ```
 
+### Termux
+
+Eza is available as the [eza](https://github.com/termux/termux-packages/tree/master/packages/eza) package in the official Termux repository.
+
+```bash
+pkg install eza
+```
+
 ### Brew (MacOS)
 
 [![Homebrew package](https://repology.org/badge/version-for-repo/homebrew/eza.svg)](https://repology.org/project/eza/versions)
