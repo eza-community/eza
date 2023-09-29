@@ -63,7 +63,7 @@ impl TerminalWidth {
             terminal_size::terminal_size_using_handle(unsafe {
                 GetStdHandle(STD_OUTPUT_HANDLE) as RawHandle
             })
-            .map(|(w, h)| w.0 as _)
+            .map(|(w, _h)| w.0 as _)
         };
 
         #[rustfmt::skip]
