@@ -50,10 +50,26 @@ impl TerminalWidth {
         // terminal, but we’re only interested in stdout because it’s
         // where the output goes.
 
+        #[cfg(unix)]
+        let stdout_term_width = {
+            use std::os::fd::AsRawFd;
+            terminal_size::terminal_size_using_fd(std::io::stdout().as_raw_fd())
+                .map(|(w, _h)| w.0 as _)
+        };
+        #[cfg(windows)]
+        let stdout_term_width = {
+            use std::os::windows::io::RawHandle;
+            use windows_sys::Win32::System::Console::{GetStdHandle, STD_OUTPUT_HANDLE};
+            terminal_size::terminal_size_using_handle(unsafe {
+                GetStdHandle(STD_OUTPUT_HANDLE) as RawHandle
+            })
+            .map(|(w, h)| w.0 as _)
+        };
+
         #[rustfmt::skip]
         return match self {
             Self::Set(width)  => Some(width),
-            Self::Automatic   => terminal_size::terminal_size().map(|(w, _)| w.0.into()),
+            Self::Automatic   => stdout_term_width,
         };
     }
 }
