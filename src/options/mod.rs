@@ -209,7 +209,16 @@ impl Options {
     }
 }
 
-/// The result of the `Options::getopts` function.
+/// The result of the `Options::parse` function.
+///
+/// NOTE: We disallow the `large_enum_variant` lint here, because we're not
+/// overly concerned about variant fragmentation. We can do this because we are
+/// reasonably sure that the error variant will be rare, and only on faulty
+/// program execution and thus boxing the large variant will be a waste of
+/// resources, but should we come to use it more, we should reconsider.
+///
+/// See <https://github.com/eza-community/eza/pull/437#issuecomment-1738470254>
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug)]
 pub enum OptionsResult<'args> {
     /// The options were parsed successfully.
