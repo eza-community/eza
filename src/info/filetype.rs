@@ -241,6 +241,7 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "bk"         => FileType::Temp,
     "bkp"        => FileType::Temp,
     "download"   => FileType::Temp,
+    "fdmdownload"=> FileType::Temp,
     "swn"        => FileType::Temp,
     "swo"        => FileType::Temp,
     "swp"        => FileType::Temp,
