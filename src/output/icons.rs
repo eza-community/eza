@@ -476,6 +476,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "lhs"            => Icons::LANG_HASKELL,     // 
     "license"        => Icons::LICENSE,          // 
     "lisp"           => '\u{f0172}',             // 󰅲
+    "lib"            => '\u{eb9c}',              // 
     "localized"      => Icons::OS_APPLE,         // 
     "lock"           => Icons::LOCK,             // 
     "log"            => '\u{f18d}',              // 
