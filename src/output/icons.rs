@@ -130,6 +130,7 @@ const DIRECTORY_ICONS: Map<&'static str, char> = phf_map! {
     "etc"                 => Icons::FOLDER_CONFIG,  // 
     "Favorites"           => '\u{f069d}',           // 󰚝
     "hidden"              => Icons::FOLDER_HIDDEN,  // 󱞞
+    "home"                => '\u{f10b5}',           // 󱂵 
     "include"             => Icons::FOLDER_CONFIG,  // 
     "Mail"                => '\u{f01f0}',           // 󰇰
     "Movies"              => '\u{f0fce}',           // 󰿎
