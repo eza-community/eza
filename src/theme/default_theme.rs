@@ -49,10 +49,10 @@ impl UiStyles {
             #[rustfmt::skip]
             users: Users {
                 user_you:                       Yellow.bold(),
-                user_other:     Style::default(),
+                user_other:                     Style::default(),
                 user_root:                      Style::default(),
                 group_yours:                    Yellow.bold(),
-                group_other:                Style::default(),
+                group_other:                    Style::default(),
                 group_root:                     Style::default(),
             },
 
