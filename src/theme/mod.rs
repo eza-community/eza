@@ -362,7 +362,7 @@ impl render::SizeColours for Theme {
 #[cfg(unix)]
 impl render::UserColours for Theme {
     fn you(&self)           -> Style { self.ui.users.user_you }
-    fn other(&self)  -> Style { self.ui.users.user_other }
+    fn other(&self)         -> Style { self.ui.users.user_other }
     fn root(&self)          -> Style { self.ui.users.user_root }
     fn no_user(&self)       -> Style { self.ui.punctuation }
 }
