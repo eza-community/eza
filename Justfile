@@ -120,6 +120,12 @@ tar BINARY TARGET:
 zip BINARY TARGET:
     zip -j ./target/"bin-$(convco version)"/{{BINARY}}_{{TARGET}}.zip ./target/{{TARGET}}/release/{{BINARY}}
 
+tar_static BINARY TARGET:
+    tar czvf ./target/"bin-$(convco version)"/{{BINARY}}_{{TARGET}}_static.tar.gz -C ./target/{{TARGET}}/release/ ./{{BINARY}}
+
+zip_static BINARY TARGET:
+    zip -j ./target/"bin-$(convco version)"/{{BINARY}}_{{TARGET}}_static.zip ./target/{{TARGET}}/release/{{BINARY}}
+
 binary BINARY TARGET:
     rustup target add {{TARGET}}
     cross build --release --target {{TARGET}}
@@ -129,8 +135,8 @@ binary BINARY TARGET:
 binary_static BINARY TARGET:
     rustup target add {{TARGET}}
     RUSTFLAGS='-C target-feature=+crt-static' cross build --release --target {{TARGET}}
-    just tar {{BINARY}} {{TARGET}}
-    just zip {{BINARY}} {{TARGET}}
+    just tar_static {{BINARY}} {{TARGET}}
+    just zip_static {{BINARY}} {{TARGET}}
 
 checksum:
     echo "# Checksums"
