@@ -164,7 +164,7 @@ alias c := cross
 
     ### aarch
     just binary eza aarch64-unknown-linux-gnu
-    just binary_static eza aarch64-unknown-linux-gnu
+    # BUG: just binary_static eza aarch64-unknown-linux-gnu
 
     ### arm
     just binary eza arm-unknown-linux-gnueabihf
