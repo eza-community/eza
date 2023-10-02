@@ -380,6 +380,7 @@ dependencies = [
  "trycmd",
  "unicode-width",
  "uzers",
+ "windows-sys",
  "zoneinfo_compiled",
 ]
 
