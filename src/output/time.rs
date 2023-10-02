@@ -77,7 +77,7 @@ fn default(time: &DateTime<FixedOffset>) -> String {
 
 /// Convert between Unicode width and width in chars to use in format!.
 /// ex: in Japanese, 月 is one character, but it has the width of two.
-/// For alignement purposes, we take the real display width into account.
+/// For alignment purposes, we take the real display width into account.
 /// So, `MAXIMUM_MONTH_WIDTH` (“12月”) = 4, but if we use `{:4}` in format!,
 /// it will add a space (“ 12月”) because format! counts characters.
 /// Conversely, a char can have a width of zero (like combining diacritics)
