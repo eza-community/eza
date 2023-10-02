@@ -210,6 +210,18 @@ LIST OF CODES
 `gc`
 : a conflicted flag in Git
 
+`Gm`
+: main branch of repo
+
+`Go`
+: other branch of repo
+
+`Gc`
+: clean branch of repo
+
+`Gd`
+: dirty branch of repo
+
 `xx`
 : “punctuation”, including many background UI elements
 
