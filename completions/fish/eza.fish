@@ -83,7 +83,7 @@ complete -c eza -s U -l created -d "Use the created timestamp field"
 complete -c eza -l time-style -d "How to format timestamps" -x -a "
     default\t'Use the default time style'
     iso\t'Display brief ISO timestamps'
-    long-iso\t'Display longer ISO timestaps, up to the minute'
+    long-iso\t'Display longer ISO timestamps, up to the minute'
     full-iso\t'Display full ISO timestamps, up to the nanosecond'
     relative\t'Display relative timestamps'
 "
