@@ -108,6 +108,25 @@
         # For `nix build`
         packages = {
           default = eza;
+          trydump = craneLib.cargoNextest (commonArgs
+            // {
+              # include test files
+              src = ./.;
+              inherit cargoArtifacts;
+              mode = "test";
+              doCheck = true;
+              # No reason to wait for release build
+              release = false;
+              # buildPhase files differ between dep and main phase
+              singleStep = true;
+              # set itests files creation date to unix epoch
+              buildPhase = ''touch --date=@0 tests/itest/*; rm tests/cmd/*.stdout || echo; rm tests/cmd/*.stderr || echo;'';
+              cargoTestOptions = ["--features nix"];
+              TRYCMD = "dump";
+              postInstall = ''
+                cp dump $out -r
+              '';
+            });
         };
 
         # For `nix develop`:
@@ -140,11 +159,21 @@
               partitions = 1;
               partitionType = "count";
             });
-          # build = packages.check;
-          # # default = packages.default; # we build the package through `nix build` in GitHub Actions now
-          # test = packages.test;
-          # lint = packages.clippy;
-          # trycmd = packages.trycmd;
+          trycmd = craneLib.cargoNextest (commonArgs
+            // {
+              # include test files
+              src = ./.;
+              inherit cargoArtifacts;
+              mode = "test";
+              doCheck = true;
+              # No reason to wait for release build
+              release = false;
+              # buildPhase files differ between dep and main phase
+              singleStep = true;
+              # set itests files creation date to unix epoch
+              buildPhase = ''touch --date=@0 tests/itest/*'';
+              cargoTestOptions = ["--features nix"];
+            });
         };
       }
     );
