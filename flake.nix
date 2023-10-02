@@ -153,7 +153,7 @@
         checks = {
           formatting = treefmtEval.config.build.check self;
           build = packages.check;
-          default = packages.default;
+          # default = packages.default; # we build the package through `nix build` in GitHub Actions now
           test = packages.test;
           lint = packages.clippy;
           trycmd = packages.trycmd;

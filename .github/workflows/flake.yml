@@ -1,4 +1,5 @@
 on:
+  workflow_dispatch:
   pull_request:
   push:
     branches: [main]
@@ -8,14 +9,37 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build Nix targets
+  flake-checker:
+    name: Flake Checker
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - name: Check Nix flake inputs
-        uses: DeterminateSystems/flake-checker-action@v5 # This action
+        uses: DeterminateSystems/flake-checker-action@v5
+
+  check:
+    name: Check Nix Flake
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v4
+      - name: Setup Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Nix Flake Check
         run: nix flake check --all-systems
+
+  build:
+    name: Build Nix package
+    strategy:
+      matrix:
+        target: [x86_64-linux, x86_64-darwin, aarch64-linux, aarch64-darwin]
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v4
+      - name: Setup Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: Nix Build
+        run: nix build .#packages.${{ matrix.target }}
