@@ -229,56 +229,56 @@ mod test {
         use super::*;
 
         // Default behaviour
-        test!(empty:         SortField <- [];                  Both => Ok(SortField::default()));
+        test!(empty:         SortField <- [];                  &Both => Ok(SortField::default()));
 
         // Sort field arguments
-        test!(one_arg:       SortField <- ["--sort=mod"];      Both => Ok(SortField::ModifiedDate));
-        test!(one_long:      SortField <- ["--sort=size"];     Both => Ok(SortField::Size));
-        test!(one_short:     SortField <- ["-saccessed"];      Both => Ok(SortField::AccessedDate));
-        test!(lowercase:     SortField <- ["--sort", "name"];  Both => Ok(SortField::Name(SortCase::AaBbCc)));
-        test!(uppercase:     SortField <- ["--sort", "Name"];  Both => Ok(SortField::Name(SortCase::ABCabc)));
-        test!(old:           SortField <- ["--sort", "new"];   Both => Ok(SortField::ModifiedDate));
-        test!(oldest:        SortField <- ["--sort=newest"];   Both => Ok(SortField::ModifiedDate));
-        test!(new:           SortField <- ["--sort", "old"];   Both => Ok(SortField::ModifiedAge));
-        test!(newest:        SortField <- ["--sort=oldest"];   Both => Ok(SortField::ModifiedAge));
-        test!(age:           SortField <- ["-sage"];           Both => Ok(SortField::ModifiedAge));
+        test!(one_arg:       SortField <- ["--sort=mod"];      &Both => Ok(SortField::ModifiedDate));
+        test!(one_long:      SortField <- ["--sort=size"];     &Both => Ok(SortField::Size));
+        test!(one_short:     SortField <- ["-saccessed"];      &Both => Ok(SortField::AccessedDate));
+        test!(lowercase:     SortField <- ["--sort", "name"];  &Both => Ok(SortField::Name(SortCase::AaBbCc)));
+        test!(uppercase:     SortField <- ["--sort", "Name"];  &Both => Ok(SortField::Name(SortCase::ABCabc)));
+        test!(old:           SortField <- ["--sort", "new"];   &Both => Ok(SortField::ModifiedDate));
+        test!(oldest:        SortField <- ["--sort=newest"];   &Both => Ok(SortField::ModifiedDate));
+        test!(new:           SortField <- ["--sort", "old"];   &Both => Ok(SortField::ModifiedAge));
+        test!(newest:        SortField <- ["--sort=oldest"];   &Both => Ok(SortField::ModifiedAge));
+        test!(age:           SortField <- ["-sage"];           &Both => Ok(SortField::ModifiedAge));
 
-        test!(mix_hidden_lowercase:     SortField <- ["--sort", ".name"];  Both => Ok(SortField::NameMixHidden(SortCase::AaBbCc)));
-        test!(mix_hidden_uppercase:     SortField <- ["--sort", ".Name"];  Both => Ok(SortField::NameMixHidden(SortCase::ABCabc)));
+        test!(mix_hidden_lowercase:     SortField <- ["--sort", ".name"];  &Both => Ok(SortField::NameMixHidden(SortCase::AaBbCc)));
+        test!(mix_hidden_uppercase:     SortField <- ["--sort", ".Name"];  &Both => Ok(SortField::NameMixHidden(SortCase::ABCabc)));
 
         // Errors
-        test!(error:         SortField <- ["--sort=colour"];   Both => Err(OptionsError::BadArgument(&flags::SORT, OsString::from("colour"))));
+        test!(error:         SortField <- ["--sort=colour"];   &Both => Err(OptionsError::BadArgument(&flags::SORT, OsString::from("colour"))));
 
         // Overriding
-        test!(overridden:    SortField <- ["--sort=cr",       "--sort", "mod"];     Last => Ok(SortField::ModifiedDate));
-        test!(overridden_2:  SortField <- ["--sort", "none",  "--sort=Extension"];  Last => Ok(SortField::Extension(SortCase::ABCabc)));
-        test!(overridden_3:  SortField <- ["--sort=cr",       "--sort", "mod"];     Complain => Err(OptionsError::Duplicate(Flag::Long("sort"), Flag::Long("sort"))));
-        test!(overridden_4:  SortField <- ["--sort", "none",  "--sort=Extension"];  Complain => Err(OptionsError::Duplicate(Flag::Long("sort"), Flag::Long("sort"))));
+        test!(overridden:    SortField <- ["--sort=cr",       "--sort", "mod"];     &Last => Ok(SortField::ModifiedDate));
+        test!(overridden_2:  SortField <- ["--sort", "none",  "--sort=Extension"];  &Last => Ok(SortField::Extension(SortCase::ABCabc)));
+        test!(overridden_3:  SortField <- ["--sort=cr",       "--sort", "mod"];     &Complain => Err(OptionsError::Duplicate(Flag::Long("sort"), Flag::Long("sort"))));
+        test!(overridden_4:  SortField <- ["--sort", "none",  "--sort=Extension"];  &Complain => Err(OptionsError::Duplicate(Flag::Long("sort"), Flag::Long("sort"))));
     }
 
     mod dot_filters {
         use super::*;
 
         // Default behaviour
-        test!(empty:        DotFilter <- [];               Both => Ok(DotFilter::JustFiles));
+        test!(empty:        DotFilter <- [];               &Both => Ok(DotFilter::JustFiles));
 
         // --all
-        test!(all:              DotFilter <- ["--all"];        Both => Ok(DotFilter::Dotfiles));
-        test!(all_all:          DotFilter <- ["--all", "-a"];  Both => Ok(DotFilter::DotfilesAndDots));
-        test!(all_all_2:        DotFilter <- ["-aa"];          Both => Ok(DotFilter::DotfilesAndDots));
+        test!(all:              DotFilter <- ["--all"];        &Both => Ok(DotFilter::Dotfiles));
+        test!(all_all:          DotFilter <- ["--all", "-a"];  &Both => Ok(DotFilter::DotfilesAndDots));
+        test!(all_all_2:        DotFilter <- ["-aa"];          &Both => Ok(DotFilter::DotfilesAndDots));
 
-        test!(all_all_3:        DotFilter <- ["-aaa"];         Last => Ok(DotFilter::DotfilesAndDots));
-        test!(all_all_4:        DotFilter <- ["-aaa"];         Complain => Err(OptionsError::Conflict(&flags::ALL, &flags::ALL)));
+        test!(all_all_3:        DotFilter <- ["-aaa"];         &Last => Ok(DotFilter::DotfilesAndDots));
+        test!(all_all_4:        DotFilter <- ["-aaa"];         &Complain => Err(OptionsError::Conflict(&flags::ALL, &flags::ALL)));
 
         // --all and --tree
-        test!(tree_a:           DotFilter <- ["-Ta"];          Both => Ok(DotFilter::Dotfiles));
-        test!(tree_aa:          DotFilter <- ["-Taa"];         Both => Err(OptionsError::TreeAllAll));
-        test!(tree_aaa:         DotFilter <- ["-Taaa"];        Both => Err(OptionsError::TreeAllAll));
+        test!(tree_a:           DotFilter <- ["-Ta"];          &Both => Ok(DotFilter::Dotfiles));
+        test!(tree_aa:          DotFilter <- ["-Taa"];         &Both => Err(OptionsError::TreeAllAll));
+        test!(tree_aaa:         DotFilter <- ["-Taaa"];        &Both => Err(OptionsError::TreeAllAll));
 
         // --almost-all
-        test!(almost_all:       DotFilter <- ["--almost-all"]; Both => Ok(DotFilter::Dotfiles));
-        test!(almost_all_all:   DotFilter <- ["-Aa"];          Both => Ok(DotFilter::Dotfiles));
-        test!(almost_all_all_2: DotFilter <- ["-Aaa"];         Both => Ok(DotFilter::DotfilesAndDots));
+        test!(almost_all:       DotFilter <- ["--almost-all"]; &Both => Ok(DotFilter::Dotfiles));
+        test!(almost_all_all:   DotFilter <- ["-Aa"];          &Both => Ok(DotFilter::Dotfiles));
+        test!(almost_all_all_2: DotFilter <- ["-Aaa"];         &Both => Ok(DotFilter::DotfilesAndDots));
     }
 
     mod ignore_patterns {
@@ -290,22 +290,22 @@ mod test {
         }
 
         // Various numbers of globs
-        test!(none:   IgnorePatterns <- [];                                        Both => Ok(IgnorePatterns::empty()));
-        test!(one:    IgnorePatterns <- ["--ignore-glob", "*.ogg"];                Both => Ok(IgnorePatterns::from_iter(vec![ pat("*.ogg") ])));
-        test!(two:    IgnorePatterns <- ["--ignore-glob=*.ogg|*.MP3"];             Both => Ok(IgnorePatterns::from_iter(vec![ pat("*.ogg"), pat("*.MP3") ])));
-        test!(loads:  IgnorePatterns <- ["-I*|?|.|*"];                             Both => Ok(IgnorePatterns::from_iter(vec![ pat("*"), pat("?"), pat("."), pat("*") ])));
+        test!(none:   IgnorePatterns <- [];                                        &Both => Ok(IgnorePatterns::empty()));
+        test!(one:    IgnorePatterns <- ["--ignore-glob", "*.ogg"];                &Both => Ok(IgnorePatterns::from_iter(vec![ pat("*.ogg") ])));
+        test!(two:    IgnorePatterns <- ["--ignore-glob=*.ogg|*.MP3"];             &Both => Ok(IgnorePatterns::from_iter(vec![ pat("*.ogg"), pat("*.MP3") ])));
+        test!(loads:  IgnorePatterns <- ["-I*|?|.|*"];                             &Both => Ok(IgnorePatterns::from_iter(vec![ pat("*"), pat("?"), pat("."), pat("*") ])));
 
         // Overriding
-        test!(overridden:   IgnorePatterns <- ["-I=*.ogg",    "-I", "*.mp3"];      Last => Ok(IgnorePatterns::from_iter(vec![ pat("*.mp3") ])));
-        test!(overridden_2: IgnorePatterns <- ["-I", "*.OGG", "-I*.MP3"];          Last => Ok(IgnorePatterns::from_iter(vec![ pat("*.MP3") ])));
-        test!(overridden_3: IgnorePatterns <- ["-I=*.ogg",    "-I", "*.mp3"];  Complain => Err(OptionsError::Duplicate(Flag::Short(b'I'), Flag::Short(b'I'))));
-        test!(overridden_4: IgnorePatterns <- ["-I", "*.OGG", "-I*.MP3"];      Complain => Err(OptionsError::Duplicate(Flag::Short(b'I'), Flag::Short(b'I'))));
+        test!(overridden:   IgnorePatterns <- ["-I=*.ogg",    "-I", "*.mp3"];      &Last => Ok(IgnorePatterns::from_iter(vec![ pat("*.mp3") ])));
+        test!(overridden_2: IgnorePatterns <- ["-I", "*.OGG", "-I*.MP3"];          &Last => Ok(IgnorePatterns::from_iter(vec![ pat("*.MP3") ])));
+        test!(overridden_3: IgnorePatterns <- ["-I=*.ogg",    "-I", "*.mp3"];  &Complain => Err(OptionsError::Duplicate(Flag::Short(b'I'), Flag::Short(b'I'))));
+        test!(overridden_4: IgnorePatterns <- ["-I", "*.OGG", "-I*.MP3"];      &Complain => Err(OptionsError::Duplicate(Flag::Short(b'I'), Flag::Short(b'I'))));
     }
 
     mod git_ignores {
         use super::*;
 
-        test!(off:  GitIgnore <- [];                Both => Ok(GitIgnore::Off));
-        test!(on:   GitIgnore <- ["--git-ignore"];  Both => Ok(GitIgnore::CheckAndIgnore));
+        test!(off:  GitIgnore <- [];                &Both => Ok(GitIgnore::Off));
+        test!(on:   GitIgnore <- ["--git-ignore"];  &Both => Ok(GitIgnore::CheckAndIgnore));
     }
 }

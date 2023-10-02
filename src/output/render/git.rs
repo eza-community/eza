@@ -142,7 +142,7 @@ pub mod test {
             contents: vec![Fixed(90).paint("-"), Fixed(90).paint("-")].into(),
         };
 
-        assert_eq!(expected, stati.render(&TestColours))
+        assert_eq!(expected, stati.render(&TestColours));
     }
 
     #[test]
@@ -157,6 +157,6 @@ pub mod test {
             contents: vec![Fixed(91).paint("N"), Fixed(92).paint("M")].into(),
         };
 
-        assert_eq!(expected, stati.render(&TestColours))
+        assert_eq!(expected, stati.render(&TestColours));
     }
 }

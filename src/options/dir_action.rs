@@ -101,34 +101,34 @@ mod test {
     }
 
     // Default behaviour
-    test!(empty:           DirAction <- [];               Both => Ok(DirAction::List));
+    test!(empty:           DirAction <- [];               &Both => Ok(DirAction::List));
 
     // Listing files as directories
-    test!(dirs_short:      DirAction <- ["-d"];           Both => Ok(DirAction::AsFile));
-    test!(dirs_long:       DirAction <- ["--list-dirs"];  Both => Ok(DirAction::AsFile));
+    test!(dirs_short:      DirAction <- ["-d"];           &Both => Ok(DirAction::AsFile));
+    test!(dirs_long:       DirAction <- ["--list-dirs"];  &Both => Ok(DirAction::AsFile));
 
     // Recursing
     use self::DirAction::Recurse;
-    test!(rec_short:       DirAction <- ["-R"];                           Both => Ok(Recurse(RecurseOptions { tree: false, max_depth: None })));
-    test!(rec_long:        DirAction <- ["--recurse"];                    Both => Ok(Recurse(RecurseOptions { tree: false, max_depth: None })));
-    test!(rec_lim_short:   DirAction <- ["-RL4"];                         Both => Ok(Recurse(RecurseOptions { tree: false, max_depth: Some(4) })));
-    test!(rec_lim_short_2: DirAction <- ["-RL=5"];                        Both => Ok(Recurse(RecurseOptions { tree: false, max_depth: Some(5) })));
-    test!(rec_lim_long:    DirAction <- ["--recurse", "--level", "666"];  Both => Ok(Recurse(RecurseOptions { tree: false, max_depth: Some(666) })));
-    test!(rec_lim_long_2:  DirAction <- ["--recurse", "--level=0118"];    Both => Ok(Recurse(RecurseOptions { tree: false, max_depth: Some(118) })));
-    test!(tree:            DirAction <- ["--tree"];                       Both => Ok(Recurse(RecurseOptions { tree: true,  max_depth: None })));
-    test!(rec_tree:        DirAction <- ["--recurse", "--tree"];          Both => Ok(Recurse(RecurseOptions { tree: true,  max_depth: None })));
-    test!(rec_short_tree:  DirAction <- ["-TR"];                          Both => Ok(Recurse(RecurseOptions { tree: true,  max_depth: None })));
+    test!(rec_short:       DirAction <- ["-R"];                           &Both => Ok(Recurse(RecurseOptions { tree: false, max_depth: None })));
+    test!(rec_long:        DirAction <- ["--recurse"];                    &Both => Ok(Recurse(RecurseOptions { tree: false, max_depth: None })));
+    test!(rec_lim_short:   DirAction <- ["-RL4"];                         &Both => Ok(Recurse(RecurseOptions { tree: false, max_depth: Some(4) })));
+    test!(rec_lim_short_2: DirAction <- ["-RL=5"];                        &Both => Ok(Recurse(RecurseOptions { tree: false, max_depth: Some(5) })));
+    test!(rec_lim_long:    DirAction <- ["--recurse", "--level", "666"];  &Both => Ok(Recurse(RecurseOptions { tree: false, max_depth: Some(666) })));
+    test!(rec_lim_long_2:  DirAction <- ["--recurse", "--level=0118"];    &Both => Ok(Recurse(RecurseOptions { tree: false, max_depth: Some(118) })));
+    test!(tree:            DirAction <- ["--tree"];                       &Both => Ok(Recurse(RecurseOptions { tree: true,  max_depth: None })));
+    test!(rec_tree:        DirAction <- ["--recurse", "--tree"];          &Both => Ok(Recurse(RecurseOptions { tree: true,  max_depth: None })));
+    test!(rec_short_tree:  DirAction <- ["-TR"];                          &Both => Ok(Recurse(RecurseOptions { tree: true,  max_depth: None })));
 
     // Overriding --list-dirs, --recurse, and --tree
-    test!(dirs_recurse:    DirAction <- ["--list-dirs", "--recurse"];     Last => Ok(Recurse(RecurseOptions { tree: false, max_depth: None })));
-    test!(dirs_tree:       DirAction <- ["--list-dirs", "--tree"];        Last => Ok(Recurse(RecurseOptions { tree: true,  max_depth: None })));
-    test!(just_level:      DirAction <- ["--level=4"];                    Last => Ok(DirAction::List));
+    test!(dirs_recurse:    DirAction <- ["--list-dirs", "--recurse"];     &Last => Ok(Recurse(RecurseOptions { tree: false, max_depth: None })));
+    test!(dirs_tree:       DirAction <- ["--list-dirs", "--tree"];        &Last => Ok(Recurse(RecurseOptions { tree: true,  max_depth: None })));
+    test!(just_level:      DirAction <- ["--level=4"];                    &Last => Ok(DirAction::List));
 
-    test!(dirs_recurse_2:  DirAction <- ["--list-dirs", "--recurse"]; Complain => Err(OptionsError::Conflict(&flags::RECURSE, &flags::LIST_DIRS)));
-    test!(dirs_tree_2:     DirAction <- ["--list-dirs", "--tree"];    Complain => Err(OptionsError::Conflict(&flags::TREE,    &flags::LIST_DIRS)));
-    test!(just_level_2:    DirAction <- ["--level=4"];                Complain => Err(OptionsError::Useless2(&flags::LEVEL, &flags::RECURSE, &flags::TREE)));
+    test!(dirs_recurse_2:  DirAction <- ["--list-dirs", "--recurse"]; &Complain => Err(OptionsError::Conflict(&flags::RECURSE, &flags::LIST_DIRS)));
+    test!(dirs_tree_2:     DirAction <- ["--list-dirs", "--tree"];    &Complain => Err(OptionsError::Conflict(&flags::TREE,    &flags::LIST_DIRS)));
+    test!(just_level_2:    DirAction <- ["--level=4"];                &Complain => Err(OptionsError::Useless2(&flags::LEVEL, &flags::RECURSE, &flags::TREE)));
 
     // Overriding levels
-    test!(overriding_1:    DirAction <- ["-RL=6", "-L=7"];                Last => Ok(Recurse(RecurseOptions { tree: false, max_depth: Some(7) })));
-    test!(overriding_2:    DirAction <- ["-RL=6", "-L=7"];            Complain => Err(OptionsError::Duplicate(Flag::Short(b'L'), Flag::Short(b'L'))));
+    test!(overriding_1:    DirAction <- ["-RL=6", "-L=7"];                &Last => Ok(Recurse(RecurseOptions { tree: false, max_depth: Some(7) })));
+    test!(overriding_2:    DirAction <- ["-RL=6", "-L=7"];            &Complain => Err(OptionsError::Duplicate(Flag::Short(b'L'), Flag::Short(b'L'))));
 }

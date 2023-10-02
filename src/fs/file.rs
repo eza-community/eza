@@ -814,17 +814,17 @@ mod ext_test {
 
     #[test]
     fn extension() {
-        assert_eq!(Some("dat".to_string()), File::ext(Path::new("fester.dat")))
+        assert_eq!(Some("dat".to_string()), File::ext(Path::new("fester.dat")));
     }
 
     #[test]
     fn dotfile() {
-        assert_eq!(Some("vimrc".to_string()), File::ext(Path::new(".vimrc")))
+        assert_eq!(Some("vimrc".to_string()), File::ext(Path::new(".vimrc")));
     }
 
     #[test]
     fn no_extension() {
-        assert_eq!(None, File::ext(Path::new("jarlsberg")))
+        assert_eq!(None, File::ext(Path::new("jarlsberg")));
     }
 }
 
@@ -835,32 +835,32 @@ mod filename_test {
 
     #[test]
     fn file() {
-        assert_eq!("fester.dat", File::filename(Path::new("fester.dat")))
+        assert_eq!("fester.dat", File::filename(Path::new("fester.dat")));
     }
 
     #[test]
     fn no_path() {
-        assert_eq!("foo.wha", File::filename(Path::new("/var/cache/foo.wha")))
+        assert_eq!("foo.wha", File::filename(Path::new("/var/cache/foo.wha")));
     }
 
     #[test]
     fn here() {
-        assert_eq!(".", File::filename(Path::new(".")))
+        assert_eq!(".", File::filename(Path::new(".")));
     }
 
     #[test]
     fn there() {
-        assert_eq!("..", File::filename(Path::new("..")))
+        assert_eq!("..", File::filename(Path::new("..")));
     }
 
     #[test]
     fn everywhere() {
-        assert_eq!("..", File::filename(Path::new("./..")))
+        assert_eq!("..", File::filename(Path::new("./..")));
     }
 
     #[test]
     #[cfg(unix)]
     fn topmost() {
-        assert_eq!("/", File::filename(Path::new("/")))
+        assert_eq!("/", File::filename(Path::new("/")));
     }
 }

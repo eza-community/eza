@@ -431,6 +431,7 @@ mod test {
         &flags::NUMERIC,
     ];
 
+    #[allow(unused_macro_rules)] // for line 463
     macro_rules! test {
         ($name:ident: $type:ident <- $inputs:expr; $stricts:expr => $result:expr) => {
             /// Macro that writes a test.
@@ -458,6 +459,7 @@ mod test {
             }
         };
 
+        // this macro is unused
         ($name:ident: $type:ident <- $inputs:expr; $stricts:expr => like $pat:pat) => {
             /// More general macro for testing against a pattern.
             /// Instead of using `PartialEq`, this just tests if it matches a pat.
@@ -508,22 +510,22 @@ mod test {
         use super::*;
 
         // Default behaviour
-        test!(empty:   SizeFormat <- [];                       Both => Ok(SizeFormat::DecimalBytes));
+        test!(empty:   SizeFormat <- [];                       &Both => Ok(SizeFormat::DecimalBytes));
 
         // Individual flags
-        test!(binary:  SizeFormat <- ["--binary"];             Both => Ok(SizeFormat::BinaryBytes));
-        test!(bytes:   SizeFormat <- ["--bytes"];              Both => Ok(SizeFormat::JustBytes));
+        test!(binary:  SizeFormat <- ["--binary"];             &Both => Ok(SizeFormat::BinaryBytes));
+        test!(bytes:   SizeFormat <- ["--bytes"];              &Both => Ok(SizeFormat::JustBytes));
 
         // Overriding
-        test!(both_1:  SizeFormat <- ["--binary", "--binary"];  Last => Ok(SizeFormat::BinaryBytes));
-        test!(both_2:  SizeFormat <- ["--bytes",  "--binary"];  Last => Ok(SizeFormat::BinaryBytes));
-        test!(both_3:  SizeFormat <- ["--binary", "--bytes"];   Last => Ok(SizeFormat::JustBytes));
-        test!(both_4:  SizeFormat <- ["--bytes",  "--bytes"];   Last => Ok(SizeFormat::JustBytes));
+        test!(both_1:  SizeFormat <- ["--binary", "--binary"];  &Last => Ok(SizeFormat::BinaryBytes));
+        test!(both_2:  SizeFormat <- ["--bytes",  "--binary"];  &Last => Ok(SizeFormat::BinaryBytes));
+        test!(both_3:  SizeFormat <- ["--binary", "--bytes"];   &Last => Ok(SizeFormat::JustBytes));
+        test!(both_4:  SizeFormat <- ["--bytes",  "--bytes"];   &Last => Ok(SizeFormat::JustBytes));
 
-        test!(both_5:  SizeFormat <- ["--binary", "--binary"];  Complain => err OptionsError::Duplicate(Flag::Long("binary"), Flag::Long("binary")));
-        test!(both_6:  SizeFormat <- ["--bytes",  "--binary"];  Complain => err OptionsError::Duplicate(Flag::Long("bytes"),  Flag::Long("binary")));
-        test!(both_7:  SizeFormat <- ["--binary", "--bytes"];   Complain => err OptionsError::Duplicate(Flag::Long("binary"), Flag::Long("bytes")));
-        test!(both_8:  SizeFormat <- ["--bytes",  "--bytes"];   Complain => err OptionsError::Duplicate(Flag::Long("bytes"),  Flag::Long("bytes")));
+        test!(both_5:  SizeFormat <- ["--binary", "--binary"];  &Complain => err OptionsError::Duplicate(Flag::Long("binary"), Flag::Long("binary")));
+        test!(both_6:  SizeFormat <- ["--bytes",  "--binary"];  &Complain => err OptionsError::Duplicate(Flag::Long("bytes"),  Flag::Long("binary")));
+        test!(both_7:  SizeFormat <- ["--binary", "--bytes"];   &Complain => err OptionsError::Duplicate(Flag::Long("binary"), Flag::Long("bytes")));
+        test!(both_8:  SizeFormat <- ["--bytes",  "--bytes"];   &Complain => err OptionsError::Duplicate(Flag::Long("bytes"),  Flag::Long("bytes")));
     }
 
     mod time_formats {
@@ -533,77 +535,77 @@ mod test {
         // implement PartialEq.
 
         // Default behaviour
-        test!(empty:     TimeFormat <- [], None;                            Both => like Ok(TimeFormat::DefaultFormat));
+        test!(empty:     TimeFormat <- [], None;                            &Both => like Ok(TimeFormat::DefaultFormat));
 
         // Individual settings
-        test!(default:          TimeFormat <- ["--time-style=default"], None;      Both => like Ok(TimeFormat::DefaultFormat));
-        test!(iso:              TimeFormat <- ["--time-style", "iso"], None;       Both => like Ok(TimeFormat::ISOFormat));
-        test!(relative:         TimeFormat <- ["--time-style", "relative"], None;  Both => like Ok(TimeFormat::Relative));
-        test!(long_iso:         TimeFormat <- ["--time-style=long-iso"], None;     Both => like Ok(TimeFormat::LongISO));
-        test!(full_iso:         TimeFormat <- ["--time-style", "full-iso"], None;  Both => like Ok(TimeFormat::FullISO));
-        test!(custom_style:     TimeFormat <- ["--time-style", "+%Y/%m/%d"], None; Both => like Ok(TimeFormat::Custom { .. }));
-        test!(bad_custom_style: TimeFormat <- ["--time-style", "%Y/%m/%d"], None;  Both => err OptionsError::BadArgument(&flags::TIME_STYLE, OsString::from("%Y/%m/%d")));
+        test!(default:          TimeFormat <- ["--time-style=default"], None;      &Both => like Ok(TimeFormat::DefaultFormat));
+        test!(iso:              TimeFormat <- ["--time-style", "iso"], None;       &Both => like Ok(TimeFormat::ISOFormat));
+        test!(relative:         TimeFormat <- ["--time-style", "relative"], None;  &Both => like Ok(TimeFormat::Relative));
+        test!(long_iso:         TimeFormat <- ["--time-style=long-iso"], None;     &Both => like Ok(TimeFormat::LongISO));
+        test!(full_iso:         TimeFormat <- ["--time-style", "full-iso"], None;  &Both => like Ok(TimeFormat::FullISO));
+        test!(custom_style:     TimeFormat <- ["--time-style", "+%Y/%m/%d"], None; &Both => like Ok(TimeFormat::Custom { .. }));
+        test!(bad_custom_style: TimeFormat <- ["--time-style", "%Y/%m/%d"], None;  &Both => err OptionsError::BadArgument(&flags::TIME_STYLE, OsString::from("%Y/%m/%d")));
 
         // Overriding
-        test!(actually:  TimeFormat <- ["--time-style=default", "--time-style", "iso"], None;  Last => like Ok(TimeFormat::ISOFormat));
-        test!(actual_2:  TimeFormat <- ["--time-style=default", "--time-style", "iso"], None;  Complain => err OptionsError::Duplicate(Flag::Long("time-style"), Flag::Long("time-style")));
+        test!(actually:  TimeFormat <- ["--time-style=default", "--time-style", "iso"], None;  &Last => like Ok(TimeFormat::ISOFormat));
+        test!(actual_2:  TimeFormat <- ["--time-style=default", "--time-style", "iso"], None;  &Complain => err OptionsError::Duplicate(Flag::Long("time-style"), Flag::Long("time-style")));
 
-        test!(nevermind: TimeFormat <- ["--time-style", "long-iso", "--time-style=full-iso"], None;  Last => like Ok(TimeFormat::FullISO));
-        test!(nevermore: TimeFormat <- ["--time-style", "long-iso", "--time-style=full-iso"], None;  Complain => err OptionsError::Duplicate(Flag::Long("time-style"), Flag::Long("time-style")));
+        test!(nevermind: TimeFormat <- ["--time-style", "long-iso", "--time-style=full-iso"], None;  &Last => like Ok(TimeFormat::FullISO));
+        test!(nevermore: TimeFormat <- ["--time-style", "long-iso", "--time-style=full-iso"], None;  &Complain => err OptionsError::Duplicate(Flag::Long("time-style"), Flag::Long("time-style")));
 
         // Errors
-        test!(daily:     TimeFormat <- ["--time-style=24-hour"], None;  Both => err OptionsError::BadArgument(&flags::TIME_STYLE, OsString::from("24-hour")));
+        test!(daily:     TimeFormat <- ["--time-style=24-hour"], None;  &Both => err OptionsError::BadArgument(&flags::TIME_STYLE, OsString::from("24-hour")));
 
         // `TIME_STYLE` environment variable is defined.
         // If the time-style argument is not given, `TIME_STYLE` is used.
-        test!(use_env:     TimeFormat <- [], Some("long-iso".into());  Both => like Ok(TimeFormat::LongISO));
+        test!(use_env:     TimeFormat <- [], Some("long-iso".into());  &Both => like Ok(TimeFormat::LongISO));
 
         // If the time-style argument is given, `TIME_STYLE` is overriding.
-        test!(override_env:     TimeFormat <- ["--time-style=full-iso"], Some("long-iso".into());  Both => like Ok(TimeFormat::FullISO));
+        test!(override_env:     TimeFormat <- ["--time-style=full-iso"], Some("long-iso".into());  &Both => like Ok(TimeFormat::FullISO));
     }
 
     mod time_types {
         use super::*;
 
         // Default behaviour
-        test!(empty:     TimeTypes <- [];                      Both => Ok(TimeTypes::default()));
+        test!(empty:     TimeTypes <- [];                      &Both => Ok(TimeTypes::default()));
 
         // Modified
-        test!(modified:  TimeTypes <- ["--modified"];          Both => Ok(TimeTypes { modified: true,  changed: false, accessed: false, created: false }));
-        test!(m:         TimeTypes <- ["-m"];                  Both => Ok(TimeTypes { modified: true,  changed: false, accessed: false, created: false }));
-        test!(time_mod:  TimeTypes <- ["--time=modified"];     Both => Ok(TimeTypes { modified: true,  changed: false, accessed: false, created: false }));
-        test!(t_m:       TimeTypes <- ["-tmod"];               Both => Ok(TimeTypes { modified: true,  changed: false, accessed: false, created: false }));
+        test!(modified:  TimeTypes <- ["--modified"];          &Both => Ok(TimeTypes { modified: true,  changed: false, accessed: false, created: false }));
+        test!(m:         TimeTypes <- ["-m"];                  &Both => Ok(TimeTypes { modified: true,  changed: false, accessed: false, created: false }));
+        test!(time_mod:  TimeTypes <- ["--time=modified"];     &Both => Ok(TimeTypes { modified: true,  changed: false, accessed: false, created: false }));
+        test!(t_m:       TimeTypes <- ["-tmod"];               &Both => Ok(TimeTypes { modified: true,  changed: false, accessed: false, created: false }));
 
         // Changed
         #[cfg(target_family = "unix")]
-        test!(changed:   TimeTypes <- ["--changed"];           Both => Ok(TimeTypes { modified: false, changed: true,  accessed: false, created: false }));
+        test!(changed:   TimeTypes <- ["--changed"];           &Both => Ok(TimeTypes { modified: false, changed: true,  accessed: false, created: false }));
         #[cfg(target_family = "unix")]
-        test!(time_ch:   TimeTypes <- ["--time=changed"];      Both => Ok(TimeTypes { modified: false, changed: true,  accessed: false, created: false }));
+        test!(time_ch:   TimeTypes <- ["--time=changed"];      &Both => Ok(TimeTypes { modified: false, changed: true,  accessed: false, created: false }));
         #[cfg(target_family = "unix")]
-        test!(t_ch:    TimeTypes <- ["-t", "ch"];              Both => Ok(TimeTypes { modified: false, changed: true,  accessed: false, created: false }));
+        test!(t_ch:    TimeTypes <- ["-t", "ch"];              &Both => Ok(TimeTypes { modified: false, changed: true,  accessed: false, created: false }));
 
         // Accessed
-        test!(acc:       TimeTypes <- ["--accessed"];          Both => Ok(TimeTypes { modified: false, changed: false, accessed: true,  created: false }));
-        test!(a:         TimeTypes <- ["-u"];                  Both => Ok(TimeTypes { modified: false, changed: false, accessed: true,  created: false }));
-        test!(time_acc:  TimeTypes <- ["--time", "accessed"];  Both => Ok(TimeTypes { modified: false, changed: false, accessed: true,  created: false }));
-        test!(time_a:    TimeTypes <- ["-t", "acc"];           Both => Ok(TimeTypes { modified: false, changed: false, accessed: true,  created: false }));
+        test!(acc:       TimeTypes <- ["--accessed"];          &Both => Ok(TimeTypes { modified: false, changed: false, accessed: true,  created: false }));
+        test!(a:         TimeTypes <- ["-u"];                  &Both => Ok(TimeTypes { modified: false, changed: false, accessed: true,  created: false }));
+        test!(time_acc:  TimeTypes <- ["--time", "accessed"];  &Both => Ok(TimeTypes { modified: false, changed: false, accessed: true,  created: false }));
+        test!(time_a:    TimeTypes <- ["-t", "acc"];           &Both => Ok(TimeTypes { modified: false, changed: false, accessed: true,  created: false }));
 
         // Created
-        test!(cr:        TimeTypes <- ["--created"];           Both => Ok(TimeTypes { modified: false, changed: false, accessed: false, created: true  }));
-        test!(c:         TimeTypes <- ["-U"];                  Both => Ok(TimeTypes { modified: false, changed: false, accessed: false, created: true  }));
-        test!(time_cr:   TimeTypes <- ["--time=created"];      Both => Ok(TimeTypes { modified: false, changed: false, accessed: false, created: true  }));
-        test!(t_cr:      TimeTypes <- ["-tcr"];                Both => Ok(TimeTypes { modified: false, changed: false, accessed: false, created: true  }));
+        test!(cr:        TimeTypes <- ["--created"];           &Both => Ok(TimeTypes { modified: false, changed: false, accessed: false, created: true  }));
+        test!(c:         TimeTypes <- ["-U"];                  &Both => Ok(TimeTypes { modified: false, changed: false, accessed: false, created: true  }));
+        test!(time_cr:   TimeTypes <- ["--time=created"];      &Both => Ok(TimeTypes { modified: false, changed: false, accessed: false, created: true  }));
+        test!(t_cr:      TimeTypes <- ["-tcr"];                &Both => Ok(TimeTypes { modified: false, changed: false, accessed: false, created: true  }));
 
         // Multiples
-        test!(time_uu:   TimeTypes <- ["-u", "--modified"];    Both => Ok(TimeTypes { modified: true,  changed: false, accessed: true,  created: false }));
+        test!(time_uu:   TimeTypes <- ["-u", "--modified"];    &Both => Ok(TimeTypes { modified: true,  changed: false, accessed: true,  created: false }));
 
         // Errors
-        test!(time_tea:  TimeTypes <- ["--time=tea"];          Both => err OptionsError::BadArgument(&flags::TIME, OsString::from("tea")));
-        test!(t_ea:      TimeTypes <- ["-tea"];                Both => err OptionsError::BadArgument(&flags::TIME, OsString::from("ea")));
+        test!(time_tea:  TimeTypes <- ["--time=tea"];          &Both => err OptionsError::BadArgument(&flags::TIME, OsString::from("tea")));
+        test!(t_ea:      TimeTypes <- ["-tea"];                &Both => err OptionsError::BadArgument(&flags::TIME, OsString::from("ea")));
 
         // Overriding
-        test!(overridden:   TimeTypes <- ["-tcr", "-tmod"];    Last => Ok(TimeTypes { modified: true,  changed: false, accessed: false, created: false }));
-        test!(overridden_2: TimeTypes <- ["-tcr", "-tmod"];    Complain => err OptionsError::Duplicate(Flag::Short(b't'), Flag::Short(b't')));
+        test!(overridden:   TimeTypes <- ["-tcr", "-tmod"];    &Last => Ok(TimeTypes { modified: true,  changed: false, accessed: false, created: false }));
+        test!(overridden_2: TimeTypes <- ["-tcr", "-tmod"];    &Complain => err OptionsError::Duplicate(Flag::Short(b't'), Flag::Short(b't')));
     }
 
     mod views {
@@ -612,61 +614,61 @@ mod test {
         use crate::output::grid::Options as GridOptions;
 
         // Default
-        test!(empty:         Mode <- [], None;            Both => like Ok(Mode::Grid(_)));
+        test!(empty:         Mode <- [], None;            &Both => like Ok(Mode::Grid(_)));
 
         // Grid views
-        test!(original_g:    Mode <- ["-G"], None;        Both => like Ok(Mode::Grid(GridOptions { across: false, .. })));
-        test!(grid:          Mode <- ["--grid"], None;    Both => like Ok(Mode::Grid(GridOptions { across: false, .. })));
-        test!(across:        Mode <- ["--across"], None;  Both => like Ok(Mode::Grid(GridOptions { across: true,  .. })));
-        test!(gracross:      Mode <- ["-xG"], None;       Both => like Ok(Mode::Grid(GridOptions { across: true,  .. })));
+        test!(original_g:    Mode <- ["-G"], None;        &Both => like Ok(Mode::Grid(GridOptions { across: false, .. })));
+        test!(grid:          Mode <- ["--grid"], None;    &Both => like Ok(Mode::Grid(GridOptions { across: false, .. })));
+        test!(across:        Mode <- ["--across"], None;  &Both => like Ok(Mode::Grid(GridOptions { across: true,  .. })));
+        test!(gracross:      Mode <- ["-xG"], None;       &Both => like Ok(Mode::Grid(GridOptions { across: true,  .. })));
 
         // Lines views
-        test!(lines:         Mode <- ["--oneline"], None;     Both => like Ok(Mode::Lines));
-        test!(prima:         Mode <- ["-1"], None;            Both => like Ok(Mode::Lines));
+        test!(lines:         Mode <- ["--oneline"], None;     &Both => like Ok(Mode::Lines));
+        test!(prima:         Mode <- ["-1"], None;            &Both => like Ok(Mode::Lines));
 
         // Details views
-        test!(long:          Mode <- ["--long"], None;    Both => like Ok(Mode::Details(_)));
-        test!(ell:           Mode <- ["-l"], None;        Both => like Ok(Mode::Details(_)));
+        test!(long:          Mode <- ["--long"], None;    &Both => like Ok(Mode::Details(_)));
+        test!(ell:           Mode <- ["-l"], None;        &Both => like Ok(Mode::Details(_)));
 
         // Grid-details views
-        test!(lid:           Mode <- ["--long", "--grid"], None;  Both => like Ok(Mode::GridDetails(_)));
-        test!(leg:           Mode <- ["-lG"], None;               Both => like Ok(Mode::GridDetails(_)));
+        test!(lid:           Mode <- ["--long", "--grid"], None;  &Both => like Ok(Mode::GridDetails(_)));
+        test!(leg:           Mode <- ["-lG"], None;               &Both => like Ok(Mode::GridDetails(_)));
 
         // Options that do nothing with --long
-        test!(long_across:   Mode <- ["--long", "--across"],   None;  Last => like Ok(Mode::Details(_)));
+        test!(long_across:   Mode <- ["--long", "--across"],   None;  &Last => like Ok(Mode::Details(_)));
 
         // Options that do nothing without --long
-        test!(just_header:   Mode <- ["--header"],    None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_group:    Mode <- ["--group"],     None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_inode:    Mode <- ["--inode"],     None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_links:    Mode <- ["--links"],     None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_blocks:   Mode <- ["--blocksize"], None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_binary:   Mode <- ["--binary"],    None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_bytes:    Mode <- ["--bytes"],     None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_numeric:  Mode <- ["--numeric"],   None;  Last => like Ok(Mode::Grid(_)));
+        test!(just_header:   Mode <- ["--header"],    None;  &Last => like Ok(Mode::Grid(_)));
+        test!(just_group:    Mode <- ["--group"],     None;  &Last => like Ok(Mode::Grid(_)));
+        test!(just_inode:    Mode <- ["--inode"],     None;  &Last => like Ok(Mode::Grid(_)));
+        test!(just_links:    Mode <- ["--links"],     None;  &Last => like Ok(Mode::Grid(_)));
+        test!(just_blocks:   Mode <- ["--blocksize"], None;  &Last => like Ok(Mode::Grid(_)));
+        test!(just_binary:   Mode <- ["--binary"],    None;  &Last => like Ok(Mode::Grid(_)));
+        test!(just_bytes:    Mode <- ["--bytes"],     None;  &Last => like Ok(Mode::Grid(_)));
+        test!(just_numeric:  Mode <- ["--numeric"],   None;  &Last => like Ok(Mode::Grid(_)));
 
         #[cfg(feature = "git")]
-        test!(just_git:      Mode <- ["--git"],       None;  Last => like Ok(Mode::Grid(_)));
+        test!(just_git:      Mode <- ["--git"],       None;  &Last => like Ok(Mode::Grid(_)));
 
-        test!(just_header_2: Mode <- ["--header"],    None;  Complain => err OptionsError::Useless(&flags::HEADER,  false, &flags::LONG));
-        test!(just_group_2:  Mode <- ["--group"],     None;  Complain => err OptionsError::Useless(&flags::GROUP,   false, &flags::LONG));
-        test!(just_inode_2:  Mode <- ["--inode"],     None;  Complain => err OptionsError::Useless(&flags::INODE,   false, &flags::LONG));
-        test!(just_links_2:  Mode <- ["--links"],     None;  Complain => err OptionsError::Useless(&flags::LINKS,   false, &flags::LONG));
-        test!(just_blocks_2: Mode <- ["--blocksize"], None;  Complain => err OptionsError::Useless(&flags::BLOCKSIZE,  false, &flags::LONG));
-        test!(just_binary_2: Mode <- ["--binary"],    None;  Complain => err OptionsError::Useless(&flags::BINARY,  false, &flags::LONG));
-        test!(just_bytes_2:  Mode <- ["--bytes"],     None;  Complain => err OptionsError::Useless(&flags::BYTES,   false, &flags::LONG));
-        test!(just_numeric2: Mode <- ["--numeric"],   None;  Complain => err OptionsError::Useless(&flags::NUMERIC, false, &flags::LONG));
+        test!(just_header_2: Mode <- ["--header"],    None;  &Complain => err OptionsError::Useless(&flags::HEADER,  false, &flags::LONG));
+        test!(just_group_2:  Mode <- ["--group"],     None;  &Complain => err OptionsError::Useless(&flags::GROUP,   false, &flags::LONG));
+        test!(just_inode_2:  Mode <- ["--inode"],     None;  &Complain => err OptionsError::Useless(&flags::INODE,   false, &flags::LONG));
+        test!(just_links_2:  Mode <- ["--links"],     None;  &Complain => err OptionsError::Useless(&flags::LINKS,   false, &flags::LONG));
+        test!(just_blocks_2: Mode <- ["--blocksize"], None;  &Complain => err OptionsError::Useless(&flags::BLOCKSIZE,  false, &flags::LONG));
+        test!(just_binary_2: Mode <- ["--binary"],    None;  &Complain => err OptionsError::Useless(&flags::BINARY,  false, &flags::LONG));
+        test!(just_bytes_2:  Mode <- ["--bytes"],     None;  &Complain => err OptionsError::Useless(&flags::BYTES,   false, &flags::LONG));
+        test!(just_numeric2: Mode <- ["--numeric"],   None;  &Complain => err OptionsError::Useless(&flags::NUMERIC, false, &flags::LONG));
 
         #[cfg(feature = "git")]
-        test!(just_git_2:    Mode <- ["--git"],    None;  Complain => err OptionsError::Useless(&flags::GIT,    false, &flags::LONG));
+        test!(just_git_2:    Mode <- ["--git"],    None;  &Complain => err OptionsError::Useless(&flags::GIT,    false, &flags::LONG));
 
         // Contradictions and combinations
-        test!(lgo:           Mode <- ["--long", "--grid", "--oneline"], None;  Both => like Ok(Mode::Lines));
-        test!(lgt:           Mode <- ["--long", "--grid", "--tree"],    None;  Both => like Ok(Mode::Details(_)));
-        test!(tgl:           Mode <- ["--tree", "--grid", "--long"],    None;  Both => like Ok(Mode::GridDetails(_)));
-        test!(tlg:           Mode <- ["--tree", "--long", "--grid"],    None;  Both => like Ok(Mode::GridDetails(_)));
-        test!(ot:            Mode <- ["--oneline", "--tree"],           None;  Both => like Ok(Mode::Details(_)));
-        test!(og:            Mode <- ["--oneline", "--grid"],           None;  Both => like Ok(Mode::Grid(_)));
-        test!(tg:            Mode <- ["--tree", "--grid"],              None;  Both => like Ok(Mode::Grid(_)));
+        test!(lgo:           Mode <- ["--long", "--grid", "--oneline"], None;  &Both => like Ok(Mode::Lines));
+        test!(lgt:           Mode <- ["--long", "--grid", "--tree"],    None;  &Both => like Ok(Mode::Details(_)));
+        test!(tgl:           Mode <- ["--tree", "--grid", "--long"],    None;  &Both => like Ok(Mode::GridDetails(_)));
+        test!(tlg:           Mode <- ["--tree", "--long", "--grid"],    None;  &Both => like Ok(Mode::GridDetails(_)));
+        test!(ot:            Mode <- ["--oneline", "--tree"],           None;  &Both => like Ok(Mode::Details(_)));
+        test!(og:            Mode <- ["--oneline", "--grid"],           None;  &Both => like Ok(Mode::Grid(_)));
+        test!(tg:            Mode <- ["--tree", "--grid"],              None;  &Both => like Ok(Mode::Grid(_)));
     }
 }

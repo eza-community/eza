@@ -148,6 +148,6 @@ mod test {
     fn unhelpful() {
         let args = vec![];
         let opts = Options::parse(args, &None);
-        assert!(!matches!(opts, OptionsResult::Help(_))) // no help when --help isn’t passed
+        assert!(!matches!(opts, OptionsResult::Help(_))); // no help when --help isn’t passed
     }
 }

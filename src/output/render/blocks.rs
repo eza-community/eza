@@ -103,7 +103,7 @@ pub mod test {
                 SizeFormat::JustBytes,
                 &NumericLocale::english()
             )
-        )
+        );
     }
 
     #[test]
@@ -121,7 +121,7 @@ pub mod test {
                 SizeFormat::DecimalBytes,
                 &NumericLocale::english()
             )
-        )
+        );
     }
 
     #[test]
@@ -139,7 +139,7 @@ pub mod test {
                 SizeFormat::BinaryBytes,
                 &NumericLocale::english()
             )
-        )
+        );
     }
 
     #[test]
@@ -157,6 +157,6 @@ pub mod test {
                 SizeFormat::JustBytes,
                 &NumericLocale::english()
             )
-        )
+        );
     }
 }

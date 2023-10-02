@@ -132,7 +132,7 @@ pub mod test {
         assert_eq!(
             expected,
             group.render(&TestColours, &users, UserFormat::Name)
-        )
+        );
     }
 
     #[test]
@@ -148,7 +148,7 @@ pub mod test {
         assert_eq!(
             expected,
             group.render(&TestColours, &users, UserFormat::Name)
-        )
+        );
     }
 
     #[test]
