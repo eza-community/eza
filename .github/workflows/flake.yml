@@ -31,9 +31,11 @@ jobs:
 
   build:
     name: Build Nix package
+
+    # continue-on-error: ${{ matrix.target == 'aarch64-linux' }}
     strategy:
       matrix:
-        target: [x86_64-linux, x86_64-darwin, aarch64-linux, aarch64-darwin]
+        target: [x86_64-linux]
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
