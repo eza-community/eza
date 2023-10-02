@@ -32,7 +32,7 @@ jobs:
   build:
     name: Build Nix package
 
-    # continue-on-error: ${{ matrix.target == 'aarch64-linux' }}
+    # if cross compilation is desired add 'aarch64-linux', 'x86_64-darwin' and 'aarch64-darwin' and fix the flake to support cross compilation.
     strategy:
       matrix:
         target: [x86_64-linux]
