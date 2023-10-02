@@ -101,7 +101,7 @@ pub enum ShowIcons {
 
     /// Show icons next to file names, with the given number of spaces between
     /// the icon and the file name.
-    On(u32),
+    On(usize),
 }
 
 /// Whether to embed hyperlinks.
@@ -182,11 +182,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
 
             bits.push(style.paint(file_icon));
 
-            match spaces_count {
-                1 => bits.push(style.paint(" ")),
-                2 => bits.push(style.paint("  ")),
-                n => bits.push(style.paint(spaces(n))),
-            }
+            bits.push(style.paint(" ".repeat(spaces_count)));
         }
 
         if self.file.parent_dir.is_none() {
@@ -474,9 +470,4 @@ pub trait Colours: FiletypeColours {
     fn mount_point(&self) -> Style;
 
     fn colour_file(&self, file: &File<'_>) -> Style;
-}
-
-/// Generate a string made of `n` spaces.
-fn spaces(width: u32) -> String {
-    (0..width).map(|_| ' ').collect()
 }

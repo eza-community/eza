@@ -47,7 +47,7 @@ impl<'a> Render<'a> {
             let contents = filename.paint();
             #[rustfmt::skip]
             let width = match (filename.options.embed_hyperlinks, filename.options.show_icons) {
-                (EmbedHyperlinks::On, ShowIcons::On(spacing)) => filename.bare_width() + 1 + (spacing as usize),
+                (EmbedHyperlinks::On, ShowIcons::On(spacing)) => filename.bare_width() + 1 + spacing,
                 (EmbedHyperlinks::On, ShowIcons::Off) => filename.bare_width(),
                 (EmbedHyperlinks::Off, _) => *contents.width(),
             };
