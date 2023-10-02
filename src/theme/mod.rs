@@ -292,7 +292,8 @@ impl render::GitRepoColours for Theme {
 #[cfg(unix)]
 impl render::GroupColours for Theme {
     fn yours(&self)      -> Style { self.ui.users.group_yours }
-    fn not_yours(&self)  -> Style { self.ui.users.group_not_yours }
+    fn not_yours(&self)  -> Style { self.ui.users.group_other }
+    fn root_group(&self) -> Style { self.ui.users.group_root }
     fn no_group(&self)   -> Style { self.ui.punctuation }
 }
 
@@ -361,7 +362,8 @@ impl render::SizeColours for Theme {
 #[cfg(unix)]
 impl render::UserColours for Theme {
     fn you(&self)           -> Style { self.ui.users.user_you }
-    fn someone_else(&self)  -> Style { self.ui.users.user_someone_else }
+    fn other(&self)         -> Style { self.ui.users.user_other }
+    fn root(&self)          -> Style { self.ui.users.user_root }
     fn no_user(&self)       -> Style { self.ui.punctuation }
 }
 
@@ -546,66 +548,66 @@ mod customs_test {
         c.size.unit_huge = Fixed(114).normal();
     });
 
-    test!(exa_nb:  ls "", exa "nb=38;5;115"  =>  colours c -> { c.size.number_byte          = Fixed(115).normal(); });
-    test!(exa_nk:  ls "", exa "nk=38;5;116"  =>  colours c -> { c.size.number_kilo          = Fixed(116).normal(); });
-    test!(exa_nm:  ls "", exa "nm=38;5;117"  =>  colours c -> { c.size.number_mega          = Fixed(117).normal(); });
-    test!(exa_ng:  ls "", exa "ng=38;5;118"  =>  colours c -> { c.size.number_giga          = Fixed(118).normal(); });
-    test!(exa_nt:  ls "", exa "nt=38;5;119"  =>  colours c -> { c.size.number_huge          = Fixed(119).normal(); });
+    test!(exa_nb:  ls "", exa "nb=38;5;115"  =>  colours c -> { c.size.number_byte                      = Fixed(115).normal(); });
+    test!(exa_nk:  ls "", exa "nk=38;5;116"  =>  colours c -> { c.size.number_kilo                      = Fixed(116).normal(); });
+    test!(exa_nm:  ls "", exa "nm=38;5;117"  =>  colours c -> { c.size.number_mega                      = Fixed(117).normal(); });
+    test!(exa_ng:  ls "", exa "ng=38;5;118"  =>  colours c -> { c.size.number_giga                      = Fixed(118).normal(); });
+    test!(exa_nt:  ls "", exa "nt=38;5;119"  =>  colours c -> { c.size.number_huge                      = Fixed(119).normal(); });
 
-    test!(exa_ub:  ls "", exa "ub=38;5;115"  =>  colours c -> { c.size.unit_byte            = Fixed(115).normal(); });
-    test!(exa_uk:  ls "", exa "uk=38;5;116"  =>  colours c -> { c.size.unit_kilo            = Fixed(116).normal(); });
-    test!(exa_um:  ls "", exa "um=38;5;117"  =>  colours c -> { c.size.unit_mega            = Fixed(117).normal(); });
-    test!(exa_ug:  ls "", exa "ug=38;5;118"  =>  colours c -> { c.size.unit_giga            = Fixed(118).normal(); });
-    test!(exa_ut:  ls "", exa "ut=38;5;119"  =>  colours c -> { c.size.unit_huge            = Fixed(119).normal(); });
+    test!(exa_ub:  ls "", exa "ub=38;5;115"  =>  colours c -> { c.size.unit_byte                        = Fixed(115).normal(); });
+    test!(exa_uk:  ls "", exa "uk=38;5;116"  =>  colours c -> { c.size.unit_kilo                        = Fixed(116).normal(); });
+    test!(exa_um:  ls "", exa "um=38;5;117"  =>  colours c -> { c.size.unit_mega                        = Fixed(117).normal(); });
+    test!(exa_ug:  ls "", exa "ug=38;5;118"  =>  colours c -> { c.size.unit_giga                        = Fixed(118).normal(); });
+    test!(exa_ut:  ls "", exa "ut=38;5;119"  =>  colours c -> { c.size.unit_huge                        = Fixed(119).normal(); });
 
-    test!(exa_df:  ls "", exa "df=38;5;115"  =>  colours c -> { c.size.major                = Fixed(115).normal(); });
-    test!(exa_ds:  ls "", exa "ds=38;5;116"  =>  colours c -> { c.size.minor                = Fixed(116).normal(); });
+    test!(exa_df:  ls "", exa "df=38;5;115"  =>  colours c -> { c.size.major                            = Fixed(115).normal(); });
+    test!(exa_ds:  ls "", exa "ds=38;5;116"  =>  colours c -> { c.size.minor                            = Fixed(116).normal(); });
 
-    test!(exa_uu:  ls "", exa "uu=38;5;117"  =>  colours c -> { c.users.user_you            = Fixed(117).normal(); });
-    test!(exa_un:  ls "", exa "un=38;5;118"  =>  colours c -> { c.users.user_someone_else   = Fixed(118).normal(); });
-    test!(exa_gu:  ls "", exa "gu=38;5;119"  =>  colours c -> { c.users.group_yours         = Fixed(119).normal(); });
-    test!(exa_gn:  ls "", exa "gn=38;5;120"  =>  colours c -> { c.users.group_not_yours     = Fixed(120).normal(); });
+    test!(exa_uu:  ls "", exa "uu=38;5;117"  =>  colours c -> { c.users.user_you                        = Fixed(117).normal(); });
+    test!(exa_un:  ls "", exa "un=38;5;118"  =>  colours c -> { c.users.user_other                      = Fixed(118).normal(); });
+    test!(exa_gu:  ls "", exa "gu=38;5;119"  =>  colours c -> { c.users.group_yours                     = Fixed(119).normal(); });
+    test!(exa_gn:  ls "", exa "gn=38;5;120"  =>  colours c -> { c.users.group_other                     = Fixed(120).normal(); });
 
-    test!(exa_lc:  ls "", exa "lc=38;5;121"  =>  colours c -> { c.links.normal              = Fixed(121).normal(); });
-    test!(exa_lm:  ls "", exa "lm=38;5;122"  =>  colours c -> { c.links.multi_link_file     = Fixed(122).normal(); });
+    test!(exa_lc:  ls "", exa "lc=38;5;121"  =>  colours c -> { c.links.normal                          = Fixed(121).normal(); });
+    test!(exa_lm:  ls "", exa "lm=38;5;122"  =>  colours c -> { c.links.multi_link_file                 = Fixed(122).normal(); });
 
-    test!(exa_ga:  ls "", exa "ga=38;5;123"  =>  colours c -> { c.git.new                   = Fixed(123).normal(); });
-    test!(exa_gm:  ls "", exa "gm=38;5;124"  =>  colours c -> { c.git.modified              = Fixed(124).normal(); });
-    test!(exa_gd:  ls "", exa "gd=38;5;125"  =>  colours c -> { c.git.deleted               = Fixed(125).normal(); });
-    test!(exa_gv:  ls "", exa "gv=38;5;126"  =>  colours c -> { c.git.renamed               = Fixed(126).normal(); });
-    test!(exa_gt:  ls "", exa "gt=38;5;127"  =>  colours c -> { c.git.typechange            = Fixed(127).normal(); });
-    test!(exa_gi:  ls "", exa "gi=38;5;128"  =>  colours c -> { c.git.ignored               = Fixed(128).normal(); });
-    test!(exa_gc:  ls "", exa "gc=38;5;129"  =>  colours c -> { c.git.conflicted            = Fixed(129).normal(); });
+    test!(exa_ga:  ls "", exa "ga=38;5;123"  =>  colours c -> { c.git.new                               = Fixed(123).normal(); });
+    test!(exa_gm:  ls "", exa "gm=38;5;124"  =>  colours c -> { c.git.modified                          = Fixed(124).normal(); });
+    test!(exa_gd:  ls "", exa "gd=38;5;125"  =>  colours c -> { c.git.deleted                           = Fixed(125).normal(); });
+    test!(exa_gv:  ls "", exa "gv=38;5;126"  =>  colours c -> { c.git.renamed                           = Fixed(126).normal(); });
+    test!(exa_gt:  ls "", exa "gt=38;5;127"  =>  colours c -> { c.git.typechange                        = Fixed(127).normal(); });
+    test!(exa_gi:  ls "", exa "gi=38;5;128"  =>  colours c -> { c.git.ignored                           = Fixed(128).normal(); });
+    test!(exa_gc:  ls "", exa "gc=38;5;129"  =>  colours c -> { c.git.conflicted                        = Fixed(129).normal(); });
 
-    test!(exa_xx:  ls "", exa "xx=38;5;128"  =>  colours c -> { c.punctuation               = Fixed(128).normal(); });
-    test!(exa_da:  ls "", exa "da=38;5;129"  =>  colours c -> { c.date                      = Fixed(129).normal(); });
-    test!(exa_in:  ls "", exa "in=38;5;130"  =>  colours c -> { c.inode                     = Fixed(130).normal(); });
-    test!(exa_bl:  ls "", exa "bl=38;5;131"  =>  colours c -> { c.blocks                    = Fixed(131).normal(); });
-    test!(exa_hd:  ls "", exa "hd=38;5;132"  =>  colours c -> { c.header                    = Fixed(132).normal(); });
-    test!(exa_lp:  ls "", exa "lp=38;5;133"  =>  colours c -> { c.symlink_path              = Fixed(133).normal(); });
-    test!(exa_cc:  ls "", exa "cc=38;5;134"  =>  colours c -> { c.control_char              = Fixed(134).normal(); });
-    test!(exa_oc:  ls "", exa "oc=38;5;135"  =>  colours c -> { c.octal                     = Fixed(135).normal(); });
-    test!(exa_bo:  ls "", exa "bO=4"         =>  colours c -> { c.broken_path_overlay       = Style::default().underline(); });
+    test!(exa_xx:  ls "", exa "xx=38;5;128"  =>  colours c -> { c.punctuation                           = Fixed(128).normal(); });
+    test!(exa_da:  ls "", exa "da=38;5;129"  =>  colours c -> { c.date                                  = Fixed(129).normal(); });
+    test!(exa_in:  ls "", exa "in=38;5;130"  =>  colours c -> { c.inode                                 = Fixed(130).normal(); });
+    test!(exa_bl:  ls "", exa "bl=38;5;131"  =>  colours c -> { c.blocks                                = Fixed(131).normal(); });
+    test!(exa_hd:  ls "", exa "hd=38;5;132"  =>  colours c -> { c.header                                = Fixed(132).normal(); });
+    test!(exa_lp:  ls "", exa "lp=38;5;133"  =>  colours c -> { c.symlink_path                          = Fixed(133).normal(); });
+    test!(exa_cc:  ls "", exa "cc=38;5;134"  =>  colours c -> { c.control_char                          = Fixed(134).normal(); });
+    test!(exa_oc:  ls "", exa "oc=38;5;135"  =>  colours c -> { c.octal                                 = Fixed(135).normal(); });
+    test!(exa_bo:  ls "", exa "bO=4"         =>  colours c -> { c.broken_path_overlay                   = Style::default().underline(); });
 
-    test!(exa_mp:  ls "", exa "mp=1;34;4"    =>  colours c -> { c.filekinds.mount_point     = Blue.bold().underline(); });
-    test!(exa_sp:  ls "", exa "sp=1;35;4"    =>  colours c -> { c.filekinds.special         = Purple.bold().underline(); });
+    test!(exa_mp:  ls "", exa "mp=1;34;4"    =>  colours c -> { c.filekinds.mount_point                 = Blue.bold().underline(); });
+    test!(exa_sp:  ls "", exa "sp=1;35;4"    =>  colours c -> { c.filekinds.special                     = Purple.bold().underline(); });
 
-    test!(exa_im:  ls "", exa "im=38;5;128"  =>  colours c -> { c.file_type.image           = Fixed(128).normal(); });
-    test!(exa_vi:  ls "", exa "vi=38;5;129"  =>  colours c -> { c.file_type.video           = Fixed(129).normal(); });
-    test!(exa_mu:  ls "", exa "mu=38;5;130"  =>  colours c -> { c.file_type.music           = Fixed(130).normal(); });
-    test!(exa_lo:  ls "", exa "lo=38;5;131"  =>  colours c -> { c.file_type.lossless        = Fixed(131).normal(); });
-    test!(exa_cr:  ls "", exa "cr=38;5;132"  =>  colours c -> { c.file_type.crypto          = Fixed(132).normal(); });
-    test!(exa_do:  ls "", exa "do=38;5;133"  =>  colours c -> { c.file_type.document        = Fixed(133).normal(); });
-    test!(exa_co:  ls "", exa "co=38;5;134"  =>  colours c -> { c.file_type.compressed      = Fixed(134).normal(); });
-    test!(exa_tm:  ls "", exa "tm=38;5;135"  =>  colours c -> { c.file_type.temp            = Fixed(135).normal(); });
-    test!(exa_cm:  ls "", exa "cm=38;5;136"  =>  colours c -> { c.file_type.compiled        = Fixed(136).normal(); });
-    test!(exa_ie:  ls "", exa "bu=38;5;137"  =>  colours c -> { c.file_type.build           = Fixed(137).normal(); });
+    test!(exa_im:  ls "", exa "im=38;5;128"  =>  colours c -> { c.file_type.image                       = Fixed(128).normal(); });
+    test!(exa_vi:  ls "", exa "vi=38;5;129"  =>  colours c -> { c.file_type.video                       = Fixed(129).normal(); });
+    test!(exa_mu:  ls "", exa "mu=38;5;130"  =>  colours c -> { c.file_type.music                       = Fixed(130).normal(); });
+    test!(exa_lo:  ls "", exa "lo=38;5;131"  =>  colours c -> { c.file_type.lossless                    = Fixed(131).normal(); });
+    test!(exa_cr:  ls "", exa "cr=38;5;132"  =>  colours c -> { c.file_type.crypto                      = Fixed(132).normal(); });
+    test!(exa_do:  ls "", exa "do=38;5;133"  =>  colours c -> { c.file_type.document                    = Fixed(133).normal(); });
+    test!(exa_co:  ls "", exa "co=38;5;134"  =>  colours c -> { c.file_type.compressed                  = Fixed(134).normal(); });
+    test!(exa_tm:  ls "", exa "tm=38;5;135"  =>  colours c -> { c.file_type.temp                        = Fixed(135).normal(); });
+    test!(exa_cm:  ls "", exa "cm=38;5;136"  =>  colours c -> { c.file_type.compiled                    = Fixed(136).normal(); });
+    test!(exa_ie:  ls "", exa "bu=38;5;137"  =>  colours c -> { c.file_type.build                       = Fixed(137).normal(); });
 
-    test!(exa_Sn:  ls "", exa "Sn=38;5;128"  =>  colours c -> { c.security_context.none          = Fixed(128).normal(); });
-    test!(exa_Su:  ls "", exa "Su=38;5;129"  =>  colours c -> { c.security_context.selinux.user  = Fixed(129).normal(); });
-    test!(exa_Sr:  ls "", exa "Sr=38;5;130"  =>  colours c -> { c.security_context.selinux.role  = Fixed(130).normal(); });
-    test!(exa_St:  ls "", exa "St=38;5;131"  =>  colours c -> { c.security_context.selinux.typ   = Fixed(131).normal(); });
-    test!(exa_Sl:  ls "", exa "Sl=38;5;132"  =>  colours c -> { c.security_context.selinux.range = Fixed(132).normal(); });
+    test!(exa_Sn:  ls "", exa "Sn=38;5;128"  =>  colours c -> { c.security_context.none                 = Fixed(128).normal(); });
+    test!(exa_Su:  ls "", exa "Su=38;5;129"  =>  colours c -> { c.security_context.selinux.user         = Fixed(129).normal(); });
+    test!(exa_Sr:  ls "", exa "Sr=38;5;130"  =>  colours c -> { c.security_context.selinux.role         = Fixed(130).normal(); });
+    test!(exa_St:  ls "", exa "St=38;5;131"  =>  colours c -> { c.security_context.selinux.typ          = Fixed(131).normal(); });
+    test!(exa_Sl:  ls "", exa "Sl=38;5;132"  =>  colours c -> { c.security_context.selinux.range        = Fixed(132).normal(); });
 
     // All the while, LS_COLORS treats them as filenames:
     test!(ls_uu:   ls "uu=38;5;117", exa ""  =>  exts [ ("uu", Fixed(117).normal()) ]);

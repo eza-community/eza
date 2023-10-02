@@ -319,6 +319,9 @@ impl TimeFormat {
             "iso" => Ok(Self::ISOFormat),
             "long-iso" => Ok(Self::LongISO),
             "full-iso" => Ok(Self::FullISO),
+            fmt if fmt.starts_with('+') => Ok(Self::Custom {
+                fmt: fmt[1..].to_owned(),
+            }),
             _ => Err(OptionsError::BadArgument(&flags::TIME_STYLE, word)),
         }
     }
@@ -533,11 +536,13 @@ mod test {
         test!(empty:     TimeFormat <- [], None;                            Both => like Ok(TimeFormat::DefaultFormat));
 
         // Individual settings
-        test!(default:   TimeFormat <- ["--time-style=default"], None;      Both => like Ok(TimeFormat::DefaultFormat));
-        test!(iso:       TimeFormat <- ["--time-style", "iso"], None;       Both => like Ok(TimeFormat::ISOFormat));
-        test!(relative:  TimeFormat <- ["--time-style", "relative"], None;  Both => like Ok(TimeFormat::Relative));
-        test!(long_iso:  TimeFormat <- ["--time-style=long-iso"], None;     Both => like Ok(TimeFormat::LongISO));
-        test!(full_iso:  TimeFormat <- ["--time-style", "full-iso"], None;  Both => like Ok(TimeFormat::FullISO));
+        test!(default:          TimeFormat <- ["--time-style=default"], None;      Both => like Ok(TimeFormat::DefaultFormat));
+        test!(iso:              TimeFormat <- ["--time-style", "iso"], None;       Both => like Ok(TimeFormat::ISOFormat));
+        test!(relative:         TimeFormat <- ["--time-style", "relative"], None;  Both => like Ok(TimeFormat::Relative));
+        test!(long_iso:         TimeFormat <- ["--time-style=long-iso"], None;     Both => like Ok(TimeFormat::LongISO));
+        test!(full_iso:         TimeFormat <- ["--time-style", "full-iso"], None;  Both => like Ok(TimeFormat::FullISO));
+        test!(custom_style:     TimeFormat <- ["--time-style", "+%Y/%m/%d"], None; Both => like Ok(TimeFormat::Custom { .. }));
+        test!(bad_custom_style: TimeFormat <- ["--time-style", "%Y/%m/%d"], None;  Both => err OptionsError::BadArgument(&flags::TIME_STYLE, OsString::from("%Y/%m/%d")));
 
         // Overriding
         test!(actually:  TimeFormat <- ["--time-style=default", "--time-style", "iso"], None;  Last => like Ok(TimeFormat::ISOFormat));
