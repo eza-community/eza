@@ -42,4 +42,4 @@ jobs:
       - name: Setup Nix cache
         uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Nix Build
-        run: nix build .#packages.${{ matrix.target }}
+        run: nix build .#packages.${{ matrix.target }}.default
