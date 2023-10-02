@@ -117,10 +117,10 @@ pub struct Git {
 #[rustfmt::skip]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct GitRepo {
-    pub branch_main: Style,
-    pub branch_other: Style,
-    pub git_clean: Style,
-    pub git_dirty: Style,
+    pub branch_main: Style,  //Gm
+    pub branch_other: Style, //Go
+    pub git_clean: Style,    //Gc
+    pub git_dirty: Style,    //Gd
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -236,6 +236,11 @@ impl UiStyles {
             "gt" => self.git.typechange                 = pair.to_style(),
             "gi" => self.git.ignored                    = pair.to_style(),
             "gc" => self.git.conflicted                 = pair.to_style(),
+
+            "Gm" => self.git_repo.branch_main           = pair.to_style(),
+            "Go" => self.git_repo.branch_other          = pair.to_style(),
+            "Gc" => self.git_repo.git_clean             = pair.to_style(),
+            "Gd" => self.git_repo.git_dirty             = pair.to_style(),
 
             "xx" => self.punctuation                    = pair.to_style(),
             "da" => self.date                           = pair.to_style(),
