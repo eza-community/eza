@@ -42,3 +42,6 @@ xtests/* @cafkafk
 # Debian files
 devtools/deb-package.sh @gierens
 deb.asc @gierens
+
+# Nushell completions
+completions/nush/* @PThorpe92
