@@ -24,7 +24,7 @@ You can use the `dircolors` program to generate a script that sets the variable 
 
 The key half of the pair can either be a two-letter code or a file glob, and anything that’s not a valid code will be treated as a glob, including keys that happen to be two letters long.
 
-For backwards compatability `EXA_COLORS` environment variables is checked if `EZA_COLORS` is unset.
+For backwards compatibility `EXA_COLORS` environment variables is checked if `EZA_COLORS` is unset.
 
 
 EXAMPLES
@@ -178,7 +178,7 @@ LIST OF CODES
 : a group that you belong to
 
 `gR`
-: a group realted to root
+: a group related to root
 
 `gn`
 : a group you aren’t a member of
