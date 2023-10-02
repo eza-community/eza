@@ -139,15 +139,15 @@ binary_static BINARY TARGET:
     just zip_static {{BINARY}} {{TARGET}}
 
 checksum:
-    echo "# Checksums"
-    echo "## sha256sum"
-    echo '```'
-    sha256sum ./target/"bin-$(convco version)"/*
-    echo '```'
-    echo "## md5sum"
-    echo '```'
-    md5sum ./target/"bin-$(convco version)"/*
-    echo '```'
+    @echo "# Checksums"
+    @echo "## sha256sum"
+    @echo '```'
+    @sha256sum ./target/"bin-$(convco version)"/*
+    @echo '```'
+    @echo "## md5sum"
+    @echo '```'
+    @md5sum ./target/"bin-$(convco version)"/*
+    @echo '```'
 
 alias c := cross
 
