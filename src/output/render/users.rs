@@ -25,8 +25,10 @@ impl Render for Option<f::User> {
 
         let style = if users.get_current_uid() == uid {
             colours.you()
+        } else if uid == 0 {
+            colours.root()
         } else {
-            colours.someone_else()
+            colours.other()
         };
         TextCell::paint(style, user_name)
     }
@@ -34,7 +36,8 @@ impl Render for Option<f::User> {
 
 pub trait Colours {
     fn you(&self) -> Style;
-    fn someone_else(&self) -> Style;
+    fn other(&self) -> Style;
+    fn root(&self) -> Style;
     fn no_user(&self) -> Style;
 }
 
@@ -56,7 +59,8 @@ pub mod test {
     #[rustfmt::skip]
     impl Colours for TestColours {
         fn you(&self)          -> Style { Red.bold() }
-        fn someone_else(&self) -> Style { Blue.underline() }
+        fn other(&self) -> Style { Blue.underline() }
+        fn root(&self)         -> Style { Blue.underline() }
         fn no_user(&self)      -> Style { Black.italic() }
     }
 
