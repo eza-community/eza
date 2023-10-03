@@ -14,12 +14,14 @@ complete -c eza -l color \
     -l colour -d "When to use terminal colours" -x -a "
     always\t'Always use colour'
     auto\t'Use colour if standard output is a terminal'
+    automatic\t'Use colour if standard output is a terminal'
     never\t'Never use colour'
 "
 complete -c eza -l color-scale \
     -l colour-scale -d "Highlight levels of file sizes distinctly"
 complete -c eza -l icons -d "Display icons"
 complete -c eza -l no-icons -d "Don't display icons"
+complete -c eza -l no-quotes -d "Don't quote file names with spaces"
 complete -c eza -l hyperlink -d "Display entries as hyperlinks"
 
 # Filtering and sorting options
@@ -28,7 +30,7 @@ complete -c eza -l git-ignore -d "Ignore files mentioned in '.gitignore'"
 complete -c eza -s a -l all -d "Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories"
 complete -c eza -s d -l list-dirs -d "List directories like regular files"
 complete -c eza -s L -l level -d "Limit the depth of recursion" -x -a "1 2 3 4 5 6 7 8 9"
-complete -c eza -s w -l width -d "Limits column output of grid, 0 implies auto-width" 
+complete -c eza -s w -l width -d "Limits column output of grid, 0 implies auto-width"
 complete -c eza -s r -l reverse -d "Reverse the sort order"
 complete -c eza -s s -l sort -d "Which field to sort by" -x -a "
     accessed\t'Sort by file accessed time'
@@ -72,7 +74,7 @@ complete -c eza -s t -l time -d "Which timestamp field to list" -x -a "
     accessed\t'Display accessed time'
     created\t'Display created time'
 "
-complete -c exa -s X -l dereference -d "dereference symlinks for file information"
+complete -c eza -s X -l dereference -d "dereference symlinks for file information"
 complete -c eza -s m -l modified -d "Use the modified timestamp field"
 complete -c eza -s n -l numeric -d "List numeric user and group IDs."
 complete -c eza -l changed -d "Use the changed timestamp field"
@@ -81,7 +83,7 @@ complete -c eza -s U -l created -d "Use the created timestamp field"
 complete -c eza -l time-style -d "How to format timestamps" -x -a "
     default\t'Use the default time style'
     iso\t'Display brief ISO timestamps'
-    long-iso\t'Display longer ISO timestaps, up to the minute'
+    long-iso\t'Display longer ISO timestamps, up to the minute'
     full-iso\t'Display full ISO timestamps, up to the nanosecond'
     relative\t'Display relative timestamps'
 "

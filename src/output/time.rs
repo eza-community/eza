@@ -20,9 +20,9 @@ use unicode_width::UnicodeWidthStr;
 /// own enum variants. It’s not worth looking the locale up if the formatter
 /// prints month names as numbers.
 ///
-/// Currently exa does not support *custom* styles, where the user enters a
+/// Also, eza supports *custom* styles, where the user enters a
 /// format string in an environment variable or something. Just these four.
-#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub enum TimeFormat {
     /// The **default format** uses the user’s locale to print month names,
     /// and specifies the timestamp down to the minute for recent times, and
@@ -45,6 +45,9 @@ pub enum TimeFormat {
 
     /// Use a relative but fixed width representation.
     Relative,
+
+    /// Use a custom format
+    Custom { fmt: String },
 }
 
 impl TimeFormat {
@@ -56,6 +59,7 @@ impl TimeFormat {
             Self::LongISO        => long(time),
             Self::FullISO        => full(time),
             Self::Relative       => relative(time),
+            Self::Custom { fmt } => custom(time, &fmt),
         };
     }
 }
@@ -73,7 +77,7 @@ fn default(time: &DateTime<FixedOffset>) -> String {
 
 /// Convert between Unicode width and width in chars to use in format!.
 /// ex: in Japanese, 月 is one character, but it has the width of two.
-/// For alignement purposes, we take the real display width into account.
+/// For alignment purposes, we take the real display width into account.
 /// So, `MAXIMUM_MONTH_WIDTH` (“12月”) = 4, but if we use `{:4}` in format!,
 /// it will add a space (“ 12月”) because format! counts characters.
 /// Conversely, a char can have a width of zero (like combining diacritics)
@@ -109,6 +113,10 @@ fn relative(time: &DateTime<FixedOffset>) -> String {
 
 fn full(time: &DateTime<FixedOffset>) -> String {
     time.format("%Y-%m-%d %H:%M:%S.%f %z").to_string()
+}
+
+fn custom(time: &DateTime<FixedOffset>, fmt: &str) -> String {
+    time.format(fmt).to_string()
 }
 
 lazy_static! {

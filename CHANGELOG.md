@@ -2,6 +2,73 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.14.0] - 2023-10-02
+
+### Bug Fixes
+
+- Merge conflict with main
+- Merge conflict with main
+- Avoid unstable inner attributes
+- Query stdout terminal size to see if the output gose to a tty.
+- Use windows-specific API for terminal size query on windows
+- Add `windows-sys` dependency for targeting windows
+- Fix manpage generation of default package
+- Use `std::io::IsTerminal` to eliminate compatibility issue
+- Changed dll icon
+- Changed readme and Added README icon
+- New R lang icon
+- Terminal size query should only check `stdout`
+- Prefix unused binding name with underscore
+- Fix large_enum_variant warning with explanation
+- README is sorted and formatted
+
+### Documentation
+
+- Add completions + manpage for --no-quotes flag
+- Leave nix install instructions open-ended
+- Leave nix install instructions open-ended
+- Documenting custom time-style
+- Added the new colors option to the man
+- Adding termux section
+- Time-format supporting custom formats
+- Description of `--color` in README, manpage, and completions
+- Change `color` to `colo[u]r` in the option description.
+- Updated man to add new colors
+
+### Features
+
+- Add quotations around filenames with spaces. exa pr#1165
+- Add rustfmt.toml file to prevent flags.rs fmt on save
+- [**breaking**] Separated root from other users
+- Added statically linked binaries
+- Replace hardcoded version by version variable
+- Add header to colors-explanation page
+- Revise man rule to use for loop and insert version
+- New Rust icon
+- Added bdf,psf icons
+- Added lib icon
+- Added Contacts,Favorites icons
+- Added home icon
+- Added fdmdownload icon
+- Adding the possibility to change git-repos colors
+
+### Refactor
+
+- Ignore options/flags.rs
+- Renamed and reintended some code
+- Reformatted a line
+
+### Styling
+
+- Format some parts correctly
+
+### Build
+
+- Bump unicode-width from 0.1.10 to 0.1.11
+- Bump git2 from 0.18.0 to 0.18.1
+- Temporarily disable aarch64-unknown-linux-gnu
+- Name static binaries
+
 ## [0.13.1] - 2023-09-25
 
 ### Bug Fixes
@@ -18,6 +85,7 @@ All notable changes to this project will be documented in this file.
 - Remove unnecessary rustfmt::skip's in windows code
 - Add src/options/flags.rs to rustfmt.excludes
 - Left-over merge conflict in src/output/table
+- Ignore refs for blame
 
 ### Documentation
 
@@ -35,6 +103,7 @@ All notable changes to this project will be documented in this file.
 ### Miscellaneous Tasks
 
 - Add completion for --only-fies (zsh,fish)
+- Release 0.13.1
 
 ### Refactor
 

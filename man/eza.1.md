@@ -1,4 +1,4 @@
-% eza(1) v0.9.0
+% eza(1) $version
 
 <!-- This is the eza(1) man page, written in Markdown. -->
 <!-- To generate the roff version, run `just man`, -->
@@ -62,9 +62,15 @@ DISPLAY OPTIONS
 `-x`, `--across`
 : Sort the grid across, rather than downwards.
 
-`--color`, `--colour=WHEN`
-: When to use terminal colours.
-Valid settings are ‘`always`’, ‘`automatic`’, and ‘`never`’.
+`--color=WHEN`, `--colour=WHEN`
+: When to use terminal colours (using ANSI escape code to colorize the output).
+
+Valid settings are ‘`always`’, ‘`automatic`’ (or ‘`auto`’ for short), and ‘`never`’.
+The default value is ‘`automatic`’.
+
+The default behavior (‘`automatic`’ or ‘`auto`’) is to colorize the output only when the standard output is connected to a real terminal. If the output of `eza` is redirected to a file or piped into another program, terminal colors will not be used. Setting this option to ‘`always`’ causes `eza` to always output terminal color, while ‘`never`’ disables the use of terminal color.
+
+Manually setting this option overrides `NO_COLOR` environment.
 
 `--color-scale`, `--colour-scale`
 : Colour file sizes on a scale.
@@ -74,6 +80,9 @@ Valid settings are ‘`always`’, ‘`automatic`’, and ‘`never`’.
 
 `--no-icons`
 : Don't display icons. (Always overrides --icons)
+
+`--no-quotes`
+: Don't quote file names with spaces.
 
 `--hyperlink`
 : Display entries as hyperlinks
@@ -169,7 +178,7 @@ These options are available when running with `--long` (`-l`):
 `--time-style=STYLE`
 : How to format timestamps.
 
-: Valid timestamp styles are ‘`default`’, ‘`iso`’, ‘`long-iso`’, ‘`full-iso`’, and ‘`relative`’.
+: Valid timestamp styles are ‘`default`’, ‘`iso`’, ‘`long-iso`’, ‘`full-iso`’, ‘`relative`', or you can use a `custom` style with '`+`' as prefix. (Ex: "`+%Y/%m/%d, %H:%M`" => "`2023/9/30, 12:00`"). for more details about format syntax, please read: https://docs.rs/chrono/latest/chrono/format/strftime/index.html
 
 `-u`, `--accessed`
 : Use the accessed timestamp field.

@@ -1,4 +1,4 @@
-% eza_colors(5) v0.9.0
+% eza_colors(5) $version
 
 <!-- This is the eza_colors(5) man page, written in Markdown. -->
 <!-- To generate the roff version, run `just man`, -->
@@ -24,7 +24,7 @@ You can use the `dircolors` program to generate a script that sets the variable 
 
 The key half of the pair can either be a two-letter code or a file glob, and anything that’s not a valid code will be treated as a glob, including keys that happen to be two letters long.
 
-For backwards compatability `EXA_COLORS` environment variables is checked if `EZA_COLORS` is unset.
+For backwards compatibility `EXA_COLORS` environment variables is checked if `EZA_COLORS` is unset.
 
 
 EXAMPLES
@@ -168,11 +168,17 @@ LIST OF CODES
 `uu`
 : a user that’s you
 
+`uR`
+: a user that's root
+
 `un`
 : a user that’s someone else
 
 `gu`
 : a group that you belong to
+
+`gR`
+: a group related to root
 
 `gn`
 : a group you aren’t a member of
@@ -203,6 +209,18 @@ LIST OF CODES
 
 `gc`
 : a conflicted flag in Git
+
+`Gm`
+: main branch of repo
+
+`Go`
+: other branch of repo
+
+`Gc`
+: clean branch of repo
+
+`Gd`
+: dirty branch of repo
 
 `xx`
 : “punctuation”, including many background UI elements

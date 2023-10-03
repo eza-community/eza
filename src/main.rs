@@ -24,7 +24,7 @@
 use clap::Parser;
 use std::env;
 use std::ffi::{OsStr, OsString};
-use std::io::{self, ErrorKind, Write};
+use std::io::{self, ErrorKind, IsTerminal, Write};
 use std::path::{Component, PathBuf};
 use std::process::exit;
 
@@ -59,6 +59,7 @@ fn main() {
     if let Err(e) = ansiterm::enable_ansi_support() {
         warn!("Failed to enable ANSI support: {}", e);
     }
+    let stdout_istty = io::stdout().is_terminal();
 
     let cli = Opts::parse();
     let mut input_paths: Vec<&OsStr> = cli.paths.iter().map(OsString::as_os_str).collect();
@@ -77,9 +78,7 @@ fn main() {
     let writer = io::stdout();
 
     let console_width = options.view.width.actual_terminal_width();
-    let theme = options
-        .theme
-        .to_theme(terminal_size::terminal_size().is_some());
+    let theme = options.theme.to_theme(stdout_istty);
     let exa = Exa {
         options,
         writer,
@@ -214,6 +213,10 @@ impl<'args> Exa<'args> {
         is_only_dir: bool,
         exit_status: i32,
     ) -> io::Result<i32> {
+        let View {
+            file_style: file_name::Options { quote_style, .. },
+            ..
+        } = self.options.view;
         for dir in dir_files {
             // Put a gap between directories, or between the list of files and
             // the first directory.
@@ -230,6 +233,7 @@ impl<'args> Exa<'args> {
                     &mut bits,
                     Style::default(),
                     Style::default(),
+                    quote_style,
                 );
                 writeln!(&mut self.writer, "{}:", ANSIStrings(&bits))?;
             }

@@ -19,10 +19,10 @@ of change. See the following list for some guidance:
 - feat: adds a new feature to eza
 - feat(zsh): adds something to zsh completion
 - refactor: revises parts of the code
-- doc(readme): revise the README
-- doc(man): revision of the man pages
+- docs(readme): revise the README
+- docs(man): revision of the man pages
 - fix: bugfix in the code base
-- fix(ci): bugfix in the continuos integration
+- fix(ci): bugfix in the continuous integration
 - ...
 
 Note that this list is not complete and there may be cases where a commit

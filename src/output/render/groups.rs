@@ -42,6 +42,10 @@ impl Render for Option<f::Group> {
             }
         }
 
+        if group.gid() == 0 {
+            style = colours.root_group();
+        }
+
         let group_name = match format {
             UserFormat::Name => group.name().to_string_lossy().into(),
             UserFormat::Numeric => group.gid().to_string(),
@@ -55,6 +59,7 @@ pub trait Colours {
     fn yours(&self) -> Style;
     fn not_yours(&self) -> Style;
     fn no_group(&self) -> Style;
+    fn root_group(&self) -> Style;
 }
 
 #[cfg(test)]
@@ -78,6 +83,7 @@ pub mod test {
         fn yours(&self)     -> Style { Fixed(80).normal() }
         fn not_yours(&self) -> Style { Fixed(81).normal() }
         fn no_group(&self)   -> Style { Black.italic() }
+        fn root_group(&self) -> Style { Fixed(82).normal() }
     }
 
     #[test]

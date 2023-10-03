@@ -1,3 +1,9 @@
+% eza_colors-explanation(5) $version
+
+<!-- This is the eza_colors-explanation(5) man page, written in Markdown. -->
+<!-- To generate the roff version, run `just man`, -->
+<!-- and the man page will appear in the ‘target’ directory. -->
+
 # Name
 
 eza_colors-explanation — more details on customizing eza colors

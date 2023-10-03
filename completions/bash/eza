@@ -9,7 +9,7 @@ _eza() {
             ;;
 
         --colour)
-            mapfile -t COMPREPLY < <(compgen -W 'always auto never' -- "$cur")
+            mapfile -t COMPREPLY < <(compgen -W 'always automatic auto never' -- "$cur")
             return
             ;;
 

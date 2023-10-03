@@ -375,7 +375,7 @@ impl<'a> Table<'a> {
             columns,
             git,
             env,
-            time_format: options.time_format,
+            time_format: options.time_format.clone(),
             size_format: options.size_format,
             #[cfg(unix)]
             user_format: options.user_format,
@@ -471,22 +471,22 @@ impl<'a> Table<'a> {
             Column::Timestamp(TimeType::Modified) => file.modified_time().render(
                 self.theme.ui.date,
                 self.env.time_offset,
-                self.time_format,
+                self.time_format.clone(),
             ),
             Column::Timestamp(TimeType::Changed) => file.changed_time().render(
                 self.theme.ui.date,
                 self.env.time_offset,
-                self.time_format,
+                self.time_format.clone(),
             ),
             Column::Timestamp(TimeType::Created) => file.created_time().render(
                 self.theme.ui.date,
                 self.env.time_offset,
-                self.time_format,
+                self.time_format.clone(),
             ),
             Column::Timestamp(TimeType::Accessed) => file.accessed_time().render(
                 self.theme.ui.date,
                 self.env.time_offset,
-                self.time_format,
+                self.time_format.clone(),
             ),
         }
     }

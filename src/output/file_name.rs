@@ -19,6 +19,9 @@ pub struct Options {
     /// Whether to prepend icon characters before file names.
     pub show_icons: ShowIcons,
 
+    /// How to display file names with spaces (with or without quotes).
+    pub quote_style: QuoteStyle,
+
     /// Whether to make file names hyperlinks.
     pub embed_hyperlinks: EmbedHyperlinks,
 }
@@ -98,7 +101,7 @@ pub enum ShowIcons {
 
     /// Show icons next to file names, with the given number of spaces between
     /// the icon and the file name.
-    On(u32),
+    On(usize),
 }
 
 /// Whether to embed hyperlinks.
@@ -106,6 +109,17 @@ pub enum ShowIcons {
 pub enum EmbedHyperlinks {
     Off,
     On,
+}
+
+/// Whether or not to wrap file names with spaces in quotes.
+#[derive(PartialEq, Debug, Copy, Clone)]
+pub enum QuoteStyle {
+    /// Don't ever quote file names.
+    NoQuotes,
+
+    /// Use single quotes for file names that contain spaces and no single quotes
+    /// Use double quotes for file names that contain single quotes.
+    QuoteSpaces,
 }
 
 /// A **file name** holds all the information necessary to display the name
@@ -168,11 +182,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
 
             bits.push(style.paint(file_icon));
 
-            match spaces_count {
-                1 => bits.push(style.paint(" ")),
-                2 => bits.push(style.paint("  ")),
-                n => bits.push(style.paint(spaces(n))),
-            }
+            bits.push(style.paint(" ".repeat(spaces_count)));
         }
 
         if self.file.parent_dir.is_none() {
@@ -208,6 +218,9 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                         let target_options = Options {
                             classify: Classify::JustFilenames,
                             show_icons: ShowIcons::Off,
+
+                            quote_style: QuoteStyle::QuoteSpaces,
+
                             embed_hyperlinks: EmbedHyperlinks::Off,
                         };
 
@@ -243,6 +256,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                         &mut bits,
                         self.colours.broken_filename(),
                         self.colours.broken_control_char(),
+                        self.options.quote_style,
                     );
                 }
 
@@ -287,6 +301,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                 bits,
                 self.colours.symlink_path(),
                 self.colours.control_char(),
+                self.options.quote_style,
             );
             bits.push(
                 self.colours
@@ -373,6 +388,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
             &mut bits,
             file_style,
             self.colours.control_char(),
+            self.options.quote_style,
         );
 
         if display_hyperlink {
@@ -454,9 +470,4 @@ pub trait Colours: FiletypeColours {
     fn mount_point(&self) -> Style;
 
     fn colour_file(&self, file: &File<'_>) -> Style;
-}
-
-/// Generate a string made of `n` spaces.
-fn spaces(width: u32) -> String {
-    (0..width).map(|_| ' ').collect()
 }

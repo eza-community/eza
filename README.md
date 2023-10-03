@@ -121,7 +121,11 @@ sudo apt install -y eza
 
 [![nixpkgs unstable package](https://repology.org/badge/version-for-repo/nix_unstable/eza.svg)](https://repology.org/project/eza/versions)
 
-Eza is available from [Nixpkgs](https://github.com/NixOS/nixpkgs).
+> **Note**
+> Installing packages imperatively isn't idiomatic Nix, as this can lead to [many issues](https://stop-using-nix-env.privatevoid.net/).
+
+Eza is available from [Nixpkgs](https://github.com/NixOS/nixpkgs) and from the
+flake in this repository.
 
 For `nix profile` users:
 
@@ -134,6 +138,12 @@ For `nix-env` users:
 ```shell
 nix-env -i eza
 ```
+
+**Declarative Nix Installations**
+
+- Simple NixOS installation: [rfaulhaber/dotfiles](https://github.com/rfaulhaber/dotfiles/blob/a8d084d178efd0592b7ac02d34a450fb58913aca/nix/modules/programs/eza/default.nix#L15)
+- Using the flake via NixOS: [hallettj/home.nix](https://github.com/hallettj/home.nix/blob/a8388483e5d78e110be73c5af0e7f0e3ca8f8aa3/flake.nix#L19)
+- Using home-manager on NixOS: [Misterio77/nix-config](https://github.com/Misterio77/nix-config/blob/6867d66a2fe7899c608b9c8e5a8f9aee279d188b/home/misterio/features/cli/fish.nix#L6)
 
 ### Gentoo
 
@@ -172,6 +182,14 @@ Eza is available as the [eza](https://github.com/void-linux/void-packages/tree/m
 sudo xbps-install eza
 ```
 
+### Termux
+
+Eza is available as the [eza](https://github.com/termux/termux-packages/tree/master/packages/eza) package in the official Termux repository.
+
+```bash
+pkg install eza
+```
+
 ### Brew (MacOS)
 
 [![Homebrew package](https://repology.org/badge/version-for-repo/homebrew/eza.svg)](https://repology.org/project/eza/versions)
@@ -199,7 +217,6 @@ sudo port install eza
 ### Winget (Windows)
 
 [![Windows package](https://repology.org/badge/version-for-repo/winget/eza.svg)](https://repology.org/project/eza/versions)
-
 
 Eza is available on Winget.
 
@@ -229,13 +246,13 @@ scoop install eza
 > Change `~/.zshrc` to your preferred zsh config file.
 
 ##### Clone the repository:
-   
+
 ```sh
 git clone https://github.com/eza-community/eza.git
 ```
 
 ##### Add the completion path to your zsh configuration:
-   
+
 Replace `<path_to_eza>` with the actual path where you cloned the `eza` repository.
 
 ```sh
@@ -243,7 +260,7 @@ echo 'export FPATH="<path_to_eza>/completions/zsh:$FPATH"' >> ~/.zshrc
 ```
 
 ##### Reload your zsh configuration:
-   
+
 ```sh
 source ~/.zshrc
 ```
@@ -314,9 +331,9 @@ These options are available when running with `--long` (`-l`):
 - **--changed**: use the changed timestamp field
 - **--git**: list each file’s Git status, if tracked or ignored
 - **--git-repos**: list each directory’s Git status, if tracked
-- **--git-repos-no-status**:  list whether a directory is a Git repository, but not its status (faster)
+- **--git-repos-no-status**: list whether a directory is a Git repository, but not its status (faster)
 - **--no-git**: suppress Git status (always overrides `--git`, `--git-repos`, `--git-repos-no-status`)
-- **--time-style**: how to format timestamps
+- **--time-style**: how to format timestamps. valid timestamp styles are ‘`default`’, ‘`iso`’, ‘`long-iso`’, ‘`full-iso`’, ‘`relative`', or you can use a `custom` style with '`+`' as prefix. (Ex: "`+%Y/%m/%d, %H:%M`" => "`2023/9/30, 12:00`"). [more about format syntax](https://docs.rs/chrono/latest/chrono/format/strftime/index.html).
 - **--no-permissions**: suppress the permissions field
 - **-o**, **--octal**: list each file's permission in octal format
 - **--no-filesize**: suppress the filesize field
@@ -325,7 +342,7 @@ These options are available when running with `--long` (`-l`):
 
 Some of the options accept parameters:
 
-- Valid **--color** options are **always**, **automatic**, and **never**.
+- Valid **--co{u}lor** options are **always**, **automatic** (or **auto** for short), and **never**.
 - Valid sort fields are **accessed**, **changed**, **created**, **extension**, **Extension**, **inode**, **modified**, **name**, **Name**, **size**, **type**, and **none**. Fields starting with a capital letter sort uppercase before lowercase. The modified field has the aliases **date**, **time**, and **newest**, while its reverse has the aliases **age** and **oldest**.
 - Valid time fields are **modified**, **changed**, **accessed**, and **created**.
 - Valid time styles are **default**, **iso**, **long-iso**, **full-iso**, and **relative**.

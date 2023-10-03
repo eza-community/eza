@@ -352,10 +352,10 @@ impl TimeFormat {
             "iso" => Ok(Self::ISOFormat),
             "long-iso" => Ok(Self::LongISO),
             "full-iso" => Ok(Self::FullISO),
-            _ => Err(OptionsError::BadArgument(
-                "--time-style".to_string(),
-                word.to_string_lossy().to_string(),
-            )),
+            fmt if fmt.starts_with('+') => Ok(Self::Custom {
+                fmt: fmt[1..].to_owned(),
+            }),
+            _ => Err(OptionsError::BadArgument(&flags::TIME_STYLE, word)),
         }
     }
 }

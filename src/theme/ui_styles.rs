@@ -90,9 +90,11 @@ pub struct Size {
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Users {
     pub user_you: Style,           // uu
-    pub user_someone_else: Style,  // un
+    pub user_root: Style,          // uR
+    pub user_other: Style,         // un
     pub group_yours: Style,        // gu
-    pub group_not_yours: Style,    // gn
+    pub group_other: Style,        // gn
+    pub group_root: Style,         // gR
 }
 
 #[rustfmt::skip]
@@ -117,10 +119,10 @@ pub struct Git {
 #[rustfmt::skip]
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct GitRepo {
-    pub branch_main: Style,
-    pub branch_other: Style,
-    pub git_clean: Style,
-    pub git_dirty: Style,
+    pub branch_main: Style,  //Gm
+    pub branch_other: Style, //Go
+    pub git_clean: Style,    //Gc
+    pub git_dirty: Style,    //Gd
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -222,9 +224,11 @@ impl UiStyles {
             "ds" => self.size.minor                     = pair.to_style(),
 
             "uu" => self.users.user_you                 = pair.to_style(),
-            "un" => self.users.user_someone_else        = pair.to_style(),
+            "un" => self.users.user_other               = pair.to_style(),
+            "uR" => self.users.user_root                = pair.to_style(),
             "gu" => self.users.group_yours              = pair.to_style(),
-            "gn" => self.users.group_not_yours          = pair.to_style(),
+            "gn" => self.users.group_other              = pair.to_style(),
+            "gR" => self.users.group_root               = pair.to_style(),
 
             "lc" => self.links.normal                   = pair.to_style(),
             "lm" => self.links.multi_link_file          = pair.to_style(),
@@ -236,6 +240,11 @@ impl UiStyles {
             "gt" => self.git.typechange                 = pair.to_style(),
             "gi" => self.git.ignored                    = pair.to_style(),
             "gc" => self.git.conflicted                 = pair.to_style(),
+
+            "Gm" => self.git_repo.branch_main           = pair.to_style(),
+            "Go" => self.git_repo.branch_other          = pair.to_style(),
+            "Gc" => self.git_repo.git_clean             = pair.to_style(),
+            "Gd" => self.git_repo.git_dirty             = pair.to_style(),
 
             "xx" => self.punctuation                    = pair.to_style(),
             "da" => self.date                           = pair.to_style(),
