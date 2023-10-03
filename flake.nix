@@ -68,7 +68,8 @@
               installShellCompletion \
                 --bash completions/bash/eza \
                 --fish completions/fish/eza.fish \
-                --zsh completions/zsh/_eza
+                --zsh completions/zsh/_eza \
+                completions/nush/eza.nu
             '';
 
             meta = with pkgs.lib; {
