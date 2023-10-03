@@ -127,6 +127,28 @@
                 cp dump $out -r
               '';
             });
+
+          clippy = craneLib.cargoClippy (commonArgs
+            // {
+              inherit cargoArtifacts;
+              cargoClippyExtraArgs = "--all-targets -- --deny warnings";
+            });
+
+          trycmd = craneLib.cargoNextest (commonArgs
+            // {
+              # include test files
+              src = ./.;
+              inherit cargoArtifacts;
+              mode = "test";
+              doCheck = true;
+              # No reason to wait for release build
+              release = false;
+              # buildPhase files differ between dep and main phase
+              singleStep = true;
+              # set itests files creation date to unix epoch
+              buildPhase = ''touch --date=@0 tests/itest/*'';
+              cargoTestOptions = ["--features nix"];
+            });
         };
 
         # For `nix develop`:
@@ -147,32 +169,14 @@
             inherit src advisory-db;
           };
           # lint
-          cargo-clippy = craneLib.cargoClippy (commonArgs
-            // {
-              inherit cargoArtifacts;
-              cargoClippyExtraArgs = "--all-targets -- --deny warnings";
-            });
+          inherit (packages) clippy;
+          inherit (packages) trycmd;
           # like `cargo test` but using nextest which is faster.
           cargo-nextest = craneLib.cargoNextest (commonArgs
             // {
               inherit cargoArtifacts;
               partitions = 1;
               partitionType = "count";
-            });
-          trycmd = craneLib.cargoNextest (commonArgs
-            // {
-              # include test files
-              src = ./.;
-              inherit cargoArtifacts;
-              mode = "test";
-              doCheck = true;
-              # No reason to wait for release build
-              release = false;
-              # buildPhase files differ between dep and main phase
-              singleStep = true;
-              # set itests files creation date to unix epoch
-              buildPhase = ''touch --date=@0 tests/itest/*'';
-              cargoTestOptions = ["--features nix"];
             });
         };
       }
