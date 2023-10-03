@@ -199,7 +199,7 @@ impl<'args> Exa<'args> {
                         match f.to_dir() {
                             Ok(d) => dirs.push(d),
                             Err(e) if e.kind() == ErrorKind::PermissionDenied => {
-                                warn!("Permission Denied: {e}");
+                                eprintln!("{file_path:?}: {e}");
                                 exit(exits::PERMISSION_DENIED);
                             }
                             Err(e) => writeln!(io::stderr(), "{file_path:?}: {e}")?,
