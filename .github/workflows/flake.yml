@@ -1,8 +1,25 @@
 on:
   workflow_dispatch:
   pull_request:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/flake.yml'
+      - 'src/**'
+      - 'Cargo.*'
+      - "*.toml"
+      - "flake.*"
+      - "*.nix"
+      - "*.rs"
   push:
     branches: [main]
+    paths:
+      - '.github/workflows/flake.yml'
+      - 'src/**'
+      - 'Cargo.*'
+      - "*.toml"
+      - "flake.*"
+      - "*.nix"
+      - "*.rs"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
