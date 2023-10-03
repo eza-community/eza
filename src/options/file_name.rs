@@ -2,15 +2,15 @@ use crate::options::vars::{self, Vars};
 use crate::options::{NumberSource, OptionsError};
 
 use crate::options::parser::Opts;
-use crate::output::file_name::{Classify, EmbedHyperlinks, Options, ShowIcons};
+use crate::output::file_name::{Classify, EmbedHyperlinks, Options, QuoteStyle, ShowIcons};
 
 impl Options {
     pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
         let classify = Classify::deduce(matches);
         let show_icons = ShowIcons::deduce(matches, vars)?;
 
-        let quote_style = QuoteStyle::deduce(matches)?;
-        let embed_hyperlinks = EmbedHyperlinks::deduce(matches)?;
+        let quote_style = QuoteStyle::deduce(matches);
+        let embed_hyperlinks = EmbedHyperlinks::deduce(matches);
 
         Ok(Self {
             classify,
@@ -52,11 +52,11 @@ impl ShowIcons {
 }
 
 impl QuoteStyle {
-    pub fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        if matches.has(&flags::NO_QUOTES)? {
-            Ok(Self::NoQuotes)
+    pub fn deduce(matches: &Opts) -> Self {
+        if matches.no_quotes > 0 {
+            Self::NoQuotes
         } else {
-            Ok(Self::QuoteSpaces)
+            Self::QuoteSpaces
         }
     }
 }

@@ -355,7 +355,10 @@ impl TimeFormat {
             fmt if fmt.starts_with('+') => Ok(Self::Custom {
                 fmt: fmt[1..].to_owned(),
             }),
-            _ => Err(OptionsError::BadArgument(&flags::TIME_STYLE, word)),
+            _ => Err(OptionsError::BadArgument(
+                "TIME_STYLE".to_string(),
+                word.to_string_lossy().to_string(),
+            )),
         }
     }
 }

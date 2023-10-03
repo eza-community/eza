@@ -164,6 +164,9 @@ pub struct Opts {
     /// Show only files
     #[arg(short = 'f', long = "only-files", action = clap::ArgAction::Count)]
     pub only_files: u8,
+    /// Don't Show quotes
+    #[arg(long = "no-quotes", action = clap::ArgAction::Count)]
+    pub no_quotes: u8,
 }
 
 impl Opts {
@@ -224,6 +227,7 @@ impl Opts {
             colour: None,
             colour_scale: 0,
             only_files: 0,
+            no_quotes: 0,
         }
     }
 }

@@ -37,7 +37,7 @@ use crate::fs::filter::GitIgnore;
 use crate::fs::{Dir, File};
 use crate::options::parser::Opts;
 use crate::options::{vars, Options, Vars};
-use crate::output::{details, escape, grid, grid_details, lines, Mode, View};
+use crate::output::{details, escape, file_name, grid, grid_details, lines, Mode, View};
 use crate::theme::Theme;
 
 mod fs;
