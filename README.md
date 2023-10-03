@@ -265,6 +265,25 @@ echo 'export FPATH="<path_to_eza>/completions/zsh:$FPATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
+
+#### For zsh with homebrew:
+
+In case zsh completions don't work out of the box with homebrew, add the
+following to your `~/.zshrc`:
+
+```bash
+if type brew &>/dev/null; then
+    FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+    autoload -Uz compinit
+    compinit
+fi
+```
+
+For reference:
+- https://docs.brew.sh/Shell-Completion#configuring-completions-in-zsh
+- https://github.com/Homebrew/brew/issues/8984
+
+
 ---
 
 Click sections to expand.
