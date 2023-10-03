@@ -4,7 +4,7 @@ use term_grid as tg;
 
 use crate::fs::filter::FileFilter;
 use crate::fs::File;
-use crate::output::file_name::Options as FileStyle;
+use crate::output::file_name::{Classify, Options as FileStyle};
 use crate::output::file_name::{EmbedHyperlinks, ShowIcons};
 use crate::theme::Theme;
 
@@ -44,11 +44,29 @@ impl<'a> Render<'a> {
         self.filter.sort_files(&mut self.files);
         for file in &self.files {
             let filename = self.file_style.for_file(file, self.theme);
+
+            // Calculate classification width
+            let classification_width =
+                if let Classify::AddFileIndicators = filename.options.classify {
+                    match filename.classify_char(file) {
+                        Some(s) => s.len(),
+                        None => 0,
+                    }
+                } else {
+                    0
+                };
+
             let contents = filename.paint();
-            #[rustfmt::skip]
-            let width = match (filename.options.embed_hyperlinks, filename.options.show_icons) {
-                (EmbedHyperlinks::On, ShowIcons::On(spacing)) => filename.bare_width() + 1 + spacing,
-                (EmbedHyperlinks::On, ShowIcons::Off) => filename.bare_width(),
+            let width = match (
+                filename.options.embed_hyperlinks,
+                filename.options.show_icons,
+            ) {
+                (EmbedHyperlinks::On, ShowIcons::On(spacing)) => {
+                    filename.bare_width() + 1 + spacing + classification_width
+                }
+                (EmbedHyperlinks::On, ShowIcons::Off) => {
+                    filename.bare_width() + classification_width
+                }
                 (EmbedHyperlinks::Off, _) => *contents.width(),
             };
 
