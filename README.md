@@ -168,9 +168,13 @@ The preceding repository also contains the Bash, Fish, and Zsh completions.
 
 ### Fedora
 
-Fedora support is in the works.
+[![Fedora package](https://repology.org/badge/version-for-repo/fedora_39/rust:eza.svg)](https://repology.org/project/eza/versions)
 
-https://bugzilla.redhat.com/show_bug.cgi?id=2238264
+Eza is available as the [eza](https://packages.fedoraproject.org/pkgs/rust-eza/eza/) package in the official Fedora repository.
+
+```bash
+sudo dnf install eza
+```
 
 ### Void Linux
 
@@ -422,3 +426,4 @@ The Nix Flake has a few features:
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=eza-community/eza&type=Date)](https://star-history.com/#eza-community/eza&Date)
+
