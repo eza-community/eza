@@ -22,6 +22,7 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
+  RUSTFLAGS: --deny warnings
 
 jobs:
   unit-tests:
