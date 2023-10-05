@@ -45,7 +45,7 @@ impl Icons {
     const JSON: char            = '\u{e60b}';  // 
     const KEY: char             = '\u{eb11}';  // 
     const KEYPASS: char         = '\u{f23e}';  // 
-    const LANG_ASSEMBLY: char   = '\u{e637}';  // 
+    const LANG_ASSEMBLY: char   = '\u{f0423}'; // 󰐣
     const LANG_C: char          = '\u{e61e}';  // 
     const LANG_CPP: char        = '\u{e61d}';  // 
     const LANG_CSHARP: char     = '\u{f031b}'; // 󰌛
@@ -331,7 +331,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "ar"             => Icons::COMPRESSED,       // 
     "arw"            => Icons::IMAGE,            // 
     "asc"            => Icons::SHIELD_LOCK,      // 󰦝
-    "asm"            => Icons::LANG_ASSEMBLY,    // 
+    "asm"            => Icons::LANG_ASSEMBLY,    // 󰐣
     "asp"            => '\u{f121}',              // 
     "avi"            => Icons::VIDEO,            // 
     "avif"           => Icons::IMAGE,            // 
