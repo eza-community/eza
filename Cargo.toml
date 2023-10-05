@@ -120,6 +120,8 @@ vendored-openssl = ["git2/vendored-openssl"]
 vendored-libgit2 = ["git2/vendored-libgit2"]
 # Should only be used inside of flake.nix
 nix = []
+# Should only be used inside of flake.nix locally (not on CI)
+nix-local = []
 
 
 # make dev builds faster by excluding debug symbols
