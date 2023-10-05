@@ -179,7 +179,7 @@ alias c := cross
     just binary eza x86_64-unknown-linux-gnu
     # just binary_static eza x86_64-unknown-linux-gnu
     just binary eza x86_64-unknown-linux-musl
-    # just binary_static eza x86_64-unknown-linux-musl
+    just binary_static eza x86_64-unknown-linux-musl
 
     ### aarch
     just binary eza aarch64-unknown-linux-gnu
@@ -272,7 +272,7 @@ gen_test_dir:
 #
 # Required nix, likely won't work on windows.
 @itest:
-    nix build -L ./#trycmd
+    nix build -L ./#trycmd-local
 
 # Runs integration tests in nix sandbox, and dumps outputs.
 #

@@ -431,6 +431,7 @@ mod test {
         &flags::NUMERIC,
     ];
 
+    #[allow(unused_macro_rules)]
     macro_rules! test {
         ($name:ident: $type:ident <- $inputs:expr; $stricts:expr => $result:expr) => {
             /// Macro that writes a test.
