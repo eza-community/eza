@@ -314,7 +314,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     /// The character to be displayed after a file when classifying is on, if
     /// the file’s type has one associated with it.
     #[cfg(unix)]
-    fn classify_char(&self, file: &File<'_>) -> Option<&'static str> {
+    pub(crate) fn classify_char(&self, file: &File<'_>) -> Option<&'static str> {
         if file.is_executable_file() {
             Some("*")
         } else if file.is_directory() {
@@ -331,7 +331,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     }
 
     #[cfg(windows)]
-    fn classify_char(&self, file: &File<'_>) -> Option<&'static str> {
+    pub(crate) fn classify_char(&self, file: &File<'_>) -> Option<&'static str> {
         if file.is_directory() {
             Some("/")
         } else if file.is_link() {
