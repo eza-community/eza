@@ -62,7 +62,7 @@ impl<'a> Render<'a> {
                 filename.options.show_icons,
             ) {
                 (EmbedHyperlinks::On, ShowIcons::On(spacing)) => {
-                    filename.bare_width() + 1 + spacing + classification_width
+                    filename.bare_width() + classification_width + 1 + spacing
                 }
                 (EmbedHyperlinks::On, ShowIcons::Off) => {
                     filename.bare_width() + classification_width
