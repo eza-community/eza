@@ -272,7 +272,7 @@ gen_test_dir:
 #
 # Required nix, likely won't work on windows.
 @itest:
-    nix build -L ./#trycmd
+    nix build -L ./#trycmd-local
 
 # Runs integration tests in nix sandbox, and dumps outputs.
 #
