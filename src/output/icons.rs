@@ -152,6 +152,7 @@ const DIRECTORY_ICONS: Map<&'static str, char> = phf_map! {
     "src"                 => '\u{f19fc}',           // 󱧼
     "ssh"                 => Icons::FOLDER_KEY,     // 󰢬
     "sudoers.d"           => Icons::FOLDER_KEY,     // 󰢬
+    "vendor"              => '\u{f0ae6}',           // 󰫦
     "Videos"              => '\u{f03d}',            // 
     "xbps.d"              => '\u{f32e}',            // 
     "xorg.conf.d"         => Icons::FOLDER_CONFIG,  // 
