@@ -124,6 +124,22 @@
             inherit buildInputs;
           };
 
+          # TODO: add conditionally to checks.
+          # Run `nix build .#trycmd` to run integration tests
+          trycmd-local = naersk'.buildPackage {
+            src = ./.;
+            mode = "test";
+            doCheck = true;
+            # No reason to wait for release build
+            release = false;
+            # buildPhase files differ between dep and main phase
+            singleStep = true;
+            # set itests files creation date to unix epoch
+            buildPhase = ''touch --date=@0 tests/itest/*'';
+            cargoTestOptions = opts: opts ++ ["--features nix" "--features nix-local"];
+            inherit buildInputs;
+          };
+
           # Run `nix build .#trydump` to dump testing files
           trydump = naersk'.buildPackage {
             src = ./.;
@@ -135,7 +151,7 @@
             singleStep = true;
             # set itests files creation date to unix epoch
             buildPhase = ''touch --date=@0 tests/itest/*; rm tests/cmd/*.stdout || echo; rm tests/cmd/*.stderr || echo;'';
-            cargoTestOptions = opts: opts ++ ["--features nix"];
+            cargoTestOptions = opts: opts ++ ["--features nix" "--features nix-local"];
             TRYCMD = "dump";
             postInstall = ''
               cp dump $out -r
