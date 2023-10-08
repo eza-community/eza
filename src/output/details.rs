@@ -77,6 +77,7 @@ use crate::fs::filter::FileFilter;
 use crate::fs::{Dir, File};
 use crate::output::cell::TextCell;
 use crate::output::file_name::Options as FileStyle;
+use crate::output::render::RelativeDecay;
 use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams, TreeTrunk};
 use crate::theme::Theme;
@@ -244,6 +245,8 @@ impl<'a> Render<'a> {
             .map(|_| MaybeUninit::uninit())
             .collect::<Vec<_>>();
 
+        let decay = Some(RelativeDecay::new(src));
+
         pool.scoped(|scoped| {
             let file_eggs = Arc::new(Mutex::new(&mut file_eggs));
             let table = table.as_ref();
@@ -281,10 +284,9 @@ impl<'a> Render<'a> {
                     } else {
                         &[]
                     };
-
                     let table_row = table
                         .as_ref()
-                        .map(|t| t.row_for_file(file, self.show_xattr_hint(file)));
+                        .map(|t| t.row_for_file(file, self.show_xattr_hint(file), decay));
 
                     let mut dir = None;
                     if let Some(r) = self.recurse {

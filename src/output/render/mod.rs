@@ -45,3 +45,6 @@ pub use self::octal::Render as OctalPermissionsRender;
 
 mod securityctx;
 pub use self::securityctx::Colours as SecurityCtxColours;
+
+mod decay;
+pub use self::decay::{RelativeDecay, RelativeTime};

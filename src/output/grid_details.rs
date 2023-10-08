@@ -15,6 +15,7 @@ use crate::output::details::{
 use crate::output::file_name::Options as FileStyle;
 use crate::output::file_name::{EmbedHyperlinks, ShowIcons};
 use crate::output::grid::Options as GridOptions;
+use crate::output::render::RelativeDecay;
 use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams};
 use crate::theme::Theme;
@@ -150,10 +151,14 @@ impl<'a> Render<'a> {
 
         let (first_table, _) = self.make_table(options, &drender);
 
+        let decay = Some(RelativeDecay::new(self.files.as_slice()));
         let rows = self
             .files
             .iter()
-            .map(|file| first_table.row_for_file(file, drender.show_xattr_hint(file)))
+            .map(|file| {
+                // DOTHIS: Add function to show decaytype
+                first_table.row_for_file(file, drender.show_xattr_hint(file), decay)
+            })
             .collect::<Vec<_>>();
 
         let file_names = self
