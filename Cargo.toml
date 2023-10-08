@@ -131,6 +131,7 @@ debug = false
 lto = true
 strip = true
 opt-level = 3
+codegen-units = 1
 
 [[bench]]
 name = "my_benchmark"
