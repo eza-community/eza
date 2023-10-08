@@ -179,7 +179,7 @@ alias c := cross
     just binary eza x86_64-unknown-linux-gnu
     # just binary_static eza x86_64-unknown-linux-gnu
     just binary eza x86_64-unknown-linux-musl
-    just binary_static eza x86_64-unknown-linux-musl
+    # just binary_static eza x86_64-unknown-linux-musl
 
     ### aarch
     just binary eza aarch64-unknown-linux-gnu
