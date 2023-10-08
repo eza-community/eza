@@ -15,7 +15,7 @@ echo "build man pages"
 just man
 
 declare -A TARGETS
-TARGETS["amd64"]="x86_64-unknown-linux-gnu"
+TARGETS["amd64"]="x86_64-unknown-linux-musl"
 TARGETS["arm64"]="aarch64-unknown-linux-gnu"
 TARGETS["armhf"]="arm-unknown-linux-gnueabihf"
 
