@@ -146,7 +146,7 @@ impl details::Options {
             xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
             secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
             mounts: matches.has(&flags::MOUNTS)?,
-            show_decay: Decay::deduce(matches)?,
+            decay: Decay::deduce(matches)?,
         };
 
         Ok(details)
@@ -167,7 +167,7 @@ impl details::Options {
             xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
             secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
             mounts: matches.has(&flags::MOUNTS)?,
-            show_decay: Decay::deduce(matches)?,
+            decay: Decay::deduce(matches)?,
         })
     }
 }

@@ -77,7 +77,7 @@ use crate::fs::filter::FileFilter;
 use crate::fs::{Dir, File};
 use crate::output::cell::TextCell;
 use crate::output::file_name::Options as FileStyle;
-use crate::output::render::RelativeDecay;
+use crate::output::render::FileTimeRanges;
 use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams, TreeTrunk};
 use crate::theme::Theme;
@@ -115,7 +115,7 @@ pub struct Options {
     /// Whether to show a directory's mounted filesystem details
     pub mounts: bool,
 
-    pub show_decay: Decay,
+    pub decay: Decay,
 }
 
 pub struct Render<'a> {
@@ -247,10 +247,10 @@ impl<'a> Render<'a> {
             .map(|_| MaybeUninit::uninit())
             .collect::<Vec<_>>();
 
-        let decay = match self.opts.show_decay {
+        let decay_times = match self.opts.decay {
             Decay::NoDecay => None,
-            Decay::Absolute => Some(RelativeDecay::absolute()),
-            Decay::Relative => Some(RelativeDecay::new(src)),
+            Decay::Absolute => Some(FileTimeRanges::absolute()),
+            Decay::Relative => Some(FileTimeRanges::from_files(src)),
         };
 
         pool.scoped(|scoped| {
@@ -292,7 +292,7 @@ impl<'a> Render<'a> {
                     };
                     let table_row = table
                         .as_ref()
-                        .map(|t| t.row_for_file(file, self.show_xattr_hint(file), decay));
+                        .map(|t| t.row_for_file(file, self.show_xattr_hint(file), decay_times));
 
                     let mut dir = None;
                     if let Some(r) = self.recurse {

@@ -1,38 +1,62 @@
 use ansiterm::{Colour, Style};
 use chrono::{Months, NaiveDateTime, Utc};
-use palette::{FromColor, Lab, Srgb};
+use palette::{FromColor, Oklab, Srgb};
 
 use crate::{fs::File, output::table::TimeType};
 
 #[derive(Debug, Copy, Clone, Default)]
-pub struct RelativeTime {
+pub struct FileModificationRange {
     pub newest: NaiveDateTime,
     pub oldest: NaiveDateTime,
 }
 
-impl From<(NaiveDateTime, NaiveDateTime)> for RelativeTime {
-    fn from((newest, oldest): (NaiveDateTime, NaiveDateTime)) -> Self {
-        Self { newest, oldest }
-    }
+fn luminance_from_relative_time(relative_time: f32) -> f32 {
+    1.0 - 0.4 + 0.6 * (-7.0 * (1.0 - relative_time)).exp()
+}
+
+/// Update the `range` based on the given `time` value:
+/// - If `time` is greater than `range.newest`, update `range.newest` to `time`.
+/// - If `time` is less than `range.oldest`, update `range.oldest` to `time`.
+/// - If `time` has a value and `range` doesn't, initialize `range` with {newest: time, oldest: time}.
+fn update_range(
+    maybe_time: Option<NaiveDateTime>,
+    maybe_range: &mut Option<FileModificationRange>,
+) {
+    match (maybe_time, maybe_range) {
+        (Some(time), Some(range)) => {
+            if time > range.newest {
+                range.newest = time
+            } else if time < range.oldest {
+                range.oldest = time
+            };
+        }
+        (Some(t), rel) => {
+            let _ = rel.insert({
+                let (newest, oldest) = (t, t);
+                FileModificationRange { newest, oldest }
+            });
+        }
+        _ => (),
+    };
 }
 
 #[derive(Debug, Copy, Clone)]
-pub struct RelativeDecay {
-    pub accessed: Option<RelativeTime>,
-    pub changed: Option<RelativeTime>,
-    pub created: Option<RelativeTime>,
-    pub modified: Option<RelativeTime>,
+pub struct FileTimeRanges {
+    pub accessed: Option<FileModificationRange>,
+    pub changed: Option<FileModificationRange>,
+    pub created: Option<FileModificationRange>,
+    pub modified: Option<FileModificationRange>,
 }
 
-impl RelativeDecay {
-    /// Returns [RelativeDecay] decay times for absolute mode
+impl FileTimeRanges {
     pub fn absolute() -> Self {
         let newest = Utc::now().naive_utc();
+
         let oldest = newest
             .checked_sub_months(Months::new(12))
-            .unwrap_or(NaiveDateTime::UNIX_EPOCH);
-        let reltime = RelativeTime { newest, oldest };
+            .unwrap_or(NaiveDateTime::UNIX_EPOCH); // current_time - 12_months
 
+        let reltime = FileModificationRange { newest, oldest };
         Self {
             accessed: Some(reltime),
             changed: Some(reltime),
@@ -41,10 +65,9 @@ impl RelativeDecay {
         }
     }
 
-    /// Returns [RelativeDecay] containing newest and oldest file modified dates
-    /// from a slice of [File] for use in relative mode
-    pub fn new(files: &[File<'_>]) -> Self {
-        let mut rel_decay = Self {
+    /// Gets the oldest and newest timestamps from `&[File]`
+    pub fn from_files(files: &[File<'_>]) -> Self {
+        let mut time_ranges = Self {
             accessed: None,
             changed: None,
             created: None,
@@ -52,94 +75,21 @@ impl RelativeDecay {
         };
 
         for file in files.iter() {
-            let created_time = file.created_time();
-            let modified_time = file.modified_time();
-            let accessed_time = file.accessed_time();
-            let changed_time = file.changed_time();
-
-            match (created_time, &mut rel_decay.created) {
-                (Some(t), Some(rel)) => {
-                    if t > rel.newest {
-                        rel.newest = t
-                    } else if t < rel.oldest {
-                        rel.oldest = t
-                    };
-                }
-                (Some(t), rel) => {
-                    let _ = rel.insert(RelativeTime::from((t, t)));
-                }
-                _ => (),
-            }
-
-            match (modified_time, &mut rel_decay.modified) {
-                (Some(t), Some(rel)) => {
-                    if t > rel.newest {
-                        rel.newest = t
-                    } else if t < rel.oldest {
-                        rel.oldest = t
-                    };
-                }
-                (Some(t), rel) => {
-                    let _ = rel.insert(RelativeTime::from((t, t)));
-                }
-                _ => (),
-            }
-
-            match (accessed_time, &mut rel_decay.accessed) {
-                (Some(t), Some(rel)) => {
-                    if t > rel.newest {
-                        rel.newest = t
-                    } else if t < rel.oldest {
-                        rel.oldest = t
-                    };
-                }
-                (Some(t), rel) => {
-                    let _ = rel.insert(RelativeTime::from((t, t)));
-                }
-                _ => (),
-            }
-
-            match (changed_time, &mut rel_decay.changed) {
-                (Some(t), Some(rel)) => {
-                    if t > rel.newest {
-                        rel.newest = t
-                    } else if t < rel.oldest {
-                        rel.oldest = t
-                    };
-                }
-                (Some(t), rel) => {
-                    let _ = rel.insert(RelativeTime::from((t, t)));
-                }
-                _ => (),
-            }
+            update_range(file.created_time(), &mut time_ranges.created);
+            update_range(file.modified_time(), &mut time_ranges.modified);
+            update_range(file.accessed_time(), &mut time_ranges.accessed);
+            update_range(file.changed_time(), &mut time_ranges.changed);
         }
 
-        rel_decay
+        time_ranges
     }
 
-    fn luminance_from_relative_time(relative_time: f32) -> f32 {
-        (0.2 + 0.8 * (-5.0 * (1.0 - relative_time)).exp()) * 100.0
-    }
-
-    fn adjust_luminance(
-        &self,
-        relative_time: RelativeTime,
-        file_time: NaiveDateTime,
-        color: Colour,
-    ) -> Colour {
-        let relative_time = if relative_time.newest == relative_time.oldest {
-            1.0
-        } else {
-            let time = file_time.timestamp_millis() as f32;
-            let max = relative_time.newest.timestamp_millis() as f32;
-            let min = relative_time.oldest.timestamp_millis() as f32;
-            ((time - min) / (max - min)).clamp(0.0, 1.0)
-        };
-
+    /// Adjust the luminance for a given colour
+    fn adjust_luminance(&self, color: Colour, luminance: f32) -> Colour {
         let color = Srgb::from_components(color.into_rgb()).into_linear();
 
-        let mut lab: Lab = Lab::from_color(color);
-        lab.l = Self::luminance_from_relative_time(relative_time);
+        let mut lab: Oklab = Oklab::from_color(color);
+        lab.l = luminance;
 
         let adjusted_rgb: Srgb<f32> = Srgb::from_color(lab);
         Colour::RGB(
@@ -149,6 +99,7 @@ impl RelativeDecay {
         )
     }
 
+    /// Returns the style after decay-related styles are added
     pub fn get_adjusted_style(
         &self,
         mut style: Style,
@@ -166,7 +117,17 @@ impl RelativeDecay {
             time_type.get_corresponding_time(file),
             maybe_rel_time,
         ) {
-            style.foreground = Some(self.adjust_luminance(rel_time, file_time, fg));
+            let file_time = file_time.timestamp_millis() as f32;
+            let newest = rel_time.newest.timestamp_millis() as f32;
+            let oldest = rel_time.oldest.timestamp_millis() as f32;
+
+            let mut ratio = ((file_time - oldest) / (newest - oldest)).clamp(0.0, 1.0);
+            if ratio.is_nan() {
+                ratio = 1.0;
+            }
+
+            let luminance = luminance_from_relative_time(ratio);
+            style.foreground = Some(self.adjust_luminance(fg, luminance));
         }
 
         style

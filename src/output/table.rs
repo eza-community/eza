@@ -14,7 +14,7 @@ use crate::fs::feature::git::GitCache;
 use crate::fs::{fields as f, File};
 use crate::output::cell::TextCell;
 #[cfg(unix)]
-use crate::output::render::{GroupRender, OctalPermissionsRender, RelativeDecay, UserRender};
+use crate::output::render::{GroupRender, OctalPermissionsRender, FileTimeRanges, UserRender};
 use crate::output::render::{PermissionsPlusRender, TimeRender};
 use crate::output::time::TimeFormat;
 use crate::theme::Theme;
@@ -406,11 +406,11 @@ impl<'a> Table<'a> {
         Row { cells }
     }
 
-    pub fn row_for_file(&self, file: &File<'_>, xattrs: bool, decay: Option<RelativeDecay>) -> Row {
+    pub fn row_for_file(&self, file: &File<'_>, xattrs: bool, decay_times: Option<FileTimeRanges>) -> Row {
         let cells = self
             .columns
             .iter()
-            .map(|c| self.display(file, *c, xattrs, decay))
+            .map(|c| self.display(file, *c, xattrs, decay_times))
             .collect();
 
         Row { cells }
@@ -451,7 +451,7 @@ impl<'a> Table<'a> {
         file: &File<'_>,
         column: Column,
         xattrs: bool,
-        decay: Option<RelativeDecay>,
+        decay: Option<FileTimeRanges>,
     ) -> TextCell {
         match column {
             Column::Permissions => self.permissions_plus(file, xattrs).render(self.theme),

@@ -16,7 +16,7 @@ use crate::output::details::{
 use crate::output::file_name::Options as FileStyle;
 use crate::output::file_name::{EmbedHyperlinks, ShowIcons};
 use crate::output::grid::Options as GridOptions;
-use crate::output::render::RelativeDecay;
+use crate::output::render::FileTimeRanges;
 use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams};
 use crate::theme::Theme;
@@ -152,18 +152,16 @@ impl<'a> Render<'a> {
 
         let (first_table, _) = self.make_table(options, &drender);
 
-        // let decay = Some(RelativeDecay::new(self.files.as_slice()));
-        let decay = match self.details.show_decay {
+        let decay_times = match self.details.decay {
             Decay::NoDecay => None,
-            Decay::Absolute => Some(RelativeDecay::new(self.files.as_slice())),
-            Decay::Relative => Some(RelativeDecay::absolute()),
+            Decay::Absolute => Some(FileTimeRanges::from_files(self.files.as_slice())),
+            Decay::Relative => Some(FileTimeRanges::absolute()),
         };
         let rows = self
             .files
             .iter()
             .map(|file| {
-                // DOTHIS: Add function to show decaytype
-                first_table.row_for_file(file, drender.show_xattr_hint(file), decay)
+                first_table.row_for_file(file, drender.show_xattr_hint(file), decay_times)
             })
             .collect::<Vec<_>>();
 
