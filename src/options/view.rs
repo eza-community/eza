@@ -1,6 +1,7 @@
 use crate::fs::feature::xattr;
 use crate::options::parser::MatchedFlags;
 use crate::options::{flags, NumberSource, OptionsError, Vars};
+use crate::output::details::Decay;
 use crate::output::file_name::Options as FileStyle;
 use crate::output::grid_details::{self, RowThreshold};
 use crate::output::table::{Columns, Options as TableOptions, SizeFormat, TimeTypes, UserFormat};
@@ -145,6 +146,7 @@ impl details::Options {
             xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
             secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
             mounts: matches.has(&flags::MOUNTS)?,
+            show_decay: Decay::deduce(matches)?,
         };
 
         Ok(details)
@@ -165,6 +167,7 @@ impl details::Options {
             xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
             secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
             mounts: matches.has(&flags::MOUNTS)?,
+            show_decay: Decay::deduce(matches)?,
         })
     }
 }
@@ -397,6 +400,22 @@ impl TimeTypes {
     }
 }
 
+impl Decay {
+    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
+        let word = if let Some(w) = matches.get(&flags::DECAY)? {
+            w.to_os_string()
+        } else {
+            return Ok(Self::NoDecay);
+        };
+
+        match word.to_string_lossy().as_ref() {
+            "absolute" => Ok(Self::Absolute),
+            "relative" => Ok(Self::Relative),
+            "none" => Ok(Self::NoDecay),
+            _ => Err(OptionsError::BadArgument(&flags::TIME_STYLE, word)),
+        }
+    }
+}
 #[cfg(test)]
 mod test {
     use super::*;

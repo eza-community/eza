@@ -9,6 +9,7 @@ use crate::fs::feature::git::GitCache;
 use crate::fs::filter::FileFilter;
 use crate::fs::{Dir, File};
 use crate::output::cell::{DisplayWidth, TextCell};
+use crate::output::details::Decay;
 use crate::output::details::{
     Options as DetailsOptions, Render as DetailsRender, Row as DetailsRow,
 };
@@ -151,7 +152,12 @@ impl<'a> Render<'a> {
 
         let (first_table, _) = self.make_table(options, &drender);
 
-        let decay = Some(RelativeDecay::new(self.files.as_slice()));
+        // let decay = Some(RelativeDecay::new(self.files.as_slice()));
+        let decay = match self.details.show_decay {
+            Decay::NoDecay => None,
+            Decay::Absolute => Some(RelativeDecay::new(self.files.as_slice())),
+            Decay::Relative => Some(RelativeDecay::absolute()),
+        };
         let rows = self
             .files
             .iter()

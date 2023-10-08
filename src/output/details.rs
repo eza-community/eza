@@ -114,6 +114,8 @@ pub struct Options {
 
     /// Whether to show a directory's mounted filesystem details
     pub mounts: bool,
+
+    pub show_decay: Decay,
 }
 
 pub struct Render<'a> {
@@ -245,7 +247,11 @@ impl<'a> Render<'a> {
             .map(|_| MaybeUninit::uninit())
             .collect::<Vec<_>>();
 
-        let decay = Some(RelativeDecay::new(src));
+        let decay = match self.opts.show_decay {
+            Decay::NoDecay => None,
+            Decay::Absolute => Some(RelativeDecay::absolute()),
+            Decay::Relative => Some(RelativeDecay::new(src)),
+        };
 
         pool.scoped(|scoped| {
             let file_eggs = Arc::new(Mutex::new(&mut file_eggs));
@@ -546,4 +552,11 @@ impl Iterator for Iter {
             cell
         })
     }
+}
+
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+pub enum Decay {
+    NoDecay,
+    Absolute,
+    Relative,
 }
