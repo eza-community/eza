@@ -16,6 +16,6 @@ jobs:
       - name: Check Nix flake inputs
         uses: DeterminateSystems/flake-checker-action@v5 # This action
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v4
+        uses: DeterminateSystems/nix-installer-action@v5
       - name: Nix Flake Check
         run: nix flake check --all-systems
