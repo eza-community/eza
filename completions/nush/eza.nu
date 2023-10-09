@@ -1,6 +1,6 @@
 export extern "eza" [
     --version(-v)              # Show version of eza
-    --help(-?)                 # Show list of command-line options
+    --help                     # Show list of command-line options
     --oneline(-1)              # Display one entry per line
     --long(-l)                 # Display extended file metadata as a table
     --grid(-G)                 # Display entries in a grid

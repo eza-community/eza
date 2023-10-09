@@ -38,6 +38,16 @@ EXAMPLES
 : Displays a tree of files, three levels deep, as well as each file’s metadata.
 
 
+META OPTIONS
+===============
+
+`--help`
+: Show list of command-line options.
+
+`-v`, `--version`
+: Show version of eza.
+
+
 DISPLAY OPTIONS
 ===============
 
@@ -58,6 +68,9 @@ DISPLAY OPTIONS
 
 `-T`, `--tree`
 : Recurse into directories as a tree.
+
+`-X`, `--dereference`
+: Dereference symbolic links when displaying information.
 
 `-x`, `--across`
 : Sort the grid across, rather than downwards.
@@ -97,6 +110,9 @@ FILTERING AND SORTING OPTIONS
 `-a`, `--all`
 : Show hidden and “dot” files.
 Use this twice to also show the ‘`.`’ and ‘`..`’ directories.
+
+`-A`, `--almost-all`
+: Equivalent to --all; included for compatibility with `ls -A`.
 
 `-d`, `--list-dirs`
 : List directories as regular files, rather than recursing and listing their contents.
