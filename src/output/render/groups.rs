@@ -42,7 +42,7 @@ impl Render for Option<f::Group> {
             }
         }
 
-        if group.gid() == 0 {
+        if group.gid() == 0 && style != colours.yours() {
             style = colours.root_group();
         }
 

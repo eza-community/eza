@@ -118,7 +118,6 @@
       in rec {
         # For `nix fmt`
         formatter = treefmtEval.config.build.wrapper;
-
         # For `nix build`
         packages = {
           default = eza;
@@ -163,6 +162,7 @@
               buildPhase = ''touch --date=@0 tests/itest/*'';
               cargoTestOptions = ["--features nix"];
             });
+
         };
 
         # For `nix develop`:
