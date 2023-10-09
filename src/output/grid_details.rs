@@ -154,15 +154,19 @@ impl<'a> Render<'a> {
 
         let decay_times = match self.details.decay {
             Decay::NoDecay => None,
-            Decay::Absolute => Some(FileTimeRanges::from_files(self.files.as_slice())),
-            Decay::Relative => Some(FileTimeRanges::absolute()),
+            Decay::Absolute => Some(FileTimeRanges::absolute()),
+            Decay::Relative => Some(FileTimeRanges::relative(
+                &self.files,
+                self.filter.dot_filter,
+                self.git,
+                self.git_ignoring,
+                None,
+            )),
         };
         let rows = self
             .files
             .iter()
-            .map(|file| {
-                first_table.row_for_file(file, drender.show_xattr_hint(file), decay_times)
-            })
+            .map(|file| first_table.row_for_file(file, drender.show_xattr_hint(file), decay_times))
             .collect::<Vec<_>>();
 
         let file_names = self

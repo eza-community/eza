@@ -162,6 +162,18 @@ impl<'a> Render<'a> {
         };
         let mut pool = Pool::new(n_cpus);
         let mut rows = Vec::new();
+        let decay_time_ranges = match self.opts.decay {
+            Decay::NoDecay => None,
+            Decay::Absolute => Some(FileTimeRanges::absolute()),
+            // Decay::Relative => Some(FileTimeRanges::from_files(src)),
+            Decay::Relative => Some(FileTimeRanges::relative(
+                &self.files,
+                self.filter.dot_filter,
+                self.git,
+                self.git_ignoring,
+                self.recurse,
+            )),
+        };
 
         if let Some(ref table) = self.opts.table {
             match (self.git, self.dir) {
@@ -195,6 +207,7 @@ impl<'a> Render<'a> {
                 &mut rows,
                 &self.files,
                 TreeDepth::root(),
+                decay_time_ranges,
             );
 
             for row in self.iterate_with_table(table.unwrap(), rows) {
@@ -207,6 +220,7 @@ impl<'a> Render<'a> {
                 &mut rows,
                 &self.files,
                 TreeDepth::root(),
+                decay_time_ranges,
             );
 
             for row in self.iterate(rows) {
@@ -239,6 +253,7 @@ impl<'a> Render<'a> {
         rows: &mut Vec<Row>,
         src: &[File<'dir>],
         depth: TreeDepth,
+        decay_time_ranges: Option<FileTimeRanges>,
     ) {
         use crate::fs::feature::xattr;
         use std::sync::{Arc, Mutex};
@@ -246,12 +261,6 @@ impl<'a> Render<'a> {
         let mut file_eggs = (0..src.len())
             .map(|_| MaybeUninit::uninit())
             .collect::<Vec<_>>();
-
-        let decay_times = match self.opts.decay {
-            Decay::NoDecay => None,
-            Decay::Absolute => Some(FileTimeRanges::absolute()),
-            Decay::Relative => Some(FileTimeRanges::from_files(src)),
-        };
 
         pool.scoped(|scoped| {
             let file_eggs = Arc::new(Mutex::new(&mut file_eggs));
@@ -290,9 +299,9 @@ impl<'a> Render<'a> {
                     } else {
                         &[]
                     };
-                    let table_row = table
-                        .as_ref()
-                        .map(|t| t.row_for_file(file, self.show_xattr_hint(file), decay_times));
+                    let table_row = table.as_ref().map(|t| {
+                        t.row_for_file(file, self.show_xattr_hint(file), decay_time_ranges)
+                    });
 
                     let mut dir = None;
                     if let Some(r) = self.recurse {
@@ -381,7 +390,14 @@ impl<'a> Render<'a> {
                         ));
                     }
 
-                    self.add_files_to_table(pool, table, rows, &files, depth.deeper());
+                    self.add_files_to_table(
+                        pool,
+                        table,
+                        rows,
+                        &files,
+                        depth.deeper(),
+                        decay_time_ranges,
+                    );
                     continue;
                 }
             }
