@@ -153,7 +153,7 @@ impl<'a> Render<'a> {
         let (first_table, _) = self.make_table(options, &drender);
 
         let decay_times = match self.details.decay {
-            Decay::NoDecay => None,
+            Decay::None => None,
             Decay::Absolute => Some(FileTimeRanges::absolute()),
             Decay::Relative => Some(FileTimeRanges::relative(
                 &self.files,

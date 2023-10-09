@@ -405,14 +405,14 @@ impl Decay {
         let word = if let Some(w) = matches.get(&flags::DECAY)? {
             w.to_os_string()
         } else {
-            return Ok(Self::NoDecay);
+            return Ok(Self::None);
         };
 
         match word.to_string_lossy().as_ref() {
             "absolute" => Ok(Self::Absolute),
             "relative" => Ok(Self::Relative),
-            "none" => Ok(Self::NoDecay),
-            _ => Err(OptionsError::BadArgument(&flags::TIME_STYLE, word)),
+            "none" => Ok(Self::None),
+            _ => Err(OptionsError::BadArgument(&flags::DECAY, word)),
         }
     }
 }

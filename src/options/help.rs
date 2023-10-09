@@ -67,7 +67,7 @@ LONG VIEW OPTIONS
   --no-filesize            suppress the filesize field
   --no-user                suppress the user field
   --no-time                suppress the time field
-  --decay                  highlight newer files(none, absolute, relative)
+  --decay                  highlight newer files (none, absolute, relative)
   ";
 
 static GIT_VIEW_HELP:   &str = "  \

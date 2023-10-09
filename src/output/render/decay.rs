@@ -28,9 +28,9 @@ fn update_range(
     match (maybe_time, maybe_range) {
         (Some(time), Some(range)) => {
             if time > range.newest {
-                range.newest = time
+                range.newest = time;
             } else if time < range.oldest {
-                range.oldest = time
+                range.oldest = time;
             };
         }
         (Some(t), rel) => {
@@ -78,37 +78,32 @@ impl FileTimeRanges {
         depth: TreeDepth,
         r: Option<RecurseOptions>,
     ) {
-        for file in dir.files(dot_filter, git, git_ignoring, false) {
-            match file {
-                Ok(file) => {
-                    update_range(file.created_time(), &mut time_ranges.created);
-                    update_range(file.modified_time(), &mut time_ranges.modified);
-                    update_range(file.accessed_time(), &mut time_ranges.accessed);
-                    update_range(file.changed_time(), &mut time_ranges.changed);
+        for file in dir.files(dot_filter, git, git_ignoring, false).flatten() {
+            update_range(file.created_time(), &mut time_ranges.created);
+            update_range(file.modified_time(), &mut time_ranges.modified);
+            update_range(file.accessed_time(), &mut time_ranges.accessed);
+            update_range(file.changed_time(), &mut time_ranges.changed);
 
-                    if file.is_directory() && r.is_some_and(|x| !x.is_too_deep(depth.0)) {
-                        match file.to_dir() {
-                            Ok(dir) => Self::recurse(
-                                time_ranges,
-                                &dir,
-                                dot_filter,
-                                git,
-                                git_ignoring,
-                                depth.deeper(),
-                                r,
-                            ),
-                            Err(_) => todo!(),
-                        }
-                    }
+            if file.is_directory() && r.is_some_and(|x| !x.is_too_deep(depth.0)) {
+                match file.to_dir() {
+                    Ok(dir) => Self::recurse(
+                        time_ranges,
+                        &dir,
+                        dot_filter,
+                        git,
+                        git_ignoring,
+                        depth.deeper(),
+                        r,
+                    ),
+                    Err(_) => todo!(),
                 }
-                Err(_) => (),
             };
         }
     }
 
     /// Returns the relative time
     pub fn relative(
-        files: &Vec<File<'_>>,
+        files: &[File<'_>],
         dot_filter: DotFilter,
         git: Option<&GitCache>,
         git_ignoring: bool,

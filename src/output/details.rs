@@ -163,7 +163,7 @@ impl<'a> Render<'a> {
         let mut pool = Pool::new(n_cpus);
         let mut rows = Vec::new();
         let decay_time_ranges = match self.opts.decay {
-            Decay::NoDecay => None,
+            Decay::None => None,
             Decay::Absolute => Some(FileTimeRanges::absolute()),
             // Decay::Relative => Some(FileTimeRanges::from_files(src)),
             Decay::Relative => Some(FileTimeRanges::relative(
@@ -572,7 +572,7 @@ impl Iterator for Iter {
 
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum Decay {
-    NoDecay,
+    None,
     Absolute,
     Relative,
 }
