@@ -52,6 +52,9 @@ pub static EZA_GRID_ROWS: &str = "EZA_GRID_ROWS";
 pub static EXA_ICON_SPACING: &str = "EXA_ICON_SPACING";
 pub static EZA_ICON_SPACING: &str = "EZA_ICON_SPACING";
 
+pub static EXA_OVERRIDE_GIT: &str = "EXA_OVERRIDE_GIT";
+pub static EZA_OVERRIDE_GIT: &str = "EZA_OVERRIDE_GIT";
+
 /// Mockable wrapper for `std::env::var_os`.
 pub trait Vars {
     fn get(&self, name: &'static str) -> Option<OsString>;
