@@ -231,7 +231,7 @@ impl TableOptions {
         let time_format = TimeFormat::deduce(matches, vars)?;
         let size_format = SizeFormat::deduce(matches)?;
         let user_format = UserFormat::deduce(matches)?;
-        let columns = Columns::deduce(matches)?;
+        let columns = Columns::deduce(matches, vars)?;
         Ok(Self {
             size_format,
             time_format,
@@ -242,14 +242,21 @@ impl TableOptions {
 }
 
 impl Columns {
-    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
+    fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
+        use crate::options::vars;
         let time_types = TimeTypes::deduce(matches)?;
 
-        let git = matches.has(&flags::GIT)? && !matches.has(&flags::NO_GIT)?;
-        let subdir_git_repos = matches.has(&flags::GIT_REPOS)? && !matches.has(&flags::NO_GIT)?;
+        let no_git_env = vars
+            .get_with_fallback(vars::EXA_OVERRIDE_GIT, vars::EZA_OVERRIDE_GIT)
+            .is_some();
+
+        let git = matches.has(&flags::GIT)? && !matches.has(&flags::NO_GIT)? && !no_git_env;
+        let subdir_git_repos =
+            matches.has(&flags::GIT_REPOS)? && !matches.has(&flags::NO_GIT)? && !no_git_env;
         let subdir_git_repos_no_stat = !subdir_git_repos
             && matches.has(&flags::GIT_REPOS_NO_STAT)?
-            && !matches.has(&flags::NO_GIT)?;
+            && !matches.has(&flags::NO_GIT)?
+            && !no_git_env;
 
         let blocksize = matches.has(&flags::BLOCKSIZE)?;
         let group = matches.has(&flags::GROUP)?;
