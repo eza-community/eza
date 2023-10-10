@@ -259,7 +259,7 @@ impl TableOptions {
         let time_format = TimeFormat::deduce(matches, vars)?;
         let size_format = SizeFormat::deduce(matches);
         let user_format = UserFormat::deduce(matches);
-        let columns = Columns::deduce(matches)?;
+        let columns = Columns::deduce(matches, vars)?;
         Ok(Self {
             size_format,
             time_format,
@@ -270,13 +270,19 @@ impl TableOptions {
 }
 
 impl Columns {
-    fn deduce(matches: &Opts) -> Result<Self, OptionsError> {
+    fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
+        use crate::options::vars;
         let time_types = TimeTypes::deduce(matches)?;
 
-        let git = matches.git > 0 && matches.no_git == 0;
-        let subdir_git_repos = matches.git_repos > 0 && matches.no_git == 0;
+        let no_git_env = vars
+            .get_with_fallback(vars::EXA_OVERRIDE_GIT, vars::EZA_OVERRIDE_GIT)
+            .is_some();
+
+        let git = matches.git > 0 && matches.no_git == 0 && !no_git_env;
+        let subdir_git_repos = matches.git_repos > 0 && matches.no_git == 0 && !no_git_env;
         let subdir_git_repos_no_stat =
             !subdir_git_repos && matches.git_repos_no_status > 0 && matches.no_git == 0;
+        && !no_git_env;
 
         let blocksize = matches.blocksize > 0;
         let group = matches.group > 0;
