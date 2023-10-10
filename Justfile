@@ -278,7 +278,7 @@ gen_test_dir:
 #
 # WARNING: this can cause loss of work
 @idump:
-    rm ./tests/cmd/*nix.stderr -f || echo
-    rm ./tests/cmd/*nix.stdout -f || echo
+    rm ./tests/cmd/*_nix.stderr -f || echo
+    rm ./tests/cmd/*_nix.stdout -f || echo
     nix build -L ./#trydump
-    cp ./result/dump/*nix.* ./tests/cmd/
+    cp ./result/dump/*_nix.* ./tests/cmd/
