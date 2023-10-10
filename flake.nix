@@ -153,6 +153,10 @@
             pandoc
             convco
             zip
+
+            cargo-hack
+            cargo-udeps
+            cargo-outdated
           ];
         };
         checks = {
