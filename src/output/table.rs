@@ -25,6 +25,7 @@ pub struct Options {
     pub size_format: SizeFormat,
     pub time_format: TimeFormat,
     pub user_format: UserFormat,
+    pub group_format: GroupFormat,
     pub columns: Columns,
 }
 
@@ -239,6 +240,15 @@ pub enum UserFormat {
     Name,
 }
 
+/// Formatting options for group only.
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+pub enum GroupFormat {
+    /// Numeric or text value
+    Regular,
+    /// Show ":" if user-group value is the same
+    Smart,
+}
+
 impl Default for SizeFormat {
     fn default() -> Self {
         Self::DecimalBytes
@@ -355,6 +365,8 @@ pub struct Table<'a> {
     size_format: SizeFormat,
     #[cfg(unix)]
     user_format: UserFormat,
+    #[cfg(unix)]
+    group_format: GroupFormat,
     git: Option<&'a GitCache>,
 }
 
@@ -379,6 +391,8 @@ impl<'a> Table<'a> {
             size_format: options.size_format,
             #[cfg(unix)]
             user_format: options.user_format,
+            #[cfg(unix)]
+            group_format: options.group_format,
         }
     }
 
@@ -462,10 +476,12 @@ impl<'a> Table<'a> {
                     .render(self.theme, &*self.env.lock_users(), self.user_format)
             }
             #[cfg(unix)]
-            Column::Group => {
-                file.group()
-                    .render(self.theme, &*self.env.lock_users(), self.user_format)
-            }
+            Column::Group => file.group().render(
+                self.theme,
+                &*self.env.lock_users(),
+                self.user_format,
+                self.group_format,
+            ),
             #[cfg(unix)]
             Column::SecurityContext => file.security_context().render(self.theme),
             Column::GitStatus => self.git_status(file).render(self.theme),
