@@ -79,8 +79,10 @@ complete -c eza -s s -l sort -d "Which field to sort by" -x -a "
 "
 
 complete -c eza -s I -l ignore-glob -d "Ignore files that match these glob patterns" -r
-complete -c eza -s D -l only-dirs -d "List only directories"
-complete -c eza -s f -l only-files -d "List only files"
+complete -c eza -s D -l only-dirs -d "List only directories and links to directories"
+complete -c eza -s f -l only-files -d "List only files and links to files"
+complete -c eza -l only-links -d "List only links"
+complete -c eza -l no-links -d "Doesn't list links in --only-files or --only-dirs context"
 
 # Long view options
 complete -c eza -s b -l binary -d "List file sizes with binary prefixes"

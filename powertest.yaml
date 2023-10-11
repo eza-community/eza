@@ -135,6 +135,10 @@ commands:
     - --only-files
   ? - -f
     - --only-files
+  ? - null
+    - --only-links
+  ? - null
+    - --no-links
   ? # TODO: add more globs
     - -I
     - --ignore-glob
