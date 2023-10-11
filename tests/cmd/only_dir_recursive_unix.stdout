@@ -3054,6 +3054,7 @@ tests/test_dir/specials:
 
 tests/test_dir/symlinks:
 dir
+symlink3 -> dir
 
 tests/test_dir/symlinks/dir:
 
