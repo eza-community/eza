@@ -1,9 +1,9 @@
 use crate::fs::feature::xattr;
 use crate::options::parser::MatchedFlags;
 use crate::options::{flags, NumberSource, OptionsError, Vars};
-use crate::output::details::Decay;
 use crate::output::file_name::Options as FileStyle;
 use crate::output::grid_details::{self, RowThreshold};
+use crate::output::render::Decay;
 use crate::output::table::{Columns, Options as TableOptions, SizeFormat, TimeTypes, UserFormat};
 use crate::output::time::TimeFormat;
 use crate::output::{details, grid, Mode, TerminalWidth, View};

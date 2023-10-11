@@ -47,4 +47,4 @@ mod securityctx;
 pub use self::securityctx::Colours as SecurityCtxColours;
 
 mod decay;
-pub use self::decay::{FileTimeRanges, FileModificationRange};
+pub use self::decay::{Decay, DecayTimeRanges};

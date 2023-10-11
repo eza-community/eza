@@ -3,9 +3,16 @@ use chrono::{Months, NaiveDateTime, Utc};
 use palette::{FromColor, Oklab, Srgb};
 
 use crate::{
-    fs::{dir_action::RecurseOptions, feature::git::GitCache, Dir, DotFilter, File},
+    fs::{dir_action::RecurseOptions, feature::git::GitCache, DotFilter, File},
     output::{table::TimeType, tree::TreeDepth},
 };
+
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+pub enum Decay {
+    None,
+    Absolute,
+    Relative,
+}
 
 #[derive(Debug, Copy, Clone, Default)]
 pub struct FileModificationRange {
@@ -43,15 +50,56 @@ fn update_range(
     };
 }
 
+/// Determines the oldest and latest modisfication time ranges while considering filtering options
+fn find_modified_time_ranges(
+    time_ranges: &mut DecayTimeRanges,
+    files: &[File<'_>],
+    dot_filter: DotFilter,
+    git: Option<&GitCache>,
+    git_ignoring: bool,
+    depth: TreeDepth,
+    r: Option<RecurseOptions>,
+) {
+    for file in files {
+        update_range(file.created_time(), &mut time_ranges.created);
+        update_range(file.modified_time(), &mut time_ranges.modified);
+        update_range(file.accessed_time(), &mut time_ranges.accessed);
+        update_range(file.changed_time(), &mut time_ranges.changed);
+
+        if file.is_directory() && r.is_some_and(|x| !x.is_too_deep(depth.0)) {
+            match file.to_dir() {
+                Ok(dir) => {
+                    let files: Vec<File<'_>> = dir
+                        .files(dot_filter, git, git_ignoring, false)
+                        .flatten()
+                        .collect();
+
+                    find_modified_time_ranges(
+                        time_ranges,
+                        &files,
+                        dot_filter,
+                        git,
+                        git_ignoring,
+                        depth.deeper(),
+                        r,
+                    );
+                }
+                Err(_) => todo!(),
+            }
+        };
+    }
+}
+
 #[derive(Debug, Copy, Clone, Default)]
-pub struct FileTimeRanges {
+pub struct DecayTimeRanges {
     pub accessed: Option<FileModificationRange>,
     pub changed: Option<FileModificationRange>,
     pub created: Option<FileModificationRange>,
     pub modified: Option<FileModificationRange>,
 }
 
-impl FileTimeRanges {
+impl DecayTimeRanges {
+    /// Returns `current_time - 1year` for all fields.
     pub fn absolute() -> Self {
         let newest = Utc::now().naive_utc();
 
@@ -68,40 +116,8 @@ impl FileTimeRanges {
         }
     }
 
-    /// Updates `time_ranges` with oldest and newest file changed time
-    fn recurse(
-        time_ranges: &mut FileTimeRanges,
-        dir: &Dir,
-        dot_filter: DotFilter,
-        git: Option<&GitCache>,
-        git_ignoring: bool,
-        depth: TreeDepth,
-        r: Option<RecurseOptions>,
-    ) {
-        for file in dir.files(dot_filter, git, git_ignoring, false).flatten() {
-            update_range(file.created_time(), &mut time_ranges.created);
-            update_range(file.modified_time(), &mut time_ranges.modified);
-            update_range(file.accessed_time(), &mut time_ranges.accessed);
-            update_range(file.changed_time(), &mut time_ranges.changed);
-
-            if file.is_directory() && r.is_some_and(|x| !x.is_too_deep(depth.0)) {
-                match file.to_dir() {
-                    Ok(dir) => Self::recurse(
-                        time_ranges,
-                        &dir,
-                        dot_filter,
-                        git,
-                        git_ignoring,
-                        depth.deeper(),
-                        r,
-                    ),
-                    Err(_) => todo!(),
-                }
-            };
-        }
-    }
-
-    /// Returns the relative time
+    /// Returns the time ranges relative mode by using the oldest and newest update
+    /// time for files
     pub fn relative(
         files: &[File<'_>],
         dot_filter: DotFilter,
@@ -111,29 +127,20 @@ impl FileTimeRanges {
     ) -> Self {
         let mut time_ranges = Self::default();
 
-        for file in files.iter() {
-            update_range(file.created_time(), &mut time_ranges.created);
-            update_range(file.modified_time(), &mut time_ranges.modified);
-            update_range(file.accessed_time(), &mut time_ranges.accessed);
-            update_range(file.changed_time(), &mut time_ranges.changed);
-
-            if file.is_directory() && recurse.is_some_and(|x| !x.is_too_deep(TreeDepth::root().0)) {
-                Self::recurse(
-                    &mut time_ranges,
-                    &file.to_dir().unwrap(),
-                    dot_filter,
-                    git,
-                    git_ignoring,
-                    TreeDepth::root(),
-                    recurse,
-                );
-            }
-        }
+        find_modified_time_ranges(
+            &mut time_ranges,
+            files,
+            dot_filter,
+            git,
+            git_ignoring,
+            TreeDepth::root(),
+            recurse,
+        );
 
         time_ranges
     }
 
-    /// Adjust the luminance for a given colour
+    /// Adjust the luminance for a given colour. Luminance
     fn adjust_luminance(&self, color: Colour, luminance: f32) -> Colour {
         let color = Srgb::from_components(color.into_rgb()).into_linear();
 

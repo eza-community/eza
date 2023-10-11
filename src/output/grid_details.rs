@@ -9,14 +9,13 @@ use crate::fs::feature::git::GitCache;
 use crate::fs::filter::FileFilter;
 use crate::fs::{Dir, File};
 use crate::output::cell::{DisplayWidth, TextCell};
-use crate::output::details::Decay;
 use crate::output::details::{
     Options as DetailsOptions, Render as DetailsRender, Row as DetailsRow,
 };
 use crate::output::file_name::Options as FileStyle;
 use crate::output::file_name::{EmbedHyperlinks, ShowIcons};
 use crate::output::grid::Options as GridOptions;
-use crate::output::render::FileTimeRanges;
+use crate::output::render::{Decay, DecayTimeRanges};
 use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams};
 use crate::theme::Theme;
@@ -154,8 +153,8 @@ impl<'a> Render<'a> {
 
         let decay_times = match self.details.decay {
             Decay::None => None,
-            Decay::Absolute => Some(FileTimeRanges::absolute()),
-            Decay::Relative => Some(FileTimeRanges::relative(
+            Decay::Absolute => Some(DecayTimeRanges::absolute()),
+            Decay::Relative => Some(DecayTimeRanges::relative(
                 &self.files,
                 self.filter.dot_filter,
                 self.git,

@@ -77,7 +77,7 @@ use crate::fs::filter::FileFilter;
 use crate::fs::{Dir, File};
 use crate::output::cell::TextCell;
 use crate::output::file_name::Options as FileStyle;
-use crate::output::render::FileTimeRanges;
+use crate::output::render::{Decay, DecayTimeRanges};
 use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams, TreeTrunk};
 use crate::theme::Theme;
@@ -164,9 +164,8 @@ impl<'a> Render<'a> {
         let mut rows = Vec::new();
         let decay_time_ranges = match self.opts.decay {
             Decay::None => None,
-            Decay::Absolute => Some(FileTimeRanges::absolute()),
-            // Decay::Relative => Some(FileTimeRanges::from_files(src)),
-            Decay::Relative => Some(FileTimeRanges::relative(
+            Decay::Absolute => Some(DecayTimeRanges::absolute()),
+            Decay::Relative => Some(DecayTimeRanges::relative(
                 &self.files,
                 self.filter.dot_filter,
                 self.git,
@@ -253,7 +252,7 @@ impl<'a> Render<'a> {
         rows: &mut Vec<Row>,
         src: &[File<'dir>],
         depth: TreeDepth,
-        decay_time_ranges: Option<FileTimeRanges>,
+        decay_time_ranges: Option<DecayTimeRanges>,
     ) {
         use crate::fs::feature::xattr;
         use std::sync::{Arc, Mutex};
@@ -568,11 +567,4 @@ impl Iterator for Iter {
             cell
         })
     }
-}
-
-#[derive(PartialEq, Eq, Debug, Copy, Clone)]
-pub enum Decay {
-    None,
-    Absolute,
-    Relative,
 }
