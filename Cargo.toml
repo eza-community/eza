@@ -16,7 +16,7 @@ readme = "README.md"
 homepage = "https://github.com/eza-community/eza"
 license = "MIT"
 repository = "https://github.com/eza-community/eza"
-version = "0.14.0"
+version = "0.14.1"
 
 
 [package.metadata.deb]
@@ -131,6 +131,7 @@ debug = false
 lto = true
 strip = true
 opt-level = 3
+codegen-units = 1
 
 [[bench]]
 name = "my_benchmark"

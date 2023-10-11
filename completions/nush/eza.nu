@@ -1,6 +1,6 @@
 export extern "eza" [
     --version(-v)              # Show version of eza
-    --help(-?)                 # Show list of command-line options
+    --help                     # Show list of command-line options
     --oneline(-1)              # Display one entry per line
     --long(-l)                 # Display extended file metadata as a table
     --grid(-G)                 # Display entries in a grid
@@ -8,6 +8,10 @@ export extern "eza" [
     --recurse(-R)              # Recurse into directories
     --tree(-T)                 # Recurse into directories as a tree
     --classify(-F)             # Display type indicator by file names
+    --color                    # When to use terminal colours
+    --colour                   # When to use terminal colours
+    --color-scale              # Highlight levels of file sizes distinctly
+    --colour-scale             # Highlight levels of file sizes distinctly
     --icons                    # Display icons
     --no-icons                 # Don't display icons
     --no-quotes                # Don't quote file names with spaces
@@ -19,6 +23,7 @@ export extern "eza" [
     --level(-L): string        # Limit the depth of recursion
     --width(-w)                # Limits column output of grid, 0 implies auto-width
     --reverse(-r)              # Reverse the sort order
+    --sort(-s)                 # Which field to sort by
     --only-dirs(-D)            # List only directories
     --only-files(-f)           # List only files
     --binary(-b)               # List file sizes with binary prefixes
@@ -28,12 +33,14 @@ export extern "eza" [
     --links(-H)                # List each file's number of hard links
     --inode(-i)                # List each file's inode number
     --blocksize(-S)            # List each file's size of allocated file system blocks
+    --time(-t) -d              # Which timestamp field to list
     --dereference(-X)          # dereference symlinks for file information
     --modified(-m)             # Use the modified timestamp field
     --numeric(-n)              # List numeric user and group IDs.
     --changed                  # Use the changed timestamp field
     --accessed(-u)             # Use the accessed timestamp field
     --created(-U)              # Use the created timestamp field
+    --time-style               # How to format timestamps
     --no-permissions           # Suppress the permissions field
     --octal-permissions(-o)    # List each file's permission in octal format
     --no-filesize              # Suppress the filesize field
