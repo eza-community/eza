@@ -280,9 +280,10 @@ impl Columns {
 
         let git = matches.git > 0 && matches.no_git == 0 && !no_git_env;
         let subdir_git_repos = matches.git_repos > 0 && matches.no_git == 0 && !no_git_env;
-        let subdir_git_repos_no_stat =
-            !subdir_git_repos && matches.git_repos_no_status > 0 && matches.no_git == 0;
-        && !no_git_env;
+        let subdir_git_repos_no_stat = !subdir_git_repos
+            && matches.git_repos_no_status > 0
+            && matches.no_git == 0
+            && !no_git_env;
 
         let blocksize = matches.blocksize > 0;
         let group = matches.group > 0;
