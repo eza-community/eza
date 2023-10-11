@@ -7,6 +7,7 @@ export extern "eza" [
     --across(-x)               # Sort the grid across, rather than downwards
     --recurse(-R)              # Recurse into directories
     --tree(-T)                 # Recurse into directories as a tree
+    --dereference(-X)          # Dereference symbolic links when displaying information
     --classify(-F)             # Display type indicator by file names
     --color                    # When to use terminal colours
     --colour                   # When to use terminal colours
@@ -19,6 +20,7 @@ export extern "eza" [
     --group-directories-first  # Sort directories before other files
     --git-ignore               # Ignore files mentioned in '.gitignore'
     --all(-a)                  # Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories
+    --almost-all(-A)           # Equivalent to --all; included for compatibility with `ls -A`
     --list-dirs(-d)            # List directories like regular files
     --level(-L): string        # Limit the depth of recursion
     --width(-w)                # Limits column output of grid, 0 implies auto-width
