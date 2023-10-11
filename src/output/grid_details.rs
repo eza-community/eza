@@ -165,7 +165,14 @@ impl<'a> Render<'a> {
         let rows = self
             .files
             .iter()
-            .map(|file| first_table.row_for_file(file, drender.show_xattr_hint(file), decay_times))
+            .map(|file| {
+                first_table.row_for_file(
+                    file,
+                    drender.show_xattr_hint(file),
+                    decay_times,
+                    self.details.min_luminance,
+                )
+            })
             .collect::<Vec<_>>();
 
         let file_names = self

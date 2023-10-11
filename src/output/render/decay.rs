@@ -20,8 +20,9 @@ pub struct FileModificationRange {
     pub oldest: NaiveDateTime,
 }
 
-fn luminance_from_relative_time(relative_time: f32) -> f32 {
-    0.4 + 0.6 * (-4.0 * (1.0 - relative_time)).exp()
+fn luminance_from_relative_time(relative_time: f32, min: i32) -> f32 {
+    let min = min as f32 / 100.0;
+    (min + (1.0 - min) * (-4.0 * (1.0 - relative_time)).exp()).clamp(0.0, 1.0)
 }
 
 /// Update the `range` based on the given `time` value:
@@ -140,7 +141,7 @@ impl DecayTimeRanges {
         time_ranges
     }
 
-    /// Adjust the luminance for a given colour. Luminance
+    /// Adjust the luminance for a given colour
     fn adjust_luminance(&self, color: Colour, luminance: f32) -> Colour {
         let color = Srgb::from_components(color.into_rgb()).into_linear();
 
@@ -161,6 +162,7 @@ impl DecayTimeRanges {
         mut style: Style,
         file: &File<'_>,
         time_type: TimeType,
+        min_luminance: i32,
     ) -> Style {
         let maybe_rel_time = match time_type {
             TimeType::Modified => self.modified,
@@ -182,7 +184,7 @@ impl DecayTimeRanges {
                 ratio = 1.0;
             }
 
-            let luminance = luminance_from_relative_time(ratio);
+            let luminance = luminance_from_relative_time(ratio, min_luminance);
             style.foreground = Some(self.adjust_luminance(fg, luminance));
         }
 

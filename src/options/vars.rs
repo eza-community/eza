@@ -55,6 +55,11 @@ pub static EZA_ICON_SPACING: &str = "EZA_ICON_SPACING";
 pub static EXA_OVERRIDE_GIT: &str = "EXA_OVERRIDE_GIT";
 pub static EZA_OVERRIDE_GIT: &str = "EZA_OVERRIDE_GIT";
 
+/// Enviroment variable used to set the minimum luminance in decay. It's value
+/// can be between -100 and 100
+pub static EXA_MIN_LUMINANCE: &str = "EXA_MIN_LUMINANCE";
+pub static EZA_MIN_LUMINANCE: &str = "EZA_MIN_LUMINANCE";
+
 /// Mockable wrapper for `std::env::var_os`.
 pub trait Vars {
     fn get(&self, name: &'static str) -> Option<OsString>;

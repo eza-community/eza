@@ -116,6 +116,7 @@ pub struct Options {
     pub mounts: bool,
 
     pub decay: Decay,
+    pub min_luminance: i32,
 }
 
 pub struct Render<'a> {
@@ -299,7 +300,12 @@ impl<'a> Render<'a> {
                         &[]
                     };
                     let table_row = table.as_ref().map(|t| {
-                        t.row_for_file(file, self.show_xattr_hint(file), decay_time_ranges)
+                        t.row_for_file(
+                            file,
+                            self.show_xattr_hint(file),
+                            decay_time_ranges,
+                            self.opts.min_luminance,
+                        )
                     });
 
                     let mut dir = None;

@@ -14,7 +14,7 @@ use crate::fs::feature::git::GitCache;
 use crate::fs::{fields as f, File};
 use crate::output::cell::TextCell;
 #[cfg(unix)]
-use crate::output::render::{GroupRender, OctalPermissionsRender, DecayTimeRanges, UserRender};
+use crate::output::render::{DecayTimeRanges, GroupRender, OctalPermissionsRender, UserRender};
 use crate::output::render::{PermissionsPlusRender, TimeRender};
 use crate::output::time::TimeFormat;
 use crate::theme::Theme;
@@ -406,11 +406,17 @@ impl<'a> Table<'a> {
         Row { cells }
     }
 
-    pub fn row_for_file(&self, file: &File<'_>, xattrs: bool, decay_times: Option<DecayTimeRanges>) -> Row {
+    pub fn row_for_file(
+        &self,
+        file: &File<'_>,
+        xattrs: bool,
+        decay_times: Option<DecayTimeRanges>,
+        min_luminance: i32,
+    ) -> Row {
         let cells = self
             .columns
             .iter()
-            .map(|c| self.display(file, *c, xattrs, decay_times))
+            .map(|c| self.display(file, *c, xattrs, decay_times, min_luminance))
             .collect();
 
         Row { cells }
@@ -452,6 +458,7 @@ impl<'a> Table<'a> {
         column: Column,
         xattrs: bool,
         decay: Option<DecayTimeRanges>,
+        min_luminance: i32,
     ) -> TextCell {
         match column {
             Column::Permissions => self.permissions_plus(file, xattrs).render(self.theme),
@@ -486,7 +493,7 @@ impl<'a> Table<'a> {
 
             Column::Timestamp(time_type) => time_type.get_corresponding_time(file).render(
                 if let Some(decay) = decay {
-                    decay.get_adjusted_style(self.theme.ui.date, file, time_type)
+                    decay.get_adjusted_style(self.theme.ui.date, file, time_type, min_luminance)
                 } else {
                     self.theme.ui.date
                 },
