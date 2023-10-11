@@ -1,5 +1,6 @@
 //! Filtering and sorting the list of files before displaying them.
 
+use log::debug;
 use std::cmp::Ordering;
 use std::iter::FromIterator;
 #[cfg(unix)]
@@ -21,6 +22,12 @@ pub enum FileFilterFlags {
 
     /// Whether to only show files.
     OnlyFiles,
+
+    /// Whether to only show links.
+    OnlyLinks,
+
+    /// Whether to ignore links.
+    NoLinks,
 }
 
 /// The **file filter** processes a list of files before displaying them to
@@ -74,21 +81,57 @@ impl FileFilter {
     /// Remove every file in the given vector that does *not* pass the
     /// filter predicate for files found inside a directory.
     pub fn filter_child_files(&self, files: &mut Vec<File<'_>>) {
-        use FileFilterFlags::{OnlyDirs, OnlyFiles};
+        use FileFilterFlags::{NoLinks, OnlyDirs, OnlyFiles, OnlyLinks};
 
         files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
+
+        debug!("Filtering files: {:?}", self.flags);
 
         match (
             self.flags.contains(&OnlyDirs),
             self.flags.contains(&OnlyFiles),
+            self.flags.contains(&OnlyLinks),
         ) {
-            (true, false) => {
+            (true, false, false) => {
                 // On pass -'-only-dirs' flag only
-                files.retain(File::is_directory);
+                if self.flags.contains(&NoLinks) {
+                    files.retain(File::is_directory);
+                } else {
+                    files.retain(File::points_to_directory);
+                }
             }
-            (false, true) => {
+            (true, false, true) => {
+                // On pass -'-only-dirs' and '-only-links' flags
+                if !self.flags.contains(&NoLinks) {
+                    files.retain(File::symlink_target_is_directory);
+                }
+            }
+            (false, true, false) => {
                 // On pass -'-only-files' flag only
-                files.retain(File::is_file);
+                if self.flags.contains(&NoLinks) {
+                    files.retain(File::is_file);
+                } else {
+                    files.retain(File::points_to_file);
+                }
+            }
+            (false, true, true) => {
+                debug!("Filtering files: links and files");
+                // On pass -'-only-files' and '-only-links' flags
+                if !self.flags.contains(&NoLinks) {
+                    files.retain(File::symlink_target_is_file);
+                }
+            }
+            (false, false, true) => {
+                // On pass -'-only-links' flag only
+                if !self.flags.contains(&NoLinks) {
+                    files.retain(File::is_link);
+                }
+            }
+            (false, false, false) => {
+                // On pass no flags
+                if self.flags.contains(&NoLinks) {
+                    files.retain(|f| f.is_file() || f.is_directory());
+                }
             }
             _ => {}
         }

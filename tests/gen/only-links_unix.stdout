@@ -1,0 +1,2 @@
+symlink -> a
+symlink-broken -> ./b

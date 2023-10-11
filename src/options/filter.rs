@@ -18,6 +18,8 @@ impl FileFilter {
             (matches.has(&flags::REVERSE)?, FFF::Reverse),
             (matches.has(&flags::ONLY_DIRS)?, FFF::OnlyDirs),
             (matches.has(&flags::ONLY_FILES)?, FFF::OnlyFiles),
+            (matches.has(&flags::ONLY_LINKS)?, FFF::OnlyLinks),
+            (matches.has(&flags::NO_LINKS)?, FFF::NoLinks),
         ] {
             if *has {
                 filter_flags.push(flag.clone());

@@ -32,8 +32,10 @@ __eza() {
         {-a,--all}"[Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories]" \
         {-A,--almost-all}"[Equivalent to --all; included for compatibility with \'ls -A\']" \
         {-d,--list-dirs}"[List directories like regular files]" \
-        {-D,--only-dirs}"[List only directories]" \
-        {-f,--only-files}"[List only files]" \
+        {-D,--only-dirs}"[List only directories and links to directories]" \
+        {-f,--only-files}"[List only files and links to files]" \
+        --only-links"[List only links]" \
+        --no-links"[Doesn't list links in --only-files or --only-dirs context]" \
         {-L,--level}"+[Limit the depth of recursion]" \
         {-w,--width}"+[Limits column output of grid, 0 implies auto-width]" \
         {-r,--reverse}"[Reverse the sort order]" \

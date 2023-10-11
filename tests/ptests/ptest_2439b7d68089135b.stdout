@@ -33,8 +33,10 @@ FILTERING AND SORTING OPTIONS
   -r, --reverse              reverse the sort order
   -s, --sort SORT_FIELD      which field to sort by
   --group-directories-first  list directories before other files
-  -D, --only-dirs            list only directories
-  -f, --only-files           list only files
+  -D, --only-dirs            list only directories and links to directories
+  -f, --only-files           list only files and links to files
+  --only-links               list only symbolic links
+  --no-links                 don't list symbolic links in --only-files or --only-dirs cases
   -I, --ignore-glob GLOBS    glob patterns (pipe-separated) of files to ignore
   --git-ignore               ignore files mentioned in '.gitignore'
   Valid sort fields:         name, Name, extension, Extension, size, type,

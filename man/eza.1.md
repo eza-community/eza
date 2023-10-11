@@ -161,11 +161,16 @@ Sort fields starting with a capital letter will sort uppercase before lowercase:
 : List directories before other files.
 
 `-D`, `--only-dirs`
-: List only directories, not files.
+: List only directories and links pointing to directories, not files.
 
 `-f`, `--only-files`
-: List only files, not directories.
+: List only files and links pointing to files, not directories.
 
+`--only-links`
+: List only links
+
+`--only-links`
+: Don't show links in `--only-files` or `--only-dirs` cases
 
 LONG VIEW OPTIONS
 =================

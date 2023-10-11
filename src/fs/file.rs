@@ -287,6 +287,28 @@ impl<'dir> File<'dir> {
         false
     }
 
+    pub fn symlink_target_is_directory(&self) -> bool {
+        if self.is_link() {
+            let target = self.link_target();
+            if let FileTarget::Ok(target) = target {
+                return target.is_directory();
+            }
+        }
+
+        false
+    }
+
+    pub fn symlink_target_is_file(&self) -> bool {
+        if self.is_link() {
+            let target = self.link_target();
+            if let FileTarget::Ok(target) = target {
+                return target.is_file();
+            }
+        }
+
+        false
+    }
+
     /// If this file is a directory on the filesystem, then clone its
     /// `PathBuf` for use in one of our own `Dir` values, and read a list of
     /// its contents.
@@ -302,6 +324,17 @@ impl<'dir> File<'dir> {
     /// directory, a link, or anything else treated specially.
     pub fn is_file(&self) -> bool {
         self.metadata.is_file()
+    }
+
+    pub fn points_to_file(&self) -> bool {
+        if self.is_link() {
+            let target = self.link_target();
+            if let FileTarget::Ok(target) = target {
+                return target.points_to_file();
+            }
+        }
+
+        false
     }
 
     /// Whether this file is both a regular file *and* executable for the

@@ -108,8 +108,10 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s. Quick overv
 - **-r**, **--reverse**: reverse the sort order
 - **-s**, **--sort=(field)**: which field to sort by
 - **--group-directories-first**: list directories before other files
-- **-D**, **--only-dirs**: list only directories
-- **-f**, **--only-files**: list only files
+- **-D**, **--only-dirs**: list only directories and links to directories
+- **-f**, **--only-files**: list only files and links to files
+- **--only-links**: list only symbolic links
+- **--no-links**: don't list symbolic links in **--only-files** or **--only-dirs** cases
 - **--git-ignore**: ignore files mentioned in `.gitignore`
 - **-I**, **--ignore-glob=(globs)**: glob patterns (pipe-separated) of files to ignore
 
