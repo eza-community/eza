@@ -290,6 +290,10 @@ Specifies the colour scheme used to highlight files based on their name and kind
 
 For more information on the format of these environment variables, see the [eza_colors.5.md](eza_colors.5.md) manual page.
 
+## `EZA_OVERRIDE_GIT`
+
+Overrides any `--git` or `--git-repos` argument
+
 
 EXIT STATUSES
 =============
