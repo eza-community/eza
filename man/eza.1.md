@@ -103,6 +103,15 @@ Manually setting this option overrides `NO_COLOR` environment.
 `-w`, `--width=COLS`
 : Set screen width in columns.
 
+`--decay=MODE`
+: Highlight newer files.
+
+Valid options are `none`, `absolute` or `relative`.
+The default value is `none`
+
+`absolute` mode highlights based on file modification time relative to the past year.
+`relative` mode highlights based on file modification time in relation to other files. `none` disables highlighting.
+
 
 FILTERING AND SORTING OPTIONS
 =============================
@@ -294,6 +303,8 @@ For more information on the format of these environment variables, see the [eza_
 
 Overrides any `--git` or `--git-repos` argument
 
+## `EZA_MIN_LUMINANCE`
+Specifies the minimum luminance to use when decay is active. It's value can be between -100 to 100.
 
 EXIT STATUSES
 =============
