@@ -71,7 +71,13 @@ impl DecayTimeRanges {
         time_ranges
     }
 
-    pub fn adjust_style(&self, mut style: Style, file: &File<'_>, time_type: TimeType) -> Style {
+    pub fn adjust_style(
+        &self,
+        mut style: Style,
+        file: &File<'_>,
+        time_type: TimeType,
+        min_luminance: i32,
+    ) -> Style {
         let decay_range = match time_type {
             TimeType::Modified => self.modified,
             TimeType::Changed => self.changed,
@@ -93,7 +99,7 @@ impl DecayTimeRanges {
                 ratio = 1.0;
             }
 
-            let luminance = luminance_from_relative_time(ratio, 0.4);
+            let luminance = luminance_from_relative_time(ratio, min_luminance as f32 / 100.0);
             style.foreground = Some(adjust_luminance(fg, luminance));
         }
 

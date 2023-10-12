@@ -76,10 +76,10 @@ use crate::fs::fields::SecurityContextType;
 use crate::fs::filter::FileFilter;
 use crate::fs::{Dir, File};
 use crate::output::cell::TextCell;
+use crate::output::decay::{Decay, DecayTimeRanges};
 use crate::output::file_name::Options as FileStyle;
 use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams, TreeTrunk};
-use crate::output::decay::{Decay, DecayTimeRanges};
 use crate::theme::Theme;
 
 /// With the **Details** view, the output gets formatted into columns, with
@@ -116,6 +116,7 @@ pub struct Options {
     pub mounts: bool,
 
     pub decay: Decay,
+    pub min_luminance: i32,
 }
 
 pub struct Render<'a> {
@@ -300,9 +301,14 @@ impl<'a> Render<'a> {
                         &[]
                     };
 
-                    let table_row = table
-                        .as_ref()
-                        .map(|t| t.row_for_file(file, self.show_xattr_hint(file), decay));
+                    let table_row = table.as_ref().map(|t| {
+                        t.row_for_file(
+                            file,
+                            self.show_xattr_hint(file),
+                            decay,
+                            self.opts.min_luminance,
+                        )
+                    });
 
                     let mut dir = None;
                     if let Some(r) = self.recurse {

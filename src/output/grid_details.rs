@@ -9,6 +9,7 @@ use crate::fs::feature::git::GitCache;
 use crate::fs::filter::FileFilter;
 use crate::fs::{Dir, File};
 use crate::output::cell::{DisplayWidth, TextCell};
+use crate::output::decay::{Decay, DecayTimeRanges};
 use crate::output::details::{
     Options as DetailsOptions, Render as DetailsRender, Row as DetailsRow,
 };
@@ -17,7 +18,6 @@ use crate::output::file_name::{EmbedHyperlinks, ShowIcons};
 use crate::output::grid::Options as GridOptions;
 use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams};
-use crate::output::decay::{Decay, DecayTimeRanges};
 use crate::theme::Theme;
 
 #[derive(PartialEq, Eq, Debug)]
@@ -167,7 +167,12 @@ impl<'a> Render<'a> {
             .files
             .iter()
             .map(|file| {
-                first_table.row_for_file(file, drender.show_xattr_hint(file), decay_time_ranges)
+                first_table.row_for_file(
+                    file,
+                    drender.show_xattr_hint(file),
+                    decay_time_ranges,
+                    self.details.min_luminance,
+                )
             })
             .collect::<Vec<_>>();
 

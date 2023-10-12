@@ -1,11 +1,11 @@
 use crate::fs::feature::xattr;
 use crate::options::parser::MatchedFlags;
-use crate::options::{flags, NumberSource, OptionsError, Vars};
+use crate::options::{flags, vars, NumberSource, OptionsError, Vars};
+use crate::output::decay::Decay;
 use crate::output::file_name::Options as FileStyle;
 use crate::output::grid_details::{self, RowThreshold};
 use crate::output::table::{Columns, Options as TableOptions, SizeFormat, TimeTypes, UserFormat};
 use crate::output::time::TimeFormat;
-use crate::output::decay::Decay;
 use crate::output::{details, grid, Mode, TerminalWidth, View};
 
 impl View {
@@ -76,7 +76,7 @@ impl Mode {
 
         if flag.matches(&flags::TREE) {
             let _ = matches.has(&flags::TREE)?;
-            let details = details::Options::deduce_tree(matches)?;
+            let details = details::Options::deduce_tree(matches, vars)?;
             return Ok(Self::Details(details));
         }
 
@@ -139,7 +139,16 @@ impl grid::Options {
 }
 
 impl details::Options {
-    fn deduce_tree(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
+    fn deduce_tree<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
+        let min_luminance =
+            match vars.get_with_fallback(vars::EZA_MIN_LUMINANCE, vars::EXA_MIN_LUMINANCE) {
+                Some(var) => match var.to_string_lossy().parse() {
+                    Ok(luminance) if (-100..=100).contains(&luminance) => luminance,
+                    _ => 40,
+                },
+                None => 40,
+            };
+
         let details = details::Options {
             table: None,
             header: false,
@@ -147,6 +156,7 @@ impl details::Options {
             secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
             mounts: matches.has(&flags::MOUNTS)?,
             decay: Decay::deduce(matches)?,
+            min_luminance,
         };
 
         Ok(details)
@@ -161,6 +171,15 @@ impl details::Options {
             }
         }
 
+        let min_luminance =
+            match vars.get_with_fallback(vars::EZA_MIN_LUMINANCE, vars::EXA_MIN_LUMINANCE) {
+                Some(var) => match var.to_string_lossy().parse() {
+                    Ok(luminance) if (-100..=100).contains(&luminance) => luminance,
+                    _ => 40,
+                },
+                None => 40,
+            };
+
         Ok(details::Options {
             table: Some(TableOptions::deduce(matches, vars)?),
             header: matches.has(&flags::HEADER)?,
@@ -168,14 +187,13 @@ impl details::Options {
             secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
             mounts: matches.has(&flags::MOUNTS)?,
             decay: Decay::deduce(matches)?,
+            min_luminance,
         })
     }
 }
 
 impl TerminalWidth {
     fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        use crate::options::vars;
-
         if let Some(width) = matches.get(&flags::WIDTH)? {
             let arg_str = width.to_string_lossy();
             match arg_str.parse() {
@@ -207,8 +225,6 @@ impl TerminalWidth {
 
 impl RowThreshold {
     fn deduce<V: Vars>(vars: &V) -> Result<Self, OptionsError> {
-        use crate::options::vars;
-
         if let Some(columns) = vars
             .get_with_fallback(vars::EZA_GRID_ROWS, vars::EXA_GRID_ROWS)
             .and_then(|s| s.into_string().ok())
@@ -246,7 +262,6 @@ impl TableOptions {
 
 impl Columns {
     fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        use crate::options::vars;
         let time_types = TimeTypes::deduce(matches)?;
 
         let no_git_env = vars
@@ -316,7 +331,6 @@ impl TimeFormat {
         let word = if let Some(w) = matches.get(&flags::TIME_STYLE)? {
             w.to_os_string()
         } else {
-            use crate::options::vars;
             match vars.get(vars::TIME_STYLE) {
                 Some(ref t) if !t.is_empty() => t.clone(),
                 _ => return Ok(Self::DefaultFormat),
