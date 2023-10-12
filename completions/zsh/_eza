@@ -11,7 +11,7 @@ __eza() {
     # `-S` for delimiting options with `--` like in `eza -- -a`.
     _arguments -s -S \
         "(- *)"{-v,--version}"[Show version of eza]" \
-        "(- *)"{--help}"[Show list of command-line options]" \
+        "(- *)"--help"[Show list of command-line options]" \
         {-1,--oneline}"[Display one entry per line]" \
         {-l,--long}"[Display extended file metadata as a table]" \
         {-G,--grid}"[Display entries as a grid]" \
