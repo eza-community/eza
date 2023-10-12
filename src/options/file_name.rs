@@ -2,10 +2,15 @@ use crate::options::parser::MatchedFlags;
 use crate::options::vars::{self, Vars};
 use crate::options::{flags, NumberSource, OptionsError};
 
+use super::vars::EZA_ICON_SPACING;
 use crate::output::file_name::{Classify, EmbedHyperlinks, Options, QuoteStyle, ShowIcons};
 
 impl Options {
-    pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
+    pub fn deduce<V: Vars>(
+        matches: &MatchedFlags<'_>,
+        vars: &V,
+        is_a_tty: bool,
+    ) -> Result<Self, OptionsError> {
         let classify = Classify::deduce(matches)?;
         let show_icons = ShowIcons::deduce(matches, vars)?;
 
@@ -17,6 +22,7 @@ impl Options {
             show_icons,
             quote_style,
             embed_hyperlinks,
+            is_a_tty,
         })
     }
 }
@@ -35,24 +41,47 @@ impl Classify {
 
 impl ShowIcons {
     pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        if matches.has(&flags::NO_ICONS)? || !matches.has(&flags::ICONS)? {
-            Ok(Self::Off)
-        } else if let Some(columns) = vars
-            .get_with_fallback(vars::EZA_ICON_SPACING, vars::EXA_ICON_SPACING)
+        enum AlwaysOrAuto {
+            Always,
+            Automatic,
+        }
+
+        let mode_opt = matches.get(&flags::ICONS)?;
+        if matches.has(&flags::NO_ICONS)? || (!matches.has(&flags::ICONS)? && mode_opt.is_none()) {
+            return Ok(Self::Never);
+        }
+
+        let mode = match mode_opt {
+            Some(word) => match word.to_str() {
+                Some("always") => AlwaysOrAuto::Always,
+                Some("auto" | "automatic") => AlwaysOrAuto::Automatic,
+                Some("never") => return Ok(Self::Never),
+                _ => return Err(OptionsError::BadArgument(&flags::COLOR, word.into())),
+            },
+            None => AlwaysOrAuto::Automatic,
+        };
+
+        let width = if let Some(columns) = vars
+            .get_with_fallback(vars::EXA_ICON_SPACING, vars::EZA_ICON_SPACING)
             .and_then(|s| s.into_string().ok())
         {
             match columns.parse() {
-                Ok(width) => Ok(Self::On(width)),
+                Ok(width) => width,
                 Err(e) => {
                     let source = NumberSource::Env(
-                        vars.source(vars::EZA_ICON_SPACING, vars::EXA_ICON_SPACING)
+                        vars.source(vars::EXA_ICON_SPACING, EZA_ICON_SPACING)
                             .unwrap(),
                     );
-                    Err(OptionsError::FailedParse(columns, source, e))
+                    return Err(OptionsError::FailedParse(columns, source, e));
                 }
             }
         } else {
-            Ok(Self::On(1))
+            1
+        };
+
+        match mode {
+            AlwaysOrAuto::Always => Ok(Self::Always(width)),
+            AlwaysOrAuto::Automatic => Ok(Self::Automatic(width)),
         }
     }
 }

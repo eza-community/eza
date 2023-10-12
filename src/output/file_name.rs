@@ -24,6 +24,9 @@ pub struct Options {
 
     /// Whether to make file names hyperlinks.
     pub embed_hyperlinks: EmbedHyperlinks,
+
+    /// Whether we are in a console or redirecting the output
+    pub is_a_tty: bool,
 }
 
 impl Options {
@@ -94,14 +97,17 @@ enum MountStyle {
 }
 
 /// Whether and how to show icons.
-#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub enum ShowIcons {
-    /// Don’t show icons at all.
-    Off,
+    /// Display icons next to file names, with the given number of spaces between
+    /// the icon and the file name, even when output isn’t going to a terminal.
+    Always(u32),
 
-    /// Show icons next to file names, with the given number of spaces between
-    /// the icon and the file name.
-    On(usize),
+    /// Same as Always, but only when output is going to a terminal, not otherwise.
+    Automatic(u32),
+
+    /// Never display them, even when output is going to a terminal.
+    Never,
 }
 
 /// Whether to embed hyperlinks.
@@ -176,13 +182,17 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     pub fn paint(&self) -> TextCellContents {
         let mut bits = Vec::new();
 
-        if let ShowIcons::On(spaces_count) = self.options.show_icons {
+        let spaces_count_opt = match self.options.show_icons {
+            ShowIcons::Always(spaces_count) => Some(spaces_count),
+            ShowIcons::Automatic(spaces_count) if self.options.is_a_tty => Some(spaces_count),
+            _ => None,
+        };
+
+        if let Some(spaces_count) = spaces_count_opt {
             let style = iconify_style(self.style());
             let file_icon = icon_for_file(self.file).to_string();
-
             bits.push(style.paint(file_icon));
-
-            bits.push(style.paint(" ".repeat(spaces_count)));
+            bits.push(style.paint(" ".repeat(spaces_count as usize)));
         }
 
         if self.file.parent_dir.is_none() {
@@ -217,11 +227,10 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                     if !target.name.is_empty() {
                         let target_options = Options {
                             classify: Classify::JustFilenames,
-                            show_icons: ShowIcons::Off,
-
                             quote_style: QuoteStyle::QuoteSpaces,
-
+                            show_icons: ShowIcons::Never,
                             embed_hyperlinks: EmbedHyperlinks::Off,
+                            is_a_tty: self.options.is_a_tty,
                         };
 
                         let target_name = FileName {
