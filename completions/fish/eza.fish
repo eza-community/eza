@@ -1,6 +1,6 @@
 # Meta-stuff
 complete -c eza -s v -l version -d "Show version of eza"
-complete -c eza -s '?' -l help -d "Show list of command-line options"
+complete -c eza -l help -d "Show list of command-line options"
 
 # Display options
 complete -c eza -s 1 -l oneline -d "Display one entry per line"
@@ -9,6 +9,7 @@ complete -c eza -s G -l grid -d "Display entries in a grid"
 complete -c eza -s x -l across -d "Sort the grid across, rather than downwards"
 complete -c eza -s R -l recurse -d "Recurse into directories"
 complete -c eza -s T -l tree -d "Recurse into directories as a tree"
+complete -c eza -s X -l dereference -d "Dereference symbolic links when displaying information"
 complete -c eza -s F -l classify -d "Display type indicator by file names"
 complete -c eza -l color \
     -l colour -d "When to use terminal colours" -x -a "
@@ -28,6 +29,7 @@ complete -c eza -l hyperlink -d "Display entries as hyperlinks"
 complete -c eza -l group-directories-first -d "Sort directories before other files"
 complete -c eza -l git-ignore -d "Ignore files mentioned in '.gitignore'"
 complete -c eza -s a -l all -d "Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories"
+complete -c eza -s A -l almost-all -d "Equivalent to --all; included for compatibility with `ls -A`"
 complete -c eza -s d -l list-dirs -d "List directories like regular files"
 complete -c eza -s L -l level -d "Limit the depth of recursion" -x -a "1 2 3 4 5 6 7 8 9"
 complete -c eza -s w -l width -d "Limits column output of grid, 0 implies auto-width"
