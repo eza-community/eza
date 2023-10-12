@@ -32,6 +32,11 @@ _eza() {
             mapfile -t COMPREPLY < <(compgen -W 'default iso long-iso full-iso relative --' -- "$cur")
             return
             ;;
+
+        --decay)
+            mapfile -t COMPREPLY < <(compgen -W 'none absolute relative --' -- "$cur")
+            return
+            ;;
     esac
 
     case "$cur" in

@@ -55,4 +55,5 @@ export extern "eza" [
     --git-repos-no-status      # List each git-repos branch name (much faster)
     --extended(-@)             # List each file's extended attributes and sizes
     --context(-Z)              # List each file's security context
+    --decay                    # Highlight newer files
 ]
