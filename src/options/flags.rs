@@ -57,8 +57,10 @@ pub static CREATED:    Arg = Arg { short: Some(b'U'), long: "created",    takes_
 pub static TIME_STYLE: Arg = Arg { short: None,       long: "time-style", takes_value: TakesValue::Necessary(Some(TIME_STYLES)) };
 pub static HYPERLINK:  Arg = Arg { short: None,       long: "hyperlink",  takes_value: TakesValue::Forbidden };
 pub static MOUNTS:     Arg = Arg { short: Some(b'M'), long: "mounts",     takes_value: TakesValue::Forbidden };
+pub static DECAY:      Arg = Arg { short: None,       long: "decay",      takes_value: TakesValue::Necessary(Some(DECAYS))};
 const TIMES: Values = &["modified", "changed", "accessed", "created"];
 const TIME_STYLES: Values = &["default", "long-iso", "full-iso", "iso", "relative"];
+const DECAYS: Values = &["absolute", "relative", "none"];
 
 // suppressing columns
 pub static NO_PERMISSIONS: Arg = Arg { short: None, long: "no-permissions", takes_value: TakesValue::Forbidden };
@@ -87,7 +89,7 @@ pub static ALL_ARGS: Args = Args(&[
 
     &BINARY, &BYTES, &GROUP, &NUMERIC, &HEADER, &ICONS, &INODE, &LINKS, &MODIFIED, &CHANGED,
     &BLOCKSIZE, &TIME, &ACCESSED, &CREATED, &TIME_STYLE, &HYPERLINK, &MOUNTS,
-    &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &NO_ICONS,
+    &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &NO_ICONS, &DECAY,
 
     &GIT, &NO_GIT, &GIT_REPOS, &GIT_REPOS_NO_STAT,
     &EXTENDED, &OCTAL, &SECURITY_CONTEXT

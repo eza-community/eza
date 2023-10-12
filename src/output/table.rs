@@ -17,6 +17,7 @@ use crate::output::cell::TextCell;
 use crate::output::render::{GroupRender, OctalPermissionsRender, UserRender};
 use crate::output::render::{PermissionsPlusRender, TimeRender};
 use crate::output::time::TimeFormat;
+use crate::output::decay::DecayTimeRanges;
 use crate::theme::Theme;
 
 /// Options for displaying a table.
@@ -272,6 +273,16 @@ impl TimeType {
             Self::Created => "Date Created",
         }
     }
+
+    /// Returns the corresponding time from [File]
+    pub fn get_corresponding_time(self, file: &File<'_>) -> Option<NaiveDateTime> {
+        match self {
+            TimeType::Modified => file.modified_time(),
+            TimeType::Changed => file.changed_time(),
+            TimeType::Accessed => file.accessed_time(),
+            TimeType::Created => file.created_time(),
+        }
+    }
 }
 
 /// Fields for which of a file’s time fields should be displayed in the
@@ -396,11 +407,16 @@ impl<'a> Table<'a> {
         Row { cells }
     }
 
-    pub fn row_for_file(&self, file: &File<'_>, xattrs: bool) -> Row {
+    pub fn row_for_file(
+        &self,
+        file: &File<'_>,
+        xattrs: bool,
+        decay: Option<DecayTimeRanges>,
+    ) -> Row {
         let cells = self
             .columns
             .iter()
-            .map(|c| self.display(file, *c, xattrs))
+            .map(|c| self.display(file, *c, xattrs, decay))
             .collect();
 
         Row { cells }
@@ -436,7 +452,13 @@ impl<'a> Table<'a> {
             .map(|p| f::OctalPermissions { permissions: p })
     }
 
-    fn display(&self, file: &File<'_>, column: Column, xattrs: bool) -> TextCell {
+    fn display(
+        &self,
+        file: &File<'_>,
+        column: Column,
+        xattrs: bool,
+        decay: Option<DecayTimeRanges>,
+    ) -> TextCell {
         match column {
             Column::Permissions => self.permissions_plus(file, xattrs).render(self.theme),
             Column::FileSize => file
@@ -468,23 +490,12 @@ impl<'a> Table<'a> {
             #[cfg(unix)]
             Column::Octal => self.octal_permissions(file).render(self.theme.ui.octal),
 
-            Column::Timestamp(TimeType::Modified) => file.modified_time().render(
-                self.theme.ui.date,
-                self.env.time_offset,
-                self.time_format.clone(),
-            ),
-            Column::Timestamp(TimeType::Changed) => file.changed_time().render(
-                self.theme.ui.date,
-                self.env.time_offset,
-                self.time_format.clone(),
-            ),
-            Column::Timestamp(TimeType::Created) => file.created_time().render(
-                self.theme.ui.date,
-                self.env.time_offset,
-                self.time_format.clone(),
-            ),
-            Column::Timestamp(TimeType::Accessed) => file.accessed_time().render(
-                self.theme.ui.date,
+            Column::Timestamp(time_type) => time_type.get_corresponding_time(file).render(
+                if let Some(decay) = decay {
+                    decay.adjust_style(self.theme.ui.date, file, time_type)
+                } else {
+                    self.theme.ui.date
+                },
                 self.env.time_offset,
                 self.time_format.clone(),
             ),

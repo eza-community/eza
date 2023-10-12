@@ -17,6 +17,7 @@ use crate::output::file_name::{EmbedHyperlinks, ShowIcons};
 use crate::output::grid::Options as GridOptions;
 use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams};
+use crate::output::decay::{Decay, DecayTimeRanges};
 use crate::theme::Theme;
 
 #[derive(PartialEq, Eq, Debug)]
@@ -150,10 +151,24 @@ impl<'a> Render<'a> {
 
         let (first_table, _) = self.make_table(options, &drender);
 
+        let decay_time_ranges = match self.details.decay {
+            Decay::None => None,
+            Decay::Absolute => Some(DecayTimeRanges::absolute()),
+            Decay::Relative => Some(DecayTimeRanges::relative(
+                &self.files,
+                self.filter.dot_filter,
+                self.git,
+                self.git_ignoring,
+                None,
+            )),
+        };
+
         let rows = self
             .files
             .iter()
-            .map(|file| first_table.row_for_file(file, drender.show_xattr_hint(file)))
+            .map(|file| {
+                first_table.row_for_file(file, drender.show_xattr_hint(file), decay_time_ranges)
+            })
             .collect::<Vec<_>>();
 
         let file_names = self
