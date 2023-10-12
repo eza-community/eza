@@ -1,5 +1,37 @@
 # Changelog
 
+## [0.14.2] - 2023-10-12
+
+### Bug Fixes
+
+- Comment out redundant static musl build
+- Refactor sed command to build manpages
+- Update additional completions for help, almost-all, dereference
+- Fix zsh completions
+
+### Documentation
+
+- Add missing options to man page and CLI --help info
+
+### Features
+
+- Add missing nu shell completions
+- Adding the EZA_OVERRIDE_GIT env var
+
+### Refactor
+
+- Use musl target for amd64 deb package
+- Directly use one "big" awk command
+
+### Styling
+
+- Remove trailing spaces and trailing line
+
+### Build
+
+- Bump libc from 0.2.148 to 0.2.149
+- Bump DeterminateSystems/nix-installer-action from 4 to 5
+
 ## [0.14.1] - 2023-10-08
 
 ### Bug Fixes
@@ -21,6 +53,10 @@
 - Add basic nushell completion file
 - Add codeowner for nu completions
 - Readded musl static bin as it works
+
+### Miscellaneous Tasks
+
+- Release eza v0.14.1
 
 ### Refactor
 
