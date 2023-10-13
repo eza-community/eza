@@ -121,11 +121,6 @@ nix = []
 # Should only be used inside of flake.nix locally (not on CI)
 nix-local = []
 
-
-# make dev builds faster by excluding debug symbols
-[profile.dev]
-debug = false
-
 # use LTO for smaller binaries (that take longer to build)
 [profile.release]
 lto = true
