@@ -24,6 +24,7 @@ complete -c eza -l icons -d "Display icons"
 complete -c eza -l no-icons -d "Don't display icons"
 complete -c eza -l no-quotes -d "Don't quote file names with spaces"
 complete -c eza -l hyperlink -d "Display entries as hyperlinks"
+complete -c eza -l smart-group -d "Only show group if it has a different name from owner"
 
 # Filtering and sorting options
 complete -c eza -l group-directories-first -d "Sort directories before other files"
