@@ -3,14 +3,15 @@ use uzers::{Groups, Users};
 
 use crate::fs::fields as f;
 use crate::output::cell::TextCell;
-use crate::output::table::UserFormat;
+use crate::output::table::{GroupFormat, UserFormat};
 
 pub trait Render {
     fn render<C: Colours, U: Users + Groups>(
         self,
         colours: &C,
         users: &U,
-        format: UserFormat,
+        user_format: UserFormat,
+        group_format: GroupFormat,
     ) -> TextCell;
 }
 
@@ -19,7 +20,8 @@ impl Render for Option<f::Group> {
         self,
         colours: &C,
         users: &U,
-        format: UserFormat,
+        user_format: UserFormat,
+        group_format: GroupFormat,
     ) -> TextCell {
         use uzers::os::unix::GroupExt;
 
@@ -46,9 +48,24 @@ impl Render for Option<f::Group> {
             style = colours.root_group();
         }
 
-        let group_name = match format {
+        let mut group_name = match user_format {
             UserFormat::Name => group.name().to_string_lossy().into(),
             UserFormat::Numeric => group.gid().to_string(),
+        };
+
+        group_name = match group_format {
+            GroupFormat::Smart => {
+                if let Some(current_user) = users.get_user_by_uid(current_uid) {
+                    if current_user.name() == group.name() {
+                        ":".to_string()
+                    } else {
+                        group_name
+                    }
+                } else {
+                    group_name
+                }
+            }
+            GroupFormat::Regular => group_name,
         };
 
         TextCell::paint(style, group_name)
@@ -68,7 +85,7 @@ pub mod test {
     use super::{Colours, Render};
     use crate::fs::fields as f;
     use crate::output::cell::TextCell;
-    use crate::output::table::UserFormat;
+    use crate::output::table::{GroupFormat, UserFormat};
 
     use ansiterm::Colour::*;
     use ansiterm::Style;
@@ -95,13 +112,18 @@ pub mod test {
         let expected = TextCell::paint_str(Fixed(81).normal(), "folk");
         assert_eq!(
             expected,
-            group.render(&TestColours, &users, UserFormat::Name)
+            group.render(&TestColours, &users, UserFormat::Name, GroupFormat::Regular)
         );
 
         let expected = TextCell::paint_str(Fixed(81).normal(), "100");
         assert_eq!(
             expected,
-            group.render(&TestColours, &users, UserFormat::Numeric)
+            group.render(
+                &TestColours,
+                &users,
+                UserFormat::Numeric,
+                GroupFormat::Regular
+            )
         );
     }
 
@@ -113,11 +135,16 @@ pub mod test {
         let expected = TextCell::paint_str(Fixed(81).normal(), "100");
         assert_eq!(
             expected,
-            group.render(&TestColours, &users, UserFormat::Name)
+            group.render(&TestColours, &users, UserFormat::Name, GroupFormat::Regular)
         );
         assert_eq!(
             expected,
-            group.render(&TestColours, &users, UserFormat::Numeric)
+            group.render(
+                &TestColours,
+                &users,
+                UserFormat::Numeric,
+                GroupFormat::Regular
+            )
         );
     }
 
@@ -131,7 +158,7 @@ pub mod test {
         let expected = TextCell::paint_str(Fixed(80).normal(), "folk");
         assert_eq!(
             expected,
-            group.render(&TestColours, &users, UserFormat::Name)
+            group.render(&TestColours, &users, UserFormat::Name, GroupFormat::Regular)
         )
     }
 
@@ -147,7 +174,7 @@ pub mod test {
         let expected = TextCell::paint_str(Fixed(80).normal(), "folk");
         assert_eq!(
             expected,
-            group.render(&TestColours, &users, UserFormat::Name)
+            group.render(&TestColours, &users, UserFormat::Name, GroupFormat::Regular)
         )
     }
 
@@ -160,8 +187,42 @@ pub mod test {
             group.render(
                 &TestColours,
                 &MockUsers::with_current_uid(0),
-                UserFormat::Numeric
+                UserFormat::Numeric,
+                GroupFormat::Regular
             )
+        );
+    }
+
+    #[test]
+    fn smart() {
+        let mut users = MockUsers::with_current_uid(1000);
+        users.add_user(User::new(1000, "user", 110));
+        users.add_group(Group::new(100, "user"));
+        users.add_group(Group::new(101, "http"));
+
+        let same_group = Some(f::Group(100));
+        let expected = TextCell::paint_str(Fixed(81).normal(), ":");
+        assert_eq!(
+            expected,
+            same_group.render(&TestColours, &users, UserFormat::Name, GroupFormat::Smart)
+        );
+
+        let expected = TextCell::paint_str(Fixed(81).normal(), ":");
+        assert_eq!(
+            expected,
+            same_group.render(
+                &TestColours,
+                &users,
+                UserFormat::Numeric,
+                GroupFormat::Smart
+            )
+        );
+
+        let http_group = Some(f::Group(101));
+        let expected = TextCell::paint_str(Fixed(81).normal(), "http");
+        assert_eq!(
+            expected,
+            http_group.render(&TestColours, &users, UserFormat::Name, GroupFormat::Smart)
         );
     }
 }

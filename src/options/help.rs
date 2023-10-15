@@ -27,6 +27,7 @@ DISPLAY OPTIONS
   --no-quotes        don't quote file names with spaces
   --hyperlink        display entries as hyperlinks
   -w, --width COLS   set screen width in columns
+  --smart-group      only show group if it has a different name from owner
 
 
 FILTERING AND SORTING OPTIONS

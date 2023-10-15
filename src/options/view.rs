@@ -3,7 +3,9 @@ use crate::options::parser::MatchedFlags;
 use crate::options::{flags, NumberSource, OptionsError, Vars};
 use crate::output::file_name::Options as FileStyle;
 use crate::output::grid_details::{self, RowThreshold};
-use crate::output::table::{Columns, Options as TableOptions, SizeFormat, TimeTypes, UserFormat};
+use crate::output::table::{
+    Columns, GroupFormat, Options as TableOptions, SizeFormat, TimeTypes, UserFormat,
+};
 use crate::output::time::TimeFormat;
 use crate::output::{details, grid, Mode, TerminalWidth, View};
 
@@ -231,11 +233,13 @@ impl TableOptions {
         let time_format = TimeFormat::deduce(matches, vars)?;
         let size_format = SizeFormat::deduce(matches)?;
         let user_format = UserFormat::deduce(matches)?;
+        let group_format = GroupFormat::deduce(matches)?;
         let columns = Columns::deduce(matches, vars)?;
         Ok(Self {
             size_format,
             time_format,
             user_format,
+            group_format,
             columns,
         })
     }
@@ -338,6 +342,13 @@ impl UserFormat {
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
         let flag = matches.has(&flags::NUMERIC)?;
         Ok(if flag { Self::Numeric } else { Self::Name })
+    }
+}
+
+impl GroupFormat {
+    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
+        let flag = matches.has(&flags::SMART_GROUP)?;
+        Ok(if flag { Self::Smart } else { Self::Regular })
     }
 }
 

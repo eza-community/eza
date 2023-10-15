@@ -103,6 +103,9 @@ Manually setting this option overrides `NO_COLOR` environment.
 `-w`, `--width=COLS`
 : Set screen width in columns.
 
+`--smart-group`
+: Only show group if it has a different name from owner
+
 
 FILTERING AND SORTING OPTIONS
 =============================

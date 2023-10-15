@@ -40,23 +40,24 @@ const SORTS: Values = &[ "name", "Name", "size", "extension",
                          "created", "inode", "type", "none" ];
 
 // display options
-pub static BINARY:     Arg = Arg { short: Some(b'b'), long: "binary",     takes_value: TakesValue::Forbidden };
-pub static BYTES:      Arg = Arg { short: Some(b'B'), long: "bytes",      takes_value: TakesValue::Forbidden };
-pub static GROUP:      Arg = Arg { short: Some(b'g'), long: "group",      takes_value: TakesValue::Forbidden };
-pub static NUMERIC:    Arg = Arg { short: Some(b'n'), long: "numeric",    takes_value: TakesValue::Forbidden };
-pub static HEADER:     Arg = Arg { short: Some(b'h'), long: "header",     takes_value: TakesValue::Forbidden };
-pub static ICONS:      Arg = Arg { short: None,       long: "icons",      takes_value: TakesValue::Forbidden };
-pub static INODE:      Arg = Arg { short: Some(b'i'), long: "inode",      takes_value: TakesValue::Forbidden };
-pub static LINKS:      Arg = Arg { short: Some(b'H'), long: "links",      takes_value: TakesValue::Forbidden };
-pub static MODIFIED:   Arg = Arg { short: Some(b'm'), long: "modified",   takes_value: TakesValue::Forbidden };
-pub static CHANGED:    Arg = Arg { short: None,       long: "changed",    takes_value: TakesValue::Forbidden };
-pub static BLOCKSIZE:  Arg = Arg { short: Some(b'S'), long: "blocksize",  takes_value: TakesValue::Forbidden };
-pub static TIME:       Arg = Arg { short: Some(b't'), long: "time",       takes_value: TakesValue::Necessary(Some(TIMES)) };
-pub static ACCESSED:   Arg = Arg { short: Some(b'u'), long: "accessed",   takes_value: TakesValue::Forbidden };
-pub static CREATED:    Arg = Arg { short: Some(b'U'), long: "created",    takes_value: TakesValue::Forbidden };
-pub static TIME_STYLE: Arg = Arg { short: None,       long: "time-style", takes_value: TakesValue::Necessary(Some(TIME_STYLES)) };
-pub static HYPERLINK:  Arg = Arg { short: None,       long: "hyperlink",  takes_value: TakesValue::Forbidden };
-pub static MOUNTS:     Arg = Arg { short: Some(b'M'), long: "mounts",     takes_value: TakesValue::Forbidden };
+pub static BINARY:      Arg = Arg { short: Some(b'b'), long: "binary",      takes_value: TakesValue::Forbidden };
+pub static BYTES:       Arg = Arg { short: Some(b'B'), long: "bytes",       takes_value: TakesValue::Forbidden };
+pub static GROUP:       Arg = Arg { short: Some(b'g'), long: "group",       takes_value: TakesValue::Forbidden };
+pub static NUMERIC:     Arg = Arg { short: Some(b'n'), long: "numeric",     takes_value: TakesValue::Forbidden };
+pub static HEADER:      Arg = Arg { short: Some(b'h'), long: "header",      takes_value: TakesValue::Forbidden };
+pub static ICONS:       Arg = Arg { short: None,       long: "icons",       takes_value: TakesValue::Forbidden };
+pub static INODE:       Arg = Arg { short: Some(b'i'), long: "inode",       takes_value: TakesValue::Forbidden };
+pub static LINKS:       Arg = Arg { short: Some(b'H'), long: "links",       takes_value: TakesValue::Forbidden };
+pub static MODIFIED:    Arg = Arg { short: Some(b'm'), long: "modified",    takes_value: TakesValue::Forbidden };
+pub static CHANGED:     Arg = Arg { short: None,       long: "changed",     takes_value: TakesValue::Forbidden };
+pub static BLOCKSIZE:   Arg = Arg { short: Some(b'S'), long: "blocksize",   takes_value: TakesValue::Forbidden };
+pub static TIME:        Arg = Arg { short: Some(b't'), long: "time",        takes_value: TakesValue::Necessary(Some(TIMES)) };
+pub static ACCESSED:    Arg = Arg { short: Some(b'u'), long: "accessed",    takes_value: TakesValue::Forbidden };
+pub static CREATED:     Arg = Arg { short: Some(b'U'), long: "created",     takes_value: TakesValue::Forbidden };
+pub static TIME_STYLE:  Arg = Arg { short: None,       long: "time-style",  takes_value: TakesValue::Necessary(Some(TIME_STYLES)) };
+pub static HYPERLINK:   Arg = Arg { short: None,       long: "hyperlink",   takes_value: TakesValue::Forbidden };
+pub static MOUNTS:      Arg = Arg { short: Some(b'M'), long: "mounts",      takes_value: TakesValue::Forbidden };
+pub static SMART_GROUP: Arg = Arg { short: None,       long: "smart-group", takes_value: TakesValue::Forbidden };
 const TIMES: Values = &["modified", "changed", "accessed", "created"];
 const TIME_STYLES: Values = &["default", "long-iso", "full-iso", "iso", "relative"];
 
@@ -87,7 +88,7 @@ pub static ALL_ARGS: Args = Args(&[
 
     &BINARY, &BYTES, &GROUP, &NUMERIC, &HEADER, &ICONS, &INODE, &LINKS, &MODIFIED, &CHANGED,
     &BLOCKSIZE, &TIME, &ACCESSED, &CREATED, &TIME_STYLE, &HYPERLINK, &MOUNTS,
-    &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &NO_ICONS,
+    &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &NO_ICONS, &SMART_GROUP,
 
     &GIT, &NO_GIT, &GIT_REPOS, &GIT_REPOS_NO_STAT,
     &EXTENDED, &OCTAL, &SECURITY_CONTEXT
