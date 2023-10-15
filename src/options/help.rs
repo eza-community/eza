@@ -63,6 +63,7 @@ LONG VIEW OPTIONS
   -t, --time FIELD         which timestamp field to list (modified, accessed, created)
   -u, --accessed           use the accessed timestamp field
   -U, --created            use the created timestamp field
+  --totalsize              show recursive directory size
   --changed                use the changed timestamp field
   --time-style             how to format timestamps (default, iso, long-iso, full-iso, relative, or a custom style with '+' as prefix. Ex: '+%Y/%m/%d')
   --no-permissions         suppress the permissions field
