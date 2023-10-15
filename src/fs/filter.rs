@@ -232,6 +232,7 @@ impl SortField {
     /// because of the `1`.
     pub fn compare_files(self, a: &File<'_>, b: &File<'_>) -> Ordering {
         use self::SortCase::{ABCabc, AaBbCc};
+        use crate::fs::RECURSIVE_SIZE_HASHMAP;
 
         #[rustfmt::skip]
         return match self {
@@ -241,12 +242,16 @@ impl SortField {
             Self::Name(AaBbCc)  => natord::compare_ignore_case(&a.name, &b.name),
 
             Self::Size          => {
-                //FIXME: sort is running recursion again after already ran before
-                // cannot easily set File<'_> to be mutable (adding attribute to struct)
-                // find other way to do this
-
-                // a.metadata.len().cmp(&b.metadata.len())
-                a.total_size.cmp(&b.total_size)
+                let mut _map = RECURSIVE_SIZE_HASHMAP.lock().unwrap();
+                let ax: u64 = match _map.get(&a.metadata.ino()) {
+                    Some(s) => *s,
+                    _ => a.metadata.len()
+                };
+                let bx = match _map.get(&b.metadata.ino()) {
+                    Some(s) => *s,
+                    _ => b.metadata.len()
+                };
+                ax.cmp(&bx)
             }
             #[cfg(unix)]
             Self::FileInode     => a.metadata.ino().cmp(&b.metadata.ino()),

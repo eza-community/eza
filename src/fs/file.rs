@@ -12,6 +12,7 @@ use chrono::prelude::*;
 
 use log::*;
 
+use crate::fs::RECURSIVE_SIZE_HASHMAP;
 use crate::fs::dir::Dir;
 use crate::fs::feature::xattr;
 use crate::fs::feature::xattr::{Attribute, FileAttributes};
@@ -19,6 +20,12 @@ use crate::fs::fields as f;
 
 use super::mounts::all_mounts;
 use super::mounts::MountedFs;
+// use lazy_static::lazy_static;
+
+
+// lazy_static! {
+//     static ref RECURSIVE_SIZE_HASHMAP: Mutex<HashMap<u64, u64>> = Mutex::new(HashMap::new());
+// }
 
 /// A **File** is a wrapper around one of Rust’s `PathBuf` values, along with
 /// associated data about the file.
@@ -80,7 +87,7 @@ pub struct File<'dir> {
     pub deref_links: bool,
 
     // Total recursive directory size (used as memo for sorting later)
-    pub total_size: u64,
+    pub recursive_size: u64,
 
     /// The extended attributes of this file.
     extended_attributes: OnceLock<Vec<Attribute>>,
@@ -110,7 +117,7 @@ impl<'dir> File<'dir> {
         let is_all_all = false;
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
-        let total_size = metadata.size();
+        let recursive_size = metadata.size();
 
         Ok(File {
             name,
@@ -120,7 +127,7 @@ impl<'dir> File<'dir> {
             parent_dir,
             is_all_all,
             deref_links,
-            total_size,
+            recursive_size,
             extended_attributes,
             absolute_path
         })
@@ -136,7 +143,7 @@ impl<'dir> File<'dir> {
         let parent_dir = Some(parent_dir);
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
-        let total_size = metadata.size();
+        let recursive_size = metadata.size();
 
         Ok(File {
             path,
@@ -146,7 +153,7 @@ impl<'dir> File<'dir> {
             name: ".".into(),
             is_all_all,
             deref_links: false,
-            total_size,
+            recursive_size,
             extended_attributes,
             absolute_path,
         })
@@ -161,7 +168,7 @@ impl<'dir> File<'dir> {
         let parent_dir = Some(parent_dir);
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
-        let total_size = metadata.size();
+        let recursive_size = metadata.size();
 
         Ok(File {
             path,
@@ -171,7 +178,7 @@ impl<'dir> File<'dir> {
             name: "..".into(),
             is_all_all,
             deref_links: false,
-            total_size,
+            recursive_size,
             extended_attributes,
             absolute_path,
         })
@@ -375,7 +382,7 @@ impl<'dir> File<'dir> {
                 let name = File::filename(&path);
                 let extended_attributes = OnceLock::new();
                 let absolute_path_cell = OnceLock::from(Some(absolute_path));
-                let total_size = metadata.size();
+                let recursive_size = metadata.size();
                 let file = File {
                     parent_dir: None,
                     path,
@@ -384,7 +391,7 @@ impl<'dir> File<'dir> {
                     name,
                     is_all_all: false,
                     deref_links: self.deref_links,
-                    total_size,
+                    recursive_size,
                     extended_attributes,
                     absolute_path: absolute_path_cell,
                 };
@@ -534,7 +541,7 @@ impl<'dir> File<'dir> {
                 Ok(v) => v,
                 Err(_) => return f::Size::None
             };
-            let mut total_size: u64 = 0;
+            let mut recursive_size: u64 = 0;
             let files = dir.files(super::DotFilter::Dotfiles, None, false, false);
             for fileresult in files {
                 let file = match fileresult {
@@ -542,15 +549,16 @@ impl<'dir> File<'dir> {
                     _ => continue
                 };
                 if file.is_file() {
-                    total_size += file.metadata.size();
+                    recursive_size += file.metadata.size();
                 } else {
-                    total_size += match file.recursive_size() {
+                    recursive_size += match file.recursive_size() {
                         f::Size::Some(s) => s,
                         _ => 0
                     };
                 }
             }
-            f::Size::Some(total_size)
+            RECURSIVE_SIZE_HASHMAP.lock().unwrap().insert(self.metadata.ino(), recursive_size);
+            f::Size::Some(recursive_size)
         } else if self.is_char_device() || self.is_block_device() {
             let device_id = self.metadata.rdev();
 

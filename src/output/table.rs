@@ -440,7 +440,8 @@ impl<'a> Table<'a> {
         match column {
             Column::Permissions => self.permissions_plus(file, xattrs).render(self.theme),
             Column::FileSize => file
-                .size()
+                // .size()
+                .recursive_size()
                 .render(self.theme, self.size_format, &self.env.numeric),
             #[cfg(unix)]
             Column::HardLinks => file.links().render(self.theme, &self.env.numeric),
