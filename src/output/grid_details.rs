@@ -85,6 +85,8 @@ pub struct Render<'a> {
     pub git: Option<&'a GitCache>,
 
     pub console_width: usize,
+
+    pub total_size: bool
 }
 
 impl<'a> Render<'a> {
@@ -106,6 +108,7 @@ impl<'a> Render<'a> {
             filter:        self.filter,
             git_ignoring:  self.git_ignoring,
             git:           self.git,
+            total_size:    self.total_size
         };
     }
 
@@ -125,6 +128,7 @@ impl<'a> Render<'a> {
             filter:        self.filter,
             git_ignoring:  self.git_ignoring,
             git:           self.git,
+            total_size:    self.total_size
         };
     }
 
@@ -153,7 +157,7 @@ impl<'a> Render<'a> {
         let rows = self
             .files
             .iter()
-            .map(|file| first_table.row_for_file(file, drender.show_xattr_hint(file)))
+            .map(|file| first_table.row_for_file(file, drender.show_xattr_hint(file), self.total_size))
             .collect::<Vec<_>>();
 
         let file_names = self

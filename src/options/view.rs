@@ -13,11 +13,13 @@ impl View {
         let width = TerminalWidth::deduce(matches, vars)?;
         let file_style = FileStyle::deduce(matches, vars)?;
         let deref_links = matches.has(&flags::DEREF_LINKS)?;
+        let total_size = matches.has(&flags::TOTALSIZE)?;
         Ok(Self {
             mode,
             width,
             file_style,
             deref_links,
+            total_size
         })
     }
 }
