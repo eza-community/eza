@@ -86,9 +86,6 @@ pub struct File<'dir> {
     /// instead.
     pub deref_links: bool,
 
-    // Total recursive directory size (used as memo for sorting later)
-    pub recursive_size: u64,
-
     /// The extended attributes of this file.
     extended_attributes: OnceLock<Vec<Attribute>>,
 
@@ -117,7 +114,6 @@ impl<'dir> File<'dir> {
         let is_all_all = false;
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
-        let recursive_size = metadata.size();
 
         Ok(File {
             name,
@@ -127,7 +123,6 @@ impl<'dir> File<'dir> {
             parent_dir,
             is_all_all,
             deref_links,
-            recursive_size,
             extended_attributes,
             absolute_path
         })
@@ -143,7 +138,6 @@ impl<'dir> File<'dir> {
         let parent_dir = Some(parent_dir);
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
-        let recursive_size = metadata.size();
 
         Ok(File {
             path,
@@ -153,7 +147,6 @@ impl<'dir> File<'dir> {
             name: ".".into(),
             is_all_all,
             deref_links: false,
-            recursive_size,
             extended_attributes,
             absolute_path,
         })
@@ -168,7 +161,6 @@ impl<'dir> File<'dir> {
         let parent_dir = Some(parent_dir);
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
-        let recursive_size = metadata.size();
 
         Ok(File {
             path,
@@ -178,7 +170,6 @@ impl<'dir> File<'dir> {
             name: "..".into(),
             is_all_all,
             deref_links: false,
-            recursive_size,
             extended_attributes,
             absolute_path,
         })
@@ -382,7 +373,6 @@ impl<'dir> File<'dir> {
                 let name = File::filename(&path);
                 let extended_attributes = OnceLock::new();
                 let absolute_path_cell = OnceLock::from(Some(absolute_path));
-                let recursive_size = metadata.size();
                 let file = File {
                     parent_dir: None,
                     path,
@@ -391,7 +381,6 @@ impl<'dir> File<'dir> {
                     name,
                     is_all_all: false,
                     deref_links: self.deref_links,
-                    recursive_size,
                     extended_attributes,
                     absolute_path: absolute_path_cell,
                 };
@@ -553,7 +542,7 @@ impl<'dir> File<'dir> {
                 } else {
                     recursive_size += match file.recursive_size() {
                         f::Size::Some(s) => s,
-                        _ => 0
+                        _ => file.metadata.size()
                     };
                 }
             }
@@ -576,7 +565,7 @@ impl<'dir> File<'dir> {
             })
         } else if self.is_link() && self.deref_links {
             match self.link_target() {
-                FileTarget::Ok(f) => f.recursive_size(),
+                FileTarget::Ok(f) => f::Size::Some(f.metadata.size()),
                 _ => f::Size::None,
             }
         } else {
