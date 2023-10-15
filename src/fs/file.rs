@@ -79,11 +79,15 @@ pub struct File<'dir> {
     /// instead.
     pub deref_links: bool,
 
+    // Total recursive directory size (used as memo for sorting later)
+    pub total_size: u64,
+
     /// The extended attributes of this file.
     extended_attributes: OnceLock<Vec<Attribute>>,
 
     /// The absolute value of this path, used to look up mount points.
     absolute_path: OnceLock<Option<PathBuf>>,
+
 }
 
 impl<'dir> File<'dir> {
@@ -106,6 +110,7 @@ impl<'dir> File<'dir> {
         let is_all_all = false;
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
+        let total_size = metadata.size();
 
         Ok(File {
             name,
@@ -115,8 +120,9 @@ impl<'dir> File<'dir> {
             parent_dir,
             is_all_all,
             deref_links,
+            total_size,
             extended_attributes,
-            absolute_path,
+            absolute_path
         })
     }
 
@@ -130,6 +136,7 @@ impl<'dir> File<'dir> {
         let parent_dir = Some(parent_dir);
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
+        let total_size = metadata.size();
 
         Ok(File {
             path,
@@ -139,6 +146,7 @@ impl<'dir> File<'dir> {
             name: ".".into(),
             is_all_all,
             deref_links: false,
+            total_size,
             extended_attributes,
             absolute_path,
         })
@@ -153,6 +161,7 @@ impl<'dir> File<'dir> {
         let parent_dir = Some(parent_dir);
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
+        let total_size = metadata.size();
 
         Ok(File {
             path,
@@ -162,6 +171,7 @@ impl<'dir> File<'dir> {
             name: "..".into(),
             is_all_all,
             deref_links: false,
+            total_size,
             extended_attributes,
             absolute_path,
         })
@@ -365,6 +375,7 @@ impl<'dir> File<'dir> {
                 let name = File::filename(&path);
                 let extended_attributes = OnceLock::new();
                 let absolute_path_cell = OnceLock::from(Some(absolute_path));
+                let total_size = metadata.size();
                 let file = File {
                     parent_dir: None,
                     path,
@@ -373,6 +384,7 @@ impl<'dir> File<'dir> {
                     name,
                     is_all_all: false,
                     deref_links: self.deref_links,
+                    total_size,
                     extended_attributes,
                     absolute_path: absolute_path_cell,
                 };
@@ -507,6 +519,56 @@ impl<'dir> File<'dir> {
         } else if self.is_link() && self.deref_links {
             match self.link_target() {
                 FileTarget::Ok(f) => f.size(),
+                _ => f::Size::None,
+            }
+        } else {
+            f::Size::Some(self.metadata.len())
+        }
+    }
+
+    /// Recursive folder size
+    #[cfg(unix)]
+    pub fn recursive_size(&self) -> f::Size {
+        if self.is_directory() {
+            let dir = match Dir::read_dir(self.path.clone()) {
+                Ok(v) => v,
+                Err(_) => return f::Size::None
+            };
+            let mut total_size: u64 = 0;
+            let files = dir.files(super::DotFilter::Dotfiles, None, false, false);
+            for fileresult in files {
+                let file = match fileresult {
+                    Ok(f) => f,
+                    _ => continue
+                };
+                if file.is_file() {
+                    total_size += file.metadata.size();
+                } else {
+                    total_size += match file.recursive_size() {
+                        f::Size::Some(s) => s,
+                        _ => 0
+                    };
+                }
+            }
+            f::Size::Some(total_size)
+        } else if self.is_char_device() || self.is_block_device() {
+            let device_id = self.metadata.rdev();
+
+            // MacOS and Linux have different arguments and return types for the
+            // functions major and minor.  On Linux the try_into().unwrap() and
+            // the "as u32" cast are not needed.  We turn off the warning to
+            // allow it to compile cleanly on Linux.
+            #[allow(trivial_numeric_casts)]
+            #[allow(clippy::unnecessary_cast)]
+            #[allow(clippy::useless_conversion)]
+            f::Size::DeviceIDs(f::DeviceIDs {
+                // SAFETY: Calling libc function to decompose the device_id
+                major: unsafe { libc::major(device_id.try_into().unwrap()) } as u32,
+                minor: unsafe { libc::minor(device_id.try_into().unwrap()) } as u32,
+            })
+        } else if self.is_link() && self.deref_links {
+            match self.link_target() {
+                FileTarget::Ok(f) => f.recursive_size(),
                 _ => f::Size::None,
             }
         } else {
