@@ -20,12 +20,6 @@ use crate::fs::fields as f;
 
 use super::mounts::all_mounts;
 use super::mounts::MountedFs;
-// use lazy_static::lazy_static;
-
-
-// lazy_static! {
-//     static ref RECURSIVE_SIZE_HASHMAP: Mutex<HashMap<u64, u64>> = Mutex::new(HashMap::new());
-// }
 
 /// A **File** is a wrapper around one of Rust’s `PathBuf` values, along with
 /// associated data about the file.
