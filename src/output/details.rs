@@ -134,6 +134,8 @@ pub struct Render<'a> {
     pub git_ignoring: bool,
 
     pub git: Option<&'a GitCache>,
+
+    pub total_size: bool
 }
 
 #[rustfmt::skip]
@@ -284,7 +286,7 @@ impl<'a> Render<'a> {
 
                     let table_row = table
                         .as_ref()
-                        .map(|t| t.row_for_file(file, self.show_xattr_hint(file)));
+                        .map(|t| t.row_for_file(file, self.show_xattr_hint(file), self.total_size));
 
                     let mut dir = None;
                     if let Some(r) = self.recurse {
