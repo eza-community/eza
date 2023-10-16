@@ -47,7 +47,7 @@ impl ShowIcons {
         }
 
         let mode_opt = matches.get(&flags::ICONS)?;
-        if matches.has(&flags::NO_ICONS)? || (!matches.has(&flags::ICONS)? && mode_opt.is_none()) {
+        if !matches.has(&flags::ICONS)? && mode_opt.is_none() {
             return Ok(Self::Never);
         }
 
@@ -56,7 +56,8 @@ impl ShowIcons {
                 Some("always") => AlwaysOrAuto::Always,
                 Some("auto" | "automatic") => AlwaysOrAuto::Automatic,
                 Some("never") => return Ok(Self::Never),
-                _ => return Err(OptionsError::BadArgument(&flags::COLOR, word.into())),
+                None => AlwaysOrAuto::Automatic,
+                _ => return Err(OptionsError::BadArgument(&flags::ICONS, word.into())),
             },
             None => AlwaysOrAuto::Automatic,
         };

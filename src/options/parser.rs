@@ -152,7 +152,7 @@ impl Args {
         // Iterate over the inputs with “while let” because we need to advance
         // the iterator manually whenever an argument that takes a value
         // doesn’t have one in its string so it needs the next one.
-        let mut inputs = inputs.into_iter();
+        let mut inputs = inputs.into_iter().peekable();
         while let Some(arg) = inputs.next() {
             let bytes = os_str_to_bytes(arg);
 
@@ -199,8 +199,12 @@ impl Args {
                             }
                         }
                         TakesValue::Optional(_) => {
-                            if let Some(next_arg) = inputs.next() {
-                                result_flags.push((flag, Some(next_arg)));
+                            if let Some(next_arg) = inputs.peek() {
+                                if is_flag(next_arg) {
+                                    result_flags.push((flag, None));
+                                } else {
+                                    result_flags.push((flag, Some(inputs.next().unwrap())));
+                                }
                             } else {
                                 result_flags.push((flag, None));
                             }
@@ -329,6 +333,14 @@ impl Args {
                 attempt: long.to_os_string(),
             }),
         }
+    }
+}
+
+fn is_flag(arg: &OsStr) -> bool {
+    let bytes = os_str_to_bytes(arg);
+    match bytes {
+        b"always" | b"auto" | b"automatic" | b"never" => false,
+        _ => bytes.starts_with(b"-"),
     }
 }
 
