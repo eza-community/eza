@@ -84,7 +84,7 @@ number_prefix = "0.4"
 percent-encoding = "2.3.0"
 phf = { version = "0.11.2", features = ["macros"] }
 scoped_threadpool = "0.1"
-term_grid = "0.1"
+uutils_term_grid = "0.3"
 terminal_size = "0.3.0"
 timeago = { version = "0.4.2", default-features = false }
 unicode-width = "0.1"
