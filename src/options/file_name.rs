@@ -2,7 +2,6 @@ use crate::options::parser::MatchedFlags;
 use crate::options::vars::{self, Vars};
 use crate::options::{flags, NumberSource, OptionsError};
 
-use super::vars::EZA_ICON_SPACING;
 use crate::output::file_name::{Classify, EmbedHyperlinks, Options, QuoteStyle, ShowIcons};
 
 impl Options {
@@ -70,7 +69,7 @@ impl ShowIcons {
                 Ok(width) => width,
                 Err(e) => {
                     let source = NumberSource::Env(
-                        vars.source(vars::EXA_ICON_SPACING, EZA_ICON_SPACING)
+                        vars.source(vars::EXA_ICON_SPACING, vars::EZA_ICON_SPACING)
                             .unwrap(),
                     );
                     return Err(OptionsError::FailedParse(columns, source, e));

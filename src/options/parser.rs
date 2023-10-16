@@ -198,18 +198,12 @@ impl Args {
                                 return Err(ParseError::NeedsValue { flag, values });
                             }
                         }
-                        // optional arguments must check
-                        TakesValue::Optional(_) => {
-                            if let Some(next_arg) = inputs.peek() {
-                                if is_flag(next_arg) {
-                                    result_flags.push((flag, None));
-                                } else {
-                                    result_flags.push((flag, Some(inputs.next().unwrap())));
-                                }
-                            } else {
-                                result_flags.push((flag, None));
+                        TakesValue::Optional(_) => match inputs.peek() {
+                            Some(next_arg) if is_optional_arg(next_arg) => {
+                                result_flags.push((flag, Some(inputs.next().unwrap())));
                             }
-                        }
+                            _ => result_flags.push((flag, None)),
+                        },
                     }
                 }
             }
@@ -337,12 +331,12 @@ impl Args {
     }
 }
 
-fn is_flag(arg: &OsStr) -> bool {
+fn is_optional_arg(arg: &OsStr) -> bool {
     let bytes = os_str_to_bytes(arg);
     match bytes {
         // The only optional arguments allowed
-        b"always" | b"auto" | b"automatic" | b"never" => false,
-        _ => bytes.starts_with(b"-"),
+        b"always" | b"auto" | b"automatic" | b"never" => true,
+        _ => false,
     }
 }
 
