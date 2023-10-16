@@ -10,9 +10,9 @@ pub mod fields;
 pub mod filter;
 pub mod mounts;
 
-use std::sync::Mutex;
-use std::collections::HashMap;
 use lazy_static::lazy_static;
+use std::collections::HashMap;
+use std::sync::Mutex;
 lazy_static! {
     static ref RECURSIVE_SIZE_HASHMAP: Mutex<HashMap<u64, u64>> = Mutex::new(HashMap::new());
 }

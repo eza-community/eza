@@ -135,7 +135,7 @@ pub struct Render<'a> {
 
     pub git: Option<&'a GitCache>,
 
-    pub total_size: bool
+    pub total_size: bool,
 }
 
 #[rustfmt::skip]

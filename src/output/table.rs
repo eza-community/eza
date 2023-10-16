@@ -453,13 +453,14 @@ impl<'a> Table<'a> {
     fn display(&self, file: &File<'_>, column: Column, xattrs: bool, total_size: bool) -> TextCell {
         match column {
             Column::Permissions => self.permissions_plus(file, xattrs).render(self.theme),
-            Column::FileSize => match total_size {
-                true => file
-                    .recursive_size()
-                    .render(self.theme, self.size_format, &self.env.numeric),
-                false => file
-                    .size()
-                    .render(self.theme, self.size_format, &self.env.numeric)
+            Column::FileSize => {
+                if total_size {
+                    file.recursive_size()
+                        .render(self.theme, self.size_format, &self.env.numeric)
+                } else {
+                    file.size()
+                        .render(self.theme, self.size_format, &self.env.numeric)
+                }
             }
             #[cfg(unix)]
             Column::HardLinks => file.links().render(self.theme, &self.env.numeric),

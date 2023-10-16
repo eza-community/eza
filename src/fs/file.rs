@@ -15,7 +15,6 @@ use log::*;
 use crate::fs::dir::Dir;
 use crate::fs::feature::xattr;
 use crate::fs::feature::xattr::{Attribute, FileAttributes};
-use crate::fs::RECURSIVE_SIZE_HASHMAP;
 use crate::fs::fields as f;
 
 use super::mounts::all_mounts;
@@ -518,28 +517,29 @@ impl<'dir> File<'dir> {
     /// Recursive folder size
     #[cfg(unix)]
     pub fn recursive_size(&self) -> f::Size {
+        use crate::fs::RECURSIVE_SIZE_HASHMAP;
         if self.is_directory() {
-            let dir = match Dir::read_dir(self.path.clone()) {
-                Ok(v) => v,
-                Err(_) => return f::Size::None
+            let Ok(dir) = Dir::read_dir(self.path.clone()) else {
+                return f::Size::None;
             };
-            let mut recursive_size: u64 = 0;
             let files = dir.files(super::DotFilter::Dotfiles, None, false, false);
+
+            let mut recursive_size: u64 = 0;
             for fileresult in files {
-                let file = match fileresult {
-                    Ok(f) => f,
-                    _ => continue
-                };
+                let Ok(file) = fileresult else { continue };
                 if file.is_file() {
                     recursive_size += file.metadata.size();
                 } else {
                     recursive_size += match file.recursive_size() {
                         f::Size::Some(s) => s,
-                        _ => file.metadata.size()
+                        _ => file.metadata.size(),
                     };
                 }
             }
-            RECURSIVE_SIZE_HASHMAP.lock().unwrap().insert(self.metadata.ino(), recursive_size);
+            RECURSIVE_SIZE_HASHMAP
+                .lock()
+                .unwrap()
+                .insert(self.metadata.ino(), recursive_size);
             f::Size::Some(recursive_size)
         } else if self.is_char_device() || self.is_block_device() {
             let device_id = self.metadata.rdev();
@@ -566,13 +566,21 @@ impl<'dir> File<'dir> {
         }
     }
 
-
     /// Returns the size of the file or indicates no size if it's a directory.
     ///
     /// For Windows platforms, the size of directories is not computed and will
     /// return `Size::None`.
     #[cfg(windows)]
     pub fn size(&self) -> f::Size {
+        if self.is_directory() {
+            f::Size::None
+        } else {
+            f::Size::Some(self.metadata.len())
+        }
+    }
+
+    #[cfg(windows)]
+    pub fn recursive_size(&self) -> f::Size {
         if self.is_directory() {
             f::Size::None
         } else {

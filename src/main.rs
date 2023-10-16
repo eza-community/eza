@@ -365,7 +365,7 @@ impl<'args> Exa<'args> {
                     filter,
                     git_ignoring,
                     git,
-                    total_size
+                    total_size,
                 };
                 r.render(&mut self.writer)
             }
@@ -392,7 +392,7 @@ impl<'args> Exa<'args> {
                     git_ignoring,
                     git,
                     console_width,
-                    total_size
+                    total_size,
                 };
                 r.render(&mut self.writer)
             }
@@ -415,7 +415,7 @@ impl<'args> Exa<'args> {
                     filter,
                     git_ignoring,
                     git,
-                    total_size
+                    total_size,
                 };
                 r.render(&mut self.writer)
             }

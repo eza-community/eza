@@ -21,7 +21,7 @@ impl View {
             width,
             file_style,
             deref_links,
-            total_size
+            total_size,
         })
     }
 }

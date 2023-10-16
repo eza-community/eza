@@ -230,6 +230,7 @@ impl SortField {
     /// into groups between letters and numbers, and then sorts those blocks
     /// together, so `file10` will sort after `file9`, instead of before it
     /// because of the `1`.
+    #[cfg(unix)]
     pub fn compare_files(self, a: &File<'_>, b: &File<'_>) -> Ordering {
         use self::SortCase::{ABCabc, AaBbCc};
         use crate::fs::RECURSIVE_SIZE_HASHMAP;
@@ -242,16 +243,16 @@ impl SortField {
             Self::Name(AaBbCc)  => natord::compare_ignore_case(&a.name, &b.name),
 
             Self::Size => {
-                let mut _map = RECURSIVE_SIZE_HASHMAP.lock().unwrap();
-                let asize: u64 = match _map.get(&a.metadata.ino()) {
+                let recursive_map = RECURSIVE_SIZE_HASHMAP.lock().unwrap();
+                match recursive_map.get(&a.metadata.ino()) {
                     Some(s) => *s,
                     _ => a.metadata.len()
-                };
-                let bsize = match _map.get(&b.metadata.ino()) {
-                    Some(s) => *s,
-                    _ => b.metadata.len()
-                };
-                asize.cmp(&bsize)
+                }.cmp(
+                    &match recursive_map.get(&b.metadata.ino()) {
+                        Some(s) => *s,
+                        _ => b.metadata.len()
+                    }
+                )
             }
 
             #[cfg(unix)]
@@ -261,7 +262,6 @@ impl SortField {
             Self::ChangedDate   => a.changed_time().cmp(&b.changed_time()),
             Self::CreatedDate   => a.created_time().cmp(&b.created_time()),
             Self::ModifiedAge   => b.modified_time().cmp(&a.modified_time()),  // flip b and a
-
             Self::FileType => match a.type_char().cmp(&b.type_char()) { // todo: this recomputes
                 Ordering::Equal  => natord::compare(&a.name, &b.name),
                 order            => order,
@@ -284,7 +284,7 @@ impl SortField {
             Self::NameMixHidden(AaBbCc) => natord::compare_ignore_case(
                 Self::strip_dot(&a.name),
                 Self::strip_dot(&b.name)
-            )
+            ),
         };
     }
 
@@ -293,6 +293,53 @@ impl SortField {
             Some(s) => s,
             None => n,
         }
+    }
+
+    /// Windows safe version of the above
+    #[cfg(windows)]
+    pub fn compare_files(self, a: &File<'_>, b: &File<'_>) -> Ordering {
+        use self::SortCase::{ABCabc, AaBbCc};
+
+        #[rustfmt::skip]
+        return match self {
+            Self::Unsorted  => Ordering::Equal,
+
+            Self::Name(ABCabc)  => natord::compare(&a.name, &b.name),
+            Self::Name(AaBbCc)  => natord::compare_ignore_case(&a.name, &b.name),
+
+            Self::Size => a.metadata.len().cmp(&b.metadata.len()),
+
+            #[cfg(unix)]
+            Self::FileInode     => a.metadata.ino().cmp(&b.metadata.ino()),
+            Self::ModifiedDate  => a.modified_time().cmp(&b.modified_time()),
+            Self::AccessedDate  => a.accessed_time().cmp(&b.accessed_time()),
+            Self::ChangedDate   => a.changed_time().cmp(&b.changed_time()),
+            Self::CreatedDate   => a.created_time().cmp(&b.created_time()),
+            Self::ModifiedAge   => b.modified_time().cmp(&a.modified_time()),  // flip b and a
+            Self::FileType => match a.type_char().cmp(&b.type_char()) { // todo: this recomputes
+                Ordering::Equal  => natord::compare(&a.name, &b.name),
+                order            => order,
+            },
+
+            Self::Extension(ABCabc) => match a.ext.cmp(&b.ext) {
+                Ordering::Equal  => natord::compare(&a.name, &b.name),
+                order            => order,
+            },
+
+            Self::Extension(AaBbCc) => match a.ext.cmp(&b.ext) {
+                Ordering::Equal  => natord::compare_ignore_case(&a.name, &b.name),
+                order            => order,
+            },
+
+            Self::NameMixHidden(ABCabc) => natord::compare(
+                Self::strip_dot(&a.name),
+                Self::strip_dot(&b.name)
+            ),
+            Self::NameMixHidden(AaBbCc) => natord::compare_ignore_case(
+                Self::strip_dot(&a.name),
+                Self::strip_dot(&b.name)
+            ),
+        };
     }
 }
 
