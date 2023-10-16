@@ -353,6 +353,8 @@ impl<'args> Exa<'args> {
 
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
                 let git = self.git.as_ref();
+                let total_size = self.options.view.total_size;
+
                 let r = details::Render {
                     dir,
                     files,
@@ -363,6 +365,7 @@ impl<'args> Exa<'args> {
                     filter,
                     git_ignoring,
                     git,
+                    total_size
                 };
                 r.render(&mut self.writer)
             }
@@ -375,6 +378,7 @@ impl<'args> Exa<'args> {
                 let filter = &self.options.filter;
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
                 let git = self.git.as_ref();
+                let total_size = self.options.view.total_size;
 
                 let r = grid_details::Render {
                     dir,
@@ -388,6 +392,7 @@ impl<'args> Exa<'args> {
                     git_ignoring,
                     git,
                     console_width,
+                    total_size
                 };
                 r.render(&mut self.writer)
             }
@@ -397,8 +402,9 @@ impl<'args> Exa<'args> {
                 let filter = &self.options.filter;
                 let recurse = self.options.dir_action.recurse_options();
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
-
                 let git = self.git.as_ref();
+                let total_size = self.options.view.total_size;
+
                 let r = details::Render {
                     dir,
                     files,
@@ -409,6 +415,7 @@ impl<'args> Exa<'args> {
                     filter,
                     git_ignoring,
                     git,
+                    total_size
                 };
                 r.render(&mut self.writer)
             }

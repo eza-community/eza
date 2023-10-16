@@ -232,6 +232,7 @@ impl SortField {
     /// because of the `1`.
     pub fn compare_files(self, a: &File<'_>, b: &File<'_>) -> Ordering {
         use self::SortCase::{ABCabc, AaBbCc};
+        use crate::fs::RECURSIVE_SIZE_HASHMAP;
 
         #[rustfmt::skip]
         return match self {
@@ -240,7 +241,19 @@ impl SortField {
             Self::Name(ABCabc)  => natord::compare(&a.name, &b.name),
             Self::Name(AaBbCc)  => natord::compare_ignore_case(&a.name, &b.name),
 
-            Self::Size          => a.metadata.len().cmp(&b.metadata.len()),
+            Self::Size => {
+                let mut _map = RECURSIVE_SIZE_HASHMAP.lock().unwrap();
+                let asize: u64 = match _map.get(&a.metadata.ino()) {
+                    Some(s) => *s,
+                    _ => a.metadata.len()
+                };
+                let bsize = match _map.get(&b.metadata.ino()) {
+                    Some(s) => *s,
+                    _ => b.metadata.len()
+                };
+                asize.cmp(&bsize)
+            }
+
             #[cfg(unix)]
             Self::FileInode     => a.metadata.ino().cmp(&b.metadata.ino()),
             Self::ModifiedDate  => a.modified_time().cmp(&b.modified_time()),
