@@ -198,6 +198,7 @@ impl Args {
                                 return Err(ParseError::NeedsValue { flag, values });
                             }
                         }
+                        // optional arguments must check
                         TakesValue::Optional(_) => {
                             if let Some(next_arg) = inputs.peek() {
                                 if is_flag(next_arg) {
@@ -339,6 +340,7 @@ impl Args {
 fn is_flag(arg: &OsStr) -> bool {
     let bytes = os_str_to_bytes(arg);
     match bytes {
+        // The only optional arguments allowed
         b"always" | b"auto" | b"automatic" | b"never" => false,
         _ => bytes.starts_with(b"-"),
     }
