@@ -282,6 +282,9 @@ LIST OF CODES
 `bu`
 : a regular file that is used to build a project (ex: Makefile)
 
+`sc`
+: a regular file that is source code
+
 `Sn`
 : No security context on a file
 
