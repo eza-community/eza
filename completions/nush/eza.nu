@@ -13,8 +13,7 @@ export extern "eza" [
     --colour                   # When to use terminal colours
     --color-scale              # Highlight levels of file sizes distinctly
     --colour-scale             # Highlight levels of file sizes distinctly
-    --icons                    # Display icons
-    --no-icons                 # Don't display icons
+    --icons                    # When to display icons
     --no-quotes                # Don't quote file names with spaces
     --hyperlink                # Display entries as hyperlinks
     --group-directories-first  # Sort directories before other files

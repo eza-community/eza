@@ -61,12 +61,16 @@ impl<'a> Render<'a> {
                 filename.options.embed_hyperlinks,
                 filename.options.show_icons,
             ) {
-                (EmbedHyperlinks::On, ShowIcons::On(spacing)) => {
-                    filename.bare_width() + classification_width + 1 + spacing
-                }
-                (EmbedHyperlinks::On, ShowIcons::Off) => {
+                #[rustfmt::skip]
+                (EmbedHyperlinks::On, ShowIcons::Always(spacing)
+                | ShowIcons::Automatic(spacing))                  => filename.bare_width() + classification_width + 1 + (spacing as usize),
+                (EmbedHyperlinks::On, ShowIcons::Never) => {
                     filename.bare_width() + classification_width
                 }
+                (
+                    EmbedHyperlinks::Off,
+                    ShowIcons::Always(spacing) | ShowIcons::Automatic(spacing),
+                ) => filename.bare_width() + 1 + (spacing as usize),
                 (EmbedHyperlinks::Off, _) => *contents.width(),
             };
 

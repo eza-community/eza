@@ -310,10 +310,9 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s.
 - **-T**, **--tree**: recurse into directories as a tree
 - **-x**, **--across**: sort the grid across, rather than downwards
 - **-F**, **--classify**: display type indicator by file names
-- **--colo[u]r**: when to use terminal colours
+- **--colo[u]r=(when)**: when to use terminal colours (always, auto, never)
 - **--colo[u]r-scale**: highlight levels of file sizes distinctly
-- **--icons**: display icons
-- **--no-icons**: don't display icons (always overrides --icons)
+- **--icons=(when)**: when to display icons (always, auto, never)
 - **--hyperlink**: display entries as hyperlinks
 - **-w**, **--width=(columns)**: set screen width in columns
 

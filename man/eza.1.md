@@ -88,11 +88,13 @@ Manually setting this option overrides `NO_COLOR` environment.
 `--color-scale`, `--colour-scale`
 : Colour file sizes on a scale.
 
-`--icons`
+`--icons=WHEN`
 : Display icons next to file names.
 
-`--no-icons`
-: Don't display icons. (Always overrides --icons)
+Valid settings are ‘`always`’, ‘`automatic`’ (‘`auto`’ for short), and ‘`never`’.
+The default value is ‘`automatic`’.
+
+`automatic` or `auto` will display icons only when the standard output is connected to a real terminal. If `eza` is ran while in a `tty`, or the output of `eza` is either redirected to a file or piped into another program, icons will not be used. Setting this option to ‘`always`’ causes `eza` to always display icons, while ‘`never`’ disables the use of icons.
 
 `--no-quotes`
 : Don't quote file names with spaces.
