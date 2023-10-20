@@ -104,6 +104,7 @@ impl UiStyles {
                 temp:       White.normal(),
                 compiled:   Yellow.normal(),
                 build:      Yellow.bold().underline(),
+                source:     Yellow.bold(), // Need to discuss color
             },
 
             punctuation: DarkGray.bold(),

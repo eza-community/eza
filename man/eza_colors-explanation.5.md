@@ -40,8 +40,9 @@ files; setting `EZA_COLORS="reset"` will highlight nothing.
 - Documents (pdf, doc, dvi) are a less faint blue.
 - Compressed files (zip, tgz, Z) are red.
 - Temporary files (tmp, swp, ~) are grey.
-- Compiled files (class, o, pyc) are faint orange. A file is also counted as compiled if it uses a common extension and is
+- Compiled files (class, o, pyc) are yellow. A file is also counted as compiled if it uses a common extension and is
 in the same directory as one of its source files: styles.css will count as compiled when next to styles.less or styles.sass, and scripts.js when next to scripts.ts or scripts.coffee.
+- Source files (cpp, js, java) are bright yellow.
 
 
 ## See also

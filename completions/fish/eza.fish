@@ -20,8 +20,12 @@ complete -c eza -l color \
 "
 complete -c eza -l color-scale \
     -l colour-scale -d "Highlight levels of file sizes distinctly"
-complete -c eza -l icons -d "Display icons"
-complete -c eza -l no-icons -d "Don't display icons"
+complete -c eza -l icons -d "When to display icons" -x -a "
+  always\t'Always display icons'
+  auto\t'Display icons if standard output is a terminal'
+  automatic\t'Display icons if standard output is a terminal'
+  never\t'Never display icons'
+"
 complete -c eza -l no-quotes -d "Don't quote file names with spaces"
 complete -c eza -l hyperlink -d "Display entries as hyperlinks"
 complete -c eza -l smart-group -d "Only show group if it has a different name from owner"

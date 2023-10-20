@@ -22,8 +22,7 @@ DISPLAY OPTIONS
   -F, --classify     display type indicator by file names
   --colo[u]r=WHEN    when to use terminal colours (always, auto, never)
   --colo[u]r-scale   highlight levels of file sizes distinctly
-  --icons            display icons
-  --no-icons         don't display icons (always overrides --icons)
+  --icons=WHEN       when to display icons (always, auto, never)
   --no-quotes        don't quote file names with spaces
   --hyperlink        display entries as hyperlinks
   -w, --width COLS   set screen width in columns
@@ -153,6 +152,6 @@ mod test {
     fn unhelpful() {
         let args = vec![];
         let opts = Options::parse(args, &None);
-        assert!(!matches!(opts, OptionsResult::Help(_))) // no help when --help isn’t passed
+        assert!(!matches!(opts, OptionsResult::Help(_))); // no help when --help isn’t passed
     }
 }

@@ -216,6 +216,7 @@ impl FileStyle for FileTypes {
             Some(FileType::Temp)       => Some(theme.ui.file_type.temp),
             Some(FileType::Compiled)   => Some(theme.ui.file_type.compiled),
             Some(FileType::Build)      => Some(theme.ui.file_type.build),
+            Some(FileType::Source)     => Some(theme.ui.file_type.source),
             None                       => None
         };
     }
@@ -602,6 +603,8 @@ mod customs_test {
     test!(exa_tm:  ls "", exa "tm=38;5;135"  =>  colours c -> { c.file_type.temp                        = Fixed(135).normal(); });
     test!(exa_cm:  ls "", exa "cm=38;5;136"  =>  colours c -> { c.file_type.compiled                    = Fixed(136).normal(); });
     test!(exa_ie:  ls "", exa "bu=38;5;137"  =>  colours c -> { c.file_type.build                       = Fixed(137).normal(); });
+    test!(exa_bu:  ls "", exa "bu=38;5;137"  =>  colours c -> { c.file_type.build                       = Fixed(137).normal(); });
+    test!(exa_sc:  ls "", exa "sc=38;5;138"  =>  colours c -> { c.file_type.source                      = Fixed(138).normal(); });
 
     test!(exa_Sn:  ls "", exa "Sn=38;5;128"  =>  colours c -> { c.security_context.none                 = Fixed(128).normal(); });
     test!(exa_Su:  ls "", exa "Su=38;5;129"  =>  colours c -> { c.security_context.selinux.user         = Fixed(129).normal(); });

@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.15.0] - 2023-10-19
+
+### Bug Fixes
+
+- Reenable debug symbols in debug builds
+- Clippy lint
+- Merge conflict with main
+
+### Documentation
+
+- Correct color option spellings
+
+### Features
+
+- Add option --smart-group
+- Add completions, man for --smart-group
+- Add icons=always,auto,never. dont display icons in a tty|piped
+- Fix auto value for colors and icons + documentation
+- [**breaking**] Remove --no-icons in favor of --icons=always,auto,never. default is auto
+
+### Miscellaneous Tasks
+
+- Upgrade to uutils_term_grid from unmaintained term_grid
+
+### Build
+
+- Bump DeterminateSystems/nix-installer-action from 5 to 6
+
+### Ci
+
+- Remove stalebot, is super annoying
+- Adjust test case to icons=auto (no icons should show due to tty)
+
 ## [0.14.2] - 2023-10-12
 
 ### Bug Fixes
@@ -17,6 +50,10 @@
 
 - Add missing nu shell completions
 - Adding the EZA_OVERRIDE_GIT env var
+
+### Miscellaneous Tasks
+
+- Release eza v0.14.2
 
 ### Refactor
 
