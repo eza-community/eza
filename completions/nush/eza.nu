@@ -43,7 +43,7 @@ export extern "eza" [
     --accessed(-u)             # Use the accessed timestamp field
     --created(-U)              # Use the created timestamp field
     --time-style               # How to format timestamps
-    --totalsize                # Show recursive directory size
+    --total-size                # Show recursive directory size
     --no-permissions           # Suppress the permissions field
     --octal-permissions(-o)    # List each file's permission in octal format
     --no-filesize              # Suppress the filesize field

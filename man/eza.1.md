@@ -199,7 +199,7 @@ These options are available when running with `--long` (`-l`):
 
 : Valid timestamp styles are ‘`default`’, ‘`iso`’, ‘`long-iso`’, ‘`full-iso`’, ‘`relative`', or you can use a `custom` style with '`+`' as prefix. (Ex: "`+%Y/%m/%d, %H:%M`" => "`2023/9/30, 12:00`"). for more details about format syntax, please read: https://docs.rs/chrono/latest/chrono/format/strftime/index.html
 
-`--totalsize`
+`--total-size`
 : Show recursive directory size.
 
 `-u`, `--accessed`
