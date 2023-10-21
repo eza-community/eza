@@ -516,30 +516,31 @@ impl<'dir> File<'dir> {
 
     /// Recursive folder size
     #[cfg(unix)]
-    pub fn recursive_size(&self) -> f::Size {
+    pub fn recursive_size(&self, toplevel: bool) -> f::Size {
         use crate::fs::RECURSIVE_SIZE_HASHMAP;
         if self.is_directory() {
+            let mut recursive_size: u64 = 0;
             let Ok(dir) = Dir::read_dir(self.path.clone()) else {
                 return f::Size::None;
             };
             let files = dir.files(super::DotFilter::Dotfiles, None, false, false);
 
-            let mut recursive_size: u64 = 0;
-            for fileresult in files {
-                let Ok(file) = fileresult else { continue };
+            for file in files.flatten() {
                 if file.is_file() {
                     recursive_size += file.metadata.size();
                 } else {
-                    recursive_size += match file.recursive_size() {
+                    recursive_size += match file.recursive_size(false) {
                         f::Size::Some(s) => s,
                         _ => file.metadata.size(),
                     };
                 }
             }
-            RECURSIVE_SIZE_HASHMAP
-                .lock()
-                .unwrap()
-                .insert(self.metadata.ino(), recursive_size);
+            if toplevel {
+                RECURSIVE_SIZE_HASHMAP
+                    .lock()
+                    .unwrap()
+                    .insert(self.metadata.ino(), recursive_size);
+            }
             f::Size::Some(recursive_size)
         } else if self.is_char_device() || self.is_block_device() {
             let device_id = self.metadata.rdev();

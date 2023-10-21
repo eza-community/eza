@@ -271,7 +271,9 @@ impl<'args> Exa<'args> {
             }
 
             self.options.filter.filter_child_files(&mut children);
-            self.options.filter.sort_files(&mut children);
+            self.options
+                .filter
+                .sort_files(&mut children, self.options.view.total_size);
 
             if let Some(recurse_opts) = self.options.dir_action.recurse_options() {
                 let depth = dir

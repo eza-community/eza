@@ -108,11 +108,14 @@ impl FileFilter {
     }
 
     /// Sort the files in the given vector based on the sort field option.
-    pub fn sort_files<'a, F>(&self, files: &mut [F])
+    pub fn sort_files<'a, F>(&self, files: &mut [F], total_size: bool)
     where
         F: AsRef<File<'a>>,
     {
-        files.sort_by(|a, b| self.sort_field.compare_files(a.as_ref(), b.as_ref()));
+        files.sort_by(|a, b| {
+            self.sort_field
+                .compare_files(a.as_ref(), b.as_ref(), total_size)
+        });
 
         if self.flags.contains(&FileFilterFlags::Reverse) {
             files.reverse();
@@ -231,7 +234,7 @@ impl SortField {
     /// together, so `file10` will sort after `file9`, instead of before it
     /// because of the `1`.
     #[cfg(unix)]
-    pub fn compare_files(self, a: &File<'_>, b: &File<'_>) -> Ordering {
+    pub fn compare_files(self, a: &File<'_>, b: &File<'_>, recursive: bool) -> Ordering {
         use self::SortCase::{ABCabc, AaBbCc};
         use crate::fs::RECURSIVE_SIZE_HASHMAP;
 
@@ -243,16 +246,20 @@ impl SortField {
             Self::Name(AaBbCc)  => natord::compare_ignore_case(&a.name, &b.name),
 
             Self::Size => {
-                let recursive_map = RECURSIVE_SIZE_HASHMAP.lock().unwrap();
-                match recursive_map.get(&a.metadata.ino()) {
-                    Some(s) => *s,
-                    _ => a.metadata.len()
-                }.cmp(
-                    &match recursive_map.get(&b.metadata.ino()) {
+                if recursive {
+                    let recursive_map = RECURSIVE_SIZE_HASHMAP.lock().unwrap();
+                    match recursive_map.get(&a.metadata.ino()) {
                         Some(s) => *s,
-                        _ => b.metadata.len()
-                    }
-                )
+                        _ => a.metadata.len()
+                    }.cmp(
+                        &match recursive_map.get(&b.metadata.ino()) {
+                            Some(s) => *s,
+                            _ => b.metadata.len()
+                        }
+                    )
+                } else {
+                    a.metadata.len().cmp(&b.metadata.len())
+                }
             }
 
             #[cfg(unix)]

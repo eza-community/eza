@@ -455,8 +455,11 @@ impl<'a> Table<'a> {
             Column::Permissions => self.permissions_plus(file, xattrs).render(self.theme),
             Column::FileSize => {
                 if total_size {
-                    file.recursive_size()
-                        .render(self.theme, self.size_format, &self.env.numeric)
+                    file.recursive_size(true).render(
+                        self.theme,
+                        self.size_format,
+                        &self.env.numeric,
+                    )
                 } else {
                     file.size()
                         .render(self.theme, self.size_format, &self.env.numeric)
