@@ -305,7 +305,7 @@ impl SortField {
 
     /// Windows safe version of the above
     #[cfg(windows)]
-    pub fn compare_files(self, a: &File<'_>, b: &File<'_>) -> Ordering {
+    pub fn compare_files(self, a: &File<'_>, b: &File<'_>, recursive: bool) -> Ordering {
         use self::SortCase::{ABCabc, AaBbCc};
 
         #[rustfmt::skip]
