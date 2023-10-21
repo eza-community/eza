@@ -581,7 +581,7 @@ impl<'dir> File<'dir> {
     }
 
     #[cfg(windows)]
-    pub fn recursive_size(&self, toplevel: bool) -> f::Size {
+    pub fn recursive_size(&self, _toplevel: bool) -> f::Size {
         if self.is_directory() {
             f::Size::None
         } else {
