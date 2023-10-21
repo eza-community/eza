@@ -109,13 +109,13 @@ pub mod test {
         users.add_group(Group::new(100, "folk"));
 
         let group = Some(f::Group(100));
-        let expected = TextCell::paint_str(Fixed(81).normal(), "folk");
+        let expected = TextCell::paint_str(TestColours.not_yours(), "folk");
         assert_eq!(
             expected,
             group.render(&TestColours, &users, UserFormat::Name, GroupFormat::Regular)
         );
 
-        let expected = TextCell::paint_str(Fixed(81).normal(), "100");
+        let expected = TextCell::paint_str(TestColours.not_yours(), "100");
         assert_eq!(
             expected,
             group.render(
@@ -132,7 +132,7 @@ pub mod test {
         let users = MockUsers::with_current_uid(1000);
 
         let group = Some(f::Group(100));
-        let expected = TextCell::paint_str(Fixed(81).normal(), "100");
+        let expected = TextCell::paint_str(TestColours.not_yours(), "100");
         assert_eq!(
             expected,
             group.render(&TestColours, &users, UserFormat::Name, GroupFormat::Regular)
@@ -155,7 +155,7 @@ pub mod test {
         users.add_group(Group::new(100, "folk"));
 
         let group = Some(f::Group(100));
-        let expected = TextCell::paint_str(Fixed(80).normal(), "folk");
+        let expected = TextCell::paint_str(TestColours.yours(), "folk");
         assert_eq!(
             expected,
             group.render(&TestColours, &users, UserFormat::Name, GroupFormat::Regular)
@@ -171,7 +171,7 @@ pub mod test {
         users.add_group(test_group);
 
         let group = Some(f::Group(100));
-        let expected = TextCell::paint_str(Fixed(80).normal(), "folk");
+        let expected = TextCell::paint_str(TestColours.yours(), "folk");
         assert_eq!(
             expected,
             group.render(&TestColours, &users, UserFormat::Name, GroupFormat::Regular)
@@ -181,7 +181,7 @@ pub mod test {
     #[test]
     fn overflow() {
         let group = Some(f::Group(2_147_483_648));
-        let expected = TextCell::paint_str(Fixed(81).normal(), "2147483648");
+        let expected = TextCell::paint_str(TestColours.not_yours(), "2147483648");
         assert_eq!(
             expected,
             group.render(
@@ -201,13 +201,13 @@ pub mod test {
         users.add_group(Group::new(101, "http"));
 
         let same_group = Some(f::Group(100));
-        let expected = TextCell::paint_str(Fixed(81).normal(), ":");
+        let expected = TextCell::paint_str(TestColours.not_yours(), ":");
         assert_eq!(
             expected,
             same_group.render(&TestColours, &users, UserFormat::Name, GroupFormat::Smart)
         );
 
-        let expected = TextCell::paint_str(Fixed(81).normal(), ":");
+        let expected = TextCell::paint_str(TestColours.not_yours(), ":");
         assert_eq!(
             expected,
             same_group.render(
@@ -219,7 +219,7 @@ pub mod test {
         );
 
         let http_group = Some(f::Group(101));
-        let expected = TextCell::paint_str(Fixed(81).normal(), "http");
+        let expected = TextCell::paint_str(TestColours.not_yours(), "http");
         assert_eq!(
             expected,
             http_group.render(&TestColours, &users, UserFormat::Name, GroupFormat::Smart)
