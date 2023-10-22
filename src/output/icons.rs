@@ -125,11 +125,7 @@ impl Icons {
 /// Mapping from full filenames to directory icon. This mapping should contain
 /// all the directories that have a custom icon.
 const DIRECTORY_ICONS: Map<&'static str, char> = phf_map! {
-    "__pycache__"         => Icons::LANG_PYTHON,    // 󰌠
-    ".cargo"              => Icons::LANG_RUST,      // 
     ".config"             => Icons::FOLDER_CONFIG,  // 
-    ".doom.d"             => Icons::EMACS,          // 
-    ".emacs.d"            => Icons::EMACS,          // 
     ".git"                => Icons::FOLDER_GIT,     // 
     ".github"             => Icons::FOLDER_GITHUB,  // 
     ".gnupg"              => Icons::FOLDER_KEY,     // 󰢬
@@ -163,7 +159,6 @@ const DIRECTORY_ICONS: Map<&'static str, char> = phf_map! {
     "src"                 => '\u{f19fc}',           // 󱧼
     "ssh"                 => Icons::FOLDER_KEY,     // 󰢬
     "sudoers.d"           => Icons::FOLDER_KEY,     // 󰢬
-    "vendor"              => '\u{f0ae6}',           // 󰫦
     "Videos"              => '\u{f03d}',            // 
     "xbps.d"              => Icons::FOLDER_CONFIG,  // 
     "xorg.conf.d"         => Icons::FOLDER_CONFIG,  // 
