@@ -162,11 +162,16 @@ impl<'a> Render<'a> {
             .map(|file| {
                 let filename = self.file_style.for_file(file, self.theme);
                 let contents = filename.paint();
+                let space_filename_offset = if file.name.contains(' ') || file.name.contains('\'') {
+                    2
+                } else {
+                    0
+                };
                 #[rustfmt::skip]
                 let width = match (filename.options.embed_hyperlinks, filename.options.show_icons) {
-                    (EmbedHyperlinks::On, ShowIcons::Automatic(spacing)) => filename.bare_width() + 1 + (spacing as usize),
-                    (EmbedHyperlinks::On, ShowIcons::Always(spacing)) => filename.bare_width() + 1 + (spacing as usize),
-                    (EmbedHyperlinks::On, ShowIcons::Never) => filename.bare_width(),
+                    (EmbedHyperlinks::On, ShowIcons::Automatic(spacing)) => filename.bare_width() + 1 + (spacing as usize) + space_filename_offset,
+                    (EmbedHyperlinks::On, ShowIcons::Always(spacing)) => filename.bare_width() + 1 + (spacing as usize) + space_filename_offset,
+                    (EmbedHyperlinks::On, ShowIcons::Never) => filename.bare_width() + space_filename_offset,
                     (EmbedHyperlinks::Off, _) => *contents.width(),
                 };
 
