@@ -155,6 +155,7 @@ pub struct FileType {
     pub temp: Style,        // tm - temporary file
     pub compiled: Style,    // cm - compilation artifact
     pub build: Style,       // bu - file that is used to build a project
+    pub source: Style,      // sc - source code
 }
 
 impl UiStyles {
@@ -269,6 +270,7 @@ impl UiStyles {
             "tm" => self.file_type.temp                 = pair.to_style(),
             "cm" => self.file_type.compiled             = pair.to_style(),
             "bu" => self.file_type.build                = pair.to_style(),
+            "sc" => self.file_type.source               = pair.to_style(),
 
             "Sn" => self.security_context.none          = pair.to_style(),
             "Su" => self.security_context.selinux.user  = pair.to_style(),

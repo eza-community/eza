@@ -23,8 +23,9 @@ pub enum FileType {
     Temp,
     Compiled,
     Build, // A “build file is something that can be run or activated somehow in order to
-           // kick off the build of a project. It’s usually only present in directories full of
-           // source code.
+    // kick off the build of a project. It’s usually only present in directories full of
+    // source code.
+    Source,
 }
 
 /// Mapping from full filenames to file type.
@@ -133,6 +134,7 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     /* Video files */
     "avi"        => FileType::Video,
     "flv"        => FileType::Video,
+    "h264"       => FileType::Video,
     "heics"      => FileType::Video,
     "m2ts"       => FileType::Video,
     "m2v"        => FileType::Video,
@@ -158,10 +160,15 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "opus"       => FileType::Music,
     "wma"        => FileType::Music,
     /* Lossless music, rather than any other kind of data... */
+    "aif"        => FileType::Lossless,
+    "aifc"       => FileType::Lossless,
+    "aiff"       => FileType::Lossless,
     "alac"       => FileType::Lossless,
     "ape"        => FileType::Lossless,
     "flac"       => FileType::Lossless,
+    "pcm"        => FileType::Lossless,
     "wav"        => FileType::Lossless,
+    "wv"         => FileType::Lossless,
     /* Cryptology files */
     "asc"        => FileType::Crypto, // GnuPG ASCII armored file
     "gpg"        => FileType::Crypto, // GnuPG encrypted file
@@ -203,6 +210,7 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     /* Compressed/archive files */
     "7z"         => FileType::Compressed,
     "ar"         => FileType::Compressed,
+    "arj"        => FileType::Compressed,
     "br"         => FileType::Compressed,
     "bz"         => FileType::Compressed,
     "bz2"        => FileType::Compressed,
@@ -242,6 +250,7 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "bak"        => FileType::Temp,
     "bk"         => FileType::Temp,
     "bkp"        => FileType::Temp,
+    "crdownload" => FileType::Temp,
     "download"   => FileType::Temp,
     "fdmdownload"=> FileType::Temp,
     "part"       => FileType::Temp,
@@ -253,6 +262,10 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "a"          => FileType::Compiled, // Unix static library
     "bundle"     => FileType::Compiled, // Mac OS X application bundle
     "class"      => FileType::Compiled, // Java class file
+    "cma"        => FileType::Compiled, // OCaml bytecode library
+    "cmi"        => FileType::Compiled, // OCaml interface
+    "cmo"        => FileType::Compiled, // OCaml bytecode object
+    "cmx"        => FileType::Compiled, // OCaml bytecode object for inlining
     "dll"        => FileType::Compiled, // Windows dynamic link library
     "dylib"      => FileType::Compiled, // Mach-O dynamic library
     "elc"        => FileType::Compiled, // Emacs compiled lisp
@@ -265,6 +278,93 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "pyo"        => FileType::Compiled, // Python optimized code
     "so"         => FileType::Compiled, // Unix shared library
     "zwc"        => FileType::Compiled, // zsh compiled file
+    /* Source code */
+    "applescript"=> FileType::Source, // Apple script
+    "as"         => FileType::Source, // Action script
+    "asa"        => FileType::Source, // asp
+    "awk"        => FileType::Source, // awk
+    "c"          => FileType::Source, // C/C++
+    "c++"        => FileType::Source, // C/C++
+    "cabal"      => FileType::Source, // Cabal
+    "cc"         => FileType::Source, // C/C++
+    "clj"        => FileType::Source, // Clojure
+    "cp"         => FileType::Source, // C/C++ Xcode
+    "cpp"        => FileType::Source, // C/C++
+    "cr"         => FileType::Source, // Crystal
+    "cs"         => FileType::Source, // C#
+    "css"        => FileType::Source, // css
+    "csx"        => FileType::Source, // C#
+    "cu"         => FileType::Source, // CUDA
+    "cxx"        => FileType::Source, // C/C++
+    "d"          => FileType::Source, // D
+    "dart"       => FileType::Source, // Dart
+    "di"         => FileType::Source, // D
+    "dpr"        => FileType::Source, // Delphi Pascal
+    "el"         => FileType::Source, // Lisp
+    "elm"        => FileType::Source, // Elm
+    "erl"        => FileType::Source, // Erlang
+    "ex"         => FileType::Source, // Elixir
+    "exs"        => FileType::Source, // Elixir
+    "fs"         => FileType::Source, // F#
+    "fsh"        => FileType::Source, // Fragment shader
+    "fsi"        => FileType::Source, // F#
+    "fsx"        => FileType::Source, // F#
+    "go"         => FileType::Source, // Go
+    "gradle"     => FileType::Source, // Gradle
+    "groovy"     => FileType::Source, // Groovy
+    "gvy"        => FileType::Source, // Groovy
+    "h"          => FileType::Source, // C/C++
+    "h++"        => FileType::Source, // C/C++
+    "hpp"        => FileType::Source, // C/C++
+    "hs"         => FileType::Source, // Haskell
+    "htc"        => FileType::Source, // Javascript
+    "hxx"        => FileType::Source, // C/C++
+    "inc"        => FileType::Source,
+    "inl"        => FileType::Source, // C/C++ Microsoft
+    "ipynb"      => FileType::Source, // Jupyter Notebook
+    "java"       => FileType::Source, // Java
+    "jl"         => FileType::Source, // Julia
+    "js"         => FileType::Source, // Javascript
+    "jsx"        => FileType::Source, // React
+    "kt"         => FileType::Source, // Kotlin
+    "kts"        => FileType::Source, // Kotlin
+    "less"       => FileType::Source, // less
+    "lhs"        => FileType::Source, // Haskell
+    "lisp"       => FileType::Source, // Lisp
+    "ltx"        => FileType::Source, // LaTeX
+    "lua"        => FileType::Source, // Lua
+    "m"          => FileType::Source, // Matlab
+    "matlab"     => FileType::Source, // Matlab
+    "ml"         => FileType::Source, // OCaml
+    "mli"        => FileType::Source, // OCaml
+    "mn"         => FileType::Source, // Matlab
+    "nb"         => FileType::Source, // Mathematica
+    "p"          => FileType::Source, // Pascal
+    "pas"        => FileType::Source, // Pascal
+    "php"        => FileType::Source, // PHP
+    "pl"         => FileType::Source, // Perl
+    "pm"         => FileType::Source, // Perl
+    "pod"        => FileType::Source, // Perl
+    "pp"         => FileType::Source, // Puppet
+    "ps1"        => FileType::Source, // PowerShell
+    "psd1"       => FileType::Source, // PowerShell
+    "psm1"       => FileType::Source, // PowerShell
+    "purs"       => FileType::Source, // PureScript
+    "py"         => FileType::Source, // Python
+    "r"          => FileType::Source, // R
+    "rb"         => FileType::Source, // Ruby
+    "rs"         => FileType::Source, // Rust
+    "sass"       => FileType::Source, // Sass
+    "scala"      => FileType::Source, // Scala
+    "scss"       => FileType::Source, // Sass
+    "sql"        => FileType::Source, // SQL
+    "swift"      => FileType::Source, // Swift
+    "tcl"        => FileType::Source, // TCL
+    "tex"        => FileType::Source, // LaTeX
+    "ts"         => FileType::Source, // TypeScript
+    "v"          => FileType::Source, // V
+    "vb"         => FileType::Source, // Visual Basic
+    "vsh"        => FileType::Source, // Vertex shader
 };
 
 impl FileType {
