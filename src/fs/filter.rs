@@ -248,12 +248,12 @@ impl SortField {
             Self::Size => {
                 if recursive {
                     let recursive_map = RECURSIVE_SIZE_HASHMAP.lock().unwrap();
-                    match recursive_map.get(&a.metadata.ino()) {
-                        Some(s) => *s,
-                        _ => a.metadata.len()
+                    match recursive_map.get(&(a.metadata.dev(), a.metadata.ino())) {
+                            Some(v) => *v,
+                            _ => a.metadata.len()
                     }.cmp(
-                        &match recursive_map.get(&b.metadata.ino()) {
-                            Some(s) => *s,
+                        &match recursive_map.get(&(b.metadata.dev(), b.metadata.ino())) {
+                            Some(v) => *v,
                             _ => b.metadata.len()
                         }
                     )

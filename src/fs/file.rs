@@ -539,7 +539,7 @@ impl<'dir> File<'dir> {
                 RECURSIVE_SIZE_HASHMAP
                     .lock()
                     .unwrap()
-                    .insert(self.metadata.ino(), recursive_size);
+                    .insert((self.metadata.dev(), self.metadata.ino()), recursive_size);
             }
             f::Size::Some(recursive_size)
         } else if self.is_char_device() || self.is_block_device() {
