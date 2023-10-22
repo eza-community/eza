@@ -476,6 +476,7 @@ impl<'a> Table<'a> {
                 &*self.env.lock_users(),
                 self.user_format,
                 self.group_format,
+                file.user(),
             ),
             #[cfg(unix)]
             Column::SecurityContext => file.security_context().render(self.theme),
