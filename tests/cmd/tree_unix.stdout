@@ -24,7 +24,9 @@ tests/itest
 ├── q
 └── vagrant
    ├── debug
-   │  └── symlinking -> a
+   │  ├── a
+   │  ├── symlink -> a
+   │  └── symlink-broken -> ./b
    ├── dev
    │  └── main.bf
    └── log
