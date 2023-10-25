@@ -51,6 +51,7 @@ impl Dir {
         git: Option<&'ig GitCache>,
         git_ignoring: bool,
         deref_links: bool,
+        total_size: bool,
     ) -> Files<'dir, 'ig> {
         Files {
             inner: self.contents.iter(),
@@ -60,6 +61,7 @@ impl Dir {
             git,
             git_ignoring,
             deref_links,
+            total_size,
         }
     }
 
@@ -95,6 +97,9 @@ pub struct Files<'dir, 'ig> {
 
     /// Whether symbolic links should be dereferenced when querying information.
     deref_links: bool,
+
+    /// Whether to calculate the directory size recursively
+    total_size: bool,
 }
 
 impl<'dir, 'ig> Files<'dir, 'ig> {
@@ -131,8 +136,14 @@ impl<'dir, 'ig> Files<'dir, 'ig> {
                     }
                 }
 
-                let file = File::from_args(path.clone(), self.dir, filename, self.deref_links)
-                    .map_err(|e| (path.clone(), e));
+                let file = File::from_args(
+                    path.clone(),
+                    self.dir,
+                    filename,
+                    self.deref_links,
+                    self.total_size,
+                )
+                .map_err(|e| (path.clone(), e));
 
                 // Windows has its own concept of hidden files, when dotfiles are
                 // hidden Windows hidden files should also be filtered out
@@ -169,12 +180,18 @@ impl<'dir, 'ig> Iterator for Files<'dir, 'ig> {
         match self.dots {
             DotsNext::Dot => {
                 self.dots = DotsNext::DotDot;
-                Some(File::new_aa_current(self.dir).map_err(|e| (Path::new(".").to_path_buf(), e)))
+                Some(
+                    File::new_aa_current(self.dir, self.total_size)
+                        .map_err(|e| (Path::new(".").to_path_buf(), e)),
+                )
             }
 
             DotsNext::DotDot => {
                 self.dots = DotsNext::Files;
-                Some(File::new_aa_parent(self.parent(), self.dir).map_err(|e| (self.parent(), e)))
+                Some(
+                    File::new_aa_parent(self.parent(), self.dir, self.total_size)
+                        .map_err(|e| (self.parent(), e)),
+                )
             }
 
             DotsNext::Files => self.next_visible_file(),

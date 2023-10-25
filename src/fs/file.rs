@@ -1,16 +1,22 @@
 //! Files, and methods and fields to access their metadata.
 
+#[cfg(unix)]
+use std::collections::HashMap;
 use std::io;
 #[cfg(unix)]
 use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
 #[cfg(windows)]
 use std::os::windows::fs::MetadataExt;
 use std::path::{Path, PathBuf};
+#[cfg(unix)]
+use std::sync::Mutex;
 use std::sync::OnceLock;
 
 use chrono::prelude::*;
 
 use log::*;
+#[cfg(unix)]
+use once_cell::sync::Lazy;
 
 use crate::fs::dir::Dir;
 use crate::fs::feature::xattr;
@@ -19,6 +25,12 @@ use crate::fs::fields as f;
 
 use super::mounts::all_mounts;
 use super::mounts::MountedFs;
+
+// Mutex::new is const but HashMap::new is not const requiring us to use lazy
+// initialization. Replace with std::sync::LazyLock when it is stable.
+#[cfg(unix)]
+static DIRECTORY_SIZE_CACHE: Lazy<Mutex<HashMap<(u64, u64), u64>>> =
+    Lazy::new(|| Mutex::new(HashMap::new()));
 
 /// A **File** is a wrapper around one of Rust’s `PathBuf` values, along with
 /// associated data about the file.
@@ -84,6 +96,11 @@ pub struct File<'dir> {
 
     /// The absolute value of this path, used to look up mount points.
     absolute_path: OnceLock<Option<PathBuf>>,
+
+    pub total_size: bool,
+
+    /// The recursive directory size when total_size is used.
+    recursive_size: Option<u64>,
 }
 
 impl<'dir> File<'dir> {
@@ -92,6 +109,7 @@ impl<'dir> File<'dir> {
         parent_dir: PD,
         filename: FN,
         deref_links: bool,
+        total_size: bool,
     ) -> io::Result<File<'dir>>
     where
         PD: Into<Option<&'dir Dir>>,
@@ -107,7 +125,7 @@ impl<'dir> File<'dir> {
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
 
-        Ok(File {
+        let mut file = File {
             name,
             ext,
             path,
@@ -117,11 +135,23 @@ impl<'dir> File<'dir> {
             deref_links,
             extended_attributes,
             absolute_path,
-        })
+            total_size,
+            recursive_size: None,
+        };
+
+        if total_size {
+            file.recursive_size = file.total_directory_size()
+        }
+
+        Ok(file)
     }
 
-    pub fn new_aa_current(parent_dir: &'dir Dir) -> io::Result<File<'dir>> {
-        let path = parent_dir.path.clone();
+    fn new_aa(
+        path: PathBuf,
+        parent_dir: &'dir Dir,
+        name: &'static str,
+        total_size: bool,
+    ) -> io::Result<File<'dir>> {
         let ext = File::ext(&path);
 
         debug!("Statting file {:?}", &path);
@@ -131,40 +161,37 @@ impl<'dir> File<'dir> {
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
 
-        Ok(File {
-            path,
-            parent_dir,
-            metadata,
+        let mut file = File {
+            name: name.into(),
             ext,
-            name: ".".into(),
+            path,
+            metadata,
+            parent_dir,
             is_all_all,
             deref_links: false,
             extended_attributes,
             absolute_path,
-        })
+            total_size,
+            recursive_size: None,
+        };
+
+        if total_size {
+            file.recursive_size = file.total_directory_size()
+        }
+
+        Ok(file)
     }
 
-    pub fn new_aa_parent(path: PathBuf, parent_dir: &'dir Dir) -> io::Result<File<'dir>> {
-        let ext = File::ext(&path);
+    pub fn new_aa_current(parent_dir: &'dir Dir, total_size: bool) -> io::Result<File<'dir>> {
+        File::new_aa(parent_dir.path.clone(), parent_dir, ".", total_size)
+    }
 
-        debug!("Statting file {:?}", &path);
-        let metadata = std::fs::symlink_metadata(&path)?;
-        let is_all_all = true;
-        let parent_dir = Some(parent_dir);
-        let extended_attributes = OnceLock::new();
-        let absolute_path = OnceLock::new();
-
-        Ok(File {
-            path,
-            parent_dir,
-            metadata,
-            ext,
-            name: "..".into(),
-            is_all_all,
-            deref_links: false,
-            extended_attributes,
-            absolute_path,
-        })
+    pub fn new_aa_parent(
+        path: PathBuf,
+        parent_dir: &'dir Dir,
+        total_size: bool,
+    ) -> io::Result<File<'dir>> {
+        File::new_aa(path, parent_dir, "..", total_size)
     }
 
     /// A file’s name is derived from its string. This needs to handle directories
@@ -375,6 +402,8 @@ impl<'dir> File<'dir> {
                     deref_links: self.deref_links,
                     extended_attributes,
                     absolute_path: absolute_path_cell,
+                    total_size: false,
+                    recursive_size: None,
                 };
                 FileTarget::Ok(Box::new(file))
             }
@@ -488,7 +517,8 @@ impl<'dir> File<'dir> {
             }
         }
         if self.is_directory() {
-            f::Size::None
+            self.recursive_size
+                .map_or(f::Size::None, |s| f::Size::Some(s))
         } else if self.is_char_device() || self.is_block_device() {
             let device_id = self.metadata.rdev();
 
@@ -514,57 +544,47 @@ impl<'dir> File<'dir> {
         }
     }
 
-    /// Recursive folder size
+    /// Calculate the total directory size recursively.  If not a directory `None`
+    /// will be returned.  The directory size is cached for recursive directory
+    /// listing.
     #[cfg(unix)]
-    pub fn recursive_size(&self, toplevel: bool) -> f::Size {
-        use crate::fs::RECURSIVE_SIZE_HASHMAP;
+    fn total_directory_size(&self) -> Option<u64> {
         if self.is_directory() {
-            let mut recursive_size: u64 = 0;
-            let Ok(dir) = Dir::read_dir(self.path.clone()) else {
-                return f::Size::None;
-            };
-            let files = dir.files(super::DotFilter::Dotfiles, None, false, false);
-
-            for file in files.flatten() {
-                if file.is_file() {
-                    recursive_size += file.metadata.size();
-                } else {
-                    recursive_size += match file.recursive_size(false) {
-                        f::Size::Some(s) => s,
-                        _ => file.metadata.size(),
-                    };
+            let key = (self.metadata.dev(), self.metadata.ino());
+            if let Some(size) = DIRECTORY_SIZE_CACHE.lock().unwrap().get(&key) {
+                return Some(*size);
+            }
+            let dir = Dir::read_dir(self.path.clone()).ok()?;
+            let mut size = 0;
+            for file in dir
+                .files(super::DotFilter::Dotfiles, None, false, false, true)
+                .flatten()
+            {
+                size += match file.total_directory_size() {
+                    Some(s) => s,
+                    _ => file.metadata.size(),
                 }
             }
-            if toplevel {
-                RECURSIVE_SIZE_HASHMAP
-                    .lock()
-                    .unwrap()
-                    .insert((self.metadata.dev(), self.metadata.ino()), recursive_size);
-            }
-            f::Size::Some(recursive_size)
-        } else if self.is_char_device() || self.is_block_device() {
-            let device_id = self.metadata.rdev();
-
-            // MacOS and Linux have different arguments and return types for the
-            // functions major and minor.  On Linux the try_into().unwrap() and
-            // the "as u32" cast are not needed.  We turn off the warning to
-            // allow it to compile cleanly on Linux.
-            #[allow(trivial_numeric_casts)]
-            #[allow(clippy::unnecessary_cast)]
-            #[allow(clippy::useless_conversion)]
-            f::Size::DeviceIDs(f::DeviceIDs {
-                // SAFETY: Calling libc function to decompose the device_id
-                major: unsafe { libc::major(device_id.try_into().unwrap()) } as u32,
-                minor: unsafe { libc::minor(device_id.try_into().unwrap()) } as u32,
-            })
-        } else if self.is_link() && self.deref_links {
-            match self.link_target() {
-                FileTarget::Ok(f) => f::Size::Some(f.metadata.size()),
-                _ => f::Size::None,
-            }
+            DIRECTORY_SIZE_CACHE.lock().unwrap().insert(key, size);
+            Some(size)
         } else {
-            f::Size::Some(self.metadata.len())
+            None
         }
+    }
+
+    /// Windows version always returns None.  The metadata for
+    /// `volume_serial_number` and `file_index` are marked unstable so we can
+    /// not cache the sizes.  Without caching we could end up walking the
+    /// directory structure several times.
+    #[cfg(windows)]
+    fn total_directory_size(&self) -> Option<u64> {
+        None
+    }
+
+    /// Returns the same value as `self.metadata.len()` or the recursive size
+    /// of a directory when `total_size` is used.
+    pub fn length(&self) -> u64 {
+        self.recursive_size.unwrap_or_else(|| self.metadata.len())
     }
 
     /// Returns the size of the file or indicates no size if it's a directory.
@@ -573,15 +593,6 @@ impl<'dir> File<'dir> {
     /// return `Size::None`.
     #[cfg(windows)]
     pub fn size(&self) -> f::Size {
-        if self.is_directory() {
-            f::Size::None
-        } else {
-            f::Size::Some(self.metadata.len())
-        }
-    }
-
-    #[cfg(windows)]
-    pub fn recursive_size(&self, _toplevel: bool) -> f::Size {
         if self.is_directory() {
             f::Size::None
         } else {
@@ -643,7 +654,7 @@ impl<'dir> File<'dir> {
         match Dir::read_dir(self.path.clone()) {
             // . & .. are skipped, if the returned iterator has .next(), it's not empty
             Ok(has_files) => has_files
-                .files(super::DotFilter::Dotfiles, None, false, false)
+                .files(super::DotFilter::Dotfiles, None, false, false, false)
                 .next()
                 .is_none(),
             Err(_) => false,

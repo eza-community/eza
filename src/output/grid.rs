@@ -41,7 +41,7 @@ impl<'a> Render<'a> {
 
         grid.reserve(self.files.len());
 
-        self.filter.sort_files(&mut self.files, false);
+        self.filter.sort_files(&mut self.files);
         for file in &self.files {
             let filename = self.file_style.for_file(file, self.theme);
 

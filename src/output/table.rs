@@ -410,11 +410,11 @@ impl<'a> Table<'a> {
         Row { cells }
     }
 
-    pub fn row_for_file(&self, file: &File<'_>, xattrs: bool, total_size: bool) -> Row {
+    pub fn row_for_file(&self, file: &File<'_>, xattrs: bool) -> Row {
         let cells = self
             .columns
             .iter()
-            .map(|c| self.display(file, *c, xattrs, total_size))
+            .map(|c| self.display(file, *c, xattrs))
             .collect();
 
         Row { cells }
@@ -450,21 +450,12 @@ impl<'a> Table<'a> {
             .map(|p| f::OctalPermissions { permissions: p })
     }
 
-    fn display(&self, file: &File<'_>, column: Column, xattrs: bool, total_size: bool) -> TextCell {
+    fn display(&self, file: &File<'_>, column: Column, xattrs: bool) -> TextCell {
         match column {
             Column::Permissions => self.permissions_plus(file, xattrs).render(self.theme),
-            Column::FileSize => {
-                if total_size {
-                    file.recursive_size(true).render(
-                        self.theme,
-                        self.size_format,
-                        &self.env.numeric,
-                    )
-                } else {
-                    file.size()
-                        .render(self.theme, self.size_format, &self.env.numeric)
-                }
-            }
+            Column::FileSize => file
+                .size()
+                .render(self.theme, self.size_format, &self.env.numeric),
             #[cfg(unix)]
             Column::HardLinks => file.links().render(self.theme, &self.env.numeric),
             #[cfg(unix)]

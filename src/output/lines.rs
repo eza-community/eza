@@ -18,7 +18,7 @@ pub struct Render<'a> {
 
 impl<'a> Render<'a> {
     pub fn render<W: Write>(mut self, w: &mut W) -> io::Result<()> {
-        self.filter.sort_files(&mut self.files, false);
+        self.filter.sort_files(&mut self.files);
         for file in &self.files {
             let name_cell = self.render_file(file);
             writeln!(w, "{}", ANSIStrings(&name_cell))?;
