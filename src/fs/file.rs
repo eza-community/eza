@@ -461,12 +461,18 @@ impl<'dir> File<'dir> {
     /// This actual size the file takes up on disk, in bytes.
     #[cfg(unix)]
     pub fn blocksize(&self) -> f::Blocksize {
-        if self.is_file() || self.is_link() {
+        if self.deref_links && self.is_link() {
+            match self.link_target() {
+                FileTarget::Ok(f) => f.blocksize(),
+                _ => f::Blocksize::None,
+            }
+        } else if self.is_file() {
             // Note that metadata.blocks returns the number of blocks
             // for 512 byte blocks according to the POSIX standard
             // even though the physical block size may be different.
             f::Blocksize::Some(self.metadata.blocks() * 512)
         } else {
+            // directory or symlinks
             f::Blocksize::None
         }
     }
@@ -498,25 +504,23 @@ impl<'dir> File<'dir> {
 
     /// This file’s size, if it’s a regular file.
     ///
-    /// For directories, no size is given. Although they do have a size on
-    /// some filesystems, I’ve never looked at one of those numbers and gained
-    /// any information from it. So it’s going to be hidden instead.
+    /// For directories, the recursive size or no size is given depending on
+    /// flags. Although they do have a size on some filesystems, I’ve never
+    /// looked at one of those numbers and gained any information from it.
     ///
     /// Block and character devices return their device IDs, because they
     /// usually just have a file size of zero.
     ///
     /// Links will return the size of their target (recursively through other
-    /// links) if dereferencing is enabled, otherwise the size of the link
-    /// itself.
+    /// links) if dereferencing is enabled, otherwise None.
     #[cfg(unix)]
     pub fn size(&self) -> f::Size {
-        if self.is_link() {
-            let target = self.link_target();
-            if let FileTarget::Ok(target) = target {
-                return target.size();
+        if self.deref_links && self.is_link() {
+            match self.link_target() {
+                FileTarget::Ok(f) => f.size(),
+                _ => f::Size::None,
             }
-        }
-        if self.is_directory() {
+        } else if self.is_directory() {
             self.recursive_size
                 .map_or(f::Size::None, |s| f::Size::Some(s))
         } else if self.is_char_device() || self.is_block_device() {
@@ -527,20 +531,17 @@ impl<'dir> File<'dir> {
             // the "as u32" cast are not needed.  We turn off the warning to
             // allow it to compile cleanly on Linux.
             #[allow(trivial_numeric_casts)]
-            #[allow(clippy::unnecessary_cast)]
-            #[allow(clippy::useless_conversion)]
+            #[allow(clippy::unnecessary_cast, clippy::useless_conversion)]
             f::Size::DeviceIDs(f::DeviceIDs {
                 // SAFETY: Calling libc function to decompose the device_id
                 major: unsafe { libc::major(device_id.try_into().unwrap()) } as u32,
                 minor: unsafe { libc::minor(device_id.try_into().unwrap()) } as u32,
             })
-        } else if self.is_link() && self.deref_links {
-            match self.link_target() {
-                FileTarget::Ok(f) => f.size(),
-                _ => f::Size::None,
-            }
-        } else {
+        } else if self.is_file() {
             f::Size::Some(self.metadata.len())
+        } else {
+            // symlink
+            f::Size::None
         }
     }
 

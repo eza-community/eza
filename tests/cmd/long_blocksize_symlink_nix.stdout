@@ -1,0 +1,3 @@
+.rw-r--r-- 0 ariasuni 20 oct.  15:38 a
+lrwxrwxrwx - ariasuni 17 oct.  18:35 symlink -> a
+lrwxrwxrwx - ariasuni 20 oct.  15:38 symlink-broken -> ./b
