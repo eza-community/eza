@@ -38,6 +38,7 @@ impl Icons {
     const GIST_SECRET: char     = '\u{eafa}';  // 
     const GIT: char             = '\u{f1d3}';  // 
     const GRADLE: char          = '\u{e660}';  // 
+    const GRAPHQL: char         = '\u{e662}';  // 
     const GRUNT: char           = '\u{e611}';  // 
     const GULP: char            = '\u{e610}';  // 
     const HEADER: char          = '\u{f0fd}';  // 
@@ -475,7 +476,9 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "git"            => Icons::GIT,              // 
     "go"             => Icons::LANG_GO,          // 
     "gpg"            => Icons::SHIELD_LOCK,      // 󰦝
+    "gql"            => Icons::GRAPHQL,          // 
     "gradle"         => Icons::GRADLE,           // 
+    "graphql"        => Icons::GRAPHQL,          // 
     "groovy"         => Icons::LANG_GROOVY,      // 
     "gsheet"         => Icons::SHEET,            // 
     "gslides"        => Icons::SLIDE,            // 
