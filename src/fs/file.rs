@@ -22,6 +22,7 @@ use crate::fs::dir::Dir;
 use crate::fs::feature::xattr;
 use crate::fs::feature::xattr::{Attribute, FileAttributes};
 use crate::fs::fields as f;
+use crate::fs::recursive_size::RecursiveSize;
 
 use super::mounts::all_mounts;
 use super::mounts::MountedFs;
@@ -39,7 +40,6 @@ static DIRECTORY_SIZE_CACHE: Lazy<Mutex<HashMap<(u64, u64), u64>>> =
 /// once, have its file extension extracted at least once, and have its metadata
 /// information queried at least once, so it makes sense to do all this at the
 /// start and hold on to all the information.
-#[allow(clippy::struct_excessive_bools)]
 pub struct File<'dir> {
     /// The filename portion of this file’s path, including the extension.
     ///
@@ -92,16 +92,14 @@ pub struct File<'dir> {
     /// instead.
     pub deref_links: bool,
 
+    /// The recursive directory size when total_size is used.
+    recursive_size: RecursiveSize,
+
     /// The extended attributes of this file.
     extended_attributes: OnceLock<Vec<Attribute>>,
 
     /// The absolute value of this path, used to look up mount points.
     absolute_path: OnceLock<Option<PathBuf>>,
-
-    pub total_size: bool,
-
-    /// The recursive directory size when total_size is used.
-    recursive_size: Option<u64>,
 }
 
 impl<'dir> File<'dir> {
@@ -125,6 +123,11 @@ impl<'dir> File<'dir> {
         let is_all_all = false;
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
+        let recursive_size = if total_size {
+            RecursiveSize::Unknown
+        } else {
+            RecursiveSize::None
+        };
 
         let mut file = File {
             name,
@@ -136,12 +139,11 @@ impl<'dir> File<'dir> {
             deref_links,
             extended_attributes,
             absolute_path,
-            total_size,
-            recursive_size: None,
+            recursive_size,
         };
 
         if total_size {
-            file.recursive_size = file.total_directory_size();
+            file.recursive_size = file.recursive_directory_size();
         }
 
         Ok(file)
@@ -161,6 +163,11 @@ impl<'dir> File<'dir> {
         let parent_dir = Some(parent_dir);
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
+        let recursive_size = if total_size {
+            RecursiveSize::Unknown
+        } else {
+            RecursiveSize::None
+        };
 
         let mut file = File {
             name: name.into(),
@@ -172,12 +179,11 @@ impl<'dir> File<'dir> {
             deref_links: false,
             extended_attributes,
             absolute_path,
-            total_size,
-            recursive_size: None,
+            recursive_size,
         };
 
         if total_size {
-            file.recursive_size = file.total_directory_size();
+            file.recursive_size = file.recursive_directory_size();
         }
 
         Ok(file)
@@ -403,8 +409,7 @@ impl<'dir> File<'dir> {
                     deref_links: self.deref_links,
                     extended_attributes,
                     absolute_path: absolute_path_cell,
-                    total_size: false,
-                    recursive_size: None,
+                    recursive_size: RecursiveSize::None,
                 };
                 FileTarget::Ok(Box::new(file))
             }
@@ -545,49 +550,6 @@ impl<'dir> File<'dir> {
         }
     }
 
-    /// Calculate the total directory size recursively.  If not a directory `None`
-    /// will be returned.  The directory size is cached for recursive directory
-    /// listing.
-    #[cfg(unix)]
-    fn total_directory_size(&self) -> Option<u64> {
-        if self.is_directory() {
-            let key = (self.metadata.dev(), self.metadata.ino());
-            if let Some(size) = DIRECTORY_SIZE_CACHE.lock().unwrap().get(&key) {
-                return Some(*size);
-            }
-            let dir = Dir::read_dir(self.path.clone()).ok()?;
-            let mut size = 0;
-            for file in dir
-                .files(super::DotFilter::Dotfiles, None, false, false, true)
-                .flatten()
-            {
-                size += match file.total_directory_size() {
-                    Some(s) => s,
-                    _ => file.metadata.size(),
-                }
-            }
-            DIRECTORY_SIZE_CACHE.lock().unwrap().insert(key, size);
-            Some(size)
-        } else {
-            None
-        }
-    }
-
-    /// Windows version always returns None.  The metadata for
-    /// `volume_serial_number` and `file_index` are marked unstable so we can
-    /// not cache the sizes.  Without caching we could end up walking the
-    /// directory structure several times.
-    #[cfg(windows)]
-    fn total_directory_size(&self) -> Option<u64> {
-        None
-    }
-
-    /// Returns the same value as `self.metadata.len()` or the recursive size
-    /// of a directory when `total_size` is used.
-    pub fn length(&self) -> u64 {
-        self.recursive_size.unwrap_or(self.metadata.len())
-    }
-
     /// Returns the size of the file or indicates no size if it's a directory.
     ///
     /// For Windows platforms, the size of directories is not computed and will
@@ -599,6 +561,58 @@ impl<'dir> File<'dir> {
         } else {
             f::Size::Some(self.metadata.len())
         }
+    }
+
+
+    /// Calculate the total directory size recursively.  If not a directory `None`
+    /// will be returned.  The directory size is cached for recursive directory
+    /// listing.
+    #[cfg(unix)]
+    fn recursive_directory_size(&self) -> RecursiveSize {
+        if self.is_directory() {
+            let key = (self.metadata.dev(), self.metadata.ino());
+            if let Some(size) = DIRECTORY_SIZE_CACHE.lock().unwrap().get(&key) {
+                return RecursiveSize::Some(*size);
+            }
+            Dir::read_dir(self.path.clone()).map_or(RecursiveSize::Unknown, |dir| {
+                let mut size = 0;
+                for file in dir
+                    .files(super::DotFilter::Dotfiles, None, false, false, true)
+                    .flatten()
+                {
+                    size += match file.recursive_directory_size() {
+                        RecursiveSize::Some(s) => s,
+                        _ => file.metadata.size(),
+                    }
+                }
+                DIRECTORY_SIZE_CACHE.lock().unwrap().insert(key, size);
+                RecursiveSize::Some(size)
+            })
+        } else {
+            RecursiveSize::None
+        }
+    }
+
+    /// Windows version always returns None.  The metadata for
+    /// `volume_serial_number` and `file_index` are marked unstable so we can
+    /// not cache the sizes.  Without caching we could end up walking the
+    /// directory structure several times.
+    #[cfg(windows)]
+    fn recursive_directory_size(&self) -> RecursiveSize {
+        RecursiveSize::None
+    }
+
+    /// Returns the same value as `self.metadata.len()` or the recursive size
+    /// of a directory when `total_size` is used.
+    #[inline]
+    pub fn length(&self) -> u64 {
+        self.recursive_size.unwrap_or(self.metadata.len())
+    }
+
+    /// Is the file is using recursive size calculation
+    #[inline]
+    pub fn is_recursive_size(&self) -> bool {
+        ! self.recursive_size.is_none()
     }
 
     /// Determines if the directory is empty or not.

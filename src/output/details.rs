@@ -347,7 +347,7 @@ impl<'a> Render<'a> {
                     self.git,
                     self.git_ignoring,
                     egg.file.deref_links,
-                    egg.file.total_size,
+                    egg.file.is_recursive_size(),
                 ) {
                     match file_to_add {
                         Ok(f) => {
