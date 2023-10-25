@@ -118,7 +118,6 @@ impl Icons {
     const VIM: char             = '\u{e7c5}';  // 
     const WRENCH: char          = '\u{f0ad}';  // 
     const XML: char             = '\u{f05c0}'; // 󰗀
-    const YAML: char            = '\u{e6a8}';  // 
     const YARN: char            = '\u{e6a7}';  // 
 }
 
@@ -777,8 +776,8 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "xpm"            => Icons::IMAGE,            // 
     "xul"            => Icons::XML,              // 󰗀
     "xz"             => Icons::COMPRESSED,       // 
-    "yaml"           => Icons::YAML,             // 
-    "yml"            => Icons::YAML,             // 
+    "yaml"           => Icons::CONFIG,           // 
+    "yml"            => Icons::CONFIG,           // 
     "z"              => Icons::COMPRESSED,       // 
     "zig"            => Icons::LANG_ZIG,         // 
     "zip"            => Icons::COMPRESSED,       // 
