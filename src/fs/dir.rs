@@ -77,6 +77,7 @@ impl Dir {
 }
 
 /// Iterator over reading the contents of a directory as `File` objects.
+#[allow(clippy::struct_excessive_bools)]
 pub struct Files<'dir, 'ig> {
     /// The internal iterator over the paths that have been read already.
     inner: SliceIter<'dir, PathBuf>,

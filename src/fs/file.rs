@@ -39,6 +39,7 @@ static DIRECTORY_SIZE_CACHE: Lazy<Mutex<HashMap<(u64, u64), u64>>> =
 /// once, have its file extension extracted at least once, and have its metadata
 /// information queried at least once, so it makes sense to do all this at the
 /// start and hold on to all the information.
+#[allow(clippy::struct_excessive_bools)]
 pub struct File<'dir> {
     /// The filename portion of this file’s path, including the extension.
     ///
@@ -140,7 +141,7 @@ impl<'dir> File<'dir> {
         };
 
         if total_size {
-            file.recursive_size = file.total_directory_size()
+            file.recursive_size = file.total_directory_size();
         }
 
         Ok(file)
@@ -176,7 +177,7 @@ impl<'dir> File<'dir> {
         };
 
         if total_size {
-            file.recursive_size = file.total_directory_size()
+            file.recursive_size = file.total_directory_size();
         }
 
         Ok(file)
@@ -482,10 +483,10 @@ impl<'dir> File<'dir> {
     #[cfg(unix)]
     pub fn user(&self) -> Option<f::User> {
         if self.is_link() && self.deref_links {
-            match self.link_target_recurse() {
-                FileTarget::Ok(f) => return f.user(),
-                _ => return None,
-            }
+            return match self.link_target_recurse() {
+                FileTarget::Ok(f) => f.user(),
+                _ => None,
+            };
         }
         Some(f::User(self.metadata.uid()))
     }
@@ -494,10 +495,10 @@ impl<'dir> File<'dir> {
     #[cfg(unix)]
     pub fn group(&self) -> Option<f::Group> {
         if self.is_link() && self.deref_links {
-            match self.link_target_recurse() {
-                FileTarget::Ok(f) => return f.group(),
-                _ => return None,
-            }
+            return match self.link_target_recurse() {
+                FileTarget::Ok(f) => f.group(),
+                _ => None,
+            };
         }
         Some(f::Group(self.metadata.gid()))
     }
@@ -521,8 +522,7 @@ impl<'dir> File<'dir> {
                 _ => f::Size::None,
             }
         } else if self.is_directory() {
-            self.recursive_size
-                .map_or(f::Size::None, |s| f::Size::Some(s))
+            self.recursive_size.map_or(f::Size::None, f::Size::Some)
         } else if self.is_char_device() || self.is_block_device() {
             let device_id = self.metadata.rdev();
 
@@ -585,7 +585,7 @@ impl<'dir> File<'dir> {
     /// Returns the same value as `self.metadata.len()` or the recursive size
     /// of a directory when `total_size` is used.
     pub fn length(&self) -> u64 {
-        self.recursive_size.unwrap_or_else(|| self.metadata.len())
+        self.recursive_size.unwrap_or(self.metadata.len())
     }
 
     /// Returns the size of the file or indicates no size if it's a directory.
@@ -765,10 +765,10 @@ impl<'dir> File<'dir> {
             // If the chain of links is broken, we instead fall through and
             // return the permissions of the original link, as would have been
             // done if we were not dereferencing.
-            match self.link_target_recurse() {
-                FileTarget::Ok(f) => return f.permissions(),
-                _ => return None,
-            }
+            return match self.link_target_recurse() {
+                FileTarget::Ok(f) => f.permissions(),
+                _ => None,
+            };
         }
         let bits = self.metadata.mode();
         let has_bit = |bit| bits & bit == bit;
@@ -888,17 +888,17 @@ mod ext_test {
 
     #[test]
     fn extension() {
-        assert_eq!(Some("dat".to_string()), File::ext(Path::new("fester.dat")))
+        assert_eq!(Some("dat".to_string()), File::ext(Path::new("fester.dat")));
     }
 
     #[test]
     fn dotfile() {
-        assert_eq!(Some("vimrc".to_string()), File::ext(Path::new(".vimrc")))
+        assert_eq!(Some("vimrc".to_string()), File::ext(Path::new(".vimrc")));
     }
 
     #[test]
     fn no_extension() {
-        assert_eq!(None, File::ext(Path::new("jarlsberg")))
+        assert_eq!(None, File::ext(Path::new("jarlsberg")));
     }
 }
 
@@ -909,32 +909,32 @@ mod filename_test {
 
     #[test]
     fn file() {
-        assert_eq!("fester.dat", File::filename(Path::new("fester.dat")))
+        assert_eq!("fester.dat", File::filename(Path::new("fester.dat")));
     }
 
     #[test]
     fn no_path() {
-        assert_eq!("foo.wha", File::filename(Path::new("/var/cache/foo.wha")))
+        assert_eq!("foo.wha", File::filename(Path::new("/var/cache/foo.wha")));
     }
 
     #[test]
     fn here() {
-        assert_eq!(".", File::filename(Path::new(".")))
+        assert_eq!(".", File::filename(Path::new(".")));
     }
 
     #[test]
     fn there() {
-        assert_eq!("..", File::filename(Path::new("..")))
+        assert_eq!("..", File::filename(Path::new("..")));
     }
 
     #[test]
     fn everywhere() {
-        assert_eq!("..", File::filename(Path::new("./..")))
+        assert_eq!("..", File::filename(Path::new("./..")));
     }
 
     #[test]
     #[cfg(unix)]
     fn topmost() {
-        assert_eq!("/", File::filename(Path::new("/")))
+        assert_eq!("/", File::filename(Path::new("/")));
     }
 }
