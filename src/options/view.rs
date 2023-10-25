@@ -335,9 +335,39 @@ impl TimeFormat {
             "iso" => Ok(Self::ISOFormat),
             "long-iso" => Ok(Self::LongISO),
             "full-iso" => Ok(Self::FullISO),
-            fmt if fmt.starts_with('+') => Ok(Self::Custom {
-                fmt: fmt[1..].to_owned(),
-            }),
+            fmt if fmt.starts_with('+') => {
+                let mut lines = fmt[1..].lines();
+
+                // line 1 will be None when:
+                //   - there is nothing after `+`
+                // line 1 will be empty when:
+                //   - `+` is followed immediately by `\n`
+                let empty_non_recent_format_msg = "Custom timestamp format is empty, \
+                    please supply a chrono format string after the plus sign.";
+                let non_recent = lines.next().expect(empty_non_recent_format_msg);
+                let non_recent = if non_recent.is_empty() {
+                    panic!("{}", empty_non_recent_format_msg)
+                } else {
+                    non_recent.to_owned()
+                };
+
+                // line 2 will be None when:
+                //   - there is not a single `\n`
+                //   - there is nothing after the first `\n`
+                // line 2 will be empty when:
+                //   - there exist at least 2 `\n`, and no content between the 1st and 2nd `\n`
+                let empty_recent_format_msg = "Custom timestamp format for recent files is empty, \
+                    please supply a chrono format string at the second line.";
+                let recent = lines.next().map(|rec| {
+                    if rec.is_empty() {
+                        panic!("{}", empty_recent_format_msg)
+                    } else {
+                        rec.to_owned()
+                    }
+                });
+
+                Ok(Self::Custom { non_recent, recent })
+            }
             _ => Err(OptionsError::BadArgument(&flags::TIME_STYLE, word)),
         }
     }
