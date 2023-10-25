@@ -34,7 +34,7 @@ _eza() {
             ;;
 
         --time-style)
-            mapfile -t COMPREPLY < <(compgen -W 'default iso long-iso full-iso relative --' -- "$cur")
+            mapfile -t COMPREPLY < <(compgen -W 'default iso long-iso full-iso relative +FORMAT --' -- "$cur")
             return
             ;;
 

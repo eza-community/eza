@@ -214,7 +214,11 @@ These options are available when running with `--long` (`-l`):
 `--time-style=STYLE`
 : How to format timestamps.
 
-: Valid timestamp styles are ‘`default`’, ‘`iso`’, ‘`long-iso`’, ‘`full-iso`’, ‘`relative`', or you can use a `custom` style with '`+`' as prefix. (Ex: "`+%Y/%m/%d, %H:%M`" => "`2023/9/30, 12:00`"). for more details about format syntax, please read: https://docs.rs/chrono/latest/chrono/format/strftime/index.html
+: Valid timestamp styles are ‘`default`’, ‘`iso`’, ‘`long-iso`’, ‘`full-iso`’, ‘`relative`’, or a custom style ‘`+<FORMAT>`’ (e.g., ‘`+%Y-%m-%d %H:%M`’ => ‘`2023-09-30 13:00`’).
+
+`<FORMAT>` should be a chrono format string.  For details on the chrono format syntax, please read: https://docs.rs/chrono/latest/chrono/format/strftime/index.html .
+
+Alternatively, `<FORMAT>` can be a two line string, the first line will be used for non-recent files and the second for recent files.  E.g., if `<FORMAT>` is "`%Y-%m-%d %H<newline>--%m-%d %H:%M`", non-recent files => "`2022-12-30 13`", recent files => "`--09-30 13:34`".
 
 `--total-size`
 : Show recursive directory size (unix only).
