@@ -46,7 +46,9 @@ pub enum TimeFormat {
     /// Use a relative but fixed width representation.
     Relative,
 
-    /// Use a custom format
+    /// Use custom formats, optionally a different custom format can be
+    /// specified for recent times, otherwise the same custom format will be
+    /// used for both recent and non-recent times.
     Custom {
         non_recent: String,
         recent: Option<String>,
