@@ -47,19 +47,24 @@ pub enum TimeFormat {
     Relative,
 
     /// Use a custom format
-    Custom { fmt: String },
+    Custom {
+        non_recent: String,
+        recent: Option<String>,
+    },
 }
 
 impl TimeFormat {
     pub fn format(self, time: &DateTime<FixedOffset>) -> String {
         #[rustfmt::skip]
         return match self {
-            Self::DefaultFormat  => default(time),
-            Self::ISOFormat      => iso(time),
-            Self::LongISO        => long(time),
-            Self::FullISO        => full(time),
-            Self::Relative       => relative(time),
-            Self::Custom { fmt } => custom(time, &fmt),
+            Self::DefaultFormat                 => default(time),
+            Self::ISOFormat                     => iso(time),
+            Self::LongISO                       => long(time),
+            Self::FullISO                       => full(time),
+            Self::Relative                      => relative(time),
+            Self::Custom { non_recent, recent } => custom(
+                time, non_recent.as_str(), recent.as_deref()
+            ),
         };
     }
 }
@@ -115,8 +120,16 @@ fn full(time: &DateTime<FixedOffset>) -> String {
     time.format("%Y-%m-%d %H:%M:%S.%f %z").to_string()
 }
 
-fn custom(time: &DateTime<FixedOffset>, fmt: &str) -> String {
-    time.format(fmt).to_string()
+fn custom(time: &DateTime<FixedOffset>, non_recent_fmt: &str, recent_fmt: Option<&str>) -> String {
+    if let Some(recent_fmt) = recent_fmt {
+        if time.year() == *CURRENT_YEAR {
+            time.format(recent_fmt).to_string()
+        } else {
+            time.format(non_recent_fmt).to_string()
+        }
+    } else {
+        time.format(non_recent_fmt).to_string()
+    }
 }
 
 static CURRENT_YEAR: Lazy<i32> = Lazy::new(|| Local::now().year());
