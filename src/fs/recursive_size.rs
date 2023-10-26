@@ -26,7 +26,7 @@ impl RecursiveSize {
     /// let x = RecursiveSize::Unknown;
     /// assert_eq!(x.is_none(), false);
     ///
-    /// let x = RecursiveSize::Some(0);
+    /// let x = RecursiveSize::Some(0, 0);
     /// assert_eq!(x.is_none(), false);
     #[inline]
     pub const fn is_none(&self) -> bool {
