@@ -240,7 +240,8 @@ impl SortField {
             Self::Name(ABCabc)  => natord::compare(&a.name, &b.name),
             Self::Name(AaBbCc)  => natord::compare_ignore_case(&a.name, &b.name),
 
-            Self::Size          => a.metadata.len().cmp(&b.metadata.len()),
+            Self::Size          => a.length().cmp(&b.length()),
+
             #[cfg(unix)]
             Self::FileInode     => a.metadata.ino().cmp(&b.metadata.ino()),
             Self::ModifiedDate  => a.modified_time().cmp(&b.modified_time()),
@@ -271,7 +272,7 @@ impl SortField {
             Self::NameMixHidden(AaBbCc) => natord::compare_ignore_case(
                 Self::strip_dot(&a.name),
                 Self::strip_dot(&b.name)
-            )
+            ),
         };
     }
 

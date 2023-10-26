@@ -9,3 +9,4 @@ pub mod feature;
 pub mod fields;
 pub mod filter;
 pub mod mounts;
+pub mod recursive_size;
