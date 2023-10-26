@@ -60,7 +60,7 @@ impl<'a> Render<'a> {
             let space_filename_offset = match self.file_style.quote_style {
                 QuoteStyle::QuoteSpaces if file.name.contains(' ') => 2,
                 QuoteStyle::NoQuotes => 0,
-                _ => 0, // Default case
+                QuoteStyle::QuoteSpaces => 0, // Default case
             };
             let contents = filename.paint();
             let width = match (
