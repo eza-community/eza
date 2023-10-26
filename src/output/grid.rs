@@ -8,6 +8,8 @@ use crate::output::file_name::{Classify, Options as FileStyle};
 use crate::output::file_name::{EmbedHyperlinks, ShowIcons};
 use crate::theme::Theme;
 
+use super::file_name::QuoteStyle;
+
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub struct Options {
     pub across: bool,
@@ -55,27 +57,34 @@ impl<'a> Render<'a> {
                 } else {
                     0
                 };
-
-            let space_filename_offset = if file.name.contains(' ') || file.name.contains('\'') {
-                2
-            } else {
-                0
+            let space_filename_offset = match self.file_style.quote_style {
+                QuoteStyle::QuoteSpaces if file.name.contains(' ') => 2,
+                QuoteStyle::NoQuotes => 0,
+                _ => 0, // Default case
             };
-
             let contents = filename.paint();
-            #[rustfmt::skip]
             let width = match (
                 filename.options.embed_hyperlinks,
                 filename.options.show_icons,
             ) {
-                ( EmbedHyperlinks::On, ShowIcons::Always(spacing) | ShowIcons::Automatic(spacing) )
-                    => filename.bare_width() + classification_width + 1 + (spacing as usize) + space_filename_offset,
-                ( EmbedHyperlinks::On, ShowIcons::Never )
-                    => filename.bare_width() + classification_width + space_filename_offset,
-                ( EmbedHyperlinks::Off, ShowIcons::Always(spacing) | ShowIcons::Automatic(spacing) )
-                    => filename.bare_width() + 1 + (spacing as usize) + space_filename_offset,
-                ( EmbedHyperlinks::Off, _ )
-                    => *contents.width(),
+                (
+                    EmbedHyperlinks::On,
+                    ShowIcons::Always(spacing) | ShowIcons::Automatic(spacing),
+                ) => {
+                    filename.bare_width()
+                        + classification_width
+                        + 1
+                        + (spacing as usize)
+                        + space_filename_offset
+                }
+                (EmbedHyperlinks::On, ShowIcons::Never) => {
+                    filename.bare_width() + classification_width + space_filename_offset
+                }
+                (
+                    EmbedHyperlinks::Off,
+                    ShowIcons::Always(spacing) | ShowIcons::Automatic(spacing),
+                ) => filename.bare_width() + 1 + (spacing as usize) + space_filename_offset,
+                (EmbedHyperlinks::Off, _) => *contents.width(),
             };
 
             grid.add(tg::Cell {
