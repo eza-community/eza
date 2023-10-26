@@ -16,7 +16,7 @@ readme = "README.md"
 homepage = "https://github.com/eza-community/eza"
 license = "MIT"
 repository = "https://github.com/eza-community/eza"
-version = "0.14.2"
+version = "0.15.1"
 
 
 [package.metadata.deb]
@@ -82,10 +82,11 @@ natord = "1.0"
 num_cpus = "1.16"
 number_prefix = "0.4"
 palette = { version = "0.7.3", default-features = false, features = ["std"] }
+once_cell = "1.18.0"
 percent-encoding = "2.3.0"
 phf = { version = "0.11.2", features = ["macros"] }
 scoped_threadpool = "0.1"
-term_grid = "0.1"
+uutils_term_grid = "0.3"
 terminal_size = "0.3.0"
 timeago = { version = "0.4.2", default-features = false }
 unicode-width = "0.1"
@@ -121,11 +122,6 @@ vendored-libgit2 = ["git2/vendored-libgit2"]
 nix = []
 # Should only be used inside of flake.nix locally (not on CI)
 nix-local = []
-
-
-# make dev builds faster by excluding debug symbols
-[profile.dev]
-debug = false
 
 # use LTO for smaller binaries (that take longer to build)
 [profile.release]

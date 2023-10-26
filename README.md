@@ -310,10 +310,9 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s.
 - **-T**, **--tree**: recurse into directories as a tree
 - **-x**, **--across**: sort the grid across, rather than downwards
 - **-F**, **--classify**: display type indicator by file names
-- **--colo[u]r**: when to use terminal colours
+- **--colo[u]r=(when)**: when to use terminal colours (always, auto, never)
 - **--colo[u]r-scale**: highlight levels of file sizes distinctly
-- **--icons**: display icons
-- **--no-icons**: don't display icons (always overrides --icons)
+- **--icons=(when)**: when to display icons (always, auto, never)
 - **--hyperlink**: display entries as hyperlinks
 - **-w**, **--width=(columns)**: set screen width in columns
 - **--decay=(mode)**: highlight newer files. valid options are `absolute`, `relative` or `none`
@@ -358,6 +357,7 @@ These options are available when running with `--long` (`-l`):
 - **--git-repos-no-status**: list whether a directory is a Git repository, but not its status (faster)
 - **--no-git**: suppress Git status (always overrides `--git`, `--git-repos`, `--git-repos-no-status`)
 - **--time-style**: how to format timestamps. valid timestamp styles are ‘`default`’, ‘`iso`’, ‘`long-iso`’, ‘`full-iso`’, ‘`relative`', or you can use a `custom` style with '`+`' as prefix. (Ex: "`+%Y/%m/%d, %H:%M`" => "`2023/9/30, 12:00`"). [more about format syntax](https://docs.rs/chrono/latest/chrono/format/strftime/index.html).
+- **--total-size**: show recursive directory size
 - **--no-permissions**: suppress the permissions field
 - **-o**, **--octal-permissions**: list each file's permission in octal format
 - **--no-filesize**: suppress the filesize field
@@ -366,7 +366,7 @@ These options are available when running with `--long` (`-l`):
 
 Some of the options accept parameters:
 
-- Valid **--co{u}lor** options are **always**, **automatic** (or **auto** for short), and **never**.
+- Valid **--colo\[u\]r** options are **always**, **automatic** (or **auto** for short), and **never**.
 - Valid sort fields are **accessed**, **changed**, **created**, **extension**, **Extension**, **inode**, **modified**, **name**, **Name**, **size**, **type**, and **none**. Fields starting with a capital letter sort uppercase before lowercase. The modified field has the aliases **date**, **time**, and **newest**, while its reverse has the aliases **age** and **oldest**.
 - Valid time fields are **modified**, **changed**, **accessed**, and **created**.
 - Valid time styles are **default**, **iso**, **long-iso**, **full-iso**, and **relative**.
@@ -427,4 +427,3 @@ The Nix Flake has a few features:
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=eza-community/eza&type=Date)](https://star-history.com/#eza-community/eza&Date)
-

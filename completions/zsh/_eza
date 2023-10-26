@@ -22,8 +22,7 @@ __eza() {
         {-F,--classify}"[Display type indicator by file names]" \
         --colo{,u}r="[When to use terminal colours]:(when):(always auto automatic never)" \
         --colo{,u}r-scale"[Highlight levels of file sizes distinctly]" \
-        --icons"[Display icons]" \
-        --no-icons"[Hide icons]" \
+        --icons="[When to display icons]:(when):(always auto automatic never)" \
         --no-quotes"[Don't quote filenames with spaces]" \
         --hyperlink"[Display entries as hyperlinks]" \
         --group-directories-first"[Sort directories before other files]" \
@@ -50,6 +49,7 @@ __eza() {
         {-S,--blocksize}"[List each file's size of allocated file system blocks.]" \
         {-t,--time}="[Which time field to show]:(time field):(accessed changed created modified)" \
         --time-style="[How to format timestamps]:(time style):(default iso long-iso full-iso relative)" \
+        --total-size="[Show recursive directory size]" \
         --no-permissions"[Suppress the permissions field]" \
         {-o,--octal-permissions}"[List each file's permission in octal format]" \
         --no-filesize"[Suppress the filesize field]" \
@@ -67,6 +67,7 @@ __eza() {
         {-M,--mounts}"[Show mount details (long mode only)]" \
         '*:filename:_files' \
         --decay"[Highlight newer files]:(decay mode):(none absolute relative)"
+        --smart-group"[Only show group if it has a different name from owner]"
 }
 
 __eza

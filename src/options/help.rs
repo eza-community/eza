@@ -22,11 +22,11 @@ DISPLAY OPTIONS
   -F, --classify     display type indicator by file names
   --colo[u]r=WHEN    when to use terminal colours (always, auto, never)
   --colo[u]r-scale   highlight levels of file sizes distinctly
-  --icons            display icons
-  --no-icons         don't display icons (always overrides --icons)
+  --icons=WHEN       when to display icons (always, auto, never)
   --no-quotes        don't quote file names with spaces
   --hyperlink        display entries as hyperlinks
   -w, --width COLS   set screen width in columns
+  --smart-group      only show group if it has a different name from owner
 
 
 FILTERING AND SORTING OPTIONS
@@ -65,6 +65,7 @@ LONG VIEW OPTIONS
   -U, --created            use the created timestamp field
   --changed                use the changed timestamp field
   --time-style             how to format timestamps (default, iso, long-iso, full-iso, relative, or a custom style with '+' as prefix. Ex: '+%Y/%m/%d')
+  --total-size             show the size of a directory as the size of all files and directories inside
   --no-permissions         suppress the permissions field
   -o, --octal-permissions  list each file's permission in octal format
   --no-filesize            suppress the filesize field
@@ -152,6 +153,6 @@ mod test {
     fn unhelpful() {
         let args = vec![];
         let opts = Options::parse(args, &None);
-        assert!(!matches!(opts, OptionsResult::Help(_))) // no help when --help isn’t passed
+        assert!(!matches!(opts, OptionsResult::Help(_))); // no help when --help isn’t passed
     }
 }

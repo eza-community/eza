@@ -88,11 +88,13 @@ Manually setting this option overrides `NO_COLOR` environment.
 `--color-scale`, `--colour-scale`
 : Colour file sizes on a scale.
 
-`--icons`
+`--icons=WHEN`
 : Display icons next to file names.
 
-`--no-icons`
-: Don't display icons. (Always overrides --icons)
+Valid settings are ‘`always`’, ‘`automatic`’ (‘`auto`’ for short), and ‘`never`’.
+The default value is ‘`automatic`’.
+
+`automatic` or `auto` will display icons only when the standard output is connected to a real terminal. If `eza` is ran while in a `tty`, or the output of `eza` is either redirected to a file or piped into another program, icons will not be used. Setting this option to ‘`always`’ causes `eza` to always display icons, while ‘`never`’ disables the use of icons.
 
 `--no-quotes`
 : Don't quote file names with spaces.
@@ -112,6 +114,8 @@ The default value is `none`
 `absolute` mode highlights based on file modification time relative to the past year.
 `relative` mode highlights based on file modification time in relation to other files. `none` disables highlighting.
 
+`--smart-group`
+: Only show group if it has a different name from owner
 
 FILTERING AND SORTING OPTIONS
 =============================
@@ -205,6 +209,9 @@ These options are available when running with `--long` (`-l`):
 
 : Valid timestamp styles are ‘`default`’, ‘`iso`’, ‘`long-iso`’, ‘`full-iso`’, ‘`relative`', or you can use a `custom` style with '`+`' as prefix. (Ex: "`+%Y/%m/%d, %H:%M`" => "`2023/9/30, 12:00`"). for more details about format syntax, please read: https://docs.rs/chrono/latest/chrono/format/strftime/index.html
 
+`--total-size`
+: Show recursive directory size.
+
 `-u`, `--accessed`
 : Use the accessed timestamp field.
 
@@ -234,7 +241,7 @@ These options are available when running with `--long` (`-l`):
 
 `--git`  [if eza was built with git support]
 : List each file’s Git status, if tracked.
-This adds a two-character column indicating the staged and unstaged statuses respectively. The status character can be ‘`-`’ for not modified, ‘`M`’ for a modified file, ‘`N`’ for a new file, ‘`D`’ for deleted, ‘`R`’ for renamed, ‘`T`’ for type-change, ‘`I`’ for ignored, and ‘`U`’ for conflicted. Directories will be shown to have the status of their contents, which is how ‘deleted’ is possible if a directory contains a file that has a certain status, it will be shown to have that status.  
+This adds a two-character column indicating the staged and unstaged statuses respectively. The status character can be ‘`-`’ for not modified, ‘`M`’ for a modified file, ‘`N`’ for a new file, ‘`D`’ for deleted, ‘`R`’ for renamed, ‘`T`’ for type-change, ‘`I`’ for ignored, and ‘`U`’ for conflicted. Directories will be shown to have the status of their contents, which is how ‘deleted’ is possible if a directory contains a file that has a certain status, it will be shown to have that status.
 
 `--git-repos` [if eza was built with git support]
 : List each directory’s Git status, if tracked.

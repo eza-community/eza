@@ -20,8 +20,12 @@ complete -c eza -l color \
 "
 complete -c eza -l color-scale \
     -l colour-scale -d "Highlight levels of file sizes distinctly"
-complete -c eza -l icons -d "Display icons"
-complete -c eza -l no-icons -d "Don't display icons"
+complete -c eza -l icons -d "When to display icons" -x -a "
+  always\t'Always display icons'
+  auto\t'Display icons if standard output is a terminal'
+  automatic\t'Display icons if standard output is a terminal'
+  never\t'Never display icons'
+"
 complete -c eza -l no-quotes -d "Don't quote file names with spaces"
 complete -c eza -l hyperlink -d "Display entries as hyperlinks"
 complete -c eza -l decay -d "Highlight newer files" -x -a "
@@ -29,6 +33,7 @@ complete -c eza -l decay -d "Highlight newer files" -x -a "
     absolute\t'Highlight based on file modification time relative to the past year'
     relative\t'Highlight based on file modification time in relation to other files'
 "
+complete -c eza -l smart-group -d "Only show group if it has a different name from owner"
 
 # Filtering and sorting options
 complete -c eza -l group-directories-first -d "Sort directories before other files"
@@ -94,6 +99,7 @@ complete -c eza -l time-style -d "How to format timestamps" -x -a "
     full-iso\t'Display full ISO timestamps, up to the nanosecond'
     relative\t'Display relative timestamps'
 "
+complete -c eza -l total-size -d "Show recursive directory size"
 complete -c eza -l no-permissions -d "Suppress the permissions field"
 complete -c eza -s o -l octal-permissions -d "List each file's permission in octal format"
 complete -c eza -l no-filesize -d "Suppress the filesize field"
