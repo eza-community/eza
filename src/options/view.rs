@@ -3,16 +3,18 @@ use crate::options::parser::MatchedFlags;
 use crate::options::{flags, NumberSource, OptionsError, Vars};
 use crate::output::file_name::Options as FileStyle;
 use crate::output::grid_details::{self, RowThreshold};
-use crate::output::table::{Columns, Options as TableOptions, SizeFormat, TimeTypes, UserFormat};
+use crate::output::table::{
+    Columns, GroupFormat, Options as TableOptions, SizeFormat, TimeTypes, UserFormat,
+};
 use crate::output::time::TimeFormat;
 use crate::output::{details, grid, Mode, TerminalWidth, View};
 
 impl View {
     pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
         let mode = Mode::deduce(matches, vars)?;
-        let width = TerminalWidth::deduce(matches, vars)?;
-        let file_style = FileStyle::deduce(matches, vars)?;
         let deref_links = matches.has(&flags::DEREF_LINKS)?;
+        let width = TerminalWidth::deduce(matches, vars)?;
+        let file_style = FileStyle::deduce(matches, vars, width.actual_terminal_width().is_some())?;
         Ok(Self {
             mode,
             width,
@@ -231,25 +233,34 @@ impl TableOptions {
         let time_format = TimeFormat::deduce(matches, vars)?;
         let size_format = SizeFormat::deduce(matches)?;
         let user_format = UserFormat::deduce(matches)?;
-        let columns = Columns::deduce(matches)?;
+        let group_format = GroupFormat::deduce(matches)?;
+        let columns = Columns::deduce(matches, vars)?;
         Ok(Self {
             size_format,
             time_format,
             user_format,
+            group_format,
             columns,
         })
     }
 }
 
 impl Columns {
-    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
+    fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
+        use crate::options::vars;
         let time_types = TimeTypes::deduce(matches)?;
 
-        let git = matches.has(&flags::GIT)? && !matches.has(&flags::NO_GIT)?;
-        let subdir_git_repos = matches.has(&flags::GIT_REPOS)? && !matches.has(&flags::NO_GIT)?;
+        let no_git_env = vars
+            .get_with_fallback(vars::EXA_OVERRIDE_GIT, vars::EZA_OVERRIDE_GIT)
+            .is_some();
+
+        let git = matches.has(&flags::GIT)? && !matches.has(&flags::NO_GIT)? && !no_git_env;
+        let subdir_git_repos =
+            matches.has(&flags::GIT_REPOS)? && !matches.has(&flags::NO_GIT)? && !no_git_env;
         let subdir_git_repos_no_stat = !subdir_git_repos
             && matches.has(&flags::GIT_REPOS_NO_STAT)?
-            && !matches.has(&flags::NO_GIT)?;
+            && !matches.has(&flags::NO_GIT)?
+            && !no_git_env;
 
         let blocksize = matches.has(&flags::BLOCKSIZE)?;
         let group = matches.has(&flags::GROUP)?;
@@ -331,6 +342,13 @@ impl UserFormat {
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
         let flag = matches.has(&flags::NUMERIC)?;
         Ok(if flag { Self::Numeric } else { Self::Name })
+    }
+}
+
+impl GroupFormat {
+    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
+        let flag = matches.has(&flags::SMART_GROUP)?;
+        Ok(if flag { Self::Smart } else { Self::Regular })
     }
 }
 

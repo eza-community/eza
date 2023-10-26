@@ -356,7 +356,7 @@ dependencies = [
 
 [[package]]
 name = "eza"
-version = "0.14.1"
+version = "0.15.0"
 dependencies = [
  "ansiterm",
  "chrono",
@@ -374,11 +374,11 @@ dependencies = [
  "phf",
  "proc-mounts",
  "scoped_threadpool",
- "term_grid",
  "terminal_size",
  "timeago",
  "trycmd",
  "unicode-width",
+ "uutils_term_grid",
  "uzers",
  "windows-sys",
  "zoneinfo_compiled",
@@ -1068,15 +1068,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "term_grid"
-version = "0.1.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "230d3e804faaed5a39b08319efb797783df2fd9671b39b7596490cb486d702cf"
-dependencies = [
- "unicode-width",
-]
-
-[[package]]
 name = "terminal_size"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1222,6 +1213,15 @@ name = "utf8parse"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "711b9620af191e0cdc7468a8d14e709c3dcdb115b36f838e601583af800a370a"
+
+[[package]]
+name = "uutils_term_grid"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b389452a568698688dda38802068378a16c15c4af9b153cdd99b65391292bbc7"
+dependencies = [
+ "unicode-width",
+]
 
 [[package]]
 name = "uzers"

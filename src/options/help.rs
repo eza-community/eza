@@ -8,7 +8,7 @@ static USAGE_PART1: &str = "Usage:
   eza [options] [files...]
 
 META OPTIONS
-  -?, --help         show list of command-line options
+  --help             show list of command-line options
   -v, --version      show version of eza
 
 DISPLAY OPTIONS
@@ -18,17 +18,20 @@ DISPLAY OPTIONS
   -x, --across       sort the grid across, rather than downwards
   -R, --recurse      recurse into directories
   -T, --tree         recurse into directories as a tree
+  -X, --dereference  dereference symbolic links when displaying information
   -F, --classify     display type indicator by file names
   --colo[u]r=WHEN    when to use terminal colours (always, auto, never)
   --colo[u]r-scale   highlight levels of file sizes distinctly
-  --icons            display icons
-  --no-icons         don't display icons (always overrides --icons)
+  --icons=WHEN       when to display icons (always, auto, never)
   --no-quotes        don't quote file names with spaces
   --hyperlink        display entries as hyperlinks
   -w, --width COLS   set screen width in columns
+  --smart-group      only show group if it has a different name from owner
+
 
 FILTERING AND SORTING OPTIONS
   -a, --all                  show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories
+  -A, --almost-all           equivalent to --all; included for compatibility with `ls -A`
   -d, --list-dirs            list directories as files; don't list their contents
   -L, --level DEPTH          limit the depth of recursion
   -r, --reverse              reverse the sort order

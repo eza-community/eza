@@ -56,18 +56,26 @@ impl<'a> Render<'a> {
                     0
                 };
 
+            let space_filename_offset = if file.name.contains(' ') || file.name.contains('\'') {
+                2
+            } else {
+                0
+            };
+
             let contents = filename.paint();
+            #[rustfmt::skip]
             let width = match (
                 filename.options.embed_hyperlinks,
                 filename.options.show_icons,
             ) {
-                (EmbedHyperlinks::On, ShowIcons::On(spacing)) => {
-                    filename.bare_width() + classification_width + 1 + spacing
-                }
-                (EmbedHyperlinks::On, ShowIcons::Off) => {
-                    filename.bare_width() + classification_width
-                }
-                (EmbedHyperlinks::Off, _) => *contents.width(),
+                ( EmbedHyperlinks::On, ShowIcons::Always(spacing) | ShowIcons::Automatic(spacing) )
+                    => filename.bare_width() + classification_width + 1 + (spacing as usize) + space_filename_offset,
+                ( EmbedHyperlinks::On, ShowIcons::Never )
+                    => filename.bare_width() + classification_width + space_filename_offset,
+                ( EmbedHyperlinks::Off, ShowIcons::Always(spacing) | ShowIcons::Automatic(spacing) )
+                    => filename.bare_width() + 1 + (spacing as usize) + space_filename_offset,
+                ( EmbedHyperlinks::Off, _ )
+                    => *contents.width(),
             };
 
             grid.add(tg::Cell {

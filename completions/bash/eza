@@ -4,11 +4,16 @@ _eza() {
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     case "$prev" in
-        -'?'|--help|-v|--version)
+        --help|-v|--version|--smart-group)
             return
             ;;
 
         --colour)
+            mapfile -t COMPREPLY < <(compgen -W 'always automatic auto never' -- "$cur")
+            return
+            ;;
+
+        --icons)
             mapfile -t COMPREPLY < <(compgen -W 'always automatic auto never' -- "$cur")
             return
             ;;

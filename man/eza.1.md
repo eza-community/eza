@@ -38,6 +38,16 @@ EXAMPLES
 : Displays a tree of files, three levels deep, as well as each file’s metadata.
 
 
+META OPTIONS
+===============
+
+`--help`
+: Show list of command-line options.
+
+`-v`, `--version`
+: Show version of eza.
+
+
 DISPLAY OPTIONS
 ===============
 
@@ -59,6 +69,9 @@ DISPLAY OPTIONS
 `-T`, `--tree`
 : Recurse into directories as a tree.
 
+`-X`, `--dereference`
+: Dereference symbolic links when displaying information.
+
 `-x`, `--across`
 : Sort the grid across, rather than downwards.
 
@@ -75,11 +88,13 @@ Manually setting this option overrides `NO_COLOR` environment.
 `--color-scale`, `--colour-scale`
 : Colour file sizes on a scale.
 
-`--icons`
+`--icons=WHEN`
 : Display icons next to file names.
 
-`--no-icons`
-: Don't display icons. (Always overrides --icons)
+Valid settings are ‘`always`’, ‘`automatic`’ (‘`auto`’ for short), and ‘`never`’.
+The default value is ‘`automatic`’.
+
+`automatic` or `auto` will display icons only when the standard output is connected to a real terminal. If `eza` is ran while in a `tty`, or the output of `eza` is either redirected to a file or piped into another program, icons will not be used. Setting this option to ‘`always`’ causes `eza` to always display icons, while ‘`never`’ disables the use of icons.
 
 `--no-quotes`
 : Don't quote file names with spaces.
@@ -90,6 +105,9 @@ Manually setting this option overrides `NO_COLOR` environment.
 `-w`, `--width=COLS`
 : Set screen width in columns.
 
+`--smart-group`
+: Only show group if it has a different name from owner
+
 
 FILTERING AND SORTING OPTIONS
 =============================
@@ -97,6 +115,9 @@ FILTERING AND SORTING OPTIONS
 `-a`, `--all`
 : Show hidden and “dot” files.
 Use this twice to also show the ‘`.`’ and ‘`..`’ directories.
+
+`-A`, `--almost-all`
+: Equivalent to --all; included for compatibility with `ls -A`.
 
 `-d`, `--list-dirs`
 : List directories as regular files, rather than recursing and listing their contents.
@@ -273,6 +294,10 @@ See `https://no-color.org/` for details.
 Specifies the colour scheme used to highlight files based on their name and kind, as well as highlighting metadata and parts of the UI.
 
 For more information on the format of these environment variables, see the [eza_colors.5.md](eza_colors.5.md) manual page.
+
+## `EZA_OVERRIDE_GIT`
+
+Overrides any `--git` or `--git-repos` argument
 
 
 EXIT STATUSES

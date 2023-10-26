@@ -33,7 +33,9 @@ dev
 log
 
 tests/itest/vagrant/debug:
-symlinking -> a
+a
+symlink -> a
+symlink-broken -> ./b
 
 tests/itest/vagrant/dev:
 main.bf
