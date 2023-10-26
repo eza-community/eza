@@ -158,7 +158,6 @@ pub mod test {
         let expected = TextCell::paint_str(Fixed(80).normal(), "folk");
         assert_eq!(
             expected,
-
             group.render(&TestColours, &users, UserFormat::Name, GroupFormat::Regular)
         );
     }
