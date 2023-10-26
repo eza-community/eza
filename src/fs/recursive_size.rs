@@ -29,6 +29,7 @@ impl RecursiveSize {
     ///
     /// let x = RecursiveSize::Some(0, 0);
     /// assert_eq!(x.is_none(), false);
+    /// ```
     #[inline]
     pub const fn is_none(&self) -> bool {
         matches!(*self, Self::None)
@@ -64,6 +65,7 @@ impl RecursiveSize {
     /// assert_eq!(RecursiveSize::None.map_or(None, |s, _| Some(s * 2)), None);
     /// assert_eq!(RecursiveSize::Unknown.map_or(None, |s, _| Some(s * 2)), None);
     /// assert_eq!(RecursiveSize::Some(2, 3).map_or(None, |s, _| Some(s * 2)), Some(4));
+    /// ```
     #[inline]
     #[cfg_attr(target_family = "windows", allow(dead_code))]
     pub fn map_or<U, F>(self, default: U, f: F) -> U

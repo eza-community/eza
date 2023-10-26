@@ -65,7 +65,7 @@ LONG VIEW OPTIONS
   -U, --created            use the created timestamp field
   --changed                use the changed timestamp field
   --time-style             how to format timestamps (default, iso, long-iso, full-iso, relative, or a custom style with '+' as prefix. Ex: '+%Y/%m/%d')
-  --total-size             show recursive directory size
+  --total-size             show the size of a directory as the size of all files and directories inside
   --no-permissions         suppress the permissions field
   -o, --octal-permissions  list each file's permission in octal format
   --no-filesize            suppress the filesize field

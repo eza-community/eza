@@ -27,9 +27,10 @@ use crate::fs::recursive_size::RecursiveSize;
 use super::mounts::all_mounts;
 use super::mounts::MountedFs;
 
-// Mutex::new is const but HashMap::new is not const requiring us to use lazy
-// initialization. Replace with std::sync::LazyLock when it is stable.
 // Maps (device_id, inode) => (size_in_bytes, size_in_blocks)
+// Mutex::new is const but HashMap::new is not const requiring us to use lazy
+// initialization.
+// TODO: Replace with std::sync::LazyLock when it is stable.
 #[allow(clippy::type_complexity)]
 #[cfg(unix)]
 static DIRECTORY_SIZE_CACHE: Lazy<Mutex<HashMap<(u64, u64), (u64, u64)>>> =
