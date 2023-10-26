@@ -29,8 +29,10 @@ use super::mounts::MountedFs;
 
 // Mutex::new is const but HashMap::new is not const requiring us to use lazy
 // initialization. Replace with std::sync::LazyLock when it is stable.
+// Maps (device_id, inode) => (size_in_bytes, size_in_blocks)
+#[allow(clippy::type_complexity)]
 #[cfg(unix)]
-static DIRECTORY_SIZE_CACHE: Lazy<Mutex<HashMap<(u64, u64), u64>>> =
+static DIRECTORY_SIZE_CACHE: Lazy<Mutex<HashMap<(u64, u64), (u64, u64)>>> =
     Lazy::new(|| Mutex::new(HashMap::new()));
 
 /// A **File** is a wrapper around one of Rust’s `PathBuf` values, along with
@@ -137,9 +139,9 @@ impl<'dir> File<'dir> {
             parent_dir,
             is_all_all,
             deref_links,
+            recursive_size,
             extended_attributes,
             absolute_path,
-            recursive_size,
         };
 
         if total_size {
@@ -472,6 +474,10 @@ impl<'dir> File<'dir> {
                 FileTarget::Ok(f) => f.blocksize(),
                 _ => f::Blocksize::None,
             }
+        } else if self.is_directory() {
+            self.recursive_size.map_or(f::Blocksize::None, |_, blocks| {
+                f::Blocksize::Some(blocks * 512)
+            })
         } else if self.is_file() {
             // Note that metadata.blocks returns the number of blocks
             // for 512 byte blocks according to the POSIX standard
@@ -527,7 +533,8 @@ impl<'dir> File<'dir> {
                 _ => f::Size::None,
             }
         } else if self.is_directory() {
-            self.recursive_size.map_or(f::Size::None, f::Size::Some)
+            self.recursive_size
+                .map_or(f::Size::None, |bytes, _| f::Size::Some(bytes))
         } else if self.is_char_device() || self.is_block_device() {
             let device_id = self.metadata.rdev();
 
@@ -563,7 +570,6 @@ impl<'dir> File<'dir> {
         }
     }
 
-
     /// Calculate the total directory size recursively.  If not a directory `None`
     /// will be returned.  The directory size is cached for recursive directory
     /// listing.
@@ -572,21 +578,32 @@ impl<'dir> File<'dir> {
         if self.is_directory() {
             let key = (self.metadata.dev(), self.metadata.ino());
             if let Some(size) = DIRECTORY_SIZE_CACHE.lock().unwrap().get(&key) {
-                return RecursiveSize::Some(*size);
+                return RecursiveSize::Some(size.0, size.1);
             }
             Dir::read_dir(self.path.clone()).map_or(RecursiveSize::Unknown, |dir| {
                 let mut size = 0;
+                let mut blocks = 0;
                 for file in dir
                     .files(super::DotFilter::Dotfiles, None, false, false, true)
                     .flatten()
                 {
-                    size += match file.recursive_directory_size() {
-                        RecursiveSize::Some(s) => s,
-                        _ => file.metadata.size(),
+                    match file.recursive_directory_size() {
+                        RecursiveSize::Some(bytes, blks) => {
+                            size += bytes;
+                            blocks += blks;
+                        }
+                        RecursiveSize::Unknown => {}
+                        RecursiveSize::None => {
+                            size += file.metadata.size();
+                            blocks += file.metadata.blocks();
+                        }
                     }
                 }
-                DIRECTORY_SIZE_CACHE.lock().unwrap().insert(key, size);
-                RecursiveSize::Some(size)
+                DIRECTORY_SIZE_CACHE
+                    .lock()
+                    .unwrap()
+                    .insert(key, (size, blocks));
+                RecursiveSize::Some(size, blocks)
             })
         } else {
             RecursiveSize::None
@@ -606,13 +623,13 @@ impl<'dir> File<'dir> {
     /// of a directory when `total_size` is used.
     #[inline]
     pub fn length(&self) -> u64 {
-        self.recursive_size.unwrap_or(self.metadata.len())
+        self.recursive_size.unwrap_bytes_or(self.metadata.len())
     }
 
     /// Is the file is using recursive size calculation
     #[inline]
     pub fn is_recursive_size(&self) -> bool {
-        ! self.recursive_size.is_none()
+        !self.recursive_size.is_none()
     }
 
     /// Determines if the directory is empty or not.

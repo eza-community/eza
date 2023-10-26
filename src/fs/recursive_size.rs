@@ -7,8 +7,9 @@ pub enum RecursiveSize {
     None,
     /// Size should be computed but has not been computed yet
     Unknown,
-    /// Size has been computed
-    Some(u64),
+    /// Size has been computed.  First field is size in bytes and second field
+    /// is size in blocks
+    Some(u64, u64),
 }
 
 impl RecursiveSize {
@@ -39,14 +40,14 @@ impl RecursiveSize {
     /// ```
     /// use eza::fs::recursive_size::RecursiveSize;
     ///
-    /// assert_eq!(RecursiveSize::None.unwrap_or(1), 1);
-    /// assert_eq!(RecursiveSize::Unknown.unwrap_or(1), 1);
-    /// assert_eq!(RecursiveSize::Some(2).unwrap_or(1), 2);
+    /// assert_eq!(RecursiveSize::None.unwrap_bytes_or(1), 1);
+    /// assert_eq!(RecursiveSize::Unknown.unwrap_bytes_or(1), 1);
+    /// assert_eq!(RecursiveSize::Some(2, 3).unwrap_bytes_or(1), 2);
     /// ```
     #[inline]
-    pub const fn unwrap_or(self, default: u64) -> u64 {
+    pub const fn unwrap_bytes_or(self, default: u64) -> u64 {
         match self {
-            Self::Some(x) => x,
+            Self::Some(bytes, _blocks) => bytes,
             _ => default,
         }
     }
@@ -59,16 +60,16 @@ impl RecursiveSize {
     /// ```
     /// use eza::fs::recursive_size::RecursiveSize;
     ///
-    /// assert_eq!(RecursiveSize::None.map_or(None, |s| Some(s * 2)), None);
-    /// assert_eq!(RecursiveSize::Unknown.map_or(None, |s| Some(s * 2)), None);
-    /// assert_eq!(RecursiveSize::Some(2).map_or(None, |s| Some(s * 2)), Some(4));
+    /// assert_eq!(RecursiveSize::None.map_or(None, |s, _| Some(s * 2)), None);
+    /// assert_eq!(RecursiveSize::Unknown.map_or(None, |s, _| Some(s * 2)), None);
+    /// assert_eq!(RecursiveSize::Some(2, 3).map_or(None, |s, _| Some(s * 2)), Some(4));
     #[inline]
     pub fn map_or<U, F>(self, default: U, f: F) -> U
     where
-        F: FnOnce(u64) -> U,
+        F: FnOnce(u64, u64) -> U,
     {
         match self {
-            RecursiveSize::Some(x) => f(x),
+            RecursiveSize::Some(bytes, blocks) => f(bytes, blocks),
             _ => default,
         }
     }
