@@ -171,7 +171,7 @@ fn find_modified_time_ranges(
             match file.to_dir() {
                 Ok(dir) => {
                     let files: Vec<File<'_>> = dir
-                        .files(dot_filter, git, git_ignoring, false)
+                        .files(dot_filter, git, git_ignoring, false, false)
                         .flatten()
                         .collect();
 
