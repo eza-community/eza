@@ -9,6 +9,7 @@ pub enum RecursiveSize {
     Unknown,
     /// Size has been computed.  First field is size in bytes and second field
     /// is size in blocks
+    #[cfg_attr(target_family = "windows", allow(dead_code))]
     Some(u64, u64),
 }
 
@@ -64,6 +65,7 @@ impl RecursiveSize {
     /// assert_eq!(RecursiveSize::Unknown.map_or(None, |s, _| Some(s * 2)), None);
     /// assert_eq!(RecursiveSize::Some(2, 3).map_or(None, |s, _| Some(s * 2)), Some(4));
     #[inline]
+    #[cfg_attr(target_family = "windows", allow(dead_code))]
     pub fn map_or<U, F>(self, default: U, f: F) -> U
     where
         F: FnOnce(u64, u64) -> U,
