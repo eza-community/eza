@@ -203,7 +203,8 @@ impl Args {
                                 result_flags.push((flag, Some(inputs.next().unwrap())));
                             }
                             _ => {
-                                result_flags.push((flag, Some(bytes_to_os_str(default.as_bytes()))))
+                                result_flags
+                                    .push((flag, Some(bytes_to_os_str(default.as_bytes()))));
                             }
                         },
                     }
@@ -239,7 +240,8 @@ impl Args {
                                 result_flags.push((flag, None));
                             }
                             TakesValue::Optional(_, default) => {
-                                result_flags.push((flag, Some(bytes_to_os_str(default.as_bytes()))))
+                                result_flags
+                                    .push((flag, Some(bytes_to_os_str(default.as_bytes()))));
                             }
                             TakesValue::Necessary(values) => {
                                 return Err(ParseError::NeedsValue { flag, values });
@@ -303,7 +305,7 @@ impl Args {
                                     if is_optional_arg(remnants, values) {
                                         result_flags.push((flag, Some(remnants)));
                                     } else {
-                                        return Err(ParseError::ForbiddenValue { flag: flag });
+                                        return Err(ParseError::ForbiddenValue { flag });
                                     }
                                     break;
                                 } else if let Some(next_arg) = inputs.peek() {
