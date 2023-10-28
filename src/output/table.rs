@@ -13,7 +13,7 @@ use uzers::UsersCache;
 use crate::fs::feature::git::GitCache;
 use crate::fs::{fields as f, File};
 use crate::output::cell::TextCell;
-use crate::output::decay::DecayTimeRanges;
+use crate::output::decay::ColorScaleInformation;
 #[cfg(unix)]
 use crate::output::render::{GroupRender, OctalPermissionsRender, UserRender};
 use crate::output::render::{PermissionsPlusRender, TimeRender};
@@ -425,13 +425,12 @@ impl<'a> Table<'a> {
         &self,
         file: &File<'_>,
         xattrs: bool,
-        decay: Option<DecayTimeRanges>,
-        min_luminance: i32,
+        color_scale_info: Option<ColorScaleInformation>,
     ) -> Row {
         let cells = self
             .columns
             .iter()
-            .map(|c| self.display(file, *c, xattrs, decay, min_luminance))
+            .map(|c| self.display(file, *c, xattrs, color_scale_info))
             .collect();
 
         Row { cells }
@@ -472,8 +471,7 @@ impl<'a> Table<'a> {
         file: &File<'_>,
         column: Column,
         xattrs: bool,
-        decay: Option<DecayTimeRanges>,
-        min_luminance: i32,
+        color_scale_info: Option<ColorScaleInformation>,
     ) -> TextCell {
         match column {
             Column::Permissions => self.permissions_plus(file, xattrs).render(self.theme),
@@ -509,8 +507,8 @@ impl<'a> Table<'a> {
             Column::Octal => self.octal_permissions(file).render(self.theme.ui.octal),
 
             Column::Timestamp(time_type) => time_type.get_corresponding_time(file).render(
-                if let Some(decay) = decay {
-                    decay.adjust_style(self.theme.ui.date, file, time_type, min_luminance)
+                if let Some(cs) = color_scale_info {
+                    cs.apply_time_styles(self.theme.ui.date, file, time_type)
                 } else {
                     self.theme.ui.date
                 },

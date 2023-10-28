@@ -1,7 +1,9 @@
+use std::ffi::OsString;
+
 use crate::fs::feature::xattr;
 use crate::options::parser::MatchedFlags;
 use crate::options::{flags, vars, NumberSource, OptionsError, Vars};
-use crate::output::decay::Decay;
+use crate::output::decay::{ColorScaleMode, ColorScaleOptions};
 use crate::output::file_name::Options as FileStyle;
 use crate::output::grid_details::{self, RowThreshold};
 use crate::output::table::{
@@ -144,23 +146,13 @@ impl grid::Options {
 
 impl details::Options {
     fn deduce_tree<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        let min_luminance =
-            match vars.get_with_fallback(vars::EZA_MIN_LUMINANCE, vars::EXA_MIN_LUMINANCE) {
-                Some(var) => match var.to_string_lossy().parse() {
-                    Ok(luminance) if (-100..=100).contains(&luminance) => luminance,
-                    _ => 40,
-                },
-                None => 40,
-            };
-
         let details = details::Options {
             table: None,
             header: false,
             xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
             secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
             mounts: matches.has(&flags::MOUNTS)?,
-            decay: Decay::deduce(matches)?,
-            min_luminance,
+            color_scale: ColorScaleOptions::deduce(matches, vars)?,
         };
 
         Ok(details)
@@ -175,23 +167,13 @@ impl details::Options {
             }
         }
 
-        let min_luminance =
-            match vars.get_with_fallback(vars::EZA_MIN_LUMINANCE, vars::EXA_MIN_LUMINANCE) {
-                Some(var) => match var.to_string_lossy().parse() {
-                    Ok(luminance) if (-100..=100).contains(&luminance) => luminance,
-                    _ => 40,
-                },
-                None => 40,
-            };
-
         Ok(details::Options {
             table: Some(TableOptions::deduce(matches, vars)?),
             header: matches.has(&flags::HEADER)?,
             xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
             secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
             mounts: matches.has(&flags::MOUNTS)?,
-            decay: Decay::deduce(matches)?,
-            min_luminance,
+            color_scale: ColorScaleOptions::deduce(matches, vars)?,
         })
     }
 }
@@ -434,20 +416,65 @@ impl TimeTypes {
     }
 }
 
-impl Decay {
-    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let word = if let Some(w) = matches.get(&flags::DECAY)? {
-            w.to_os_string()
+impl ColorScaleOptions {
+    pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
+        let min_luminance =
+            match vars.get_with_fallback(vars::EZA_MIN_LUMINANCE, vars::EXA_MIN_LUMINANCE) {
+                Some(var) => match var.to_string_lossy().parse() {
+                    Ok(luminance) if (-100..=100).contains(&luminance) => luminance,
+                    _ => 40,
+                },
+                None => 40,
+            };
+
+        let mode = if let Some(w) = matches
+            .get(&flags::COLOR_SCALE_MODE)?
+            .or(matches.get(&flags::COLOUR_SCALE_MODE)?)
+        {
+            match w.to_str() {
+                Some("fixed") => ColorScaleMode::Fixed,
+                Some("gradient") => ColorScaleMode::Gradient,
+                _ => Err(OptionsError::BadArgument(
+                    &flags::COLOR_SCALE_MODE,
+                    w.to_os_string(),
+                ))?,
+            }
         } else {
-            return Ok(Self::None);
+            ColorScaleMode::Gradient
         };
 
-        match word.to_string_lossy().as_ref() {
-            "absolute" => Ok(Self::Absolute),
-            "relative" => Ok(Self::Relative),
-            "none" => Ok(Self::None),
-            _ => Err(OptionsError::BadArgument(&flags::DECAY, word)),
+        let mut options = ColorScaleOptions {
+            mode,
+            min_luminance,
+            size: false,
+            age: false,
+        };
+
+        let words = if let Some(w) = matches
+            .get(&flags::COLOR_SCALE)?
+            .or(matches.get(&flags::COLOUR_SCALE)?)
+        {
+            w.to_os_string()
+        } else {
+            return Ok(options);
+        };
+
+        for word in words.to_string_lossy().split(',') {
+            match word {
+                "all" => {
+                    options.size = true;
+                    options.age = true;
+                }
+                "age" => options.age = true,
+                "size" => options.size = true,
+                _ => Err(OptionsError::BadArgument(
+                    &flags::COLOR_SCALE,
+                    OsString::from(word),
+                ))?,
+            };
         }
+
+        Ok(options)
     }
 }
 

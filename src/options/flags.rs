@@ -20,8 +20,11 @@ pub static COLOR:  Arg = Arg { short: None, long: "color",  takes_value: TakesVa
 pub static COLOUR: Arg = Arg { short: None, long: "colour", takes_value: TakesValue::Optional(Some(WHEN), "auto") };
 const WHEN: &[&str] = &["always", "auto", "never"];
 
-pub static COLOR_SCALE:  Arg = Arg { short: None, long: "color-scale",  takes_value: TakesValue::Forbidden };
-pub static COLOUR_SCALE: Arg = Arg { short: None, long: "colour-scale", takes_value: TakesValue::Forbidden };
+pub static COLOR_SCALE:  Arg = Arg { short: None, long: "color-scale",  takes_value: TakesValue::Necessary(None) };
+pub static COLOUR_SCALE: Arg = Arg { short: None, long: "colour-scale", takes_value: TakesValue::Necessary(None) };
+pub static COLOR_SCALE_MODE:  Arg = Arg { short: None, long: "color-scale-mode",  takes_value: TakesValue::Necessary(Some(COLOR_SCALE_MODES))};
+pub static COLOUR_SCALE_MODE: Arg = Arg { short: None, long: "colour-scale-mode", takes_value: TakesValue::Necessary(Some(COLOR_SCALE_MODES))};
+const COLOR_SCALE_MODES: Values = &["fixed", "gradient"];
 
 // filtering and sorting options
 pub static ALL:         Arg = Arg { short: Some(b'a'), long: "all",         takes_value: TakesValue::Forbidden };
@@ -59,10 +62,8 @@ pub static TIME_STYLE:  Arg = Arg { short: None,       long: "time-style",  take
 pub static HYPERLINK:   Arg = Arg { short: None,       long: "hyperlink",   takes_value: TakesValue::Forbidden };
 pub static MOUNTS:      Arg = Arg { short: Some(b'M'), long: "mounts",      takes_value: TakesValue::Forbidden };
 pub static SMART_GROUP: Arg = Arg { short: None,       long: "smart-group", takes_value: TakesValue::Forbidden };
-pub static DECAY:       Arg = Arg { short: None,       long: "decay",       takes_value: TakesValue::Optional(Some(DECAYS), "relative")};
 const TIMES: Values = &["modified", "changed", "accessed", "created"];
 const TIME_STYLES: Values = &["default", "long-iso", "full-iso", "iso", "relative"];
-const DECAYS: Values = &["absolute", "relative", "none"];
 
 // suppressing columns
 pub static NO_PERMISSIONS: Arg = Arg { short: None, long: "no-permissions", takes_value: TakesValue::Forbidden };
@@ -83,14 +84,15 @@ pub static ALL_ARGS: Args = Args(&[
     &VERSION, &HELP,
 
     &ONE_LINE, &LONG, &GRID, &ACROSS, &RECURSE, &TREE, &CLASSIFY, &DEREF_LINKS,
-    &COLOR, &COLOUR, &COLOR_SCALE, &COLOUR_SCALE, &WIDTH, &NO_QUOTES,
+    &COLOR, &COLOUR, &COLOR_SCALE, &COLOUR_SCALE, &COLOR_SCALE_MODE, &COLOUR_SCALE_MODE,
+    &WIDTH, &NO_QUOTES,
 
     &ALL, &ALMOST_ALL, &LIST_DIRS, &LEVEL, &REVERSE, &SORT, &DIRS_FIRST,
     &IGNORE_GLOB, &GIT_IGNORE, &ONLY_DIRS, &ONLY_FILES,
 
     &BINARY, &BYTES, &GROUP, &NUMERIC, &HEADER, &ICONS, &INODE, &LINKS, &MODIFIED, &CHANGED,
     &BLOCKSIZE, &TOTAL_SIZE, &TIME, &ACCESSED, &CREATED, &TIME_STYLE, &HYPERLINK, &MOUNTS,
-    &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &SMART_GROUP, &DECAY,
+    &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &SMART_GROUP,
 
     &GIT, &NO_GIT, &GIT_REPOS, &GIT_REPOS_NO_STAT,
     &EXTENDED, &OCTAL, &SECURITY_CONTEXT

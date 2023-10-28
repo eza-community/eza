@@ -1,84 +1,80 @@
 use ansiterm::{Colour, Style};
-use chrono::{Months, NaiveDateTime, Utc};
 use palette::{FromColor, Oklab, Srgb};
 
 use crate::{
-    fs::{dir_action::RecurseOptions, feature::git::GitCache, DotFilter, File},
+    fs::{dir_action::RecurseOptions, feature::git::GitCache, fields::Size, DotFilter, File},
     output::{table::TimeType, tree::TreeDepth},
 };
 
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
-pub enum Decay {
-    None,
-    Absolute,
-    Relative,
+pub struct ColorScaleOptions {
+    pub mode: ColorScaleMode,
+    pub min_luminance: isize,
+
+    pub size: bool,
+    pub age: bool,
 }
 
-#[derive(Debug, Copy, Clone, Default)]
-pub struct FileModificationRange {
-    pub newest: NaiveDateTime,
-    pub oldest: NaiveDateTime,
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+pub enum ColorScaleMode {
+    Fixed,
+    Gradient,
 }
 
-#[derive(Debug, Copy, Clone, Default)]
-pub struct DecayTimeRanges {
-    pub accessed: Option<FileModificationRange>,
-    pub changed: Option<FileModificationRange>,
-    pub created: Option<FileModificationRange>,
-    pub modified: Option<FileModificationRange>,
+#[derive(Copy, Clone, Debug)]
+pub struct ColorScaleInformation {
+    pub options: ColorScaleOptions,
+
+    pub accessed: Option<Extremes>,
+    pub changed: Option<Extremes>,
+    pub created: Option<Extremes>,
+    pub modified: Option<Extremes>,
+
+    pub size: Option<Extremes>,
 }
 
-impl DecayTimeRanges {
-    /// Returns `current_time` as newest and `current_time - 1year` as oldest
-    /// for all fields
-    pub fn absolute() -> Self {
-        let newest = Utc::now().naive_utc();
-
-        let oldest = newest
-            .checked_sub_months(Months::new(12))
-            .unwrap_or(NaiveDateTime::UNIX_EPOCH); // current_time - 12_months
-
-        let reltime = FileModificationRange { newest, oldest };
-        Self {
-            accessed: Some(reltime),
-            changed: Some(reltime),
-            created: Some(reltime),
-            modified: Some(reltime),
-        }
-    }
-
-    /// Finds the oldest and newest modified, created, accessed and changed time
-    /// in given files recursively(if needed) while respecting filtering options
-    pub fn relative(
+impl ColorScaleInformation {
+    pub fn from_color_scale(
+        color_scale: ColorScaleOptions,
         files: &[File<'_>],
         dot_filter: DotFilter,
         git: Option<&GitCache>,
         git_ignoring: bool,
-        recurse: Option<RecurseOptions>,
-    ) -> Self {
-        let mut time_ranges = Self::default();
+        r: Option<RecurseOptions>,
+    ) -> Option<Self> {
+        if color_scale.mode == ColorScaleMode::Fixed {
+            None
+        } else {
+            let mut information = Self {
+                options: color_scale,
+                accessed: None,
+                changed: None,
+                created: None,
+                modified: None,
+                size: None,
+            };
 
-        find_modified_time_ranges(
-            &mut time_ranges,
-            files,
-            dot_filter,
-            git,
-            git_ignoring,
-            TreeDepth::root(),
-            recurse,
-        );
+            update_information_recursively(
+                &mut information,
+                files,
+                dot_filter,
+                git,
+                git_ignoring,
+                TreeDepth::root(),
+                r,
+            );
 
-        time_ranges
+            Some(information)
+        }
     }
 
-    pub fn adjust_style(
+    pub fn apply_time_styles(
         &self,
         mut style: Style,
         file: &File<'_>,
         time_type: TimeType,
-        min_luminance: i32,
     ) -> Style {
-        let decay_range = match time_type {
+        let range = match time_type {
             TimeType::Modified => self.modified,
             TimeType::Changed => self.changed,
             TimeType::Accessed => self.accessed,
@@ -88,72 +84,29 @@ impl DecayTimeRanges {
         if let (Some(fg), Some(file_time), Some(rel_time)) = (
             style.foreground,
             time_type.get_corresponding_time(file),
-            decay_range,
+            range,
         ) {
             let file_time = file_time.timestamp_millis() as f32;
-            let newest = rel_time.newest.timestamp_millis() as f32;
-            let oldest = rel_time.oldest.timestamp_millis() as f32;
 
-            let mut ratio = ((file_time - oldest) / (newest - oldest)).clamp(0.0, 1.0);
+            let mut ratio =
+                ((file_time - rel_time.min) / (rel_time.max - rel_time.min)).clamp(0.0, 1.0);
             if ratio.is_nan() {
                 ratio = 1.0;
             }
 
-            let luminance = luminance_from_relative_time(ratio, min_luminance as f32 / 100.0);
-            style.foreground = Some(adjust_luminance(fg, luminance));
+            style.foreground = Some(adjust_luminance(
+                fg,
+                ratio,
+                self.options.min_luminance as f32 / 100.0,
+            ));
         }
 
         style
     }
 }
 
-fn luminance_from_relative_time(relative_time: f32, min: f32) -> f32 {
-    (min + (1.0 - min) * (-4.0 * (1.0 - relative_time)).exp()).clamp(0.0, 1.0)
-}
-
-fn adjust_luminance(color: Colour, luminance: f32) -> Colour {
-    let color = Srgb::from_components(color.into_rgb()).into_linear();
-
-    let mut lab: Oklab = Oklab::from_color(color);
-    lab.l = luminance;
-
-    let adjusted_rgb: Srgb<f32> = Srgb::from_color(lab);
-    Colour::RGB(
-        (adjusted_rgb.red * 255.0).round() as u8,
-        (adjusted_rgb.green * 255.0).round() as u8,
-        (adjusted_rgb.blue * 255.0).round() as u8,
-    )
-}
-
-/// Update the `range` based on the given `time` value:
-/// - If `time` is greater than `range.newest`, update `range.newest` to `time`.
-/// - If `time` is less than `range.oldest`, update `range.oldest` to `time`.
-/// - If `time` has a value and `range` doesn't, initialize `range` with {newest: time, oldest: time}.
-fn update_range(
-    maybe_time: Option<NaiveDateTime>,
-    maybe_range: &mut Option<FileModificationRange>,
-) {
-    match (maybe_time, maybe_range) {
-        (Some(time), Some(range)) => {
-            if time > range.newest {
-                range.newest = time;
-            } else if time < range.oldest {
-                range.oldest = time;
-            };
-        }
-        (Some(t), rel) => {
-            let _ = rel.insert({
-                let (newest, oldest) = (t, t);
-                FileModificationRange { newest, oldest }
-            });
-        }
-        _ => (),
-    };
-}
-
-/// Determines the oldest and latest modisfication time ranges while considering filtering options
-fn find_modified_time_ranges(
-    time_ranges: &mut DecayTimeRanges,
+fn update_information_recursively(
+    information: &mut ColorScaleInformation,
     files: &[File<'_>],
     dot_filter: DotFilter,
     git: Option<&GitCache>,
@@ -162,10 +115,32 @@ fn find_modified_time_ranges(
     r: Option<RecurseOptions>,
 ) {
     for file in files {
-        update_range(file.created_time(), &mut time_ranges.created);
-        update_range(file.modified_time(), &mut time_ranges.modified);
-        update_range(file.accessed_time(), &mut time_ranges.accessed);
-        update_range(file.changed_time(), &mut time_ranges.changed);
+        if information.options.age {
+            Extremes::update(
+                file.created_time().map(|x| x.timestamp_millis() as f32),
+                &mut information.created,
+            );
+            Extremes::update(
+                file.modified_time().map(|x| x.timestamp_millis() as f32),
+                &mut information.modified,
+            );
+            Extremes::update(
+                file.accessed_time().map(|x| x.timestamp_millis() as f32),
+                &mut information.accessed,
+            );
+            Extremes::update(
+                file.changed_time().map(|x| x.timestamp_millis() as f32),
+                &mut information.changed,
+            );
+        }
+
+        if information.options.size {
+            let size = match file.size() {
+                Size::Some(size) => Some(size as f32),
+                _ => None,
+            };
+            Extremes::update(size, &mut information.size);
+        }
 
         if file.is_directory() && r.is_some_and(|x| !x.is_too_deep(depth.0)) {
             match file.to_dir() {
@@ -175,8 +150,8 @@ fn find_modified_time_ranges(
                         .flatten()
                         .collect();
 
-                    find_modified_time_ranges(
-                        time_ranges,
+                    update_information_recursively(
+                        information,
                         &files,
                         dot_filter,
                         git,
@@ -189,4 +164,47 @@ fn find_modified_time_ranges(
             }
         };
     }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct Extremes {
+    max: f32,
+    min: f32,
+}
+
+impl Extremes {
+    fn update(maybe_value: Option<f32>, maybe_range: &mut Option<Extremes>) {
+        match (maybe_value, maybe_range) {
+            (Some(value), Some(range)) => {
+                if value > range.max {
+                    range.max = value;
+                } else if value < range.min {
+                    range.min = value;
+                };
+            }
+            (Some(value), rel) => {
+                let _ = rel.insert({
+                    Extremes {
+                        max: value,
+                        min: value,
+                    }
+                });
+            }
+            _ => (),
+        };
+    }
+}
+
+fn adjust_luminance(color: Colour, x: f32, min_l: f32) -> Colour {
+    let color = Srgb::from_components(color.into_rgb()).into_linear();
+
+    let mut lab: Oklab = Oklab::from_color(color);
+    lab.l = (min_l + (1.0 - min_l) * (-4.0 * (1.0 - x)).exp()).clamp(0.0, 1.0);
+
+    let adjusted_rgb: Srgb<f32> = Srgb::from_color(lab);
+    Colour::RGB(
+        (adjusted_rgb.red * 255.0).round() as u8,
+        (adjusted_rgb.green * 255.0).round() as u8,
+        (adjusted_rgb.blue * 255.0).round() as u8,
+    )
 }

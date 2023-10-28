@@ -76,7 +76,7 @@ use crate::fs::fields::SecurityContextType;
 use crate::fs::filter::FileFilter;
 use crate::fs::{Dir, File};
 use crate::output::cell::TextCell;
-use crate::output::decay::{Decay, DecayTimeRanges};
+use crate::output::decay::{ColorScaleInformation, ColorScaleOptions};
 use crate::output::file_name::Options as FileStyle;
 use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams, TreeTrunk};
@@ -115,8 +115,7 @@ pub struct Options {
     /// Whether to show a directory's mounted filesystem details
     pub mounts: bool,
 
-    pub decay: Decay,
-    pub min_luminance: i32,
+    pub color_scale: ColorScaleOptions,
 }
 
 pub struct Render<'a> {
@@ -164,17 +163,14 @@ impl<'a> Render<'a> {
         let mut pool = Pool::new(n_cpus);
         let mut rows = Vec::new();
 
-        let decay_time_ranges = match self.opts.decay {
-            Decay::None => None,
-            Decay::Absolute => Some(DecayTimeRanges::absolute()),
-            Decay::Relative => Some(DecayTimeRanges::relative(
-                &self.files,
-                self.filter.dot_filter,
-                self.git,
-                self.git_ignoring,
-                self.recurse,
-            )),
-        };
+        let color_scale_info = ColorScaleInformation::from_color_scale(
+            self.opts.color_scale,
+            &self.files,
+            self.filter.dot_filter,
+            self.git,
+            self.git_ignoring,
+            self.recurse,
+        );
 
         if let Some(ref table) = self.opts.table {
             match (self.git, self.dir) {
@@ -208,7 +204,7 @@ impl<'a> Render<'a> {
                 &mut rows,
                 &self.files,
                 TreeDepth::root(),
-                decay_time_ranges,
+                color_scale_info,
             );
 
             for row in self.iterate_with_table(table.unwrap(), rows) {
@@ -221,7 +217,7 @@ impl<'a> Render<'a> {
                 &mut rows,
                 &self.files,
                 TreeDepth::root(),
-                decay_time_ranges,
+                color_scale_info,
             );
 
             for row in self.iterate(rows) {
@@ -254,7 +250,7 @@ impl<'a> Render<'a> {
         rows: &mut Vec<Row>,
         src: &[File<'dir>],
         depth: TreeDepth,
-        decay: Option<DecayTimeRanges>,
+        color_scale_info: Option<ColorScaleInformation>,
     ) {
         use crate::fs::feature::xattr;
         use std::sync::{Arc, Mutex};
@@ -302,12 +298,7 @@ impl<'a> Render<'a> {
                     };
 
                     let table_row = table.as_ref().map(|t| {
-                        t.row_for_file(
-                            file,
-                            self.show_xattr_hint(file),
-                            decay,
-                            self.opts.min_luminance,
-                        )
+                        t.row_for_file(file, self.show_xattr_hint(file), color_scale_info)
                     });
 
                     let mut dir = None;
@@ -398,7 +389,14 @@ impl<'a> Render<'a> {
                         ));
                     }
 
-                    self.add_files_to_table(pool, table, rows, &files, depth.deeper(), decay);
+                    self.add_files_to_table(
+                        pool,
+                        table,
+                        rows,
+                        &files,
+                        depth.deeper(),
+                        color_scale_info,
+                    );
                     continue;
                 }
             }

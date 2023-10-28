@@ -9,7 +9,7 @@ use crate::fs::feature::git::GitCache;
 use crate::fs::filter::FileFilter;
 use crate::fs::{Dir, File};
 use crate::output::cell::{DisplayWidth, TextCell};
-use crate::output::decay::{Decay, DecayTimeRanges};
+use crate::output::decay::ColorScaleInformation;
 use crate::output::details::{
     Options as DetailsOptions, Render as DetailsRender, Row as DetailsRow,
 };
@@ -149,31 +149,21 @@ impl<'a> Render<'a> {
 
         let drender = self.details_for_column();
 
-        let (first_table, _) = self.make_table(options, &drender);
+        let color_scale_info = ColorScaleInformation::from_color_scale(
+            self.details.color_scale,
+            &self.files,
+            self.filter.dot_filter,
+            self.git,
+            self.git_ignoring,
+            None,
+        );
 
-        let decay_time_ranges = match self.details.decay {
-            Decay::None => None,
-            Decay::Absolute => Some(DecayTimeRanges::absolute()),
-            Decay::Relative => Some(DecayTimeRanges::relative(
-                &self.files,
-                self.filter.dot_filter,
-                self.git,
-                self.git_ignoring,
-                None,
-            )),
-        };
+        let (first_table, _) = self.make_table(options, &drender);
 
         let rows = self
             .files
             .iter()
-            .map(|file| {
-                first_table.row_for_file(
-                    file,
-                    drender.show_xattr_hint(file),
-                    decay_time_ranges,
-                    self.details.min_luminance,
-                )
-            })
+            .map(|file| first_table.row_for_file(file, drender.show_xattr_hint(file), color_scale_info))
             .collect::<Vec<_>>();
 
         let file_names = self
