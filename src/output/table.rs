@@ -20,6 +20,8 @@ use crate::output::render::{PermissionsPlusRender, TimeRender};
 use crate::output::time::TimeFormat;
 use crate::theme::Theme;
 
+use super::decay::ColorScaleMode;
+
 /// Options for displaying a table.
 #[derive(PartialEq, Eq, Debug)]
 pub struct Options {
@@ -475,9 +477,12 @@ impl<'a> Table<'a> {
     ) -> TextCell {
         match column {
             Column::Permissions => self.permissions_plus(file, xattrs).render(self.theme),
-            Column::FileSize => file
-                .size()
-                .render(self.theme, self.size_format, &self.env.numeric),
+            Column::FileSize => file.size().render(
+                self.theme,
+                self.size_format,
+                &self.env.numeric,
+                color_scale_info,
+            ),
             #[cfg(unix)]
             Column::HardLinks => file.links().render(self.theme, &self.env.numeric),
             #[cfg(unix)]
@@ -507,8 +512,13 @@ impl<'a> Table<'a> {
             Column::Octal => self.octal_permissions(file).render(self.theme.ui.octal),
 
             Column::Timestamp(time_type) => time_type.get_corresponding_time(file).render(
-                if let Some(cs) = color_scale_info {
-                    cs.apply_time_styles(self.theme.ui.date, file, time_type)
+                if color_scale_info.is_some_and(|csi| csi.options.mode == ColorScaleMode::Gradient)
+                {
+                    color_scale_info.unwrap().apply_time_gradient(
+                        self.theme.ui.date,
+                        file,
+                        time_type,
+                    )
                 } else {
                     self.theme.ui.date
                 },

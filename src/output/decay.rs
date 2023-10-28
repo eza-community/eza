@@ -68,28 +68,9 @@ impl ColorScaleInformation {
         }
     }
 
-    pub fn apply_time_styles(
-        &self,
-        mut style: Style,
-        file: &File<'_>,
-        time_type: TimeType,
-    ) -> Style {
-        let range = match time_type {
-            TimeType::Modified => self.modified,
-            TimeType::Changed => self.changed,
-            TimeType::Accessed => self.accessed,
-            TimeType::Created => self.created,
-        };
-
-        if let (Some(fg), Some(file_time), Some(rel_time)) = (
-            style.foreground,
-            time_type.get_corresponding_time(file),
-            range,
-        ) {
-            let file_time = file_time.timestamp_millis() as f32;
-
-            let mut ratio =
-                ((file_time - rel_time.min) / (rel_time.max - rel_time.min)).clamp(0.0, 1.0);
+    pub fn adjust_style(&self, mut style: Style, value: f32, range: Option<Extremes>) -> Style {
+        if let (Some(fg), Some(range)) = (style.foreground, range) {
+            let mut ratio = ((value - range.min) / (range.max - range.min)).clamp(0.0, 1.0);
             if ratio.is_nan() {
                 ratio = 1.0;
             }
@@ -102,6 +83,21 @@ impl ColorScaleInformation {
         }
 
         style
+    }
+
+    pub fn apply_time_gradient(&self, style: Style, file: &File<'_>, time_type: TimeType) -> Style {
+        let range = match time_type {
+            TimeType::Modified => self.modified,
+            TimeType::Changed => self.changed,
+            TimeType::Accessed => self.accessed,
+            TimeType::Created => self.created,
+        };
+
+        if let Some(file_time) = time_type.get_corresponding_time(file) {
+            self.adjust_style(style, file_time.timestamp_millis() as f32, range)
+        } else {
+            style
+        }
     }
 }
 
