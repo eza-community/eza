@@ -13,6 +13,8 @@ export extern "eza" [
     --colour                   # When to use terminal colours
     --color-scale              # Highlight levels of file sizes distinctly
     --colour-scale             # Highlight levels of file sizes distinctly
+    --color-scale-mode         # Use gradient or fixed colors in --color-scale
+    --colour-scale-mode        # Use gradient or fixed colors in --colour-scale
     --icons                    # When to display icons
     --no-quotes                # Don't quote file names with spaces
     --hyperlink                # Display entries as hyperlinks
@@ -55,6 +57,5 @@ export extern "eza" [
     --git-repos-no-status      # List each git-repos branch name (much faster)
     --extended(-@)             # List each file's extended attributes and sizes
     --context(-Z)              # List each file's security context
-    --decay                    # Highlight newer files
     --smart-group              # Only show group if it has a different name from owner
 ]

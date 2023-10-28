@@ -12,21 +12,22 @@ META OPTIONS
   -v, --version      show version of eza
 
 DISPLAY OPTIONS
-  -1, --oneline      display one entry per line
-  -l, --long         display extended file metadata as a table
-  -G, --grid         display entries as a grid (default)
-  -x, --across       sort the grid across, rather than downwards
-  -R, --recurse      recurse into directories
-  -T, --tree         recurse into directories as a tree
-  -X, --dereference  dereference symbolic links when displaying information
-  -F, --classify     display type indicator by file names
-  --colo[u]r=WHEN    when to use terminal colours (always, auto, never)
-  --colo[u]r-scale   highlight levels of file sizes distinctly
-  --icons=WHEN       when to display icons (always, auto, never)
-  --no-quotes        don't quote file names with spaces
-  --hyperlink        display entries as hyperlinks
-  -w, --width COLS   set screen width in columns
-  --smart-group      only show group if it has a different name from owner
+  -1, --oneline            display one entry per line
+  -l, --long               display extended file metadata as a table
+  -G, --grid               display entries as a grid (default)
+  -x, --across             sort the grid across, rather than downwards
+  -R, --recurse            recurse into directories
+  -T, --tree               recurse into directories as a tree
+  -X, --dereference        dereference symbolic links when displaying information
+  -F, --classify           display type indicator by file names
+  --colo[u]r=WHEN          when to use terminal colours (always, auto, never)
+  --colo[u]r-scale         highlight levels of 'field' distinctly(all, age, size)
+  --colo[u]r-scale-mode    use gradient or fixed colors in --color-scale (fixed, gradient)
+  --icons=WHEN             when to display icons (always, auto, never)
+  --no-quotes              don't quote file names with spaces
+  --hyperlink              display entries as hyperlinks
+  -w, --width COLS         set screen width in columns
+  --smart-group            only show group if it has a different name from owner
 
 
 FILTERING AND SORTING OPTIONS
@@ -70,8 +71,7 @@ LONG VIEW OPTIONS
   -o, --octal-permissions  list each file's permission in octal format
   --no-filesize            suppress the filesize field
   --no-user                suppress the user field
-  --no-time                suppress the time field
-  --decay                  highlight newer files (none, absolute, relative)";
+  --no-time                suppress the time field";
 
 static GIT_VIEW_HELP:   &str = "  \
   --git                    list each file's Git status, if tracked or ignored

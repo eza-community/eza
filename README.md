@@ -311,11 +311,11 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s.
 - **-x**, **--across**: sort the grid across, rather than downwards
 - **-F**, **--classify**: display type indicator by file names
 - **--colo[u]r=(when)**: when to use terminal colours (always, auto, never)
-- **--colo[u]r-scale**: highlight levels of file sizes distinctly
+- **--colo[u]r-scale=(field)**: highlight levels of `field` distinctly(all, age, size)
+- **--color-scale-mode=(mode)**: use gradient or fixed colors in --color-scale. valid options are `fixed` or `gradient`
 - **--icons=(when)**: when to display icons (always, auto, never)
 - **--hyperlink**: display entries as hyperlinks
 - **-w**, **--width=(columns)**: set screen width in columns
-- **--decay=(mode)**: highlight newer files. valid options are `absolute`, `relative` or `none`
 
 ### Filtering options
 

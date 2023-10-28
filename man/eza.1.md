@@ -86,7 +86,14 @@ The default behavior (‘`automatic`’ or ‘`auto`’) is to colorize the outp
 Manually setting this option overrides `NO_COLOR` environment.
 
 `--color-scale`, `--colour-scale`
-: Colour file sizes on a scale.
+: highlight levels of `field` distinctly.
+Use comma(,) separated list of all, age, size
+
+`--color-scale-mode`, `--colour-scale-mode`
+: Use gradient or fixed colors in `--color-scale`.
+
+Valid options are `fixed` or `gradient`.
+The default value is `gradient`.
 
 `--icons=WHEN`
 : Display icons next to file names.
@@ -104,9 +111,6 @@ The default value is ‘`automatic`’.
 
 `-w`, `--width=COLS`
 : Set screen width in columns.
-
-`--decay=MODE`
-: Highlight newer files.
 
 Valid options are `none`, `absolute` or `relative`.
 The default value is `none`

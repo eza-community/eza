@@ -38,8 +38,13 @@ _eza() {
             return
             ;;
 
-        --decay)
-            mapfile -t COMPREPLY < <(compgen -W 'none absolute relative --' -- "$cur")
+        --color-scale)
+            mapfile -t COMPREPLY < <(compgen -W 'all age size --' -- "$cur")
+            return
+            ;;
+
+        --color-scale-mode)
+            mapfile -t COMPREPLY < <(compgen -W 'fixed gradient --' -- "$cur")
             return
             ;;
     esac
