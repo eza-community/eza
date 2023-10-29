@@ -5,8 +5,8 @@ use std::sync::{Mutex, MutexGuard};
 
 use chrono::prelude::*;
 
-use lazy_static::lazy_static;
 use log::*;
+use once_cell::sync::Lazy;
 #[cfg(unix)]
 use uzers::UsersCache;
 
@@ -352,9 +352,7 @@ impl Environment {
     }
 }
 
-lazy_static! {
-    static ref ENVIRONMENT: Environment = Environment::load_all();
-}
+static ENVIRONMENT: Lazy<Environment> = Lazy::new(Environment::load_all);
 
 pub struct Table<'a> {
     columns: Vec<Column>,
@@ -476,6 +474,7 @@ impl<'a> Table<'a> {
                 &*self.env.lock_users(),
                 self.user_format,
                 self.group_format,
+                file.user(),
             ),
             #[cfg(unix)]
             Column::SecurityContext => file.security_context().render(self.theme),
