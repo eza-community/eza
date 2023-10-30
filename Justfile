@@ -304,8 +304,8 @@ gen_test_dir:
     dd if=/dev/zero of=size/1K bs=1 count=0 seek=1K
     touch size/1B --date=@0
     dd if=/dev/zero of=size/1B bs=1 count=0 seek=1
-    touch size/69 --date=@0
-    dd if=/dev/zero of=size/69 bs=1 count=0 seek=69
+    touch size/1337 --date=@0
+    dd if=/dev/zero of=size/1337 bs=1 count=0 seek=1337
     # END test_size
     
     # BEGIN test_time
