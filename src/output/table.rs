@@ -54,7 +54,7 @@ pub struct Columns {
 }
 
 impl Columns {
-    pub fn collect(&self, actually_enable_git: bool) -> Vec<Column> {
+    pub fn collect(&self, actually_enable_git: bool, git_repos: bool) -> Vec<Column> {
         let mut columns = Vec::with_capacity(4);
 
         if self.inode {
@@ -120,11 +120,11 @@ impl Columns {
             columns.push(Column::GitStatus);
         }
 
-        if self.subdir_git_repos {
+        if self.subdir_git_repos && git_repos {
             columns.push(Column::SubdirGitRepo(true));
         }
 
-        if self.subdir_git_repos_no_stat {
+        if self.subdir_git_repos_no_stat && git_repos {
             columns.push(Column::SubdirGitRepo(false));
         }
 
@@ -374,10 +374,17 @@ pub struct Row {
 }
 
 impl<'a> Table<'a> {
-    pub fn new(options: &'a Options, git: Option<&'a GitCache>, theme: &'a Theme) -> Table<'a> {
-        let columns = options.columns.collect(git.is_some());
+    pub fn new(
+        options: &'a Options,
+        git: Option<&'a GitCache>,
+        theme: &'a Theme,
+        git_repos: bool,
+    ) -> Table<'a> {
+        let columns = options.columns.collect(git.is_some(), git_repos);
         let widths = TableWidths::zero(columns.len());
         let env = &*ENVIRONMENT;
+
+        debug!("Creating table with columns: {:?}", columns);
 
         Table {
             theme,
