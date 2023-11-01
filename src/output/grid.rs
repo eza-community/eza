@@ -83,7 +83,7 @@ impl<'a> Render<'a> {
                 (
                     EmbedHyperlinks::Off,
                     ShowIcons::Always(spacing) | ShowIcons::Automatic(spacing),
-                ) => filename.bare_width() + 1 + (spacing as usize) + space_filename_offset,
+                ) => filename.bare_width() + classification_width + 1 + (spacing as usize) + space_filename_offset,
                 (EmbedHyperlinks::Off, _) => *contents.width(),
             };
 
