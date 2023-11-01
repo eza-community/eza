@@ -16,13 +16,13 @@ fn cli_windows_tests() {
 }
 
 #[test]
-#[cfg(feature = "nix")]
-fn cli_nix_tests() {
-    trycmd::TestCases::new().case("tests/cmd/*_nix.toml");
-}
-
-#[test]
 #[cfg(feature = "nix-local")]
 fn cli_nix_local_tests() {
     trycmd::TestCases::new().case("tests/cmd/*_nix_local.toml");
+}
+
+#[test]
+#[cfg(feature = "nix")]
+fn cli_nix_generated_tests() {
+    trycmd::TestCases::new().case("tests/gen/*.toml");
 }
