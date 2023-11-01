@@ -124,6 +124,7 @@ nix-local = []
 # Should only be used inside of flake.nix
 # Shouldn't ever be used in CI (slow!)
 powertest = []
+nix-generated = []
 
 # use LTO for smaller binaries (that take longer to build)
 [profile.release]

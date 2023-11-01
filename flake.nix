@@ -151,10 +151,11 @@
             release = false;
             # buildPhase files differ between dep and main phase
             singleStep = true;
-            # set itests files creation date to unix epoch
-            buildPhase = ''touch --date=@0 tests/itest/*'';
+            # generate testing files
+            buildPhase = ''bash devtools/dir-generator.sh tests/test_dir && echo "Dir generated"'';
             cargoTestOptions = opts: opts ++ ["--features nix"];
             inherit buildInputs;
+            nativeBuildInputs = with pkgs; [git];
           };
 
           # TODO: add conditionally to checks.
@@ -168,9 +169,10 @@
             # buildPhase files differ between dep and main phase
             singleStep = true;
             # set itests files creation date to unix epoch
-            buildPhase = ''touch --date=@0 tests/itest/*'';
+            buildPhase = ''touch --date=@0 tests/itest/* && bash devtools/dir-generator.sh tests/test_dir'';
             cargoTestOptions = opts: opts ++ ["--features nix" "--features nix-local" "--features powertest"];
             inherit buildInputs;
+            nativeBuildInputs = with pkgs; [git];
           };
 
           # Run `nix build .#trydump` to dump testing files
@@ -184,6 +186,7 @@
             singleStep = true;
             # set itests files creation date to unix epoch
             buildPhase = ''
+              bash devtools/dir-generator.sh tests/test_dir
               touch --date=@0 tests/itest/*;
               rm tests/cmd/*.stdout || echo;
               rm tests/cmd/*.stderr || echo;
@@ -198,6 +201,7 @@
               cp dump $out -r
             '';
             inherit buildInputs;
+            nativeBuildInputs = with pkgs; [git];
           };
         };
 
