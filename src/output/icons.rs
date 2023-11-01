@@ -103,6 +103,7 @@ impl Icons {
     const SUBTITLE: char        = '\u{f0a16}'; // 󰨖
     const TERRAFORM: char       = '\u{f1062}'; // 󱁢
     const TEXT: char            = '\u{f15c}';  // 
+    const TYPST: char           = '\u{1D42D}'; // 𝐭
     const UNITY: char           = '\u{e721}';  // 
     const VECTOR: char          = '\u{f0559}'; // 󰕙
     const VIDEO: char           = '\u{f03d}';  // 
@@ -702,6 +703,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "ttf"            => Icons::FONT,             // 
     "twig"           => '\u{e61c}',              // 
     "txt"            => Icons::TEXT,             // 
+    "typ"            => Icons::TYPST,            // 𝐭
     "txz"            => Icons::COMPRESSED,       // 
     "tz"             => Icons::COMPRESSED,       // 
     "tzo"            => Icons::COMPRESSED,       // 
