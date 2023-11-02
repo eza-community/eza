@@ -111,6 +111,8 @@ impl Icons {
     const SLIDE: char           = '\u{f1c4}';  // 
     const SUBLIME: char         = '\u{e7aa}';  // 
     const SUBTITLE: char        = '\u{f0a16}'; // 󰨖
+    const SYMLINK: char         = '\u{f481}';  // 
+    const SYMLINK_DIR: char     = '\u{f482}';  // 
     const TERRAFORM: char       = '\u{f1062}'; // 󱁢
     const TEXT: char            = '\u{f15c}';  // 
     const UNITY: char           = '\u{e721}';  // 
@@ -812,10 +814,15 @@ pub fn icon_for_file(file: &File<'_>) -> char {
         *DIRECTORY_ICONS.get(file.name.as_str()).unwrap_or_else(|| {
             if file.is_empty_dir() {
                 &Icons::FOLDER_OPEN // 
-            } else {
+            } else if file.is_link() {
+                &Icons::SYMLINK_DIR
+            }
+            else {
                 &Icons::FOLDER // 
             }
         })
+    } else if file.is_link() {
+        Icons::SYMLINK // 
     } else if let Some(icon) = FILENAME_ICONS.get(file.name.as_str()) {
         *icon
     } else if let Some(ext) = file.ext.as_ref() {
