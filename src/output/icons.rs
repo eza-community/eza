@@ -816,6 +816,7 @@ pub fn iconify_style(style: Style) -> Style {
 
 /// Lookup the icon for a file based on the file's name, if the entry is a
 /// directory, or by the lowercase file extension.
+#[cfg(unix)]
 pub fn icon_for_file(file: &File<'_>) -> char {
     if file.points_to_directory() {
         *DIRECTORY_ICONS.get(file.name.as_str()).unwrap_or_else(|| {
@@ -833,15 +834,33 @@ pub fn icon_for_file(file: &File<'_>) -> char {
         *icon
     } else if let Some(ext) = file.ext.as_ref() {
         *EXTENSION_ICONS.get(ext.as_str()).unwrap_or(&Icons::FILE) // 
-    } else if cfg!(unix) {
+    } else if file.is_executable_file() {
+        Icons::SHELL_CMD // 
+    } else {
+        Icons::FILE_OUTLINE // 
+    }
+}
 
-        #[cfg(unix)]
-        if file.is_executable_file() {
-            Icons::SHELL_CMD // 
-        } else {
-            Icons::FILE_OUTLINE // 
-        }
-
+/// Lookup the icon for a file based on the file's name, if the entry is a
+/// directory, or by the lowercase file extension
+#[cfg(windows)]
+pub fn icon_for_file(file: &File<'_>) -> char {
+    if file.points_to_directory() {
+        *DIRECTORY_ICONS.get(file.name.as_str()).unwrap_or_else(|| {
+            if file.is_empty_dir() {
+                &Icons::FOLDER_OPEN // 
+            } else if file.is_link() {
+                &Icons::SYMLINK_DIR // 
+            } else {
+                &Icons::FOLDER // 
+            }
+        })
+    } else if file.is_link() {
+        Icons::SYMLINK // 
+    } else if let Some(icon) = FILENAME_ICONS.get(file.name.as_str()) {
+        *icon
+    } else if let Some(ext) = file.ext.as_ref() {
+        *EXTENSION_ICONS.get(ext.as_str()).unwrap_or(&Icons::FILE) // 
     } else {
         Icons::FILE_OUTLINE // 
     }
