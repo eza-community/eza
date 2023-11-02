@@ -828,6 +828,8 @@ pub fn icon_for_file(file: &File<'_>) -> char {
         *icon
     } else if let Some(ext) = file.ext.as_ref() {
         *EXTENSION_ICONS.get(ext.as_str()).unwrap_or(&Icons::FILE) // 
+    } else if file.is_executable_file() {
+        Icons::SHELL_CMD // 
     } else {
         Icons::FILE_OUTLINE // 
     }
