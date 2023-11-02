@@ -50,3 +50,6 @@ completions/nush/* @PThorpe92
 src/output/grid.rs @PThorpe92
 src/output/grid_details.rs @PThorpe92
 src/output/file_name.rs @PThorpe92
+
+# Options parsing
+src/options/* @MartinFillon
