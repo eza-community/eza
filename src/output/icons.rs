@@ -815,9 +815,8 @@ pub fn icon_for_file(file: &File<'_>) -> char {
             if file.is_empty_dir() {
                 &Icons::FOLDER_OPEN // 
             } else if file.is_link() {
-                &Icons::SYMLINK_DIR
-            }
-            else {
+                &Icons::SYMLINK_DIR // 
+            } else {
                 &Icons::FOLDER // 
             }
         })
