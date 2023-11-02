@@ -356,14 +356,13 @@ dependencies = [
 
 [[package]]
 name = "eza"
-version = "0.15.1"
+version = "0.15.2"
 dependencies = [
  "ansiterm",
  "chrono",
  "criterion",
  "git2",
  "glob",
- "lazy_static",
  "libc",
  "locale",
  "log",
@@ -554,12 +553,6 @@ checksum = "c5f195fe497f702db0f318b07fdd68edb16955aed830df8363d837542f8f935a"
 dependencies = [
  "wasm-bindgen",
 ]
-
-[[package]]
-name = "lazy_static"
-version = "1.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "libc"
