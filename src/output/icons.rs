@@ -203,6 +203,7 @@ const FILENAME_ICONS: Map<&'static str, char> = phf_map! {
     ".nix-channels"          => '\u{f313}',            // 
     ".mailcap"               => '\u{f01f0}',           // 󰇰
     ".mailmap"               => Icons::GIT,            // 
+    ".mime.types"            => '\u{f462}',            // 
     ".node_repl_history"     => Icons::NODEJS,         // 
     ".npmignore"             => Icons::NPM,            // 
     ".npmrc"                 => Icons::NPM,            // 
@@ -249,6 +250,7 @@ const FILENAME_ICONS: Map<&'static str, char> = phf_map! {
     "constraints.txt"        => Icons::LANG_PYTHON,    // 
     "COPYING"                => Icons::LICENSE,        // 
     "COPYRIGHT"              => Icons::LICENSE,        // 
+    "cron.deny"              => Icons::CONFIG,         // 
     "crontab"                => Icons::CONFIG,         // 
     "crypttab"               => Icons::CONFIG,         // 
     "csh.cshrc"              => Icons::SHELL,          // 󱆃
@@ -310,6 +312,7 @@ const FILENAME_ICONS: Map<&'static str, char> = phf_map! {
     "MANIFEST"               => Icons::LANG_PYTHON,    // 
     "MANIFEST.in"            => Icons::LANG_PYTHON,    // 
     "meson.build"            => Icons::WRENCH,         // 
+    "mime.types"             => '\u{f462}',            // 
     "npm-shrinkwrap.json"    => Icons::NPM,            // 
     "npmrc"                  => Icons::NPM,            // 
     "package-lock.json"      => Icons::NPM,            // 
@@ -332,6 +335,8 @@ const FILENAME_ICONS: Map<&'static str, char> = phf_map! {
     "settings.gradle.kts"    => Icons::GRADLE,         // 
     "shadow"                 => Icons::LOCK,           // 
     "shells"                 => Icons::CONFIG,         // 
+    "subgid"                 => Icons::CONFIG,         // 
+    "subuid"                 => Icons::CONFIG,         // 
     "sudoers"                => Icons::LOCK,           // 
     "timezone"               => Icons::CLOCK,          // 
     "tsconfig.json"          => Icons::LANG_TYPESCRIPT,// 
@@ -828,7 +833,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
         *icon
     } else if let Some(ext) = file.ext.as_ref() {
         *EXTENSION_ICONS.get(ext.as_str()).unwrap_or(&Icons::FILE) // 
-    } else if file.is_executable_file() {
+    } else if cfg!(unix) && (file.is_executable_file()) {
         Icons::SHELL_CMD // 
     } else {
         Icons::FILE_OUTLINE // 
