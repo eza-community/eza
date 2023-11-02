@@ -8,6 +8,7 @@ use std::slice::Iter as SliceIter;
 use log::*;
 
 use crate::fs::File;
+use crate::output::hidden_count::HiddenCount;
 
 /// A **Dir** provides a cached list of the file paths in a directory that’s
 /// being listed.
@@ -45,14 +46,15 @@ impl Dir {
 
     /// Produce an iterator of IO results of trying to read all the files in
     /// this directory.
-    pub fn files<'dir, 'ig>(
+    pub fn files<'dir, 'ig, 'hc>(
         &'dir self,
         dots: DotFilter,
         git: Option<&'ig GitCache>,
         git_ignoring: bool,
         deref_links: bool,
         total_size: bool,
-    ) -> Files<'dir, 'ig> {
+        hidden_count: Option<&'hc mut HiddenCount>,
+    ) -> Files<'dir, 'ig, 'hc> {
         Files {
             inner: self.contents.iter(),
             dir: self,
@@ -62,6 +64,7 @@ impl Dir {
             git_ignoring,
             deref_links,
             total_size,
+            hidden_count,
         }
     }
 
@@ -78,7 +81,7 @@ impl Dir {
 
 /// Iterator over reading the contents of a directory as `File` objects.
 #[allow(clippy::struct_excessive_bools)]
-pub struct Files<'dir, 'ig> {
+pub struct Files<'dir, 'ig, 'hc> {
     /// The internal iterator over the paths that have been read already.
     inner: SliceIter<'dir, PathBuf>,
 
@@ -101,9 +104,12 @@ pub struct Files<'dir, 'ig> {
 
     /// Whether to calculate the directory size recursively
     total_size: bool,
+
+    /// Where to count the number of hidden and ignored files
+    hidden_count: Option<&'hc mut HiddenCount>,
 }
 
-impl<'dir, 'ig> Files<'dir, 'ig> {
+impl<'dir, 'ig, 'hc> Files<'dir, 'ig, 'hc> {
     fn parent(&self) -> PathBuf {
         // We can’t use `Path#parent` here because all it does is remove the
         // last path component, which is no good for us if the path is
@@ -120,6 +126,9 @@ impl<'dir, 'ig> Files<'dir, 'ig> {
             if let Some(path) = self.inner.next() {
                 let filename = File::filename(path);
                 if !self.dotfiles && filename.starts_with('.') {
+                    if let Some(count) = &mut self.hidden_count {
+                        count.inc_hidden();
+                    }
                     continue;
                 }
 
@@ -127,12 +136,18 @@ impl<'dir, 'ig> Files<'dir, 'ig> {
                 // as an alternative to dot-prefix files.
                 #[cfg(windows)]
                 if !self.dotfiles && filename.starts_with('_') {
+                    if let Some(count) = &mut self.hidden_count {
+                        count.inc_hidden();
+                    }
                     continue;
                 }
 
                 if self.git_ignoring {
                     let git_status = self.git.map(|g| g.get(path, false)).unwrap_or_default();
                     if git_status.unstaged == GitStatus::Ignored {
+                        if let Some(count) = &mut self.hidden_count {
+                            count.inc_ignored();
+                        }
                         continue;
                     }
                 }
@@ -150,6 +165,9 @@ impl<'dir, 'ig> Files<'dir, 'ig> {
                 // hidden Windows hidden files should also be filtered out
                 #[cfg(windows)]
                 if !self.dotfiles && file.as_ref().is_ok_and(|f| f.attributes().hidden) {
+                    if let Some(count) = &mut self.hidden_count {
+                        count.inc_hidden();
+                    }
                     continue;
                 }
 
@@ -174,7 +192,7 @@ enum DotsNext {
     Files,
 }
 
-impl<'dir, 'ig> Iterator for Files<'dir, 'ig> {
+impl<'dir, 'ig, 'hc> Iterator for Files<'dir, 'ig, 'hc> {
     type Item = Result<File<'dir>, (PathBuf, io::Error)>;
 
     fn next(&mut self) -> Option<Self::Item> {

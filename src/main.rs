@@ -35,7 +35,9 @@ use crate::fs::feature::git::GitCache;
 use crate::fs::filter::GitIgnore;
 use crate::fs::{Dir, File};
 use crate::options::{vars, Options, OptionsResult, Vars};
-use crate::output::{details, escape, file_name, grid, grid_details, lines, Mode, View};
+use crate::output::{
+    details, escape, file_name, grid, grid_details, hidden_count::HiddenCount, lines, Mode, View,
+};
 use crate::theme::Theme;
 
 mod fs;
@@ -220,7 +222,7 @@ impl<'args> Exa<'args> {
         let is_only_dir = dirs.len() == 1 && no_files;
 
         self.options.filter.filter_argument_files(&mut files);
-        self.print_files(None, files)?;
+        self.print_files(None, files, None)?;
 
         self.print_dirs(dirs, no_files, is_only_dir, exit_status)
     }
@@ -259,12 +261,15 @@ impl<'args> Exa<'args> {
 
             let mut children = Vec::new();
             let git_ignore = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
+            let mut hidden_count = HiddenCount::new(self.options.filter.warn_hidden);
             for file in dir.files(
                 self.options.filter.dot_filter,
                 self.git.as_ref(),
                 git_ignore,
                 self.options.view.deref_links,
                 self.options.view.total_size,
+                // TODO: fix this
+                hidden_count.as_mut(),
             ) {
                 match file {
                     Ok(file) => children.push(file),
@@ -296,7 +301,7 @@ impl<'args> Exa<'args> {
                         }
                     }
 
-                    self.print_files(Some(&dir), children)?;
+                    self.print_files(Some(&dir), children, hidden_count.as_ref())?;
                     match self.print_dirs(child_dirs, false, false, exit_status) {
                         Ok(_) => (),
                         Err(e) => return Err(e),
@@ -305,14 +310,19 @@ impl<'args> Exa<'args> {
                 }
             }
 
-            self.print_files(Some(&dir), children)?;
+            self.print_files(Some(&dir), children, hidden_count.as_ref())?;
         }
 
         Ok(exit_status)
     }
 
     /// Prints the list of files using whichever view is selected.
-    fn print_files(&mut self, dir: Option<&Dir>, files: Vec<File<'_>>) -> io::Result<()> {
+    fn print_files(
+        &mut self,
+        dir: Option<&Dir>,
+        files: Vec<File<'_>>,
+        hidden_count: Option<&HiddenCount>,
+    ) -> io::Result<()> {
         if files.is_empty() {
             return Ok(());
         }
@@ -414,7 +424,13 @@ impl<'args> Exa<'args> {
                 };
                 r.render(&mut self.writer)
             }
+        }?;
+
+        if let Some(warn_line) = hidden_count.and_then(HiddenCount::render) {
+            writeln!(&mut self.writer, "{warn_line}")?;
         }
+
+        Ok(())
     }
 }
 
