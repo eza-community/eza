@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.15.2] - 2023-11-02
+
+### Bug Fixes
+
+- Correct width when --no-quotes is used
+- Clippy lint and add option to grid-details
+- --smart-group only works for current user
+
+### Features
+
+- Add Typst to the recognized files
+
+### Refactor
+
+- Replace `lazy_static` with `once_cell`
+- Replace plain values with TextColours
+
+### Testing
+
+- Added more content to the dir generator
+- Changed size of one of the files
+
 ## [0.15.1] - 2023-10-26
 
 ### Bug Fixes
@@ -23,6 +45,10 @@
 ### Features
 
 - Support for displaying blocksize on directories
+
+### Miscellaneous Tasks
+
+- Release eza v0.15.1
 
 ### Refactor
 
