@@ -302,6 +302,12 @@ For more information on the format of these environment variables, see the [eza_
 
 Overrides any `--git` or `--git-repos` argument
 
+## `EZA_ICONS_AUTO`
+
+If set, automates the same behavior as using `--icons` or `--icons=auto`. Useful for if you always want to have icons enabled.
+
+Any explicit use of the `--icons=WHEN` flag overrides this behavior. 
+
 
 EXIT STATUSES
 =============
