@@ -14,7 +14,7 @@ export extern "eza" [
     --color-scale              # Highlight levels of file sizes distinctly
     --colour-scale             # Highlight levels of file sizes distinctly
     --icons                    # When to display icons
-    --no-quotes                # Don't quote file names with spaces
+    --quotes                   # When to quote filenames (always, auto, never)
     --hyperlink                # Display entries as hyperlinks
     --group-directories-first  # Sort directories before other files
     --git-ignore               # Ignore files mentioned in '.gitignore'

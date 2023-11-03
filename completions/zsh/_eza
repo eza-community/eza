@@ -23,7 +23,7 @@ __eza() {
         --colo{,u}r="[When to use terminal colours]:(when):(always auto automatic never)" \
         --colo{,u}r-scale"[Highlight levels of file sizes distinctly]" \
         --icons="[When to display icons]:(when):(always auto automatic never)" \
-        --no-quotes"[Don't quote filenames with spaces]" \
+        --quotes="[When to quote filenames]: (when): (always auto automatic never) \
         --hyperlink"[Display entries as hyperlinks]" \
         --group-directories-first"[Sort directories before other files]" \
         --git-ignore"[Ignore files mentioned in '.gitignore']" \

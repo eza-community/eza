@@ -96,8 +96,11 @@ The default value is ‘`automatic`’.
 
 `automatic` or `auto` will display icons only when the standard output is connected to a real terminal. If `eza` is ran while in a `tty`, or the output of `eza` is either redirected to a file or piped into another program, icons will not be used. Setting this option to ‘`always`’ causes `eza` to always display icons, while ‘`never`’ disables the use of icons.
 
-`--no-quotes`
-: Don't quote file names with spaces.
+`--quotes=WHEN` 
+: When to quote file names. Default is `auto` which is only when there are spaces in the name.
+
+Valid settings are `always`, `automatic`(`auto` for short), or `never`
+`always` will quote every file name, `never` will never quote any file name, and `automatic` will only quote file names when there are spaces in the name.
 
 `--hyperlink`
 : Display entries as hyperlinks
@@ -302,6 +305,15 @@ For more information on the format of these environment variables, see the [eza_
 
 Overrides any `--git` or `--git-repos` argument
 
+## `EZA_QUOTING_STYLE`
+
+Options are 'never' | 'always' | 'auto'
+
+'never' is equivalent to the `ls`' `-N` option or `QUOTING_STYLE=literal` option, where file names are never quoted
+
+'auto' is the default, and equivalent to the `ls`' `-Q` option or `QUOTING_STYLE=shell-escape` option, where file names are quoted when they contain spaces.
+
+'always' is equivalent to the `ls` `QUOTING_STYLE=shell-escape-always` option, where all file names are quoted.
 
 EXIT STATUSES
 =============
