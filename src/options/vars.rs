@@ -55,6 +55,10 @@ pub static EZA_ICON_SPACING: &str = "EZA_ICON_SPACING";
 pub static EXA_OVERRIDE_GIT: &str = "EXA_OVERRIDE_GIT";
 pub static EZA_OVERRIDE_GIT: &str = "EZA_OVERRIDE_GIT";
 
+/// Environment variable used to automate the same behavior as `--icons=auto` if set.
+/// Any explicit use of `--icons=WHEN` overrides this behavior.
+pub static EZA_ICONS_AUTO: &str = "EZA_ICONS_AUTO";
+
 /// Mockable wrapper for `std::env::var_os`.
 pub trait Vars {
     fn get(&self, name: &'static str) -> Option<OsString>;
