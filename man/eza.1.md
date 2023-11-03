@@ -304,9 +304,9 @@ Overrides any `--git` or `--git-repos` argument
 
 ## `EZA_ICONS_AUTO`
 
-If set to `true`, automates the same behavior as `--icons` or `--icons=auto`. Useful for if you always want to have icons enabled.
+If set, automates the same behavior as using `--icons` or `--icons=auto`. Useful for if you always want to have icons enabled.
 
-Any use of the `--icons=WHEN` flag overrides this. 
+Any explicit use of the `--icons=WHEN` flag overrides this behavior. 
 
 
 EXIT STATUSES
