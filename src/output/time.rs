@@ -2,7 +2,7 @@
 
 use chrono::prelude::*;
 use core::cmp::max;
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use std::time::Duration;
 use unicode_width::UnicodeWidthStr;
 
@@ -119,22 +119,20 @@ fn custom(time: &DateTime<FixedOffset>, fmt: &str) -> String {
     time.format(fmt).to_string()
 }
 
-lazy_static! {
+static CURRENT_YEAR: Lazy<i32> = Lazy::new(|| Local::now().year());
 
-    static ref CURRENT_YEAR: i32 = Local::now().year();
+static LOCALE: Lazy<locale::Time> =
+    Lazy::new(|| locale::Time::load_user_locale().unwrap_or_else(|_| locale::Time::english()));
 
-    static ref LOCALE: locale::Time = {
-        locale::Time::load_user_locale()
-               .unwrap_or_else(|_| locale::Time::english())
-    };
-
-    static ref MAX_MONTH_WIDTH: usize = {
-        // Some locales use a three-character wide month name (Jan to Dec);
-        // others vary between three to four (1月 to 12月, juil.). We check each month width
-        // to detect the longest and set the output format accordingly.
-        (0..11).map(|i| UnicodeWidthStr::width(&*LOCALE.short_month_name(i))).max().unwrap()
-    };
-}
+static MAX_MONTH_WIDTH: Lazy<usize> = Lazy::new(|| {
+    // Some locales use a three-character wide month name (Jan to Dec);
+    // others vary between three to four (1月 to 12月, juil.). We check each month width
+    // to detect the longest and set the output format accordingly.
+    (0..11)
+        .map(|i| UnicodeWidthStr::width(&*LOCALE.short_month_name(i)))
+        .max()
+        .unwrap()
+});
 
 #[cfg(test)]
 mod test {

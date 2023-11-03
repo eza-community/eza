@@ -187,6 +187,7 @@ impl<'args> Exa<'args> {
                 None,
                 None,
                 self.options.view.deref_links,
+                self.options.view.total_size,
             ) {
                 Err(e) => {
                     exit_status = 2;
@@ -263,6 +264,7 @@ impl<'args> Exa<'args> {
                 self.git.as_ref(),
                 git_ignore,
                 self.options.view.deref_links,
+                self.options.view.total_size,
             ) {
                 match file {
                     Ok(file) => children.push(file),
@@ -397,8 +399,8 @@ impl<'args> Exa<'args> {
                 let filter = &self.options.filter;
                 let recurse = self.options.dir_action.recurse_options();
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
-
                 let git = self.git.as_ref();
+
                 let r = details::Render {
                     dir,
                     files,

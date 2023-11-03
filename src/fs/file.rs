@@ -1,24 +1,40 @@
 //! Files, and methods and fields to access their metadata.
 
+#[cfg(unix)]
+use std::collections::HashMap;
 use std::io;
 #[cfg(unix)]
 use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
 #[cfg(windows)]
 use std::os::windows::fs::MetadataExt;
 use std::path::{Path, PathBuf};
+#[cfg(unix)]
+use std::sync::Mutex;
 use std::sync::OnceLock;
 
 use chrono::prelude::*;
 
 use log::*;
+#[cfg(unix)]
+use once_cell::sync::Lazy;
 
 use crate::fs::dir::Dir;
 use crate::fs::feature::xattr;
 use crate::fs::feature::xattr::{Attribute, FileAttributes};
 use crate::fs::fields as f;
+use crate::fs::recursive_size::RecursiveSize;
 
 use super::mounts::all_mounts;
 use super::mounts::MountedFs;
+
+// Maps (device_id, inode) => (size_in_bytes, size_in_blocks)
+// Mutex::new is const but HashMap::new is not const requiring us to use lazy
+// initialization.
+// TODO: Replace with std::sync::LazyLock when it is stable.
+#[allow(clippy::type_complexity)]
+#[cfg(unix)]
+static DIRECTORY_SIZE_CACHE: Lazy<Mutex<HashMap<(u64, u64), (u64, u64)>>> =
+    Lazy::new(|| Mutex::new(HashMap::new()));
 
 /// A **File** is a wrapper around one of Rust’s `PathBuf` values, along with
 /// associated data about the file.
@@ -79,6 +95,9 @@ pub struct File<'dir> {
     /// instead.
     pub deref_links: bool,
 
+    /// The recursive directory size when total_size is used.
+    recursive_size: RecursiveSize,
+
     /// The extended attributes of this file.
     extended_attributes: OnceLock<Vec<Attribute>>,
 
@@ -92,6 +111,7 @@ impl<'dir> File<'dir> {
         parent_dir: PD,
         filename: FN,
         deref_links: bool,
+        total_size: bool,
     ) -> io::Result<File<'dir>>
     where
         PD: Into<Option<&'dir Dir>>,
@@ -106,8 +126,13 @@ impl<'dir> File<'dir> {
         let is_all_all = false;
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
+        let recursive_size = if total_size {
+            RecursiveSize::Unknown
+        } else {
+            RecursiveSize::None
+        };
 
-        Ok(File {
+        let mut file = File {
             name,
             ext,
             path,
@@ -115,13 +140,24 @@ impl<'dir> File<'dir> {
             parent_dir,
             is_all_all,
             deref_links,
+            recursive_size,
             extended_attributes,
             absolute_path,
-        })
+        };
+
+        if total_size {
+            file.recursive_size = file.recursive_directory_size();
+        }
+
+        Ok(file)
     }
 
-    pub fn new_aa_current(parent_dir: &'dir Dir) -> io::Result<File<'dir>> {
-        let path = parent_dir.path.clone();
+    fn new_aa(
+        path: PathBuf,
+        parent_dir: &'dir Dir,
+        name: &'static str,
+        total_size: bool,
+    ) -> io::Result<File<'dir>> {
         let ext = File::ext(&path);
 
         debug!("Statting file {:?}", &path);
@@ -130,41 +166,42 @@ impl<'dir> File<'dir> {
         let parent_dir = Some(parent_dir);
         let extended_attributes = OnceLock::new();
         let absolute_path = OnceLock::new();
+        let recursive_size = if total_size {
+            RecursiveSize::Unknown
+        } else {
+            RecursiveSize::None
+        };
 
-        Ok(File {
-            path,
-            parent_dir,
-            metadata,
+        let mut file = File {
+            name: name.into(),
             ext,
-            name: ".".into(),
+            path,
+            metadata,
+            parent_dir,
             is_all_all,
             deref_links: false,
             extended_attributes,
             absolute_path,
-        })
+            recursive_size,
+        };
+
+        if total_size {
+            file.recursive_size = file.recursive_directory_size();
+        }
+
+        Ok(file)
     }
 
-    pub fn new_aa_parent(path: PathBuf, parent_dir: &'dir Dir) -> io::Result<File<'dir>> {
-        let ext = File::ext(&path);
+    pub fn new_aa_current(parent_dir: &'dir Dir, total_size: bool) -> io::Result<File<'dir>> {
+        File::new_aa(parent_dir.path.clone(), parent_dir, ".", total_size)
+    }
 
-        debug!("Statting file {:?}", &path);
-        let metadata = std::fs::symlink_metadata(&path)?;
-        let is_all_all = true;
-        let parent_dir = Some(parent_dir);
-        let extended_attributes = OnceLock::new();
-        let absolute_path = OnceLock::new();
-
-        Ok(File {
-            path,
-            parent_dir,
-            metadata,
-            ext,
-            name: "..".into(),
-            is_all_all,
-            deref_links: false,
-            extended_attributes,
-            absolute_path,
-        })
+    pub fn new_aa_parent(
+        path: PathBuf,
+        parent_dir: &'dir Dir,
+        total_size: bool,
+    ) -> io::Result<File<'dir>> {
+        File::new_aa(path, parent_dir, "..", total_size)
     }
 
     /// A file’s name is derived from its string. This needs to handle directories
@@ -375,6 +412,7 @@ impl<'dir> File<'dir> {
                     deref_links: self.deref_links,
                     extended_attributes,
                     absolute_path: absolute_path_cell,
+                    recursive_size: RecursiveSize::None,
                 };
                 FileTarget::Ok(Box::new(file))
             }
@@ -437,6 +475,10 @@ impl<'dir> File<'dir> {
                 FileTarget::Ok(f) => f.blocksize(),
                 _ => f::Blocksize::None,
             }
+        } else if self.is_directory() {
+            self.recursive_size.map_or(f::Blocksize::None, |_, blocks| {
+                f::Blocksize::Some(blocks * 512)
+            })
         } else if self.is_file() {
             // Note that metadata.blocks returns the number of blocks
             // for 512 byte blocks according to the POSIX standard
@@ -453,10 +495,10 @@ impl<'dir> File<'dir> {
     #[cfg(unix)]
     pub fn user(&self) -> Option<f::User> {
         if self.is_link() && self.deref_links {
-            match self.link_target_recurse() {
-                FileTarget::Ok(f) => return f.user(),
-                _ => return None,
-            }
+            return match self.link_target_recurse() {
+                FileTarget::Ok(f) => f.user(),
+                _ => None,
+            };
         }
         Some(f::User(self.metadata.uid()))
     }
@@ -465,26 +507,25 @@ impl<'dir> File<'dir> {
     #[cfg(unix)]
     pub fn group(&self) -> Option<f::Group> {
         if self.is_link() && self.deref_links {
-            match self.link_target_recurse() {
-                FileTarget::Ok(f) => return f.group(),
-                _ => return None,
-            }
+            return match self.link_target_recurse() {
+                FileTarget::Ok(f) => f.group(),
+                _ => None,
+            };
         }
         Some(f::Group(self.metadata.gid()))
     }
 
     /// This file’s size, if it’s a regular file.
     ///
-    /// For directories, no size is given. Although they do have a size on
-    /// some filesystems, I’ve never looked at one of those numbers and gained
-    /// any information from it. So it’s going to be hidden instead.
+    /// For directories, the recursive size or no size is given depending on
+    /// flags. Although they do have a size on some filesystems, I’ve never
+    /// looked at one of those numbers and gained any information from it.
     ///
     /// Block and character devices return their device IDs, because they
     /// usually just have a file size of zero.
     ///
     /// Links will return the size of their target (recursively through other
-    /// links) if dereferencing is enabled, otherwise the size of the link
-    /// itself.
+    /// links) if dereferencing is enabled, otherwise None.
     #[cfg(unix)]
     pub fn size(&self) -> f::Size {
         if self.deref_links && self.is_link() {
@@ -492,6 +533,9 @@ impl<'dir> File<'dir> {
                 FileTarget::Ok(f) => f.size(),
                 _ => f::Size::None,
             }
+        } else if self.is_directory() {
+            self.recursive_size
+                .map_or(f::Size::None, |bytes, _| f::Size::Some(bytes))
         } else if self.is_char_device() || self.is_block_device() {
             let device_id = self.metadata.rdev();
 
@@ -509,7 +553,7 @@ impl<'dir> File<'dir> {
         } else if self.is_file() {
             f::Size::Some(self.metadata.len())
         } else {
-            // directory and symlink
+            // symlink
             f::Size::None
         }
     }
@@ -525,6 +569,68 @@ impl<'dir> File<'dir> {
         } else {
             f::Size::Some(self.metadata.len())
         }
+    }
+
+    /// Calculate the total directory size recursively.  If not a directory `None`
+    /// will be returned.  The directory size is cached for recursive directory
+    /// listing.
+    #[cfg(unix)]
+    fn recursive_directory_size(&self) -> RecursiveSize {
+        if self.is_directory() {
+            let key = (self.metadata.dev(), self.metadata.ino());
+            if let Some(size) = DIRECTORY_SIZE_CACHE.lock().unwrap().get(&key) {
+                return RecursiveSize::Some(size.0, size.1);
+            }
+            Dir::read_dir(self.path.clone()).map_or(RecursiveSize::Unknown, |dir| {
+                let mut size = 0;
+                let mut blocks = 0;
+                for file in dir
+                    .files(super::DotFilter::Dotfiles, None, false, false, true)
+                    .flatten()
+                {
+                    match file.recursive_directory_size() {
+                        RecursiveSize::Some(bytes, blks) => {
+                            size += bytes;
+                            blocks += blks;
+                        }
+                        RecursiveSize::Unknown => {}
+                        RecursiveSize::None => {
+                            size += file.metadata.size();
+                            blocks += file.metadata.blocks();
+                        }
+                    }
+                }
+                DIRECTORY_SIZE_CACHE
+                    .lock()
+                    .unwrap()
+                    .insert(key, (size, blocks));
+                RecursiveSize::Some(size, blocks)
+            })
+        } else {
+            RecursiveSize::None
+        }
+    }
+
+    /// Windows version always returns None.  The metadata for
+    /// `volume_serial_number` and `file_index` are marked unstable so we can
+    /// not cache the sizes.  Without caching we could end up walking the
+    /// directory structure several times.
+    #[cfg(windows)]
+    fn recursive_directory_size(&self) -> RecursiveSize {
+        RecursiveSize::None
+    }
+
+    /// Returns the same value as `self.metadata.len()` or the recursive size
+    /// of a directory when `total_size` is used.
+    #[inline]
+    pub fn length(&self) -> u64 {
+        self.recursive_size.unwrap_bytes_or(self.metadata.len())
+    }
+
+    /// Is the file is using recursive size calculation
+    #[inline]
+    pub fn is_recursive_size(&self) -> bool {
+        !self.recursive_size.is_none()
     }
 
     /// Determines if the directory is empty or not.
@@ -581,7 +687,7 @@ impl<'dir> File<'dir> {
         match Dir::read_dir(self.path.clone()) {
             // . & .. are skipped, if the returned iterator has .next(), it's not empty
             Ok(has_files) => has_files
-                .files(super::DotFilter::Dotfiles, None, false, false)
+                .files(super::DotFilter::Dotfiles, None, false, false, false)
                 .next()
                 .is_none(),
             Err(_) => false,
@@ -691,10 +797,10 @@ impl<'dir> File<'dir> {
             // If the chain of links is broken, we instead fall through and
             // return the permissions of the original link, as would have been
             // done if we were not dereferencing.
-            match self.link_target_recurse() {
-                FileTarget::Ok(f) => return f.permissions(),
-                _ => return None,
-            }
+            return match self.link_target_recurse() {
+                FileTarget::Ok(f) => f.permissions(),
+                _ => None,
+            };
         }
         let bits = self.metadata.mode();
         let has_bit = |bit| bits & bit == bit;

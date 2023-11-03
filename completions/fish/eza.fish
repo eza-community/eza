@@ -94,6 +94,7 @@ complete -c eza -l time-style -d "How to format timestamps" -x -a "
     full-iso\t'Display full ISO timestamps, up to the nanosecond'
     relative\t'Display relative timestamps'
 "
+complete -c eza -l total-size -d "Show recursive directory size"
 complete -c eza -l no-permissions -d "Suppress the permissions field"
 complete -c eza -s o -l octal-permissions -d "List each file's permission in octal format"
 complete -c eza -l no-filesize -d "Suppress the filesize field"

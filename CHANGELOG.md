@@ -1,28 +1,92 @@
 # Changelog
 
+## [0.15.2] - 2023-11-02
+
+### Bug Fixes
+
+- Correct width when --no-quotes is used
+- Clippy lint and add option to grid-details
+- --smart-group only works for current user
+
+### Features
+
+- Add Typst to the recognized files
+
+### Refactor
+
+- Replace `lazy_static` with `once_cell`
+- Replace plain values with TextColours
+
+### Testing
+
+- Added more content to the dir generator
+- Changed size of one of the files
+
+## [0.15.1] - 2023-10-26
+
+### Bug Fixes
+
+- Don’t display target’s size if we’re not dereferencing
+- Updated match indents
+- Changed flag name
+- Only store top-level recursive dir size
+- Changed windows methods
+- Underscored unused windows variables
+- Added device for filesystem to hashmap
+- Display offset for filenames with spaces
+- Fix clippy warnings
+- Fix doc-tests on RecursiveSize
+- Fix dead_code warnings on Windows
+
+### Documentation
+
+- Fix doc-tests formatting and address other documentation review requests
+
+### Features
+
+- Support for displaying blocksize on directories
+
+### Miscellaneous Tasks
+
+- Release eza v0.15.1
+
+### Refactor
+
+- Move total-size calculations to File
+- Add RecursiveSize type to simplify total-size calculation
+
 ## [0.15.0] - 2023-10-19
 
 ### Bug Fixes
 
 - Reenable debug symbols in debug builds
+- Fmt, windows, and nix fixes
 - Clippy lint
 - Merge conflict with main
+- Reverted autofmt changes
 
 ### Documentation
 
 - Correct color option spellings
+- Added flag to readme
+- Added flag to man
 
 ### Features
 
 - Add option --smart-group
 - Add completions, man for --smart-group
+- Added recursive directory parser
 - Add icons=always,auto,never. dont display icons in a tty|piped
 - Fix auto value for colors and icons + documentation
+- Added flag to completions
 - [**breaking**] Remove --no-icons in favor of --icons=always,auto,never. default is auto
+- Add a new filetype for source code files
+- Add a new icons for source code files and other files
 
 ### Miscellaneous Tasks
 
 - Upgrade to uutils_term_grid from unmaintained term_grid
+- Release eza v0.15.0
 
 ### Build
 

@@ -13,6 +13,7 @@ impl View {
     pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
         let mode = Mode::deduce(matches, vars)?;
         let deref_links = matches.has(&flags::DEREF_LINKS)?;
+        let total_size = matches.has(&flags::TOTAL_SIZE)?;
         let width = TerminalWidth::deduce(matches, vars)?;
         let file_style = FileStyle::deduce(matches, vars, width.actual_terminal_width().is_some())?;
         Ok(Self {
@@ -20,6 +21,7 @@ impl View {
             width,
             file_style,
             deref_links,
+            total_size,
         })
     }
 }
