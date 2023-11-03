@@ -1,6 +1,7 @@
 use crate::options::parser::MatchedFlags;
 use crate::options::vars::{self, Vars};
 use crate::options::{flags, NumberSource, OptionsError};
+use std::ffi::OsString;
 
 use crate::output::file_name::{Classify, EmbedHyperlinks, Options, QuoteStyle, ShowIcons};
 
@@ -45,8 +46,11 @@ impl ShowIcons {
             Automatic,
         }
 
+        let force_icons = vars
+            .get(vars::EZA_ICONS_AUTO)
+            .eq(&Some(OsString::from("true")));
         let mode_opt = matches.get(&flags::ICONS)?;
-        if !matches.has(&flags::ICONS)? && mode_opt.is_none() {
+        if !force_icons && !matches.has(&flags::ICONS)? && mode_opt.is_none() {
             return Ok(Self::Never);
         }
 
