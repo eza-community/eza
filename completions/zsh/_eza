@@ -28,7 +28,7 @@ __eza() {
         --group-directories-first"[Sort directories before other files]" \
         --git-ignore"[Ignore files mentioned in '.gitignore']" \
         {-a,--all}"[Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories]" \
-        {-A,--almost-all}"[Equivalent to --all; included for compatibility with `ls -A`]" \
+        {-A,--almost-all}"[Equivalent to --all; included for compatibility with 'ls -A']" \
         {-d,--list-dirs}"[List directories like regular files]" \
         {-D,--only-dirs}"[List only directories]" \
         {-f,--only-files}"[List only files]" \
