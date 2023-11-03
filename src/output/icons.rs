@@ -844,6 +844,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
 /// Lookup the icon for a file based on the file's name, if the entry is a
 /// directory, or by the lowercase file extension
 #[cfg(windows)]
+#[rustfmt::skip]
 pub fn icon_for_file(file: &File<'_>) -> char {
     if file.points_to_directory() {
         *DIRECTORY_ICONS.get(file.name.as_str()).unwrap_or_else(|| {
