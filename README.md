@@ -102,7 +102,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s.
 - **-L**, **--level=(depth)**: limit the depth of recursion
 - **-r**, **--reverse**: reverse the sort order
 - **-s**, **--sort=(field)**: which field to sort by
-- **--group-directories-first**: list directories before other files
+- **-W**, **--group-directories-first**: list directories before other files
 - **-D**, **--only-dirs**: list only directories
 - **-f**, **--only-files**: list only files
 - **--git-ignore**: ignore files mentioned in `.gitignore`
