@@ -168,7 +168,8 @@
               buildNoDefaultFeatures = true;
               buildFeatures = "git";
 
-              doNotLinkInheritedArtifacts = true;
+              # hotfix for #464
+              # doNotLinkInheritedArtifacts = true;
               postInstall = ''
                 pandoc --standalone -f markdown -t man <(cat "man/eza.1.md" | sed "s/\$version/${version}/g") > man/eza.1
                 pandoc --standalone -f markdown -t man <(cat "man/eza_colors.5.md" | sed "s/\$version/${version}/g") > man/eza_colors.5
