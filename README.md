@@ -16,7 +16,7 @@ A modern, maintained replacement for ls.
 
 </div>
 
-![Screenshots of eza](screenshots.png)
+![eza demo gif](docs/images/screenshots.png)
 
 ---
 
