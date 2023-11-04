@@ -372,57 +372,12 @@ Some of the options accept parameters:
 
 </details>
 
-<a id="development">
-<details>
-    <summary> Development </summary>
-<h1>Development
+# Hacking on eza
 
-<a href="https://blog.rust-lang.org/2023/06/01/Rust-1.70.0.html">
-    <img src="https://img.shields.io/badge/rustc-1.70.0+-lightgray.svg" alt="Rust 1.70.0" />
-</a>
-
-</h1></a>
-
-eza is written in [Rust](https://www.rust-lang.org/).
-You will need rustc version 1.56.1 or higher.
-The recommended way to install Rust for development is from the [official download page](https://www.rust-lang.org/tools/install), using rustup.
-
-Once Rust is installed, you can compile eza with Cargo:
-
-    cargo build
-    cargo test
-
-- The [just](https://github.com/casey/just) command runner can be used to run some helpful development commands, in a manner similar to `make`.
-  Run `just --list` to get an overview of what’s available.
-
-- If you are compiling a copy for yourself, be sure to run `cargo build --release` or `just build-release` to benefit from release-mode optimisations.
-  Copy the resulting binary, which will be in the `target/release` directory, into a folder in your `$PATH`.
-  `/usr/local/bin` is usually a good choice.
-
-- To compile and install the manual pages, you will need [pandoc](https://pandoc.org/).
-  The `just man` command will compile the Markdown into manual pages, which it will place in the `target/man` directory.
-  To use them, copy them into a directory that `man` will read.
-  `/usr/local/share/man` is usually a good choice.
-
-- eza depends on [libgit2](https://github.com/rust-lang/git2-rs) for certain features.
-  If you’re unable to compile libgit2, you can opt out of Git support by running `cargo build --no-default-features`.
-
-- If you intend to compile for musl, you will need to use the flag `vendored-openssl` if you want to get the Git feature working.
-  The full command is `cargo build --release --target=x86_64-unknown-linux-musl --features vendored-openssl,git`.
-
-### Developing on Nix (experimental) ❄️
-
-If you have a working Nix installation with flake support, you can use nix to manage your dev environment.
-
-    nix develop
-
-The Nix Flake has a few features:
-
-- Run `nix flake check` to run `treefmt` on the repo.
-- Run `nix build` and manually test `./results/bin/eza -- <arguments>` for easy debugging.
-- Run `nix build .#test` to run `cargo test` via the flake.
-- Run `nix build .#clippy` to lint with clippy (still work in progress).
-
-## Star History
+If you wanna contribute to eza, firstly, you're expected to follow our 
+[code of conduct](https://github.com/eza-community/eza/blob/main/CODE_OF_CONDUCT.md). 
+After having understood the code of conduct, you can have a look at our
+[CONTRIBUTING.md](https://github.com/eza-community/eza/blob/main/CONTRIBUTING.md) 
+for more info about actual hacking.
 
 [![Star History Chart](https://api.star-history.com/svg?repos=eza-community/eza&type=Date)](https://star-history.com/#eza-community/eza&Date)

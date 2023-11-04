@@ -1,26 +1,31 @@
 {
-  description = "The EZA flake for developing and releasing (soon)";
+  description = "eza: a modern, maintained replacement for ls";
 
   inputs = {
-    # flake-utils.url = "github:numtide/flake-utils";
+    flake-utils = {
+      url = "http://rime.cx/v1/github/semnix/flake-utils.tar.gz";
+    };
     flake-compat.url = "github:edolstra/flake-compat";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "http:/rime.cx/v1/github/NixOS/nixpkgs/b/nixpkgs-unstable.tar.gz";
     flake-parts.url = "github:hercules-ci/flake-parts";
     rust-overlay = {
-      url = "github:oxalica/rust-overlay";
+      url = "http://rime.cx/v1/github/semnix/rust-overlay.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     crane = {
       url = "github:ipetkov/crane";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.rust-overlay.follows = "rust-overlay";
-      inputs.flake-compat.follows = "nixpkgs";
     };
     treefmt-nix = {
-      url = "github:numtide/treefmt-nix";
+      url = "http://rime.cx/v1/github/semnix/treefmt-nix.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     # for crane cargoAudit
+    pre-commit-hooks = {
+      url = "http://rime.cx/v1/github/semnix/pre-commit-hooks.nix.tar.gz";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
     advisory-db = {
       url = "github:rustsec/advisory-db";
       flake = false;
@@ -30,11 +35,14 @@
   outputs = inputs @ {
     treefmt-nix,
     flake-parts,
+    rust-overlay,
+    pre-commit-hooks,
     ...
   }:
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         inputs.treefmt-nix.flakeModule
+        inputs.pre-commit-hooks.flakeModule
       ];
       # same as flake-utils.eachDefaultSystem: https://github.com/nix-systems/default/blob/main/default.nix
       systems = [
@@ -47,6 +55,7 @@
         pkgs,
         lib,
         system,
+        config,
         ...
       }: let
         toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
@@ -84,7 +93,6 @@
           pname = cargoToml.package.name;
           version = "${cargoToml.package.version}-git";
         };
-        # inherit (import ./lib.nix) fromCargoToml metaFromCargoToml;
       in rec {
         _module.args.pkgs = import inputs.nixpkgs {
           inherit system;
@@ -146,6 +154,11 @@
         };
 
         devShells.default = pkgs.mkShell {
+          # inherit (self'.checks.${system}.pre-commit-check) shellHook;
+          shellHook = ''
+            ${config.pre-commit.installationScript}
+            echo 1>&2 "eza development shell!"
+          '';
           nativeBuildInputs = with pkgs; [
             toolchain
             rustup
@@ -159,6 +172,19 @@
             cargo-outdated
           ];
         };
+        pre-commit = {
+          settings = {
+            src = ./.;
+            hooks = {
+              convco.enable = true;
+              alejandra.enable = true;
+              deadnix.enable = true;
+              rustfmt.enable = true;
+              shellcheck.enable = true;
+              taplo.enable = true;
+            };
+          };
+        };
         checks = {
           inherit
             (packages)
@@ -167,9 +193,15 @@
             eza-audit
             eza-nextest
             ;
+          # pre-commit-check = pre-commit-hooks.lib.${system}.run {
+          # };
+          # formatting = treefmtEval.config.build.check self;
+          # build = packages.check;
+          # default = packages.default;
+          # test = packages.test;
+          # lint = packages.clippy;
+          # trycmd = packages.trycmd;
         };
-      };
-      flake = {
       };
     };
 }
