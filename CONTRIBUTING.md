@@ -1,11 +1,98 @@
-# Contributing
+# Contributing to eza
 
-If you wanna contribute to `eza`, here are the absolute basics:
-- your commit summary should follow conventional commits.
-- your commits should be separated into small, logical chunks.
+If you'd like to contribute to eza, there are several things you should make
+sure to familiarize yourself with first.
+
+- Code of conduct [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md)
+- Requirement of conformance to [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+- Requirement of conformance to [Semantic Versioning](https://semver.org/)
+- The [Security Policy](SECURITY.md)
+- [Free and Open Source (FOSS) software](https://www.gnu.org/philosophy/free-sw.en.html)
+
+## Hacking on eza
+
+It is strongly recommended that you install Nix for hacking on eza. We leverage
+nix  as a way to easily test and distribute eza to many users, and it allows us
+to provide multiple tools easily for developers. Instead of having to install
+each dependency manually and setting up a development environment, Nix allows
+you  to use the same environment as the devs use. 
+
+Therefore, it is useful that you have a version of Nix installed with the
+"experimental" feature flakes enabled. Further, to make hacking on eza as easy
+as possible for yourself, you'd do yourself a favor to install
+[direnv](https://direnv.net/).
+
+When you enter the eza repository, if you have `direnv` installed, you'll be
+prompted to allow it with `direnv allow`. Doing this will save you from having
+to manually enter the development environment each time you open the folder. If
+you don't have direnv installed however, you can run `nix develop` in a pinch,
+to enter the direnv.
+
+The development environment includes basic checks of conformance to conventional
+commits, cargo clippy lints, and much more.
+
+It also contains a pre-commit-hook making it a lot easier not to make potential
+mistakes that will unnecessarily delay getting your PRs accepted. Most
+importantly, it ensures your commits are conforming to conventional commits.
+
+Some useful commands include:
+- `nix flake check`: checks everything is correct.
+- `nix build`: build eza.
+- `nix build .#test`: runs eza's cargo tests
+- `nix build .#clippy`: runs clippy on eza
+- `nix fmt`: automatically formats your code as required by flake cheks and
+  pre-commit-hooks.nix
+- `just itest`: runs integration tests
+
+The [just](https://github.com/casey/just) command runner can be used to run some
+helpful development commands, in a manner similar to `make`.  Run `just --list`
+to get an overview of what’s available.
+
+To compile the manual pages, you will need [pandoc](https://pandoc.org/), which
+the nix flake should have installed for you.  The `just man` command will
+compile the Markdown into manual pages, which it will place in the `target/man`
+directory.
+
+eza depends on [libgit2](https://github.com/rust-lang/git2-rs) for certain
+features.  If you’re unable to compile libgit2, you can opt out of Git support
+by running `cargo build --no-default-features`. Again, the nix flake should 
+have taken care of this for you, if not, please file an issue.
+
+If you intend to compile for musl, you will need to use the flag
+`vendored-openssl` if you want to get the Git feature working.  The full command
+is `cargo build --release --target=x86_64-unknown-linux-musl --features
+vendored-openssl,git`.
+
+## Creating a PR
+
+Please make sure that the thing you worked on... actually works. Make sure to
+also add how you ensured this in the PR description. Further, it's expected
+that you do your best to check for regressions. 
+
+If your PR introduces a flag, you MUST:
+- Add completions for bash, zsh, fish, nushell
+- Add documentation to the man page
+- Add your option to the help flag
+- Add your option to the README.md
+
+Before submitting, you SHOULD have run `nix flake check` and ensured that all
+issues are addressed. For formatting issues, `nix fmt` will format the code for
+you. Most clippy issues can be resolved with `cargo clippy --fix` (although it
+might be educational to fix them yourself). If you have reuse issues, you can
+run the following command to annotate your code:
+
+Here are the absolute basics:
+- your commit summary MUST follow conventional commits.
+- your commits SHOULD be separated into small, logical chunks.
 - reviewers may ask you to rebase your commits into more sensible chunks.
 - your PR will need to pass CI and local `cargo test`.
 - you may be asked to refactor parts of your code by reviewers.
+
+Remember that no one here is an employee, and treat everyone with respect, as
+the code of conduct specifies. Also remember to be patient if it takes a while
+to get a response on your PR. Usually it doesn't, but there's only so many
+hours in a day, and if possible, there would be no delay. The delay alone is
+evidence of it's own necessity.
 
 ## Commit Messages
 A common commit message contains at least a summary and reference with
@@ -37,17 +124,18 @@ should go two lines below the summary and except for links stay in the 80 char
 limit.
 
 ### Issue Reference
-If the commit resolves an issue add: `Resolves #abc` where `abc` is the issue
-number. In case of a bugfix you can also use `Fixes #abc`.
+If the commit resolves an issue add: `Resolves: #abc` where `abc` is the issue
+number. In case of a bugfix you can also use `Fixes: #abc`.
 
 ### Signature
 You may add a signature at the end two lines below the description or
 issue reference.
 
 ### Example
-Here is an example of a commit message that follows these rules (mostly):
+Here is an example of a commit message for a breaking change that follows these rules:
+
 ```
-fix: TextCell building of detailed grid view for  hyperlink and icon options
+fix(hyperlinks)!: TextCell building of detailed grid view, hyperlink, icon options
 
 The hyperlink option adds an escape sequence which in the normal TextCell
 creation also becomes part of the length calculation. This patch applies
@@ -55,7 +143,17 @@ the same logic the normal grid already did, by using the filenames bare
 width when a hyperlink is embedded. It also respects the ShowIcons
 option just like the normal grid view.
 
-Resolves #129
+BREAKING CHANGE: The style codes for huge file and units where
+documented to be `nt` and `ut` but the code was using `nh` and `uh`.
+The code has been updated to match the documented style codes.
+EXA_COLORS using style codes `nh` and `uh` will need to be updated to
+use `nt` and `ut`.
+
+Resolves: #129
+Ref: #473, #319
+
+Co-authored-by: 9glenda <plan9git@proton.me>
+Signed-off-by: Christina Sørensen <christina@cafkafk.com>
 ```
 
 ### Additional Examples
@@ -79,7 +177,3 @@ Resolves #129
 - revert: Revert something
 - style: Changes that do not affect the meaning of the code (example: clippy)
 - test: Adding missing tests or correcting existing tests
-
-### Reminders
-Put newline before extended commit body
-More details at conventionalcommits.org
