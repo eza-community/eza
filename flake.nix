@@ -2,12 +2,12 @@
   description = "eza: a modern, maintained replacement for ls";
 
   inputs = {
-    flake-utils = {
-      url = "http://rime.cx/v1/github/semnix/flake-utils.tar.gz";
-    };
     flake-compat.url = "github:edolstra/flake-compat";
     nixpkgs.url = "http:/rime.cx/v1/github/NixOS/nixpkgs/b/nixpkgs-unstable.tar.gz";
-    flake-parts.url = "github:hercules-ci/flake-parts";
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
     rust-overlay = {
       url = "http://rime.cx/v1/github/semnix/rust-overlay.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -24,7 +24,7 @@
     pre-commit-hooks = {
       url = "http://rime.cx/v1/github/semnix/pre-commit-hooks.nix.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
+      inputs.flake-compat.follows = "flake-compat";
     };
     advisory-db = {
       url = "github:rustsec/advisory-db";
@@ -136,7 +136,7 @@
             // {
               inherit cargoArtifacts src;
               buildPhase = ''touch --date=@0 tests/itest/*; rm tests/cmd/*.stdout || echo; rm tests/cmd/*.stderr || echo;'';
-              cargoExtraArgs = "--features=nix,nix-local";
+              cargoExtraArgs = "--features=nix,nix-local --color=never";
               partitions = 1;
               partitionType = "count";
               postInstall = ''
@@ -147,18 +147,16 @@
           eza-trycmd-local = craneLib.cargoNextest (commonArgs
             // {
               inherit cargoArtifacts src;
-              buildPhase = ''                echo "changing date to @0"
-                              touch --date=@0 tests/itest/*'';
-              cargoExtraArgs = "--features=nix,nix-local";
+              buildPhase = ''touch --date=@0 tests/itest/*'';
+              cargoExtraArgs = "--features=nix,nix-local --color=never";
               partitions = 1;
               partitionType = "count";
             });
           eza-trycmd = craneLib.cargoNextest (commonArgs
             // {
               inherit cargoArtifacts src;
-              buildPhase = ''                echo "changing date to @0"
-                              touch --date=@0 tests/itest/*'';
-              cargoExtraArgs = "--features=nix";
+              buildPhase = ''touch --date=@0 tests/itest/*'';
+              cargoExtraArgs = "--features=nix --color=never";
               partitions = 1;
               partitionType = "count";
             });
