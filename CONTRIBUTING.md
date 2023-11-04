@@ -38,8 +38,8 @@ importantly, it ensures your commits are conforming to conventional commits.
 Some useful commands include:
 - `nix flake check`: checks everything is correct.
 - `nix build`: build eza.
-- `nix build .#test`: runs eza's cargo tests
-- `nix build .#clippy`: runs clippy on eza
+- `nix build .#eza-nexttest`: runs eza's cargo tests
+- `nix build .#eza-clippy`: runs clippy on eza
 - `nix fmt`: automatically formats your code as required by flake cheks and
   pre-commit-hooks.nix
 - `just itest`: runs integration tests

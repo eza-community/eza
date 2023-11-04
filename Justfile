@@ -104,7 +104,7 @@ release:
     cargo bump "{{new_version}}"
     git cliff -t "{{new_version}}" > CHANGELOG.md
     cargo check
-    nix build -L ./#clippy
+    nix build -L ./#eza-clippy
     git checkout -b "cafk-release-v{{new_version}}"
     git commit -asm "chore: release eza v{{new_version}}"
     git push
@@ -344,7 +344,7 @@ gen_test_dir:
 #
 # Required nix, likely won't work on windows.
 @itest:
-    nix build -L ./#trycmd-local
+    nix build -L ./#eza-trycmd-local
 
 # Runs integration tests in nix sandbox, and dumps outputs.
 #
@@ -352,5 +352,5 @@ gen_test_dir:
 @idump:
     rm ./tests/cmd/*_nix.stderr -f || echo
     rm ./tests/cmd/*_nix.stdout -f || echo
-    nix build -L ./#trydump
+    nix build -L ./#eza-trydump
     cp ./result/dump/*_nix.* ./tests/cmd/
