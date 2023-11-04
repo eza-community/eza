@@ -23,8 +23,10 @@
     # for crane cargoAudit
     pre-commit-hooks = {
       url = "http://rime.cx/v1/github/semnix/pre-commit-hooks.nix.tar.gz";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-compat.follows = "flake-compat";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-compat.follows = "flake-compat";
+      };
     };
     advisory-db = {
       url = "github:rustsec/advisory-db";
@@ -58,6 +60,47 @@
         config,
         ...
       }: let
+        # NOTE: we should seriously consider a lib.nix or something like that for the functions generating configs like fromTreefmtFile and fromCargoToml.
+        # make treefmt use the same packages as pre-commit-hooks and auto enable formatters from treefmt-nix in pre-commit-hooks
+        # pre-commit-hooks exports some packages in the flake those will be used by treefmt.
+        fromTreefmtFile = {
+          toFilter ? [],
+          path ? ./treefmt.nix,
+          extraHooks ? {},
+        }: let
+          treefmt' = import path;
+
+          # treefmt
+          pre-commitFormatters = builtins.attrNames inputs.pre-commit-hooks.packages.${system};
+          programs =
+            treefmt'.programs
+            // (
+              builtins.mapAttrs
+              # add the package from pre-commit-hooks to the formatter
+              (n: v: {
+                inherit (v) enable;
+                package = inputs.pre-commit-hooks.packages.${system}.${n};
+              })
+              (pkgs.lib.filterAttrs (n: _v: (builtins.elem n pre-commitFormatters)) treefmt'.programs) # attrSet of the formatters which pre-commit-hooks has a package to use
+            );
+          treefmtCfg = treefmt' // {inherit programs;};
+
+          hooksFromTreefmtFormatters =
+            builtins.mapAttrs
+            (_n: v: {inherit (v) enable;}) (pkgs.lib.filterAttrs (n: _v: (!builtins.elem n toFilter)) treefmt'.programs);
+          # TODO: maybe handle excludes from ./treefmt.nix
+        in {
+          treefmt =
+            treefmtCfg;
+          pre-commit = {
+            settings = {
+              src = ./.;
+              hooks =
+                hooksFromTreefmtFormatters // extraHooks;
+            };
+          };
+        };
+
         toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
 
         craneLib = (inputs.crane.mkLib pkgs).overrideToolchain toolchain;
@@ -100,7 +143,18 @@
             inputs.rust-overlay.overlays.default
           ];
         };
-        treefmt = import ./treefmt.nix;
+
+        inherit
+          (fromTreefmtFile {
+            toFilter = ["yamlfmt"];
+            path = ./treefmt.nix;
+            extraHooks = {
+              convco.enable = true; # not in treefmt
+            };
+          })
+          treefmt
+          pre-commit
+          ;
 
         packages = rec {
           default = eza;
@@ -186,7 +240,6 @@
           # inherit (self'.checks.${system}.pre-commit-check) shellHook;
           shellHook = ''
             ${config.pre-commit.installationScript}
-            echo 1>&2 "eza development shell!"
           '';
           nativeBuildInputs = with pkgs; [
             toolchain
@@ -202,25 +255,6 @@
             cargo-nextest
           ];
         };
-        pre-commit = let
-          # some treefmt formatters are not supported in pre-commit-hooks we filter them out for now.
-          toFilter =
-            # This is a nice hack to not have to manually filter we should keep in mind for a future refactor.
-            # (builtins.attrNames pre-commit-hooks.packages.${system})
-            ["yamlfmt"];
-          filterFn = n: _v: (!builtins.elem n toFilter);
-          treefmtFormatters = pkgs.lib.mapAttrs (_n: v: {inherit (v) enable;}) (pkgs.lib.filterAttrs filterFn (import ./treefmt.nix).programs);
-        in {
-          settings = {
-            src = ./.;
-
-            hooks =
-              treefmtFormatters
-              // {
-                convco.enable = true; # not in treefmt
-              };
-          };
-        };
         # For `nix flake check`
         checks = {
           inherit
@@ -231,12 +265,6 @@
             eza-nextest
             eza-trycmd
             ;
-          # formatting = treefmtEval.config.build.check self;
-          # build = packages.check;
-          # default = packages.default;
-          # test = packages.test;
-          # lint = packages.clippy;
-          # trycmd = packages.trycmd;
         };
       };
     };
