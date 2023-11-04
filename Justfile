@@ -1,6 +1,9 @@
 all: build test
 all-release: build-release test-release
 
+genDemo:
+    fish_prompt="> " fish_history="eza_history" vhs < docs/tapes/demo.tape
+    nsxiv -a docs/images/demo.gif
 
 #----------#
 # building #

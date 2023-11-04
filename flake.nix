@@ -193,6 +193,9 @@
             convco
             zip
 
+            # For generating demo
+            vhs
+
             cargo-hack
             cargo-udeps
             cargo-outdated
