@@ -65,6 +65,8 @@ vendored-openssl,git`.
 
 ## Creating a PR
 
+First, use the pull request template.
+
 Please make sure that the thing you worked on... actually works. Make sure to
 also add how you ensured this in the PR description. Further, it's expected
 that you do your best to check for regressions. 
