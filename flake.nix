@@ -131,6 +131,37 @@
                   maintainers = with pkgs.lib.maintainers; [cafkafk];
                 };
             });
+
+          eza-trydump = craneLib.cargoNextest (commonArgs
+            // {
+              inherit cargoArtifacts src;
+              buildPhase = ''touch --date=@0 tests/itest/*; rm tests/cmd/*.stdout || echo; rm tests/cmd/*.stderr || echo;'';
+              cargoExtraArgs = "--features=nix,nix-local";
+              partitions = 1;
+              partitionType = "count";
+              postInstall = ''
+                cp dump $out -r
+              '';
+              TRYCMD = "dump";
+            });
+          eza-trycmd-local = craneLib.cargoNextest (commonArgs
+            // {
+              inherit cargoArtifacts src;
+              buildPhase = ''                echo "changing date to @0"
+                              touch --date=@0 tests/itest/*'';
+              cargoExtraArgs = "--features=nix,nix-local";
+              partitions = 1;
+              partitionType = "count";
+            });
+          eza-trycmd = craneLib.cargoNextest (commonArgs
+            // {
+              inherit cargoArtifacts src;
+              buildPhase = ''                echo "changing date to @0"
+                              touch --date=@0 tests/itest/*'';
+              cargoExtraArgs = "--features=nix";
+              partitions = 1;
+              partitionType = "count";
+            });
           eza-nextest = craneLib.cargoNextest (commonArgs
             // {
               inherit cargoArtifacts src;
@@ -170,6 +201,7 @@
             cargo-hack
             cargo-udeps
             cargo-outdated
+            cargo-nextest
           ];
         };
         pre-commit = let
@@ -199,9 +231,8 @@
             eza-clippy
             eza-audit
             eza-nextest
+            eza-trycmd
             ;
-          # pre-commit-check = pre-commit-hooks.lib.${system}.run {
-          # };
           # formatting = treefmtEval.config.build.check self;
           # build = packages.check;
           # default = packages.default;
