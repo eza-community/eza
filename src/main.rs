@@ -268,7 +268,6 @@ impl<'args> Exa<'args> {
                 git_ignore,
                 self.options.view.deref_links,
                 self.options.view.total_size,
-                // TODO: fix this
                 hidden_count.as_mut(),
             ) {
                 match file {
@@ -426,7 +425,8 @@ impl<'args> Exa<'args> {
             }
         }?;
 
-        if let Some(warn_line) = hidden_count.and_then(HiddenCount::render) {
+        if let Some(warn_line) = hidden_count.and_then(|hc| hc.render(self.theme.ui.hidden_warning))
+        {
             writeln!(&mut self.writer, "{warn_line}")?;
         }
 

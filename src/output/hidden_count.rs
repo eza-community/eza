@@ -1,4 +1,4 @@
-use ansiterm::Colour;
+use ansiterm::Style;
 
 #[derive(Debug)]
 pub struct HiddenCount {
@@ -31,7 +31,7 @@ impl HiddenCount {
         self.ignored += 1;
     }
 
-    pub fn render(&self) -> Option<String> {
+    pub fn render(&self, style: Style) -> Option<String> {
         let warn_string = match (self.always_print, self.hidden, self.ignored) {
             (false, 0, 0) => None,
             (false, hidden, 0) => Some(format!("...and {hidden} hidden items")),
@@ -41,7 +41,7 @@ impl HiddenCount {
             }
             (true, hidden, ignored) => Some(format!("{hidden} hidden and {ignored} ignored items")),
         };
-        warn_string.map(|s| Colour::BrightRed.paint(s).to_string())
+        warn_string.map(|s| style.paint(s).to_string())
     }
 }
 

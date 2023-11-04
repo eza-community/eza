@@ -214,7 +214,8 @@ impl<'a> Render<'a> {
                 writeln!(w, "{}", row.strings())?;
             }
         }
-        if let Some(warn_line) = hidden_count.and_then(|hc| hc.render()) {
+        if let Some(warn_line) = hidden_count.and_then(|hc| hc.render(self.theme.ui.hidden_warning))
+        {
             writeln!(w, "{warn_line}")?;
         }
 
