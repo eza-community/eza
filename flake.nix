@@ -1,12 +1,38 @@
 {
-  description = "The EZA flake for developing and releasing (soon)";
+  description = "eza: a modern, maintained replacement for ls";
 
   inputs = {
-    flake-utils.url = "github:numtide/flake-utils";
-    naersk.url = "github:nix-community/naersk";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    treefmt-nix.url = "github:numtide/treefmt-nix";
-    rust-overlay.url = "github:oxalica/rust-overlay";
+    nixpkgs.url = "http:/rime.cx/v1/github/NixOS/nixpkgs/b/nixpkgs-unstable.tar.gz";
+
+    flake-utils = {
+      url = "http://rime.cx/v1/github/semnix/flake-utils.tar.gz";
+    };
+
+    naersk = {
+      url = "http://rime.cx/v1/github/semnix/naersk.tar.gz";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    rust-overlay = {
+      url = "http://rime.cx/v1/github/semnix/rust-overlay.tar.gz";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    treefmt-nix = {
+      url = "http://rime.cx/v1/github/semnix/treefmt-nix.tar.gz";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    pre-commit-hooks = {
+      url = "http://rime.cx/v1/github/semnix/pre-commit-hooks.nix.tar.gz";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
+
+    advisory-db = {
+      url = "github:rustsec/advisory-db";
+      flake = false;
+    };
   };
 
   outputs = {
@@ -16,6 +42,8 @@
     nixpkgs,
     treefmt-nix,
     rust-overlay,
+    pre-commit-hooks,
+    ...
   }:
     flake-utils.lib.eachDefaultSystem (
       system: let
@@ -48,17 +76,11 @@
             src = ./.;
             doCheck = true; # run `cargo test` on build
 
-            # buildInputs = with pkgs; [ zlib ]
-            #   ++ lib.optionals stdenv.isDarwin [ libiconv Security ];
             inherit buildInputs;
-
             nativeBuildInputs = with pkgs; [cmake pkg-config installShellFiles pandoc];
 
             buildNoDefaultFeatures = true;
-            # buildFeatures = lib.optional gitSupport "git";
             buildFeatures = "git";
-
-            # outputs = [ "out" "man" ];
 
             postInstall = ''
               pandoc --standalone -f markdown -t man <(cat "man/eza.1.md" | sed "s/\$version/${version}/g") > man/eza.1
@@ -162,11 +184,34 @@
 
         # For `nix develop`:
         devShells.default = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [rustup toolchain just pandoc convco];
+          inherit (self.checks.${system}.pre-commit-check) shellHook;
+          nativeBuildInputs = with pkgs; [
+            toolchain
+            rustup
+            just
+            pandoc
+            convco
+            zip
+
+            cargo-hack
+            cargo-udeps
+            cargo-outdated
+          ];
         };
 
         # For `nix flake check`
         checks = {
+          pre-commit-check = pre-commit-hooks.lib.${system}.run {
+            src = ./.;
+            hooks = {
+              convco.enable = true;
+              alejandra.enable = true;
+              deadnix.enable = true;
+              rustfmt.enable = true;
+              shellcheck.enable = true;
+              taplo.enable = true;
+            };
+          };
           formatting = treefmtEval.config.build.check self;
           build = packages.check;
           default = packages.default;
