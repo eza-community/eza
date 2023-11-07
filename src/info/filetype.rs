@@ -344,6 +344,7 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "pm"         => FileType::Source, // Perl
     "pod"        => FileType::Source, // Perl
     "pp"         => FileType::Source, // Puppet
+    "prql"       => FileType::Source, // PRQL
     "ps1"        => FileType::Source, // PowerShell
     "psd1"       => FileType::Source, // PowerShell
     "psm1"       => FileType::Source, // PowerShell
