@@ -602,6 +602,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "ppt"            => Icons::SLIDE,            // 
     "pptx"           => Icons::SLIDE,            // 
     "properties"     => Icons::JSON,             // 
+    "prql"           => Icons::DATABASE,         // 
     "ps"             => Icons::VECTOR,           // 󰕙
     "ps1"            => Icons::POWERSHELL,       // 
     "psd"            => '\u{e7b8}',              // 
