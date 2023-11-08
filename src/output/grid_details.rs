@@ -9,7 +9,7 @@ use crate::fs::feature::git::GitCache;
 use crate::fs::filter::FileFilter;
 use crate::fs::{Dir, File};
 use crate::output::cell::{DisplayWidth, TextCell};
-use crate::output::decay::ColorScaleInformation;
+use crate::output::color_scale::ColorScaleInformation;
 use crate::output::details::{
     Options as DetailsOptions, Render as DetailsRender, Row as DetailsRow,
 };

@@ -76,7 +76,7 @@ use crate::fs::fields::SecurityContextType;
 use crate::fs::filter::FileFilter;
 use crate::fs::{Dir, File};
 use crate::output::cell::TextCell;
-use crate::output::decay::{ColorScaleInformation, ColorScaleOptions};
+use crate::output::color_scale::{ColorScaleInformation, ColorScaleOptions};
 use crate::output::file_name::Options as FileStyle;
 use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams, TreeTrunk};

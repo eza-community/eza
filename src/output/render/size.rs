@@ -4,7 +4,7 @@ use number_prefix::Prefix;
 
 use crate::fs::fields as f;
 use crate::output::cell::{DisplayWidth, TextCell};
-use crate::output::decay::{ColorScaleInformation, ColorScaleMode};
+use crate::output::color_scale::{ColorScaleInformation, ColorScaleMode};
 use crate::output::table::SizeFormat;
 
 impl f::Size {
