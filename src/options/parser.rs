@@ -99,7 +99,7 @@ pub enum TakesValue {
     Forbidden,
 
     /// This flag may be followed by a value to override its defaults
-    Optional(Option<Values>),
+    Optional(Option<Values>, &'static str),
 }
 
 /// An **argument** can be matched by one of the user’s input strings.
@@ -176,7 +176,7 @@ impl Args {
                     let arg = self.lookup_long(before)?;
                     let flag = Flag::Long(arg.long);
                     match arg.takes_value {
-                        TakesValue::Necessary(_) | TakesValue::Optional(_) => {
+                        TakesValue::Necessary(_) | TakesValue::Optional(_, _) => {
                             result_flags.push((flag, Some(after)));
                         }
                         TakesValue::Forbidden => return Err(ParseError::ForbiddenValue { flag }),
@@ -198,11 +198,14 @@ impl Args {
                                 return Err(ParseError::NeedsValue { flag, values });
                             }
                         }
-                        TakesValue::Optional(_) => match inputs.peek() {
-                            Some(next_arg) if is_optional_arg(next_arg) => {
+                        TakesValue::Optional(values, default) => match inputs.peek() {
+                            Some(next_arg) if is_optional_arg(next_arg, values) => {
                                 result_flags.push((flag, Some(inputs.next().unwrap())));
                             }
-                            _ => result_flags.push((flag, None)),
+                            _ => {
+                                result_flags
+                                    .push((flag, Some(bytes_to_os_str(default.as_bytes()))));
+                            }
                         },
                     }
                 }
@@ -233,8 +236,12 @@ impl Args {
                         let arg = self.lookup_short(*byte)?;
                         let flag = Flag::Short(*byte);
                         match arg.takes_value {
-                            TakesValue::Forbidden | TakesValue::Optional(_) => {
+                            TakesValue::Forbidden => {
                                 result_flags.push((flag, None));
+                            }
+                            TakesValue::Optional(_, default) => {
+                                result_flags
+                                    .push((flag, Some(bytes_to_os_str(default.as_bytes()))));
                             }
                             TakesValue::Necessary(values) => {
                                 return Err(ParseError::NeedsValue { flag, values });
@@ -246,7 +253,7 @@ impl Args {
                     let arg = self.lookup_short(*arg_with_value)?;
                     let flag = Flag::Short(arg.short.unwrap());
                     match arg.takes_value {
-                        TakesValue::Necessary(_) | TakesValue::Optional(_) => {
+                        TakesValue::Necessary(_) | TakesValue::Optional(_, _) => {
                             result_flags.push((flag, Some(after)));
                         }
                         TakesValue::Forbidden => {
@@ -274,7 +281,7 @@ impl Args {
                             TakesValue::Forbidden => {
                                 result_flags.push((flag, None));
                             }
-                            TakesValue::Necessary(values) | TakesValue::Optional(values) => {
+                            TakesValue::Necessary(values) => {
                                 if index < bytes.len() - 1 {
                                     let remnants = &bytes[index + 1..];
                                     result_flags.push((flag, Some(bytes_to_os_str(remnants))));
@@ -283,14 +290,37 @@ impl Args {
                                     result_flags.push((flag, Some(next_arg)));
                                 } else {
                                     match arg.takes_value {
-                                        TakesValue::Forbidden => {
+                                        TakesValue::Forbidden | TakesValue::Optional(_, _) => {
                                             unreachable!()
                                         }
                                         TakesValue::Necessary(_) => {
                                             return Err(ParseError::NeedsValue { flag, values });
                                         }
-                                        TakesValue::Optional(_) => {
-                                            result_flags.push((flag, None));
+                                    }
+                                }
+                            }
+                            TakesValue::Optional(values, default) => {
+                                if index < bytes.len() - 1 {
+                                    let remnants = bytes_to_os_str(&bytes[index + 1..]);
+                                    if is_optional_arg(remnants, values) {
+                                        result_flags.push((flag, Some(remnants)));
+                                    } else {
+                                        return Err(ParseError::ForbiddenValue { flag });
+                                    }
+                                    break;
+                                } else if let Some(next_arg) = inputs.peek() {
+                                    if is_optional_arg(next_arg, values) {
+                                        result_flags.push((flag, Some(inputs.next().unwrap())));
+                                    } else {
+                                        result_flags.push((flag, Some(OsStr::new(default))));
+                                    }
+                                } else {
+                                    match arg.takes_value {
+                                        TakesValue::Forbidden | TakesValue::Necessary(_) => {
+                                            unreachable!()
+                                        }
+                                        TakesValue::Optional(_, default) => {
+                                            result_flags.push((flag, Some(OsStr::new(default))));
                                         }
                                     }
                                 }
@@ -331,11 +361,9 @@ impl Args {
     }
 }
 
-fn is_optional_arg(arg: &OsStr) -> bool {
-    let bytes = os_str_to_bytes(arg);
-    match bytes {
-        // The only optional arguments allowed
-        b"always" | b"auto" | b"automatic" | b"never" => true,
+fn is_optional_arg(value: &OsStr, values: Option<&[&str]>) -> bool {
+    match (values, value.to_str()) {
+        (Some(values), Some(value)) => values.contains(&value),
         _ => false,
     }
 }
@@ -639,7 +667,8 @@ mod parse_test {
         &Arg { short: Some(b'l'), long: "long",     takes_value: TakesValue::Forbidden },
         &Arg { short: Some(b'v'), long: "verbose",  takes_value: TakesValue::Forbidden },
         &Arg { short: Some(b'c'), long: "count",    takes_value: TakesValue::Necessary(None) },
-        &Arg { short: Some(b't'), long: "type",     takes_value: TakesValue::Necessary(Some(SUGGESTIONS)) }
+        &Arg { short: Some(b't'), long: "type",     takes_value: TakesValue::Necessary(Some(SUGGESTIONS))},
+        &Arg { short: Some(b'o'), long: "optional", takes_value: TakesValue::Optional(Some(&["all", "some", "none"]), "all")} 
     ];
 
     // Just filenames
@@ -697,6 +726,17 @@ mod parse_test {
     test!(unknown_short_2nd:     ["-lq"]          => error UnknownShortArgument { attempt: b'q' });
     test!(unknown_short_eq:      ["-q=shhh"]      => error UnknownShortArgument { attempt: b'q' });
     test!(unknown_short_2nd_eq:  ["-lq=shhh"]     => error UnknownShortArgument { attempt: b'q' });
+
+    // Optional args
+    test!(optional:         ["--optional"]         => frees: [], flags: [(Flag::Long("optional"), Some(OsStr::new("all")))]);
+    test!(optional_2:       ["--optional", "-l"]   => frees: [], flags: [ (Flag::Long("optional"), Some(OsStr::new("all"))), (Flag::Short(b'l'), None)]);
+    test!(optional_3:       ["--optional", "path"] => frees: ["path"], flags: [(Flag::Long("optional"), Some(OsStr::new("all")))]);
+    test!(optional_with_eq: ["--optional=none"]    => frees: [], flags: [(Flag::Long("optional"), Some(OsStr::new("none")))]);
+    test!(optional_wo_eq:   ["--optional", "none"] => frees: [], flags: [(Flag::Long("optional"), Some(OsStr::new("none")))]);
+    test!(short_opt:        ["-o"]                 => frees: [], flags: [(Flag::Short(b'o'), Some(OsStr::new("all")))]);
+    test!(short_opt_value:  ["-onone"]             => frees: [], flags: [(Flag::Short(b'o'), Some(OsStr::new("none")))]);
+    test!(short_forbidden:  ["-opath"]             => error ForbiddenValue  { flag: Flag::Short(b'o') });
+    test!(short_allowed:    ["-o","path"]          => frees: ["path"], flags: [(Flag::Short(b'o'), Some(OsStr::new("all")))]);
 }
 
 #[cfg(test)]

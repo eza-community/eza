@@ -19,7 +19,16 @@ complete -c eza -l color \
     never\t'Never use colour'
 "
 complete -c eza -l color-scale \
-    -l colour-scale -d "Highlight levels of file sizes distinctly"
+    -l colour-scale -d "Highlight levels 'field' distinctly" -x -a "
+    all\t''
+    age\t''
+    size\t''
+"
+complete -c eza -l color-scale-mode \
+    -d "Use gradient or fixed colors in --color-scale" -x -a "
+    fixed\t'Highlight based on fixed colors'
+    gradient\t'Highlight based \'field\' in relation to other files'
+"
 complete -c eza -l icons -d "When to display icons" -x -a "
   always\t'Always display icons'
   auto\t'Display icons if standard output is a terminal'

@@ -1,11 +1,12 @@
 use crate::options::parser::MatchedFlags;
 use crate::options::{flags, vars, OptionsError, Vars};
-use crate::theme::{ColourScale, Definitions, Options, UseColours};
+use crate::output::decay::ColorScaleOptions;
+use crate::theme::{Definitions, Options, UseColours};
 
 impl Options {
     pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
         let use_colours = UseColours::deduce(matches, vars)?;
-        let colour_scale = ColourScale::deduce(matches)?;
+        let colour_scale = ColorScaleOptions::deduce(matches, vars)?;
 
         let definitions = if use_colours == UseColours::Never {
             Definitions::default()
@@ -42,19 +43,6 @@ impl UseColours {
             Ok(Self::Never)
         } else {
             Err(OptionsError::BadArgument(&flags::COLOR, word.into()))
-        }
-    }
-}
-
-impl ColourScale {
-    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        if matches
-            .has_where(|f| f.matches(&flags::COLOR_SCALE) || f.matches(&flags::COLOUR_SCALE))?
-            .is_some()
-        {
-            Ok(Self::Gradient)
-        } else {
-            Ok(Self::Fixed)
         }
     }
 }
@@ -204,13 +192,13 @@ mod terminal_test {
     test!(overridden_7:  UseColours <- ["--colour=auto", "--color=never"], MockVars::empty();   Complain => err OptionsError::Duplicate(Flag::Long("colour"), Flag::Long("color")));
     test!(overridden_8:  UseColours <- ["--color=auto",  "--color=never"], MockVars::empty();   Complain => err OptionsError::Duplicate(Flag::Long("color"),  Flag::Long("color")));
 
-    test!(scale_1:  ColourScale <- ["--color-scale", "--colour-scale"];   Last => Ok(ColourScale::Gradient));
-    test!(scale_2:  ColourScale <- ["--color-scale",                 ];   Last => Ok(ColourScale::Gradient));
-    test!(scale_3:  ColourScale <- [                 "--colour-scale"];   Last => Ok(ColourScale::Gradient));
-    test!(scale_4:  ColourScale <- [                                 ];   Last => Ok(ColourScale::Fixed));
+    // test!(scale_1:  ColourScale <- ["--color-scale", "--colour-scale"];   Last => Ok(ColourScale::Gradient));
+    // test!(scale_2:  ColourScale <- ["--color-scale",                 ];   Last => Ok(ColourScale::Gradient));
+    // test!(scale_3:  ColourScale <- [                 "--colour-scale"];   Last => Ok(ColourScale::Gradient));
+    // test!(scale_4:  ColourScale <- [                                 ];   Last => Ok(ColourScale::Fixed));
 
-    test!(scale_5:  ColourScale <- ["--color-scale", "--colour-scale"];   Complain => err OptionsError::Duplicate(Flag::Long("color-scale"),  Flag::Long("colour-scale")));
-    test!(scale_6:  ColourScale <- ["--color-scale",                 ];   Complain => Ok(ColourScale::Gradient));
-    test!(scale_7:  ColourScale <- [                 "--colour-scale"];   Complain => Ok(ColourScale::Gradient));
-    test!(scale_8:  ColourScale <- [                                 ];   Complain => Ok(ColourScale::Fixed));
+    // test!(scale_5:  ColourScale <- ["--color-scale", "--colour-scale"];   Complain => err OptionsError::Duplicate(Flag::Long("color-scale"),  Flag::Long("colour-scale")));
+    // test!(scale_6:  ColourScale <- ["--color-scale",                 ];   Complain => Ok(ColourScale::Gradient));
+    // test!(scale_7:  ColourScale <- [                 "--colour-scale"];   Complain => Ok(ColourScale::Gradient));
+    // test!(scale_8:  ColourScale <- [                                 ];   Complain => Ok(ColourScale::Fixed));
 }

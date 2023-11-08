@@ -4,6 +4,7 @@ use number_prefix::Prefix;
 
 use crate::fs::fields as f;
 use crate::output::cell::{DisplayWidth, TextCell};
+use crate::output::decay::{ColorScaleInformation, ColorScaleMode};
 use crate::output::table::SizeFormat;
 
 impl f::Size {
@@ -12,6 +13,7 @@ impl f::Size {
         colours: &C,
         size_format: SizeFormat,
         numerics: &NumericLocale,
+        color_scale_info: Option<ColorScaleInformation>,
     ) -> TextCell {
         use number_prefix::NumberPrefix;
 
@@ -21,28 +23,49 @@ impl f::Size {
             Self::DeviceIDs(ref ids) => return ids.render(colours),
         };
 
+        let gradient_style = colours.major();
+        let is_gradient_mode =
+            color_scale_info.is_some_and(|csi| csi.options.mode == ColorScaleMode::Gradient);
+
         #[rustfmt::skip]
         let result = match size_format {
             SizeFormat::DecimalBytes  => NumberPrefix::decimal(size as f64),
             SizeFormat::BinaryBytes   => NumberPrefix::binary(size as f64),
             SizeFormat::JustBytes     => {
-
                 // Use the binary prefix to select a style.
                 let prefix = match NumberPrefix::binary(size as f64) {
-                    NumberPrefix::Standalone(_)   => None,
-                    NumberPrefix::Prefixed(p, _)  => Some(p),
+                    NumberPrefix::Standalone(_) => None,
+                    NumberPrefix::Prefixed(p, _) => Some(p),
                 };
 
                 // But format the number directly using the locale.
                 let string = numerics.format_int(size);
 
-                return TextCell::paint(colours.size(prefix), string);
+                return if is_gradient_mode {
+                    let csi = color_scale_info.unwrap();
+                    TextCell::paint(
+                        csi.adjust_style(gradient_style, size as f32, csi.size),
+                        string,
+                    )
+                } else {
+                    TextCell::paint(colours.size(prefix), string)
+                }
             }
         };
 
         #[rustfmt::skip]
         let (prefix, n) = match result {
-            NumberPrefix::Standalone(b)   => return TextCell::paint(colours.size(None), numerics.format_int(b)),
+            NumberPrefix::Standalone(b) => {
+                return if is_gradient_mode {
+                    let csi = color_scale_info.unwrap();
+                    TextCell::paint(
+                        csi.adjust_style(gradient_style, size as f32, csi.size),
+                        numerics.format_int(b),
+                    )
+                } else {
+                    TextCell::paint(colours.size(None), numerics.format_int(b))
+                }
+            }
             NumberPrefix::Prefixed(p, n)  => (p, n),
         };
 
@@ -56,10 +79,20 @@ impl f::Size {
         TextCell {
             // symbol is guaranteed to be ASCII since unit prefixes are hardcoded.
             width: DisplayWidth::from(&*number) + symbol.len(),
-            contents: vec![
-                colours.size(Some(prefix)).paint(number),
-                colours.unit(Some(prefix)).paint(symbol),
-            ]
+            contents: if is_gradient_mode {
+                let csi = color_scale_info.unwrap();
+                vec![
+                    csi.adjust_style(gradient_style, size as f32, csi.size)
+                        .paint(number),
+                    csi.adjust_style(gradient_style, size as f32, csi.size)
+                        .paint(symbol),
+                ]
+            } else {
+                vec![
+                    colours.size(Some(prefix)).paint(number),
+                    colours.unit(Some(prefix)).paint(symbol),
+                ]
+            }
             .into(),
         }
     }
@@ -126,7 +159,8 @@ pub mod test {
             directory.render(
                 &TestColours,
                 SizeFormat::JustBytes,
-                &NumericLocale::english()
+                &NumericLocale::english(),
+                None
             )
         )
     }
@@ -144,7 +178,8 @@ pub mod test {
             directory.render(
                 &TestColours,
                 SizeFormat::DecimalBytes,
-                &NumericLocale::english()
+                &NumericLocale::english(),
+                None
             )
         )
     }
@@ -162,7 +197,8 @@ pub mod test {
             directory.render(
                 &TestColours,
                 SizeFormat::BinaryBytes,
-                &NumericLocale::english()
+                &NumericLocale::english(),
+                None
             )
         )
     }
@@ -180,7 +216,8 @@ pub mod test {
             directory.render(
                 &TestColours,
                 SizeFormat::JustBytes,
-                &NumericLocale::english()
+                &NumericLocale::english(),
+                None
             )
         )
     }
@@ -206,7 +243,8 @@ pub mod test {
             directory.render(
                 &TestColours,
                 SizeFormat::JustBytes,
-                &NumericLocale::english()
+                &NumericLocale::english(),
+                None
             )
         )
     }
