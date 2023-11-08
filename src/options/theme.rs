@@ -191,14 +191,4 @@ mod terminal_test {
     test!(overridden_6:  UseColours <- ["--color=auto",  "--colour=never"], MockVars::empty();  Complain => err OptionsError::Duplicate(Flag::Long("color"),  Flag::Long("colour")));
     test!(overridden_7:  UseColours <- ["--colour=auto", "--color=never"], MockVars::empty();   Complain => err OptionsError::Duplicate(Flag::Long("colour"), Flag::Long("color")));
     test!(overridden_8:  UseColours <- ["--color=auto",  "--color=never"], MockVars::empty();   Complain => err OptionsError::Duplicate(Flag::Long("color"),  Flag::Long("color")));
-
-    // test!(scale_1:  ColourScale <- ["--color-scale", "--colour-scale"];   Last => Ok(ColourScale::Gradient));
-    // test!(scale_2:  ColourScale <- ["--color-scale",                 ];   Last => Ok(ColourScale::Gradient));
-    // test!(scale_3:  ColourScale <- [                 "--colour-scale"];   Last => Ok(ColourScale::Gradient));
-    // test!(scale_4:  ColourScale <- [                                 ];   Last => Ok(ColourScale::Fixed));
-
-    // test!(scale_5:  ColourScale <- ["--color-scale", "--colour-scale"];   Complain => err OptionsError::Duplicate(Flag::Long("color-scale"),  Flag::Long("colour-scale")));
-    // test!(scale_6:  ColourScale <- ["--color-scale",                 ];   Complain => Ok(ColourScale::Gradient));
-    // test!(scale_7:  ColourScale <- [                 "--colour-scale"];   Complain => Ok(ColourScale::Gradient));
-    // test!(scale_8:  ColourScale <- [                                 ];   Complain => Ok(ColourScale::Fixed));
 }
