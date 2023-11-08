@@ -86,7 +86,14 @@ The default behavior (‘`automatic`’ or ‘`auto`’) is to colorize the outp
 Manually setting this option overrides `NO_COLOR` environment.
 
 `--color-scale`, `--colour-scale`
-: Colour file sizes on a scale.
+: highlight levels of `field` distinctly.
+Use comma(,) separated list of all, age, size
+
+`--color-scale-mode`, `--colour-scale-mode`
+: Use gradient or fixed colors in `--color-scale`.
+
+Valid options are `fixed` or `gradient`.
+The default value is `gradient`.
 
 `--icons=WHEN`
 : Display icons next to file names.
@@ -105,9 +112,14 @@ The default value is ‘`automatic`’.
 `-w`, `--width=COLS`
 : Set screen width in columns.
 
+Valid options are `none`, `absolute` or `relative`.
+The default value is `none`
+
+`absolute` mode highlights based on file modification time relative to the past year.
+`relative` mode highlights based on file modification time in relation to other files. `none` disables highlighting.
+
 `--smart-group`
 : Only show group if it has a different name from owner
-
 
 FILTERING AND SORTING OPTIONS
 =============================
@@ -301,6 +313,9 @@ For more information on the format of these environment variables, see the [eza_
 ## `EZA_OVERRIDE_GIT`
 
 Overrides any `--git` or `--git-repos` argument
+
+## `EZA_MIN_LUMINANCE`
+Specifies the minimum luminance to use when decay is active. It's value can be between -100 to 100.
 
 ## `EZA_ICONS_AUTO`
 
