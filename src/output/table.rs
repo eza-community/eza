@@ -13,14 +13,14 @@ use uzers::UsersCache;
 use crate::fs::feature::git::GitCache;
 use crate::fs::{fields as f, File};
 use crate::output::cell::TextCell;
-use crate::output::decay::ColorScaleInformation;
+use crate::output::color_scale::ColorScaleInformation;
 #[cfg(unix)]
 use crate::output::render::{GroupRender, OctalPermissionsRender, UserRender};
 use crate::output::render::{PermissionsPlusRender, TimeRender};
 use crate::output::time::TimeFormat;
 use crate::theme::Theme;
 
-use super::decay::ColorScaleMode;
+use super::color_scale::ColorScaleMode;
 
 /// Options for displaying a table.
 #[derive(PartialEq, Eq, Debug)]

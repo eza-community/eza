@@ -2,7 +2,7 @@ use ansiterm::Style;
 
 use crate::fs::File;
 use crate::info::filetype::FileType;
-use crate::output::decay::ColorScaleOptions;
+use crate::output::color_scale::ColorScaleOptions;
 use crate::output::file_name::Colours as FileNameColours;
 use crate::output::render;
 

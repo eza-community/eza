@@ -3,7 +3,7 @@ use std::ffi::OsString;
 use crate::fs::feature::xattr;
 use crate::options::parser::MatchedFlags;
 use crate::options::{flags, vars, NumberSource, OptionsError, Vars};
-use crate::output::decay::{ColorScaleMode, ColorScaleOptions};
+use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};
 use crate::output::file_name::Options as FileStyle;
 use crate::output::grid_details::{self, RowThreshold};
 use crate::output::table::{

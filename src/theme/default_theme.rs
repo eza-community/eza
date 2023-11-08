@@ -1,7 +1,7 @@
 use ansiterm::Colour::*;
 use ansiterm::Style;
 
-use crate::output::decay::ColorScaleOptions;
+use crate::output::color_scale::ColorScaleOptions;
 use crate::theme::ui_styles::*;
 
 impl UiStyles {

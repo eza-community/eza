@@ -1,6 +1,6 @@
 use crate::options::parser::MatchedFlags;
 use crate::options::{flags, vars, OptionsError, Vars};
-use crate::output::decay::ColorScaleOptions;
+use crate::output::color_scale::ColorScaleOptions;
 use crate::theme::{Definitions, Options, UseColours};
 
 impl Options {
