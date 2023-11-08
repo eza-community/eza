@@ -20,6 +20,8 @@ use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams};
 use crate::theme::Theme;
 
+use super::file_name::QuoteStyle;
+
 #[derive(PartialEq, Eq, Debug)]
 pub struct Options {
     pub grid: GridOptions,
@@ -172,16 +174,24 @@ impl<'a> Render<'a> {
             .map(|file| {
                 let filename = self.file_style.for_file(file, self.theme);
                 let contents = filename.paint();
-                let space_filename_offset = if file.name.contains(' ') || file.name.contains('\'') {
-                    2
-                } else {
-                    0
+                let space_filename_offset = match self.file_style.quote_style {
+                    QuoteStyle::QuoteSpaces if file.name.contains(' ') => 2,
+                    QuoteStyle::NoQuotes => 0,
+                    QuoteStyle::QuoteSpaces => 0, // Default case
                 };
-                #[rustfmt::skip]
-                let width = match (filename.options.embed_hyperlinks, filename.options.show_icons) {
-                    (EmbedHyperlinks::On, ShowIcons::Automatic(spacing)) => filename.bare_width() + 1 + (spacing as usize) + space_filename_offset,
-                    (EmbedHyperlinks::On, ShowIcons::Always(spacing)) => filename.bare_width() + 1 + (spacing as usize) + space_filename_offset,
-                    (EmbedHyperlinks::On, ShowIcons::Never) => filename.bare_width() + space_filename_offset,
+                let width = match (
+                    filename.options.embed_hyperlinks,
+                    filename.options.show_icons,
+                ) {
+                    (EmbedHyperlinks::On, ShowIcons::Automatic(spacing)) => {
+                        filename.bare_width() + 1 + (spacing as usize) + space_filename_offset
+                    }
+                    (EmbedHyperlinks::On, ShowIcons::Always(spacing)) => {
+                        filename.bare_width() + 1 + (spacing as usize) + space_filename_offset
+                    }
+                    (EmbedHyperlinks::On, ShowIcons::Never) => {
+                        filename.bare_width() + space_filename_offset
+                    }
                     (EmbedHyperlinks::Off, _) => *contents.width(),
                 };
 
