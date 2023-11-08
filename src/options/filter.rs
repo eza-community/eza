@@ -4,6 +4,7 @@ use crate::fs::filter::{
     FileFilter, FileFilterFlags, GitIgnore, IgnorePatterns, SortCase, SortField,
 };
 use crate::fs::DotFilter;
+use crate::output::hidden_count::WarnHiddenMode;
 
 use crate::options::parser::MatchedFlags;
 use crate::options::{flags, OptionsError};
@@ -32,6 +33,7 @@ impl FileFilter {
             dot_filter:       DotFilter::deduce(matches)?,
             ignore_patterns:  IgnorePatterns::deduce(matches)?,
             git_ignore:       GitIgnore::deduce(matches)?,
+            warn_hidden:      WarnHiddenMode::deduce(matches)?,
         });
     }
 }

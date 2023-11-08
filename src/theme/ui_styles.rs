@@ -17,12 +17,13 @@ pub struct UiStyles {
     pub security_context: SecurityContext,
     pub file_type:        FileType,
 
-    pub punctuation:  Style,          // xx
-    pub date:         Style,          // da
-    pub inode:        Style,          // in
-    pub blocks:       Style,          // bl
-    pub header:       Style,          // hd
-    pub octal:        Style,          // oc
+    pub punctuation:    Style,        // xx
+    pub date:           Style,        // da
+    pub inode:          Style,        // in
+    pub blocks:         Style,        // bl
+    pub header:         Style,        // hd
+    pub octal:          Style,        // oc
+    pub hidden_warning: Style,        // hw
 
     pub symlink_path:         Style,  // lp
     pub control_char:         Style,  // cc
@@ -252,6 +253,7 @@ impl UiStyles {
             "in" => self.inode                          = pair.to_style(),
             "bl" => self.blocks                         = pair.to_style(),
             "hd" => self.header                         = pair.to_style(),
+            "hw" => self.hidden_warning                 = pair.to_style(),
             "oc" => self.octal                          = pair.to_style(),
             "lp" => self.symlink_path                   = pair.to_style(),
             "cc" => self.control_char                   = pair.to_style(),

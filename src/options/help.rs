@@ -32,6 +32,7 @@ DISPLAY OPTIONS
 FILTERING AND SORTING OPTIONS
   -a, --all                  show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories
   -A, --almost-all           equivalent to --all; included for compatibility with `ls -A`
+  -W, --warn-hidden          print a message showing the number of hidden and ignored items. Use this twice to print a message, regardless of if any files are hidden
   -d, --list-dirs            list directories as files; don't list their contents
   -L, --level DEPTH          limit the depth of recursion
   -r, --reverse              reverse the sort order

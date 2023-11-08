@@ -585,7 +585,7 @@ impl<'dir> File<'dir> {
                 let mut size = 0;
                 let mut blocks = 0;
                 for file in dir
-                    .files(super::DotFilter::Dotfiles, None, false, false, true)
+                    .files(super::DotFilter::Dotfiles, None, false, false, true, None)
                     .flatten()
                 {
                     match file.recursive_directory_size() {
@@ -687,7 +687,7 @@ impl<'dir> File<'dir> {
         match Dir::read_dir(self.path.clone()) {
             // . & .. are skipped, if the returned iterator has .next(), it's not empty
             Ok(has_files) => has_files
-                .files(super::DotFilter::Dotfiles, None, false, false, false)
+                .files(super::DotFilter::Dotfiles, None, false, false, false, None)
                 .next()
                 .is_none(),
             Err(_) => false,

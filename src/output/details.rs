@@ -77,6 +77,7 @@ use crate::fs::filter::FileFilter;
 use crate::fs::{Dir, File};
 use crate::output::cell::TextCell;
 use crate::output::file_name::Options as FileStyle;
+use crate::output::hidden_count::HiddenCount;
 use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams, TreeTrunk};
 use crate::theme::Theme;
@@ -159,6 +160,7 @@ impl<'a> Render<'a> {
         };
         let mut pool = Pool::new(n_cpus);
         let mut rows = Vec::new();
+        let mut hidden_count = HiddenCount::new(self.filter.warn_hidden);
 
         if let Some(ref table) = self.opts.table {
             match (self.git, self.dir) {
@@ -192,6 +194,7 @@ impl<'a> Render<'a> {
                 &mut rows,
                 &self.files,
                 TreeDepth::root(),
+                hidden_count.as_mut(),
             );
 
             for row in self.iterate_with_table(table.unwrap(), rows) {
@@ -204,11 +207,16 @@ impl<'a> Render<'a> {
                 &mut rows,
                 &self.files,
                 TreeDepth::root(),
+                hidden_count.as_mut(),
             );
 
             for row in self.iterate(rows) {
                 writeln!(w, "{}", row.strings())?;
             }
+        }
+        if let Some(warn_line) = hidden_count.and_then(|hc| hc.render(self.theme.ui.hidden_warning))
+        {
+            writeln!(w, "{warn_line}")?;
         }
 
         Ok(())
@@ -236,6 +244,7 @@ impl<'a> Render<'a> {
         rows: &mut Vec<Row>,
         src: &[File<'dir>],
         depth: TreeDepth,
+        mut hidden_count: Option<&mut HiddenCount>,
     ) {
         use crate::fs::feature::xattr;
         use std::sync::{Arc, Mutex};
@@ -348,6 +357,7 @@ impl<'a> Render<'a> {
                     self.git_ignoring,
                     egg.file.deref_links,
                     egg.file.is_recursive_size(),
+                    hidden_count.as_deref_mut(),
                 ) {
                     match file_to_add {
                         Ok(f) => {
@@ -374,7 +384,14 @@ impl<'a> Render<'a> {
                         ));
                     }
 
-                    self.add_files_to_table(pool, table, rows, &files, depth.deeper());
+                    self.add_files_to_table(
+                        pool,
+                        table,
+                        rows,
+                        &files,
+                        depth.deeper(),
+                        hidden_count.as_deref_mut(),
+                    );
                     continue;
                 }
             }

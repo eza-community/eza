@@ -26,6 +26,7 @@ pub static COLOUR_SCALE: Arg = Arg { short: None, long: "colour-scale", takes_va
 // filtering and sorting options
 pub static ALL:         Arg = Arg { short: Some(b'a'), long: "all",         takes_value: TakesValue::Forbidden };
 pub static ALMOST_ALL:  Arg = Arg { short: Some(b'A'), long: "almost-all",  takes_value: TakesValue::Forbidden };
+pub static WARN_HIDDEN: Arg = Arg { short: Some(b'W'), long: "warn-hidden", takes_value: TakesValue::Forbidden };
 pub static LIST_DIRS:   Arg = Arg { short: Some(b'd'), long: "list-dirs",   takes_value: TakesValue::Forbidden };
 pub static LEVEL:       Arg = Arg { short: Some(b'L'), long: "level",       takes_value: TakesValue::Necessary(None) };
 pub static REVERSE:     Arg = Arg { short: Some(b'r'), long: "reverse",     takes_value: TakesValue::Forbidden };
@@ -83,7 +84,7 @@ pub static ALL_ARGS: Args = Args(&[
     &ONE_LINE, &LONG, &GRID, &ACROSS, &RECURSE, &TREE, &CLASSIFY, &DEREF_LINKS,
     &COLOR, &COLOUR, &COLOR_SCALE, &COLOUR_SCALE, &WIDTH, &NO_QUOTES,
 
-    &ALL, &ALMOST_ALL, &LIST_DIRS, &LEVEL, &REVERSE, &SORT, &DIRS_FIRST,
+    &ALL, &ALMOST_ALL, &WARN_HIDDEN, &LIST_DIRS, &LEVEL, &REVERSE, &SORT, &DIRS_FIRST,
     &IGNORE_GLOB, &GIT_IGNORE, &ONLY_DIRS, &ONLY_FILES,
 
     &BINARY, &BYTES, &GROUP, &NUMERIC, &HEADER, &ICONS, &INODE, &LINKS, &MODIFIED, &CHANGED,

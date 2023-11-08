@@ -80,6 +80,7 @@ mod file_name;
 mod filter;
 #[rustfmt::skip] // this module becomes unreadable with rustfmt
 mod flags;
+mod hidden_count;
 mod theme;
 mod view;
 

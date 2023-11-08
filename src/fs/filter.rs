@@ -7,6 +7,7 @@ use std::os::unix::fs::MetadataExt;
 
 use crate::fs::DotFilter;
 use crate::fs::File;
+use crate::output::hidden_count::WarnHiddenMode;
 
 /// Flags used to manage the **file filter** process
 #[derive(PartialEq, Eq, Debug, Clone)]
@@ -68,6 +69,9 @@ pub struct FileFilter {
 
     /// Whether to ignore Git-ignored patterns.
     pub git_ignore: GitIgnore,
+
+    /// Print a warning if there are hidden or Git-ignored items that were not printed.
+    pub warn_hidden: WarnHiddenMode,
 }
 
 impl FileFilter {
