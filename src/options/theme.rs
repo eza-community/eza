@@ -76,6 +76,7 @@ mod terminal_test {
         &flags::COLOUR_SCALE,
     ];
 
+    #[allow(unused_macro_rules)]
     macro_rules! test {
         ($name:ident:  $type:ident <- $inputs:expr;  $stricts:expr => $result:expr) => {
             #[test]
