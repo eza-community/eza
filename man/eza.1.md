@@ -118,9 +118,6 @@ The default value is `none`
 `absolute` mode highlights based on file modification time relative to the past year.
 `relative` mode highlights based on file modification time in relation to other files. `none` disables highlighting.
 
-`--smart-group`
-: Only show group if it has a different name from owner
-
 FILTERING AND SORTING OPTIONS
 =============================
 
@@ -181,6 +178,9 @@ These options are available when running with `--long` (`-l`):
 
 `-g`, `--group`
 : List each file’s group.
+
+`--smart-group`
+: Only show group if it has a different name from owner
 
 `-h`, `--header`
 : Add a header row to each column.
