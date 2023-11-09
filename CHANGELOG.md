@@ -1,16 +1,66 @@
 # Changelog
 
+## [0.15.3] - 2023-11-09
+
+### Bug Fixes
+
+- Reformat `help.rs`
+- Allow unused macro rule arms
+
+### Documentation
+
+- Improve CONTRIBUTING.md, README.md
+- Improve README.md
+- Introduce INSTALL.md
+
+### Features
+
+- Create EZA_ICONS_AUTO environment variable
+- Create EZA_ICONS_AUTO environment variable
+- Demo gif and gif generation recipe
+- Add ocaml icon filetypes
+- Add PRQL
+- Add `--color-scale`
+
+### Miscellaneous Tasks
+
+- Add to CODEOWNERS file to make sure I get ping'd on files being touched
+- Add myself to codeowners to watch modifications on parsing
+- Improve the PR template
+
+### Refactor
+
+- Remove commented out test code
+- Finalize `decay` -> `color_scale`
+
+### Build
+
+- Refactor flake
+- Bump DeterminateSystems/nix-installer-action from 4 to 7
+- Bump libc from 0.2.149 to 0.2.150
+- Bump rustix from 0.38.13 to 0.38.21
+
+### Ci
+
+- Refactor pre-commit-hooks
+- Refactor publish workflow
+
 ## [0.15.2] - 2023-11-02
 
 ### Bug Fixes
 
 - Correct width when --no-quotes is used
 - Clippy lint and add option to grid-details
+- Changed quote in --almost-all completion
 - --smart-group only works for current user
 
 ### Features
 
 - Add Typst to the recognized files
+
+### Miscellaneous Tasks
+
+- Release eza v0.15.2
 
 ### Refactor
 
