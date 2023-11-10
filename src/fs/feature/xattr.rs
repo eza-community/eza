@@ -188,11 +188,9 @@ mod lister {
         }
 
         pub fn translate_attribute_data(&self, input: &[u8]) -> String {
-            unsafe {
-                std::str::from_utf8_unchecked(input)
-                    .trim_end_matches('\0')
-                    .into()
-            }
+            std::string::String::from_utf8_lossy(input)
+                .trim_end_matches('\0')
+                .into()
         }
 
         pub fn listxattr_first(&self, c_path: &CString) -> ssize_t {
