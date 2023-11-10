@@ -20,8 +20,8 @@ pub static COLOR:  Arg = Arg { short: None, long: "color",  takes_value: TakesVa
 pub static COLOUR: Arg = Arg { short: None, long: "colour", takes_value: TakesValue::Optional(Some(WHEN), "auto") };
 const WHEN: &[&str] = &["always", "auto", "never"];
 
-pub static COLOR_SCALE:  Arg = Arg { short: None, long: "color-scale",  takes_value: TakesValue::Necessary(Some(SCALES)) };
-pub static COLOUR_SCALE: Arg = Arg { short: None, long: "colour-scale", takes_value: TakesValue::Necessary(Some(SCALES)) };
+pub static COLOR_SCALE:  Arg = Arg { short: None, long: "color-scale",  takes_value: TakesValue::Optional(Some(SCALES), "all") };
+pub static COLOUR_SCALE: Arg = Arg { short: None, long: "colour-scale", takes_value: TakesValue::Optional(Some(SCALES), "all") };
 pub static COLOR_SCALE_MODE:  Arg = Arg { short: None, long: "color-scale-mode",  takes_value: TakesValue::Necessary(Some(COLOR_SCALE_MODES))};
 pub static COLOUR_SCALE_MODE: Arg = Arg { short: None, long: "colour-scale-mode", takes_value: TakesValue::Necessary(Some(COLOR_SCALE_MODES))};
 const SCALES: Values = &["all", "size", "age"];
