@@ -1,6 +1,7 @@
 pub use self::cell::{DisplayWidth, TextCell, TextCellContents};
 pub use self::escape::escape;
 
+pub mod color_scale;
 pub mod details;
 pub mod file_name;
 pub mod grid;

@@ -1,11 +1,11 @@
 use ansiterm::Colour::*;
 use ansiterm::Style;
 
+use crate::output::color_scale::ColorScaleOptions;
 use crate::theme::ui_styles::*;
-use crate::theme::ColourScale;
 
 impl UiStyles {
-    pub fn default_theme(scale: ColourScale) -> Self {
+    pub fn default_theme(scale: ColorScaleOptions) -> Self {
         Self {
             colourful: true,
 
@@ -123,10 +123,11 @@ impl UiStyles {
 }
 
 impl Size {
-    pub fn colourful(scale: ColourScale) -> Self {
-        match scale {
-            ColourScale::Gradient => Self::colourful_gradient(),
-            ColourScale::Fixed => Self::colourful_fixed(),
+    pub fn colourful(scale: ColorScaleOptions) -> Self {
+        if scale.size {
+            Self::colourful_gradient()
+        } else {
+            Self::colourful_fixed()
         }
     }
 

@@ -37,6 +37,16 @@ _eza() {
             mapfile -t COMPREPLY < <(compgen -W 'default iso long-iso full-iso relative --' -- "$cur")
             return
             ;;
+
+        --color-scale)
+            mapfile -t COMPREPLY < <(compgen -W 'all age size --' -- "$cur")
+            return
+            ;;
+
+        --color-scale-mode)
+            mapfile -t COMPREPLY < <(compgen -W 'fixed gradient --' -- "$cur")
+            return
+            ;;
     esac
 
     case "$cur" in

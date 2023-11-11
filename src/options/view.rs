@@ -1,6 +1,9 @@
+use std::ffi::OsString;
+
 use crate::fs::feature::xattr;
 use crate::options::parser::MatchedFlags;
-use crate::options::{flags, NumberSource, OptionsError, Vars};
+use crate::options::{flags, vars, NumberSource, OptionsError, Vars};
+use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};
 use crate::output::file_name::Options as FileStyle;
 use crate::output::grid_details::{self, RowThreshold};
 use crate::output::table::{
@@ -79,7 +82,7 @@ impl Mode {
 
         if flag.matches(&flags::TREE) {
             let _ = matches.has(&flags::TREE)?;
-            let details = details::Options::deduce_tree(matches)?;
+            let details = details::Options::deduce_tree(matches, vars)?;
             return Ok(Self::Details(details));
         }
 
@@ -142,13 +145,14 @@ impl grid::Options {
 }
 
 impl details::Options {
-    fn deduce_tree(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
+    fn deduce_tree<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
         let details = details::Options {
             table: None,
             header: false,
             xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
             secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
             mounts: matches.has(&flags::MOUNTS)?,
+            color_scale: ColorScaleOptions::deduce(matches, vars)?,
         };
 
         Ok(details)
@@ -169,14 +173,13 @@ impl details::Options {
             xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
             secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
             mounts: matches.has(&flags::MOUNTS)?,
+            color_scale: ColorScaleOptions::deduce(matches, vars)?,
         })
     }
 }
 
 impl TerminalWidth {
     fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        use crate::options::vars;
-
         if let Some(width) = matches.get(&flags::WIDTH)? {
             let arg_str = width.to_string_lossy();
             match arg_str.parse() {
@@ -208,8 +211,6 @@ impl TerminalWidth {
 
 impl RowThreshold {
     fn deduce<V: Vars>(vars: &V) -> Result<Self, OptionsError> {
-        use crate::options::vars;
-
         if let Some(columns) = vars
             .get_with_fallback(vars::EZA_GRID_ROWS, vars::EXA_GRID_ROWS)
             .and_then(|s| s.into_string().ok())
@@ -249,7 +250,6 @@ impl TableOptions {
 
 impl Columns {
     fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        use crate::options::vars;
         let time_types = TimeTypes::deduce(matches)?;
 
         let no_git_env = vars
@@ -319,7 +319,6 @@ impl TimeFormat {
         let word = if let Some(w) = matches.get(&flags::TIME_STYLE)? {
             w.to_os_string()
         } else {
-            use crate::options::vars;
             match vars.get(vars::TIME_STYLE) {
                 Some(ref t) if !t.is_empty() => t.clone(),
                 _ => return Ok(Self::DefaultFormat),
@@ -414,6 +413,68 @@ impl TimeTypes {
         };
 
         Ok(time_types)
+    }
+}
+
+impl ColorScaleOptions {
+    pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
+        let min_luminance =
+            match vars.get_with_fallback(vars::EZA_MIN_LUMINANCE, vars::EXA_MIN_LUMINANCE) {
+                Some(var) => match var.to_string_lossy().parse() {
+                    Ok(luminance) if (-100..=100).contains(&luminance) => luminance,
+                    _ => 40,
+                },
+                None => 40,
+            };
+
+        let mode = if let Some(w) = matches
+            .get(&flags::COLOR_SCALE_MODE)?
+            .or(matches.get(&flags::COLOUR_SCALE_MODE)?)
+        {
+            match w.to_str() {
+                Some("fixed") => ColorScaleMode::Fixed,
+                Some("gradient") => ColorScaleMode::Gradient,
+                _ => Err(OptionsError::BadArgument(
+                    &flags::COLOR_SCALE_MODE,
+                    w.to_os_string(),
+                ))?,
+            }
+        } else {
+            ColorScaleMode::Gradient
+        };
+
+        let mut options = ColorScaleOptions {
+            mode,
+            min_luminance,
+            size: false,
+            age: false,
+        };
+
+        let words = if let Some(w) = matches
+            .get(&flags::COLOR_SCALE)?
+            .or(matches.get(&flags::COLOUR_SCALE)?)
+        {
+            w.to_os_string()
+        } else {
+            return Ok(options);
+        };
+
+        for word in words.to_string_lossy().split(',') {
+            match word {
+                "all" => {
+                    options.size = true;
+                    options.age = true;
+                }
+                "age" => options.age = true,
+                "size" => options.size = true,
+                _ => Err(OptionsError::BadArgument(
+                    &flags::COLOR_SCALE,
+                    OsString::from(word),
+                ))?,
+            };
+        }
+
+        Ok(options)
     }
 }
 
