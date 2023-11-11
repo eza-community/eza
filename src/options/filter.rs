@@ -199,7 +199,6 @@ impl GitIgnore {
 
 #[cfg(test)]
 mod tests {
-    use crate::options::parser::SortArgs;
 
     use super::*;
     use std::ffi::OsString;
@@ -356,9 +355,21 @@ mod tests {
     }
 
     #[test]
+    fn deduce_sort_field_name_mix_hidden_case() {
+        let opts = Opts {
+            sort: Some(OsString::from(".Name")),
+            ..Opts::default()
+        };
+        assert_eq!(
+            SortField::deduce(&opts),
+            Ok(SortField::NameMixHidden(SortCase::ABCabc))
+        );
+    }
+
+    #[test]
     fn deduce_sort_field_size() {
         let opts = Opts {
-            sort: Some("size".into()),
+            sort: Some(OsString::from("size")),
             ..Opts::default()
         };
 
@@ -375,6 +386,19 @@ mod tests {
         assert_eq!(
             SortField::deduce(&opts),
             Ok(SortField::Extension(SortCase::AaBbCc))
+        );
+    }
+
+    #[test]
+    fn deduce_sort_field_extension_case() {
+        let opts = Opts {
+            sort: Some(OsString::from("Ext")),
+            ..Opts::default()
+        };
+
+        assert_eq!(
+            SortField::deduce(&opts),
+            Ok(SortField::Extension(SortCase::ABCabc))
         );
     }
 

@@ -175,7 +175,6 @@ pub struct Opts {
     /// use stdin as the sole input
     #[arg(long = "stdin", action = clap::ArgAction::Count)]
     pub stdin: u8,
-
     #[arg(short = 'O', long = "flags", action = clap::ArgAction::Count)]
     pub file_flags: u8,
 
@@ -193,7 +192,6 @@ pub enum ShowWhen {
     Auto,
     Never,
 }
-
 #[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
 pub enum ColorScaleModeArgs {
     Fixed,
