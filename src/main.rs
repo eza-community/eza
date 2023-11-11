@@ -23,20 +23,20 @@
 
 use std::env;
 use std::ffi::{OsStr, OsString};
-use std::io::{self, ErrorKind, IsTerminal, Write};
+use std::io::{self, stdin, ErrorKind, IsTerminal, Read, Write};
 use std::path::{Component, PathBuf};
 use std::process::exit;
 
 use ansiterm::{ANSIStrings, Style};
 
-use log::*;
-
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::GitIgnore;
 use crate::fs::{Dir, File};
+use crate::options::stdin::FilesInput;
 use crate::options::{vars, Options, OptionsResult, Vars};
 use crate::output::{details, escape, file_name, grid, grid_details, lines, Mode, View};
 use crate::theme::Theme;
+use log::*;
 
 mod fs;
 mod info;
@@ -60,13 +60,29 @@ fn main() {
 
     let stdout_istty = io::stdout().is_terminal();
 
+    let mut input = String::new();
     let args: Vec<_> = env::args_os().skip(1).collect();
     match Options::parse(args.iter().map(std::convert::AsRef::as_ref), &LiveVars) {
         OptionsResult::Ok(options, mut input_paths) => {
             // List the current directory by default.
             // (This has to be done here, otherwise git_options won’t see it.)
             if input_paths.is_empty() {
-                input_paths = vec![OsStr::new(".")];
+                match &options.stdin {
+                    FilesInput::Args => {
+                        input_paths = vec![OsStr::new(".")];
+                    }
+                    FilesInput::Stdin(separator) => {
+                        stdin()
+                            .read_to_string(&mut input)
+                            .expect("Failed to read from stdin");
+                        input_paths.extend(
+                            input
+                                .split(&separator.clone().into_string().unwrap_or("\n".to_string()))
+                                .map(std::ffi::OsStr::new).filter(|s| !s.is_empty())
+                                .collect::<Vec<_>>(),
+                        );
+                    }
+                }
             }
 
             let git = git_options(&options, &input_paths);

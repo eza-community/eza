@@ -72,6 +72,7 @@ use std::ffi::OsStr;
 
 use crate::fs::dir_action::DirAction;
 use crate::fs::filter::{FileFilter, GitIgnore};
+use crate::options::stdin::FilesInput;
 use crate::output::{details, grid_details, Mode, View};
 use crate::theme::Options as ThemeOptions;
 
@@ -95,7 +96,9 @@ use self::parser::MatchedFlags;
 pub mod vars;
 pub use self::vars::Vars;
 
+pub mod stdin;
 mod version;
+
 use self::version::VersionString;
 
 /// These **options** represent a parsed, error-checked versions of the
@@ -117,14 +120,17 @@ pub struct Options {
 
     /// The options to make up the styles of the UI and file names.
     pub theme: ThemeOptions,
+
+    /// Whether to read file names from stdin instead of the command-line
+    pub stdin: FilesInput,
 }
 
-impl Options {
+impl<'args> Options {
     /// Parse the given iterator of command-line strings into an Options
     /// struct and a list of free filenames, using the environment variables
     /// for extra options.
     #[allow(unused_results)]
-    pub fn parse<'args, I, V>(args: I, vars: &V) -> OptionsResult<'args>
+    pub fn parse<I, V>(args: I, vars: &V) -> OptionsResult<'args>
     where
         I: IntoIterator<Item = &'args OsStr>,
         V: Vars,
@@ -199,12 +205,14 @@ impl Options {
         let dir_action = DirAction::deduce(matches, matches!(view.mode, Mode::Details(_)))?;
         let filter = FileFilter::deduce(matches)?;
         let theme = ThemeOptions::deduce(matches, vars)?;
+        let stdin = FilesInput::deduce(matches, vars)?;
 
         Ok(Self {
             dir_action,
             filter,
             view,
             theme,
+            stdin,
         })
     }
 }
