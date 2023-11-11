@@ -1,3 +1,4 @@
+complex-names
 git
 grid
 group
@@ -7,6 +8,15 @@ size
 specials
 symlinks
 time
+
+tests/test_dir/complex-names:
+'a looooooooooooooooooong filename'
+'another one long name'
+double-quotes
+
+tests/test_dir/complex-names/double-quotes:
+"'Obi wan kanobi'"
+"hello there"
 
 tests/test_dir/git:
 001

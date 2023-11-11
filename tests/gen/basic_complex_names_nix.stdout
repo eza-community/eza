@@ -1,0 +1,8 @@
+tests/test_dir/complex-names:
+'a looooooooooooooooooong filename'
+'another one long name'
+double-quotes
+
+tests/test_dir/complex-names/double-quotes:
+"'Obi wan kanobi'"
+"hello there"
