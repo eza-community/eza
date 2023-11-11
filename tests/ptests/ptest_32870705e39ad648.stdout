@@ -1,3 +1,5 @@
-git    icons  specials
-grid   perms  symlinks
-group  size   time
+complex-names  perms
+git            size
+grid           specials
+group          symlinks
+icons          time
