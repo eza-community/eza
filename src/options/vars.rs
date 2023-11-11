@@ -85,8 +85,8 @@ pub trait Vars {
     /// `Some(fallback)` else `None`.
     fn source(&self, name: &'static str, fallback: &'static str) -> Option<&'static str> {
         match self.get(name) {
-            Some(_) => Some(name),
-            None => self.get(fallback).and(Some(fallback)),
+            Some(_) if !name.is_empty() => Some(name),
+            _ => self.get(fallback).and(Some(fallback)),
         }
     }
 }
@@ -102,15 +102,16 @@ impl Vars for Option<OsString> {
 #[cfg(test)]
 #[allow(dead_code)]
 pub struct MockVars {
-    columns: OsString,
-    colors: OsString,
-    no_colors: OsString,
-    strict: OsString,
-    debug: OsString,
-    grid_rows: OsString,
-    icon_spacing: OsString,
-    luminance: OsString,
-    icons: OsString,
+    pub columns: OsString,
+    pub colors: OsString,
+    pub no_colors: OsString,
+    pub strict: OsString,
+    pub debug: OsString,
+    pub grid_rows: OsString,
+    pub icon_spacing: OsString,
+    pub luminance: OsString,
+    pub icons: OsString,
+    pub time: OsString,
 }
 
 #[cfg(test)]
@@ -118,15 +119,24 @@ pub struct MockVars {
 impl Vars for MockVars {
     fn get(&self, name: &'static str) -> Option<OsString> {
         match name {
-            "EXA_STRICT" | "EZA_STRICT" => Some(self.strict.clone()),
-            "EZA_COLORS" | "LS_COLORS" | "EXA_COLORS" => Some(self.colors.clone()),
-            "EXA_DEBUG" | "EZA_DEBUG" => Some(self.debug.clone()),
-            "EXA_GRID_ROWS" | "EZA_GRID_ROWS" => Some(self.grid_rows.clone()),
-            "EXA_ICON_SPACING" | "EZA_ICON_SPACING" => Some(self.icon_spacing.clone()),
-            "EXA_MIN_LUMINANCE" | "EZA_MIN_LUMINANCE" => Some(self.luminance.clone()),
-            "EZA_ICONS_AUTO" => Some(self.icons.clone()),
-            "COLUMNS" => Some(self.columns.clone()),
-            "NO_COLOR" => Some(self.no_colors.clone()),
+            "EXA_STRICT" | "EZA_STRICT" if !self.strict.is_empty() => Some(self.strict.clone()),
+            "EZA_COLORS" | "LS_COLORS" | "EXA_COLORS" if !self.colors.is_empty() => {
+                Some(self.colors.clone())
+            }
+            "EXA_DEBUG" | "EZA_DEBUG" if !self.debug.is_empty() => Some(self.debug.clone()),
+            "EXA_GRID_ROWS" | "EZA_GRID_ROWS" if !self.grid_rows.is_empty() => {
+                Some(self.grid_rows.clone())
+            }
+            "EXA_ICON_SPACING" | "EZA_ICON_SPACING" if !self.icon_spacing.is_empty() => {
+                Some(self.icon_spacing.clone())
+            }
+            "EXA_MIN_LUMINANCE" | "EZA_MIN_LUMINANCE" if !self.luminance.is_empty() => {
+                Some(self.luminance.clone())
+            }
+            "EZA_ICONS_AUTO" if !self.icons.is_empty() => Some(self.icons.clone()),
+            "COLUMNS" if !self.columns.is_empty() => Some(self.columns.clone()),
+            "NO_COLOR" if !self.no_colors.is_empty() => Some(self.no_colors.clone()),
+            "TIME_STYLE" if !self.time.is_empty() => Some(self.time.clone()),
             _ => None,
         }
     }
@@ -146,8 +156,38 @@ impl MockVars {
             "EZA_ICONS_AUTO" => self.icons = value.clone(),
             "COLUMNS" => self.columns = value.clone(),
             "NO_COLOR" => self.no_colors = value.clone(),
+            "TIME_STYLE" => self.time = value.clone(),
             _ => (),
         };
         ()
+    }
+
+    pub fn default() -> Self {
+        Self {
+            columns: OsString::new(),
+            colors: OsString::new(),
+            no_colors: OsString::new(),
+            strict: OsString::new(),
+            grid_rows: OsString::new(),
+            debug: OsString::new(),
+            luminance: OsString::new(),
+            icon_spacing: OsString::new(),
+            icons: OsString::new(),
+            time: OsString::new(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn set_test() {
+        let mut vars = MockVars {
+            ..MockVars::default()
+        };
+
+        vars.set(TIME_STYLE, &OsString::from("iso"));
+        assert_eq!(vars.get(TIME_STYLE), Some(OsString::from("iso")));
     }
 }

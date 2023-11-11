@@ -240,7 +240,6 @@ gen_test_dir:
 
     nix build -L ./#trydump
 
-    cp ./result/dump/*nix.* ./tests/cmd/
     cp ./result/dump/*.std* ./tests/gen/
     cp ./result/dump/ptest_*.* ./tests/ptests/
 

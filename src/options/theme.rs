@@ -1,11 +1,11 @@
-use crate::options::parser::MatchedFlags;
-use crate::options::{flags, vars, OptionsError, Vars};
+use crate::options::parser::{Color, Opts};
+use crate::options::{vars, OptionsError, Vars};
 use crate::output::color_scale::ColorScaleOptions;
 use crate::theme::{Definitions, Options, UseColours};
 
 impl Options {
-    pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        let use_colours = UseColours::deduce(matches, vars)?;
+    pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
+        let use_colours = UseColours::deduce(matches, vars);
         let colour_scale = ColorScaleOptions::deduce(matches, vars)?;
 
         let definitions = if use_colours == UseColours::Never {
@@ -23,26 +23,16 @@ impl Options {
 }
 
 impl UseColours {
-    fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
+    fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Self {
         let default_value = match vars.get(vars::NO_COLOR) {
             Some(_) => Self::Never,
             None => Self::Automatic,
         };
 
-        let Some(word) =
-            matches.get_where(|f| f.matches(&flags::COLOR) || f.matches(&flags::COLOUR))?
-        else {
-            return Ok(default_value);
-        };
-
-        if word == "always" {
-            Ok(Self::Always)
-        } else if word == "auto" || word == "automatic" {
-            Ok(Self::Automatic)
-        } else if word == "never" {
-            Ok(Self::Never)
-        } else {
-            Err(OptionsError::BadArgument(&flags::COLOR, word.into()))
+        match matches.color {
+            Color::Auto => default_value,
+            Color::Always => Self::Always,
+            Color::Never => Self::Never,
         }
     }
 }
@@ -60,136 +50,99 @@ impl Definitions {
 }
 
 #[cfg(test)]
-mod terminal_test {
+mod tests {
     use super::*;
-    use crate::options::flags;
-    use crate::options::parser::{Arg, Flag};
+    use crate::options::vars::MockVars;
     use std::ffi::OsString;
 
-    use crate::options::test::parse_for_test;
-    use crate::options::test::Strictnesses::*;
-
-    static TEST_ARGS: &[&Arg] = &[
-        &flags::COLOR,
-        &flags::COLOUR,
-        &flags::COLOR_SCALE,
-        &flags::COLOUR_SCALE,
-    ];
-
-    #[allow(unused_macro_rules)]
-    macro_rules! test {
-        ($name:ident:  $type:ident <- $inputs:expr;  $stricts:expr => $result:expr) => {
-            #[test]
-            fn $name() {
-                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| {
-                    $type::deduce(mf)
-                }) {
-                    assert_eq!(result, $result);
-                }
-            }
+    #[test]
+    fn deduce_definitions() {
+        let vars = MockVars {
+            ..MockVars::default()
         };
 
-        ($name:ident:  $type:ident <- $inputs:expr, $env:expr;  $stricts:expr => $result:expr) => {
-            #[test]
-            fn $name() {
-                let env = $env;
-                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| {
-                    $type::deduce(mf, &env)
-                }) {
-                    assert_eq!(result, $result);
-                }
+        assert_eq!(
+            Definitions::deduce(&vars),
+            Definitions {
+                ls: None,
+                exa: None,
             }
+        );
+    }
+
+    #[test]
+    fn deduce_definitions_colors() {
+        let mut vars = MockVars {
+            ..MockVars::default()
         };
 
-        ($name:ident:  $type:ident <- $inputs:expr;  $stricts:expr => err $result:expr) => {
-            #[test]
-            fn $name() {
-                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| {
-                    $type::deduce(mf)
-                }) {
-                    assert_eq!(result.unwrap_err(), $result);
-                }
+        vars.set(vars::LS_COLORS, &OsString::from("uR=1;34"));
+
+        assert_eq!(
+            Definitions::deduce(&vars),
+            Definitions {
+                ls: Some("uR=1;34".to_string()),
+                exa: Some("uR=1;34".to_string()),
             }
+        );
+    }
+
+    #[test]
+    fn deduce_use_colors_no_color_env() {
+        let vars = MockVars {
+            no_colors: OsString::from("1"),
+            ..MockVars::default()
         };
 
-        ($name:ident:  $type:ident <- $inputs:expr, $env:expr;  $stricts:expr => err $result:expr) => {
-            #[test]
-            fn $name() {
-                let env = $env;
-                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| {
-                    $type::deduce(mf, &env)
-                }) {
-                    assert_eq!(result.unwrap_err(), $result);
-                }
-            }
+        assert_eq!(
+            UseColours::deduce(&Opts::default(), &vars),
+            UseColours::Never
+        );
+    }
+
+    #[test]
+    fn deduce_use_colors_no_color_arg() {
+        let vars = MockVars {
+            ..MockVars::default()
         };
+
+        assert_eq!(
+            UseColours::deduce(
+                &Opts {
+                    color: Color::Never,
+                    ..Opts::default()
+                },
+                &vars
+            ),
+            UseColours::Never
+        );
     }
 
-    struct MockVars {
-        ls: &'static str,
-        exa: &'static str,
-        no_color: &'static str,
+    #[test]
+    fn deduce_use_colors_always() {
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts {
+            color: Color::Always,
+            ..Opts::default()
+        };
+
+        assert_eq!(UseColours::deduce(&options, &vars), UseColours::Always);
     }
 
-    impl MockVars {
-        fn empty() -> MockVars {
-            MockVars {
-                ls: "",
-                exa: "",
-                no_color: "",
-            }
-        }
-        fn with_no_color() -> MockVars {
-            MockVars {
-                ls: "",
-                exa: "",
-                no_color: "true",
-            }
-        }
+    #[test]
+    fn deduce_use_colors_auto() {
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts {
+            color: Color::Auto,
+            ..Opts::default()
+        };
+
+        assert_eq!(UseColours::deduce(&options, &vars), UseColours::Automatic);
     }
-
-    // Test impl that just returns the value it has.
-    impl Vars for MockVars {
-        fn get(&self, name: &'static str) -> Option<OsString> {
-            if name == vars::LS_COLORS && !self.ls.is_empty() {
-                Some(OsString::from(self.ls))
-            } else if (name == vars::EZA_COLORS || name == vars::EXA_COLORS) && !self.exa.is_empty()
-            {
-                Some(OsString::from(self.exa))
-            } else if name == vars::NO_COLOR && !self.no_color.is_empty() {
-                Some(OsString::from(self.no_color))
-            } else {
-                None
-            }
-        }
-    }
-
-    // Default
-    test!(empty:         UseColours <- [], MockVars::empty();                     Both => Ok(UseColours::Automatic));
-    test!(empty_with_no_color: UseColours <- [], MockVars::with_no_color();             Both => Ok(UseColours::Never));
-
-    // --colour
-    test!(u_always:      UseColours <- ["--colour=always"], MockVars::empty();    Both => Ok(UseColours::Always));
-    test!(u_auto:        UseColours <- ["--colour", "auto"], MockVars::empty();   Both => Ok(UseColours::Automatic));
-    test!(u_never:       UseColours <- ["--colour=never"], MockVars::empty();     Both => Ok(UseColours::Never));
-
-    // --color
-    test!(no_u_always:   UseColours <- ["--color", "always"], MockVars::empty();  Both => Ok(UseColours::Always));
-    test!(no_u_auto:     UseColours <- ["--color=auto"], MockVars::empty();       Both => Ok(UseColours::Automatic));
-    test!(no_u_never:    UseColours <- ["--color", "never"], MockVars::empty();   Both => Ok(UseColours::Never));
-
-    // Errors
-    test!(no_u_error:    UseColours <- ["--color=upstream"], MockVars::empty();   Both => err OptionsError::BadArgument(&flags::COLOR, OsString::from("upstream"))); // the error is for --color
-    test!(u_error:       UseColours <- ["--colour=lovers"], MockVars::empty();    Both => err OptionsError::BadArgument(&flags::COLOR, OsString::from("lovers"))); // and so is this one!
-
-    // Overriding
-    test!(overridden_1:  UseColours <- ["--colour=auto", "--colour=never"], MockVars::empty();  Last => Ok(UseColours::Never));
-    test!(overridden_2:  UseColours <- ["--color=auto",  "--colour=never"], MockVars::empty();  Last => Ok(UseColours::Never));
-    test!(overridden_3:  UseColours <- ["--colour=auto", "--color=never"], MockVars::empty();   Last => Ok(UseColours::Never));
-    test!(overridden_4:  UseColours <- ["--color=auto",  "--color=never"], MockVars::empty();   Last => Ok(UseColours::Never));
-
-    test!(overridden_5:  UseColours <- ["--colour=auto", "--colour=never"], MockVars::empty();  Complain => err OptionsError::Duplicate(Flag::Long("colour"), Flag::Long("colour")));
-    test!(overridden_6:  UseColours <- ["--color=auto",  "--colour=never"], MockVars::empty();  Complain => err OptionsError::Duplicate(Flag::Long("color"),  Flag::Long("colour")));
-    test!(overridden_7:  UseColours <- ["--colour=auto", "--color=never"], MockVars::empty();   Complain => err OptionsError::Duplicate(Flag::Long("colour"), Flag::Long("color")));
-    test!(overridden_8:  UseColours <- ["--color=auto",  "--color=never"], MockVars::empty();   Complain => err OptionsError::Duplicate(Flag::Long("color"),  Flag::Long("color")));
 }
