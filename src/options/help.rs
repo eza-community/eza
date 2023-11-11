@@ -75,7 +75,8 @@ LONG VIEW OPTIONS
   -o, --octal-permissions    list each file's permission in octal format
   --no-filesize              suppress the filesize field
   --no-user                  suppress the user field
-  --no-time                  suppress the time field";
+  --no-time                  suppress the time field
+  --stdin                    read file names from stdin, one per line or other separator specified in environment";
 
 static GIT_VIEW_HELP: &str = "  \
   --git                      list each file's Git status, if tracked or ignored

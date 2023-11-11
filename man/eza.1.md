@@ -237,6 +237,9 @@ These options are available when running with `--long` (`-l`):
 `--no-time`
 : Suppress the time field.
 
+`--stdin`
+: read file names from stdin, one per line or other separator specified in environment
+
 `-@`, `--extended`
 : List each file’s extended attributes and sizes.
 
@@ -323,6 +326,9 @@ If set, automates the same behavior as using `--icons` or `--icons=auto`. Useful
 
 Any explicit use of the `--icons=WHEN` flag overrides this behavior. 
 
+## `EZA_STDIN_SEPARATOR`
+
+Specifies the separator to use when reading file names from stdin. Defaults to newline.
 
 EXIT STATUSES
 =============

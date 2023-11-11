@@ -67,7 +67,8 @@ __eza() {
         {-Z,--context}"[List each file's security context]" \
         {-M,--mounts}"[Show mount details (long mode only)]" \
         '*:filename:_files' \
-        --smart-group"[Only show group if it has a different name from owner]"
+        --smart-group"[Only show group if it has a different name from owner]" \
+        --stdin"[Read file names from stdin]"
 }
 
 __eza
