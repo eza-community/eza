@@ -12,7 +12,7 @@ use crate::output::icons::{icon_for_file, iconify_style};
 use crate::output::render::FiletypeColours;
 
 /// Basically a file name factory.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Options {
     /// Whether to append file class characters to file names.
     pub classify: Classify,
