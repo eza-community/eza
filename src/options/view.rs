@@ -1,8 +1,9 @@
+use crate::output::TerminalWidth::Automatic;
 use std::ffi::OsString;
 
 use crate::fs::feature::xattr;
-use crate::options::parser::MatchedFlags;
-use crate::options::{flags, vars, NumberSource, OptionsError, Vars};
+use crate::options::parser::{ColorScaleModeArgs, Opts};
+use crate::options::{vars, NumberSource, OptionsError, Vars};
 use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};
 use crate::output::file_name::Options as FileStyle;
 use crate::output::grid_details::{self, RowThreshold};
@@ -10,13 +11,14 @@ use crate::output::table::{
     Columns, FlagsFormat, GroupFormat, Options as TableOptions, SizeFormat, TimeTypes, UserFormat,
 };
 use crate::output::time::TimeFormat;
+use crate::output::TerminalWidth::Set;
 use crate::output::{details, grid, Mode, TerminalWidth, View};
 
 impl View {
-    pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        let mode = Mode::deduce(matches, vars)?;
-        let deref_links = matches.has(&flags::DEREF_LINKS)?;
-        let total_size = matches.has(&flags::TOTAL_SIZE)?;
+    pub fn deduce<V: Vars>(matches: &Opts, vars: &V, strict: bool) -> Result<Self, OptionsError> {
+        let mode = Mode::deduce(matches, vars, strict)?;
+        let deref_links = matches.dereference > 0;
+        let total_size = matches.total_size > 0;
         let width = TerminalWidth::deduce(matches, vars)?;
         let file_style = FileStyle::deduce(matches, vars, width.actual_terminal_width().is_some())?;
         Ok(Self {
@@ -38,32 +40,20 @@ impl Mode {
     ///
     /// This is complicated a little by the fact that `--grid` and `--tree`
     /// can also combine with `--long`, so care has to be taken to use the
-    pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        let flag = matches.has_where_any(|f| {
-            f.matches(&flags::LONG)
-                || f.matches(&flags::ONE_LINE)
-                || f.matches(&flags::GRID)
-                || f.matches(&flags::TREE)
-        });
-
-        let Some(flag) = flag else {
-            Self::strict_check_long_flags(matches)?;
-            let grid = grid::Options::deduce(matches)?;
+    pub fn deduce<V: Vars>(matches: &Opts, vars: &V, strict: bool) -> Result<Self, OptionsError> {
+        if !(matches.long > 0 || matches.oneline > 0 || matches.grid > 0 || matches.tree > 0) {
+            if strict {
+                Self::strict_check_long_flags(matches)?;
+            }
+            let grid = grid::Options::deduce(matches);
             return Ok(Self::Grid(grid));
         };
 
-        if flag.matches(&flags::LONG)
-            || (flag.matches(&flags::TREE) && matches.has(&flags::LONG)?)
-            || (flag.matches(&flags::GRID) && matches.has(&flags::LONG)?)
-        {
-            let _ = matches.has(&flags::LONG)?;
-            let details = details::Options::deduce_long(matches, vars)?;
+        if matches.long > 0 {
+            let details = details::Options::deduce_long(matches, vars, strict)?;
 
-            let flag =
-                matches.has_where_any(|f| f.matches(&flags::GRID) || f.matches(&flags::TREE));
-
-            if flag.is_some() && flag.unwrap().matches(&flags::GRID) {
-                let _ = matches.has(&flags::GRID)?;
+            if matches.grid > 0 {
+                let grid = grid::Options::deduce(matches);
                 let row_threshold = RowThreshold::deduce(vars)?;
                 let grid_details = grid_details::Options {
                     details,
@@ -76,56 +66,48 @@ impl Mode {
             return Ok(Self::Details(details));
         }
 
-        Self::strict_check_long_flags(matches)?;
+        if strict {
+            Self::strict_check_long_flags(matches)?;
+        }
 
-        if flag.matches(&flags::TREE) {
-            let _ = matches.has(&flags::TREE)?;
+        if matches.tree > 0 {
             let details = details::Options::deduce_tree(matches, vars)?;
             return Ok(Self::Details(details));
         }
 
-        if flag.matches(&flags::ONE_LINE) {
-            let _ = matches.has(&flags::ONE_LINE)?;
+        if matches.oneline > 0 {
             return Ok(Self::Lines);
         }
 
-        let grid = grid::Options::deduce(matches)?;
+        let grid = grid::Options::deduce(matches);
         Ok(Self::Grid(grid))
     }
 
-    fn strict_check_long_flags(matches: &MatchedFlags<'_>) -> Result<(), OptionsError> {
+    fn strict_check_long_flags(matches: &Opts) -> Result<(), OptionsError> {
         // If --long hasn’t been passed, then check if we need to warn the
         // user about flags that won’t have any effect.
-        if matches.is_strict() {
-            for option in &[
-                &flags::BINARY,
-                &flags::BYTES,
-                &flags::INODE,
-                &flags::LINKS,
-                &flags::HEADER,
-                &flags::BLOCKSIZE,
-                &flags::TIME,
-                &flags::GROUP,
-                &flags::NUMERIC,
-                &flags::MOUNTS,
-            ] {
-                if matches.has(option)? {
-                    return Err(OptionsError::Useless(option, false, &flags::LONG));
-                }
+        for option in &[
+            (matches.binary > 0, "binary"),
+            (matches.bytes > 0, "bytes"),
+            (matches.inode > 0, "inode"),
+            (matches.links > 0, "links"),
+            (matches.header > 0, "header"),
+            (matches.blocksize > 0, "blocksize"),
+            (matches.time.is_some(), "time"),
+            (matches.group > 0, "group"),
+            (matches.numeric > 0, "numeric"),
+            (matches.mounts > 0, "mounts"),
+        ] {
+            let (opt, name) = option;
+            if *opt {
+                return Err(OptionsError::Useless(name, false, "long"));
             }
+        }
 
-            if matches.has(&flags::GIT)? && !matches.has(&flags::NO_GIT)? {
-                return Err(OptionsError::Useless(&flags::GIT, false, &flags::LONG));
-            } else if matches.has(&flags::LEVEL)?
-                && !matches.has(&flags::RECURSE)?
-                && !matches.has(&flags::TREE)?
-            {
-                return Err(OptionsError::Useless2(
-                    &flags::LEVEL,
-                    &flags::RECURSE,
-                    &flags::TREE,
-                ));
-            }
+        if matches.git > 0 && matches.no_git == 0 {
+            return Err(OptionsError::Useless("git", false, "long"));
+        } else if matches.level.is_some() && matches.recurse == 0 && matches.tree == 0 {
+            return Err(OptionsError::Useless2("level", "recurse", "tree"));
         }
 
         Ok(())
@@ -133,76 +115,65 @@ impl Mode {
 }
 
 impl grid::Options {
-    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let grid = grid::Options {
-            across: matches.has(&flags::ACROSS)?,
-        };
-
-        Ok(grid)
+    fn deduce(matches: &Opts) -> Self {
+        grid::Options {
+            across: matches.across > 0,
+        }
     }
 }
 
 impl details::Options {
-    fn deduce_tree<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
+    fn deduce_tree<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
         let details = details::Options {
             table: None,
             header: false,
-            xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
-            secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
-            mounts: matches.has(&flags::MOUNTS)?,
+            xattr: xattr::ENABLED && matches.extended > 0,
+            secattr: xattr::ENABLED && matches.security_context > 0,
+            mounts: matches.mounts > 0,
             color_scale: ColorScaleOptions::deduce(matches, vars)?,
         };
 
         Ok(details)
     }
 
-    fn deduce_long<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        if matches.is_strict() {
-            if matches.has(&flags::ACROSS)? && !matches.has(&flags::GRID)? {
-                return Err(OptionsError::Useless(&flags::ACROSS, true, &flags::LONG));
-            } else if matches.has(&flags::ONE_LINE)? {
-                return Err(OptionsError::Useless(&flags::ONE_LINE, true, &flags::LONG));
+    fn deduce_long<V: Vars>(matches: &Opts, vars: &V, strict: bool) -> Result<Self, OptionsError> {
+        if strict {
+            if matches.across > 0 && matches.grid == 0 {
+                return Err(OptionsError::Useless("across", true, "long"));
+            } else if matches.oneline > 0 {
+                return Err(OptionsError::Useless("one-line", true, "long"));
             }
         }
 
         Ok(details::Options {
             table: Some(TableOptions::deduce(matches, vars)?),
-            header: matches.has(&flags::HEADER)?,
-            xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
-            secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
-            mounts: matches.has(&flags::MOUNTS)?,
+            header: matches.header > 0,
+            xattr: xattr::ENABLED && matches.extended > 0,
+            secattr: xattr::ENABLED && matches.security_context > 0,
+            mounts: matches.mounts > 0,
             color_scale: ColorScaleOptions::deduce(matches, vars)?,
         })
     }
 }
 
 impl TerminalWidth {
-    fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        if let Some(width) = matches.get(&flags::WIDTH)? {
-            let arg_str = width.to_string_lossy();
-            match arg_str.parse() {
-                Ok(w) => {
-                    if w >= 1 {
-                        Ok(Self::Set(w))
-                    } else {
-                        Ok(Self::Automatic)
-                    }
-                }
-                Err(e) => {
-                    let source = NumberSource::Arg(&flags::WIDTH);
-                    Err(OptionsError::FailedParse(arg_str.to_string(), source, e))
-                }
+    fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
+        if let Some(width) = matches.width {
+            if width >= 1 {
+                Ok(Set(width))
+            } else {
+                Ok(Automatic)
             }
         } else if let Some(columns) = vars.get(vars::COLUMNS).and_then(|s| s.into_string().ok()) {
             match columns.parse() {
-                Ok(width) => Ok(Self::Set(width)),
+                Ok(width) => Ok(Set(width)),
                 Err(e) => {
                     let source = NumberSource::Env(vars::COLUMNS);
                     Err(OptionsError::FailedParse(columns, source, e))
                 }
             }
         } else {
-            Ok(Self::Automatic)
+            Ok(Automatic)
         }
     }
 }
@@ -230,12 +201,12 @@ impl RowThreshold {
 }
 
 impl TableOptions {
-    fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
+    fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
         let time_format = TimeFormat::deduce(matches, vars)?;
-        let size_format = SizeFormat::deduce(matches)?;
-        let user_format = UserFormat::deduce(matches)?;
-        let group_format = GroupFormat::deduce(matches)?;
         let flags_format = FlagsFormat::deduce(vars);
+        let size_format = SizeFormat::deduce(matches);
+        let user_format = UserFormat::deduce(matches);
+        let group_format = GroupFormat::deduce(matches);
         let columns = Columns::deduce(matches, vars)?;
         Ok(Self {
             size_format,
@@ -249,32 +220,31 @@ impl TableOptions {
 }
 
 impl Columns {
-    fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
+    fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
         let time_types = TimeTypes::deduce(matches)?;
 
         let no_git_env = vars
             .get_with_fallback(vars::EXA_OVERRIDE_GIT, vars::EZA_OVERRIDE_GIT)
             .is_some();
 
-        let git = matches.has(&flags::GIT)? && !matches.has(&flags::NO_GIT)? && !no_git_env;
-        let subdir_git_repos =
-            matches.has(&flags::GIT_REPOS)? && !matches.has(&flags::NO_GIT)? && !no_git_env;
+        let git = matches.git > 0 && matches.no_git == 0 && !no_git_env;
+        let subdir_git_repos = matches.git_repos > 0 && matches.no_git == 0 && !no_git_env;
         let subdir_git_repos_no_stat = !subdir_git_repos
-            && matches.has(&flags::GIT_REPOS_NO_STAT)?
-            && !matches.has(&flags::NO_GIT)?
+            && matches.git_repos_no_status > 0
+            && matches.no_git == 0
             && !no_git_env;
 
-        let blocksize = matches.has(&flags::BLOCKSIZE)?;
-        let group = matches.has(&flags::GROUP)?;
-        let inode = matches.has(&flags::INODE)?;
-        let links = matches.has(&flags::LINKS)?;
-        let octal = matches.has(&flags::OCTAL)?;
-        let security_context = xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?;
-        let file_flags = matches.has(&flags::FILE_FLAGS)?;
+        let file_flags = matches.file_flags > 0;
+        let blocksize = matches.blocksize > 0;
+        let group = matches.group > 0;
+        let inode = matches.inode > 0;
+        let links = matches.links > 0;
+        let octal = matches.octal > 0;
+        let security_context = xattr::ENABLED && matches.security_context > 0;
 
-        let permissions = !matches.has(&flags::NO_PERMISSIONS)?;
-        let filesize = !matches.has(&flags::NO_FILESIZE)?;
-        let user = !matches.has(&flags::NO_USER)?;
+        let permissions = matches.no_permissions == 0;
+        let filesize = matches.no_filesize == 0;
+        let user = matches.no_user == 0;
 
         Ok(Self {
             time_types,
@@ -304,22 +274,23 @@ impl SizeFormat {
     /// strings of digits in your head. Changing the format to anything else
     /// involves the `--binary` or `--bytes` flags, and these conflict with
     /// each other.
-    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let flag = matches.has_where(|f| f.matches(&flags::BINARY) || f.matches(&flags::BYTES))?;
-
-        Ok(match flag {
-            Some(f) if f.matches(&flags::BINARY) => Self::BinaryBytes,
-            Some(f) if f.matches(&flags::BYTES) => Self::JustBytes,
-            _ => Self::DecimalBytes,
-        })
+    fn deduce(matches: &Opts) -> Self {
+        use SizeFormat::*;
+        if matches.binary > 0 {
+            BinaryBytes
+        } else if matches.bytes > 0 {
+            JustBytes
+        } else {
+            DecimalBytes
+        }
     }
 }
 
 impl TimeFormat {
     /// Determine how time should be formatted in timestamp columns.
-    fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        let word = if let Some(w) = matches.get(&flags::TIME_STYLE)? {
-            w.to_os_string()
+    fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
+        let word = if let Some(w) = &matches.time_style {
+            w.clone()
         } else {
             match vars.get(vars::TIME_STYLE) {
                 Some(ref t) if !t.is_empty() => t.clone(),
@@ -366,22 +337,30 @@ impl TimeFormat {
 
                 Ok(Self::Custom { non_recent, recent })
             }
-            _ => Err(OptionsError::BadArgument(&flags::TIME_STYLE, word)),
+            _ => Err(OptionsError::BadArgument("time-style", word)),
         }
     }
 }
 
 impl UserFormat {
-    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let flag = matches.has(&flags::NUMERIC)?;
-        Ok(if flag { Self::Numeric } else { Self::Name })
+    fn deduce(matches: &Opts) -> Self {
+        let flag = matches.numeric > 0;
+        if flag {
+            Self::Numeric
+        } else {
+            Self::Name
+        }
     }
 }
 
 impl GroupFormat {
-    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let flag = matches.has(&flags::SMART_GROUP)?;
-        Ok(if flag { Self::Smart } else { Self::Regular })
+    fn deduce(matches: &Opts) -> Self {
+        let flag = matches.smart_group > 0;
+        if flag {
+            Self::Smart
+        } else {
+            Self::Regular
+        }
     }
 }
 
@@ -396,14 +375,14 @@ impl TimeTypes {
     /// It’s valid to show more than one column by passing in more than one
     /// option, but passing *no* options means that the user just wants to
     /// see the default set.
-    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let possible_word = matches.get(&flags::TIME)?;
-        let modified = matches.has(&flags::MODIFIED)?;
-        let changed = matches.has(&flags::CHANGED)?;
-        let accessed = matches.has(&flags::ACCESSED)?;
-        let created = matches.has(&flags::CREATED)?;
+    fn deduce(matches: &Opts) -> Result<Self, OptionsError> {
+        let possible_word = &matches.time;
+        let modified = matches.modified > 0;
+        let changed = matches.changed > 0;
+        let accessed = matches.accessed > 0;
+        let created = matches.created > 0;
 
-        let no_time = matches.has(&flags::NO_TIME)?;
+        let no_time = matches.no_time > 0;
 
         #[rustfmt::skip]
         let time_types = if no_time {
@@ -415,13 +394,13 @@ impl TimeTypes {
             }
         } else if let Some(word) = possible_word {
             if modified {
-                return Err(OptionsError::Useless(&flags::MODIFIED, true, &flags::TIME));
+                return Err(OptionsError::Useless("modified", true, "time"));
             } else if changed {
-                return Err(OptionsError::Useless(&flags::CHANGED, true, &flags::TIME));
+                return Err(OptionsError::Useless("changed", true, "time"));
             } else if accessed {
-                return Err(OptionsError::Useless(&flags::ACCESSED, true, &flags::TIME));
+                return Err(OptionsError::Useless("accessed", true, "time"));
             } else if created {
-                return Err(OptionsError::Useless(&flags::CREATED, true, &flags::TIME));
+                return Err(OptionsError::Useless("created", true, "time"));
             } else if word == "mod" || word == "modified" {
                 Self { modified: true,  changed: false, accessed: false, created: false }
             } else if word == "ch" || word == "changed" {
@@ -431,7 +410,7 @@ impl TimeTypes {
             } else if word == "cr" || word == "created" {
                 Self { modified: false, changed: false, accessed: false, created: true  }
             } else {
-                return Err(OptionsError::BadArgument(&flags::TIME, word.into()));
+                return Err(OptionsError::BadArgument("time", word.into()));
             }
         } else if modified || changed || accessed || created {
             Self {
@@ -449,7 +428,7 @@ impl TimeTypes {
 }
 
 impl ColorScaleOptions {
-    pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
+    pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
         let min_luminance =
             match vars.get_with_fallback(vars::EZA_MIN_LUMINANCE, vars::EXA_MIN_LUMINANCE) {
                 Some(var) => match var.to_string_lossy().parse() {
@@ -459,20 +438,9 @@ impl ColorScaleOptions {
                 None => 40,
             };
 
-        let mode = if let Some(w) = matches
-            .get(&flags::COLOR_SCALE_MODE)?
-            .or(matches.get(&flags::COLOUR_SCALE_MODE)?)
-        {
-            match w.to_str() {
-                Some("fixed") => ColorScaleMode::Fixed,
-                Some("gradient") => ColorScaleMode::Gradient,
-                _ => Err(OptionsError::BadArgument(
-                    &flags::COLOR_SCALE_MODE,
-                    w.to_os_string(),
-                ))?,
-            }
-        } else {
-            ColorScaleMode::Gradient
+        let mode = match matches.color_scale_mode {
+            ColorScaleModeArgs::Fixed => ColorScaleMode::Fixed,
+            ColorScaleModeArgs::Gradient => ColorScaleMode::Gradient,
         };
 
         let mut options = ColorScaleOptions {
@@ -482,11 +450,11 @@ impl ColorScaleOptions {
             age: false,
         };
 
-        let words = if let Some(w) = matches
-            .get(&flags::COLOR_SCALE)?
-            .or(matches.get(&flags::COLOUR_SCALE)?)
-        {
-            w.to_os_string()
+        let words = if let Some(w) = match &matches.color_scale {
+            Some(w) => Some(w),
+            None => None,
+        } {
+            w.clone()
         } else {
             return Ok(options);
         };
@@ -500,7 +468,7 @@ impl ColorScaleOptions {
                 "age" => options.age = true,
                 "size" => options.size = true,
                 _ => Err(OptionsError::BadArgument(
-                    &flags::COLOR_SCALE,
+                    "color-scale",
                     OsString::from(word),
                 ))?,
             };
@@ -511,277 +479,778 @@ impl ColorScaleOptions {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
+    use crate::options::vars::MockVars;
+    use std::num::ParseIntError;
+
     use super::*;
-    use crate::options::flags;
-    use crate::options::parser::{Arg, Flag};
-    use std::ffi::OsString;
 
-    use crate::options::test::parse_for_test;
-    use crate::options::test::Strictnesses::*;
-
-    static TEST_ARGS: &[&Arg] = &[
-        &flags::BINARY,
-        &flags::BYTES,
-        &flags::TIME_STYLE,
-        &flags::TIME,
-        &flags::MODIFIED,
-        &flags::CHANGED,
-        &flags::CREATED,
-        &flags::ACCESSED,
-        &flags::HEADER,
-        &flags::GROUP,
-        &flags::INODE,
-        &flags::GIT,
-        &flags::LINKS,
-        &flags::BLOCKSIZE,
-        &flags::LONG,
-        &flags::LEVEL,
-        &flags::GRID,
-        &flags::ACROSS,
-        &flags::ONE_LINE,
-        &flags::TREE,
-        &flags::NUMERIC,
-    ];
-
-    #[allow(unused_macro_rules)]
-    macro_rules! test {
-        ($name:ident: $type:ident <- $inputs:expr; $stricts:expr => $result:expr) => {
-            /// Macro that writes a test.
-            /// If testing both strictnesses, they’ll both be done in the same function.
-            #[test]
-            fn $name() {
-                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| {
-                    $type::deduce(mf)
-                }) {
-                    assert_eq!(result, $result);
-                }
-            }
+    #[test]
+    fn deduce_time_types_no_time() {
+        let options = Opts {
+            no_time: 1,
+            ..Opts::default()
         };
 
-        ($name:ident: $type:ident <- $inputs:expr; $stricts:expr => err $result:expr) => {
-            /// Special macro for testing Err results.
-            /// This is needed because sometimes the Ok type doesn’t implement `PartialEq`.
-            #[test]
-            fn $name() {
-                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| {
-                    $type::deduce(mf)
-                }) {
-                    assert_eq!(result.unwrap_err(), $result);
-                }
-            }
-        };
-
-        ($name:ident: $type:ident <- $inputs:expr; $stricts:expr => like $pat:pat) => {
-            /// More general macro for testing against a pattern.
-            /// Instead of using `PartialEq`, this just tests if it matches a pat.
-            #[test]
-            fn $name() {
-                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| {
-                    $type::deduce(mf)
-                }) {
-                    println!("Testing {:?}", result);
-                    match result {
-                        $pat => assert!(true),
-                        _ => assert!(false),
-                    }
-                }
-            }
-        };
-
-        ($name:ident: $type:ident <- $inputs:expr, $vars:expr; $stricts:expr => err $result:expr) => {
-            /// Like above, but with $vars.
-            #[test]
-            fn $name() {
-                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| {
-                    $type::deduce(mf, &$vars)
-                }) {
-                    assert_eq!(result.unwrap_err(), $result);
-                }
-            }
-        };
-
-        ($name:ident: $type:ident <- $inputs:expr, $vars:expr; $stricts:expr => like $pat:pat) => {
-            /// Like further above, but with $vars.
-            #[test]
-            fn $name() {
-                for result in parse_for_test($inputs.as_ref(), TEST_ARGS, $stricts, |mf| {
-                    $type::deduce(mf, &$vars)
-                }) {
-                    println!("Testing {:?}", result);
-                    match result {
-                        $pat => assert!(true),
-                        _ => assert!(false),
-                    }
-                }
-            }
-        };
+        assert_eq!(
+            TimeTypes::deduce(&options),
+            Ok(TimeTypes {
+                modified: false,
+                ..TimeTypes::default()
+            })
+        );
     }
 
-    mod size_formats {
-        use super::*;
-
-        // Default behaviour
-        test!(empty:   SizeFormat <- [];                       Both => Ok(SizeFormat::DecimalBytes));
-
-        // Individual flags
-        test!(binary:  SizeFormat <- ["--binary"];             Both => Ok(SizeFormat::BinaryBytes));
-        test!(bytes:   SizeFormat <- ["--bytes"];              Both => Ok(SizeFormat::JustBytes));
-
-        // Overriding
-        test!(both_1:  SizeFormat <- ["--binary", "--binary"];  Last => Ok(SizeFormat::BinaryBytes));
-        test!(both_2:  SizeFormat <- ["--bytes",  "--binary"];  Last => Ok(SizeFormat::BinaryBytes));
-        test!(both_3:  SizeFormat <- ["--binary", "--bytes"];   Last => Ok(SizeFormat::JustBytes));
-        test!(both_4:  SizeFormat <- ["--bytes",  "--bytes"];   Last => Ok(SizeFormat::JustBytes));
-
-        test!(both_5:  SizeFormat <- ["--binary", "--binary"];  Complain => err OptionsError::Duplicate(Flag::Long("binary"), Flag::Long("binary")));
-        test!(both_6:  SizeFormat <- ["--bytes",  "--binary"];  Complain => err OptionsError::Duplicate(Flag::Long("bytes"),  Flag::Long("binary")));
-        test!(both_7:  SizeFormat <- ["--binary", "--bytes"];   Complain => err OptionsError::Duplicate(Flag::Long("binary"), Flag::Long("bytes")));
-        test!(both_8:  SizeFormat <- ["--bytes",  "--bytes"];   Complain => err OptionsError::Duplicate(Flag::Long("bytes"),  Flag::Long("bytes")));
+    #[test]
+    fn deduce_time_types_default() {
+        assert_eq!(
+            TimeTypes::deduce(&Opts::default()),
+            Ok(TimeTypes::default())
+        );
     }
 
-    mod time_formats {
-        use super::*;
+    #[test]
+    fn deduce_time_types_modified_word() {
+        let options = Opts {
+            time: Some(OsString::from("modified")),
+            ..Opts::default()
+        };
 
-        // These tests use pattern matching because TimeFormat doesn’t
-        // implement PartialEq.
-
-        // Default behaviour
-        test!(empty:     TimeFormat <- [], None;                            Both => like Ok(TimeFormat::DefaultFormat));
-
-        // Individual settings
-        test!(default:                TimeFormat <- ["--time-style=default"], None;               Both => like Ok(TimeFormat::DefaultFormat));
-        test!(iso:                    TimeFormat <- ["--time-style", "iso"], None;                Both => like Ok(TimeFormat::ISOFormat));
-        test!(relative:               TimeFormat <- ["--time-style", "relative"], None;           Both => like Ok(TimeFormat::Relative));
-        test!(long_iso:               TimeFormat <- ["--time-style=long-iso"], None;              Both => like Ok(TimeFormat::LongISO));
-        test!(full_iso:               TimeFormat <- ["--time-style", "full-iso"], None;           Both => like Ok(TimeFormat::FullISO));
-        test!(custom_style:           TimeFormat <- ["--time-style", "+%Y/%m/%d"], None;          Both => like Ok(TimeFormat::Custom { recent: None, .. }));
-        test!(custom_style_multiline: TimeFormat <- ["--time-style", "+%Y/%m/%d\n--%m-%d"], None; Both => like Ok(TimeFormat::Custom { recent: Some(_), .. }));
-        test!(bad_custom_style:       TimeFormat <- ["--time-style", "%Y/%m/%d"], None;           Both => err OptionsError::BadArgument(&flags::TIME_STYLE, OsString::from("%Y/%m/%d")));
-
-        // Overriding
-        test!(actually:  TimeFormat <- ["--time-style=default", "--time-style", "iso"], None;  Last => like Ok(TimeFormat::ISOFormat));
-        test!(actual_2:  TimeFormat <- ["--time-style=default", "--time-style", "iso"], None;  Complain => err OptionsError::Duplicate(Flag::Long("time-style"), Flag::Long("time-style")));
-
-        test!(nevermind: TimeFormat <- ["--time-style", "long-iso", "--time-style=full-iso"], None;  Last => like Ok(TimeFormat::FullISO));
-        test!(nevermore: TimeFormat <- ["--time-style", "long-iso", "--time-style=full-iso"], None;  Complain => err OptionsError::Duplicate(Flag::Long("time-style"), Flag::Long("time-style")));
-
-        // Errors
-        test!(daily:     TimeFormat <- ["--time-style=24-hour"], None;  Both => err OptionsError::BadArgument(&flags::TIME_STYLE, OsString::from("24-hour")));
-
-        // `TIME_STYLE` environment variable is defined.
-        // If the time-style argument is not given, `TIME_STYLE` is used.
-        test!(use_env:     TimeFormat <- [], Some("long-iso".into());  Both => like Ok(TimeFormat::LongISO));
-
-        // If the time-style argument is given, `TIME_STYLE` is overriding.
-        test!(override_env:     TimeFormat <- ["--time-style=full-iso"], Some("long-iso".into());  Both => like Ok(TimeFormat::FullISO));
+        assert_eq!(
+            TimeTypes::deduce(&options),
+            Ok(TimeTypes {
+                modified: true,
+                ..TimeTypes::default()
+            })
+        );
     }
 
-    mod time_types {
-        use super::*;
+    #[test]
+    fn deduce_time_types_accessed_word() {
+        let options = Opts {
+            time: Some(OsString::from("accessed")),
+            ..Opts::default()
+        };
 
-        // Default behaviour
-        test!(empty:     TimeTypes <- [];                      Both => Ok(TimeTypes::default()));
-
-        // Modified
-        test!(modified:  TimeTypes <- ["--modified"];          Both => Ok(TimeTypes { modified: true,  changed: false, accessed: false, created: false }));
-        test!(m:         TimeTypes <- ["-m"];                  Both => Ok(TimeTypes { modified: true,  changed: false, accessed: false, created: false }));
-        test!(time_mod:  TimeTypes <- ["--time=modified"];     Both => Ok(TimeTypes { modified: true,  changed: false, accessed: false, created: false }));
-        test!(t_m:       TimeTypes <- ["-tmod"];               Both => Ok(TimeTypes { modified: true,  changed: false, accessed: false, created: false }));
-
-        // Changed
-        #[cfg(target_family = "unix")]
-        test!(changed:   TimeTypes <- ["--changed"];           Both => Ok(TimeTypes { modified: false, changed: true,  accessed: false, created: false }));
-        #[cfg(target_family = "unix")]
-        test!(time_ch:   TimeTypes <- ["--time=changed"];      Both => Ok(TimeTypes { modified: false, changed: true,  accessed: false, created: false }));
-        #[cfg(target_family = "unix")]
-        test!(t_ch:    TimeTypes <- ["-t", "ch"];              Both => Ok(TimeTypes { modified: false, changed: true,  accessed: false, created: false }));
-
-        // Accessed
-        test!(acc:       TimeTypes <- ["--accessed"];          Both => Ok(TimeTypes { modified: false, changed: false, accessed: true,  created: false }));
-        test!(a:         TimeTypes <- ["-u"];                  Both => Ok(TimeTypes { modified: false, changed: false, accessed: true,  created: false }));
-        test!(time_acc:  TimeTypes <- ["--time", "accessed"];  Both => Ok(TimeTypes { modified: false, changed: false, accessed: true,  created: false }));
-        test!(time_a:    TimeTypes <- ["-t", "acc"];           Both => Ok(TimeTypes { modified: false, changed: false, accessed: true,  created: false }));
-
-        // Created
-        test!(cr:        TimeTypes <- ["--created"];           Both => Ok(TimeTypes { modified: false, changed: false, accessed: false, created: true  }));
-        test!(c:         TimeTypes <- ["-U"];                  Both => Ok(TimeTypes { modified: false, changed: false, accessed: false, created: true  }));
-        test!(time_cr:   TimeTypes <- ["--time=created"];      Both => Ok(TimeTypes { modified: false, changed: false, accessed: false, created: true  }));
-        test!(t_cr:      TimeTypes <- ["-tcr"];                Both => Ok(TimeTypes { modified: false, changed: false, accessed: false, created: true  }));
-
-        // Multiples
-        test!(time_uu:   TimeTypes <- ["-u", "--modified"];    Both => Ok(TimeTypes { modified: true,  changed: false, accessed: true,  created: false }));
-
-        // Errors
-        test!(time_tea:  TimeTypes <- ["--time=tea"];          Both => err OptionsError::BadArgument(&flags::TIME, OsString::from("tea")));
-        test!(t_ea:      TimeTypes <- ["-tea"];                Both => err OptionsError::BadArgument(&flags::TIME, OsString::from("ea")));
-
-        // Overriding
-        test!(overridden:   TimeTypes <- ["-tcr", "-tmod"];    Last => Ok(TimeTypes { modified: true,  changed: false, accessed: false, created: false }));
-        test!(overridden_2: TimeTypes <- ["-tcr", "-tmod"];    Complain => err OptionsError::Duplicate(Flag::Short(b't'), Flag::Short(b't')));
+        assert_eq!(
+            TimeTypes::deduce(&options),
+            Ok(TimeTypes {
+                accessed: true,
+                modified: false,
+                ..TimeTypes::default()
+            })
+        );
     }
 
-    mod views {
-        use super::*;
+    #[test]
+    fn deduce_time_types_changed_word() {
+        let options = Opts {
+            time: Some(OsString::from("changed")),
+            ..Opts::default()
+        };
 
-        use crate::output::grid::Options as GridOptions;
+        assert_eq!(
+            TimeTypes::deduce(&options),
+            Ok(TimeTypes {
+                modified: false,
+                changed: true,
+                ..TimeTypes::default()
+            })
+        );
+    }
 
-        // Default
-        test!(empty:         Mode <- [], None;            Both => like Ok(Mode::Grid(_)));
+    #[test]
+    fn deduce_time_types_created_word() {
+        let options = Opts {
+            time: Some(OsString::from("created")),
+            ..Opts::default()
+        };
 
-        // Grid views
-        test!(original_g:    Mode <- ["-G"], None;        Both => like Ok(Mode::Grid(GridOptions { across: false, .. })));
-        test!(grid:          Mode <- ["--grid"], None;    Both => like Ok(Mode::Grid(GridOptions { across: false, .. })));
-        test!(across:        Mode <- ["--across"], None;  Both => like Ok(Mode::Grid(GridOptions { across: true,  .. })));
-        test!(gracross:      Mode <- ["-xG"], None;       Both => like Ok(Mode::Grid(GridOptions { across: true,  .. })));
+        assert_eq!(
+            TimeTypes::deduce(&options),
+            Ok(TimeTypes {
+                modified: false,
+                created: true,
+                ..TimeTypes::default()
+            })
+        );
+    }
 
-        // Lines views
-        test!(lines:         Mode <- ["--oneline"], None;     Both => like Ok(Mode::Lines));
-        test!(prima:         Mode <- ["-1"], None;            Both => like Ok(Mode::Lines));
+    #[test]
+    fn deduce_time_types_modified() {
+        let options = Opts {
+            modified: 1,
+            ..Opts::default()
+        };
 
-        // Details views
-        test!(long:          Mode <- ["--long"], None;    Both => like Ok(Mode::Details(_)));
-        test!(ell:           Mode <- ["-l"], None;        Both => like Ok(Mode::Details(_)));
+        assert_eq!(
+            TimeTypes::deduce(&options),
+            Ok(TimeTypes {
+                modified: true,
+                ..TimeTypes::default()
+            })
+        );
+    }
 
-        // Grid-details views
-        test!(lid:           Mode <- ["--long", "--grid"], None;  Both => like Ok(Mode::GridDetails(_)));
-        test!(leg:           Mode <- ["-lG"], None;               Both => like Ok(Mode::GridDetails(_)));
+    #[test]
+    fn deduce_time_types_accessed() {
+        let options = Opts {
+            accessed: 1,
+            ..Opts::default()
+        };
 
-        // Options that do nothing with --long
-        test!(long_across:   Mode <- ["--long", "--across"],   None;  Last => like Ok(Mode::Details(_)));
+        assert_eq!(
+            TimeTypes::deduce(&options),
+            Ok(TimeTypes {
+                accessed: true,
+                modified: false,
+                ..TimeTypes::default()
+            })
+        );
+    }
 
-        // Options that do nothing without --long
-        test!(just_header:   Mode <- ["--header"],    None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_group:    Mode <- ["--group"],     None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_inode:    Mode <- ["--inode"],     None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_links:    Mode <- ["--links"],     None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_blocks:   Mode <- ["--blocksize"], None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_binary:   Mode <- ["--binary"],    None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_bytes:    Mode <- ["--bytes"],     None;  Last => like Ok(Mode::Grid(_)));
-        test!(just_numeric:  Mode <- ["--numeric"],   None;  Last => like Ok(Mode::Grid(_)));
+    #[test]
+    fn deduce_time_types_changed() {
+        let options = Opts {
+            changed: 1,
+            ..Opts::default()
+        };
 
-        #[cfg(feature = "git")]
-        test!(just_git:      Mode <- ["--git"],       None;  Last => like Ok(Mode::Grid(_)));
+        assert_eq!(
+            TimeTypes::deduce(&options),
+            Ok(TimeTypes {
+                modified: false,
+                changed: true,
+                ..TimeTypes::default()
+            })
+        );
+    }
 
-        test!(just_header_2: Mode <- ["--header"],    None;  Complain => err OptionsError::Useless(&flags::HEADER,  false, &flags::LONG));
-        test!(just_group_2:  Mode <- ["--group"],     None;  Complain => err OptionsError::Useless(&flags::GROUP,   false, &flags::LONG));
-        test!(just_inode_2:  Mode <- ["--inode"],     None;  Complain => err OptionsError::Useless(&flags::INODE,   false, &flags::LONG));
-        test!(just_links_2:  Mode <- ["--links"],     None;  Complain => err OptionsError::Useless(&flags::LINKS,   false, &flags::LONG));
-        test!(just_blocks_2: Mode <- ["--blocksize"], None;  Complain => err OptionsError::Useless(&flags::BLOCKSIZE,  false, &flags::LONG));
-        test!(just_binary_2: Mode <- ["--binary"],    None;  Complain => err OptionsError::Useless(&flags::BINARY,  false, &flags::LONG));
-        test!(just_bytes_2:  Mode <- ["--bytes"],     None;  Complain => err OptionsError::Useless(&flags::BYTES,   false, &flags::LONG));
-        test!(just_numeric2: Mode <- ["--numeric"],   None;  Complain => err OptionsError::Useless(&flags::NUMERIC, false, &flags::LONG));
+    #[test]
+    fn deduce_time_types_created() {
+        let options = Opts {
+            created: 1,
+            ..Opts::default()
+        };
 
-        #[cfg(feature = "git")]
-        test!(just_git_2:    Mode <- ["--git"],    None;  Complain => err OptionsError::Useless(&flags::GIT,    false, &flags::LONG));
+        assert_eq!(
+            TimeTypes::deduce(&options),
+            Ok(TimeTypes {
+                modified: false,
+                created: true,
+                ..TimeTypes::default()
+            })
+        );
+    }
 
-        // Contradictions and combinations
-        test!(lgo:           Mode <- ["--long", "--grid", "--oneline"], None;  Both => like Ok(Mode::Lines));
-        test!(lgt:           Mode <- ["--long", "--grid", "--tree"],    None;  Both => like Ok(Mode::Details(_)));
-        test!(tgl:           Mode <- ["--tree", "--grid", "--long"],    None;  Both => like Ok(Mode::GridDetails(_)));
-        test!(tlg:           Mode <- ["--tree", "--long", "--grid"],    None;  Both => like Ok(Mode::GridDetails(_)));
-        test!(ot:            Mode <- ["--oneline", "--tree"],           None;  Both => like Ok(Mode::Details(_)));
-        test!(og:            Mode <- ["--oneline", "--grid"],           None;  Both => like Ok(Mode::Grid(_)));
-        test!(tg:            Mode <- ["--tree", "--grid"],              None;  Both => like Ok(Mode::Grid(_)));
+    #[test]
+    fn deduce_group_format_on() {
+        let options = Opts {
+            smart_group: 1,
+            ..Opts::default()
+        };
+
+        assert_eq!(GroupFormat::deduce(&options), GroupFormat::Smart);
+    }
+
+    #[test]
+    fn deduce_group_format_off() {
+        let options = Opts { ..Opts::default() };
+
+        assert_eq!(GroupFormat::deduce(&options), GroupFormat::Regular);
+    }
+
+    #[test]
+    fn deduce_user_format_on() {
+        let options = Opts {
+            numeric: 1,
+            ..Opts::default()
+        };
+
+        assert_eq!(UserFormat::deduce(&options), UserFormat::Numeric);
+    }
+
+    #[test]
+    fn deduce_user_format_off() {
+        let options = Opts { ..Opts::default() };
+
+        assert_eq!(UserFormat::deduce(&options), UserFormat::Name);
+    }
+
+    #[test]
+    fn deduce_size_format_off() {
+        let options = Opts { ..Opts::default() };
+
+        assert_eq!(SizeFormat::deduce(&options), SizeFormat::DecimalBytes);
+    }
+
+    #[test]
+    fn deduce_user_format_bytes() {
+        let options = Opts {
+            bytes: 1,
+            ..Opts::default()
+        };
+
+        assert_eq!(SizeFormat::deduce(&options), SizeFormat::JustBytes);
+    }
+
+    #[test]
+    fn deduce_user_format_binary() {
+        let options = Opts {
+            binary: 1,
+            ..Opts::default()
+        };
+
+        assert_eq!(SizeFormat::deduce(&options), SizeFormat::BinaryBytes);
+    }
+
+    #[test]
+    fn deduce_grid_options() {
+        let options = Opts {
+            across: 1,
+            ..Opts::default()
+        };
+
+        assert_eq!(
+            grid::Options::deduce(&options),
+            grid::Options { across: true }
+        );
+    }
+
+    #[test]
+    fn deduce_time_style_iso_env() {
+        let mut vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts { ..Opts::default() };
+
+        vars.set(vars::TIME_STYLE, &OsString::from("iso"));
+        assert_eq!(
+            TimeFormat::deduce(&options, &vars),
+            Ok(TimeFormat::ISOFormat)
+        );
+    }
+
+    #[test]
+    fn deduce_time_style_iso_arg() {
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts {
+            time_style: Some(OsString::from("iso")),
+            ..Opts::default()
+        };
+
+        assert_eq!(
+            TimeFormat::deduce(&options, &vars),
+            Ok(TimeFormat::ISOFormat)
+        );
+    }
+
+    #[test]
+    fn deduce_time_style_long_iso_env() {
+        let mut vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts { ..Opts::default() };
+
+        vars.set(vars::TIME_STYLE, &OsString::from("long-iso"));
+        assert_eq!(TimeFormat::deduce(&options, &vars), Ok(TimeFormat::LongISO));
+    }
+
+    #[test]
+    fn deduce_time_style_long_iso_arg() {
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts {
+            time_style: Some(OsString::from("long-iso")),
+            ..Opts::default()
+        };
+
+        assert_eq!(TimeFormat::deduce(&options, &vars), Ok(TimeFormat::LongISO));
+    }
+
+    #[test]
+    fn deduce_time_style_full_iso_env() {
+        let mut vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts { ..Opts::default() };
+
+        vars.set(vars::TIME_STYLE, &OsString::from("full-iso"));
+        assert_eq!(TimeFormat::deduce(&options, &vars), Ok(TimeFormat::FullISO));
+    }
+
+    #[test]
+    fn deduce_time_style_full_iso_arg() {
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts {
+            time_style: Some(OsString::from("full-iso")),
+            ..Opts::default()
+        };
+
+        assert_eq!(TimeFormat::deduce(&options, &vars), Ok(TimeFormat::FullISO));
+    }
+
+    #[test]
+    fn deduce_time_style_relative_env() {
+        let mut vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts { ..Opts::default() };
+
+        vars.set(vars::TIME_STYLE, &OsString::from("relative"));
+        assert_eq!(
+            TimeFormat::deduce(&options, &vars),
+            Ok(TimeFormat::Relative)
+        );
+    }
+
+    #[test]
+    fn deduce_time_style_relative_arg() {
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts {
+            time_style: Some(OsString::from("relative")),
+            ..Opts::default()
+        };
+
+        assert_eq!(
+            TimeFormat::deduce(&options, &vars),
+            Ok(TimeFormat::Relative)
+        );
+    }
+
+    #[test]
+    fn deduce_time_style_custom_env() {
+        let mut vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts { ..Opts::default() };
+
+        vars.set(vars::TIME_STYLE, &OsString::from("+%Y-%b-%d"));
+        assert_eq!(
+            TimeFormat::deduce(&options, &vars),
+            Ok(TimeFormat::Custom {
+                recent: None,
+                non_recent: String::from("%Y-%b-%d")
+            })
+        );
+    }
+
+    #[test]
+    fn deduce_time_style_custom_arg() {
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts {
+            time_style: Some(OsString::from("+%Y-%b-%d")),
+            ..Opts::default()
+        };
+
+        assert_eq!(
+            TimeFormat::deduce(&options, &vars),
+            Ok(TimeFormat::Custom {
+                recent: None,
+                non_recent: String::from("%Y-%b-%d")
+            })
+        );
+    }
+
+    #[test]
+    fn deduce_time_style_non_recent_and_recent() {
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts {
+            time_style: Some(OsString::from(
+                "+%Y-%m-%d %H
+--%m-%d %H:%M",
+            )),
+            ..Opts::default()
+        };
+
+        assert_eq!(
+            TimeFormat::deduce(&options, &vars),
+            Ok(TimeFormat::Custom {
+                recent: Some(String::from("--%m-%d %H:%M")),
+                non_recent: String::from("%Y-%m-%d %H")
+            })
+        );
+    }
+
+    #[test]
+    fn deduce_time_style_error() {
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts {
+            time_style: Some(OsString::from("nice")),
+            ..Opts::default()
+        };
+
+        assert_eq!(
+            TimeFormat::deduce(&options, &vars),
+            Err(OptionsError::BadArgument(
+                "time-style",
+                OsString::from("nice")
+            ))
+        );
+    }
+
+    #[test]
+    fn deduce_color_scale_size_age_luminance_40_gradient() {
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts {
+            color_scale: Some(OsString::from("size,age")),
+            ..Opts::default()
+        };
+
+        assert_eq!(
+            ColorScaleOptions::deduce(&options, &vars),
+            Ok(ColorScaleOptions {
+                mode: ColorScaleMode::Gradient,
+                min_luminance: 40,
+                size: true,
+                age: true,
+            })
+        );
+    }
+
+    #[test]
+    fn deduce_color_scale_size_luminance_60_gradient() {
+        let mut vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts {
+            color_scale: Some(OsString::from("size")),
+            ..Opts::default()
+        };
+
+        vars.set(vars::EZA_MIN_LUMINANCE, &OsString::from("60"));
+
+        assert_eq!(
+            ColorScaleOptions::deduce(&options, &vars),
+            Ok(ColorScaleOptions {
+                mode: ColorScaleMode::Gradient,
+                min_luminance: 60,
+                size: true,
+                age: false,
+            })
+        );
+    }
+
+    #[test]
+    fn deduce_color_scale_age_luminance_60_fixed() {
+        let mut vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts {
+            color_scale_mode: ColorScaleModeArgs::Fixed,
+            color_scale: Some(OsString::from("age")),
+            ..Opts::default()
+        };
+
+        vars.set(vars::EZA_MIN_LUMINANCE, &OsString::from("60"));
+
+        assert_eq!(
+            ColorScaleOptions::deduce(&options, &vars),
+            Ok(ColorScaleOptions {
+                mode: ColorScaleMode::Fixed,
+                min_luminance: 60,
+                size: false,
+                age: true,
+            })
+        );
+    }
+
+    #[test]
+    fn deduce_color_scale_size_age_luminance_99_fixed() {
+        let mut vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts {
+            color_scale_mode: ColorScaleModeArgs::Fixed,
+            color_scale: Some(OsString::from("size,age")),
+            ..Opts::default()
+        };
+
+        vars.set(vars::EZA_MIN_LUMINANCE, &OsString::from("99"));
+
+        assert_eq!(
+            ColorScaleOptions::deduce(&options, &vars),
+            Ok(ColorScaleOptions {
+                mode: ColorScaleMode::Fixed,
+                min_luminance: 99,
+                size: true,
+                age: true,
+            })
+        );
+    }
+
+    #[test]
+    fn deduce_mode_grid() {
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts {
+            grid: 1,
+            ..Opts::default()
+        };
+
+        assert_eq!(
+            Mode::deduce(&options, &vars, false),
+            Ok(Mode::Grid(grid::Options { across: false }))
+        );
+    }
+
+    #[test]
+    fn deduce_mode_grid_across() {
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        let options = Opts {
+            grid: 1,
+            across: 1,
+            ..Opts::default()
+        };
+
+        assert_eq!(
+            Mode::deduce(&options, &vars, false),
+            Ok(Mode::Grid(grid::Options { across: true }))
+        );
+    }
+    /*
+    fn deduce_tree<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
+        let details = details::Options {
+            table: None,
+            header: false,
+            xattr: xattr::ENABLED && matches.extended > 0,
+            secattr: xattr::ENABLED && matches.security_context > 0,
+            mounts: matches.mounts > 0,
+            color_scale: ColorScaleOptions::deduce(matches, vars)?,
+        };
+
+        Ok(details)
+    }
+    */
+    #[test]
+    fn deduce_details_options_tree() {
+        let options = Opts {
+            tree: 1,
+            ..Opts::default()
+        };
+
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        assert_eq!(
+            details::Options::deduce_tree(&options, &vars),
+            Ok(details::Options {
+                table: None,
+                header: false,
+                xattr: xattr::ENABLED && options.extended > 0,
+                secattr: xattr::ENABLED && options.security_context > 0,
+                mounts: options.mounts > 0,
+                color_scale: ColorScaleOptions::deduce(&options, &vars).unwrap(),
+            })
+        );
+    }
+
+    #[test]
+    fn deduce_details_options_tree_mounts() {
+        let options = Opts {
+            tree: 1,
+            mounts: 1,
+            ..Opts::default()
+        };
+
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        assert_eq!(
+            details::Options::deduce_tree(&options, &vars),
+            Ok(details::Options {
+                table: None,
+                header: false,
+                xattr: false,
+                secattr: false,
+                mounts: true,
+                color_scale: ColorScaleOptions::deduce(&options, &vars).unwrap(),
+            })
+        );
+    }
+
+    #[test]
+    fn deduce_details_options_tree_xattr() {
+        let options = Opts {
+            tree: 1,
+            extended: 1,
+            ..Opts::default()
+        };
+
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        assert_eq!(
+            details::Options::deduce_tree(&options, &vars),
+            Ok(details::Options {
+                table: None,
+                header: false,
+                xattr: xattr::ENABLED && options.extended > 0,
+                secattr: xattr::ENABLED && options.security_context > 0,
+                mounts: false,
+                color_scale: ColorScaleOptions::deduce(&options, &vars).unwrap(),
+            })
+        );
+    }
+
+    #[test]
+    fn deduce_details_options_tree_secattr() {
+        let options = Opts {
+            tree: 1,
+            security_context: 1,
+            ..Opts::default()
+        };
+
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        assert_eq!(
+            details::Options::deduce_tree(&options, &vars),
+            Ok(details::Options {
+                table: None,
+                header: false,
+                xattr: xattr::ENABLED && options.extended > 0,
+                secattr: xattr::ENABLED && options.security_context > 0,
+                mounts: false,
+                color_scale: ColorScaleOptions::deduce(&options, &vars).unwrap(),
+            })
+        );
+    }
+
+    #[test]
+    fn deduce_details_long_strict_across() {
+        let options = Opts {
+            long: 1,
+            across: 1,
+            ..Opts::default()
+        };
+
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        assert_eq!(
+            details::Options::deduce_long(&options, &vars, true),
+            Err(OptionsError::Useless("across", true, "long"))
+        );
+    }
+
+    #[test]
+    fn deduce_details_long_strict_one_line() {
+        let options = Opts {
+            long: 1,
+            oneline: 1,
+            ..Opts::default()
+        };
+
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        assert_eq!(
+            details::Options::deduce_long(&options, &vars, true),
+            Err(OptionsError::Useless("one-line", true, "long"))
+        );
+    }
+
+    #[test]
+    fn deduce_terminal_width_automatic() {
+        let options = Opts { ..Opts::default() };
+
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        assert_eq!(TerminalWidth::deduce(&options, &vars), Ok(Automatic));
+    }
+
+    #[test]
+    fn deduce_terminal_width_set_arg() {
+        let options = Opts {
+            width: Some(80),
+            ..Opts::default()
+        };
+
+        let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        assert_eq!(TerminalWidth::deduce(&options, &vars), Ok(Set(80)));
+    }
+
+    #[test]
+    fn deduce_terminal_width_set_env() {
+        let mut vars = MockVars {
+            ..MockVars::default()
+        };
+
+        vars.set(vars::COLUMNS, &OsString::from("80"));
+
+        let options = Opts { ..Opts::default() };
+
+        assert_eq!(TerminalWidth::deduce(&options, &vars), Ok(Set(80)));
+    }
+
+    #[test]
+    fn deduce_terminal_width_set_env_bad() {
+        let mut vars = MockVars {
+            ..MockVars::default()
+        };
+
+        vars.set(vars::COLUMNS, &OsString::from("bad"));
+
+        let options = Opts { ..Opts::default() };
+
+        let e: Result<i64, ParseIntError> =
+            vars.get(vars::COLUMNS).unwrap().to_string_lossy().parse();
+
+        assert_eq!(
+            TerminalWidth::deduce(&options, &vars),
+            Err(OptionsError::FailedParse(
+                String::from("bad"),
+                NumberSource::Env(vars::COLUMNS),
+                e.unwrap_err()
+            ))
+        );
     }
 }

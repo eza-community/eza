@@ -68,8 +68,6 @@
 //! --grid --long` shouldn’t complain about `--long` being given twice when
 //! it’s clear what the user wants.
 
-use std::ffi::OsStr;
-
 use crate::fs::dir_action::DirAction;
 use crate::fs::filter::{FileFilter, GitIgnore};
 use crate::options::stdin::FilesInput;
@@ -79,29 +77,19 @@ use crate::theme::Options as ThemeOptions;
 mod dir_action;
 mod file_name;
 mod filter;
-
-mod error;
-#[rustfmt::skip]
-mod flags;
+#[rustfmt::skip] // this module becomes unreadable with rustfmt
 mod theme;
 mod view;
 
 pub use self::error::{NumberSource, OptionsError};
 
-mod help;
-use self::help::HelpString;
-
-mod parser;
-use self::parser::MatchedFlags;
+pub mod parser;
+use crate::options::parser::Opts;
 
 pub mod vars;
 pub use self::vars::Vars;
 pub mod config;
 pub mod stdin;
-mod version;
-
-use self::version::VersionString;
-
 /// These **options** represent a parsed, error-checked versions of the
 /// user’s command-line options.
 #[derive(Debug)]
@@ -127,43 +115,6 @@ pub struct Options {
 }
 
 impl Options {
-    /// Parse the given iterator of command-line strings into an Options
-    /// struct and a list of free filenames, using the environment variables
-    /// for extra options.
-    #[allow(unused_results)]
-    pub fn parse<'args, I, V>(args: I, vars: &V) -> OptionsResult<'args>
-    where
-        I: IntoIterator<Item = &'args OsStr>,
-        V: Vars,
-    {
-        use crate::options::parser::{Matches, Strictness};
-
-        #[rustfmt::skip]
-        let strictness = match vars.get_with_fallback(vars::EZA_STRICT, vars::EXA_STRICT) {
-            None                         => Strictness::UseLastArguments,
-            Some(ref t) if t.is_empty()  => Strictness::UseLastArguments,
-            Some(_)                      => Strictness::ComplainAboutRedundantArguments,
-        };
-
-        let Matches { flags, frees } = match flags::ALL_ARGS.parse(args, strictness) {
-            Ok(m) => m,
-            Err(pe) => return OptionsResult::InvalidOptions(OptionsError::Parse(pe)),
-        };
-
-        if let Some(help) = HelpString::deduce(&flags) {
-            return OptionsResult::Help(help);
-        }
-
-        if let Some(version) = VersionString::deduce(&flags) {
-            return OptionsResult::Version(version);
-        }
-
-        match Self::deduce(&flags, vars) {
-            Ok(options) => OptionsResult::Ok(options, frees),
-            Err(oe) => OptionsResult::InvalidOptions(oe),
-        }
-    }
-
     /// Whether the View specified in this set of options includes a Git
     /// status column. It’s only worth trying to discover a repository if the
     /// results will end up being displayed.
@@ -191,21 +142,21 @@ impl Options {
 
     /// Determines the complete set of options based on the given command-line
     /// arguments, after they’ve been parsed.
-    fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        if cfg!(not(feature = "git"))
-            && matches
-                .has_where_any(|f| f.matches(&flags::GIT) || f.matches(&flags::GIT_IGNORE))
-                .is_some()
-        {
+    pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
+        if cfg!(not(feature = "git")) && (matches.git > 0 || matches.git_ignore > 0) {
             return Err(OptionsError::Unsupported(String::from(
                 "Options --git and --git-ignore can't be used because `git` feature was disabled in this build of exa"
             )));
         }
-        let view = View::deduce(matches, vars)?;
-        let dir_action = DirAction::deduce(matches, matches!(view.mode, Mode::Details(_)))?;
-        let filter = FileFilter::deduce(matches)?;
+        let strict = vars
+            .get_with_fallback(vars::EXA_STRICT, vars::EZA_STRICT)
+            .is_some();
+
+        let view = View::deduce(matches, vars, strict)?;
+        let dir_action = DirAction::deduce(matches, matches!(view.mode, Mode::Details(_)), strict)?;
+        let filter = FileFilter::deduce(matches, strict)?;
         let theme = ThemeOptions::deduce(matches, vars)?;
-        let stdin = FilesInput::deduce(matches, vars)?;
+        let stdin = FilesInput::deduce(matches, vars);
 
         Ok(Self {
             dir_action,
