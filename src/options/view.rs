@@ -977,18 +977,6 @@ mod tests {
             Ok(Mode::Grid(grid::Options { across: true }))
         );
     }
-    // fn deduce_tree<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
-    //     let details = details::Options {
-    //         table: None,
-    //         header: false,
-    //         xattr: xattr::ENABLED && matches.extended > 0,
-    //         secattr: xattr::ENABLED && matches.security_context > 0,
-    //         mounts: matches.mounts > 0,
-    //         color_scale: ColorScaleOptions::deduce(matches, vars)?,
-    //     };
-    //
-    //     Ok(details)
-    // }
     #[test]
     fn deduce_details_options_tree() {
         let options = Opts {
