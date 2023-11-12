@@ -26,3 +26,9 @@ fn cli_nix_tests() {
 fn cli_nix_local_tests() {
     trycmd::TestCases::new().case("tests/cmd/*_nix_local.toml");
 }
+
+#[test]
+#[cfg(feature = "powertest")]
+fn cli_powertest_tests() {
+    trycmd::TestCases::new().case("tests/ptests/*.toml");
+}
