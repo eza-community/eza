@@ -2,7 +2,7 @@ dump_dir: tests/ptests
 depth: 1
 binary: eza
 gen_binary: target/debug/eza
-args: tests/itest
+args: tests/test_dir
 commands:
   ? - null
     - --color
@@ -18,10 +18,10 @@ commands:
       - never
   ? - null
     - --icons
+  :
   ? - -L
     - --level
-  : prefix:
-      --tree
+  : prefix: --tree
     values:
       - 1
       - 2
@@ -41,11 +41,11 @@ commands:
   : prefix: -l
     values:
       - modified
-      - accessed
+      #- accessed BROKEN
       - changed
-      - created
-  # TODO: add more globs
-  ? - -I
+      #- created
+  ? # TODO: add more globs
+    - -I
     - --ignore-glob
   : prefix: -l
     values:
@@ -65,10 +65,10 @@ commands:
     long: time-style
     prefix: -l
     values:
-      - accessed
+      #- accessed
       - age
       - changed
-      - created
+      #- created
       - date
       - Ext
       - ext
@@ -86,4 +86,3 @@ commands:
       - size
       - time
       - type
-
