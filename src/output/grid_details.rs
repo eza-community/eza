@@ -88,6 +88,8 @@ pub struct Render<'a> {
     pub git: Option<&'a GitCache>,
 
     pub console_width: usize,
+
+    pub git_repos: bool,
 }
 
 impl<'a> Render<'a> {
@@ -109,6 +111,7 @@ impl<'a> Render<'a> {
             filter:        self.filter,
             git_ignoring:  self.git_ignoring,
             git:           self.git,
+            git_repos:     self.git_repos,
         };
     }
 
@@ -128,6 +131,7 @@ impl<'a> Render<'a> {
             filter:        self.filter,
             git_ignoring:  self.git_ignoring,
             git:           self.git,
+            git_repos:     self.git_repos,
         };
     }
 
@@ -271,7 +275,7 @@ impl<'a> Render<'a> {
             (None, _) => { /* Keep Git how it is */ }
         }
 
-        let mut table = Table::new(options, self.git, self.theme);
+        let mut table = Table::new(options, self.git, self.theme, self.git_repos);
         let mut rows = Vec::new();
 
         if self.details.header {

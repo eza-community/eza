@@ -137,6 +137,8 @@ pub struct Render<'a> {
     pub git_ignoring: bool,
 
     pub git: Option<&'a GitCache>,
+
+    pub git_repos: bool,
 }
 
 #[rustfmt::skip]
@@ -187,7 +189,7 @@ impl<'a> Render<'a> {
                 (None, _) => { /* Keep Git how it is */ }
             }
 
-            let mut table = Table::new(table, self.git, self.theme);
+            let mut table = Table::new(table, self.git, self.theme, self.git_repos);
 
             if self.opts.header {
                 let header = table.header_row();
