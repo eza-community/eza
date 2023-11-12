@@ -23,6 +23,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    powertest = {
+      url = "http://rime.cx/v1/github/eza-community/powertest/b/main.tar.gz";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        naersk.follows = "naersk";
+        treefmt-nix.follows = "treefmt-nix";
+        rust-overlay.follows = "rust-overlay";
+      };
+    };
+
     pre-commit-hooks = {
       url = "http://rime.cx/v1/github/semnix/pre-commit-hooks.nix.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -42,6 +52,7 @@
     nixpkgs,
     treefmt-nix,
     rust-overlay,
+    powertest,
     pre-commit-hooks,
     ...
   }:
@@ -158,7 +169,7 @@
             singleStep = true;
             # set itests files creation date to unix epoch
             buildPhase = ''touch --date=@0 tests/itest/*'';
-            cargoTestOptions = opts: opts ++ ["--features nix" "--features nix-local"];
+            cargoTestOptions = opts: opts ++ ["--features nix" "--features nix-local" "--features powertest"];
             inherit buildInputs;
           };
 
@@ -172,8 +183,16 @@
             # buildPhase files differ between dep and main phase
             singleStep = true;
             # set itests files creation date to unix epoch
-            buildPhase = ''touch --date=@0 tests/itest/*; rm tests/cmd/*.stdout || echo; rm tests/cmd/*.stderr || echo;'';
-            cargoTestOptions = opts: opts ++ ["--features nix" "--features nix-local"];
+            buildPhase = ''
+              touch --date=@0 tests/itest/*;
+              rm tests/cmd/*.stdout || echo;
+              rm tests/cmd/*.stderr || echo;
+
+              touch --date=@0 tests/ptests/*;
+              rm tests/ptests/*.stdout || echo;
+              rm tests/ptests/*.stderr || echo;
+            '';
+            cargoTestOptions = opts: opts ++ ["--features nix" "--features nix-local" "--features powertest"];
             TRYCMD = "dump";
             postInstall = ''
               cp dump $out -r
@@ -195,6 +214,8 @@
 
             # For generating demo
             vhs
+
+            powertest.packages.${pkgs.system}.default
 
             cargo-hack
             cargo-udeps

@@ -1,0 +1,89 @@
+dump_dir: tests/ptests
+depth: 1
+binary: eza
+gen_binary: target/debug/eza
+args: tests/itest
+commands:
+  ? - null
+    - --color
+  : values:
+      - auto
+      - always
+      - never
+  ? - null
+    - --colour
+  : values:
+      - auto
+      - always
+      - never
+  ? - null
+    - --icons
+  ? - -L
+    - --level
+  : prefix:
+      --tree
+    values:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+  ? - -w
+    - --width
+  : values:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+  ? - -t
+    - --time
+  : prefix: -l
+    values:
+      - modified
+      - accessed
+      - changed
+      - created
+  # TODO: add more globs
+  ? - -I
+    - --ignore-glob
+  : prefix: -l
+    values:
+      - "*.toml"
+  ? - null
+    - --time-style
+  : long: time-style
+    values:
+      - default
+      - iso
+      - long-iso
+      - full-iso
+      - relative
+  ? - -s
+    - --sort
+  : short: -s
+    long: time-style
+    prefix: -l
+    values:
+      - accessed
+      - age
+      - changed
+      - created
+      - date
+      - Ext
+      - ext
+      - Extension
+      - extension
+      - Filename
+      - filename
+      - inode
+      - modified
+      - Name
+      - name
+      - newest
+      - none
+      - oldest
+      - size
+      - time
+      - type
+
