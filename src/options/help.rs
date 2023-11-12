@@ -70,7 +70,7 @@ LONG VIEW OPTIONS
                              full-iso, relative, or a custom style with '+' as
                              prefix. Ex: '+%Y/%m/%d')
   --total-size               show the size of a directory as the size of all
-                             files and directories inside
+                             files and directories inside (unix only)
   --no-permissions           suppress the permissions field
   -o, --octal-permissions    list each file's permission in octal format
   --no-filesize              suppress the filesize field
