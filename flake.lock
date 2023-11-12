@@ -163,7 +163,7 @@
         ]
       },
       "locked": {
-        "narHash": "sha256-ZiOjGJPz2KaeWpPYD71rLGD+Y8OOeUFL9q6COkI6fCU=",
+        "narHash": "sha256-DaBLTu/GCq7lDWyR9HKj9H1t5mfX7T1eFwrIwJICXZo=",
         "type": "tarball",
         "url": "http://rime.cx/v1/github/eza-community/powertest/b/main.tar.gz"
       },

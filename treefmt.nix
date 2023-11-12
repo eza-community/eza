@@ -10,7 +10,11 @@
     yamlfmt.enable = true; # yaml
   };
   settings = {
-    formatter.shellcheck.includes = ["*.sh" "./completions/bash/eza"];
-    formatter.rustfmt.excludes = ["src/options/flags.rs"];
+    formatter = {
+      shellcheck.includes = ["*.sh" "./completions/bash/eza"];
+      rustfmt.excludes = ["src/options/flags.rs"];
+      taplo.excludes = ["tests/ptests/*.toml"];
+      yamlfmt.excludes = ["./powertest.yaml"];
+    };
   };
 }
