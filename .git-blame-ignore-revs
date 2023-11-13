@@ -26,3 +26,7 @@
 
 # treewide rustfmt https://github.com/eza-community/eza/pull/405
 0e06409b07f060e3afe1c099c4c54e6504847ee0
+
+# initial powertests https://github.com/eza-community/eza/pull/644/commits
+2273e29bc006baeb76795ae40c7b8b76f61c6f26
+4f949fc9bbb1e387b489ad841af56e7be448bef3
