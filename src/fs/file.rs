@@ -9,6 +9,8 @@ use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
 use std::os::windows::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 #[cfg(unix)]
+use std::str;
+#[cfg(unix)]
 use std::sync::Mutex;
 use std::sync::OnceLock;
 
@@ -22,6 +24,7 @@ use crate::fs::dir::Dir;
 use crate::fs::feature::xattr;
 use crate::fs::feature::xattr::{Attribute, FileAttributes};
 use crate::fs::fields as f;
+use crate::fs::fields::SecurityContextType;
 use crate::fs::recursive_size::RecursiveSize;
 
 use super::mounts::all_mounts;
@@ -841,17 +844,31 @@ impl<'dir> File<'dir> {
     }
 
     /// This file’s security context field.
+    #[cfg(unix)]
     pub fn security_context(&self) -> f::SecurityContext<'_> {
         let context = match self
             .extended_attributes()
             .iter()
             .find(|a| a.name == "security.selinux")
         {
-            Some(attr) => f::SecurityContextType::SELinux(&attr.value),
-            None => f::SecurityContextType::None,
+            Some(attr) => match &attr.value {
+                None => SecurityContextType::None,
+                Some(value) => match str::from_utf8(value) {
+                    Ok(v) => SecurityContextType::SELinux(v.trim_end_matches(char::from(0))),
+                    Err(_) => SecurityContextType::None,
+                },
+            },
+            None => SecurityContextType::None,
         };
 
         f::SecurityContext { context }
+    }
+
+    #[cfg(windows)]
+    pub fn security_context(&self) -> f::SecurityContext<'_> {
+        f::SecurityContext {
+            context: SecurityContextType::None,
+        }
     }
 }
 
