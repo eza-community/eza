@@ -448,10 +448,7 @@ impl<'a> Render<'a> {
     }
 
     fn render_xattr(&self, xattr: &Attribute, tree: TreeParams) -> Row {
-        let name = TextCell::paint(
-            self.theme.ui.perms.attribute,
-            format!("{}=\"{}\"", xattr.name, xattr.value),
-        );
+        let name = TextCell::paint(self.theme.ui.perms.attribute, format!("{xattr}"));
         Row {
             cells: None,
             name,
