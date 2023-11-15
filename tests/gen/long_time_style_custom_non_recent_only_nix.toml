@@ -1,0 +1,2 @@
+bin.name = "eza"
+args = "tests/timestamp_test_dir --long --no-permissions --no-filesize --no-user --sort=modified --time-style='+NON_RECENT'"
