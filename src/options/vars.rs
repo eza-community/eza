@@ -64,6 +64,8 @@ pub static EZA_MIN_LUMINANCE: &str = "EZA_MIN_LUMINANCE";
 /// Any explicit use of `--icons=WHEN` overrides this behavior.
 pub static EZA_ICONS_AUTO: &str = "EZA_ICONS_AUTO";
 
+pub static EZA_SIZE_STYLE: &str = "EZA_SIZE_STYLE";
+
 /// Mockable wrapper for `std::env::var_os`.
 pub trait Vars {
     fn get(&self, name: &'static str) -> Option<OsString>;

@@ -234,7 +234,7 @@ impl RowThreshold {
 impl TableOptions {
     fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
         let time_format = TimeFormat::deduce(matches, vars)?;
-        let size_format = SizeFormat::deduce(matches)?;
+        let size_format = SizeFormat::deduce(matches, vars)?;
         let user_format = UserFormat::deduce(matches)?;
         let group_format = GroupFormat::deduce(matches)?;
         let columns = Columns::deduce(matches, vars)?;
@@ -302,12 +302,25 @@ impl SizeFormat {
     /// strings of digits in your head. Changing the format to anything else
     /// involves the `--binary` or `--bytes` flags, and these conflict with
     /// each other.
-    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
+    fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
+        let env_var = match vars.get(vars::EZA_SIZE_STYLE) {
+            Some(s) => match s.to_string_lossy().to_string().as_ref() {
+                "binary" => Some("binary"),
+                "bytes" => Some("bytes"),
+                "decimal" => Some("decimal"),
+                _ => None,
+            },
+            _ => None,
+        };
+
         let flag = matches.has_where(|f| f.matches(&flags::BINARY) || f.matches(&flags::BYTES))?;
 
-        Ok(match flag {
-            Some(f) if f.matches(&flags::BINARY) => Self::BinaryBytes,
-            Some(f) if f.matches(&flags::BYTES) => Self::JustBytes,
+        Ok(match (env_var, flag) {
+            (Some("binary"), _) => Self::BinaryBytes,
+            (Some("bytes"), _) => Self::JustBytes,
+            (Some("decimal"), _) => Self::DecimalBytes,
+            (_, Some(f)) if f.matches(&flags::BINARY) => Self::BinaryBytes,
+            (_, Some(f)) if f.matches(&flags::BYTES) => Self::JustBytes,
             _ => Self::DecimalBytes,
         })
     }
