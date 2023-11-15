@@ -58,5 +58,5 @@ export extern "eza" [
     --extended(-@)             # List each file's extended attributes and sizes
     --context(-Z)              # List each file's security context
     --smart-group              # Only show group if it has a different name from owner
-    --stdin                    # Read file paths from stdin
+    --stdin                    # When piping to eza. Read file paths from stdin
 ]
