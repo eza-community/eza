@@ -78,7 +78,8 @@ fn main() {
                         input_paths.extend(
                             input
                                 .split(&separator.clone().into_string().unwrap_or("\n".to_string()))
-                                .map(std::ffi::OsStr::new).filter(|s| !s.is_empty())
+                                .map(std::ffi::OsStr::new)
+                                .filter(|s| !s.is_empty())
                                 .collect::<Vec<_>>(),
                         );
                     }

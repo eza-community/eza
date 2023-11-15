@@ -238,7 +238,7 @@ These options are available when running with `--long` (`-l`):
 : Suppress the time field.
 
 `--stdin`
-: read file names from stdin, one per line or other separator specified in environment
+: When you wish to pipe directories to eza/read from stdin. Separate one per line or define custom separation char in `EZA_STDIN_SEPARATOR` env variable.
 
 `-@`, `--extended`
 : List each file’s extended attributes and sizes.
@@ -328,7 +328,7 @@ Any explicit use of the `--icons=WHEN` flag overrides this behavior.
 
 ## `EZA_STDIN_SEPARATOR`
 
-Specifies the separator to use when reading file names from stdin. Defaults to newline.
+Specifies the separator to use when file names are piped from stdin. Defaults to newline.
 
 EXIT STATUSES
 =============

@@ -110,7 +110,7 @@ complete -c eza -l no-filesize -d "Suppress the filesize field"
 complete -c eza -l no-user -d "Suppress the user field"
 complete -c eza -l no-time -d "Suppress the time field"
 complete -c eza -s M -l mounts -d "Show mount details"
-complete -c eza -l stdin -d "Read file names from standard input"
+complete -c eza -l stdin -d "When piping to eza. Read file names from stdin"
 
 # Optional extras
 complete -c eza -l git -d "List each file's Git status, if tracked"

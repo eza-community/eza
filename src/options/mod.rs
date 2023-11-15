@@ -125,12 +125,12 @@ pub struct Options {
     pub stdin: FilesInput,
 }
 
-impl<'args> Options {
+impl Options {
     /// Parse the given iterator of command-line strings into an Options
     /// struct and a list of free filenames, using the environment variables
     /// for extra options.
     #[allow(unused_results)]
-    pub fn parse<I, V>(args: I, vars: &V) -> OptionsResult<'args>
+    pub fn parse<'args, I, V>(args: I, vars: &V) -> OptionsResult<'args>
     where
         I: IntoIterator<Item = &'args OsStr>,
         V: Vars,
