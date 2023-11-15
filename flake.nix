@@ -152,7 +152,10 @@
             # buildPhase files differ between dep and main phase
             singleStep = true;
             # generate testing files
-            buildPhase = ''bash devtools/dir-generator.sh tests/test_dir && echo "Dir generated"'';
+            buildPhase = ''
+              bash devtools/dir-generator.sh tests/test_dir && echo "Dir generated"
+              bash devtools/generate-timestamp-test-dir.sh tests/timestamp_test_dir
+            '';
             cargoTestOptions = opts: opts ++ ["--features nix"];
             inherit buildInputs;
             nativeBuildInputs = with pkgs; [git];
@@ -169,7 +172,10 @@
             # buildPhase files differ between dep and main phase
             singleStep = true;
             # set itests files creation date to unix epoch
-            buildPhase = ''touch --date=@0 tests/itest/* && bash devtools/dir-generator.sh tests/test_dir'';
+            buildPhase = ''
+              touch --date=@0 tests/itest/* && bash devtools/dir-generator.sh tests/test_dir
+              bash devtools/generate-timestamp-test-dir.sh tests/timestamp_test_dir
+            '';
             cargoTestOptions = opts: opts ++ ["--features nix" "--features nix-local" "--features powertest"];
             inherit buildInputs;
             nativeBuildInputs = with pkgs; [git];
@@ -187,6 +193,7 @@
             # set itests files creation date to unix epoch
             buildPhase = ''
               bash devtools/dir-generator.sh tests/test_dir
+              bash devtools/generate-timestamp-test-dir.sh tests/timestamp_test_dir
               touch --date=@0 tests/itest/*;
               rm tests/cmd/*.stdout || echo;
               rm tests/cmd/*.stderr || echo;
