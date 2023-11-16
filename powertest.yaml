@@ -42,7 +42,7 @@ commands:
     values:
       - modified
       #- accessed BROKEN
-      - changed
+      #- changed
       #- created
   ? # TODO: add more globs
     - -I
@@ -67,7 +67,7 @@ commands:
     values:
       #- accessed
       - age
-      - changed
+      #- changed
       #- created
       - date
       - Ext
