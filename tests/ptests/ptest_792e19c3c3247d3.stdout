@@ -1,0 +1,10 @@
+tests/test_dir
+├── git
+├── grid
+├── group
+├── icons
+├── perms
+├── size
+├── specials
+├── symlinks
+└── time

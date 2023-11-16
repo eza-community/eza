@@ -1,9 +1,42 @@
 # Changelog
 
+## [0.16.0] - 2023-11-16
+
+### Bug Fixes
+
+- Fix cross compilation
+- Snap requires a base
+- Move `--smart-group` to long view options
+- Colo[u]r-scale didn't have a base value
+- Fix snapcraft.yaml formatting
+
+### Documentation
+
+- Add comments for bzip variants
+- Added the fact that total-size is unix only
+
+### Features
+
+- Add some file extensions
+- Abort on panic (saving 0.1 M)
+- Add powertest
+
+### Miscellaneous Tasks
+
+- Ignore blame from #644
+- Stabilize powertest version
+
+### Testing
+
+- Implements tests using the generated directory
+- Powertests using generated testdirs
+- Add hashed versions of powertests
+
 ## [0.15.3] - 2023-11-09
 
 ### Bug Fixes
 
+- [**breaking**] Remove Repo column when using --git-repos when no git repo
 - Reformat `help.rs`
 - Allow unused macro rule arms
 
@@ -27,6 +60,7 @@
 - Add to CODEOWNERS file to make sure I get ping'd on files being touched
 - Add myself to codeowners to watch modifications on parsing
 - Improve the PR template
+- Release eza v0.15.3
 
 ### Refactor
 
