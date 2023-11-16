@@ -4,12 +4,14 @@ binary: eza
 gen_binary: target/debug/eza
 args: tests/test_dir
 commands:
+  # Meta options
   ? - null
     - --help
   :
   ? - -v
     - --version
   :
+  # Display Options
   ? - -1
     - --oneline
   :
@@ -67,6 +69,14 @@ commands:
       - 200
   ? - null
     - --smart-group
+
+  # Filtering and Sorting Options
+  ? - -a
+    - --all
+  ? - -A
+    - --almost-all
+  ? - -d
+    - --list-dirs
   ? - -L
     - --level
   : prefix: --tree
@@ -76,37 +86,8 @@ commands:
       - 3
       - 4
       - 5
-  ? - -w
-    - --width
-  : values:
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
-  ? - -t
-    - --time
-  : prefix: -l
-    values:
-      - modified
-      #- accessed BROKEN
-      #- changed
-      #- created
-  ? # TODO: add more globs
-    - -I
-    - --ignore-glob
-  : prefix: -l
-    values:
-      - "*.toml"
-  ? - null
-    - --time-style
-  : long: time-style
-    values:
-      - default
-      - iso
-      - long-iso
-      - full-iso
-      - relative
+  ? - -r
+    - --reverse
   ? - -s
     - --sort
   : short: -s
@@ -134,3 +115,45 @@ commands:
       - size
       - time
       - type
+  ? - null
+    - --group-directories-first
+  ? - -D
+    - --only-dirs
+  ? - -f
+    - --only-files
+  ? - -f
+    - --only-files
+  ? # TODO: add more globs
+    - -I
+    - --ignore-glob
+  : prefix: -l
+    values:
+      - "*.toml"
+  ? - null
+    - --git-ignore
+
+  ? - -w
+    - --width
+  : values:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+  ? - -t
+    - --time
+  : prefix: -l
+    values:
+      - modified
+      #- accessed BROKEN
+      #- changed
+      #- created
+  ? - null
+    - --time-style
+  : long: time-style
+    values:
+      - default
+      - iso
+      - long-iso
+      - full-iso
+      - relative
