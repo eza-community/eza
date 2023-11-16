@@ -24,7 +24,7 @@
     };
 
     powertest = {
-      url = "http://rime.cx/v1/github/eza-community/powertest/b/main.tar.gz";
+      url = "http://rime.cx/v1/github/eza-community/powertest.tar.gz";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         naersk.follows = "naersk";
