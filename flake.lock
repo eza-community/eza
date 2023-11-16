@@ -163,13 +163,13 @@
         ]
       },
       "locked": {
-        "narHash": "sha256-DaBLTu/GCq7lDWyR9HKj9H1t5mfX7T1eFwrIwJICXZo=",
+        "narHash": "sha256-+5jKG/KmYOopvHwBAGu5iPVFqoug16Bkyk/InwB40tc=",
         "type": "tarball",
-        "url": "http://rime.cx/v1/github/eza-community/powertest/b/main.tar.gz"
+        "url": "http://rime.cx/v1/github/eza-community/powertest.tar.gz"
       },
       "original": {
         "type": "tarball",
-        "url": "http://rime.cx/v1/github/eza-community/powertest/b/main.tar.gz"
+        "url": "http://rime.cx/v1/github/eza-community/powertest.tar.gz"
       }
     },
     "pre-commit-hooks": {
