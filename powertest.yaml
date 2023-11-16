@@ -132,14 +132,27 @@ commands:
   ? - null
     - --git-ignore
 
-  ? - -w
-    - --width
-  : values:
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
+  # Long View Options
+  ? - -b
+    - --binary
+  ? - -B
+    - --bytes
+  ? - -g
+    - --group
+  ? - -h
+    - --header
+  ? - -H
+    - --links
+  ? - -i
+    - --inode
+  ? - -m
+    - --modified
+  ? - -M
+    - --mounts
+  ? - -n
+    - --numeric
+  ? - -S
+    - --blocksize
   ? - -t
     - --time
   : prefix: -l
@@ -148,6 +161,12 @@ commands:
       #- accessed BROKEN
       #- changed
       #- created
+  ? - -u
+    - --accessed
+  ? - -U
+    - --created
+  ? - null
+    - --changed
   ? - null
     - --time-style
   : long: time-style
@@ -157,3 +176,23 @@ commands:
       - long-iso
       - full-iso
       - relative
+  ? - null
+    - --total-size
+  ? - null
+    - --no-permissions
+  ? - -o
+    - --octal-permissions
+  ? - null
+    - --no-filesize
+  ? - null
+    - --no-user
+  ? - null
+    - --git
+  ? - null
+    - --no-git
+  ? - null
+    - --git-repos
+  ? - -@
+    - --extended
+  ? - -Z
+    - --context
