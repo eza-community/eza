@@ -747,10 +747,10 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        self.metadata
-            .created()
-            .map(|st| DateTime::<Utc>::from(st).naive_utc())
-            .ok()
+        match self.metadata.created() {
+            Ok(btime) => Some(DateTime::<Utc>::from(btime).naive_utc()),
+            Err(_) => None
+        }
     }
 
     /// This file’s ‘type’.
