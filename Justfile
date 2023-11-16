@@ -230,14 +230,14 @@ gen_test_dir:
     rm ./tests/gen/*_nix.stdout -f || echo
     rm ./tests/gen/*_unix.stderr -f || echo
     rm ./tests/gen/*_unix.stdout -f || echo
-    rm ./tests/ptests/ptest_tests*.stderr -f || echo  
-    rm ./tests/ptests/ptest_tests*.stdout -f || echo
+    rm ./tests/ptests/ptest_*.stderr -f || echo  
+    rm ./tests/ptests/ptest_*.stdout -f || echo
 
     nix build -L ./#trydump
 
     cp ./result/dump/*nix.* ./tests/cmd/
     cp ./result/dump/*.std* ./tests/gen/
-    cp ./result/dump/ptest_tests*.* ./tests/ptests/
+    cp ./result/dump/ptest_*.* ./tests/ptests/
 
 @itest-gen:
     nix build -L ./#trycmd
