@@ -1,4 +1,5 @@
 use ansiterm::{Colour, Style};
+use log::trace;
 use palette::{FromColor, Oklab, Srgb};
 
 use crate::{
@@ -155,8 +156,8 @@ fn update_information_recursively(
                         depth.deeper(),
                         r,
                     );
-                }
-                Err(_) => todo!(),
+                },
+                Err(e) => trace!("Unable to access directory {}: {}", file.name, e),
             }
         };
     }
