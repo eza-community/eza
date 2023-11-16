@@ -5,6 +5,36 @@ gen_binary: target/debug/eza
 args: tests/test_dir
 commands:
   ? - null
+    - --help
+  :
+  ? - -v
+    - --version
+  :
+  ? - -1
+    - --oneline
+  :
+  ? - -l
+    - --long
+  :
+  ? - -G
+    - --grid
+  :
+  ? - -x
+    - --across
+  :
+  ? - -R
+    - --recurse
+  :
+  ? - -T
+    - --tree
+  :
+  ? - -X
+    - --dereference
+  :
+  ? - -F
+    - --classify
+  :
+  ? - null
     - --color
   : values:
       - auto
@@ -19,6 +49,24 @@ commands:
   ? - null
     - --icons
   :
+  ? - null
+    - --icons
+  : values:
+      - auto
+      - always
+      - never
+  ? - null
+    - --no-quotes
+  ? - null
+    - --hyperlink
+  ? - -w
+    - --width
+  : values:
+      - 15
+      - 30
+      - 200
+  ? - null
+    - --smart-group
   ? - -L
     - --level
   : prefix: --tree
