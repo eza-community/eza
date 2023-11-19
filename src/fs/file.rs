@@ -235,14 +235,19 @@ impl<'dir> File<'dir> {
     }
 
     /// Read the extended attributes of a file path.
-    fn gather_extended_attributes(path: &Path) -> Vec<Attribute> {
+    fn gather_extended_attributes(&self) -> Vec<Attribute> {
         if xattr::ENABLED {
-            match path.symlink_attributes() {
+            let attributes = if self.deref_links {
+                self.path.attributes()
+            } else {
+                self.path.symlink_attributes()
+            };
+            match attributes {
                 Ok(xattrs) => xattrs,
                 Err(e) => {
                     error!(
                         "Error looking up extended attributes for {}: {}",
-                        path.display(),
+                        self.path.display(),
                         e
                     );
                     Vec::new()
@@ -256,7 +261,7 @@ impl<'dir> File<'dir> {
     /// Get the extended attributes of a file path on demand.
     pub fn extended_attributes(&self) -> &Vec<Attribute> {
         self.extended_attributes
-            .get_or_init(|| File::gather_extended_attributes(&self.path))
+            .get_or_init(|| self.gather_extended_attributes())
     }
 
     /// Whether this file is a directory on the filesystem.
