@@ -10,7 +10,8 @@ use std::str;
 pub const ENABLED: bool = cfg!(any(
     target_os = "macos",
     target_os = "linux",
-    target_os = "netbsd"
+    target_os = "netbsd",
+    target_os = "freebsd"
 ));
 
 #[derive(Debug)]
@@ -24,7 +25,12 @@ pub trait FileAttributes {
     fn symlink_attributes(&self) -> io::Result<Vec<Attribute>>;
 }
 
-#[cfg(any(target_os = "macos", target_os = "linux", target_os = "netbsd"))]
+#[cfg(any(
+    target_os = "macos",
+    target_os = "linux",
+    target_os = "netbsd",
+    target_os = "freebsd"
+))]
 impl FileAttributes for Path {
     fn attributes(&self) -> io::Result<Vec<Attribute>> {
         extended_attrs::attributes(self, true)
@@ -35,7 +41,12 @@ impl FileAttributes for Path {
     }
 }
 
-#[cfg(not(any(target_os = "macos", target_os = "linux", target_os = "netbsd")))]
+#[cfg(not(any(
+    target_os = "macos",
+    target_os = "linux",
+    target_os = "netbsd",
+    target_os = "freebsd"
+)))]
 impl FileAttributes for Path {
     fn attributes(&self) -> io::Result<Vec<Attribute>> {
         Ok(Vec::new())
@@ -46,10 +57,15 @@ impl FileAttributes for Path {
     }
 }
 
-#[cfg(any(target_os = "macos", target_os = "linux", target_os = "netbsd"))]
+#[cfg(any(
+    target_os = "macos",
+    target_os = "linux",
+    target_os = "netbsd",
+    target_os = "freebsd"
+))]
 mod extended_attrs {
     use super::Attribute;
-    use libc::{c_char, c_void, size_t, ssize_t, ENODATA, ERANGE};
+    use libc::{c_char, c_void, size_t, ssize_t, ERANGE};
     use std::ffi::{CStr, CString, OsStr, OsString};
     use std::io;
     use std::os::unix::ffi::OsStrExt;
@@ -96,30 +112,11 @@ mod extended_attrs {
         }
     }
 
-    #[cfg(any(target_os = "linux", target_os = "netbsd"))]
+    #[cfg(any(target_os = "linux"))]
     mod os {
         use libc::{c_char, c_void, size_t, ssize_t};
 
-        #[cfg(target_os = "linux")]
-        use libc::{getxattr, lgetattr, listxattr, llistxattr};
-
-        #[cfg(target_os = "netbsd")]
-        extern "C" {
-            fn getxattr(
-                path: *const c_char,
-                name: *const c_char,
-                value: *mut c_void,
-                size: size_t,
-            ) -> ssize_t;
-            fn lgetxattr(
-                path: *const c_char,
-                name: *const c_char,
-                value: *mut c_void,
-                size: size_t,
-            ) -> ssize_t;
-            fn listxattr(path: *const c_char, list: *mut c_char, size: size_t) -> ssize_t;
-            fn llistxattr(path: *const c_char, list: *mut c_char, size: size_t) -> ssize_t;
-        }
+        use libc::{getxattr, lgetxattr, listxattr, llistxattr};
 
         // Wrapper around listxattr and llistattr for handling symbolic links
         pub(super) fn list_xattr(
@@ -155,9 +152,115 @@ mod extended_attrs {
         }
     }
 
+    #[cfg(any(target_os = "netbsd", target_os = "freebsd"))]
+    mod os {
+        use libc::{
+            c_char, c_int, c_void, extattr_get_file, extattr_get_link, extattr_list_file,
+            extattr_list_link, size_t, ssize_t, EXTATTR_NAMESPACE_SYSTEM, EXTATTR_NAMESPACE_USER,
+        };
+
+        // Wrapper around listxattr that handles symbolic links
+        fn list_xattr(
+            follow_symlinks: bool,
+            path: *const c_char,
+            namespace: c_int,
+            value: *mut c_void,
+            size: size_t,
+        ) -> ssize_t {
+            if follow_symlinks {
+                // SAFETY: Calling C function
+                unsafe { extattr_list_file(path, namespace, value, size) }
+            } else {
+                // SAFETY: Calling C function
+                unsafe { extattr_list_link(path, namespace, value, size) }
+            }
+        }
+
+        fn get_xattr(
+            follow_symlinks: bool,
+            path: *const c_char,
+            namespace: c_int,
+            name: *const c_char,
+            value: *mut c_void,
+            size: size_t,
+        ) -> ssize_t {
+            if follow_symlinks {
+                // SAFETY: Calling C function
+                unsafe { extattr_get_file(path, namespace, name, value, size) }
+            } else {
+                // SAFETY: Calling C function
+                unsafe { extattr_get_link(path, namespace, name, value, size) }
+            }
+        }
+
+        pub(super) fn list_system_xattr(
+            follow_symlinks: bool,
+            path: *const c_char,
+            namebuf: *mut c_char,
+            size: size_t,
+        ) -> ssize_t {
+            list_xattr(
+                follow_symlinks,
+                path,
+                EXTATTR_NAMESPACE_SYSTEM,
+                namebuf.cast(),
+                size,
+            )
+        }
+
+        pub(super) fn list_user_xattr(
+            follow_symlinks: bool,
+            path: *const c_char,
+            namebuf: *mut c_char,
+            size: size_t,
+        ) -> ssize_t {
+            list_xattr(
+                follow_symlinks,
+                path,
+                EXTATTR_NAMESPACE_USER,
+                namebuf.cast(),
+                size,
+            )
+        }
+
+        pub(super) fn get_system_xattr(
+            follow_symlinks: bool,
+            path: *const c_char,
+            name: *const c_char,
+            value: *mut c_void,
+            size: size_t,
+        ) -> ssize_t {
+            get_xattr(
+                follow_symlinks,
+                path,
+                EXTATTR_NAMESPACE_SYSTEM,
+                name,
+                value.cast(),
+                size,
+            )
+        }
+
+        pub(super) fn get_user_xattr(
+            follow_symlinks: bool,
+            path: *const c_char,
+            name: *const c_char,
+            value: *mut c_void,
+            size: size_t,
+        ) -> ssize_t {
+            get_xattr(
+                follow_symlinks,
+                path,
+                EXTATTR_NAMESPACE_USER,
+                name,
+                value.cast(),
+                size,
+            )
+        }
+    }
+
     // Split attribute name list.  Each attribute name is null terminated in the
     // list.
-    #[cfg(any(target_os = "macos", target_os = "linux", target_os = "netbsd"))]
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
     fn split_attribute_list(buffer: &[u8]) -> Vec<OsString> {
         buffer[..buffer.len() - 1] // Skip trailing null
             .split(|&c| c == 0)
@@ -165,6 +268,27 @@ mod extended_attrs {
             .map(OsStr::from_bytes)
             .map(std::borrow::ToOwned::to_owned)
             .collect()
+    }
+
+    // Split attribute name list.  Each attribute is a one byte name length
+    // followed by the name.
+    #[cfg(any(target_os = "netbsd", target_os = "freebsd"))]
+    fn split_attribute_list(buffer: &[u8]) -> Vec<OsString> {
+        let mut result = Vec::new();
+        let mut index = 0;
+        let length = buffer.len();
+
+        while index < length {
+            let item_length = buffer[index] as usize;
+            let start = index + 1;
+            let end = start + item_length;
+            if end <= length {
+                result.push(OsStr::from_bytes(&buffer[start..end]).to_owned())
+            }
+            index = end;
+        }
+
+        result
     }
 
     // Calling getxattr and listxattr is a two part process.  The first call
@@ -220,6 +344,7 @@ mod extended_attrs {
     }
 
     // Get the attribute value `name` on `path`
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
     fn get_attribute(
         path: &CStr,
         name: &CStr,
@@ -232,6 +357,8 @@ mod extended_attrs {
             size: size_t,
         ) -> ssize_t,
     ) -> io::Result<Option<Vec<u8>>> {
+        use libc::ENODATA;
+
         get_loop(|buf, size| {
             getter(
                 follow_symlinks,
@@ -255,6 +382,30 @@ mod extended_attrs {
         })
     }
 
+    #[cfg(any(target_os = "netbsd", target_os = "freebsd"))]
+    fn get_attribute(
+        path: &CStr,
+        name: &CStr,
+        follow_symlinks: bool,
+        getter: fn(
+            follow_symlinks: bool,
+            path: *const c_char,
+            name: *const c_char,
+            value: *mut c_void,
+            size: size_t,
+        ) -> ssize_t,
+    ) -> io::Result<Option<Vec<u8>>> {
+        get_loop(|buf, size| {
+            getter(
+                follow_symlinks,
+                path.as_ptr(),
+                name.as_ptr(),
+                buf.cast(),
+                size,
+            )
+        })
+    }
+
     // Specially handle security.linux for filesystem that do not list attributes.
     #[cfg(target_os = "linux")]
     fn get_selinux_attribute(path: &CStr, follow_symlinks: bool) -> io::Result<Vec<Attribute>> {
@@ -274,7 +425,7 @@ mod extended_attrs {
     }
 
     // Get a vector of all attribute names and values on `path`
-    #[cfg(any(target_os = "macos", target_os = "linux", target_os = "netbsd"))]
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
     pub fn attributes(path: &Path, follow_symlinks: bool) -> io::Result<Vec<Attribute>> {
         let path = CString::new(path.as_os_str().as_bytes())
             .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
@@ -284,7 +435,7 @@ mod extended_attrs {
         if attr_names.is_empty() {
             // Some filesystems, like sysfs, return nothing on listxattr, even though the security
             // attribute is set.
-            return get_selinux_attribute(&c_path, follow_symlinks);
+            return get_selinux_attribute(&path, follow_symlinks);
         }
 
         let mut attrs = Vec::with_capacity(attr_names.len());
@@ -299,6 +450,74 @@ mod extended_attrs {
                 });
             }
         }
+
+        Ok(attrs)
+    }
+
+    #[cfg(any(target_os = "netbsd", target_os = "freebsd"))]
+    fn get_namespace_attributes(
+        path: &CStr,
+        follow_symlinks: bool,
+        attr_names: Vec<OsString>,
+        namespace: &str,
+        getter: fn(
+            follow_symlinks: bool,
+            path: *const c_char,
+            name: *const c_char,
+            value: *mut c_void,
+            size: size_t,
+        ) -> ssize_t,
+        attrs: &mut Vec<Attribute>,
+    ) -> io::Result<()> {
+        for attr_name in attr_names {
+            if let Some(name) = attr_name.to_str() {
+                let attr_name =
+                    CString::new(name).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                let value = get_attribute(&path, &attr_name, follow_symlinks, getter)?;
+                attrs.push(Attribute {
+                    name: format!("{namespace}::{name}"),
+                    value,
+                });
+            }
+        }
+        Ok(())
+    }
+
+    #[cfg(any(target_os = "netbsd", target_os = "freebsd"))]
+    pub fn attributes(path: &Path, follow_symlinks: bool) -> io::Result<Vec<Attribute>> {
+        use libc::EPERM;
+
+        let path = CString::new(path.as_os_str().as_bytes())
+            .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+        let attr_names_system = list_attributes(&path, follow_symlinks, os::list_system_xattr)
+            .or_else(|err| {
+                // Reading of attributes in the system namespace is only supported for root
+                if err.raw_os_error() == Some(EPERM) {
+                    Ok(Vec::new())
+                } else {
+                    Err(err)
+                }
+            })?;
+        let attr_names_user = list_attributes(&path, follow_symlinks, os::list_user_xattr)?;
+
+        let mut attrs = Vec::with_capacity(attr_names_system.len() + attr_names_user.len());
+
+        get_namespace_attributes(
+            &path,
+            follow_symlinks,
+            attr_names_system,
+            "system",
+            os::get_system_xattr,
+            &mut attrs,
+        )?;
+        get_namespace_attributes(
+            &path,
+            follow_symlinks,
+            attr_names_user,
+            "user",
+            os::get_user_xattr,
+            &mut attrs,
+        )?;
 
         Ok(attrs)
     }
@@ -417,6 +636,7 @@ fn format_macl(value: &[u8]) -> String {
         }
     }
 
+    // SAFETY: Vector generated above with only ASCII characters.
     unsafe { String::from_utf8_unchecked(dst.to_vec()) }
 }
 
