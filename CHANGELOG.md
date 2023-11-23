@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.16.1] - 2023-11-23
+
+### Bug Fixes
+
+- Don't panic with todo!() on inaccessible dir
+- Don't panic if the btime of a file is Err
+- Lifetime annotations and manpage/shell completion nits
+- Reflow help
+
+### Features
+
+- Handle formatting and display of binary extended attributes.
+- Add netbsd and freebsd support for extended attributes
+
+### Miscellaneous Tasks
+
+- Update flake inputs
+
+### Testing
+
+- Vars mocking
+- Display and meta options
+- Filtering and sorting
+- Long view options
+- Regenerate `--help` tests
+
+### Build
+
+- Sign release tags
+
 ## [0.16.0] - 2023-11-16
 
 ### Bug Fixes
@@ -25,6 +55,7 @@
 
 - Ignore blame from #644
 - Stabilize powertest version
+- Release eza v0.16.0
 
 ### Testing
 
