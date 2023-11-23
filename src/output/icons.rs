@@ -147,6 +147,7 @@ const DIRECTORY_ICONS: Map<&'static str, char> = phf_map! {
     "Music"               => '\u{f1359}',           // 󱍙
     "node_modules"        => Icons::FOLDER_NPM,     // 
     "npm_cache"           => Icons::FOLDER_NPM,     // 
+    "pacman.d"            => Icons::FOLDER_CONFIG,  // 
     "pam.d"               => Icons::FOLDER_KEY,     // 󰢬
     "Pictures"            => '\u{f024f}',           // 󰉏
     "src"                 => '\u{f08de}',           // 󰣞
