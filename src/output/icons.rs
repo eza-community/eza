@@ -429,6 +429,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "elm"            => '\u{e62c}',              // 
     "eml"            => '\u{f003}',              // 
     "env"            => '\u{f462}',              // 
+    "envrc"          => '\u{f462}',              // 
     "eot"            => Icons::FONT,             // 
     "eps"            => Icons::VECTOR,           // 󰕙
     "epub"           => Icons::BOOK,             // 
