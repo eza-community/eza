@@ -104,7 +104,7 @@ proc-mounts = "0.3"
 uzers = "0.11.3"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-windows-sys = "0.48.0"
+windows-sys = "0.52.0"
 
 [build-dependencies]
 chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
