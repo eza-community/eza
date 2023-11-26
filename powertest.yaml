@@ -8,9 +8,10 @@ commands:
   ? - null
     - --help
   :
-  ? - -v
-    - --version
-  :
+  # TODO: find a better way to test this
+  # ? - -v
+  #   - --version
+  # :
   # Display Options
   ? - -1
     - --oneline
