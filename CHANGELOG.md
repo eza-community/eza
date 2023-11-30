@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.16.2] - 2023-11-30
+
+### Bug Fixes
+
+- Calculate width correctly when using grid icons & classify
+- Fix the windows build
+
+### Testing
+
+- Fix version tests
+
+### Build
+
+- Bump webiny/action-conventional-commits from 1.1.0 to 1.2.0
+- Bump DeterminateSystems/nix-installer-action from 7 to 8
+- Bump windows-sys from 0.48.0 to 0.52.0
+
 ## [0.16.1] - 2023-11-23
 
 ### Bug Fixes
@@ -17,6 +34,7 @@
 ### Miscellaneous Tasks
 
 - Update flake inputs
+- Release eza v0.16.1
 
 ### Testing
 
