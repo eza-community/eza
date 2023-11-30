@@ -191,6 +191,12 @@ fn git_options(options: &Options, args: &[&OsStr]) -> Option<GitCache> {
     }
 }
 
+#[cfg(not(feature = "git"))]
+fn git_repos(_options: &Options, _args: &[&OsStr]) -> bool {
+    return false;
+}
+
+#[cfg(feature = "git")]
 fn get_files_in_dir(paths: &mut Vec<PathBuf>, path: PathBuf) {
     let temp_paths = if path.is_dir() {
         path.read_dir()
@@ -203,6 +209,7 @@ fn get_files_in_dir(paths: &mut Vec<PathBuf>, path: PathBuf) {
     paths.extend(temp_paths);
 }
 
+#[cfg(feature = "git")]
 fn git_repos(options: &Options, args: &[&OsStr]) -> bool {
     let option_enabled = match options.view.mode {
         Mode::Details(details::Options {
