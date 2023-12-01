@@ -300,6 +300,9 @@ LIST OF CODES
 `Sl`
 : SELinux level
 
+`ff`
+: BSD file flags
+
 Values in `EXA_COLORS` override those given in `LS_COLORS`, so you don’t need to re-write an existing `LS_COLORS` variable with proprietary extensions.
 
 

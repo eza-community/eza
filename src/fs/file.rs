@@ -875,6 +875,39 @@ impl<'dir> File<'dir> {
             context: SecurityContextType::None,
         }
     }
+
+    /// User file flags.
+    #[cfg(any(
+        target_os = "macos",
+        target_os = "freebsd",
+        target_os = "netbsd",
+        target_os = "openbsd",
+        target_os = "dragonfly"
+    ))]
+    pub fn flags(&self) -> f::Flags {
+        #[cfg(target_os = "dragonfly")]
+        use std::os::dragonfly::fs::MetadataExt;
+        #[cfg(target_os = "freebsd")]
+        use std::os::freebsd::fs::MetadataExt;
+        #[cfg(target_os = "macos")]
+        use std::os::macos::fs::MetadataExt;
+        #[cfg(target_os = "netbsd")]
+        use std::os::netbsd::fs::MetadataExt;
+        #[cfg(target_os = "openbsd")]
+        use std::os::openbsd::fs::MetadataExt;
+        f::Flags(self.metadata.st_flags())
+    }
+
+    #[cfg(not(any(
+        target_os = "macos",
+        target_os = "freebsd",
+        target_os = "netbsd",
+        target_os = "openbsd",
+        target_os = "dragonfly"
+    )))]
+    pub fn flags(&self) -> f::Flags {
+        f::Flags(0)
+    }
 }
 
 impl<'a> AsRef<File<'a>> for File<'a> {

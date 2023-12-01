@@ -200,6 +200,9 @@ These options are available when running with `--long` (`-l`):
 `-n`, `--numeric`
 : List numeric user and group IDs.
 
+`-O`, `--flags`
+: List file flags.  See chflags(1) for a list of file flags and their meanings. (Mac and BSD only)
+
 `-S`, `--blocksize`
 : List each file’s size of allocated file system blocks.
 

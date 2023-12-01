@@ -23,6 +23,7 @@ pub struct UiStyles {
     pub blocks:       Style,          // bl
     pub header:       Style,          // hd
     pub octal:        Style,          // oc
+    pub flags:        Style,          // ff
 
     pub symlink_path:         Style,  // lp
     pub control_char:         Style,  // cc
@@ -253,6 +254,7 @@ impl UiStyles {
             "bl" => self.blocks                         = pair.to_style(),
             "hd" => self.header                         = pair.to_style(),
             "oc" => self.octal                          = pair.to_style(),
+            "ff" => self.flags                          = pair.to_style(),
             "lp" => self.symlink_path                   = pair.to_style(),
             "cc" => self.control_char                   = pair.to_style(),
             "bO" => self.broken_path_overlay            = pair.to_style(),

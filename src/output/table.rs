@@ -49,6 +49,7 @@ pub struct Columns {
     pub subdir_git_repos_no_stat: bool,
     pub octal: bool,
     pub security_context: bool,
+    pub file_flags: bool,
 
     // Defaults to true:
     pub permissions: bool,
@@ -96,6 +97,10 @@ impl Columns {
         if self.group {
             #[cfg(unix)]
             columns.push(Column::Group);
+        }
+
+        if self.file_flags {
+            columns.push(Column::FileFlags);
         }
 
         #[cfg(target_os = "linux")]
@@ -157,6 +162,7 @@ pub enum Column {
     Octal,
     #[cfg(unix)]
     SecurityContext,
+    FileFlags,
 }
 
 /// Each column can pick its own **Alignment**. Usually, numbers are
@@ -214,6 +220,7 @@ impl Column {
             Self::Octal => "Octal",
             #[cfg(unix)]
             Self::SecurityContext => "Security Context",
+            Self::FileFlags => "Flags",
         }
     }
 }
@@ -512,6 +519,7 @@ impl<'a> Table<'a> {
             ),
             #[cfg(unix)]
             Column::SecurityContext => file.security_context().render(self.theme),
+            Column::FileFlags => file.flags().render(self.theme.ui.flags),
             Column::GitStatus => self.git_status(file).render(self.theme),
             Column::SubdirGitRepo(status) => self.subdir_git_repo(file, status).render(self.theme),
             #[cfg(unix)]
