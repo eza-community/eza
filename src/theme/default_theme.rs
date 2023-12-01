@@ -113,6 +113,7 @@ impl UiStyles {
             inode: Purple.normal(),
             blocks: Cyan.normal(),
             octal: Purple.normal(),
+            flags: Style::default(),
             header: Style::default().underline(),
 
             symlink_path: Cyan.normal(),

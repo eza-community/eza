@@ -59,8 +59,9 @@ LONG VIEW OPTIONS
   -H, --links                list each file's number of hard links
   -i, --inode                list each file's inode number
   -m, --modified             use the modified timestamp field
-  -M, --mounts               show mount details (Linux and MacOS only)
+  -M, --mounts               show mount details (Linux and Mac only)
   -n, --numeric              list numeric user and group IDs
+  -O, --flags                list file flags (Mac and BSD only)
   -S, --blocksize            show size of allocated file system blocks
   -t, --time FIELD           which timestamp field to list (modified, accessed, created)
   -u, --accessed             use the accessed timestamp field

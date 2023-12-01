@@ -270,6 +270,7 @@ impl Columns {
         let links = matches.has(&flags::LINKS)?;
         let octal = matches.has(&flags::OCTAL)?;
         let security_context = xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?;
+        let file_flags = matches.has(&flags::FILE_FLAGS)?;
 
         let permissions = !matches.has(&flags::NO_PERMISSIONS)?;
         let filesize = !matches.has(&flags::NO_FILESIZE)?;
@@ -286,6 +287,7 @@ impl Columns {
             subdir_git_repos_no_stat,
             octal,
             security_context,
+            file_flags,
             permissions,
             filesize,
             user,

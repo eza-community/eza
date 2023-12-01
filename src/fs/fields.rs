@@ -29,6 +29,9 @@ pub type time_t = i64;
 /// The type of a file’s user ID.
 pub type uid_t = u32;
 
+/// The type of user file flags
+pub type flag_t = u32;
+
 /// The file’s base type, which gets displayed in the very first column of the
 /// details output.
 ///
@@ -274,3 +277,7 @@ impl Default for SubdirGitRepo {
         }
     }
 }
+
+/// The user file flags on the file. This will only ever be a number;
+/// looking up the flags is done in the `display` module.
+pub struct Flags(pub flag_t);

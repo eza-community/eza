@@ -583,6 +583,7 @@ mod customs_test {
     test!(exa_lp:  ls "", exa "lp=38;5;133"  =>  colours c -> { c.symlink_path                          = Fixed(133).normal(); });
     test!(exa_cc:  ls "", exa "cc=38;5;134"  =>  colours c -> { c.control_char                          = Fixed(134).normal(); });
     test!(exa_oc:  ls "", exa "oc=38;5;135"  =>  colours c -> { c.octal                                 = Fixed(135).normal(); });
+    test!(exa_ff:  ls "", exa "ff=38;5;136"  =>  colours c -> { c.flags                                 = Fixed(136).normal(); });
     test!(exa_bo:  ls "", exa "bO=4"         =>  colours c -> { c.broken_path_overlay                   = Style::default().underline(); });
 
     test!(exa_mp:  ls "", exa "mp=1;34;4"    =>  colours c -> { c.filekinds.mount_point                 = Blue.bold().underline(); });
