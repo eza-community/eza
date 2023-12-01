@@ -23,7 +23,6 @@ impl f::Size {
             Self::DeviceIDs(ref ids) => return ids.render(colours),
         };
 
-        let gradient_style = colours.major();
         let is_gradient_mode =
             color_scale_info.is_some_and(|csi| csi.options.mode == ColorScaleMode::Gradient);
 
@@ -44,7 +43,7 @@ impl f::Size {
                 return if is_gradient_mode {
                     let csi = color_scale_info.unwrap();
                     TextCell::paint(
-                        csi.adjust_style(gradient_style, size as f32, csi.size),
+                        csi.adjust_style(colours.size(prefix), size as f32, csi.size),
                         string,
                     )
                 } else {
@@ -59,7 +58,7 @@ impl f::Size {
                 return if is_gradient_mode {
                     let csi = color_scale_info.unwrap();
                     TextCell::paint(
-                        csi.adjust_style(gradient_style, size as f32, csi.size),
+                        csi.adjust_style(colours.size(None), size as f32, csi.size),
                         numerics.format_int(b),
                     )
                 } else {
@@ -82,9 +81,9 @@ impl f::Size {
             contents: if is_gradient_mode {
                 let csi = color_scale_info.unwrap();
                 vec![
-                    csi.adjust_style(gradient_style, size as f32, csi.size)
+                    csi.adjust_style(colours.size(Some(prefix)), size as f32, csi.size)
                         .paint(number),
-                    csi.adjust_style(gradient_style, size as f32, csi.size)
+                    csi.adjust_style(colours.size(Some(prefix)), size as f32, csi.size)
                         .paint(symbol),
                 ]
             } else {
