@@ -1,7 +1,8 @@
 use ansiterm::Colour::*;
 use ansiterm::Style;
+use std::default::Default;
 
-use crate::output::color_scale::ColorScaleOptions;
+use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};
 use crate::theme::ui_styles::*;
 
 impl UiStyles {
@@ -124,10 +125,10 @@ impl UiStyles {
 
 impl Size {
     pub fn colourful(scale: ColorScaleOptions) -> Self {
-        if scale.size {
-            Self::colourful_gradient()
-        } else {
+        if scale.size && scale.mode == ColorScaleMode::Fixed {
             Self::colourful_fixed()
+        } else {
+            Self::colourful_gradient()
         }
     }
 
