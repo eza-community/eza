@@ -12,6 +12,8 @@ use uzers::UsersCache;
 
 use crate::fs::feature::git::GitCache;
 use crate::fs::{fields as f, File};
+use crate::options::vars::EZA_WINDOWS_ATTRIBUTES;
+use crate::options::Vars;
 use crate::output::cell::TextCell;
 use crate::output::color_scale::ColorScaleInformation;
 #[cfg(unix)]
@@ -29,6 +31,7 @@ pub struct Options {
     pub time_format: TimeFormat,
     pub user_format: UserFormat,
     pub group_format: GroupFormat,
+    pub flags_format: FlagsFormat,
     pub columns: Columns,
 }
 
@@ -304,6 +307,33 @@ impl TimeType {
     }
 }
 
+/// How display file flags.
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+pub enum FlagsFormat {
+    /// Display flags as comma seperated descriptions
+    Long,
+    /// Display flags as single character abbreviations (Windows only)
+    Short,
+}
+
+impl Default for FlagsFormat {
+    fn default() -> Self {
+        Self::Long
+    }
+}
+
+impl FlagsFormat {
+    pub(crate) fn deduce<V: Vars>(vars: &V) -> FlagsFormat {
+        vars.get(EZA_WINDOWS_ATTRIBUTES)
+            .and_then(|v| match v.to_ascii_lowercase().to_str() {
+                Some("short") => Some(FlagsFormat::Short),
+                Some("long") => Some(FlagsFormat::Long),
+                _ => None,
+            })
+            .unwrap_or_default()
+    }
+}
+
 /// Fields for which of a file’s time fields should be displayed in the
 /// columns output.
 ///
@@ -385,6 +415,7 @@ pub struct Table<'a> {
     user_format: UserFormat,
     #[cfg(unix)]
     group_format: GroupFormat,
+    flags_format: FlagsFormat,
     git: Option<&'a GitCache>,
 }
 
@@ -418,6 +449,7 @@ impl<'a> Table<'a> {
             user_format: options.user_format,
             #[cfg(unix)]
             group_format: options.group_format,
+            flags_format: options.flags_format,
         }
     }
 
@@ -519,7 +551,7 @@ impl<'a> Table<'a> {
             ),
             #[cfg(unix)]
             Column::SecurityContext => file.security_context().render(self.theme),
-            Column::FileFlags => file.flags().render(self.theme.ui.flags),
+            Column::FileFlags => file.flags().render(self.theme.ui.flags, self.flags_format),
             Column::GitStatus => self.git_status(file).render(self.theme),
             Column::SubdirGitRepo(status) => self.subdir_git_repo(file, status).render(self.theme),
             #[cfg(unix)]

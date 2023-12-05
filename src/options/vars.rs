@@ -66,6 +66,11 @@ pub static EZA_ICONS_AUTO: &str = "EZA_ICONS_AUTO";
 
 pub static EZA_STDIN_SEPARATOR: &str = "EZA_STDIN_SEPARATOR";
 
+/// Environment variable used to choose how windows attributes are displayed.
+/// Short will display a single character for each set attribute, long will
+/// display a comma separated list of descriptions.
+pub static EZA_WINDOWS_ATTRIBUTES: &str = "EZA_WINDOWS_ATTRIBUTES";
+
 /// Mockable wrapper for `std::env::var_os`.
 pub trait Vars {
     fn get(&self, name: &'static str) -> Option<OsString>;

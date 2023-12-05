@@ -3,6 +3,7 @@ use std::ffi::CStr;
 
 use crate::fs::fields as f;
 use crate::output::cell::TextCell;
+use crate::output::table::FlagsFormat;
 
 extern "C" {
     fn fflagstostr(flags: libc::c_ulong) -> *const libc::c_char;
@@ -33,7 +34,7 @@ fn flags_to_string(flags: f::flag_t) -> String {
 }
 
 impl f::Flags {
-    pub fn render(self, style: Style) -> TextCell {
+    pub fn render(self, style: Style, _format: FlagsFormat) -> TextCell {
         TextCell::paint(style, flags_to_string(self.0))
     }
 }
