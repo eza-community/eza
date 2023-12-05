@@ -201,7 +201,7 @@ These options are available when running with `--long` (`-l`):
 : List numeric user and group IDs.
 
 `-O`, `--flags`
-: List file flags.  See chflags(1) for a list of file flags and their meanings. (Mac and BSD only)
+: List file flags on Mac and BSD systems and file attributes on Windows systems.  By default, Windows attributes are displayed in a long form.  To display in attributes as single character set the environment variable `EZA_WINDOWS_ATTRIBUTES=short`.  On BSD systems see chflags(1) for a list of file flags and their meanings.
 
 `-S`, `--blocksize`
 : List each file’s size of allocated file system blocks.

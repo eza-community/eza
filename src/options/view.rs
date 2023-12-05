@@ -7,7 +7,7 @@ use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};
 use crate::output::file_name::Options as FileStyle;
 use crate::output::grid_details::{self, RowThreshold};
 use crate::output::table::{
-    Columns, GroupFormat, Options as TableOptions, SizeFormat, TimeTypes, UserFormat,
+    Columns, FlagsFormat, GroupFormat, Options as TableOptions, SizeFormat, TimeTypes, UserFormat,
 };
 use crate::output::time::TimeFormat;
 use crate::output::{details, grid, Mode, TerminalWidth, View};
@@ -237,12 +237,14 @@ impl TableOptions {
         let size_format = SizeFormat::deduce(matches)?;
         let user_format = UserFormat::deduce(matches)?;
         let group_format = GroupFormat::deduce(matches)?;
+        let flags_format = FlagsFormat::deduce(vars);
         let columns = Columns::deduce(matches, vars)?;
         Ok(Self {
             size_format,
             time_format,
             user_format,
             group_format,
+            flags_format,
             columns,
         })
     }

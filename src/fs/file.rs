@@ -898,12 +898,18 @@ impl<'dir> File<'dir> {
         f::Flags(self.metadata.st_flags())
     }
 
+    #[cfg(windows)]
+    pub fn flags(&self) -> f::Flags {
+        f::Flags(self.metadata.file_attributes())
+    }
+
     #[cfg(not(any(
         target_os = "macos",
         target_os = "freebsd",
         target_os = "netbsd",
         target_os = "openbsd",
-        target_os = "dragonfly"
+        target_os = "dragonfly",
+        target_os = "windows"
     )))]
     pub fn flags(&self) -> f::Flags {
         f::Flags(0)
