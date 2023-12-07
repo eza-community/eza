@@ -25,6 +25,7 @@ complete -c eza -l color-scale \
     size\t''
 "
 complete -c eza -l color-scale-mode \
+    -l colour-scale-mode \
     -d "Use gradient or fixed colors in --color-scale" -x -a "
     fixed\t'Highlight based on fixed colors'
     gradient\t'Highlight based \'field\' in relation to other files'
