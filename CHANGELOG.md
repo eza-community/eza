@@ -1,11 +1,32 @@
 # Changelog
 
+## [0.16.3] - 2023-12-07
+
+### Bug Fixes
+
+- Add bare git_repos fn if feature git is disabled
+- Fixing color of size unit
+- Color-scale broked size for colors
+
+### Testing
+
+- Fix powertests post-release
+
+### Build
+
+- Bump percent-encoding from 2.3.0 to 2.3.1
+- Bump actions/labeler from 4 to 5
+
 ## [0.16.2] - 2023-11-30
 
 ### Bug Fixes
 
 - Calculate width correctly when using grid icons & classify
 - Fix the windows build
+
+### Miscellaneous Tasks
+
+- Release eza v0.16.2
 
 ### Testing
 
