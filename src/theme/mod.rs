@@ -2,6 +2,7 @@ use ansiterm::Style;
 
 use crate::fs::File;
 use crate::info::filetype::FileType;
+use crate::output::color_scale::ColorScaleOptions;
 use crate::output::file_name::Colours as FileNameColours;
 use crate::output::render;
 
@@ -17,7 +18,7 @@ mod default_theme;
 pub struct Options {
     pub use_colours: UseColours,
 
-    pub colour_scale: ColourScale,
+    pub colour_scale: ColorScaleOptions,
 
     pub definitions: Definitions,
 }
@@ -39,12 +40,6 @@ pub enum UseColours {
 
     /// Never display them, even when output is going to a terminal.
     Never,
-}
-
-#[derive(PartialEq, Eq, Debug, Copy, Clone)]
-pub enum ColourScale {
-    Fixed,
-    Gradient,
 }
 
 #[derive(PartialEq, Eq, Debug, Default)]

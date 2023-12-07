@@ -2,14 +2,13 @@
 
 # eza
 
-eza is a modern, maintained replacement for ls, built on [exa](https://github.com/ogham/exa).
+A modern, maintained replacement for ls.
 
-**README Sections:** [Options](#options) — [Installation](#installation) — [Development](#development)
+
+<a href="https://matrix.to/#/#eza-community:gitter.im"><img alt="Gitter" src="https://img.shields.io/gitter/room/eza-community/eza?logo=element&link=https%3A%2F%2Fapp.gitter.im%2F%23%2Froom%2F%23eza%3Agitter.im&link=Gitter%20matrix%20room%20for%20Eza" width=200></a>
 
 [![Built with Nix](https://img.shields.io/badge/Built_With-Nix-5277C3.svg?logo=nixos&labelColor=73C3D5)](https://nixos.org)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
-
-<a href="https://matrix.to/#/#eza-community:gitter.im"><img alt="Gitter" src="https://img.shields.io/gitter/room/eza-community/eza?logo=element&link=https%3A%2F%2Fapp.gitter.im%2F%23%2Froom%2F%23eza%3Agitter.im&link=Gitter%20matrix%20room%20for%20Eza" width=200></a>
 
 [![Unit tests](https://github.com/eza-community/eza/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/eza-community/eza/actions/workflows/unit-tests.yml)
 ![Crates.io](https://img.shields.io/crates/v/eza?link=https%3A%2F%2Fcrates.io%2Fcrates%2Feza)
@@ -17,7 +16,7 @@ eza is a modern, maintained replacement for ls, built on [exa](https://github.co
 
 </div>
 
-![Screenshots of eza](screenshots.png)
+![eza demo gif](docs/images/screenshots.png)
 
 ---
 
@@ -42,6 +41,9 @@ By deliberately making some decisions differently, eza attempts to be a more fea
 - Support for `bright` terminal colours.
 - Many smaller bug fixes/changes!
 
+...and like, so much more that it became exhausting to update this all the time.
+Like seriously, we have a lot of good stuff.
+
 ---
 
 <a id="try-it">
@@ -58,235 +60,12 @@ Nix will build eza and run it.
 
 If you want to pass arguments this way, use e.g. `nix run github:eza-community/eza -- -ol`.
 
-<a id="installation">
-<h1>Installation</h1>
-</a>
+# Installation
 
-eza is available for Windows, macOS and Linux.
+eza is available for Windows, macOS and Linux. Platform and distribution
+specific installation instructions can be found in [INSTALL.md](INSTALL.md).
 
-### Cargo (crates.io)
-
-![Crates.io](https://img.shields.io/crates/v/eza?link=https%3A%2F%2Fcrates.io%2Fcrates%2Feza)
-
-If you already have a Rust environment set up, you can use the `cargo install` command:
-
-    cargo install eza
-
-Cargo will build the `eza` binary and place it in `$HOME/.local/share/cargo/bin/eza`.
-
-### Cargo (git)
-
-If you already have a Rust environment set up, you can use the `cargo install` command in your local clone of the repo:
-
-    git clone https://github.com/eza-community/eza.git
-    cd eza
-    cargo install --path .
-
-Cargo will build the `eza` binary and place it in `$HOME/.cargo`.
-
-### Arch Linux
-
-[![Arch Linux package](https://repology.org/badge/version-for-repo/arch/eza.svg)](https://repology.org/project/eza/versions)
-
-Eza is available in the [\[extra\]](https://archlinux.org/packages/extra/x86_64/eza/) repository of Arch Linux.
-
-```bash
-pacman -S eza
-```
-
-### Debian and Ubuntu
-
-Eza is available from [deb.gierens.de](http://deb.gierens.de). The GPG public
-key is in this repo under [deb.asc](/deb.asc).
-
-First make sure you have the `gpg` command, and otherwise install it via:
-
-```bash
-sudo apt update
-sudo apt install -y gpg
-```
-
-Then install eza via:
-
-```bash
-sudo mkdir -p /etc/apt/keyrings
-wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
-echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
-sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
-sudo apt update
-sudo apt install -y eza
-```
-
-### Nix (Linux, MacOS)
-
-[![nixpkgs unstable package](https://repology.org/badge/version-for-repo/nix_unstable/eza.svg)](https://repology.org/project/eza/versions)
-
-> **Note**
-> Installing packages imperatively isn't idiomatic Nix, as this can lead to [many issues](https://stop-using-nix-env.privatevoid.net/).
-
-Eza is available from [Nixpkgs](https://github.com/NixOS/nixpkgs) and from the
-flake in this repository.
-
-For `nix profile` users:
-
-```shell
-nix profile install nixpkgs#eza
-```
-
-For `nix-env` users:
-
-```shell
-nix-env -i eza
-```
-
-**Declarative Nix Installations**
-
-- Simple NixOS installation: [rfaulhaber/dotfiles](https://github.com/rfaulhaber/dotfiles/blob/a8d084d178efd0592b7ac02d34a450fb58913aca/nix/modules/programs/eza/default.nix#L15)
-- Using the flake via NixOS: [hallettj/home.nix](https://github.com/hallettj/home.nix/blob/a8388483e5d78e110be73c5af0e7f0e3ca8f8aa3/flake.nix#L19)
-- Using home-manager on NixOS: [Misterio77/nix-config](https://github.com/Misterio77/nix-config/blob/6867d66a2fe7899c608b9c8e5a8f9aee279d188b/home/misterio/features/cli/fish.nix#L6)
-
-### Gentoo
-
-[![Gentoo package](https://repology.org/badge/version-for-repo/gentoo/eza.svg)](https://repology.org/project/eza/versions)
-
-On Gentoo, eza is available as a package [`sys-apps/eza`](https://packages.gentoo.org/packages/sys-apps/eza):
-
-```bash
-emerge --ask sys-apps/eza
-```
-
-### openSUSE
-
-Eza is available at [openSUSE:Factory/eza](https://build.opensuse.org/package/show/openSUSE:Factory/eza):
-
-```bash
-zypper ar https://download.opensuse.org/tumbleweed/repo/oss/ factory-oss
-zypper in eza
-```
-
-The preceding repository also contains the Bash, Fish, and Zsh completions.
-
-### Fedora
-
-[![Fedora package](https://repology.org/badge/version-for-repo/fedora_39/rust:eza.svg)](https://repology.org/project/eza/versions)
-
-Eza is available as the [eza](https://packages.fedoraproject.org/pkgs/rust-eza/eza/) package in the official Fedora repository.
-
-```bash
-sudo dnf install eza
-```
-
-### Void Linux
-
-[![Void Linux package](https://repology.org/badge/version-for-repo/void_x86_64/eza.svg)](https://repology.org/project/eza/versions)
-
-Eza is available as the [eza](https://github.com/void-linux/void-packages/tree/master/srcpkgs/eza) package in the official Void Linux repository.
-
-```bash
-sudo xbps-install eza
-```
-
-### Termux
-
-Eza is available as the [eza](https://github.com/termux/termux-packages/tree/master/packages/eza) package in the official Termux repository.
-
-```bash
-pkg install eza
-```
-
-### Brew (MacOS)
-
-[![Homebrew package](https://repology.org/badge/version-for-repo/homebrew/eza.svg)](https://repology.org/project/eza/versions)
-
-Eza is available from [Homebrew](https://formulae.brew.sh/formula/eza#default).
-
-To install eza, run:
-
-```shell
-brew install eza
-```
-
-### MacPorts (macOS)
-
-[![MacPorts port](https://repology.org/badge/version-for-repo/macports/eza.svg)](https://repology.org/project/eza/versions)
-
-On macOS, eza is also available via [MacPorts](https://ports.macports.org/port/eza/).
-
-To install eza, run:
-
-```shell
-sudo port install eza
-```
-
-### Winget (Windows)
-
-[![Windows package](https://repology.org/badge/version-for-repo/winget/eza.svg)](https://repology.org/project/eza/versions)
-
-Eza is available on Winget.
-
-To install eza, run:
-
-```shell
-winget install eza-community.eza
-```
-
-### Scoop (Windows)
-
-[![Windows package](https://repology.org/badge/version-for-repo/scoop/eza.svg)](https://repology.org/project/eza/versions)
-
-Eza is available from [Scoop](https://scoop.sh/#/apps?q=eza&id=a52070d25f94bbcc884f80bef53eb47ed1268198).
-
-To install eza, run:
-
-```shell
-scoop install eza
-```
-
-### Completions
-
-#### For zsh:
-
-> **Note**
-> Change `~/.zshrc` to your preferred zsh config file.
-
-##### Clone the repository:
-
-```sh
-git clone https://github.com/eza-community/eza.git
-```
-
-##### Add the completion path to your zsh configuration:
-
-Replace `<path_to_eza>` with the actual path where you cloned the `eza` repository.
-
-```sh
-echo 'export FPATH="<path_to_eza>/completions/zsh:$FPATH"' >> ~/.zshrc
-```
-
-##### Reload your zsh configuration:
-
-```sh
-source ~/.zshrc
-```
-
-
-#### For zsh with homebrew:
-
-In case zsh completions don't work out of the box with homebrew, add the
-following to your `~/.zshrc`:
-
-```bash
-if type brew &>/dev/null; then
-    FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-    autoload -Uz compinit
-    compinit
-fi
-```
-
-For reference:
-- https://docs.brew.sh/Shell-Completion#configuring-completions-in-zsh
-- https://github.com/Homebrew/brew/issues/8984
-
+[![Packaging status](https://repology.org/badge/vertical-allrepos/eza.svg)](https://repology.org/project/eza/versions)
 
 ---
 
@@ -311,7 +90,8 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s.
 - **-x**, **--across**: sort the grid across, rather than downwards
 - **-F**, **--classify**: display type indicator by file names
 - **--colo[u]r=(when)**: when to use terminal colours (always, auto, never)
-- **--colo[u]r-scale**: highlight levels of file sizes distinctly
+- **--colo[u]r-scale=(field)**: highlight levels of `field` distinctly(all, age, size)
+- **--color-scale-mode=(mode)**: use gradient or fixed colors in --color-scale. valid options are `fixed` or `gradient`
 - **--icons=(when)**: when to display icons (always, auto, never)
 - **--hyperlink**: display entries as hyperlinks
 - **-w**, **--width=(columns)**: set screen width in columns
@@ -362,6 +142,7 @@ These options are available when running with `--long` (`-l`):
 - **--no-filesize**: suppress the filesize field
 - **--no-user**: suppress the user field
 - **--no-time**: suppress the time field
+- **--stdin**: read file names from stdin
 
 Some of the options accept parameters:
 

@@ -19,7 +19,16 @@ complete -c eza -l color \
     never\t'Never use colour'
 "
 complete -c eza -l color-scale \
-    -l colour-scale -d "Highlight levels of file sizes distinctly"
+    -l colour-scale -d "Highlight levels 'field' distinctly" -x -a "
+    all\t''
+    age\t''
+    size\t''
+"
+complete -c eza -l color-scale-mode \
+    -d "Use gradient or fixed colors in --color-scale" -x -a "
+    fixed\t'Highlight based on fixed colors'
+    gradient\t'Highlight based \'field\' in relation to other files'
+"
 complete -c eza -l icons -d "When to display icons" -x -a "
   always\t'Always display icons'
   auto\t'Display icons if standard output is a terminal'
@@ -94,13 +103,14 @@ complete -c eza -l time-style -d "How to format timestamps" -x -a "
     full-iso\t'Display full ISO timestamps, up to the nanosecond'
     relative\t'Display relative timestamps'
 "
-complete -c eza -l total-size -d "Show recursive directory size"
+complete -c eza -l total-size -d "Show recursive directory size (unix only)"
 complete -c eza -l no-permissions -d "Suppress the permissions field"
 complete -c eza -s o -l octal-permissions -d "List each file's permission in octal format"
 complete -c eza -l no-filesize -d "Suppress the filesize field"
 complete -c eza -l no-user -d "Suppress the user field"
 complete -c eza -l no-time -d "Suppress the time field"
 complete -c eza -s M -l mounts -d "Show mount details"
+complete -c eza -l stdin -d "When piping to eza. Read file names from stdin"
 
 # Optional extras
 complete -c eza -l git -d "List each file's Git status, if tracked"

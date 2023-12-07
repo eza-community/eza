@@ -23,20 +23,20 @@
 
 use std::env;
 use std::ffi::{OsStr, OsString};
-use std::io::{self, ErrorKind, IsTerminal, Write};
+use std::io::{self, stdin, ErrorKind, IsTerminal, Read, Write};
 use std::path::{Component, PathBuf};
 use std::process::exit;
 
 use ansiterm::{ANSIStrings, Style};
 
-use log::*;
-
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::GitIgnore;
 use crate::fs::{Dir, File};
+use crate::options::stdin::FilesInput;
 use crate::options::{vars, Options, OptionsResult, Vars};
 use crate::output::{details, escape, file_name, grid, grid_details, lines, Mode, View};
 use crate::theme::Theme;
+use log::*;
 
 mod fs;
 mod info;
@@ -60,17 +60,35 @@ fn main() {
 
     let stdout_istty = io::stdout().is_terminal();
 
+    let mut input = String::new();
     let args: Vec<_> = env::args_os().skip(1).collect();
     match Options::parse(args.iter().map(std::convert::AsRef::as_ref), &LiveVars) {
         OptionsResult::Ok(options, mut input_paths) => {
             // List the current directory by default.
             // (This has to be done here, otherwise git_options won’t see it.)
             if input_paths.is_empty() {
-                input_paths = vec![OsStr::new(".")];
+                match &options.stdin {
+                    FilesInput::Args => {
+                        input_paths = vec![OsStr::new(".")];
+                    }
+                    FilesInput::Stdin(separator) => {
+                        stdin()
+                            .read_to_string(&mut input)
+                            .expect("Failed to read from stdin");
+                        input_paths.extend(
+                            input
+                                .split(&separator.clone().into_string().unwrap_or("\n".to_string()))
+                                .map(std::ffi::OsStr::new)
+                                .filter(|s| !s.is_empty())
+                                .collect::<Vec<_>>(),
+                        );
+                    }
+                }
             }
 
             let git = git_options(&options, &input_paths);
             let writer = io::stdout();
+            let git_repos = git_repos(&options, &input_paths);
 
             let console_width = options.view.width.actual_terminal_width();
             let theme = options.theme.to_theme(stdout_istty);
@@ -81,6 +99,7 @@ fn main() {
                 theme,
                 console_width,
                 git,
+                git_repos,
             };
 
             info!("matching on exa.run");
@@ -148,6 +167,8 @@ pub struct Exa<'args> {
     /// This has to last the lifetime of the program, because the user might
     /// want to list several directories in the same repository.
     pub git: Option<GitCache>,
+
+    pub git_repos: bool,
 }
 
 /// The “real” environment variables type.
@@ -167,6 +188,58 @@ fn git_options(options: &Options, args: &[&OsStr]) -> Option<GitCache> {
         Some(args.iter().map(PathBuf::from).collect())
     } else {
         None
+    }
+}
+
+#[cfg(not(feature = "git"))]
+fn git_repos(_options: &Options, _args: &[&OsStr]) -> bool {
+    return false;
+}
+
+#[cfg(feature = "git")]
+fn get_files_in_dir(paths: &mut Vec<PathBuf>, path: PathBuf) {
+    let temp_paths = if path.is_dir() {
+        path.read_dir()
+            .unwrap()
+            .map(|entry| entry.unwrap().path())
+            .collect::<Vec<PathBuf>>()
+    } else {
+        vec![path]
+    };
+    paths.extend(temp_paths);
+}
+
+#[cfg(feature = "git")]
+fn git_repos(options: &Options, args: &[&OsStr]) -> bool {
+    let option_enabled = match options.view.mode {
+        Mode::Details(details::Options {
+            table: Some(ref table),
+            ..
+        })
+        | Mode::GridDetails(grid_details::Options {
+            details:
+                details::Options {
+                    table: Some(ref table),
+                    ..
+                },
+            ..
+        }) => table.columns.subdir_git_repos || table.columns.subdir_git_repos_no_stat,
+        _ => false,
+    };
+    if option_enabled {
+        let paths: Vec<PathBuf> = args.iter().map(PathBuf::from).collect::<Vec<PathBuf>>();
+        let mut files: Vec<PathBuf> = Vec::new();
+        for path in paths {
+            get_files_in_dir(&mut files, path);
+        }
+        let repos: Vec<bool> = files
+            .iter()
+            .map(git2::Repository::open)
+            .map(|repo| repo.is_ok())
+            .collect();
+        repos.contains(&true)
+    } else {
+        false
     }
 }
 
@@ -355,6 +428,7 @@ impl<'args> Exa<'args> {
 
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
                 let git = self.git.as_ref();
+                let git_repos = self.git_repos;
                 let r = details::Render {
                     dir,
                     files,
@@ -365,6 +439,7 @@ impl<'args> Exa<'args> {
                     filter,
                     git_ignoring,
                     git,
+                    git_repos,
                 };
                 r.render(&mut self.writer)
             }
@@ -377,6 +452,7 @@ impl<'args> Exa<'args> {
                 let filter = &self.options.filter;
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
                 let git = self.git.as_ref();
+                let git_repos = self.git_repos;
 
                 let r = grid_details::Render {
                     dir,
@@ -390,6 +466,7 @@ impl<'args> Exa<'args> {
                     git_ignoring,
                     git,
                     console_width,
+                    git_repos,
                 };
                 r.render(&mut self.writer)
             }
@@ -400,6 +477,7 @@ impl<'args> Exa<'args> {
                 let recurse = self.options.dir_action.recurse_options();
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
                 let git = self.git.as_ref();
+                let git_repos = self.git_repos;
 
                 let r = details::Render {
                     dir,
@@ -411,6 +489,7 @@ impl<'args> Exa<'args> {
                     filter,
                     git_ignoring,
                     git,
+                    git_repos,
                 };
                 r.render(&mut self.writer)
             }

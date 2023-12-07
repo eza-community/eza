@@ -1,0 +1,198 @@
+dump_dir: tests/ptests
+depth: 1
+binary: eza
+gen_binary: target/debug/eza
+args: tests/test_dir
+commands:
+  # Meta options
+  ? - null
+    - --help
+  :
+  ? - -v
+    - --version
+  :
+  # Display Options
+  ? - -1
+    - --oneline
+  :
+  ? - -l
+    - --long
+  :
+  ? - -G
+    - --grid
+  :
+  ? - -x
+    - --across
+  :
+  ? - -R
+    - --recurse
+  :
+  ? - -T
+    - --tree
+  :
+  ? - -X
+    - --dereference
+  :
+  ? - -F
+    - --classify
+  :
+  ? - null
+    - --color
+  : values:
+      - auto
+      - always
+      - never
+  ? - null
+    - --colour
+  : values:
+      - auto
+      - always
+      - never
+  ? - null
+    - --icons
+  :
+  ? - null
+    - --icons
+  : values:
+      - auto
+      - always
+      - never
+  ? - null
+    - --no-quotes
+  ? - null
+    - --hyperlink
+  ? - -w
+    - --width
+  : values:
+      - 15
+      - 30
+      - 200
+  ? - null
+    - --smart-group
+
+  # Filtering and Sorting Options
+  ? - -a
+    - --all
+  ? - -A
+    - --almost-all
+  ? - -d
+    - --list-dirs
+  ? - -L
+    - --level
+  : prefix: --tree
+    values:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+  ? - -r
+    - --reverse
+  ? - -s
+    - --sort
+  : short: -s
+    long: time-style
+    prefix: -l
+    values:
+      #- accessed
+      - age
+      #- changed
+      #- created
+      - date
+      - Ext
+      - ext
+      - Extension
+      - extension
+      - Filename
+      - filename
+      - inode
+      - modified
+      - Name
+      - name
+      - newest
+      - none
+      - oldest
+      - size
+      - time
+      - type
+  ? - null
+    - --group-directories-first
+  ? - -D
+    - --only-dirs
+  ? - -f
+    - --only-files
+  ? - -f
+    - --only-files
+  ? # TODO: add more globs
+    - -I
+    - --ignore-glob
+  : prefix: -l
+    values:
+      - "*.toml"
+  ? - null
+    - --git-ignore
+
+  # Long View Options
+  ? - -b
+    - --binary
+  ? - -B
+    - --bytes
+  ? - -g
+    - --group
+  ? - -h
+    - --header
+  ? - -H
+    - --links
+  ? - -i
+    - --inode
+  ? - -m
+    - --modified
+  ? - -M
+    - --mounts
+  ? - -n
+    - --numeric
+  ? - -S
+    - --blocksize
+  ? - -t
+    - --time
+  : prefix: -l
+    values:
+      - modified
+      #- accessed BROKEN
+      #- changed
+      #- created
+  ? - -u
+    - --accessed
+  ? - -U
+    - --created
+  ? - null
+    - --changed
+  ? - null
+    - --time-style
+  : long: time-style
+    values:
+      - default
+      - iso
+      - long-iso
+      - full-iso
+      - relative
+  ? - null
+    - --total-size
+  ? - null
+    - --no-permissions
+  ? - -o
+    - --octal-permissions
+  ? - null
+    - --no-filesize
+  ? - null
+    - --no-user
+  ? - null
+    - --git
+  ? - null
+    - --no-git
+  ? - null
+    - --git-repos
+  ? - -@
+    - --extended
+  ? - -Z
+    - --context

@@ -21,14 +21,15 @@ __eza() {
         {-X,--dereference}"[Dereference symbolic links when displaying information]" \
         {-F,--classify}"[Display type indicator by file names]" \
         --colo{,u}r="[When to use terminal colours]:(when):(always auto automatic never)" \
-        --colo{,u}r-scale"[Highlight levels of file sizes distinctly]" \
+        --colo{,u}r-scale"[highlight levels of 'field' distinctly]:(fields):(all age size)" \
+        --colo{,u}r-scale-mode"[Use gradient or fixed colors in --color-scale]:(mode):(fixed gradient)" \
         --icons="[When to display icons]:(when):(always auto automatic never)" \
         --no-quotes"[Don't quote filenames with spaces]" \
         --hyperlink"[Display entries as hyperlinks]" \
         --group-directories-first"[Sort directories before other files]" \
         --git-ignore"[Ignore files mentioned in '.gitignore']" \
         {-a,--all}"[Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories]" \
-        {-A,--almost-all}"[Equivalent to --all; included for compatibility with 'ls -A']" \
+        {-A,--almost-all}"[Equivalent to --all; included for compatibility with \'ls -A\']" \
         {-d,--list-dirs}"[List directories like regular files]" \
         {-D,--only-dirs}"[List only directories]" \
         {-f,--only-files}"[List only files]" \
@@ -49,7 +50,7 @@ __eza() {
         {-S,--blocksize}"[List each file's size of allocated file system blocks.]" \
         {-t,--time}="[Which time field to show]:(time field):(accessed changed created modified)" \
         --time-style="[How to format timestamps]:(time style):(default iso long-iso full-iso relative)" \
-        --total-size="[Show recursive directory size]" \
+        --total-size="[Show recursive directory size (unix only)]" \
         --no-permissions"[Suppress the permissions field]" \
         {-o,--octal-permissions}"[List each file's permission in octal format]" \
         --no-filesize"[Suppress the filesize field]" \
@@ -66,7 +67,8 @@ __eza() {
         {-Z,--context}"[List each file's security context]" \
         {-M,--mounts}"[Show mount details (long mode only)]" \
         '*:filename:_files' \
-        --smart-group"[Only show group if it has a different name from owner]"
+        --smart-group"[Only show group if it has a different name from owner]" \
+        --stdin"[When piping to eza. Read file names from stdin]"
 }
 
 __eza

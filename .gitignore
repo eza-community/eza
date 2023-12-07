@@ -36,3 +36,6 @@ tests/tmp
 
 ## Dynamically generated
 tests/test_dir
+
+# Miscenallous
+.idea

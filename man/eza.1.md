@@ -86,7 +86,14 @@ The default behavior (‘`automatic`’ or ‘`auto`’) is to colorize the outp
 Manually setting this option overrides `NO_COLOR` environment.
 
 `--color-scale`, `--colour-scale`
-: Colour file sizes on a scale.
+: highlight levels of `field` distinctly.
+Use comma(,) separated list of all, age, size
+
+`--color-scale-mode`, `--colour-scale-mode`
+: Use gradient or fixed colors in `--color-scale`.
+
+Valid options are `fixed` or `gradient`.
+The default value is `gradient`.
 
 `--icons=WHEN`
 : Display icons next to file names.
@@ -105,9 +112,11 @@ The default value is ‘`automatic`’.
 `-w`, `--width=COLS`
 : Set screen width in columns.
 
-`--smart-group`
-: Only show group if it has a different name from owner
+Valid options are `none`, `absolute` or `relative`.
+The default value is `none`
 
+`absolute` mode highlights based on file modification time relative to the past year.
+`relative` mode highlights based on file modification time in relation to other files. `none` disables highlighting.
 
 FILTERING AND SORTING OPTIONS
 =============================
@@ -170,6 +179,9 @@ These options are available when running with `--long` (`-l`):
 `-g`, `--group`
 : List each file’s group.
 
+`--smart-group`
+: Only show group if it has a different name from owner
+
 `-h`, `--header`
 : Add a header row to each column.
 
@@ -202,7 +214,7 @@ These options are available when running with `--long` (`-l`):
 : Valid timestamp styles are ‘`default`’, ‘`iso`’, ‘`long-iso`’, ‘`full-iso`’, ‘`relative`', or you can use a `custom` style with '`+`' as prefix. (Ex: "`+%Y/%m/%d, %H:%M`" => "`2023/9/30, 12:00`"). for more details about format syntax, please read: https://docs.rs/chrono/latest/chrono/format/strftime/index.html
 
 `--total-size`
-: Show recursive directory size.
+: Show recursive directory size (unix only).
 
 `-u`, `--accessed`
 : Use the accessed timestamp field.
@@ -224,6 +236,9 @@ These options are available when running with `--long` (`-l`):
 
 `--no-time`
 : Suppress the time field.
+
+`--stdin`
+: When you wish to pipe directories to eza/read from stdin. Separate one per line or define custom separation char in `EZA_STDIN_SEPARATOR` env variable.
 
 `-@`, `--extended`
 : List each file’s extended attributes and sizes.
@@ -302,12 +317,18 @@ For more information on the format of these environment variables, see the [eza_
 
 Overrides any `--git` or `--git-repos` argument
 
+## `EZA_MIN_LUMINANCE`
+Specifies the minimum luminance to use when decay is active. It's value can be between -100 to 100.
+
 ## `EZA_ICONS_AUTO`
 
 If set, automates the same behavior as using `--icons` or `--icons=auto`. Useful for if you always want to have icons enabled.
 
 Any explicit use of the `--icons=WHEN` flag overrides this behavior. 
 
+## `EZA_STDIN_SEPARATOR`
+
+Specifies the separator to use when file names are piped from stdin. Defaults to newline.
 
 EXIT STATUSES
 =============

@@ -1,16 +1,170 @@
 # Changelog
 
+## [0.16.3] - 2023-12-07
+
+### Bug Fixes
+
+- Add bare git_repos fn if feature git is disabled
+- Fixing color of size unit
+- Color-scale broked size for colors
+
+### Testing
+
+- Fix powertests post-release
+
+### Build
+
+- Bump percent-encoding from 2.3.0 to 2.3.1
+- Bump actions/labeler from 4 to 5
+
+## [0.16.2] - 2023-11-30
+
+### Bug Fixes
+
+- Calculate width correctly when using grid icons & classify
+- Fix the windows build
+
+### Miscellaneous Tasks
+
+- Release eza v0.16.2
+
+### Testing
+
+- Fix version tests
+
+### Build
+
+- Bump webiny/action-conventional-commits from 1.1.0 to 1.2.0
+- Bump DeterminateSystems/nix-installer-action from 7 to 8
+- Bump windows-sys from 0.48.0 to 0.52.0
+
+## [0.16.1] - 2023-11-23
+
+### Bug Fixes
+
+- Don't panic with todo!() on inaccessible dir
+- Don't panic if the btime of a file is Err
+- Lifetime annotations and manpage/shell completion nits
+- Reflow help
+
+### Features
+
+- Handle formatting and display of binary extended attributes.
+- Add netbsd and freebsd support for extended attributes
+
+### Miscellaneous Tasks
+
+- Update flake inputs
+- Release eza v0.16.1
+
+### Testing
+
+- Vars mocking
+- Display and meta options
+- Filtering and sorting
+- Long view options
+- Regenerate `--help` tests
+
+### Build
+
+- Sign release tags
+
+## [0.16.0] - 2023-11-16
+
+### Bug Fixes
+
+- Fix cross compilation
+- Snap requires a base
+- Move `--smart-group` to long view options
+- Colo[u]r-scale didn't have a base value
+- Fix snapcraft.yaml formatting
+
+### Documentation
+
+- Add comments for bzip variants
+- Added the fact that total-size is unix only
+
+### Features
+
+- Add some file extensions
+- Abort on panic (saving 0.1 M)
+- Add powertest
+
+### Miscellaneous Tasks
+
+- Ignore blame from #644
+- Stabilize powertest version
+- Release eza v0.16.0
+
+### Testing
+
+- Implements tests using the generated directory
+- Powertests using generated testdirs
+- Add hashed versions of powertests
+
+## [0.15.3] - 2023-11-09
+
+### Bug Fixes
+
+- [**breaking**] Remove Repo column when using --git-repos when no git repo
+- Reformat `help.rs`
+- Allow unused macro rule arms
+
+### Documentation
+
+- Improve CONTRIBUTING.md, README.md
+- Improve README.md
+- Introduce INSTALL.md
+
+### Features
+
+- Create EZA_ICONS_AUTO environment variable
+- Create EZA_ICONS_AUTO environment variable
+- Demo gif and gif generation recipe
+- Add ocaml icon filetypes
+- Add PRQL
+- Add `--color-scale`
+
+### Miscellaneous Tasks
+
+- Add to CODEOWNERS file to make sure I get ping'd on files being touched
+- Add myself to codeowners to watch modifications on parsing
+- Improve the PR template
+- Release eza v0.15.3
+
+### Refactor
+
+- Remove commented out test code
+- Finalize `decay` -> `color_scale`
+
+### Build
+
+- Refactor flake
+- Bump DeterminateSystems/nix-installer-action from 4 to 7
+- Bump libc from 0.2.149 to 0.2.150
+- Bump rustix from 0.38.13 to 0.38.21
+
+### Ci
+
+- Refactor pre-commit-hooks
+- Refactor publish workflow
+
 ## [0.15.2] - 2023-11-02
 
 ### Bug Fixes
 
 - Correct width when --no-quotes is used
 - Clippy lint and add option to grid-details
+- Changed quote in --almost-all completion
 - --smart-group only works for current user
 
 ### Features
 
 - Add Typst to the recognized files
+
+### Miscellaneous Tasks
+
+- Release eza v0.15.2
 
 ### Refactor
 

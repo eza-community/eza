@@ -9,6 +9,8 @@ use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
 use std::os::windows::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 #[cfg(unix)]
+use std::str;
+#[cfg(unix)]
 use std::sync::Mutex;
 use std::sync::OnceLock;
 
@@ -22,6 +24,7 @@ use crate::fs::dir::Dir;
 use crate::fs::feature::xattr;
 use crate::fs::feature::xattr::{Attribute, FileAttributes};
 use crate::fs::fields as f;
+use crate::fs::fields::SecurityContextType;
 use crate::fs::recursive_size::RecursiveSize;
 
 use super::mounts::all_mounts;
@@ -232,14 +235,19 @@ impl<'dir> File<'dir> {
     }
 
     /// Read the extended attributes of a file path.
-    fn gather_extended_attributes(path: &Path) -> Vec<Attribute> {
+    fn gather_extended_attributes(&self) -> Vec<Attribute> {
         if xattr::ENABLED {
-            match path.symlink_attributes() {
+            let attributes = if self.deref_links {
+                self.path.attributes()
+            } else {
+                self.path.symlink_attributes()
+            };
+            match attributes {
                 Ok(xattrs) => xattrs,
                 Err(e) => {
                     error!(
                         "Error looking up extended attributes for {}: {}",
-                        path.display(),
+                        self.path.display(),
                         e
                     );
                     Vec::new()
@@ -253,7 +261,7 @@ impl<'dir> File<'dir> {
     /// Get the extended attributes of a file path on demand.
     pub fn extended_attributes(&self) -> &Vec<Attribute> {
         self.extended_attributes
-            .get_or_init(|| File::gather_extended_attributes(&self.path))
+            .get_or_init(|| self.gather_extended_attributes())
     }
 
     /// Whether this file is a directory on the filesystem.
@@ -747,10 +755,10 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        self.metadata
-            .created()
-            .map(|st| DateTime::<Utc>::from(st).naive_utc())
-            .ok()
+        match self.metadata.created() {
+            Ok(btime) => Some(DateTime::<Utc>::from(btime).naive_utc()),
+            Err(_) => None,
+        }
     }
 
     /// This file’s ‘type’.
@@ -841,17 +849,31 @@ impl<'dir> File<'dir> {
     }
 
     /// This file’s security context field.
+    #[cfg(unix)]
     pub fn security_context(&self) -> f::SecurityContext<'_> {
         let context = match self
             .extended_attributes()
             .iter()
             .find(|a| a.name == "security.selinux")
         {
-            Some(attr) => f::SecurityContextType::SELinux(&attr.value),
-            None => f::SecurityContextType::None,
+            Some(attr) => match &attr.value {
+                None => SecurityContextType::None,
+                Some(value) => match str::from_utf8(value) {
+                    Ok(v) => SecurityContextType::SELinux(v.trim_end_matches(char::from(0))),
+                    Err(_) => SecurityContextType::None,
+                },
+            },
+            None => SecurityContextType::None,
         };
 
         f::SecurityContext { context }
+    }
+
+    #[cfg(windows)]
+    pub fn security_context(&self) -> f::SecurityContext<'_> {
+        f::SecurityContext {
+            context: SecurityContextType::None,
+        }
     }
 }
 

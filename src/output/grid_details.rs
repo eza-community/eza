@@ -9,6 +9,7 @@ use crate::fs::feature::git::GitCache;
 use crate::fs::filter::FileFilter;
 use crate::fs::{Dir, File};
 use crate::output::cell::{DisplayWidth, TextCell};
+use crate::output::color_scale::ColorScaleInformation;
 use crate::output::details::{
     Options as DetailsOptions, Render as DetailsRender, Row as DetailsRow,
 };
@@ -87,6 +88,8 @@ pub struct Render<'a> {
     pub git: Option<&'a GitCache>,
 
     pub console_width: usize,
+
+    pub git_repos: bool,
 }
 
 impl<'a> Render<'a> {
@@ -108,6 +111,7 @@ impl<'a> Render<'a> {
             filter:        self.filter,
             git_ignoring:  self.git_ignoring,
             git:           self.git,
+            git_repos:     self.git_repos,
         };
     }
 
@@ -127,6 +131,7 @@ impl<'a> Render<'a> {
             filter:        self.filter,
             git_ignoring:  self.git_ignoring,
             git:           self.git,
+            git_repos:     self.git_repos,
         };
     }
 
@@ -150,12 +155,23 @@ impl<'a> Render<'a> {
 
         let drender = self.details_for_column();
 
+        let color_scale_info = ColorScaleInformation::from_color_scale(
+            self.details.color_scale,
+            &self.files,
+            self.filter.dot_filter,
+            self.git,
+            self.git_ignoring,
+            None,
+        );
+
         let (first_table, _) = self.make_table(options, &drender);
 
         let rows = self
             .files
             .iter()
-            .map(|file| first_table.row_for_file(file, drender.show_xattr_hint(file)))
+            .map(|file| {
+                first_table.row_for_file(file, drender.show_xattr_hint(file), color_scale_info)
+            })
             .collect::<Vec<_>>();
 
         let file_names = self
@@ -259,7 +275,7 @@ impl<'a> Render<'a> {
             (None, _) => { /* Keep Git how it is */ }
         }
 
-        let mut table = Table::new(options, self.git, self.theme);
+        let mut table = Table::new(options, self.git, self.theme, self.git_repos);
         let mut rows = Vec::new();
 
         if self.details.header {

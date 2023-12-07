@@ -55,9 +55,16 @@ pub static EZA_ICON_SPACING: &str = "EZA_ICON_SPACING";
 pub static EXA_OVERRIDE_GIT: &str = "EXA_OVERRIDE_GIT";
 pub static EZA_OVERRIDE_GIT: &str = "EZA_OVERRIDE_GIT";
 
+/// Enviroment variable used to set the minimum luminance in `color_scale`. It's value
+/// can be between -100 and 100
+pub static EXA_MIN_LUMINANCE: &str = "EXA_MIN_LUMINANCE";
+pub static EZA_MIN_LUMINANCE: &str = "EZA_MIN_LUMINANCE";
+
 /// Environment variable used to automate the same behavior as `--icons=auto` if set.
 /// Any explicit use of `--icons=WHEN` overrides this behavior.
 pub static EZA_ICONS_AUTO: &str = "EZA_ICONS_AUTO";
+
+pub static EZA_STDIN_SEPARATOR: &str = "EZA_STDIN_SEPARATOR";
 
 /// Mockable wrapper for `std::env::var_os`.
 pub trait Vars {
@@ -84,5 +91,57 @@ pub trait Vars {
 impl Vars for Option<OsString> {
     fn get(&self, _name: &'static str) -> Option<OsString> {
         self.clone()
+    }
+}
+
+#[cfg(test)]
+#[allow(dead_code)]
+pub struct MockVars {
+    columns: OsString,
+    colors: OsString,
+    no_colors: OsString,
+    strict: OsString,
+    debug: OsString,
+    grid_rows: OsString,
+    icon_spacing: OsString,
+    luminance: OsString,
+    icons: OsString,
+}
+
+#[cfg(test)]
+#[allow(dead_code)]
+impl Vars for MockVars {
+    fn get(&self, name: &'static str) -> Option<OsString> {
+        match name {
+            "EXA_STRICT" | "EZA_STRICT" => Some(self.strict.clone()),
+            "EZA_COLORS" | "LS_COLORS" | "EXA_COLORS" => Some(self.colors.clone()),
+            "EXA_DEBUG" | "EZA_DEBUG" => Some(self.debug.clone()),
+            "EXA_GRID_ROWS" | "EZA_GRID_ROWS" => Some(self.grid_rows.clone()),
+            "EXA_ICON_SPACING" | "EZA_ICON_SPACING" => Some(self.icon_spacing.clone()),
+            "EXA_MIN_LUMINANCE" | "EZA_MIN_LUMINANCE" => Some(self.luminance.clone()),
+            "EZA_ICONS_AUTO" => Some(self.icons.clone()),
+            "COLUMNS" => Some(self.columns.clone()),
+            "NO_COLOR" => Some(self.no_colors.clone()),
+            _ => None,
+        }
+    }
+}
+
+#[cfg(test)]
+#[allow(dead_code)]
+impl MockVars {
+    pub fn set(&mut self, var: &'static str, value: &OsString) {
+        match var {
+            "EXA_STRICT" | "EZA_STRICT" => self.strict = value.clone(),
+            "EZA_COLORS" | "LS_COLORS" | "EXA_COLORS" => self.colors = value.clone(),
+            "EXA_DEBUG" | "EZA_DEBUG" => self.debug = value.clone(),
+            "EXA_GRID_ROWS" | "EZA_GRID_ROWS" => self.grid_rows = value.clone(),
+            "EXA_ICON_SPACING" | "EZA_ICON_SPACING" => self.icon_spacing = value.clone(),
+            "EXA_MIN_LUMINANCE" | "EZA_MIN_LUMINANCE" => self.luminance = value.clone(),
+            "EZA_ICONS_AUTO" => self.icons = value.clone(),
+            "COLUMNS" => self.columns = value.clone(),
+            "NO_COLOR" => self.no_colors = value.clone(),
+            _ => (),
+        };
     }
 }

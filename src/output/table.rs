@@ -13,11 +13,14 @@ use uzers::UsersCache;
 use crate::fs::feature::git::GitCache;
 use crate::fs::{fields as f, File};
 use crate::output::cell::TextCell;
+use crate::output::color_scale::ColorScaleInformation;
 #[cfg(unix)]
 use crate::output::render::{GroupRender, OctalPermissionsRender, UserRender};
 use crate::output::render::{PermissionsPlusRender, TimeRender};
 use crate::output::time::TimeFormat;
 use crate::theme::Theme;
+
+use super::color_scale::ColorScaleMode;
 
 /// Options for displaying a table.
 #[derive(PartialEq, Eq, Debug)]
@@ -54,7 +57,7 @@ pub struct Columns {
 }
 
 impl Columns {
-    pub fn collect(&self, actually_enable_git: bool) -> Vec<Column> {
+    pub fn collect(&self, actually_enable_git: bool, git_repos: bool) -> Vec<Column> {
         let mut columns = Vec::with_capacity(4);
 
         if self.inode {
@@ -120,11 +123,11 @@ impl Columns {
             columns.push(Column::GitStatus);
         }
 
-        if self.subdir_git_repos {
+        if self.subdir_git_repos && git_repos {
             columns.push(Column::SubdirGitRepo(true));
         }
 
-        if self.subdir_git_repos_no_stat {
+        if self.subdir_git_repos_no_stat && git_repos {
             columns.push(Column::SubdirGitRepo(false));
         }
 
@@ -282,6 +285,16 @@ impl TimeType {
             Self::Created => "Date Created",
         }
     }
+
+    /// Returns the corresponding time from [File]
+    pub fn get_corresponding_time(self, file: &File<'_>) -> Option<NaiveDateTime> {
+        match self {
+            TimeType::Modified => file.modified_time(),
+            TimeType::Changed => file.changed_time(),
+            TimeType::Accessed => file.accessed_time(),
+            TimeType::Created => file.created_time(),
+        }
+    }
 }
 
 /// Fields for which of a file’s time fields should be displayed in the
@@ -374,10 +387,17 @@ pub struct Row {
 }
 
 impl<'a> Table<'a> {
-    pub fn new(options: &'a Options, git: Option<&'a GitCache>, theme: &'a Theme) -> Table<'a> {
-        let columns = options.columns.collect(git.is_some());
+    pub fn new(
+        options: &'a Options,
+        git: Option<&'a GitCache>,
+        theme: &'a Theme,
+        git_repos: bool,
+    ) -> Table<'a> {
+        let columns = options.columns.collect(git.is_some(), git_repos);
         let widths = TableWidths::zero(columns.len());
         let env = &*ENVIRONMENT;
+
+        debug!("Creating table with columns: {:?}", columns);
 
         Table {
             theme,
@@ -408,11 +428,16 @@ impl<'a> Table<'a> {
         Row { cells }
     }
 
-    pub fn row_for_file(&self, file: &File<'_>, xattrs: bool) -> Row {
+    pub fn row_for_file(
+        &self,
+        file: &File<'_>,
+        xattrs: bool,
+        color_scale_info: Option<ColorScaleInformation>,
+    ) -> Row {
         let cells = self
             .columns
             .iter()
-            .map(|c| self.display(file, *c, xattrs))
+            .map(|c| self.display(file, *c, xattrs, color_scale_info))
             .collect();
 
         Row { cells }
@@ -448,12 +473,21 @@ impl<'a> Table<'a> {
             .map(|p| f::OctalPermissions { permissions: p })
     }
 
-    fn display(&self, file: &File<'_>, column: Column, xattrs: bool) -> TextCell {
+    fn display(
+        &self,
+        file: &File<'_>,
+        column: Column,
+        xattrs: bool,
+        color_scale_info: Option<ColorScaleInformation>,
+    ) -> TextCell {
         match column {
             Column::Permissions => self.permissions_plus(file, xattrs).render(self.theme),
-            Column::FileSize => file
-                .size()
-                .render(self.theme, self.size_format, &self.env.numeric),
+            Column::FileSize => file.size().render(
+                self.theme,
+                self.size_format,
+                &self.env.numeric,
+                color_scale_info,
+            ),
             #[cfg(unix)]
             Column::HardLinks => file.links().render(self.theme, &self.env.numeric),
             #[cfg(unix)]
@@ -483,23 +517,17 @@ impl<'a> Table<'a> {
             #[cfg(unix)]
             Column::Octal => self.octal_permissions(file).render(self.theme.ui.octal),
 
-            Column::Timestamp(TimeType::Modified) => file.modified_time().render(
-                self.theme.ui.date,
-                self.env.time_offset,
-                self.time_format.clone(),
-            ),
-            Column::Timestamp(TimeType::Changed) => file.changed_time().render(
-                self.theme.ui.date,
-                self.env.time_offset,
-                self.time_format.clone(),
-            ),
-            Column::Timestamp(TimeType::Created) => file.created_time().render(
-                self.theme.ui.date,
-                self.env.time_offset,
-                self.time_format.clone(),
-            ),
-            Column::Timestamp(TimeType::Accessed) => file.accessed_time().render(
-                self.theme.ui.date,
+            Column::Timestamp(time_type) => time_type.get_corresponding_time(file).render(
+                if color_scale_info.is_some_and(|csi| csi.options.mode == ColorScaleMode::Gradient)
+                {
+                    color_scale_info.unwrap().apply_time_gradient(
+                        self.theme.ui.date,
+                        file,
+                        time_type,
+                    )
+                } else {
+                    self.theme.ui.date
+                },
                 self.env.time_offset,
                 self.time_format.clone(),
             ),

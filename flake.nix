@@ -20,7 +20,15 @@
       url = "http://rime.cx/v1/github/semnix/treefmt-nix.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # for crane cargoAudit
+    powertest = {
+      url = "http://rime.cx/v1/github/eza-community/powertest.tar.gz";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        #naersk.follows = "naersk";
+        treefmt-nix.follows = "treefmt-nix";
+        rust-overlay.follows = "rust-overlay";
+      };
+    };
     pre-commit-hooks = {
       url = "http://rime.cx/v1/github/semnix/pre-commit-hooks.nix.tar.gz";
       inputs = {
@@ -38,6 +46,7 @@
     treefmt-nix,
     flake-parts,
     rust-overlay,
+    powertest,
     pre-commit-hooks,
     ...
   }:
@@ -105,14 +114,15 @@
 
         craneLib = (inputs.crane.mkLib pkgs).overrideToolchain toolchain;
 
-        src = lib.cleanSourceWith {
-          src = ./.;
-          filter = path: type:
-            (lib.hasInfix "/man/" path)
-            || (lib.hasInfix "/completions/" path)
-            || (lib.hasInfix "/tests/" path)
-            || (craneLib.filterCargoSources path type);
-        };
+        src = ./.;
+        # src = lib.cleanSourceWith {
+        #   src = ./.;
+        #   filter = path: type:
+        #     (lib.hasInfix "/man/" path)
+        #     || (lib.hasInfix "/completions/" path)
+        #     || (lib.hasInfix "/tests/" path)
+        #     || (craneLib.filterCargoSources path type);
+        # };
 
         commonArgs = {
           inherit src;
@@ -143,7 +153,6 @@
             inputs.rust-overlay.overlays.default
           ];
         };
-
         inherit
           (fromTreefmtFile {
             toFilter = ["yamlfmt"];
@@ -187,33 +196,46 @@
                 };
             });
 
-          eza-trydump = craneLib.cargoNextest (commonArgs
+          trydump = craneLib.cargoNextest (commonArgs
             // {
               inherit cargoArtifacts src;
-              buildPhase = ''touch --date=@0 tests/itest/*; rm tests/cmd/*.stdout || echo; rm tests/cmd/*.stderr || echo;'';
-              cargoExtraArgs = "--features=nix,nix-local --color=never";
+              buildPhase = ''
+                bash devtools/dir-generator.sh tests/test_dir
+                touch --date=@0 tests/itest/*;
+                rm tests/cmd/*.stdout || echo;
+                rm tests/cmd/*.stderr || echo;
+
+                touch --date=@0 tests/ptests/*;
+                rm tests/ptests/*.stdout || echo;
+                rm tests/ptests/*.stderr || echo;
+              '';
+              cargoExtraArgs = "--features=nix,nix-local,powertest --color=never";
               partitions = 1;
               partitionType = "count";
               postInstall = ''
                 cp dump $out -r
               '';
               TRYCMD = "dump";
+              nativeBuildInputs = with pkgs; [git];
             });
-          eza-trycmd-local = craneLib.cargoNextest (commonArgs
+          trycmd-local = craneLib.cargoNextest (commonArgs
             // {
               inherit cargoArtifacts src;
-              buildPhase = ''touch --date=@0 tests/itest/*'';
-              cargoExtraArgs = "--features=nix,nix-local --color=never";
+              buildPhase = ''touch --date=@0 tests/itest/* && bash devtools/dir-generator.sh tests/test_dir'';
+              cargoExtraArgs = "--features=nix,nix-local,powertest --color=never";
               partitions = 1;
               partitionType = "count";
+              nativeBuildInputs = with pkgs; [git];
             });
-          eza-trycmd = craneLib.cargoNextest (commonArgs
+          # TODO: add conditionally to checks.
+          trycmd = craneLib.cargoNextest (commonArgs
             // {
               inherit cargoArtifacts src;
-              buildPhase = ''touch --date=@0 tests/itest/*'';
+              buildPhase = ''bash devtools/dir-generator.sh tests/test_dir && echo "Dir generated"'';
               cargoExtraArgs = "--features=nix --color=never";
               partitions = 1;
               partitionType = "count";
+              nativeBuildInputs = with pkgs; [git];
             });
           eza-nextest = craneLib.cargoNextest (commonArgs
             // {
@@ -243,12 +265,17 @@
             ${config.pre-commit.installationScript}
           '';
           nativeBuildInputs = with pkgs; [
-            toolchain
             rustup
+            toolchain
             just
             pandoc
             convco
             zip
+
+            # For generating demo
+            vhs
+
+            powertest.packages.${pkgs.system}.default
 
             cargo-hack
             cargo-udeps
@@ -264,7 +291,7 @@
             eza-clippy
             eza-audit
             eza-nextest
-            eza-trycmd
+            trycmd
             ;
         };
       };

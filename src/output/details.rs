@@ -76,6 +76,7 @@ use crate::fs::fields::SecurityContextType;
 use crate::fs::filter::FileFilter;
 use crate::fs::{Dir, File};
 use crate::output::cell::TextCell;
+use crate::output::color_scale::{ColorScaleInformation, ColorScaleOptions};
 use crate::output::file_name::Options as FileStyle;
 use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams, TreeTrunk};
@@ -113,6 +114,8 @@ pub struct Options {
 
     /// Whether to show a directory's mounted filesystem details
     pub mounts: bool,
+
+    pub color_scale: ColorScaleOptions,
 }
 
 pub struct Render<'a> {
@@ -134,6 +137,8 @@ pub struct Render<'a> {
     pub git_ignoring: bool,
 
     pub git: Option<&'a GitCache>,
+
+    pub git_repos: bool,
 }
 
 #[rustfmt::skip]
@@ -160,6 +165,15 @@ impl<'a> Render<'a> {
         let mut pool = Pool::new(n_cpus);
         let mut rows = Vec::new();
 
+        let color_scale_info = ColorScaleInformation::from_color_scale(
+            self.opts.color_scale,
+            &self.files,
+            self.filter.dot_filter,
+            self.git,
+            self.git_ignoring,
+            self.recurse,
+        );
+
         if let Some(ref table) = self.opts.table {
             match (self.git, self.dir) {
                 (Some(g), Some(d)) => {
@@ -175,7 +189,7 @@ impl<'a> Render<'a> {
                 (None, _) => { /* Keep Git how it is */ }
             }
 
-            let mut table = Table::new(table, self.git, self.theme);
+            let mut table = Table::new(table, self.git, self.theme, self.git_repos);
 
             if self.opts.header {
                 let header = table.header_row();
@@ -192,6 +206,7 @@ impl<'a> Render<'a> {
                 &mut rows,
                 &self.files,
                 TreeDepth::root(),
+                color_scale_info,
             );
 
             for row in self.iterate_with_table(table.unwrap(), rows) {
@@ -204,6 +219,7 @@ impl<'a> Render<'a> {
                 &mut rows,
                 &self.files,
                 TreeDepth::root(),
+                color_scale_info,
             );
 
             for row in self.iterate(rows) {
@@ -236,6 +252,7 @@ impl<'a> Render<'a> {
         rows: &mut Vec<Row>,
         src: &[File<'dir>],
         depth: TreeDepth,
+        color_scale_info: Option<ColorScaleInformation>,
     ) {
         use crate::fs::feature::xattr;
         use std::sync::{Arc, Mutex};
@@ -282,9 +299,9 @@ impl<'a> Render<'a> {
                         &[]
                     };
 
-                    let table_row = table
-                        .as_ref()
-                        .map(|t| t.row_for_file(file, self.show_xattr_hint(file)));
+                    let table_row = table.as_ref().map(|t| {
+                        t.row_for_file(file, self.show_xattr_hint(file), color_scale_info)
+                    });
 
                     let mut dir = None;
                     if let Some(r) = self.recurse {
@@ -374,7 +391,14 @@ impl<'a> Render<'a> {
                         ));
                     }
 
-                    self.add_files_to_table(pool, table, rows, &files, depth.deeper());
+                    self.add_files_to_table(
+                        pool,
+                        table,
+                        rows,
+                        &files,
+                        depth.deeper(),
+                        color_scale_info,
+                    );
                     continue;
                 }
             }
@@ -424,10 +448,7 @@ impl<'a> Render<'a> {
     }
 
     fn render_xattr(&self, xattr: &Attribute, tree: TreeParams) -> Row {
-        let name = TextCell::paint(
-            self.theme.ui.perms.attribute,
-            format!("{}=\"{}\"", xattr.name, xattr.value),
-        );
+        let name = TextCell::paint(self.theme.ui.perms.attribute, format!("{xattr}"));
         Row {
             cells: None,
             name,

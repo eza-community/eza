@@ -13,6 +13,8 @@ export extern "eza" [
     --colour                   # When to use terminal colours
     --color-scale              # Highlight levels of file sizes distinctly
     --colour-scale             # Highlight levels of file sizes distinctly
+    --color-scale-mode         # Use gradient or fixed colors in --color-scale
+    --colour-scale-mode        # Use gradient or fixed colors in --colour-scale
     --icons                    # When to display icons
     --no-quotes                # Don't quote file names with spaces
     --hyperlink                # Display entries as hyperlinks
@@ -42,7 +44,7 @@ export extern "eza" [
     --accessed(-u)             # Use the accessed timestamp field
     --created(-U)              # Use the created timestamp field
     --time-style               # How to format timestamps
-    --total-size               # Show recursive directory size
+    --total-size               # Show recursive directory size (unix only)
     --no-permissions           # Suppress the permissions field
     --octal-permissions(-o)    # List each file's permission in octal format
     --no-filesize              # Suppress the filesize field
@@ -56,4 +58,5 @@ export extern "eza" [
     --extended(-@)             # List each file's extended attributes and sizes
     --context(-Z)              # List each file's security context
     --smart-group              # Only show group if it has a different name from owner
+    --stdin                    # When piping to eza. Read file paths from stdin
 ]

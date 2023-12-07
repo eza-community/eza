@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v6
+        uses: DeterminateSystems/nix-installer-action@v8
       - name: Setup Nix cache
         uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Nix Flake Check
@@ -53,12 +53,16 @@ jobs:
     strategy:
       matrix:
         target: [x86_64-linux]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v4
+        uses: DeterminateSystems/nix-installer-action@v8
       - name: Setup Nix cache
         uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Nix Build
         run: nix build .#packages.${{ matrix.target }}.default
+      - name: trycmd
+        run: nix build .#packages.${{ matrix.target }}.trycmd
+      - name: eza-nextest
+        run: nix build .#packages.${{ matrix.target }}.eza-nextest
