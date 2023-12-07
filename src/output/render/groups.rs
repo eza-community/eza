@@ -180,7 +180,7 @@ pub mod test {
                 GroupFormat::Regular,
                 file_user
             )
-        )
+        );
     }
 
     #[test]
@@ -203,7 +203,7 @@ pub mod test {
                 GroupFormat::Regular,
                 file_user
             )
-        )
+        );
     }
 
     #[test]

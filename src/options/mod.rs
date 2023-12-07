@@ -263,7 +263,7 @@ pub mod test {
     pub fn parse_for_test<T, F>(
         inputs: &[&str],
         args: &'static [&'static Arg],
-        strictnesses: Strictnesses,
+        strictnesses: &Strictnesses,
         get: F,
     ) -> Vec<T>
     where
@@ -275,12 +275,12 @@ pub mod test {
         let bits = inputs.iter().map(OsStr::new).collect::<Vec<_>>();
         let mut result = Vec::new();
 
-        if strictnesses == Last || strictnesses == Both {
+        if strictnesses == &Last || strictnesses == &Both {
             let results = Args(args).parse(bits.clone(), Strictness::UseLastArguments);
             result.push(get(&results.unwrap().flags));
         }
 
-        if strictnesses == Complain || strictnesses == Both {
+        if strictnesses == &Complain || strictnesses == &Both {
             let results = Args(args).parse(bits, Strictness::ComplainAboutRedundantArguments);
             result.push(get(&results.unwrap().flags));
         }

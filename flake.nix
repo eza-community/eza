@@ -2,212 +2,268 @@
   description = "eza: a modern, maintained replacement for ls";
 
   inputs = {
+    flake-compat.url = "github:edolstra/flake-compat";
     nixpkgs.url = "http:/rime.cx/v1/github/NixOS/nixpkgs/b/nixpkgs-unstable.tar.gz";
-
-    flake-utils = {
-      url = "http://rime.cx/v1/github/semnix/flake-utils.tar.gz";
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
     };
-
-    naersk = {
-      url = "http://rime.cx/v1/github/semnix/naersk.tar.gz";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     rust-overlay = {
       url = "http://rime.cx/v1/github/semnix/rust-overlay.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
+    crane = {
+      url = "github:ipetkov/crane";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     treefmt-nix = {
       url = "http://rime.cx/v1/github/semnix/treefmt-nix.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
     powertest = {
       url = "http://rime.cx/v1/github/eza-community/powertest.tar.gz";
       inputs = {
         nixpkgs.follows = "nixpkgs";
-        naersk.follows = "naersk";
+        #naersk.follows = "naersk";
         treefmt-nix.follows = "treefmt-nix";
         rust-overlay.follows = "rust-overlay";
       };
     };
-
     pre-commit-hooks = {
       url = "http://rime.cx/v1/github/semnix/pre-commit-hooks.nix.tar.gz";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-compat.follows = "flake-compat";
+      };
     };
-
     advisory-db = {
       url = "github:rustsec/advisory-db";
       flake = false;
     };
   };
 
-  outputs = {
-    self,
-    flake-utils,
-    naersk,
-    nixpkgs,
+  outputs = inputs @ {
     treefmt-nix,
+    flake-parts,
     rust-overlay,
     powertest,
     pre-commit-hooks,
     ...
   }:
-    flake-utils.lib.eachDefaultSystem (
-      system: let
-        overlays = [(import rust-overlay)];
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      imports = [
+        inputs.treefmt-nix.flakeModule
+        inputs.pre-commit-hooks.flakeModule
+      ];
+      # same as flake-utils.eachDefaultSystem: https://github.com/nix-systems/default/blob/main/default.nix
+      systems = [
+        "aarch64-darwin"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "x86_64-linux"
+      ];
+      perSystem = {
+        pkgs,
+        lib,
+        system,
+        config,
+        ...
+      }: let
+        # NOTE: we should seriously consider a lib.nix or something like that for the functions generating configs like fromTreefmtFile and fromCargoToml.
+        # make treefmt use the same packages as pre-commit-hooks and auto enable formatters from treefmt-nix in pre-commit-hooks
+        # pre-commit-hooks exports some packages in the flake those will be used by treefmt.
+        fromTreefmtFile = {
+          toFilter ? [],
+          path ? ./treefmt.nix,
+          extraHooks ? {},
+        }: let
+          treefmt' = import path;
 
-        pkgs = (import nixpkgs) {
-          inherit system overlays;
+          # treefmt
+          pre-commitFormatters = builtins.attrNames inputs.pre-commit-hooks.packages.${system};
+          programs =
+            treefmt'.programs
+            // (
+              builtins.mapAttrs
+              # add the package from pre-commit-hooks to the formatter
+              (n: v: {
+                inherit (v) enable;
+                package = inputs.pre-commit-hooks.packages.${system}.${n};
+              })
+              (pkgs.lib.filterAttrs (n: _v: (builtins.elem n pre-commitFormatters)) treefmt'.programs) # attrSet of the formatters which pre-commit-hooks has a package to use
+            );
+          treefmtCfg = treefmt' // {inherit programs;};
+
+          hooksFromTreefmtFormatters =
+            builtins.mapAttrs
+            (_n: v: {inherit (v) enable;}) (pkgs.lib.filterAttrs (n: _v: (!builtins.elem n toFilter)) treefmt'.programs);
+          # TODO: maybe handle excludes from ./treefmt.nix
+        in {
+          treefmt =
+            treefmtCfg;
+          pre-commit = {
+            settings = {
+              src = ./.;
+              hooks =
+                hooksFromTreefmtFormatters // extraHooks;
+            };
+          };
         };
 
         toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
 
-        naersk' = pkgs.callPackage naersk {
-          cargo = toolchain;
-          rustc = toolchain;
-          clippy = toolchain;
+        craneLib = (inputs.crane.mkLib pkgs).overrideToolchain toolchain;
+
+        src = ./.;
+        # src = lib.cleanSourceWith {
+        #   src = ./.;
+        #   filter = path: type:
+        #     (lib.hasInfix "/man/" path)
+        #     || (lib.hasInfix "/completions/" path)
+        #     || (lib.hasInfix "/tests/" path)
+        #     || (craneLib.filterCargoSources path type);
+        # };
+
+        commonArgs = {
+          inherit src;
+          buildInputs = with pkgs; [zlib] ++ lib.optionals stdenv.isDarwin [libiconv darwin.apple_sdk.frameworks.Security];
         };
 
-        treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
-        buildInputs = with pkgs; [zlib] ++ lib.optionals stdenv.isDarwin [libiconv darwin.apple_sdk.frameworks.Security];
+        cargoArtifacts = craneLib.buildDepsOnly commonArgs;
+
+        cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
+
+        metaFromCargoToml = cargoToml:
+          with pkgs.lib; {
+            inherit (cargoToml.package) description;
+            longDescription = cargoToml.package.metadata.deb.extended-description;
+            inherit (cargoToml.package) homepage;
+            downloadPage = cargoToml.package.repository;
+            mainProgram = lib.warnIf (builtins.length cargoToml.bin > 1) "Cargo.toml has more then one binary in [[bin]]. This can cause issues in the `metaFromCargoToml` function" (builtins.head cargoToml.bin).name;
+            license = lib.getLicenseFromSpdxId cargoToml.package.license;
+          };
+        fromCargoToml = cargoToml: {
+          pname = cargoToml.package.name;
+          version = "${cargoToml.package.version}-git";
+        };
       in rec {
-        # For `nix fmt`
-        formatter = treefmtEval.config.build.wrapper;
-
-        packages = {
-          # For `nix build` `nix run`, & `nix profile install`:
-          default = naersk'.buildPackage rec {
-            pname = "eza";
-            version = "latest";
-
-            src = ./.;
-            doCheck = true; # run `cargo test` on build
-
-            inherit buildInputs;
-            nativeBuildInputs = with pkgs; [cmake pkg-config installShellFiles pandoc];
-
-            buildNoDefaultFeatures = true;
-            buildFeatures = "git";
-
-            postInstall = ''
-              pandoc --standalone -f markdown -t man <(cat "man/eza.1.md" | sed "s/\$version/${version}/g") > man/eza.1
-              pandoc --standalone -f markdown -t man <(cat "man/eza_colors.5.md" | sed "s/\$version/${version}/g") > man/eza_colors.5
-              pandoc --standalone -f markdown -t man <(cat "man/eza_colors-explanation.5.md" | sed "s/\$version/${version}/g")> man/eza_colors-explanation.5
-              installManPage man/eza.1 man/eza_colors.5 man/eza_colors-explanation.5
-              installShellCompletion \
-                --bash completions/bash/eza \
-                --fish completions/fish/eza.fish \
-                --zsh completions/zsh/_eza
-            '';
-
-            meta = with pkgs.lib; {
-              description = "A modern, maintained replacement for ls";
-              longDescription = ''
-                eza is a modern replacement for ls. It uses colours for information by
-                default, helping you distinguish between many types of files, such as
-                whether you are the owner, or in the owning group. It also has extra
-                features not present in the original ls, such as viewing the Git status
-                for a directory, or recursing into directories with a tree view. eza is
-                written in Rust, so it’s small, fast, and portable.
-              '';
-              homepage = "https://github.com/eza-community/eza";
-              license = licenses.mit;
-              mainProgram = "eza";
-              maintainers = with maintainers; [cafkafk];
+        _module.args.pkgs = import inputs.nixpkgs {
+          inherit system;
+          overlays = [
+            inputs.rust-overlay.overlays.default
+          ];
+        };
+        inherit
+          (fromTreefmtFile {
+            toFilter = ["yamlfmt"];
+            path = ./treefmt.nix;
+            extraHooks = {
+              convco.enable = true; # not in treefmt
             };
-          };
+          })
+          treefmt
+          pre-commit
+          ;
 
-          # Run `nix build .#check` to check code
-          check = naersk'.buildPackage {
-            src = ./.;
-            mode = "check";
-            inherit buildInputs;
-          };
+        packages = rec {
+          default = eza;
+          eza = craneLib.buildPackage (commonArgs
+            // rec {
+              inherit cargoArtifacts src;
+              inherit (fromCargoToml cargoToml) pname version;
 
-          # Run `nix build .#test` to run tests
-          test = naersk'.buildPackage {
-            src = ./.;
-            mode = "test";
-            inherit buildInputs;
-          };
+              nativeBuildInputs = with pkgs; [cmake pkg-config installShellFiles pandoc];
 
-          # Run `nix build .#clippy` to lint code
-          clippy = naersk'.buildPackage {
-            src = ./.;
-            mode = "clippy";
-            inherit buildInputs;
-          };
+              buildNoDefaultFeatures = true;
+              buildFeatures = "git";
 
-          # Run `nix build .#trycmd` to run integration tests
-          trycmd = naersk'.buildPackage {
-            src = ./.;
-            mode = "test";
-            doCheck = true;
-            # No reason to wait for release build
-            release = false;
-            # buildPhase files differ between dep and main phase
-            singleStep = true;
-            # generate testing files
-            buildPhase = ''bash devtools/dir-generator.sh tests/test_dir && echo "Dir generated"'';
-            cargoTestOptions = opts: opts ++ ["--features nix"];
-            inherit buildInputs;
-            nativeBuildInputs = with pkgs; [git];
-          };
+              # hotfix for #464
+              # doNotLinkInheritedArtifacts = true;
+              postInstall = ''
+                pandoc --standalone -f markdown -t man <(cat "man/eza.1.md" | sed "s/\$version/${version}/g") > man/eza.1
+                pandoc --standalone -f markdown -t man <(cat "man/eza_colors.5.md" | sed "s/\$version/${version}/g") > man/eza_colors.5
+                pandoc --standalone -f markdown -t man <(cat "man/eza_colors-explanation.5.md" | sed "s/\$version/${version}/g")> man/eza_colors-explanation.5
+                installManPage man/eza.1 man/eza_colors.5 man/eza_colors-explanation.5
+                installShellCompletion \
+                  --bash completions/bash/eza \
+                  --fish completions/fish/eza.fish \
+                  --zsh completions/zsh/_eza
+              '';
+              meta =
+                metaFromCargoToml cargoToml
+                // {
+                  maintainers = with pkgs.lib.maintainers; [cafkafk];
+                };
+            });
 
+          trydump = craneLib.cargoNextest (commonArgs
+            // {
+              inherit cargoArtifacts src;
+              buildPhase = ''
+                bash devtools/dir-generator.sh tests/test_dir
+                touch --date=@0 tests/itest/*;
+                rm tests/cmd/*.stdout || echo;
+                rm tests/cmd/*.stderr || echo;
+
+                touch --date=@0 tests/ptests/*;
+                rm tests/ptests/*.stdout || echo;
+                rm tests/ptests/*.stderr || echo;
+              '';
+              cargoExtraArgs = "--features=nix,nix-local,powertest --color=never";
+              partitions = 1;
+              partitionType = "count";
+              postInstall = ''
+                cp dump $out -r
+              '';
+              TRYCMD = "dump";
+              nativeBuildInputs = with pkgs; [git];
+            });
+          trycmd-local = craneLib.cargoNextest (commonArgs
+            // {
+              inherit cargoArtifacts src;
+              buildPhase = ''touch --date=@0 tests/itest/* && bash devtools/dir-generator.sh tests/test_dir'';
+              cargoExtraArgs = "--features=nix,nix-local,powertest --color=never";
+              partitions = 1;
+              partitionType = "count";
+              nativeBuildInputs = with pkgs; [git];
+            });
           # TODO: add conditionally to checks.
-          # Run `nix build .#trycmd` to run integration tests
-          trycmd-local = naersk'.buildPackage {
-            src = ./.;
-            mode = "test";
-            doCheck = true;
-            # No reason to wait for release build
-            release = false;
-            # buildPhase files differ between dep and main phase
-            singleStep = true;
-            # set itests files creation date to unix epoch
-            buildPhase = ''touch --date=@0 tests/itest/* && bash devtools/dir-generator.sh tests/test_dir'';
-            cargoTestOptions = opts: opts ++ ["--features nix" "--features nix-local" "--features powertest"];
-            inherit buildInputs;
-            nativeBuildInputs = with pkgs; [git];
+          trycmd = craneLib.cargoNextest (commonArgs
+            // {
+              inherit cargoArtifacts src;
+              buildPhase = ''bash devtools/dir-generator.sh tests/test_dir && echo "Dir generated"'';
+              cargoExtraArgs = "--features=nix --color=never";
+              partitions = 1;
+              partitionType = "count";
+              nativeBuildInputs = with pkgs; [git];
+            });
+          eza-nextest = craneLib.cargoNextest (commonArgs
+            // {
+              inherit cargoArtifacts src;
+              cargoExtraArgs = "--color=never";
+              partitions = 1;
+              partitionType = "count";
+            });
+          eza-clippy = craneLib.cargoClippy (commonArgs
+            // {
+              inherit cargoArtifacts src;
+              cargoClippyExtraArgs = "--all-targets -- --deny warnings";
+            });
+          eza-audit = craneLib.cargoAudit {
+            inherit src;
+            inherit (inputs) advisory-db;
           };
-
-          # Run `nix build .#trydump` to dump testing files
-          trydump = naersk'.buildPackage {
-            src = ./.;
-            mode = "test";
-            doCheck = true;
-            # No reason to wait for release build
-            release = false;
-            # buildPhase files differ between dep and main phase
-            singleStep = true;
-            # set itests files creation date to unix epoch
-            buildPhase = ''
-              bash devtools/dir-generator.sh tests/test_dir
-              touch --date=@0 tests/itest/*;
-              rm tests/cmd/*.stdout || echo;
-              rm tests/cmd/*.stderr || echo;
-
-              touch --date=@0 tests/ptests/*;
-              rm tests/ptests/*.stdout || echo;
-              rm tests/ptests/*.stderr || echo;
-            '';
-            cargoTestOptions = opts: opts ++ ["--features nix" "--features nix-local" "--features powertest"];
-            TRYCMD = "dump";
-            postInstall = ''
-              cp dump $out -r
-            '';
-            inherit buildInputs;
-            nativeBuildInputs = with pkgs; [git];
-          };
+          eza-doc = craneLib.cargoDoc (commonArgs
+            // {
+              inherit cargoArtifacts src;
+            });
         };
 
-        # For `nix develop`:
         devShells.default = pkgs.mkShell {
-          inherit (self.checks.${system}.pre-commit-check) shellHook;
+          # inherit (self'.checks.${system}.pre-commit-check) shellHook;
+          shellHook = ''
+            ${config.pre-commit.installationScript}
+          '';
           nativeBuildInputs = with pkgs; [
             rustup
             toolchain
@@ -224,38 +280,20 @@
             cargo-hack
             cargo-udeps
             cargo-outdated
+            cargo-nextest
           ];
         };
-
         # For `nix flake check`
         checks = {
-          pre-commit-check = let
-            # some treefmt formatters are not supported in pre-commit-hooks we filter them out for now.
-            toFilter =
-              # This is a nice hack to not have to manually filter we should keep in mind for a future refactor.
-              # (builtins.attrNames pre-commit-hooks.packages.${system})
-              ["yamlfmt"];
-            filterFn = n: _v: (!builtins.elem n toFilter);
-            treefmtFormatters = pkgs.lib.mapAttrs (_n: v: {inherit (v) enable;}) (pkgs.lib.filterAttrs filterFn (import ./treefmt.nix).programs);
-          in
-            pre-commit-hooks.lib.${system}.run {
-              src = ./.;
-              hooks =
-                treefmtFormatters
-                // {
-                  convco.enable = true; # not in treefmt
-                };
-            };
-          formatting = treefmtEval.config.build.check self;
-          build = packages.check;
           inherit
             (packages)
-            default
-            test
+            eza-doc
+            eza-clippy
+            eza-audit
+            eza-nextest
             trycmd
             ;
-          lint = packages.clippy;
         };
-      }
-    );
+      };
+    };
 }

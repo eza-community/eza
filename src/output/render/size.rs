@@ -161,7 +161,7 @@ pub mod test {
                 &NumericLocale::english(),
                 None
             )
-        )
+        );
     }
 
     #[test]
@@ -180,7 +180,7 @@ pub mod test {
                 &NumericLocale::english(),
                 None
             )
-        )
+        );
     }
 
     #[test]
@@ -199,7 +199,7 @@ pub mod test {
                 &NumericLocale::english(),
                 None
             )
-        )
+        );
     }
 
     #[test]
@@ -218,7 +218,7 @@ pub mod test {
                 &NumericLocale::english(),
                 None
             )
-        )
+        );
     }
 
     #[test]
@@ -245,6 +245,6 @@ pub mod test {
                 &NumericLocale::english(),
                 None
             )
-        )
+        );
     }
 }

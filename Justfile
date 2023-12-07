@@ -107,7 +107,7 @@ release:
     cargo bump "{{new_version}}"
     git cliff -t "{{new_version}}" > CHANGELOG.md
     cargo check
-    nix build -L ./#clippy
+    nix build -L ./#eza-clippy
     git checkout -b "cafk-release-v{{new_version}}"
     git commit -asm "chore: release eza v{{new_version}}"
     git push
@@ -242,3 +242,4 @@ gen_test_dir:
 
 @itest-gen:
     nix build -L ./#trycmd
+
