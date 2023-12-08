@@ -78,6 +78,7 @@ pub static NO_GIT:            Arg = Arg { short: None,       long: "no-git",    
 pub static GIT_REPOS:         Arg = Arg { short: None,       long: "git-repos",            takes_value: TakesValue::Forbidden };
 pub static GIT_REPOS_NO_STAT: Arg = Arg { short: None,       long: "git-repos-no-status",  takes_value: TakesValue::Forbidden };
 pub static EXTENDED:          Arg = Arg { short: Some(b'@'), long: "extended",             takes_value: TakesValue::Forbidden };
+pub static HIDE_EXTENDED:     Arg = Arg { short: None,       long: "no-extended",        takes_value: TakesValue::Forbidden };
 pub static OCTAL:             Arg = Arg { short: Some(b'o'), long: "octal-permissions",    takes_value: TakesValue::Forbidden };
 pub static SECURITY_CONTEXT:  Arg = Arg { short: Some(b'Z'), long: "context",              takes_value: TakesValue::Forbidden };
 pub static STDIN:             Arg = Arg { short: None,       long: "stdin",                takes_value: TakesValue::Forbidden };
@@ -98,5 +99,5 @@ pub static ALL_ARGS: Args = Args(&[
     &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &SMART_GROUP,
 
     &GIT, &NO_GIT, &GIT_REPOS, &GIT_REPOS_NO_STAT,
-    &EXTENDED, &OCTAL, &SECURITY_CONTEXT, &STDIN, &FILE_FLAGS
+    &EXTENDED, NO_EXTENDED, &OCTAL, &SECURITY_CONTEXT, &STDIN, &FILE_FLAGS
 ]);
