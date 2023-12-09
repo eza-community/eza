@@ -3,11 +3,11 @@
     "advisory-db": {
       "flake": false,
       "locked": {
-        "lastModified": 1699714741,
-        "narHash": "sha256-7cRZc3RoBv4n9GgMun+OoTK5ssI2fzqkDAZsp37uhTs=",
+        "lastModified": 1702116332,
+        "narHash": "sha256-Qzx1cRU8QnCmbEp0LJFoEzm7tetiNTc+wRTJTzPo2ko=",
         "owner": "rustsec",
         "repo": "advisory-db",
-        "rev": "3338fcfb59cea5fcd7d2a4e7fe24cbc7cb778003",
+        "rev": "6ef1d1fd84c57e46253ff16bf7379c115e1062eb",
         "type": "github"
       },
       "original": {
@@ -37,7 +37,8 @@
         "systems": "systems"
       },
       "locked": {
-        "narHash": "sha256-zsNZZGTGnMOf9YpHKJqMSsa0dXbfmxeoJ7xHlrt+xmY=",
+        "lastModified": 1701680307,
+        "narHash": "sha256-kAuep2h5ajznlPMD9rnQyffWG8EM/C73lejGofXvdM8=",
         "type": "tarball",
         "url": "http://rime.cx/v1/github/semnix/flake-utils.tar.gz"
       },
@@ -110,6 +111,7 @@
         ]
       },
       "locked": {
+        "lastModified": 1698420672,
         "narHash": "sha256-/TdeHMPRjjdJub7p7+w55vyABrsJlt5QkznPYy55vKA=",
         "type": "tarball",
         "url": "http://rime.cx/v1/github/semnix/naersk.tar.gz"
@@ -121,7 +123,8 @@
     },
     "nixpkgs": {
       "locked": {
-        "narHash": "sha256-+Lqybl8kj0+nD/IlAWPPG/RDTa47gff9nbei0u7BntE=",
+        "lastModified": 1701693815,
+        "narHash": "sha256-7BkrXykVWfkn6+c1EhFA3ko4MLi3gVG0p9G96PNnKTM=",
         "type": "tarball",
         "url": "http:/rime.cx/v1/github/NixOS/nixpkgs/b/nixpkgs-unstable.tar.gz"
       },
@@ -163,6 +166,7 @@
         ]
       },
       "locked": {
+        "lastModified": 1700124898,
         "narHash": "sha256-+5jKG/KmYOopvHwBAGu5iPVFqoug16Bkyk/InwB40tc=",
         "type": "tarball",
         "url": "http://rime.cx/v1/github/eza-community/powertest.tar.gz"
@@ -185,7 +189,8 @@
         "nixpkgs-stable": "nixpkgs-stable"
       },
       "locked": {
-        "narHash": "sha256-1ZWNDzhu8UlVCK7+DUN9dVQfiHX1bv6OQP9VxstY/gs=",
+        "lastModified": 1700922917,
+        "narHash": "sha256-ej2fch/T584b5K9sk1UhmZF7W6wEfDHuoUYpFN8dtvM=",
         "type": "tarball",
         "url": "http://rime.cx/v1/github/semnix/pre-commit-hooks.nix.tar.gz"
       },
@@ -214,7 +219,8 @@
         ]
       },
       "locked": {
-        "narHash": "sha256-RRIVKv+tiI1yn1PqZiVGQ9YlQGZ+/9iEkA4rst1QiNk=",
+        "lastModified": 1702088052,
+        "narHash": "sha256-FkwIBTAMsxyceQce0Mbm+/+cOjj2r5IHBK4R/ekPNaw=",
         "type": "tarball",
         "url": "http://rime.cx/v1/github/semnix/rust-overlay.tar.gz"
       },
@@ -275,6 +281,7 @@
         ]
       },
       "locked": {
+        "lastModified": 1701958734,
         "narHash": "sha256-3h3EH1FXQkIeAuzaWB+nK0XK54uSD46pp+dMD3gAcB4=",
         "type": "tarball",
         "url": "http://rime.cx/v1/github/semnix/treefmt-nix.tar.gz"
