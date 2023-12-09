@@ -330,9 +330,6 @@ impl Default for TimeTypes {
 ///
 /// Any environment field should be able to be mocked up for test runs.
 pub struct Environment {
-    /// The computer’s current time offset, determined from time zone.
-    time_offset: FixedOffset,
-
     /// Localisation rules for formatting numbers.
     numeric: locale::Numeric,
 
@@ -348,8 +345,6 @@ impl Environment {
     }
 
     fn load_all() -> Self {
-        let time_offset = *Local::now().offset();
-
         let numeric =
             locale::Numeric::load_user_locale().unwrap_or_else(|_| locale::Numeric::english());
 
@@ -357,7 +352,6 @@ impl Environment {
         let users = Mutex::new(UsersCache::new());
 
         Self {
-            time_offset,
             numeric,
             #[cfg(unix)]
             users,
@@ -528,7 +522,6 @@ impl<'a> Table<'a> {
                 } else {
                     self.theme.ui.date
                 },
-                self.env.time_offset,
                 self.time_format.clone(),
             ),
         }

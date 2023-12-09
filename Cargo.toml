@@ -73,6 +73,8 @@ name = "eza"
 [dependencies]
 ansiterm = { version = "0.12.2", features = ["ansi_colours"] }
 chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
+chrono-tz = "0.8.4"
+iana-time-zone = "0.1.58"
 glob = "0.3"
 libc = "0.2"
 locale = "0.2"
