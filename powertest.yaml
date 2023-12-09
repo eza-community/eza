@@ -194,5 +194,7 @@ commands:
     - --git-repos
   ? - -@
     - --extended
+  ? - null
+    - --no-extended
   ? - -Z
     - --context
