@@ -374,14 +374,14 @@ pub mod test {
         });
 
         #[cfg(windows)]
-        let windows_bits = Some(f::Attributes {
+        let windows_bits = f::Attributes {
             archive: false,
             directory: true,
             readonly: true,
             hidden: true,
             system: false,
             reparse_point: false,
-        });
+        };
 
         let plus_bits = Some(f::PermissionsPlus {
             file_type: f::Type::File,
@@ -432,14 +432,14 @@ pub mod test {
         });
 
         #[cfg(windows)]
-        let windows_bits = Some(f::Attributes {
+        let windows_bits = f::Attributes {
             archive: false,
             directory: true,
             readonly: true,
             hidden: true,
             system: false,
             reparse_point: false,
-        });
+        };
 
         let plus_bits = Some(f::PermissionsPlus {
             file_type: f::Type::File,
