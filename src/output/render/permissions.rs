@@ -392,6 +392,7 @@ pub mod test {
             xattrs: true,
         });
 
+        #[cfg(unix)]
         let expected = TextCellContents::from(vec![
             Fixed(120).paint("."),
             Fixed(11).paint("-"),
@@ -404,6 +405,14 @@ pub mod test {
             Fixed(11).paint("-"),
             Fixed(111).paint("T"),
             Fixed(112).paint("@"),
+        ]);
+        #[cfg(windows)]
+        let expected = TextCellContents::from(vec![
+            Fixed(121).paint("d"),
+            Fixed(11).paint("-"),
+            Fixed(101).paint("r"),
+            Fixed(110).paint("h"),
+            Fixed(11).paint("-"),
         ]);
         let expected_text_cell = TextCell {
             contents: expected.clone(),
@@ -450,6 +459,7 @@ pub mod test {
             xattrs: false,
         });
 
+        #[cfg(unix)]
         let expected = TextCellContents::from(vec![
             Fixed(120).paint("."),
             Fixed(11).paint("-"),
@@ -461,6 +471,14 @@ pub mod test {
             Fixed(11).paint("-"),
             Fixed(11).paint("-"),
             Fixed(111).paint("T"),
+        ]);
+        #[cfg(windows)]
+        let expected = TextCellContents::from(vec![
+            Fixed(121).paint("d"),
+            Fixed(11).paint("-"),
+            Fixed(101).paint("r"),
+            Fixed(110).paint("h"),
+            Fixed(11).paint("-"),
         ]);
         let expected_text_cell = TextCell {
             contents: expected.clone(),
