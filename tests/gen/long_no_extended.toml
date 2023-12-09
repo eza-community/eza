@@ -1,2 +1,2 @@
 bin.name = "eza"
-args = "tests/test_dir --long --extended"
+args = "tests/test_dir --long --no-extended"
