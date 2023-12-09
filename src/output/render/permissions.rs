@@ -189,8 +189,8 @@ pub mod test {
     use super::{Colours, RenderPermissions};
     use crate::fs::fields as f;
     use crate::output::cell::{TextCell, TextCellContents};
-    use crate::output::render::permissions::PermissionsPlusRender;
     use crate::output::render::filetype;
+    use crate::output::render::permissions::PermissionsPlusRender;
 
     use ansiterm::Colour::*;
     use ansiterm::Style;
@@ -405,9 +405,10 @@ pub mod test {
             Fixed(111).paint("T"),
             Fixed(112).paint("@"),
         ]);
-        let expected_text_cell = TextCell { 
-            contents: expected.clone(), 
-            width: expected.width() };
+        let expected_text_cell = TextCell {
+            contents: expected.clone(),
+            width: expected.width(),
+        };
 
         assert_eq!(expected_text_cell, plus_bits.render(&TestColours).into())
     }
@@ -461,9 +462,10 @@ pub mod test {
             Fixed(11).paint("-"),
             Fixed(111).paint("T"),
         ]);
-        let expected_text_cell = TextCell { 
-            contents: expected.clone(), 
-            width: expected.width() };
+        let expected_text_cell = TextCell {
+            contents: expected.clone(),
+            width: expected.width(),
+        };
 
         assert_eq!(expected_text_cell, plus_bits.render(&TestColours).into())
     }
