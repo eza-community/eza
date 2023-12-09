@@ -8,6 +8,7 @@ pub fn escape(
     bad: Style,
     quote_style: QuoteStyle,
 ) {
+    let bits_starting_length = bits.len();
     let needs_quotes = string.contains(' ') || string.contains('\'');
     let quote_bit = good.paint(if string.contains('\'') { "\"" } else { "\'" });
 
@@ -32,7 +33,7 @@ pub fn escape(
     }
 
     if quote_style != QuoteStyle::NoQuotes && needs_quotes {
-        bits.insert(0, quote_bit.clone());
+        bits.insert(bits_starting_length, quote_bit.clone());
         bits.push(quote_bit);
     }
 }
