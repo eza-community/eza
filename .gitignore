@@ -41,3 +41,4 @@ tests/test_dir
 
 # Miscenallous
 .idea
+.vscode/
