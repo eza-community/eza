@@ -1,5 +1,41 @@
 # Changelog
 
+## [0.17.0] - 2023-12-13
+
+### Bug Fixes
+
+- Add color scale mode to the bash completions
+- Add color scale mode to the fish completions
+- Quote symbolic links correctly when their destinations contain spaces
+
+### Documentation
+
+- Modify documentation about custom time style
+
+### Features
+
+- Add BSD file flags
+- Add Windows file attributes
+- [**breaking**] Support different custom time style for non-recent/recent files
+
+### Testing
+
+- Regen powertests
+- Regenerate
+- Add tests for non-recent/recent custom time style
+- Update powertest expected help message output
+
+### Build
+
+- Update `flake.lock`
+- Bump DeterminateSystems/nix-installer-action from 8 to 9
+- Bump once_cell from 1.18.0 to 1.19.0
+- Bump libc from 0.2.150 to 0.2.151
+
+### Ci
+
+- Remove labeler
+
 ## [0.16.3] - 2023-12-07
 
 ### Bug Fixes
@@ -7,6 +43,10 @@
 - Add bare git_repos fn if feature git is disabled
 - Fixing color of size unit
 - Color-scale broked size for colors
+
+### Miscellaneous Tasks
+
+- Release eza v0.16.3
 
 ### Testing
 
