@@ -70,6 +70,8 @@ ln -s symlink symlinks/symlink2
 mkdir -p symlinks/dir
 ln -s dir symlinks/symlink3
 ln -s pipitek symlinks/symlink4
+touch "symlinks/ lorem ipsum" --date=@0
+ln -s "lorem ipsum" "symlinks/ lorem ipsum"
 
 # END test_symlinks
 

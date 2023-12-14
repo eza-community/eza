@@ -1,121 +1,15 @@
 tests/test_dir
-├── complex-names
-│  ├── 'a looooooooooooooooooong filename'
-│  ├── 'another one long name'
-│  └── double-quotes
-│     ├── ''Obi wan kanobi''
-│     └── 'hello there'
 ├── git
 │  ├── 001
-│  │  ├── file_000
-│  │  ├── file_001
-│  │  ├── file_002
-│  │  ├── file_003
-│  │  ├── file_004
-│  │  ├── file_005
-│  │  ├── file_006
-│  │  ├── file_007
-│  │  ├── file_008
-│  │  └── file_009
 │  ├── 002
-│  │  ├── file_000
-│  │  ├── file_001
-│  │  ├── file_002
-│  │  ├── file_003
-│  │  ├── file_004
-│  │  ├── file_005
-│  │  ├── file_006
-│  │  ├── file_007
-│  │  ├── file_008
-│  │  └── file_009
 │  ├── 003
-│  │  ├── file_000
-│  │  ├── file_001
-│  │  ├── file_002
-│  │  ├── file_003
-│  │  ├── file_004
-│  │  ├── file_005
-│  │  ├── file_006
-│  │  ├── file_007
-│  │  ├── file_008
-│  │  └── file_009
 │  ├── 004
-│  │  ├── file_000
-│  │  ├── file_001
-│  │  ├── file_002
-│  │  ├── file_003
-│  │  ├── file_004
-│  │  ├── file_005
-│  │  ├── file_006
-│  │  ├── file_007
-│  │  ├── file_008
-│  │  └── file_009
 │  ├── 005
-│  │  ├── file_000
-│  │  ├── file_001
-│  │  ├── file_002
-│  │  ├── file_003
-│  │  ├── file_004
-│  │  ├── file_005
-│  │  ├── file_006
-│  │  ├── file_007
-│  │  ├── file_008
-│  │  └── file_009
 │  ├── 006
-│  │  ├── file_000
-│  │  ├── file_001
-│  │  ├── file_002
-│  │  ├── file_003
-│  │  ├── file_004
-│  │  ├── file_005
-│  │  ├── file_006
-│  │  ├── file_007
-│  │  ├── file_008
-│  │  └── file_009
 │  ├── 007
-│  │  ├── file_000
-│  │  ├── file_001
-│  │  ├── file_002
-│  │  ├── file_003
-│  │  ├── file_004
-│  │  ├── file_005
-│  │  ├── file_006
-│  │  ├── file_007
-│  │  ├── file_008
-│  │  └── file_009
 │  ├── 008
-│  │  ├── file_000
-│  │  ├── file_001
-│  │  ├── file_002
-│  │  ├── file_003
-│  │  ├── file_004
-│  │  ├── file_005
-│  │  ├── file_006
-│  │  ├── file_007
-│  │  ├── file_008
-│  │  └── file_009
 │  ├── 009
-│  │  ├── file_000
-│  │  ├── file_001
-│  │  ├── file_002
-│  │  ├── file_003
-│  │  ├── file_004
-│  │  ├── file_005
-│  │  ├── file_006
-│  │  ├── file_007
-│  │  ├── file_008
-│  │  └── file_009
 │  └── 010
-│     ├── file_000
-│     ├── file_001
-│     ├── file_002
-│     ├── file_003
-│     ├── file_004
-│     ├── file_005
-│     ├── file_006
-│     ├── file_007
-│     ├── file_008
-│     └── file_009
 ├── grid
 │  ├── 0001
 │  ├── 0002
