@@ -4178,6 +4178,7 @@ tests/test_dir/specials:
 tests/test_dir/symlinks:
 2 dir
 1 file
+1 ' lorem ipsum'
 1 symlink -> file
 1 symlink2 -> symlink
 1 symlink3 -> dir
