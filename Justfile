@@ -165,6 +165,10 @@ checksum:
     @echo '```'
     @md5sum ./target/"bin-$(convco version)"/*
     @echo '```'
+    @echo "## blake3sum"
+    @echo '```'
+    @b3sum ./target/"bin-$(convco version)"/*
+    @echo '```'
 
 alias c := cross
 
