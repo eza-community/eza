@@ -4,6 +4,7 @@ use term_grid as tg;
 
 use crate::fs::filter::FileFilter;
 use crate::fs::File;
+use crate::output::escape::Quotes;
 use crate::output::file_name::{Classify, Options as FileStyle};
 use crate::output::file_name::{EmbedHyperlinks, ShowIcons};
 use crate::theme::Theme;
@@ -32,6 +33,7 @@ pub struct Render<'a> {
     pub opts: &'a Options,
     pub console_width: usize,
     pub filter: &'a FileFilter,
+    pub quotes: Quotes,
 }
 
 impl<'a> Render<'a> {
@@ -62,7 +64,7 @@ impl<'a> Render<'a> {
                 QuoteStyle::NoQuotes => 0,
                 QuoteStyle::QuoteSpaces => 0, // Default case
             };
-            let contents = filename.paint();
+            let contents = filename.paint(&self.quotes);
             let width = match (
                 filename.options.embed_hyperlinks,
                 filename.options.show_icons,
@@ -108,7 +110,10 @@ impl<'a> Render<'a> {
             // This isn’t *quite* the same as the lines view, which also
             // displays full link paths.
             for file in &self.files {
-                let name_cell = self.file_style.for_file(file, self.theme).paint();
+                let name_cell = self
+                    .file_style
+                    .for_file(file, self.theme)
+                    .paint(&self.quotes);
                 writeln!(w, "{}", name_cell.strings())?;
             }
 

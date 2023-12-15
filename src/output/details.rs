@@ -67,6 +67,7 @@ use std::vec::IntoIter as VecIntoIter;
 use ansiterm::Style;
 use scoped_threadpool::Pool;
 
+use crate::output::escape::Quotes;
 use log::*;
 
 use crate::fs::dir_action::RecurseOptions;
@@ -139,6 +140,8 @@ pub struct Render<'a> {
     pub git: Option<&'a GitCache>,
 
     pub git_repos: bool,
+
+    pub quotes: Quotes,
 }
 
 #[rustfmt::skip]
@@ -347,7 +350,7 @@ impl<'a> Render<'a> {
                 .for_file(egg.file, self.theme)
                 .with_link_paths()
                 .with_mount_details(self.opts.mounts)
-                .paint()
+                .paint(&self.quotes)
                 .promote();
 
             let row = Row {

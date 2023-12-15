@@ -1,6 +1,7 @@
 use std::fmt::Debug;
 use std::path::Path;
 
+use crate::output::escape::Quotes;
 use ansiterm::{ANSIString, Style};
 use unicode_width::UnicodeWidthStr;
 
@@ -183,7 +184,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     /// This method returns some `TextCellContents`, rather than a `TextCell`,
     /// because for the last cell in a table, it doesn’t need to have its
     /// width calculated.
-    pub fn paint(&self) -> TextCellContents {
+    pub fn paint(&self, quotes: &Quotes) -> TextCellContents {
         let mut bits = Vec::new();
 
         let spaces_count_opt = match self.options.show_icons {
@@ -207,7 +208,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
 
         if self.file.parent_dir.is_none() {
             if let Some(parent) = self.file.path.parent() {
-                self.add_parent_bits(&mut bits, parent);
+                self.add_parent_bits(&mut bits, parent, quotes);
             }
         }
 
@@ -218,7 +219,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
             // indicate this fact. But when showing targets, we can just
             // colour the path instead (see below), and leave the broken
             // link’s filename as the link colour.
-            for bit in self.escaped_file_name() {
+            for bit in self.escaped_file_name(quotes) {
                 bits.push(bit);
             }
         }
@@ -231,7 +232,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                     bits.push(Style::default().paint(" "));
 
                     if let Some(parent) = target.path.parent() {
-                        self.add_parent_bits(&mut bits, parent);
+                        self.add_parent_bits(&mut bits, parent, quotes);
                     }
 
                     if !target.name.is_empty() {
@@ -253,7 +254,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                             mount_style: MountStyle::JustDirectoryNames,
                         };
 
-                        for bit in target_name.escaped_file_name() {
+                        for bit in target_name.escaped_file_name(quotes) {
                             bits.push(bit);
                         }
 
@@ -276,6 +277,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                         self.colours.broken_filename(),
                         self.colours.broken_control_char(),
                         self.options.quote_style,
+                        quotes,
                     );
                 }
 
@@ -305,7 +307,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
 
     /// Adds the bits of the parent path to the given bits vector.
     /// The path gets its characters escaped based on the colours.
-    fn add_parent_bits(&self, bits: &mut Vec<ANSIString<'_>>, parent: &Path) {
+    fn add_parent_bits(&self, bits: &mut Vec<ANSIString<'_>>, parent: &Path, quotes: &Quotes) {
         let coconut = parent.components().count();
 
         if coconut == 1 && parent.has_root() {
@@ -321,6 +323,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                 self.colours.symlink_path(),
                 self.colours.control_char(),
                 self.options.quote_style,
+                quotes,
             );
             bits.push(
                 self.colours
@@ -372,7 +375,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     ///
     /// So in that situation, those characters will be escaped and highlighted in
     /// a different colour.
-    fn escaped_file_name<'unused>(&self) -> Vec<ANSIString<'unused>> {
+    fn escaped_file_name<'unused>(&self, quotes: &Quotes) -> Vec<ANSIString<'unused>> {
         use percent_encoding::{utf8_percent_encode, CONTROLS};
 
         const HYPERLINK_START: &str = "\x1B]8;;";
@@ -408,6 +411,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
             file_style,
             self.colours.control_char(),
             self.options.quote_style,
+            quotes,
         );
 
         if display_hyperlink {

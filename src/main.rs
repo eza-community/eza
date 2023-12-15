@@ -34,6 +34,7 @@ use crate::fs::filter::GitIgnore;
 use crate::fs::{Dir, File};
 use crate::options::stdin::FilesInput;
 use crate::options::{vars, Options, OptionsResult, Vars};
+use crate::output::escape::{check_quote, Quotes};
 use crate::output::{details, escape, file_name, grid, grid_details, lines, Mode, View};
 use crate::theme::Theme;
 use log::*;
@@ -330,6 +331,7 @@ impl<'args> Exa<'args> {
                     Style::default(),
                     Style::default(),
                     quote_style,
+                    &Quotes::Single,
                 );
                 writeln!(&mut self.writer, "{}:", ANSIStrings(&bits))?;
             }
@@ -393,6 +395,7 @@ impl<'args> Exa<'args> {
         if files.is_empty() {
             return Ok(());
         }
+        let quotes = check_quote(&files);
 
         let theme = &self.theme;
         let View {
@@ -411,6 +414,7 @@ impl<'args> Exa<'args> {
                     opts,
                     console_width,
                     filter,
+                    quotes: quotes.clone(),
                 };
                 r.render(&mut self.writer)
             }
@@ -422,6 +426,7 @@ impl<'args> Exa<'args> {
                     theme,
                     file_style,
                     filter,
+                    quotes: quotes.clone(),
                 };
                 r.render(&mut self.writer)
             }
@@ -444,6 +449,7 @@ impl<'args> Exa<'args> {
                     git_ignoring,
                     git,
                     git_repos,
+                    quotes: quotes.clone(),
                 };
                 r.render(&mut self.writer)
             }
@@ -471,6 +477,7 @@ impl<'args> Exa<'args> {
                     git,
                     console_width,
                     git_repos,
+                    quotes: quotes.clone(),
                 };
                 r.render(&mut self.writer)
             }
@@ -494,6 +501,7 @@ impl<'args> Exa<'args> {
                     git_ignoring,
                     git,
                     git_repos,
+                    quotes: quotes.clone(),
                 };
                 r.render(&mut self.writer)
             }
