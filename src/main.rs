@@ -331,7 +331,7 @@ impl<'args> Exa<'args> {
                     Style::default(),
                     Style::default(),
                     quote_style,
-                    &Quotes::Single,
+                    Quotes::Single,
                 );
                 writeln!(&mut self.writer, "{}:", ANSIStrings(&bits))?;
             }
@@ -395,7 +395,7 @@ impl<'args> Exa<'args> {
         if files.is_empty() {
             return Ok(());
         }
-        let quotes = check_quote(&files);
+        let quotes = check_quote(files.as_slice());
 
         let theme = &self.theme;
         let View {
@@ -414,7 +414,7 @@ impl<'args> Exa<'args> {
                     opts,
                     console_width,
                     filter,
-                    quotes: quotes.clone(),
+                    quotes,
                 };
                 r.render(&mut self.writer)
             }
@@ -426,7 +426,7 @@ impl<'args> Exa<'args> {
                     theme,
                     file_style,
                     filter,
-                    quotes: quotes.clone(),
+                    quotes,
                 };
                 r.render(&mut self.writer)
             }
@@ -449,7 +449,7 @@ impl<'args> Exa<'args> {
                     git_ignoring,
                     git,
                     git_repos,
-                    quotes: quotes.clone(),
+                    quotes,
                 };
                 r.render(&mut self.writer)
             }
@@ -477,7 +477,7 @@ impl<'args> Exa<'args> {
                     git,
                     console_width,
                     git_repos,
-                    quotes: quotes.clone(),
+                    quotes,
                 };
                 r.render(&mut self.writer)
             }
@@ -501,7 +501,7 @@ impl<'args> Exa<'args> {
                     git_ignoring,
                     git,
                     git_repos,
-                    quotes: quotes.clone(),
+                    quotes,
                 };
                 r.render(&mut self.writer)
             }

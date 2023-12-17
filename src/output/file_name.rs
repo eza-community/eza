@@ -184,7 +184,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     /// This method returns some `TextCellContents`, rather than a `TextCell`,
     /// because for the last cell in a table, it doesn’t need to have its
     /// width calculated.
-    pub fn paint(&self, quotes: &Quotes) -> TextCellContents {
+    pub fn paint(&self, quotes: Quotes) -> TextCellContents {
         let mut bits = Vec::new();
 
         let spaces_count_opt = match self.options.show_icons {
@@ -307,7 +307,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
 
     /// Adds the bits of the parent path to the given bits vector.
     /// The path gets its characters escaped based on the colours.
-    fn add_parent_bits(&self, bits: &mut Vec<ANSIString<'_>>, parent: &Path, quotes: &Quotes) {
+    fn add_parent_bits(&self, bits: &mut Vec<ANSIString<'_>>, parent: &Path, quotes: Quotes) {
         let coconut = parent.components().count();
 
         if coconut == 1 && parent.has_root() {
@@ -375,7 +375,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     ///
     /// So in that situation, those characters will be escaped and highlighted in
     /// a different colour.
-    fn escaped_file_name<'unused>(&self, quotes: &Quotes) -> Vec<ANSIString<'unused>> {
+    fn escaped_file_name<'unused>(&self, quotes: Quotes) -> Vec<ANSIString<'unused>> {
         use percent_encoding::{utf8_percent_encode, CONTROLS};
 
         const HYPERLINK_START: &str = "\x1B]8;;";

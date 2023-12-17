@@ -1,4 +1,10 @@
 tests/test_dir
+├── complex-names
+│  ├── 'a looooooooooooooooooong filename'
+│  ├── 'another one long name'
+│  └── double-quotes
+│     ├── ''Obi wan kanobi''
+│     └── 'hello there'
 ├── git
 │  ├── 001
 │  │  ├── file_000

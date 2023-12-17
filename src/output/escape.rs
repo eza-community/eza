@@ -8,7 +8,7 @@ pub enum Quotes {
     Double,
 }
 
-pub fn check_quote(files: &Vec<File<'_>>) -> Quotes {
+pub fn check_quote(files: &[File<'_>]) -> Quotes {
     for file in files {
         if file.name.contains('\'') {
             return Quotes::Double;
@@ -23,15 +23,11 @@ pub fn escape(
     good: Style,
     bad: Style,
     quote_style: QuoteStyle,
-    quotes: &Quotes,
+    quotes: Quotes,
 ) {
     let bits_starting_length = bits.len();
     let needs_quotes = string.contains(' ') || string.contains('\'');
-    let quote_bit = good.paint(if *quotes == Quotes::Double {
-        "\""
-    } else {
-        "\'"
-    });
+    let quote_bit = good.paint(if quotes == Quotes::Double { "\"" } else { "\'" });
 
     if string
         .chars()

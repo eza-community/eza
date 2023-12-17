@@ -350,7 +350,7 @@ impl<'a> Render<'a> {
                 .for_file(egg.file, self.theme)
                 .with_link_paths()
                 .with_mount_details(self.opts.mounts)
-                .paint(&self.quotes)
+                .paint(self.quotes)
                 .promote();
 
             let row = Row {

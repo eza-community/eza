@@ -64,7 +64,7 @@ impl<'a> Render<'a> {
                 QuoteStyle::NoQuotes => 0,
                 QuoteStyle::QuoteSpaces => 0, // Default case
             };
-            let contents = filename.paint(&self.quotes);
+            let contents = filename.paint(self.quotes);
             let width = match (
                 filename.options.embed_hyperlinks,
                 filename.options.show_icons,
@@ -113,7 +113,7 @@ impl<'a> Render<'a> {
                 let name_cell = self
                     .file_style
                     .for_file(file, self.theme)
-                    .paint(&self.quotes);
+                    .paint(self.quotes);
                 writeln!(w, "{}", name_cell.strings())?;
             }
 

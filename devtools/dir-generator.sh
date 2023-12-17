@@ -133,10 +133,6 @@ touch icons/man.1 --date=@0
 touch icons/marked.md --date=@0
 # END test_icons
 
-# BEGIN set date
-touch --date=@0 ./*;
-# END set date
-
 # BEGIN complex names
 mkdir complex-names
 
@@ -146,5 +142,8 @@ touch "complex-names/another one long name" --date=@0
 mkdir complex-names/double-quotes
 touch "complex-names/double-quotes/hello there" --date=@0
 touch "complex-names/double-quotes/'Obi wan kanobi'" --date=@0
-
 # END complex names
+
+# BEGIN set date
+touch --date=@0 ./*;
+# END set date
