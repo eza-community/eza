@@ -1,0 +1,2 @@
+bin.name = "eza"
+args = "tests/test_dir/complex-names tests/test_dir/complex-names/double-quotes"

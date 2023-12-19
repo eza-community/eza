@@ -2,6 +2,7 @@
 
 use std::io::{self, Write};
 
+use crate::output::escape::Quotes;
 use ansiterm::ANSIStrings;
 use term_grid as grid;
 
@@ -90,6 +91,8 @@ pub struct Render<'a> {
     pub console_width: usize,
 
     pub git_repos: bool,
+
+    pub quotes: Quotes,
 }
 
 impl<'a> Render<'a> {
@@ -99,7 +102,7 @@ impl<'a> Render<'a> {
     /// This includes an empty files vector because the files get added to
     /// the table in *this* file, not in details: we only want to insert every
     /// *n* files into each column’s table, not all of them.
-    fn details_for_column(&self) -> DetailsRender<'a> {
+    fn details_for_column(&self, quotes: Quotes) -> DetailsRender<'a> {
         #[rustfmt::skip]
         return DetailsRender {
             dir:           self.dir,
@@ -112,6 +115,7 @@ impl<'a> Render<'a> {
             git_ignoring:  self.git_ignoring,
             git:           self.git,
             git_repos:     self.git_repos,
+            quotes
         };
     }
 
@@ -132,6 +136,7 @@ impl<'a> Render<'a> {
             git_ignoring:  self.git_ignoring,
             git:           self.git,
             git_repos:     self.git_repos,
+            quotes:        self.quotes
         };
     }
 
@@ -153,7 +158,7 @@ impl<'a> Render<'a> {
             .as_ref()
             .expect("Details table options not given!");
 
-        let drender = self.details_for_column();
+        let drender = self.details_for_column(self.quotes);
 
         let color_scale_info = ColorScaleInformation::from_color_scale(
             self.details.color_scale,
@@ -179,7 +184,7 @@ impl<'a> Render<'a> {
             .iter()
             .map(|file| {
                 let filename = self.file_style.for_file(file, self.theme);
-                let contents = filename.paint();
+                let contents = filename.paint(self.quotes);
                 let space_filename_offset = match self.file_style.quote_style {
                     QuoteStyle::QuoteSpaces if file.name.contains(' ') => 2,
                     QuoteStyle::NoQuotes => 0,
