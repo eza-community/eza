@@ -115,7 +115,7 @@ fn main() {
                 }
 
                 Err(e) => {
-                    eprintln!("{e}");
+                    let _ = writeln!(io::stderr(), "{e}");
                     trace!("exa.run: exit RUNTIME_ERROR");
                     exit(exits::RUNTIME_ERROR);
                 }
@@ -123,18 +123,18 @@ fn main() {
         }
 
         OptionsResult::Help(help_text) => {
-            print!("{help_text}");
+            let _ = write!(io::stdout(), "{help_text}");
         }
 
         OptionsResult::Version(version_str) => {
-            print!("{version_str}");
+            let _ = write!(io::stdout(), "{version_str}");
         }
 
         OptionsResult::InvalidOptions(error) => {
-            eprintln!("eza: {error}");
+            let _ = writeln!(io::stderr(), "eza: {error}");
 
             if let Some(s) = error.suggestion() {
-                eprintln!("{s}");
+                let _ = writeln!(io::stderr(), "{s}");
             }
 
             exit(exits::OPTIONS_ERROR);
@@ -273,7 +273,7 @@ impl<'args> Exa<'args> {
                         match f.to_dir() {
                             Ok(d) => dirs.push(d),
                             Err(e) if e.kind() == ErrorKind::PermissionDenied => {
-                                eprintln!("{file_path:?}: {e}");
+                                writeln!(io::stderr(), "{file_path:?}: {e}")?;
                                 exit(exits::PERMISSION_DENIED);
                             }
                             Err(e) => writeln!(io::stderr(), "{file_path:?}: {e}")?,
