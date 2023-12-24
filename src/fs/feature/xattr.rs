@@ -580,6 +580,10 @@ const ATTRIBUTE_DISPLAYS: &[AttributeDisplay] = &[
         attribute: "com.apple.macl",
         display: display_macl,
     },
+    AttributeDisplay {
+        attribute: "com.apple.ResourceFork",
+        display: display_resource_fork,
+    },
 ];
 
 #[cfg(not(target_os = "macos"))]
@@ -657,6 +661,31 @@ fn display_macl(attribute: &Attribute) -> Option<String> {
                 .join(", ");
             format!("[{macls}]")
         })
+}
+
+#[cfg(target_os = "macos")]
+fn display_resource_fork(attribute: &Attribute) -> Option<String> {
+    attribute.value.as_ref().and_then(|v| {
+        let rsrc = macbinary::ResourceFork::new(v).ok()?;
+        let mut resources = Vec::new();
+        for item in rsrc.resource_types() {
+            resources.extend(rsrc.resources(item).map(|resource| match resource.name() {
+                None => format!(
+                    r#"{{"type": {:?}, "id": {}, "length": {}}}"#,
+                    item.resource_type(),
+                    resource.id(),
+                    resource.data().len()
+                ),
+                Some(name) => format!(
+                    r#"{{"type": {:?}, "name": {name:?}, "id": {}, "length": {}}}"#,
+                    item.resource_type(),
+                    resource.id(),
+                    resource.data().len()
+                ),
+            }));
+        }
+        (!resources.is_empty()).then(|| format!("[{}]", resources.join(", ")))
+    })
 }
 
 // plist::XmlWriter takes the writer instead of borrowing it.  This is a
