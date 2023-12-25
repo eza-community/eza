@@ -1,3 +1,4 @@
+#![allow(clippy::too_many_arguments)]
 #[allow(unused)]
 pub mod fs;
 #[allow(unused)]

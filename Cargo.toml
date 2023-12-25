@@ -92,6 +92,11 @@ timeago = { version = "0.4.2", default-features = false }
 unicode-width = "0.1"
 zoneinfo_compiled = "0.5.1"
 
+[dependencies.hgrs]
+git = "https://github.com/MartinFillon/hgrs.git"
+version = "0.2.5"
+optional = true
+
 [dependencies.git2]
 version = "0.18"
 optional = true
@@ -129,6 +134,7 @@ nix-local = []
 # Shouldn't ever be used in CI (slow!)
 powertest = []
 nix-generated = []
+mercurial = ["hgrs"]
 
 # use LTO for smaller binaries (that take longer to build)
 [profile.release]

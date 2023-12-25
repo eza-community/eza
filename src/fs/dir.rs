@@ -1,10 +1,11 @@
 use crate::fs::feature::git::GitCache;
-use crate::fs::fields::GitStatus;
+use crate::fs::fields::{GitStatus, MercurialStatus};
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
 use std::slice::Iter as SliceIter;
 
+use crate::fs::feature::mercurial::MercurialCache;
 use log::*;
 
 use crate::fs::File;
@@ -52,6 +53,8 @@ impl Dir {
         git_ignoring: bool,
         deref_links: bool,
         total_size: bool,
+        mercurial: Option<&'ig MercurialCache>,
+        mercurial_ignore: bool,
     ) -> Files<'dir, 'ig> {
         Files {
             inner: self.contents.iter(),
@@ -62,6 +65,8 @@ impl Dir {
             git_ignoring,
             deref_links,
             total_size,
+            mercurial,
+            mercurial_ignore,
         }
     }
 
@@ -101,6 +106,10 @@ pub struct Files<'dir, 'ig> {
 
     /// Whether to calculate the directory size recursively
     total_size: bool,
+
+    mercurial: Option<&'ig MercurialCache>,
+
+    mercurial_ignore: bool,
 }
 
 impl<'dir, 'ig> Files<'dir, 'ig> {
@@ -133,6 +142,13 @@ impl<'dir, 'ig> Files<'dir, 'ig> {
                 if self.git_ignoring {
                     let git_status = self.git.map(|g| g.get(path, false)).unwrap_or_default();
                     if git_status.unstaged == GitStatus::Ignored {
+                        continue;
+                    }
+                }
+
+                if self.mercurial_ignore {
+                    let mercurial_status = self.mercurial.map(|g| g.get(path)).unwrap_or_default();
+                    if mercurial_status.status == MercurialStatus::Ignored {
                         continue;
                     }
                 }

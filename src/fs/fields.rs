@@ -246,6 +246,46 @@ impl Default for Git {
     }
 }
 
+#[derive(PartialEq, Eq, Copy, Clone)]
+pub enum MercurialStatus {
+    Modified,
+    Added,
+    Removed,
+    Clean,
+    Missing,
+    NotTracked,
+    Ignored,
+    Directory,
+}
+
+#[cfg(feature = "mercurial")]
+impl From<hgrs::FileStatus> for MercurialStatus {
+    fn from(value: hgrs::FileStatus) -> Self {
+        match value {
+            hgrs::FileStatus::Modified => MercurialStatus::Modified,
+            hgrs::FileStatus::Added => MercurialStatus::Added,
+            hgrs::FileStatus::Removed => MercurialStatus::Removed,
+            hgrs::FileStatus::Clean => MercurialStatus::Clean,
+            hgrs::FileStatus::Missing => MercurialStatus::Missing,
+            hgrs::FileStatus::NotTracked => MercurialStatus::NotTracked,
+            hgrs::FileStatus::Ignored => MercurialStatus::Ignored,
+            hgrs::FileStatus::Directory => MercurialStatus::Directory,
+        }
+    }
+}
+
+pub struct Mercurial {
+    pub status: MercurialStatus,
+}
+
+impl Default for Mercurial {
+    fn default() -> Self {
+        Self {
+            status: MercurialStatus::NotTracked,
+        }
+    }
+}
+
 pub enum SecurityContextType<'a> {
     SELinux(&'a str),
     None,

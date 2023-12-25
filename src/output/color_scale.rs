@@ -2,6 +2,7 @@ use ansiterm::{Colour, Style};
 use log::trace;
 use palette::{FromColor, Oklab, Srgb};
 
+use crate::fs::feature::mercurial::MercurialCache;
 use crate::{
     fs::{dir_action::RecurseOptions, feature::git::GitCache, fields::Size, DotFilter, File},
     output::{table::TimeType, tree::TreeDepth},
@@ -42,6 +43,8 @@ impl ColorScaleInformation {
         git: Option<&GitCache>,
         git_ignoring: bool,
         r: Option<RecurseOptions>,
+        mercurial: Option<&MercurialCache>,
+        mercurial_ignoring: bool,
     ) -> Option<Self> {
         if color_scale.mode == ColorScaleMode::Fixed {
             None
@@ -63,6 +66,8 @@ impl ColorScaleInformation {
                 git_ignoring,
                 TreeDepth::root(),
                 r,
+                mercurial,
+                mercurial_ignoring,
             );
 
             Some(information)
@@ -110,6 +115,8 @@ fn update_information_recursively(
     git_ignoring: bool,
     depth: TreeDepth,
     r: Option<RecurseOptions>,
+    mercurial: Option<&MercurialCache>,
+    mercurial_ignoring: bool,
 ) {
     for file in files {
         if information.options.age {
@@ -143,7 +150,15 @@ fn update_information_recursively(
             match file.to_dir() {
                 Ok(dir) => {
                     let files: Vec<File<'_>> = dir
-                        .files(dot_filter, git, git_ignoring, false, false)
+                        .files(
+                            dot_filter,
+                            git,
+                            git_ignoring,
+                            false,
+                            false,
+                            mercurial,
+                            mercurial_ignoring,
+                        )
                         .flatten()
                         .collect();
 
@@ -155,6 +170,8 @@ fn update_information_recursively(
                         git_ignoring,
                         depth.deeper(),
                         r,
+                        mercurial,
+                        mercurial_ignoring,
                     );
                 }
                 Err(e) => trace!("Unable to access directory {}: {}", file.name, e),

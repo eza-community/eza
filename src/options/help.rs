@@ -90,6 +90,11 @@ static EXTENDED_HELP: &str = "  \
 static SECATTR_HELP: &str = "  \
   -Z, --context              list each file's security context";
 
+static MERCURIAL_HELP: &str = "  \
+  --mercurial                list each file's Mercurial status (hg command needed) \
+  --no-mercurial             ignore ignored files in Mercurial (hg command needed) \
+  --no-mercurial             suppress Mercurial status (always overrides --mercurial)";
+
 /// All the information needed to display the help text, which depends
 /// on which features are enabled and whether the user only wants to
 /// see one section’s help.
@@ -127,6 +132,10 @@ impl fmt::Display for HelpString {
 
         if cfg!(feature = "git") {
             write!(f, "\n{GIT_VIEW_HELP}")?;
+        }
+
+        if cfg!(feature = "mercurial") {
+            write!(f, "\n{MERCURIAL_HELP}")?;
         }
 
         if xattr::ENABLED {

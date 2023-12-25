@@ -3,6 +3,39 @@ pub mod xattr;
 #[cfg(feature = "git")]
 pub mod git;
 
+#[cfg(feature = "mercurial")]
+pub mod mercurial;
+
+#[cfg(not(feature = "mercurial"))]
+pub mod mercurial {
+
+    use std::iter::FromIterator;
+    use std::path::{Path, PathBuf};
+
+    use crate::fs::fields as f;
+
+    pub struct MercurialCache;
+
+    impl FromIterator<PathBuf> for MercurialCache {
+        fn from_iter<I>(_iter: I) -> Self
+        where
+            I: IntoIterator<Item = PathBuf>,
+        {
+            Self
+        }
+    }
+
+    impl MercurialCache {
+        pub fn has_anything_for(&self, _index: &Path) -> bool {
+            false
+        }
+
+        pub fn get(&self, _index: &Path) -> f::Mercurial {
+            unreachable!();
+        }
+    }
+}
+
 #[cfg(not(feature = "git"))]
 pub mod git {
     use std::iter::FromIterator;

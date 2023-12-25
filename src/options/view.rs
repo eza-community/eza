@@ -266,6 +266,8 @@ impl Columns {
             && !matches.has(&flags::NO_GIT)?
             && !no_git_env;
 
+        let mercurial = matches.has(&flags::MERCURIAL)? && !matches.has(&flags::NO_MERCURIAL)?;
+
         let blocksize = matches.has(&flags::BLOCKSIZE)?;
         let group = matches.has(&flags::GROUP)?;
         let inode = matches.has(&flags::INODE)?;
@@ -285,6 +287,7 @@ impl Columns {
             blocksize,
             group,
             git,
+            mercurial,
             subdir_git_repos,
             subdir_git_repos_no_stat,
             octal,

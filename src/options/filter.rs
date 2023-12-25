@@ -1,7 +1,7 @@
 //! Parsing the options for `FileFilter`.
 
 use crate::fs::filter::{
-    FileFilter, FileFilterFlags, GitIgnore, IgnorePatterns, SortCase, SortField,
+    FileFilter, FileFilterFlags, GitIgnore, IgnorePatterns, MercurialIgnore, SortCase, SortField,
 };
 use crate::fs::DotFilter;
 
@@ -32,6 +32,7 @@ impl FileFilter {
             dot_filter:       DotFilter::deduce(matches)?,
             ignore_patterns:  IgnorePatterns::deduce(matches)?,
             git_ignore:       GitIgnore::deduce(matches)?,
+            mercurial_ignore: MercurialIgnore::deduce(matches)?,
         });
     }
 }
@@ -186,6 +187,16 @@ impl IgnorePatterns {
 impl GitIgnore {
     pub fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
         if matches.has(&flags::GIT_IGNORE)? {
+            Ok(Self::CheckAndIgnore)
+        } else {
+            Ok(Self::Off)
+        }
+    }
+}
+
+impl MercurialIgnore {
+    pub fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
+        if matches.has(&flags::MERCURIAL_IGNORE)? {
             Ok(Self::CheckAndIgnore)
         } else {
             Ok(Self::Off)

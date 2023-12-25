@@ -394,6 +394,7 @@ dependencies = [
  "criterion",
  "git2",
  "glob",
+ "hgrs",
  "libc",
  "locale",
  "log",
@@ -488,6 +489,14 @@ name = "hermit-abi"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "443144c8cdadd93ebf52ddb4056d257f5b52c04d3c804e657d19eb73fc33668b"
+
+[[package]]
+name = "hgrs"
+version = "0.2.5"
+source = "git+https://github.com/MartinFillon/hgrs.git#b28fef5f9801c4705cd524673fa8bc155d66c1a9"
+dependencies = [
+ "log",
+]
 
 [[package]]
 name = "humantime"

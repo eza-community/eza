@@ -6,6 +6,7 @@ use ansiterm::ANSIStrings;
 use term_grid as grid;
 
 use crate::fs::feature::git::GitCache;
+use crate::fs::feature::mercurial::MercurialCache;
 use crate::fs::filter::FileFilter;
 use crate::fs::{Dir, File};
 use crate::output::cell::{DisplayWidth, TextCell};
@@ -90,6 +91,10 @@ pub struct Render<'a> {
     pub console_width: usize,
 
     pub git_repos: bool,
+
+    pub mercurial: Option<&'a MercurialCache>,
+
+    pub mercurial_ignoring: bool,
 }
 
 impl<'a> Render<'a> {
@@ -102,16 +107,18 @@ impl<'a> Render<'a> {
     fn details_for_column(&self) -> DetailsRender<'a> {
         #[rustfmt::skip]
         return DetailsRender {
-            dir:           self.dir,
-            files:         Vec::new(),
-            theme:         self.theme,
-            file_style:    self.file_style,
-            opts:          self.details,
-            recurse:       None,
-            filter:        self.filter,
-            git_ignoring:  self.git_ignoring,
-            git:           self.git,
-            git_repos:     self.git_repos,
+            dir:                    self.dir,
+            files:                  Vec::new(),
+            theme:                  self.theme,
+            file_style:             self.file_style,
+            opts:                   self.details,
+            recurse:                None,
+            filter:                 self.filter,
+            git_ignoring:           self.git_ignoring,
+            git:                    self.git,
+            git_repos:              self.git_repos,
+            mercurial:              self.mercurial,
+            mercurial_ignoring:     self.mercurial_ignoring,
         };
     }
 
@@ -122,16 +129,18 @@ impl<'a> Render<'a> {
     pub fn give_up(self) -> DetailsRender<'a> {
         #[rustfmt::skip]
         return DetailsRender {
-            dir:           self.dir,
-            files:         self.files,
-            theme:         self.theme,
-            file_style:    self.file_style,
-            opts:          self.details,
-            recurse:       None,
-            filter:        self.filter,
-            git_ignoring:  self.git_ignoring,
-            git:           self.git,
-            git_repos:     self.git_repos,
+            dir:                    self.dir,
+            files:                  self.files,
+            theme:                  self.theme,
+            file_style:             self.file_style,
+            opts:                   self.details,
+            recurse:                None,
+            filter:                 self.filter,
+            git_ignoring:           self.git_ignoring,
+            git:                    self.git,
+            git_repos:              self.git_repos,
+            mercurial:              self.mercurial,
+            mercurial_ignoring:     self.mercurial_ignoring,
         };
     }
 
@@ -162,6 +171,8 @@ impl<'a> Render<'a> {
             self.git,
             self.git_ignoring,
             None,
+            self.mercurial,
+            self.mercurial_ignoring,
         );
 
         let (first_table, _) = self.make_table(options, &drender);
@@ -275,7 +286,13 @@ impl<'a> Render<'a> {
             (None, _) => { /* Keep Git how it is */ }
         }
 
-        let mut table = Table::new(options, self.git, self.theme, self.git_repos);
+        let mut table = Table::new(
+            options,
+            self.git,
+            self.theme,
+            self.git_repos,
+            self.mercurial,
+        );
         let mut rows = Vec::new();
 
         if self.details.header {

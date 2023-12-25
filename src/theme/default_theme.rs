@@ -81,6 +81,17 @@ impl UiStyles {
                 git_dirty: Yellow.bold(),
             },
 
+            #[rustfmt::skip]
+            mercurial: Mercurial {
+                modified:    Blue.normal(),
+                added:       Green.normal(),
+                removed:     Red.normal(),
+                clean:       Green.normal(),
+                missing:     Red.normal(),
+                not_tracked: Red.normal(),
+                ignored:     Style::default().dimmed(),
+            },
+
             security_context: SecurityContext {
                 none: Style::default(),
                 #[rustfmt::skip]

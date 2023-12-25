@@ -68,6 +68,9 @@ pub struct FileFilter {
 
     /// Whether to ignore Git-ignored patterns.
     pub git_ignore: GitIgnore,
+
+    /// Whether to ignore Mercurial-ignored patterns.
+    pub mercurial_ignore: MercurialIgnore,
 }
 
 impl FileFilter {
@@ -351,6 +354,15 @@ pub enum GitIgnore {
     CheckAndIgnore,
 
     /// Display files, even if Git would ignore them.
+    Off,
+}
+
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+pub enum MercurialIgnore {
+    /// Ignore files that Mercurial would ignore.
+    CheckAndIgnore,
+
+    /// Display files, even if Mercurial would ignore them.
     Off,
 }
 

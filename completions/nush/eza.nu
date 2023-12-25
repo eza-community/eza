@@ -59,4 +59,7 @@ export extern "eza" [
     --context(-Z)              # List each file's security context
     --smart-group              # Only show group if it has a different name from owner
     --stdin                    # When piping to eza. Read file paths from stdin
+    --mercurial                # List each file's Mercurial status, if tracked
+    --mercurial-ignore         # Ignore files ignored ly Mercurial
+    --no-mercurial             # Suppress Mercurial status
 ]

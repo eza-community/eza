@@ -16,6 +16,7 @@ pub struct UiStyles {
     pub git_repo:         GitRepo,
     pub security_context: SecurityContext,
     pub file_type:        FileType,
+    pub mercurial:        Mercurial,
 
     pub punctuation:  Style,          // xx
     pub date:         Style,          // da
@@ -115,6 +116,18 @@ pub struct Git {
     pub typechange: Style,  // gt
     pub ignored: Style,     // gi
     pub conflicted: Style,  // gc
+}
+
+#[rustfmt::skip]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct Mercurial {
+    pub modified: Style,    // mm
+    pub added: Style,       // ma
+    pub removed: Style,     // mr
+    pub clean: Style,       // mc
+    pub missing: Style,     // mx
+    pub not_tracked: Style, // mn
+    pub ignored: Style,     // mi
 }
 
 #[rustfmt::skip]
@@ -242,6 +255,14 @@ impl UiStyles {
             "gt" => self.git.typechange                 = pair.to_style(),
             "gi" => self.git.ignored                    = pair.to_style(),
             "gc" => self.git.conflicted                 = pair.to_style(),
+
+            "mm" => self.mercurial.modified             = pair.to_style(),
+            "ma" => self.mercurial.added                = pair.to_style(),
+            "mr" => self.mercurial.removed              = pair.to_style(),
+            "mc" => self.mercurial.clean                = pair.to_style(),
+            "mx" => self.mercurial.missing              = pair.to_style(),
+            "mn" => self.mercurial.not_tracked          = pair.to_style(),
+            "mi" => self.mercurial.ignored              = pair.to_style(),
 
             "Gm" => self.git_repo.branch_main           = pair.to_style(),
             "Go" => self.git_repo.branch_other          = pair.to_style(),
