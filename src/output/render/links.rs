@@ -1,6 +1,6 @@
-use ansiterm::Style;
 #[cfg(unix)]
 use locale::Numeric as NumericLocale;
+use nu_ansi_term::Style;
 
 #[cfg(unix)]
 use crate::fs::fields as f;
@@ -33,10 +33,10 @@ pub mod test {
     #[cfg(unix)]
     use crate::output::cell::{DisplayWidth, TextCell};
 
-    use ansiterm::Colour::*;
-    use ansiterm::Style;
     #[cfg(unix)]
     use locale;
+    use nu_ansi_term::Color::*;
+    use nu_ansi_term::Style;
 
     struct TestColours;
 

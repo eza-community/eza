@@ -1,8 +1,8 @@
 use std::iter::Peekable;
 use std::ops::FnMut;
 
-use ansiterm::Colour::*;
-use ansiterm::{Colour, Style};
+use nu_ansi_term::Color::*;
+use nu_ansi_term::{Color as Colour, Style};
 
 // Parsing the LS_COLORS environment variable into a map of names to Style values.
 //
@@ -75,7 +75,7 @@ where
                     iter.next().and_then(|s| s.parse().ok()),
                     iter.next().and_then(|s| s.parse().ok()),
                 ) {
-                    return Some(RGB(r, g, b));
+                    return Some(Rgb(r, g, b));
                 }
             }
         }
@@ -120,13 +120,13 @@ impl<'var> Pair<'var> {
                 "37" => style = style.fg(White),
                 // Bright foreground colours
                 "90" => style = style.fg(DarkGray),
-                "91" => style = style.fg(BrightRed),
-                "92" => style = style.fg(BrightGreen),
-                "93" => style = style.fg(BrightYellow),
-                "94" => style = style.fg(BrightBlue),
-                "95" => style = style.fg(BrightPurple),
-                "96" => style = style.fg(BrightCyan),
-                "97" => style = style.fg(BrightGray),
+                "91" => style = style.fg(LightRed),
+                "92" => style = style.fg(LightGreen),
+                "93" => style = style.fg(LightYellow),
+                "94" => style = style.fg(LightBlue),
+                "95" => style = style.fg(LightPurple),
+                "96" => style = style.fg(LightCyan),
+                "97" => style = style.fg(LightGray),
                 "38" => {
                     if let Some(c) = parse_into_high_colour(&mut iter) {
                         style = style.fg(c);
@@ -144,13 +144,13 @@ impl<'var> Pair<'var> {
                 "47" => style = style.on(White),
                 // Bright background colours
                 "100" => style = style.on(DarkGray),
-                "101" => style = style.on(BrightRed),
-                "102" => style = style.on(BrightGreen),
-                "103" => style = style.on(BrightYellow),
-                "104" => style = style.on(BrightBlue),
-                "105" => style = style.on(BrightPurple),
-                "106" => style = style.on(BrightCyan),
-                "107" => style = style.on(BrightGray),
+                "101" => style = style.on(LightRed),
+                "102" => style = style.on(LightGreen),
+                "103" => style = style.on(LightYellow),
+                "104" => style = style.on(LightBlue),
+                "105" => style = style.on(LightPurple),
+                "106" => style = style.on(LightCyan),
+                "107" => style = style.on(LightGray),
                 "48" => {
                     if let Some(c) = parse_into_high_colour(&mut iter) {
                         style = style.on(c);
@@ -167,7 +167,7 @@ impl<'var> Pair<'var> {
 #[cfg(test)]
 mod ansi_test {
     use super::*;
-    use ansiterm::Style;
+    use nu_ansi_term::Style;
 
     macro_rules! test {
         ($name:ident: $input:expr => $result:expr) => {
@@ -211,10 +211,10 @@ mod ansi_test {
     test!(hibo:  "48;5;1;1"  => Style::default().on(Fixed(1)).bold());
     test!(hiund: "4;48;5;1"  => Style::default().on(Fixed(1)).underline());
 
-    test!(rgb:   "38;2;255;100;0"     => Style::default().fg(RGB(255, 100, 0)));
-    test!(rgbi:  "38;2;255;100;0;3"   => Style::default().fg(RGB(255, 100, 0)).italic());
-    test!(rgbbg: "48;2;255;100;0"     => Style::default().on(RGB(255, 100, 0)));
-    test!(rgbbi: "48;2;255;100;0;3"   => Style::default().on(RGB(255, 100, 0)).italic());
+    test!(rgb:   "38;2;255;100;0"     => Style::default().fg(Rgb(255, 100, 0)));
+    test!(rgbi:  "38;2;255;100;0;3"   => Style::default().fg(Rgb(255, 100, 0)).italic());
+    test!(rgbbg: "48;2;255;100;0"     => Style::default().on(Rgb(255, 100, 0)));
+    test!(rgbbi: "48;2;255;100;0;3"   => Style::default().on(Rgb(255, 100, 0)).italic());
 
     test!(fgbg:  "38;5;121;48;5;212"  => Fixed(121).on(Fixed(212)));
     test!(bgfg:  "48;5;121;38;5;212"  => Fixed(212).on(Fixed(121)));

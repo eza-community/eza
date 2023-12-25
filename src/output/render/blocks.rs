@@ -1,5 +1,5 @@
-use ansiterm::Style;
 use locale::Numeric as NumericLocale;
+use nu_ansi_term::Style;
 use number_prefix::Prefix;
 
 use crate::fs::fields as f;
@@ -72,8 +72,8 @@ pub trait Colours {
 
 #[cfg(test)]
 pub mod test {
-    use ansiterm::Colour::*;
-    use ansiterm::Style;
+    use nu_ansi_term::Color::*;
+    use nu_ansi_term::Style;
 
     use super::Colours;
     use crate::fs::fields as f;
@@ -103,7 +103,7 @@ pub mod test {
                 SizeFormat::JustBytes,
                 &NumericLocale::english()
             )
-        )
+        );
     }
 
     #[test]
@@ -121,7 +121,7 @@ pub mod test {
                 SizeFormat::DecimalBytes,
                 &NumericLocale::english()
             )
-        )
+        );
     }
 
     #[test]
@@ -139,7 +139,7 @@ pub mod test {
                 SizeFormat::BinaryBytes,
                 &NumericLocale::english()
             )
-        )
+        );
     }
 
     #[test]
@@ -157,6 +157,6 @@ pub mod test {
                 SizeFormat::JustBytes,
                 &NumericLocale::english()
             )
-        )
+        );
     }
 }
