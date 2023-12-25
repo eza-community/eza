@@ -2,6 +2,7 @@ use std::fmt::Debug;
 use std::path::Path;
 
 use ansiterm::{ANSIString, Style};
+use unicode_width::UnicodeWidthStr;
 
 use crate::fs::mounts::MountedFs;
 use crate::fs::{File, FileTarget};
@@ -443,8 +444,8 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     }
 
     /// For grid's use, to cover the case of hyperlink escape sequences
-    pub fn bare_width(&self) -> usize {
-        self.file.name.len()
+    pub fn bare_utf8_width(&self) -> usize {
+        UnicodeWidthStr::width(self.file.name.as_str())
     }
 }
 
