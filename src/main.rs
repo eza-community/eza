@@ -28,12 +28,14 @@ use std::path::{Component, PathBuf};
 use std::process::exit;
 
 use ansiterm::{ANSIStrings, Style};
+use clap::Parser;
 
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::GitIgnore;
 use crate::fs::{Dir, File};
+use crate::options::parser::Opts;
 use crate::options::stdin::FilesInput;
-use crate::options::{vars, Options, OptionsResult, Vars};
+use crate::options::{vars, Options, Vars};
 use crate::output::{details, escape, file_name, grid, grid_details, lines, Mode, View};
 use crate::theme::Theme;
 use log::*;
@@ -59,85 +61,69 @@ fn main() {
     }
 
     let stdout_istty = io::stdout().is_terminal();
-
     let mut input = String::new();
-    let args: Vec<_> = env::args_os().skip(1).collect();
-    match Options::parse(args.iter().map(std::convert::AsRef::as_ref), &LiveVars) {
-        OptionsResult::Ok(options, mut input_paths) => {
-            // List the current directory by default.
-            // (This has to be done here, otherwise git_options won’t see it.)
-            if input_paths.is_empty() {
-                match &options.stdin {
-                    FilesInput::Args => {
-                        input_paths = vec![OsStr::new(".")];
-                    }
-                    FilesInput::Stdin(separator) => {
-                        stdin()
-                            .read_to_string(&mut input)
-                            .expect("Failed to read from stdin");
-                        input_paths.extend(
-                            input
-                                .split(&separator.clone().into_string().unwrap_or("\n".to_string()))
-                                .map(std::ffi::OsStr::new)
-                                .filter(|s| !s.is_empty())
-                                .collect::<Vec<_>>(),
-                        );
-                    }
-                }
-            }
-
-            let git = git_options(&options, &input_paths);
-            let writer = io::stdout();
-            let git_repos = git_repos(&options, &input_paths);
-
-            let console_width = options.view.width.actual_terminal_width();
-            let theme = options.theme.to_theme(stdout_istty);
-            let exa = Exa {
-                options,
-                writer,
-                input_paths,
-                theme,
-                console_width,
-                git,
-                git_repos,
-            };
-
-            info!("matching on exa.run");
-            match exa.run() {
-                Ok(exit_status) => {
-                    trace!("exa.run: exit Ok(exit_status)");
-                    exit(exit_status);
-                }
-
-                Err(e) if e.kind() == ErrorKind::BrokenPipe => {
-                    warn!("Broken pipe error: {e}");
-                    exit(exits::SUCCESS);
-                }
-
-                Err(e) => {
-                    eprintln!("{e}");
-                    trace!("exa.run: exit RUNTIME_ERROR");
-                    exit(exits::RUNTIME_ERROR);
-                }
-            }
-        }
-
-        OptionsResult::Help(help_text) => {
-            print!("{help_text}");
-        }
-
-        OptionsResult::Version(version_str) => {
-            print!("{version_str}");
-        }
-
-        OptionsResult::InvalidOptions(error) => {
+    let cli = Opts::parse();
+    let mut input_paths: Vec<&OsStr> = cli.paths.iter().map(OsString::as_os_str).collect();
+    let options = match Options::deduce(&cli, &LiveVars) {
+        Ok(c) => c,
+        Err(error) => {
             eprintln!("eza: {error}");
-
-            if let Some(s) = error.suggestion() {
-                eprintln!("{s}");
-            }
-
             exit(exits::OPTIONS_ERROR);
+        }
+    };
+
+    if input_paths.is_empty() {
+        match &options.stdin {
+            FilesInput::Args => {
+                input_paths = vec![OsStr::new(".")];
+            }
+            FilesInput::Stdin(separator) => {
+                stdin()
+                    .read_to_string(&mut input)
+                    .expect("Failed to read from stdin");
+                input_paths.extend(
+                    input
+                        .split(&separator.clone().into_string().unwrap_or("\n".to_string()))
+                        .map(OsStr::new)
+                        .filter(|s| !s.is_empty())
+                        .collect::<Vec<_>>(),
+                );
+            }
+        }
+    }
+
+    let git = git_options(&options, &input_paths);
+    let git_repos = git_repos(&options, &input_paths);
+    let writer = io::stdout();
+
+    let console_width = options.view.width.actual_terminal_width();
+    let theme = options.theme.to_theme(stdout_istty);
+    let exa = Exa {
+        options,
+        writer,
+        input_paths,
+        theme,
+        console_width,
+        git,
+        git_repos,
+    };
+
+    info!("matching on exa.run");
+    match exa.run() {
+        Ok(exit_status) => {
+            trace!("exa.run: exit Ok(exit_status)");
+            exit(exit_status);
+        }
+
+        Err(e) if e.kind() == ErrorKind::BrokenPipe => {
+            warn!("Broken pipe error: {e}");
+            exit(exits::SUCCESS);
+        }
+
+        Err(e) => {
+            eprintln!("{e}");
+            trace!("exa.run: exit RUNTIME_ERROR");
+            exit(exits::RUNTIME_ERROR);
         }
     }
 }

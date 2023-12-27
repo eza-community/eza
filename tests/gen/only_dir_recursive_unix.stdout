@@ -1,3 +1,4 @@
+complex-names
 git
 grid
 group
@@ -7,6 +8,11 @@ size
 specials
 symlinks
 time
+
+tests/test_dir/complex-names:
+double-quotes
+
+tests/test_dir/complex-names/double-quotes:
 
 tests/test_dir/git:
 001
