@@ -110,8 +110,13 @@ The default value is ‘`automatic`’.
 `--no-quotes`
 : Don't quote file names with spaces.
 
-`--hyperlink`
+`--hyperlink=WHEN`
 : Display entries as hyperlinks
+
+Valid settings are ‘`always`’, ‘`automatic`’ (or ‘`auto`’ for short), and ‘`never`’.
+The default value is ‘`automatic`’.
+
+The default behavior (‘`automatic`’ or ‘`auto`’) is to add hyperlink control chars to the output only when the standard output is connected to a real terminal. If the output of `eza` is redirected to a file or piped into another program, hyperlink will not be used. Setting this option to ‘`always`’ causes `eza` to always output hyperlinks, while ‘`never`’ disables the use of hyperlinks.
 
 `-w`, `--width=COLS`
 : Set screen width in columns.
