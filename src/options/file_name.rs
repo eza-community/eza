@@ -108,13 +108,19 @@ impl QuoteStyle {
 }
 
 impl EmbedHyperlinks {
-    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let flagged = matches.has(&flags::HYPERLINK)?;
+    pub fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
+        let Some(word) = matches.get(&flags::HYPERLINK)? else {
+            return Ok(Self::Automatic);
+        };
 
-        if flagged {
-            Ok(Self::On)
+        if word == "always" {
+            Ok(Self::Always)
+        } else if word == "auto" || word == "automatic" {
+            Ok(Self::Automatic)
+        } else if word == "never" {
+            Ok(Self::Never)
         } else {
-            Ok(Self::Off)
+            Err(OptionsError::BadArgument(&flags::HYPERLINK, word.into()))
         }
     }
 }
