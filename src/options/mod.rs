@@ -81,10 +81,11 @@ mod file_name;
 mod filter;
 #[rustfmt::skip] // this module becomes unreadable with rustfmt
 mod flags;
+mod config;
+mod error;
 mod theme;
 mod view;
 
-mod error;
 pub use self::error::{NumberSource, OptionsError};
 
 mod help;

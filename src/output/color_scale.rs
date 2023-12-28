@@ -11,9 +11,19 @@ use crate::{
 pub struct ColorScaleOptions {
     pub mode: ColorScaleMode,
     pub min_luminance: isize,
-
     pub size: bool,
     pub age: bool,
+}
+
+impl Default for ColorScaleOptions {
+    fn default() -> Self {
+        Self {
+            mode: ColorScaleMode::Fixed,
+            min_luminance: 50,
+            size: false,
+            age: false,
+        }
+    }
 }
 
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
