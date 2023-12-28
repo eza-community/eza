@@ -3,7 +3,7 @@ use nu_ansi_term::Style;
 use crate::fs::File;
 use crate::info::filetype::FileType;
 use crate::output::color_scale::ColorScaleOptions;
-use crate::output::file_name::{Colours as FileNameColours, EmbedHyperlinks};
+use crate::output::file_name::Colours as FileNameColours;
 use crate::output::render;
 
 mod ui_styles;
@@ -19,8 +19,6 @@ pub struct Options {
     pub use_colours: UseColours,
 
     pub colour_scale: ColorScaleOptions,
-
-    pub embed_hyperlinks: EmbedHyperlinks,
 
     pub definitions: Definitions,
 }
