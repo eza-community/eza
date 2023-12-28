@@ -451,7 +451,7 @@ impl<'a> Table<'a> {
         let cells = self
             .columns
             .iter()
-            .map(|c| TextCell::paint_str(self.theme.ui.header, c.header()))
+            .map(|c| TextCell::paint_str(self.theme.ui.header.unwrap_or_default(), c.header()))
             .collect();
 
         Row { cells }
@@ -520,7 +520,7 @@ impl<'a> Table<'a> {
             #[cfg(unix)]
             Column::HardLinks => file.links().render(self.theme, &self.env.numeric),
             #[cfg(unix)]
-            Column::Inode => file.inode().render(self.theme.ui.inode),
+            Column::Inode => file.inode().render(self.theme.ui.inode.unwrap_or_default()),
             #[cfg(unix)]
             Column::Blocksize => {
                 file.blocksize()
@@ -541,22 +541,26 @@ impl<'a> Table<'a> {
             ),
             #[cfg(unix)]
             Column::SecurityContext => file.security_context().render(self.theme),
-            Column::FileFlags => file.flags().render(self.theme.ui.flags, self.flags_format),
+            Column::FileFlags => file
+                .flags()
+                .render(self.theme.ui.flags.unwrap_or_default(), self.flags_format),
             Column::GitStatus => self.git_status(file).render(self.theme),
             Column::SubdirGitRepo(status) => self.subdir_git_repo(file, status).render(self.theme),
             #[cfg(unix)]
-            Column::Octal => self.octal_permissions(file).render(self.theme.ui.octal),
+            Column::Octal => self
+                .octal_permissions(file)
+                .render(self.theme.ui.octal.unwrap_or_default()),
 
             Column::Timestamp(time_type) => time_type.get_corresponding_time(file).render(
                 if color_scale_info.is_some_and(|csi| csi.options.mode == ColorScaleMode::Gradient)
                 {
                     color_scale_info.unwrap().apply_time_gradient(
-                        self.theme.ui.date,
+                        self.theme.ui.date.unwrap_or_default(),
                         file,
                         time_type,
                     )
                 } else {
-                    self.theme.ui.date
+                    self.theme.ui.date.unwrap_or_default()
                 },
                 self.env.time_offset,
                 self.time_format.clone(),

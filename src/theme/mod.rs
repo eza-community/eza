@@ -64,7 +64,7 @@ impl Options {
         }
 
         // Parse the environment variables into colours and extension mappings
-        let mut ui = UiStyles::default_theme(self.colour_scale);
+        let mut ui = UiStyles::default(self.colour_scale);
         let (exts, use_default_filetypes) = self.definitions.parse_color_vars(&mut ui);
 
         // Use between 0 and 2 file name highlighters
@@ -496,7 +496,7 @@ mod customs_test {
     test!(ls_bd:   ls "bd=36", exa ""  =>  colours c -> { c.filekinds.block_device = Cyan.normal();   });
     test!(ls_cd:   ls "cd=35", exa ""  =>  colours c -> { c.filekinds.char_device  = Purple.normal(); });
     test!(ls_ln:   ls "ln=34", exa ""  =>  colours c -> { c.filekinds.symlink      = Blue.normal();   });
-    test!(ls_or:   ls "or=33", exa ""  =>  colours c -> { c.broken_symlink         = Yellow.normal(); });
+    test!(ls_or:   ls "or=33", exa ""  =>  colours c -> { c.broken_symlink         = Some(Yellow.normal()); });
 
     // EZA_COLORS can affect all those colours too:
     test!(exa_di:  ls "", exa "di=32"  =>  colours c -> { c.filekinds.directory    = Green.normal();  });
@@ -507,7 +507,7 @@ mod customs_test {
     test!(exa_bd:  ls "", exa "bd=35"  =>  colours c -> { c.filekinds.block_device = Purple.normal(); });
     test!(exa_cd:  ls "", exa "cd=34"  =>  colours c -> { c.filekinds.char_device  = Blue.normal();   });
     test!(exa_ln:  ls "", exa "ln=33"  =>  colours c -> { c.filekinds.symlink      = Yellow.normal(); });
-    test!(exa_or:  ls "", exa "or=32"  =>  colours c -> { c.broken_symlink         = Green.normal();  });
+    test!(exa_or:  ls "", exa "or=32"  =>  colours c -> { c.broken_symlink         = Some(Green.normal());  });
 
     // EZA_COLORS will even override options from LS_COLORS:
     test!(ls_exa_di: ls "di=31", exa "di=32"  =>  colours c -> { c.filekinds.directory  = Green.normal();  });
@@ -575,16 +575,16 @@ mod customs_test {
     test!(exa_gi:  ls "", exa "gi=38;5;128"  =>  colours c -> { c.git.ignored                           = Fixed(128).normal(); });
     test!(exa_gc:  ls "", exa "gc=38;5;129"  =>  colours c -> { c.git.conflicted                        = Fixed(129).normal(); });
 
-    test!(exa_xx:  ls "", exa "xx=38;5;128"  =>  colours c -> { c.punctuation                           = Fixed(128).normal(); });
-    test!(exa_da:  ls "", exa "da=38;5;129"  =>  colours c -> { c.date                                  = Fixed(129).normal(); });
-    test!(exa_in:  ls "", exa "in=38;5;130"  =>  colours c -> { c.inode                                 = Fixed(130).normal(); });
-    test!(exa_bl:  ls "", exa "bl=38;5;131"  =>  colours c -> { c.blocks                                = Fixed(131).normal(); });
-    test!(exa_hd:  ls "", exa "hd=38;5;132"  =>  colours c -> { c.header                                = Fixed(132).normal(); });
-    test!(exa_lp:  ls "", exa "lp=38;5;133"  =>  colours c -> { c.symlink_path                          = Fixed(133).normal(); });
-    test!(exa_cc:  ls "", exa "cc=38;5;134"  =>  colours c -> { c.control_char                          = Fixed(134).normal(); });
-    test!(exa_oc:  ls "", exa "oc=38;5;135"  =>  colours c -> { c.octal                                 = Fixed(135).normal(); });
-    test!(exa_ff:  ls "", exa "ff=38;5;136"  =>  colours c -> { c.flags                                 = Fixed(136).normal(); });
-    test!(exa_bo:  ls "", exa "bO=4"         =>  colours c -> { c.broken_path_overlay                   = Style::default().underline(); });
+    test!(exa_xx:  ls "", exa "xx=38;5;128"  =>  colours c -> { c.punctuation                           = Some(Fixed(128).normal()); });
+    test!(exa_da:  ls "", exa "da=38;5;129"  =>  colours c -> { c.date                                  = Some(Fixed(129).normal()); });
+    test!(exa_in:  ls "", exa "in=38;5;130"  =>  colours c -> { c.inode                                 = Some(Fixed(130).normal()); });
+    test!(exa_bl:  ls "", exa "bl=38;5;131"  =>  colours c -> { c.blocks                                = Some(Fixed(131).normal()); });
+    test!(exa_hd:  ls "", exa "hd=38;5;132"  =>  colours c -> { c.header                                = Some(Fixed(132).normal()); });
+    test!(exa_lp:  ls "", exa "lp=38;5;133"  =>  colours c -> { c.symlink_path                          = Some(Fixed(133).normal()); });
+    test!(exa_cc:  ls "", exa "cc=38;5;134"  =>  colours c -> { c.control_char                          = Some(Fixed(134).normal()); });
+    test!(exa_oc:  ls "", exa "oc=38;5;135"  =>  colours c -> { c.octal                                 = Some(Fixed(135).normal()); });
+    test!(exa_ff:  ls "", exa "ff=38;5;136"  =>  colours c -> { c.flags                                 = Some(Fixed(136).normal()); });
+    test!(exa_bo:  ls "", exa "bO=4"         =>  colours c -> { c.broken_path_overlay                   = Some(Style::default().underline()); });
 
     test!(exa_mp:  ls "", exa "mp=1;34;4"    =>  colours c -> { c.filekinds.mount_point                 = Blue.bold().underline(); });
     test!(exa_sp:  ls "", exa "sp=1;35;4"    =>  colours c -> { c.filekinds.special                     = Purple.bold().underline(); });
@@ -636,7 +636,7 @@ mod customs_test {
 
     // Finally, colours get applied right-to-left:
     test!(ls_overwrite:  ls "pi=31:pi=32:pi=33", exa ""  =>  colours c -> { c.filekinds.pipe = Yellow.normal(); });
-    test!(exa_overwrite: ls "", exa "da=36:da=35:da=34"  =>  colours c -> { c.date = Blue.normal(); });
+    test!(exa_overwrite: ls "", exa "da=36:da=35:da=34"  =>  colours c -> { c.date = Some(Blue.normal()); });
 
     // Parse keys and extensions
     test!(ls_fi_ls_txt:   ls "fi=33:*.txt=31", exa "" => colours c -> { c.filekinds.normal = Yellow.normal(); }, exts [ ("*.txt", Red.normal()) ]);

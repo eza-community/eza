@@ -5,123 +5,122 @@ use std::default::Default;
 use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};
 use crate::theme::ui_styles::*;
 
-impl UiStyles {
-    pub fn default_theme(scale: ColorScaleOptions) -> Self {
+impl Default for UiStyles {
+    fn default(scale: Option<ColorScaleOptions>) -> Self {
         Self {
-            colourful: true,
+            colourful: Some(true),
 
             #[rustfmt::skip]
-            filekinds: FileKinds {
-                normal:       Style::default(),
-                directory:    Blue.bold(),
-                symlink:      Cyan.normal(),
-                pipe:         Yellow.normal(),
-                block_device: Yellow.bold(),
-                char_device:  Yellow.bold(),
-                socket:       Red.bold(),
-                special:      Yellow.normal(),
-                executable:   Green.bold(),
-                mount_point:  Blue.bold().underline(),
-            },
+            filekinds: Some(FileKinds {
+            normal: Some(Style::default()),
+            directory: Some(Blue.bold()),
+            symlink: Some(Cyan.normal()),
+            pipe: Some(Yellow.normal()),
+            block_device: Some(Yellow.bold()),
+            char_device: Some(Yellow.bold()),
+            socket: Some(Red.bold()),
+            special: Some(Yellow.normal()),
+            executable: Some(Green.bold()),
+            mount_point: Some(Blue.bold().underline()),
+            }),
 
             #[rustfmt::skip]
-            perms: Permissions {
-                user_read:           Yellow.bold(),
-                user_write:          Red.bold(),
-                user_execute_file:   Green.bold().underline(),
-                user_execute_other:  Green.bold(),
+            perms: Some(Permissions {
+                user_read:           Some(Yellow.bold()),
+                user_write:          Some(Red.bold()),
+                user_execute_file:   Some(Green.bold().underline()),
+                user_execute_other:  Some(Green.bold()),
 
-                group_read:          Yellow.normal(),
-                group_write:         Red.normal(),
-                group_execute:       Green.normal(),
+                group_read:          Some(Yellow.normal()),
+                group_write:         Some(Red.normal()),
+                group_execute:       Some(Green.normal()),
 
-                other_read:          Yellow.normal(),
-                other_write:         Red.normal(),
-                other_execute:       Green.normal(),
+                other_read:          Some(Yellow.normal()),
+                other_write:         Some(Red.normal()),
+                other_execute:       Some(Green.normal()),
 
-                special_user_file:   Purple.normal(),
-                special_other:       Purple.normal(),
+                special_user_file:   Some(Purple.normal()),
+                special_other:       Some(Purple.normal()),
 
-                attribute:           Style::default(),
-            },
+                attribute:           Some(Style::default()),
+            }),
 
-            size: Size::colourful(scale),
-
-            #[rustfmt::skip]
-            users: Users {
-                user_you:                       Yellow.bold(),
-                user_other:                     Style::default(),
-                user_root:                      Style::default(),
-                group_yours:                    Yellow.bold(),
-                group_other:                    Style::default(),
-                group_root:                     Style::default(),
-            },
+            size: Some(Size::colourful(scale.unwrap_or_default())),
 
             #[rustfmt::skip]
-            links: Links {
-                normal:          Red.bold(),
-                multi_link_file: Red.on(Yellow),
-            },
+            users:Some(Users {
+                user_you:                       Some(Yellow.bold()),
+                user_other:                     Some(Style::default()),
+                user_root:                      Some(Style::default()),
+                group_yours:                    Some(Yellow.bold()),
+                group_other:                    Some(Style::default()),
+                group_root:                     Some(Style::default()),
+            }),
 
             #[rustfmt::skip]
-            git: Git {
-                new:         Green.normal(),
-                modified:    Blue.normal(),
-                deleted:     Red.normal(),
-                renamed:     Yellow.normal(),
-                typechange:  Purple.normal(),
-                ignored:     Style::default().dimmed(),
-                conflicted:  Red.normal(),
-            },
+            links: Some(Links {
+                normal:          Some(Red.bold()),
+                multi_link_file: Some(Red.on(Yellow)),
+            }),
 
-            git_repo: GitRepo {
-                branch_main: Green.normal(),
-                branch_other: Yellow.normal(),
-                git_clean: Green.normal(),
-                git_dirty: Yellow.bold(),
-            },
+            #[rustfmt::skip]
+            git: Some(Git {
+                new:         Some(Green.normal()),
+                modified:    Some(Blue.normal()),
+                deleted:     Some(Red.normal()),
+                renamed:     Some(Yellow.normal()),
+                typechange:  Some(Purple.normal()),
+                ignored:     Some(Style::default().dimmed()),
+                conflicted:  Some(Red.normal()),
+            }),
 
-            security_context: SecurityContext {
-                none: Style::default(),
+            git_repo: Some(GitRepo {
+                branch_main: Some(Green.normal()),
+                branch_other: Some(Yellow.normal()),
+                git_clean: Some(Green.normal()),
+                git_dirty: Some(Yellow.bold()),
+            }),
+
+            security_context: Some(SecurityContext {
+                none: Some(Style::default()),
                 #[rustfmt::skip]
-                selinux: SELinuxContext {
-                    colon: Style::default().dimmed(),
-                    user:  Blue.normal(),
-                    role:  Green.normal(),
-                    typ:   Yellow.normal(),
-                    range: Cyan.normal(),
-                },
-            },
+                selinux: Some(SELinuxContext {
+                    colon: Some(Style::default().dimmed()),
+                    user:  Some(Blue.normal()),
+                    role:  Some(Green.normal()),
+                    typ:   Some(Yellow.normal()),
+                    range: Some(Cyan.normal()),
+                }),
+            }),
 
             #[rustfmt::skip]
-            file_type: FileType {
-                image:      Purple.normal(),
-                video:      Purple.bold(),
-                music:      Cyan.normal(),
-                lossless:   Cyan.bold(),
-                crypto:     Green.bold(),
-                document:   Green.normal(),
-                compressed: Red.normal(),
-                temp:       White.normal(),
-                compiled:   Yellow.normal(),
-                build:      Yellow.bold().underline(),
-                source:     Yellow.bold(), // Need to discuss color
-            },
+            file_type: Some(FileType {
+                image:      Some(Purple.normal()),
+                video:      Some(Purple.bold()),
+                music:      Some(Cyan.normal()),
+                lossless:   Some(Cyan.bold()),
+                crypto:     Some(Green.bold()),
+                document:   Some(Green.normal()),
+                compressed: Some(Red.normal()),
+                temp:       Some(White.normal()),
+                compiled:   Some(Yellow.normal()),
+                build:      Some(Yellow.bold().underline()),
+                source:     Some(Yellow.bold()), // Need to discuss color
+            }),
 
-            punctuation: DarkGray.bold(),
-            date: Blue.normal(),
-            inode: Purple.normal(),
-            blocks: Cyan.normal(),
-            octal: Purple.normal(),
-            flags: Style::default(),
-            header: Style::default().underline(),
+            punctuation: Some(DarkGray.bold()),
+            date: Some(Blue.normal()),
+            inode: Some(Purple.normal()),
+            blocks: Some(Cyan.normal()),
+            octal: Some(Purple.normal()),
+            flags: Some(Style::default()),
+            header: Some(Style::default().underline()),
 
             icon: None,
-
-            symlink_path: Cyan.normal(),
-            control_char: Red.normal(),
-            broken_symlink: Red.normal(),
-            broken_path_overlay: Style::default().underline(),
+            symlink_path: Some(Cyan.normal()),
+            control_char: Some(Red.normal()),
+            broken_symlink: Some(Red.normal()),
+            broken_path_overlay: Some(Style::default().underline()),
         }
     }
 }
@@ -137,39 +136,39 @@ impl Size {
 
     fn colourful_fixed() -> Self {
         Self {
-            major: Green.bold(),
-            minor: Green.normal(),
+            major: Some(Green.bold()),
+            minor: Some(Green.normal()),
 
-            number_byte: Green.bold(),
-            number_kilo: Green.bold(),
-            number_mega: Green.bold(),
-            number_giga: Green.bold(),
-            number_huge: Green.bold(),
+            number_byte: Some(Green.bold()),
+            number_kilo: Some(Green.bold()),
+            number_mega: Some(Green.bold()),
+            number_giga: Some(Green.bold()),
+            number_huge: Some(Green.bold()),
 
-            unit_byte: Green.normal(),
-            unit_kilo: Green.normal(),
-            unit_mega: Green.normal(),
-            unit_giga: Green.normal(),
-            unit_huge: Green.normal(),
+            unit_byte: Some(Green.normal()),
+            unit_kilo: Some(Green.normal()),
+            unit_mega: Some(Green.normal()),
+            unit_giga: Some(Green.normal()),
+            unit_huge: Some(Green.normal()),
         }
     }
 
     fn colourful_gradient() -> Self {
         Self {
-            major: Green.bold(),
-            minor: Green.normal(),
+            major: Some(Green.bold()),
+            minor: Some(Green.normal()),
 
-            number_byte: Green.normal(),
-            number_kilo: Green.bold(),
-            number_mega: Yellow.normal(),
-            number_giga: Red.normal(),
-            number_huge: Purple.normal(),
+            number_byte: Some(Green.normal()),
+            number_kilo: Some(Green.bold()),
+            number_mega: Some(Yellow.normal()),
+            number_giga: Some(Red.normal()),
+            number_huge: Some(Purple.normal()),
 
-            unit_byte: Green.normal(),
-            unit_kilo: Green.bold(),
-            unit_mega: Yellow.normal(),
-            unit_giga: Red.normal(),
-            unit_huge: Purple.normal(),
+            unit_byte: Some(Green.normal()),
+            unit_kilo: Some(Green.bold()),
+            unit_mega: Some(Yellow.normal()),
+            unit_giga: Some(Red.normal()),
+            unit_huge: Some(Purple.normal()),
         }
     }
 }
