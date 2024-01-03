@@ -58,7 +58,7 @@ impl Icons {
     const LANG_FENNEL: char     = '\u{e6af}';  // 
     const LANG_FORTRAN: char    = '\u{f121a}'; // 󱈚
     const LANG_FSHARP: char     = '\u{e7a7}';  // 
-    const LANG_GO: char         = '\u{e65e}';  // 
+&    const LANG_GO: char         = '\u{e65e}';  // 
     const LANG_GROOVY: char     = '\u{e775}';  // 
     const LANG_HASKELL: char    = '\u{e777}';  // 
     const LANG_JAVA: char       = '\u{e256}';  // 
