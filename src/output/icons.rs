@@ -54,7 +54,7 @@ impl Icons {
     const LANG_ELIXIR: char     = '\u{e62d}';  // 
     const LANG_FORTRAN: char    = '\u{f121a}'; // 󱈚
     const LANG_FSHARP: char     = '\u{e7a7}';  // 
-    const LANG_GO: char         = '\u{e65e}';  // 
+&    const LANG_GO: char         = '\u{e65e}';  // 
     const LANG_GROOVY: char     = '\u{e775}';  // 
     const LANG_HASKELL: char    = '\u{e777}';  // 
     const LANG_JAVA: char       = '\u{e256}';  // 
@@ -430,8 +430,13 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "ex"             => Icons::LANG_ELIXIR,      // 
     "exe"            => Icons::OS_WINDOWS_CMD,   // 
     "exs"            => Icons::LANG_ELIXIR,      // 
+<<<<<<< HEAD
     "f"              => Icons::LANG_FORTRAN,     // 󱈚
     "f90"            => Icons::LANG_FORTRAN,     // 󱈚
+=======
+    "f"              => Icons::LANG_FORTRAN,     // 󱈚
+    "f90"            => Icons::LANG_FORTRAN,     // 󱈚
+>>>>>>> d36ef713 (feat: Add Fortran icons)
     "fdmdownload"    => Icons::DOWNLOAD,         // 󰇚
     "fish"           => Icons::SHELL_CMD,        // 
     "flac"           => Icons::AUDIO,            // 
@@ -439,7 +444,11 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "fnt"            => Icons::FONT,             // 
     "fon"            => Icons::FONT,             // 
     "font"           => Icons::FONT,             // 
+<<<<<<< HEAD
     "for"            => Icons::LANG_FORTRAN,     // 󱈚
+=======
+    "for"            => Icons::LANG_FORTRAN,     // 󱈚
+>>>>>>> d36ef713 (feat: Add Fortran icons)
     "fs"             => Icons::LANG_FSHARP,      // 
     "fsi"            => Icons::LANG_FSHARP,      // 
     "fsx"            => Icons::LANG_FSHARP,      // 
