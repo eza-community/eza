@@ -155,6 +155,8 @@ const DIRECTORY_ICONS: Map<&'static str, char> = phf_map! {
     "Videos"              => '\u{f03d}',            // 
     "xbps.d"              => Icons::FOLDER_CONFIG,  // 
     "xorg.conf.d"         => Icons::FOLDER_CONFIG,  // 
+    "hi"                  => Icons::BINARY,         // 
+    "cabal"               => Icons::LANG_HASKELL,   // 
 };
 
 /// Mapping from full filenames to file icon. This mapping should also contain
