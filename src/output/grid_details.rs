@@ -190,13 +190,13 @@ impl<'a> Render<'a> {
                     filename.options.show_icons,
                 ) {
                     (EmbedHyperlinks::On, ShowIcons::Automatic(spacing)) => {
-                        filename.bare_width() + 1 + (spacing as usize) + space_filename_offset
+                        filename.bare_utf8_width() + 1 + (spacing as usize) + space_filename_offset
                     }
                     (EmbedHyperlinks::On, ShowIcons::Always(spacing)) => {
-                        filename.bare_width() + 1 + (spacing as usize) + space_filename_offset
+                        filename.bare_utf8_width() + 1 + (spacing as usize) + space_filename_offset
                     }
                     (EmbedHyperlinks::On, ShowIcons::Never) => {
-                        filename.bare_width() + space_filename_offset
+                        filename.bare_utf8_width() + space_filename_offset
                     }
                     (EmbedHyperlinks::Off, _) => *contents.width(),
                 };

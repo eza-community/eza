@@ -223,6 +223,9 @@
             convco
             zip
 
+            # For releases
+            b3sum
+
             # For generating demo
             vhs
 

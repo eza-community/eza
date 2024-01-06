@@ -54,6 +54,7 @@ impl Icons {
     const LANG_CSHARP: char     = '\u{f031b}'; // 󰌛
     const LANG_D: char          = '\u{e7af}';  // 
     const LANG_ELIXIR: char     = '\u{e62d}';  // 
+    const LANG_FORTRAN: char    = '\u{f121a}'; // 󱈚
     const LANG_FSHARP: char     = '\u{e7a7}';  // 
     const LANG_GO: char         = '\u{e65e}';  // 
     const LANG_GROOVY: char     = '\u{e775}';  // 
@@ -449,6 +450,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "fodt"           => Icons::DOCUMENT,         // 
     "fon"            => Icons::FONT,             // 
     "font"           => Icons::FONT,             // 
+    "for"            => Icons::LANG_FORTRAN,     // 󱈚
     "fs"             => Icons::LANG_FSHARP,      // 
     "fsi"            => Icons::LANG_FSHARP,      // 
     "fsx"            => Icons::LANG_FSHARP,      // 

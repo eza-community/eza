@@ -2142,6 +2142,7 @@ tests/test_dir
 ├── symlinks
 │  ├── dir
 │  ├── file
+│  ├── ' lorem ipsum'
 │  ├── symlink -> file
 │  ├── symlink2 -> symlink
 │  ├── symlink3 -> dir
