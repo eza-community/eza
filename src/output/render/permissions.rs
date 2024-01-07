@@ -188,7 +188,9 @@ pub trait Colours {
 pub mod test {
     use super::{Colours, RenderPermissions};
     use crate::fs::fields as f;
-    use crate::output::cell::TextCellContents;
+    use crate::output::cell::{TextCell, TextCellContents};
+    use crate::output::render::filetype;
+    use crate::output::render::permissions::PermissionsPlusRender;
 
     use ansiterm::Colour::*;
     use ansiterm::Style;
@@ -211,6 +213,18 @@ pub mod test {
         fn special_user_file(&self)   -> Style { Fixed(110).normal() }
         fn special_other(&self)       -> Style { Fixed(111).normal() }
         fn attribute(&self)           -> Style { Fixed(112).normal() }
+    }
+
+    #[rustfmt::skip]
+    impl filetype::Colours for TestColours {
+        fn normal(&self) -> Style { Fixed(120).normal() }
+        fn directory(&self) -> Style { Fixed(121).normal() }
+        fn pipe(&self) -> Style { Fixed(122).normal() }
+        fn symlink(&self) -> Style { Fixed(123).normal() }
+        fn block_device(&self) -> Style { Fixed(124).normal() }
+        fn char_device(&self) -> Style { Fixed(125).normal() }
+        fn socket(&self) -> Style { Fixed(126).normal() }
+        fn special(&self) -> Style { Fixed(127).normal() }
     }
 
     #[test]
@@ -339,5 +353,138 @@ pub mod test {
         ]);
 
         assert_eq!(expected, bits.render(&TestColours, true).into())
+    }
+
+    #[test]
+    fn extra_specials_and_extra_attributes() {
+        #[cfg(unix)]
+        let bits = Some(f::Permissions {
+            user_read: false,
+            user_write: false,
+            user_execute: false,
+            setuid: true,
+            group_read: false,
+            group_write: false,
+            group_execute: false,
+            setgid: true,
+            other_read: false,
+            other_write: false,
+            other_execute: false,
+            sticky: true,
+        });
+
+        #[cfg(windows)]
+        let windows_bits = f::Attributes {
+            archive: false,
+            directory: true,
+            readonly: true,
+            hidden: true,
+            system: false,
+            reparse_point: false,
+        };
+
+        let plus_bits = Some(f::PermissionsPlus {
+            file_type: f::Type::File,
+            #[cfg(unix)]
+            permissions: bits.unwrap(),
+            #[cfg(windows)]
+            attributes: windows_bits,
+            xattrs: true,
+        });
+
+        #[cfg(unix)]
+        let expected = TextCellContents::from(vec![
+            Fixed(120).paint("."),
+            Fixed(11).paint("-"),
+            Fixed(11).paint("-"),
+            Fixed(111).paint("S"),
+            Fixed(11).paint("-"),
+            Fixed(11).paint("-"),
+            Fixed(111).paint("S"),
+            Fixed(11).paint("-"),
+            Fixed(11).paint("-"),
+            Fixed(111).paint("T"),
+            Fixed(112).paint("@"),
+        ]);
+        #[cfg(windows)]
+        let expected = TextCellContents::from(vec![
+            Fixed(121).paint("d"),
+            Fixed(11).paint("-"),
+            Fixed(101).paint("r"),
+            Fixed(110).paint("h"),
+            Fixed(11).paint("-"),
+        ]);
+        let expected_text_cell = TextCell {
+            contents: expected.clone(),
+            width: expected.width(),
+        };
+
+        assert_eq!(expected_text_cell, plus_bits.render(&TestColours).into())
+    }
+
+    #[test]
+    fn extra_specials_and_extra_attributes_off() {
+        #[cfg(unix)]
+        let bits = Some(f::Permissions {
+            user_read: false,
+            user_write: false,
+            user_execute: false,
+            setuid: true,
+            group_read: false,
+            group_write: false,
+            group_execute: false,
+            setgid: true,
+            other_read: false,
+            other_write: false,
+            other_execute: false,
+            sticky: true,
+        });
+
+        #[cfg(windows)]
+        let windows_bits = f::Attributes {
+            archive: false,
+            directory: true,
+            readonly: true,
+            hidden: true,
+            system: false,
+            reparse_point: false,
+        };
+
+        let plus_bits = Some(f::PermissionsPlus {
+            file_type: f::Type::File,
+            #[cfg(unix)]
+            permissions: bits.unwrap(),
+            #[cfg(windows)]
+            attributes: windows_bits,
+            xattrs: false,
+        });
+
+        #[cfg(unix)]
+        let expected = TextCellContents::from(vec![
+            Fixed(120).paint("."),
+            Fixed(11).paint("-"),
+            Fixed(11).paint("-"),
+            Fixed(111).paint("S"),
+            Fixed(11).paint("-"),
+            Fixed(11).paint("-"),
+            Fixed(111).paint("S"),
+            Fixed(11).paint("-"),
+            Fixed(11).paint("-"),
+            Fixed(111).paint("T"),
+        ]);
+        #[cfg(windows)]
+        let expected = TextCellContents::from(vec![
+            Fixed(121).paint("d"),
+            Fixed(11).paint("-"),
+            Fixed(101).paint("r"),
+            Fixed(110).paint("h"),
+            Fixed(11).paint("-"),
+        ]);
+        let expected_text_cell = TextCell {
+            contents: expected.clone(),
+            width: expected.width(),
+        };
+
+        assert_eq!(expected_text_cell, plus_bits.render(&TestColours).into())
     }
 }

@@ -109,6 +109,9 @@ pub struct Options {
     /// Whether to show each file’s extended attributes.
     pub xattr: bool,
 
+    /// Whether to show an indication for extended attributes.
+    pub indicate_xattr: bool,
+
     /// Whether to show each file's security attribute.
     pub secattr: bool,
 
@@ -280,7 +283,9 @@ impl<'a> Render<'a> {
                     //    permissions column for files with attributes, the
                     //    names of all attributes and their values, and any
                     //    errors encountered when getting them.
-                    // 3. If the --extended flag *hasn’t* been specified, then
+                    // 3. If the --hide-extended flag has been specified, then
+                    //    do not display anything extra.
+                    // 4. If the --extended flag *hasn’t* been specified, then
                     //    display the @, but don’t display anything else.
                     //
                     // For a while, exa took a stricter approach to (3):
@@ -300,7 +305,11 @@ impl<'a> Render<'a> {
                     };
 
                     let table_row = table.as_ref().map(|t| {
-                        t.row_for_file(file, self.show_xattr_hint(file), color_scale_info)
+                        if self.opts.indicate_xattr {
+                            t.row_for_file(file, self.show_xattr_hint(file), color_scale_info)
+                        } else {
+                            t.row_for_file(file, false, color_scale_info)
+                        }
                     });
 
                     let mut dir = None;
