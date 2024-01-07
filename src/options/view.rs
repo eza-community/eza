@@ -1,4 +1,5 @@
 use std::ffi::OsString;
+use std::io;
 
 use crate::fs::feature::xattr;
 use crate::options::parser::MatchedFlags;
@@ -11,6 +12,8 @@ use crate::output::table::{
 };
 use crate::output::time::TimeFormat;
 use crate::output::{details, grid, Mode, TerminalWidth, View};
+use log::debug;
+use std::io::IsTerminal;
 
 impl View {
     pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
@@ -104,7 +107,6 @@ impl Mode {
                 &flags::BYTES,
                 &flags::INODE,
                 &flags::LINKS,
-                &flags::HEADER,
                 &flags::BLOCKSIZE,
                 &flags::TIME,
                 &flags::GROUP,
@@ -114,6 +116,10 @@ impl Mode {
                 if matches.has(option)? {
                     return Err(OptionsError::Useless(option, false, &flags::LONG));
                 }
+            }
+
+            if matches.has(&flags::HEADER)? {
+                return Err(OptionsError::Useless(&flags::HEADER, false, &flags::LONG));
             }
 
             if matches.has(&flags::GIT)? && !matches.has(&flags::NO_GIT)? {
@@ -169,12 +175,27 @@ impl details::Options {
 
         Ok(details::Options {
             table: Some(TableOptions::deduce(matches, vars)?),
-            header: matches.has(&flags::HEADER)?,
+            header: Self::deduce_header(matches)?,
             xattr: xattr::ENABLED && matches.has(&flags::EXTENDED)?,
             secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
             mounts: matches.has(&flags::MOUNTS)?,
             color_scale: ColorScaleOptions::deduce(matches, vars)?,
         })
+    }
+
+    fn deduce_header(matches: &MatchedFlags<'_>) -> Result<bool, OptionsError> {
+        let word = if let Some(w) = matches.get(&flags::HEADER)? {
+            w.to_os_string()
+        } else {
+            return Ok(false);
+        };
+
+        match word.to_string_lossy().as_ref() {
+            "auto" => Ok(io::stdout().is_terminal()),
+            "always" => Ok(true),
+            "never" => Ok(false),
+            _ => Err(OptionsError::BadArgument(&flags::HEADER, word))?,
+        }
     }
 }
 
