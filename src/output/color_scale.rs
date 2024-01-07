@@ -141,7 +141,11 @@ fn update_information_recursively(
 
         // We don't want to recurse into . and .., but still want to list them, therefore bypass
         // the dot_filter.
-        if file.is_directory() && r.is_some_and(|x| !x.is_too_deep(depth.0)) && file.name != "." && file.name != ".." {
+        if file.is_directory()
+            && r.is_some_and(|x| !x.is_too_deep(depth.0))
+            && file.name != "."
+            && file.name != ".."
+        {
             match file.to_dir() {
                 Ok(dir) => {
                     let files: Vec<File<'_>> = dir
