@@ -442,6 +442,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "for"            => Icons::LANG_FORTRAN,     // 󱈚
     "fs"             => Icons::LANG_FSHARP,      // 
     "fsi"            => Icons::LANG_FSHARP,      // 
+    "fsproj"         => Icons::LANG_FSHARP,      // 
     "fsx"            => Icons::LANG_FSHARP,      // 
     "gdoc"           => Icons::DOCUMENT,         // 
     "gem"            => Icons::LANG_RUBY,        // 
