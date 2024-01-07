@@ -1,8 +1,8 @@
 use crate::output::cell::TextCell;
 use crate::output::time::TimeFormat;
 
-use ansiterm::Style;
 use chrono::prelude::*;
+use nu_ansi_term::Style;
 
 pub trait Render {
     fn render(self, style: Style, time_offset: FixedOffset, time_format: TimeFormat) -> TextCell;

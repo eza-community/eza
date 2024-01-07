@@ -2,7 +2,7 @@
 
 use std::io::{self, Write};
 
-use ansiterm::ANSIStrings;
+use nu_ansi_term::AnsiStrings as ANSIStrings;
 use term_grid as grid;
 
 use crate::fs::feature::git::GitCache;

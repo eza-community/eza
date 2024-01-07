@@ -1,6 +1,6 @@
 use std::iter;
 
-use ansiterm::{ANSIString, Style};
+use nu_ansi_term::{AnsiString as ANSIString, Style};
 
 use crate::fs::fields as f;
 use crate::output::cell::{DisplayWidth, TextCell};
@@ -190,8 +190,8 @@ pub mod test {
     use crate::fs::fields as f;
     use crate::output::cell::TextCellContents;
 
-    use ansiterm::Colour::*;
-    use ansiterm::Style;
+    use nu_ansi_term::Color::*;
+    use nu_ansi_term::Style;
 
     struct TestColours;
 
@@ -242,7 +242,7 @@ pub mod test {
             Fixed(11).paint("-"),
         ]);
 
-        assert_eq!(expected, bits.render(&TestColours, false).into())
+        assert_eq!(expected, bits.render(&TestColours, false).into());
     }
 
     #[test]
@@ -274,7 +274,7 @@ pub mod test {
             Fixed(109).paint("x"),
         ]);
 
-        assert_eq!(expected, bits.render(&TestColours, true).into())
+        assert_eq!(expected, bits.render(&TestColours, true).into());
     }
 
     #[test]
@@ -306,7 +306,7 @@ pub mod test {
             Fixed(111).paint("t"),
         ]);
 
-        assert_eq!(expected, bits.render(&TestColours, true).into())
+        assert_eq!(expected, bits.render(&TestColours, true).into());
     }
 
     #[test]
@@ -338,6 +338,6 @@ pub mod test {
             Fixed(111).paint("T"),
         ]);
 
-        assert_eq!(expected, bits.render(&TestColours, true).into())
+        assert_eq!(expected, bits.render(&TestColours, true).into());
     }
 }

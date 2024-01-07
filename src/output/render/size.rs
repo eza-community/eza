@@ -1,5 +1,5 @@
-use ansiterm::Style;
 use locale::Numeric as NumericLocale;
+use nu_ansi_term::Style;
 use number_prefix::Prefix;
 
 use crate::fs::fields as f;
@@ -131,9 +131,9 @@ pub mod test {
     use crate::output::cell::{DisplayWidth, TextCell};
     use crate::output::table::SizeFormat;
 
-    use ansiterm::Colour::*;
-    use ansiterm::Style;
     use locale::Numeric as NumericLocale;
+    use nu_ansi_term::Color::*;
+    use nu_ansi_term::Style;
     use number_prefix::Prefix;
 
     struct TestColours;
@@ -161,7 +161,7 @@ pub mod test {
                 &NumericLocale::english(),
                 None
             )
-        )
+        );
     }
 
     #[test]
@@ -180,7 +180,7 @@ pub mod test {
                 &NumericLocale::english(),
                 None
             )
-        )
+        );
     }
 
     #[test]
@@ -199,7 +199,7 @@ pub mod test {
                 &NumericLocale::english(),
                 None
             )
-        )
+        );
     }
 
     #[test]
@@ -218,7 +218,7 @@ pub mod test {
                 &NumericLocale::english(),
                 None
             )
-        )
+        );
     }
 
     #[test]
@@ -245,6 +245,6 @@ pub mod test {
                 &NumericLocale::english(),
                 None
             )
-        )
+        );
     }
 }

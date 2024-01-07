@@ -64,7 +64,7 @@ use std::mem::MaybeUninit;
 use std::path::PathBuf;
 use std::vec::IntoIter as VecIntoIter;
 
-use ansiterm::Style;
+use nu_ansi_term::Style;
 use scoped_threadpool::Pool;
 
 use log::*;
