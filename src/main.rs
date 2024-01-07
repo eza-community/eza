@@ -20,6 +20,8 @@
 #![allow(clippy::unused_self)]
 #![allow(clippy::upper_case_acronyms)]
 #![allow(clippy::wildcard_imports)]
+#![allow(clippy::too_many_arguments)]
+#![allow(clippy::fn_params_excessive_bools)]
 
 use std::env;
 use std::ffi::{OsStr, OsString};
@@ -30,7 +32,8 @@ use std::process::exit;
 use ansiterm::{ANSIStrings, Style};
 
 use crate::fs::feature::git::GitCache;
-use crate::fs::filter::GitIgnore;
+use crate::fs::feature::mercurial::MercurialCache;
+use crate::fs::filter::{GitIgnore, MercurialIgnore};
 use crate::fs::{Dir, File};
 use crate::options::stdin::FilesInput;
 use crate::options::{vars, Options, OptionsResult, Vars};
@@ -87,6 +90,7 @@ fn main() {
             }
 
             let git = git_options(&options, &input_paths);
+            let mercurial = mercurial_options(&options, &input_paths);
             let writer = io::stdout();
             let git_repos = git_repos(&options, &input_paths);
 
@@ -100,6 +104,7 @@ fn main() {
                 console_width,
                 git,
                 git_repos,
+                mercurial,
             };
 
             info!("matching on exa.run");
@@ -169,6 +174,8 @@ pub struct Exa<'args> {
     pub git: Option<GitCache>,
 
     pub git_repos: bool,
+
+    pub mercurial: Option<MercurialCache>,
 }
 
 /// The “real” environment variables type.
@@ -185,6 +192,14 @@ impl Vars for LiveVars {
 /// listed before they’re actually listed, if the options demand it.
 fn git_options(options: &Options, args: &[&OsStr]) -> Option<GitCache> {
     if options.should_scan_for_git() {
+        Some(args.iter().map(PathBuf::from).collect())
+    } else {
+        None
+    }
+}
+
+fn mercurial_options(options: &Options, args: &[&OsStr]) -> Option<MercurialCache> {
+    if options.should_scan_for_mercurial() {
         Some(args.iter().map(PathBuf::from).collect())
     } else {
         None
@@ -332,12 +347,16 @@ impl<'args> Exa<'args> {
 
             let mut children = Vec::new();
             let git_ignore = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
+            let mercurial_ignore =
+                self.options.filter.mercurial_ignore == MercurialIgnore::CheckAndIgnore;
             for file in dir.files(
                 self.options.filter.dot_filter,
                 self.git.as_ref(),
                 git_ignore,
                 self.options.view.deref_links,
                 self.options.view.total_size,
+                self.mercurial.as_ref(),
+                mercurial_ignore,
             ) {
                 match file {
                     Ok(file) => children.push(file),
@@ -427,7 +446,10 @@ impl<'args> Exa<'args> {
                 let recurse = self.options.dir_action.recurse_options();
 
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
+                let mercurial_ignoring =
+                    self.options.filter.mercurial_ignore == MercurialIgnore::CheckAndIgnore;
                 let git = self.git.as_ref();
+                let mercurial = self.mercurial.as_ref();
                 let git_repos = self.git_repos;
                 let r = details::Render {
                     dir,
@@ -440,6 +462,8 @@ impl<'args> Exa<'args> {
                     git_ignoring,
                     git,
                     git_repos,
+                    mercurial,
+                    mercurial_ignoring,
                 };
                 r.render(&mut self.writer)
             }
@@ -451,7 +475,10 @@ impl<'args> Exa<'args> {
 
                 let filter = &self.options.filter;
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
+                let mercurial_ignoring =
+                    self.options.filter.mercurial_ignore == MercurialIgnore::CheckAndIgnore;
                 let git = self.git.as_ref();
+                let mercurial = self.mercurial.as_ref();
                 let git_repos = self.git_repos;
 
                 let r = grid_details::Render {
@@ -467,6 +494,8 @@ impl<'args> Exa<'args> {
                     git,
                     console_width,
                     git_repos,
+                    mercurial,
+                    mercurial_ignoring,
                 };
                 r.render(&mut self.writer)
             }
@@ -476,7 +505,10 @@ impl<'args> Exa<'args> {
                 let filter = &self.options.filter;
                 let recurse = self.options.dir_action.recurse_options();
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
+                let mercurial_ignoring =
+                    self.options.filter.mercurial_ignore == MercurialIgnore::CheckAndIgnore;
                 let git = self.git.as_ref();
+                let mercurial = self.mercurial.as_ref();
                 let git_repos = self.git_repos;
 
                 let r = details::Render {
@@ -490,6 +522,8 @@ impl<'args> Exa<'args> {
                     git_ignoring,
                     git,
                     git_repos,
+                    mercurial,
+                    mercurial_ignoring,
                 };
                 r.render(&mut self.writer)
             }

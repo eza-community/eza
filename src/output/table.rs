@@ -11,6 +11,7 @@ use once_cell::sync::Lazy;
 use uzers::UsersCache;
 
 use crate::fs::feature::git::GitCache;
+use crate::fs::feature::mercurial::MercurialCache;
 use crate::fs::{fields as f, File};
 use crate::options::vars::EZA_WINDOWS_ATTRIBUTES;
 use crate::options::Vars;
@@ -48,6 +49,7 @@ pub struct Columns {
     pub blocksize: bool,
     pub group: bool,
     pub git: bool,
+    pub mercurial: bool,
     pub subdir_git_repos: bool,
     pub subdir_git_repos_no_stat: bool,
     pub octal: bool,
@@ -61,7 +63,12 @@ pub struct Columns {
 }
 
 impl Columns {
-    pub fn collect(&self, actually_enable_git: bool, git_repos: bool) -> Vec<Column> {
+    pub fn collect(
+        &self,
+        actually_enable_git: bool,
+        git_repos: bool,
+        actually_enable_mercurial: bool,
+    ) -> Vec<Column> {
         let mut columns = Vec::with_capacity(4);
 
         if self.inode {
@@ -139,6 +146,10 @@ impl Columns {
             columns.push(Column::SubdirGitRepo(false));
         }
 
+        if self.mercurial && actually_enable_mercurial {
+            columns.push(Column::MercurialStatus);
+        }
+
         columns
     }
 }
@@ -161,6 +172,7 @@ pub enum Column {
     Inode,
     GitStatus,
     SubdirGitRepo(bool),
+    MercurialStatus,
     #[cfg(unix)]
     Octal,
     #[cfg(unix)]
@@ -219,6 +231,7 @@ impl Column {
             Self::Inode => "inode",
             Self::GitStatus => "Git",
             Self::SubdirGitRepo(_) => "Repo",
+            Self::MercurialStatus => "Mercurial",
             #[cfg(unix)]
             Self::Octal => "Octal",
             #[cfg(unix)]
@@ -417,6 +430,7 @@ pub struct Table<'a> {
     group_format: GroupFormat,
     flags_format: FlagsFormat,
     git: Option<&'a GitCache>,
+    mercurial: Option<&'a MercurialCache>,
 }
 
 #[derive(Clone)]
@@ -430,8 +444,11 @@ impl<'a> Table<'a> {
         git: Option<&'a GitCache>,
         theme: &'a Theme,
         git_repos: bool,
+        mercurial: Option<&'a MercurialCache>,
     ) -> Table<'a> {
-        let columns = options.columns.collect(git.is_some(), git_repos);
+        let columns = options
+            .columns
+            .collect(git.is_some(), git_repos, mercurial.is_some());
         let widths = TableWidths::zero(columns.len());
         let env = &*ENVIRONMENT;
 
@@ -450,6 +467,7 @@ impl<'a> Table<'a> {
             #[cfg(unix)]
             group_format: options.group_format,
             flags_format: options.flags_format,
+            mercurial,
         }
     }
 
@@ -554,6 +572,7 @@ impl<'a> Table<'a> {
             Column::FileFlags => file.flags().render(self.theme.ui.flags, self.flags_format),
             Column::GitStatus => self.git_status(file).render(self.theme),
             Column::SubdirGitRepo(status) => self.subdir_git_repo(file, status).render(self.theme),
+            Column::MercurialStatus => self.mercurial_status(file).render(self.theme),
             #[cfg(unix)]
             Column::Octal => self.octal_permissions(file).render(self.theme.ui.octal),
 
@@ -579,6 +598,14 @@ impl<'a> Table<'a> {
 
         self.git
             .map(|g| g.get(&file.path, file.is_directory()))
+            .unwrap_or_default()
+    }
+
+    fn mercurial_status(&self, file: &File<'_>) -> f::Mercurial {
+        debug!("Getting Mercurial status for file {:?}", file.path);
+
+        self.mercurial
+            .map(|m| m.get(&file.path))
             .unwrap_or_default()
     }
 

@@ -269,6 +269,17 @@ All Git repository directories will be shown as (themed) `-` without status indi
 `--no-git`
 : Don't show Git status (always overrides `--git`, `--git-repos`, `--git-repos-no-status`)
 
+`--mercurial`  [if eza was built with mercurial support]
+: List each file’s Mercurial status, if tracked.
+hg command Needed !!! This adds a character column indicating status. The status character can be ‘`-`’ for not directories, ‘`M`’ for a modified file, ‘`A`’ for a added file, ‘`R`’ for deleted, ‘`C`’ for cleaned, ‘`!`’ for missing, ‘`I`’ for ignored.
+
+`--mercurial-ignore` [if eza was built with mercurial support]
+: Do not list files that are ignored by Mercurial.
+hg command Needed !!!
+
+`--no-mercurial` [if eza was built with mercurial support]
+: Don't show Mercurial status (always overrides `--mercurial`, `--mercurial-ignore`)
+hg command Needed !!!
 
 ENVIRONMENT VARIABLES
 =====================

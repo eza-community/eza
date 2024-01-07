@@ -69,6 +69,9 @@ __eza() {
         '*:filename:_files' \
         --smart-group"[Only show group if it has a different name from owner]" \
         --stdin"[When piping to eza. Read file names from stdin]"
+        --mercurial"[List each file's Mercurial status, if tracked]" \
+        --mercurial-ignore"[Ignore files ignored by Mercurial]" \
+        --no-mercurial"[Suppress Mercurial status]" \
 }
 
 __eza

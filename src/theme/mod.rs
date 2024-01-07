@@ -276,6 +276,37 @@ impl render::GitColours for Theme {
 }
 
 #[rustfmt::skip]
+impl render::MercurialColours for Theme {
+    fn modified(&self) -> Style {
+        self.ui.mercurial.modified
+    }
+
+    fn added(&self) -> Style {
+        self.ui.mercurial.added
+    }
+
+    fn removed(&self) -> Style {
+        self.ui.mercurial.removed
+    }
+
+    fn clean(&self) -> Style {
+        self.ui.mercurial.clean
+    }
+
+    fn missing(&self) -> Style {
+        self.ui.mercurial.missing
+    }
+
+    fn not_tracked(&self) -> Style {
+        self.ui.mercurial.not_tracked
+    }
+
+    fn ignored(&self) -> Style {
+        self.ui.mercurial.ignored
+    }
+}
+
+#[rustfmt::skip]
 impl render::GitRepoColours for Theme {
     fn branch_main(&self)  -> Style { self.ui.git_repo.branch_main }
     fn branch_other(&self) -> Style { self.ui.git_repo.branch_other }
