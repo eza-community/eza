@@ -151,6 +151,8 @@ const DIRECTORY_ICONS: Map<&'static str, char> = phf_map! {
     "Videos"              => '\u{f03d}',            // 
     "xbps.d"              => Icons::FOLDER_CONFIG,  // 
     "xorg.conf.d"         => Icons::FOLDER_CONFIG,  // 
+    "hi"                  => Icons::BINARY,         // 
+    "cabal"               => Icons::LANG_HASKELL,   // 
 };
 
 /// Mapping from full filenames to file icon. This mapping should also contain
@@ -234,6 +236,9 @@ const FILENAME_ICONS: Map<&'static str, char> = phf_map! {
     "csh.logout"          => Icons::SHELL,          // 󱆃
     "docker-compose.yml"  => Icons::DOCKER,         // 
     "Dockerfile"          => Icons::DOCKER,         // 
+    "compose.yaml"        => Icons::DOCKER,         // 
+    "compose.yml"         => Icons::DOCKER,         // 
+    "docker-compose.yaml" => Icons::DOCKER,         // 
     "dune"                => Icons::LANG_OCAML,     // 
     "dune-project"        => Icons::WRENCH,          // 
     "Earthfile"           => '\u{f0ac}',            // 
