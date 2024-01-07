@@ -14,7 +14,7 @@ use crate::output::details::{
     Options as DetailsOptions, Render as DetailsRender, Row as DetailsRow,
 };
 use crate::output::file_name::Options as FileStyle;
-use crate::output::file_name::{EmbedHyperlinks, ShowIcons};
+use crate::output::file_name::ShowIcons;
 use crate::output::grid::Options as GridOptions;
 use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams};
@@ -186,19 +186,17 @@ impl<'a> Render<'a> {
                     QuoteStyle::QuoteSpaces => 0, // Default case
                 };
                 let width = match (
-                    filename.options.embed_hyperlinks,
+                    filename.options.do_embed_hyperlinks(),
                     filename.options.show_icons,
                 ) {
-                    (EmbedHyperlinks::On, ShowIcons::Automatic(spacing)) => {
+                    (true, ShowIcons::Automatic(spacing)) => {
                         filename.bare_utf8_width() + 1 + (spacing as usize) + space_filename_offset
                     }
-                    (EmbedHyperlinks::On, ShowIcons::Always(spacing)) => {
+                    (true, ShowIcons::Always(spacing)) => {
                         filename.bare_utf8_width() + 1 + (spacing as usize) + space_filename_offset
                     }
-                    (EmbedHyperlinks::On, ShowIcons::Never) => {
-                        filename.bare_utf8_width() + space_filename_offset
-                    }
-                    (EmbedHyperlinks::Off, _) => *contents.width(),
+                    (true, ShowIcons::Never) => filename.bare_utf8_width() + space_filename_offset,
+                    (false, _) => *contents.width(),
                 };
 
                 TextCell {

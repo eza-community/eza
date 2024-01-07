@@ -61,6 +61,10 @@ commands:
     - --no-quotes
   ? - null
     - --hyperlink
+  : values:
+      - auto
+      - always
+      - never
   ? - -w
     - --width
   : values:
