@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt_skip)]
 use crate::options::parser::{Arg, Args, TakesValue, Values};
 
 // exa options
@@ -6,6 +7,7 @@ pub static HELP:    Arg = Arg { short: Some(b'?'), long: "help",     takes_value
 
 // display options
 pub static ONE_LINE:    Arg = Arg { short: Some(b'1'), long: "oneline",     takes_value: TakesValue::Forbidden };
+pub static JSON:        Arg = Arg { short: None,       long: "json",        takes_value: TakesValue::Forbidden };
 pub static LONG:        Arg = Arg { short: Some(b'l'), long: "long",        takes_value: TakesValue::Forbidden };
 pub static GRID:        Arg = Arg { short: Some(b'G'), long: "grid",        takes_value: TakesValue::Forbidden };
 pub static ACROSS:      Arg = Arg { short: Some(b'x'), long: "across",      takes_value: TakesValue::Forbidden };
@@ -88,7 +90,7 @@ pub static FILE_FLAGS:        Arg = Arg { short: Some(b'O'), long: "flags",     
 pub static ALL_ARGS: Args = Args(&[
     &VERSION, &HELP,
 
-    &ONE_LINE, &LONG, &GRID, &ACROSS, &RECURSE, &TREE, &CLASSIFY, &DEREF_LINKS,
+    &ONE_LINE, &JSON, &LONG, &GRID, &ACROSS, &RECURSE, &TREE, &CLASSIFY, &DEREF_LINKS,
     &COLOR, &COLOUR, &COLOR_SCALE, &COLOUR_SCALE, &COLOR_SCALE_MODE, &COLOUR_SCALE_MODE,
     &WIDTH, &NO_QUOTES, &ABSOLUTE,
 

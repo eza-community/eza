@@ -222,6 +222,64 @@ impl<'a> Render<'a> {
         Ok(())
     }
 
+    pub fn render_as_json<W: Write>(mut self, w: &mut W) -> io::Result<()> {
+        let n_cpus = match num_cpus::get() as u32 {
+            0 => 1,
+            n => n,
+        };
+        let mut pool = Pool::new(n_cpus);
+        let mut rows = Vec::new();
+
+        if let Some(ref options) = self.opts.table {
+            let mut table = Table::new(options, self.git, self.theme, self.git_repos);
+
+            if self.opts.header {
+                let header = table.header_row();
+                table.add_widths(&header);
+            }
+
+            // This is weird, but I can’t find a way around it:
+            // https://internals.rust-lang.org/t/should-option-mut-t-implement-copy/3715/6
+            let mut table = Some(table);
+            self.add_files_to_table(
+                &mut pool,
+                &mut table,
+                &mut rows,
+                &self.files,
+                TreeDepth::root(),
+                None,
+            );
+
+            write!(w, "{}", "{\"files\":[")?;
+            for (i, row) in self.iterate_with_table(table.unwrap(), rows).enumerate() {
+                write!(w, "\"{}\"", row.strings())?;
+                if (i + 1) < self.files.len() {
+                    write!(w, ", ")?;
+                }
+            }
+            write!(w, "{}", "]}}\n")?;
+        } else {
+            self.add_files_to_table(
+                &mut pool,
+                &mut None,
+                &mut rows,
+                &self.files,
+                TreeDepth::root(),
+                None,
+            );
+
+            write!(w, "{}", "{\"files\":[")?;
+            for (i, row) in self.iterate(rows).enumerate() {
+                write!(w, "\"{}\"", row.strings())?;
+                if (i + 1) < self.files.len() {
+                    write!(w, ", ")?;
+                }
+            }
+            write!(w, "{}", "]}}\n")?;
+        }
+        Ok(())
+    }
+
     /// Whether to show the extended attribute hint
     pub fn show_xattr_hint(&self, file: &File<'_>) -> bool {
         // Do not show the hint '@' if the only extended attribute is the security

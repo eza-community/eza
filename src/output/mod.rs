@@ -35,6 +35,7 @@ pub enum Mode {
     Details(details::Options),
     GridDetails(grid_details::Options),
     Lines,
+    Json(Option<details::Options>),
 }
 
 /// The width of the terminal requested by the user.
