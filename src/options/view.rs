@@ -44,6 +44,7 @@ impl Mode {
                 || f.matches(&flags::ONE_LINE)
                 || f.matches(&flags::GRID)
                 || f.matches(&flags::TREE)
+                || f.matches(&flags::JSON)
         });
 
         let Some(flag) = flag else {
@@ -87,6 +88,17 @@ impl Mode {
         if flag.matches(&flags::ONE_LINE) {
             let _ = matches.has(&flags::ONE_LINE)?;
             return Ok(Self::Lines);
+        }
+
+        if flag.matches(&flags::JSON) && !flag.matches(&flags::ONE_LINE) {
+            let _ = matches.has(&flags::JSON)?;
+            let details = details::Options::deduce_long(matches, vars)?;
+            return Ok(Self::Json(Some(details)));
+        }
+
+        if flag.matches(&flags::JSON) && flag.matches(&flags::ONE_LINE) {
+            let _ = matches.has(&flags::JSON)?;
+            return Ok(Self::Json(None));
         }
 
         let grid = grid::Options::deduce(matches)?;
