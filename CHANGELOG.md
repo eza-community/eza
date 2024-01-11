@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.17.1] - 2024-01-11
+
+### Bug Fixes
+
+- Offset widths in grid mode with utf8 filenames
+- Format the code
+- Unformat the code where needed
+- Format the code correctly this time
+- Redo everything from scratch
+- Stack overflow when '-laaR' are used
+- Stack overflow when '-laaR' is used
+
+### Features
+
+- Add Fortran icons
+
+### Miscellaneous Tasks
+
+- Adding blake3 to checksums
+
+### Testing
+
+- Regenerate version tests... and others
+- Updated tests to fit new features
+
+### Build
+
+- Add b3sum to devshell deps
+
 ## [0.17.0] - 2023-12-13
 
 ### Bug Fixes
@@ -17,6 +46,10 @@
 - Add BSD file flags
 - Add Windows file attributes
 - [**breaking**] Support different custom time style for non-recent/recent files
+
+### Miscellaneous Tasks
+
+- Release eza v0.17.0
 
 ### Testing
 
