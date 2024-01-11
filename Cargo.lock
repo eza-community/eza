@@ -402,7 +402,7 @@ dependencies = [
 
 [[package]]
 name = "eza"
-version = "0.17.0"
+version = "0.17.1"
 dependencies = [
  "ansiterm",
  "chrono",
