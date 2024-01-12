@@ -199,10 +199,14 @@ fn git_repos(_options: &Options, _args: &[&OsStr]) -> bool {
 #[cfg(feature = "git")]
 fn get_files_in_dir(paths: &mut Vec<PathBuf>, path: PathBuf) {
     let temp_paths = if path.is_dir() {
-        path.read_dir()
-            .unwrap()
-            .map(|entry| entry.unwrap().path())
-            .collect::<Vec<PathBuf>>()
+        match path.read_dir() {
+            Err(_) => {
+                vec![path]
+            }
+            Ok(d) => d
+                .map(|entry| entry.unwrap().path())
+                .collect::<Vec<PathBuf>>(),
+        }
     } else {
         vec![path]
     };
