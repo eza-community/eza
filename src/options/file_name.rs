@@ -123,9 +123,9 @@ mod tests {
 
     use super::*;
     use crate::options::vars::MockVars;
+    use clap::ValueEnum;
     use std::ffi::OsString;
     use std::num::ParseIntError;
-
     #[test]
     fn deduce_classify_file_indicators() {
         let options = Opts {
@@ -251,17 +251,9 @@ mod tests {
 
     #[test]
     fn deduce_show_icons_error() {
-        let options = Opts {
-            icons: Some(OsStr::from("foo").into()),
-            ..Opts::default()
-        };
-
-        let vars = MockVars {
-            ..MockVars::default()
-        };
-
         assert_eq!(
-            ShowIcons::deduce(&options, &vars),
+            ShowWhen::from_str("foo", false)
+                .map_err(|err| OptionsError::BadArgument("icons", err.into())),
             Err(OptionsError::BadArgument("icons", OsString::from("foo")))
         );
     }

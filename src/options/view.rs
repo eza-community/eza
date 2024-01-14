@@ -830,7 +830,7 @@ mod tests {
             time_style: Some(
                 TimeFormat::from_str(
                     "+%Y-%m-%d %H
-recent: --%m-%d %H:%M",
+--%m-%d %H:%M",
                     false,
                 )
                 .unwrap(),
@@ -854,7 +854,7 @@ recent: --%m-%d %H:%M",
         };
 
         let options = Opts {
-            color_scale: Some(ColorScaleArgs::from_str("size,age", true).unwrap()),
+            color_scale: Some(ColorScaleArgs::from_str("size,age", false).unwrap()),
             ..Opts::default()
         };
 

@@ -136,9 +136,6 @@ pub struct Opts {
     /// suppress the time field.
     #[arg(long = "no-time", action = clap::ArgAction::Count)]
     pub no_time: u8,
-    /// don't display icons (always override --icons).
-    #[arg(long = "no-icons", action = clap::ArgAction::Count)]
-    pub no_icons: u8,
     /// suppress git.
     #[arg(long = "no-git", action = clap::ArgAction::Count)]
     pub no_git: u8,
@@ -189,12 +186,34 @@ pub struct Opts {
     pub show_symlinks: u8,
 }
 
-#[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ShowWhen {
     // icons, colors, quotes, headers ? eventually
     Always,
     Auto,
     Never,
+}
+impl ValueEnum for ShowWhen {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[Self::Always, Self::Auto, Self::Never]
+    }
+
+    fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
+        match self {
+            Self::Always => Some(clap::builder::PossibleValue::new("always")),
+            Self::Auto => Some(clap::builder::PossibleValue::new("auto")),
+            Self::Never => Some(clap::builder::PossibleValue::new("never")),
+        }
+    }
+
+    fn from_str(s: &str, _ignore_case: bool) -> Result<Self, String> {
+        match s.to_lowercase().as_str() {
+            "always" => Ok(Self::Always),
+            "auto" | "automatic" => Ok(Self::Auto),
+            "never" => Ok(Self::Never),
+            e => Err(String::from(e)),
+        }
+    }
 }
 
 impl Display for ShowWhen {
@@ -255,14 +274,14 @@ impl ValueEnum for ColorScaleArgs {
     fn from_str(s: &str, ignore_case: bool) -> Result<Self, String> {
         if ignore_case {
             match s.to_ascii_lowercase().as_str() {
-                "all" | "age,size" => Ok(ColorScaleArgs::All),
+                "all" | "age,size" | "size,age" => Ok(ColorScaleArgs::All),
                 "age" => Ok(ColorScaleArgs::Age),
                 "size" => Ok(ColorScaleArgs::Size),
                 _ => Err(format!("Unknown color-scale value: {s}")),
             }
         } else {
             match s {
-                "all" | "age,size" => Ok(ColorScaleArgs::All),
+                "all" | "age,size" | "size,age" => Ok(ColorScaleArgs::All),
                 "age" => Ok(ColorScaleArgs::Age),
                 "size" => Ok(ColorScaleArgs::Size),
                 _ => Err(format!("Unknown color-scale value: {s}")),
@@ -328,7 +347,7 @@ impl From<clap::builder::OsStr> for SortArgs {
 }
 
 impl SortArgs {
-    pub fn as_str(&self) -> &'static str {
+    pub fn as_str(&self) -> &str {
         match self {
             SortArgs::Name => "name",
             SortArgs::Size => "size",
@@ -379,6 +398,7 @@ impl Display for SortArgs {
 #[derive(Clone, Debug, ValueEnum)]
 pub enum TimeArgs {
     Modified,
+    Changed,
     Accessed,
     Created,
 }
@@ -388,6 +408,7 @@ impl Display for TimeArgs {
             TimeArgs::Modified => write!(f, "modified"),
             TimeArgs::Accessed => write!(f, "accessed"),
             TimeArgs::Created => write!(f, "created"),
+            TimeArgs::Changed => write!(f, "changed"),
         }
     }
 }
@@ -437,7 +458,6 @@ impl Default for Opts {
             time: None,
             time_style: None,
             no_filesize: 0,
-            no_icons: 0,
             no_permissions: 0,
             no_time: 0,
             no_user: 0,
