@@ -193,6 +193,36 @@ pub enum ShowWhen {
     Auto,
     Never,
 }
+
+#[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
+pub enum ColorScaleModeArgs {
+    Fixed,
+    Gradient,
+}
+
+#[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
+pub enum TimeStyleArgs {
+    Default,
+    Iso,
+    LongIso,
+    FullIso,
+    Relative,
+}
+
+#[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
+pub enum SortArgs {
+    Name,
+    Size,
+    Time,
+    Extension,
+    Inode,
+    Version,
+    Created,
+    Accessed,
+    Modified,
+    Changed,
+}
+
 impl ValueEnum for ShowWhen {
     fn value_variants<'a>() -> &'a [Self] {
         &[Self::Always, Self::Auto, Self::Never]
@@ -208,6 +238,7 @@ impl ValueEnum for ShowWhen {
 
     fn from_str(s: &str, _ignore_case: bool) -> Result<Self, String> {
         match s.to_lowercase().as_str() {
+            "" => Ok(Self::Auto),
             "always" => Ok(Self::Always),
             "auto" | "automatic" => Ok(Self::Auto),
             "never" => Ok(Self::Never),
@@ -298,34 +329,6 @@ impl Display for ColorScaleArgs {
             ColorScaleArgs::Size => write!(f, "size"),
         }
     }
-}
-
-#[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
-pub enum ColorScaleModeArgs {
-    Fixed,
-    Gradient,
-}
-impl Display for ColorScaleModeArgs {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ColorScaleModeArgs::Fixed => write!(f, "fixed"),
-            ColorScaleModeArgs::Gradient => write!(f, "gradient"),
-        }
-    }
-}
-
-#[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
-pub enum SortArgs {
-    Name,
-    Size,
-    Time,
-    Extension,
-    Inode,
-    Version,
-    Created,
-    Accessed,
-    Modified,
-    Changed,
 }
 
 impl From<clap::builder::OsStr> for SortArgs {
