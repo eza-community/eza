@@ -68,7 +68,7 @@ impl clap::ValueEnum for TimeFormat {
     }
 
     fn from_str(s: &str, _ignore_case: bool) -> Result<Self, String> {
-        match s.to_lowercase().as_str() {
+        match s {
             "default" => Ok(Self::DefaultFormat),
             "iso" => Ok(Self::ISOFormat),
             "long-iso" => Ok(Self::LongISO),
