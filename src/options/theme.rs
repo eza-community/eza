@@ -1,4 +1,4 @@
-use crate::options::parser::{Color, Opts};
+use crate::options::parser::{Opts, ShowWhen};
 use crate::options::{vars, OptionsError, Vars};
 use crate::output::color_scale::ColorScaleOptions;
 use crate::theme::{Definitions, Options, UseColours};
@@ -30,9 +30,9 @@ impl UseColours {
         };
 
         match matches.color {
-            Color::Auto => default_value,
-            Color::Always => Self::Always,
-            Color::Never => Self::Never,
+            ShowWhen::Auto => default_value,
+            ShowWhen::Always => Self::Always,
+            ShowWhen::Never => Self::Never,
         }
     }
 }
@@ -109,7 +109,7 @@ mod tests {
         assert_eq!(
             UseColours::deduce(
                 &Opts {
-                    color: Color::Never,
+                    color: ShowWhen::Never,
                     ..Opts::default()
                 },
                 &vars
@@ -125,7 +125,7 @@ mod tests {
         };
 
         let options = Opts {
-            color: Color::Always,
+            color: ShowWhen::Always,
             ..Opts::default()
         };
 
@@ -139,7 +139,7 @@ mod tests {
         };
 
         let options = Opts {
-            color: Color::Auto,
+            color: ShowWhen::Auto,
             ..Opts::default()
         };
 

@@ -159,7 +159,6 @@ impl MockVars {
             "TIME_STYLE" => self.time = value.clone(),
             _ => (),
         };
-        ()
     }
 
     pub fn default() -> Self {
