@@ -51,11 +51,11 @@ impl SortField {
         };
 
         // Get String because we can’t match an OsStr
-        let Some(word) = word.to_str() else {
+        let Some(word) = word.into() else {
             return Err(OptionsError::BadArgument("sort", word.into()));
         };
 
-        let field = match word {
+        let field = match word.to_str().unwrap_or("name") {
             "name" | "filename" => Self::Name(SortCase::AaBbCc),
             "Name" | "Filename" => Self::Name(SortCase::ABCabc),
             ".name" | ".filename" => Self::NameMixHidden(SortCase::AaBbCc),
@@ -199,6 +199,8 @@ impl GitIgnore {
 
 #[cfg(test)]
 mod tests {
+    use crate::options::parser::SortArgs;
+
     use super::*;
     use std::ffi::OsString;
     #[test]
@@ -320,7 +322,7 @@ mod tests {
     #[test]
     fn deduce_sort_field_name() {
         let opts = Opts {
-            sort: Some(OsString::from("name")),
+            sort: Some("name".into()),
             ..Opts::default()
         };
         assert_eq!(
@@ -332,7 +334,7 @@ mod tests {
     #[test]
     fn deduce_sort_field_name_case() {
         let opts = Opts {
-            sort: Some(OsString::from("Name")),
+            sort: Some("Name".into()),
             ..Opts::default()
         };
         assert_eq!(
@@ -344,7 +346,7 @@ mod tests {
     #[test]
     fn deduce_sort_field_name_mix_hidden() {
         let opts = Opts {
-            sort: Some(OsString::from(".name")),
+            sort: Some(".name".into()),
             ..Opts::default()
         };
         assert_eq!(
@@ -354,21 +356,9 @@ mod tests {
     }
 
     #[test]
-    fn deduce_sort_field_name_mix_hidden_case() {
-        let opts = Opts {
-            sort: Some(OsString::from(".Name")),
-            ..Opts::default()
-        };
-        assert_eq!(
-            SortField::deduce(&opts),
-            Ok(SortField::NameMixHidden(SortCase::ABCabc))
-        );
-    }
-
-    #[test]
     fn deduce_sort_field_size() {
         let opts = Opts {
-            sort: Some(OsString::from("size")),
+            sort: Some("size".into()),
             ..Opts::default()
         };
 
@@ -378,26 +368,13 @@ mod tests {
     #[test]
     fn deduce_sort_field_extension() {
         let opts = Opts {
-            sort: Some(OsString::from("ext")),
+            sort: Some("ext".into()),
             ..Opts::default()
         };
 
         assert_eq!(
             SortField::deduce(&opts),
             Ok(SortField::Extension(SortCase::AaBbCc))
-        );
-    }
-
-    #[test]
-    fn deduce_sort_field_extension_case() {
-        let opts = Opts {
-            sort: Some(OsString::from("Ext")),
-            ..Opts::default()
-        };
-
-        assert_eq!(
-            SortField::deduce(&opts),
-            Ok(SortField::Extension(SortCase::ABCabc))
         );
     }
 

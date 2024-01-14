@@ -1,6 +1,8 @@
 pub use clap::Parser;
 use clap::ValueEnum;
-use std::ffi::OsString;
+use std::{ffi::OsString, fmt::Display};
+
+use crate::output::time::TimeFormat;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about)] // Read from `Cargo.toml`
@@ -40,11 +42,11 @@ pub struct Opts {
     #[arg(short = 'w', long)]
     pub width: Option<usize>,
     /// when to use terminal colours (always, auto, never).
-    #[arg(long, alias = "colour", value_enum, default_value_t = Color::Auto, default_missing_value = "auto", require_equals = false, num_args=0..=1)]
-    pub color: Color,
+    #[arg(long, alias = "colour", value_enum, default_value = ShowWhen::Auto, default_missing_value = ShowWhen::Auto, require_equals = false, num_args=0..=1)]
+    pub color: ShowWhen,
     /// highlight levels of 'field' distinctly(all, age, size).
-    #[arg(long, alias = "colour-scale")]
-    pub color_scale: Option<OsString>,
+    #[arg(long, alias = "colour-scale", value_enum, default_value = None, default_missing_value = None, num_args = 0..=1, require_equals = false)]
+    pub color_scale: Option<ColorScaleArgs>,
     /// use gradient or fixed colors in --color-scale (fixed, gradient)
     #[arg(long, alias = "colour-scale-mode", value_enum, default_value_t = ColorScaleModeArgs::Gradient, default_missing_value = "gradient", num_args = 0..=1, require_equals = false)]
     pub color_scale_mode: ColorScaleModeArgs,
@@ -60,8 +62,8 @@ pub struct Opts {
     #[arg(short = 'r', long, action = clap::ArgAction::Count)]
     pub reverse: u8,
     /// which field to sort by.
-    #[arg(short = 's', long)]
-    pub sort: Option<OsString>,
+    #[arg(short = 's', long, num_args = 0..=1, require_equals = false)]
+    pub sort: Option<OsString>, // ValueEnum here means we lose the sort field deducing :/
     /// glob patterns (pipe-separated) of files to ignore.
     #[arg(short = 'I', long)]
     pub ignore_glob: Option<OsString>,
@@ -90,8 +92,8 @@ pub struct Opts {
     #[arg(short = 'h', long, action = clap::ArgAction::Count)]
     pub header: u8,
     /// display icons
-    #[arg(long, default_missing_value_os = "auto", num_args = 0..=1, require_equals = false)]
-    pub icons: Option<OsString>,
+    #[arg(long, default_value = None, default_missing_value = ShowWhen::Auto, num_args = 0..=1, require_equals = false)]
+    pub icons: Option<ShowWhen>,
     /// list each file's inode number.
     #[arg(short = 'i', long, action = clap::ArgAction::Count)]
     pub inode: u8,
@@ -117,8 +119,8 @@ pub struct Opts {
     #[arg(short = 'U', long, action = clap::ArgAction::Count)]
     pub created: u8,
     /// how to format timestamps (default, iso, long-iso, full-iso, relative).
-    #[arg(long = "time-style")]
-    pub time_style: Option<OsString>,
+    #[arg(long = "time-style", value_enum, default_value = TimeFormat::DefaultFormat, default_missing_value = "default", num_args = 0..=1, require_equals = false)]
+    pub time_style: Option<TimeFormat>,
     /// display entries as hyperlinks.
     #[arg(long, action = clap::ArgAction::Count)]
     pub hyperlink: u8,
@@ -188,17 +190,95 @@ pub struct Opts {
 }
 
 #[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
-pub enum Color {
+pub enum ShowWhen {
+    // icons, colors, quotes, headers ? eventually
     Always,
     Auto,
     Never,
 }
 
-#[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
+impl Display for ShowWhen {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ShowWhen::Always => write!(f, "always"),
+            ShowWhen::Auto => write!(f, "auto"),
+            ShowWhen::Never => write!(f, "never"),
+        }
+    }
+}
+
+impl From<ShowWhen> for clap::builder::OsStr {
+    fn from(sw: ShowWhen) -> clap::builder::OsStr {
+        match sw {
+            ShowWhen::Always => clap::builder::OsStr::from("always"),
+            ShowWhen::Auto => clap::builder::OsStr::from("auto"),
+            ShowWhen::Never => clap::builder::OsStr::from("never"),
+        }
+    }
+}
+
+impl From<clap::builder::OsStr> for ShowWhen {
+    fn from(s: clap::builder::OsStr) -> ShowWhen {
+        match s.to_str() {
+            Some("always") => ShowWhen::Always,
+            Some("auto") => ShowWhen::Auto,
+            Some("never") => ShowWhen::Never,
+            _ => ShowWhen::Auto,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ColorScaleArgs {
     All,
     Age,
     Size,
+}
+
+impl ValueEnum for ColorScaleArgs {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[
+            ColorScaleArgs::All,
+            ColorScaleArgs::Age,
+            ColorScaleArgs::Size,
+        ]
+    }
+
+    fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
+        match self {
+            ColorScaleArgs::All => Some(clap::builder::PossibleValue::new("all")),
+            ColorScaleArgs::Age => Some(clap::builder::PossibleValue::new("age")),
+            ColorScaleArgs::Size => Some(clap::builder::PossibleValue::new("size")),
+        }
+    }
+
+    fn from_str(s: &str, ignore_case: bool) -> Result<Self, String> {
+        if ignore_case {
+            match s.to_ascii_lowercase().as_str() {
+                "all" | "age,size" => Ok(ColorScaleArgs::All),
+                "age" => Ok(ColorScaleArgs::Age),
+                "size" => Ok(ColorScaleArgs::Size),
+                _ => Err(format!("Unknown color-scale value: {s}")),
+            }
+        } else {
+            match s {
+                "all" | "age,size" => Ok(ColorScaleArgs::All),
+                "age" => Ok(ColorScaleArgs::Age),
+                "size" => Ok(ColorScaleArgs::Size),
+                _ => Err(format!("Unknown color-scale value: {s}")),
+            }
+        }
+    }
+}
+
+impl Display for ColorScaleArgs {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ColorScaleArgs::All => write!(f, "all"),
+            ColorScaleArgs::Age => write!(f, "age"),
+            ColorScaleArgs::Size => write!(f, "size"),
+        }
+    }
 }
 
 #[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
@@ -206,14 +286,13 @@ pub enum ColorScaleModeArgs {
     Fixed,
     Gradient,
 }
-
-#[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
-pub enum TimeStyleArgs {
-    Default,
-    Iso,
-    LongIso,
-    FullIso,
-    Relative,
+impl Display for ColorScaleModeArgs {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ColorScaleModeArgs::Fixed => write!(f, "fixed"),
+            ColorScaleModeArgs::Gradient => write!(f, "gradient"),
+        }
+    }
 }
 
 #[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
@@ -230,8 +309,91 @@ pub enum SortArgs {
     Changed,
 }
 
+impl From<clap::builder::OsStr> for SortArgs {
+    fn from(value: clap::builder::OsStr) -> Self {
+        match value.to_ascii_lowercase().to_str() {
+            Some("name") => SortArgs::Name,
+            Some("size") => SortArgs::Size,
+            Some("time" | "age" | "date" | "") => SortArgs::Time,
+            Some("extension") => SortArgs::Extension,
+            Some("inode") => SortArgs::Inode,
+            Some("version") => SortArgs::Version,
+            Some("created") => SortArgs::Created,
+            Some("accessed") => SortArgs::Accessed,
+            Some("modified") => SortArgs::Modified,
+            Some("changed") => SortArgs::Changed,
+            _ => SortArgs::Name,
+        }
+    }
+}
+
+impl SortArgs {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            SortArgs::Name => "name",
+            SortArgs::Size => "size",
+            SortArgs::Time => "time",
+            SortArgs::Extension => "extension",
+            SortArgs::Inode => "inode",
+            SortArgs::Version => "version",
+            SortArgs::Created => "created",
+            SortArgs::Accessed => "accessed",
+            SortArgs::Modified => "modified",
+            SortArgs::Changed => "changed",
+        }
+    }
+}
+
+impl From<SortArgs> for clap::builder::OsStr {
+    fn from(value: SortArgs) -> Self {
+        match value {
+            SortArgs::Name => clap::builder::OsStr::from("name"),
+            SortArgs::Size => clap::builder::OsStr::from("size"),
+            SortArgs::Time => clap::builder::OsStr::from("time"),
+            SortArgs::Extension => clap::builder::OsStr::from("extension"),
+            SortArgs::Inode => clap::builder::OsStr::from("inode"),
+            SortArgs::Version => clap::builder::OsStr::from("version"),
+            SortArgs::Created => clap::builder::OsStr::from("created"),
+            SortArgs::Accessed => clap::builder::OsStr::from("accessed"),
+            SortArgs::Modified => clap::builder::OsStr::from("modified"),
+            SortArgs::Changed => clap::builder::OsStr::from("changed"),
+        }
+    }
+}
+impl Display for SortArgs {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SortArgs::Name => write!(f, "name"),
+            SortArgs::Size => write!(f, "size"),
+            SortArgs::Time => write!(f, "time"),
+            SortArgs::Extension => write!(f, "extension"),
+            SortArgs::Inode => write!(f, "inode"),
+            SortArgs::Version => write!(f, "version"),
+            SortArgs::Created => write!(f, "created"),
+            SortArgs::Accessed => write!(f, "accessed"),
+            SortArgs::Modified => write!(f, "modified"),
+            SortArgs::Changed => write!(f, "changed"),
+        }
+    }
+}
+#[derive(Clone, Debug, ValueEnum)]
+pub enum TimeArgs {
+    Modified,
+    Accessed,
+    Created,
+}
+impl Display for TimeArgs {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TimeArgs::Modified => write!(f, "modified"),
+            TimeArgs::Accessed => write!(f, "accessed"),
+            TimeArgs::Created => write!(f, "created"),
+        }
+    }
+}
+
 impl Default for Opts {
-    fn default() -> Opts {
+    fn default() -> Self {
         Opts {
             paths: vec![],
             all: 0,
@@ -257,7 +419,7 @@ impl Default for Opts {
             classify: 0,
             dereference: 0,
             width: None,
-            color: Color::Auto,
+            color: ShowWhen::Auto,
             color_scale: None,
             color_scale_mode: ColorScaleModeArgs::Gradient,
             almost_all: 0,

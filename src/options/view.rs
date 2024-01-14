@@ -1,3 +1,5 @@
+use clap::ValueEnum;
+
 use crate::output::TerminalWidth::Automatic;
 use std::ffi::OsString;
 
@@ -202,7 +204,7 @@ impl RowThreshold {
 
 impl TableOptions {
     fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
-        let time_format = TimeFormat::deduce(matches, vars)?;
+        let time_format = TimeFormat::deduce(matches, vars);
         let flags_format = FlagsFormat::deduce(vars);
         let size_format = SizeFormat::deduce(matches);
         let user_format = UserFormat::deduce(matches);
@@ -288,56 +290,15 @@ impl SizeFormat {
 
 impl TimeFormat {
     /// Determine how time should be formatted in timestamp columns.
-    fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
-        let word = if let Some(w) = &matches.time_style {
-            w.clone()
+    fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Self {
+        if let Some(arg) = &matches.time_style {
+            arg.clone()
         } else {
             match vars.get(vars::TIME_STYLE) {
-                Some(ref t) if !t.is_empty() => t.clone(),
-                _ => return Ok(Self::DefaultFormat),
+                Some(t) if !t.is_empty() => TimeFormat::from_str(t.to_str().unwrap_or(""), false)
+                    .unwrap_or(TimeFormat::DefaultFormat),
+                _ => Self::DefaultFormat,
             }
-        };
-
-        match word.to_string_lossy().as_ref() {
-            "default" => Ok(Self::DefaultFormat),
-            "relative" => Ok(Self::Relative),
-            "iso" => Ok(Self::ISOFormat),
-            "long-iso" => Ok(Self::LongISO),
-            "full-iso" => Ok(Self::FullISO),
-            fmt if fmt.starts_with('+') => {
-                let mut lines = fmt[1..].lines();
-
-                // line 1 will be None when:
-                //   - there is nothing after `+`
-                // line 1 will be empty when:
-                //   - `+` is followed immediately by `\n`
-                let empty_non_recent_format_msg = "Custom timestamp format is empty, \
-                    please supply a chrono format string after the plus sign.";
-                let non_recent = lines.next().expect(empty_non_recent_format_msg);
-                let non_recent = if non_recent.is_empty() {
-                    panic!("{}", empty_non_recent_format_msg)
-                } else {
-                    non_recent.to_owned()
-                };
-
-                // line 2 will be None when:
-                //   - there is not a single `\n`
-                //   - there is nothing after the first `\n`
-                // line 2 will be empty when:
-                //   - there exist at least 2 `\n`, and no content between the 1st and 2nd `\n`
-                let empty_recent_format_msg = "Custom timestamp format for recent files is empty, \
-                    please supply a chrono format string at the second line.";
-                let recent = lines.next().map(|rec| {
-                    if rec.is_empty() {
-                        panic!("{}", empty_recent_format_msg)
-                    } else {
-                        rec.to_owned()
-                    }
-                });
-
-                Ok(Self::Custom { non_recent, recent })
-            }
-            _ => Err(OptionsError::BadArgument("time-style", word)),
         }
     }
 }
@@ -459,7 +420,7 @@ impl ColorScaleOptions {
             return Ok(options);
         };
 
-        for word in words.to_string_lossy().split(',') {
+        for word in words.to_string().split(',') {
             match word {
                 "all" => {
                     options.size = true;
@@ -480,7 +441,7 @@ impl ColorScaleOptions {
 
 #[cfg(test)]
 mod tests {
-    use crate::options::vars::MockVars;
+    use crate::options::{parser::ColorScaleArgs, vars::MockVars};
     use std::num::ParseIntError;
 
     use super::*;
@@ -726,10 +687,7 @@ mod tests {
         let options = Opts { ..Opts::default() };
 
         vars.set(vars::TIME_STYLE, &OsString::from("iso"));
-        assert_eq!(
-            TimeFormat::deduce(&options, &vars),
-            Ok(TimeFormat::ISOFormat)
-        );
+        assert_eq!(TimeFormat::deduce(&options, &vars), TimeFormat::ISOFormat);
     }
 
     #[test]
@@ -739,14 +697,11 @@ mod tests {
         };
 
         let options = Opts {
-            time_style: Some(OsString::from("iso")),
+            time_style: Some(TimeFormat::ISOFormat),
             ..Opts::default()
         };
 
-        assert_eq!(
-            TimeFormat::deduce(&options, &vars),
-            Ok(TimeFormat::ISOFormat)
-        );
+        assert_eq!(TimeFormat::deduce(&options, &vars), TimeFormat::ISOFormat);
     }
 
     #[test]
@@ -758,7 +713,7 @@ mod tests {
         let options = Opts { ..Opts::default() };
 
         vars.set(vars::TIME_STYLE, &OsString::from("long-iso"));
-        assert_eq!(TimeFormat::deduce(&options, &vars), Ok(TimeFormat::LongISO));
+        assert_eq!(TimeFormat::deduce(&options, &vars), TimeFormat::LongISO);
     }
 
     #[test]
@@ -768,11 +723,11 @@ mod tests {
         };
 
         let options = Opts {
-            time_style: Some(OsString::from("long-iso")),
+            time_style: Some(TimeFormat::LongISO),
             ..Opts::default()
         };
 
-        assert_eq!(TimeFormat::deduce(&options, &vars), Ok(TimeFormat::LongISO));
+        assert_eq!(TimeFormat::deduce(&options, &vars), TimeFormat::LongISO);
     }
 
     #[test]
@@ -784,7 +739,7 @@ mod tests {
         let options = Opts { ..Opts::default() };
 
         vars.set(vars::TIME_STYLE, &OsString::from("full-iso"));
-        assert_eq!(TimeFormat::deduce(&options, &vars), Ok(TimeFormat::FullISO));
+        assert_eq!(TimeFormat::deduce(&options, &vars), TimeFormat::FullISO);
     }
 
     #[test]
@@ -794,11 +749,11 @@ mod tests {
         };
 
         let options = Opts {
-            time_style: Some(OsString::from("full-iso")),
+            time_style: Some(TimeFormat::FullISO),
             ..Opts::default()
         };
 
-        assert_eq!(TimeFormat::deduce(&options, &vars), Ok(TimeFormat::FullISO));
+        assert_eq!(TimeFormat::deduce(&options, &vars), TimeFormat::FullISO);
     }
 
     #[test]
@@ -810,10 +765,7 @@ mod tests {
         let options = Opts { ..Opts::default() };
 
         vars.set(vars::TIME_STYLE, &OsString::from("relative"));
-        assert_eq!(
-            TimeFormat::deduce(&options, &vars),
-            Ok(TimeFormat::Relative)
-        );
+        assert_eq!(TimeFormat::deduce(&options, &vars), TimeFormat::Relative);
     }
 
     #[test]
@@ -823,14 +775,11 @@ mod tests {
         };
 
         let options = Opts {
-            time_style: Some(OsString::from("relative")),
+            time_style: Some(TimeFormat::Relative),
             ..Opts::default()
         };
 
-        assert_eq!(
-            TimeFormat::deduce(&options, &vars),
-            Ok(TimeFormat::Relative)
-        );
+        assert_eq!(TimeFormat::deduce(&options, &vars), TimeFormat::Relative);
     }
 
     #[test]
@@ -844,10 +793,10 @@ mod tests {
         vars.set(vars::TIME_STYLE, &OsString::from("+%Y-%b-%d"));
         assert_eq!(
             TimeFormat::deduce(&options, &vars),
-            Ok(TimeFormat::Custom {
-                recent: None,
-                non_recent: String::from("%Y-%b-%d")
-            })
+            TimeFormat::Custom {
+                non_recent: Some(String::from("%Y-%b-%d")),
+                recent: None
+            }
         );
     }
 
@@ -858,16 +807,16 @@ mod tests {
         };
 
         let options = Opts {
-            time_style: Some(OsString::from("+%Y-%b-%d")),
+            time_style: Some(TimeFormat::from_str("+%Y-%b-%d", true).unwrap()),
             ..Opts::default()
         };
 
         assert_eq!(
             TimeFormat::deduce(&options, &vars),
-            Ok(TimeFormat::Custom {
-                recent: None,
-                non_recent: String::from("%Y-%b-%d")
-            })
+            TimeFormat::Custom {
+                non_recent: Some(String::from("%Y-%b-%d")),
+                recent: None
+            }
         );
     }
 
@@ -878,39 +827,23 @@ mod tests {
         };
 
         let options = Opts {
-            time_style: Some(OsString::from(
-                "+%Y-%m-%d %H
---%m-%d %H:%M",
-            )),
+            time_style: Some(
+                TimeFormat::from_str(
+                    "+%Y-%m-%d %H
+recent: --%m-%d %H:%M",
+                    false,
+                )
+                .unwrap(),
+            ),
             ..Opts::default()
         };
 
         assert_eq!(
             TimeFormat::deduce(&options, &vars),
-            Ok(TimeFormat::Custom {
-                recent: Some(String::from("--%m-%d %H:%M")),
-                non_recent: String::from("%Y-%m-%d %H")
-            })
-        );
-    }
-
-    #[test]
-    fn deduce_time_style_error() {
-        let vars = MockVars {
-            ..MockVars::default()
-        };
-
-        let options = Opts {
-            time_style: Some(OsString::from("nice")),
-            ..Opts::default()
-        };
-
-        assert_eq!(
-            TimeFormat::deduce(&options, &vars),
-            Err(OptionsError::BadArgument(
-                "time-style",
-                OsString::from("nice")
-            ))
+            TimeFormat::Custom {
+                non_recent: Some(String::from("%Y-%m-%d %H")),
+                recent: Some(String::from("--%m-%d %H:%M"))
+            }
         );
     }
 
@@ -921,7 +854,7 @@ mod tests {
         };
 
         let options = Opts {
-            color_scale: Some(OsString::from("size,age")),
+            color_scale: Some(ColorScaleArgs::from_str("size,age", true).unwrap()),
             ..Opts::default()
         };
 
@@ -943,7 +876,7 @@ mod tests {
         };
 
         let options = Opts {
-            color_scale: Some(OsString::from("size")),
+            color_scale: Some(ColorScaleArgs::from_str("size", true).unwrap()),
             ..Opts::default()
         };
 
@@ -968,7 +901,7 @@ mod tests {
 
         let options = Opts {
             color_scale_mode: ColorScaleModeArgs::Fixed,
-            color_scale: Some(OsString::from("age")),
+            color_scale: Some(ColorScaleArgs::from_str("Age", true).unwrap()),
             ..Opts::default()
         };
 
@@ -992,8 +925,8 @@ mod tests {
         };
 
         let options = Opts {
+            color_scale: Some(ColorScaleArgs::from_str("size,age", false).unwrap()),
             color_scale_mode: ColorScaleModeArgs::Fixed,
-            color_scale: Some(OsString::from("size,age")),
             ..Opts::default()
         };
 
@@ -1044,20 +977,18 @@ mod tests {
             Ok(Mode::Grid(grid::Options { across: true }))
         );
     }
-    /*
-    fn deduce_tree<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
-        let details = details::Options {
-            table: None,
-            header: false,
-            xattr: xattr::ENABLED && matches.extended > 0,
-            secattr: xattr::ENABLED && matches.security_context > 0,
-            mounts: matches.mounts > 0,
-            color_scale: ColorScaleOptions::deduce(matches, vars)?,
-        };
-
-        Ok(details)
-    }
-    */
+    // fn deduce_tree<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
+    //     let details = details::Options {
+    //         table: None,
+    //         header: false,
+    //         xattr: xattr::ENABLED && matches.extended > 0,
+    //         secattr: xattr::ENABLED && matches.security_context > 0,
+    //         mounts: matches.mounts > 0,
+    //         color_scale: ColorScaleOptions::deduce(matches, vars)?,
+    //     };
+    //
+    //     Ok(details)
+    // }
     #[test]
     fn deduce_details_options_tree() {
         let options = Opts {
