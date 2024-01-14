@@ -1,6 +1,7 @@
 //! Timestamp formatting.
 
 use chrono::prelude::*;
+use clap::ValueEnum;
 use core::cmp::max;
 use once_cell::sync::Lazy;
 use std::time::Duration;
@@ -50,9 +51,120 @@ pub enum TimeFormat {
     /// specified for recent times, otherwise the same custom format will be
     /// used for both recent and non-recent times.
     Custom {
-        non_recent: String,
+        non_recent: Option<String>,
         recent: Option<String>,
     },
+}
+impl clap::ValueEnum for TimeFormat {
+    fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
+        match self {
+            Self::DefaultFormat => Some(clap::builder::PossibleValue::new("default")),
+            Self::ISOFormat => Some(clap::builder::PossibleValue::new("iso")),
+            Self::LongISO => Some(clap::builder::PossibleValue::new("long-iso")),
+            Self::FullISO => Some(clap::builder::PossibleValue::new("full-iso")),
+            Self::Relative => Some(clap::builder::PossibleValue::new("relative")),
+            Self::Custom { .. } => Some(clap::builder::PossibleValue::new("custom")),
+        }
+    }
+
+    fn from_str(s: &str, _ignore_case: bool) -> Result<Self, String> {
+        match s.to_lowercase().as_str() {
+            "default" => Ok(Self::DefaultFormat),
+            "iso" => Ok(Self::ISOFormat),
+            "long-iso" => Ok(Self::LongISO),
+            "full-iso" => Ok(Self::FullISO),
+            "relative" => Ok(Self::Relative),
+            fmt => {
+                if fmt.starts_with('+') {
+                    let mut lines = fmt.strip_prefix('+').unwrap().lines();
+
+                    // line 1 will be None when:
+                    //   - there is nothing after `+`
+                    // line 1 will be empty when:
+                    //   - `+` is followed immediately by `\n`
+                    let empty_non_recent_format_msg = "Custom timestamp format is empty, \
+                    please supply a chrono format string after the plus sign.";
+                    let non_recent = lines.next().expect(empty_non_recent_format_msg);
+                    let non_recent = if non_recent.is_empty() {
+                        panic!("{}", empty_non_recent_format_msg)
+                    } else {
+                        non_recent
+                    };
+
+                    // line 2 will be None when:
+                    //   - there is not a single `\n`
+                    //   - there is nothing after the first `\n`
+                    // line 2 will be empty when:
+                    //   - there exist at least 2 `\n`, and no content between the 1st and 2nd `\n`
+                    let empty_recent_format_msg =
+                        "Custom timestamp format for recent files is empty, \
+                    please supply a chrono format string at the second line.";
+                    let recent = lines.next().map(|rec| {
+                        if rec.is_empty() {
+                            panic!("{}", empty_recent_format_msg)
+                        } else {
+                            String::from(rec)
+                        }
+                    });
+                    Ok(TimeFormat::Custom {
+                        non_recent: Some(String::from(non_recent)),
+                        recent,
+                    })
+                } else {
+                    Err(format!(
+                        "Invalid custom timestamp format: {fmt}.\n\
+        Please start the format with a plus sign (+) to indicate a custom format.\n\
+        For example: +\"%Y-%m-%d %H:%M:%S\"",
+                    ))
+                }
+            }
+        }
+    }
+
+    fn value_variants<'a>() -> &'a [Self] {
+        &[
+            Self::DefaultFormat,
+            Self::ISOFormat,
+            Self::LongISO,
+            Self::FullISO,
+            Self::Relative,
+            Self::Custom {
+                recent: None,
+                non_recent: None,
+            },
+        ]
+    }
+}
+impl TimeFormat {
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::DefaultFormat => "default",
+            Self::ISOFormat => "iso",
+            Self::LongISO => "long-iso",
+            Self::FullISO => "full-iso",
+            Self::Relative => "relative",
+            Self::Custom { .. } => "custom",
+        }
+    }
+}
+
+impl From<clap::builder::OsStr> for TimeFormat {
+    fn from(s: clap::builder::OsStr) -> Self {
+        TimeFormat::from_str(s.to_str().unwrap(), false).unwrap()
+    }
+}
+
+impl From<TimeFormat> for clap::builder::OsStr {
+    fn from(value: TimeFormat) -> Self {
+        match value {
+            TimeFormat::DefaultFormat => clap::builder::OsStr::from("default"),
+            TimeFormat::ISOFormat => clap::builder::OsStr::from("iso"),
+            TimeFormat::LongISO => clap::builder::OsStr::from("long-iso"),
+            TimeFormat::FullISO => clap::builder::OsStr::from("full-iso"),
+            TimeFormat::Relative => clap::builder::OsStr::from("relative"),
+            TimeFormat::Custom { .. } => clap::builder::OsStr::from("custom"),
+        }
+    }
 }
 
 impl TimeFormat {
@@ -64,8 +176,8 @@ impl TimeFormat {
             Self::LongISO                       => long(time),
             Self::FullISO                       => full(time),
             Self::Relative                      => relative(time),
-            Self::Custom { non_recent, recent } => custom(
-                time, non_recent.as_str(), recent.as_deref()
+            Self::Custom{non_recent, recent}    => custom(
+                time, non_recent.unwrap_or(String::new()).as_str(), recent.as_deref()
             ),
         };
     }
@@ -165,29 +277,26 @@ mod test {
     #[test]
     fn short_month_width_hindi() {
         let max_month_width = 4;
-        assert_eq!(
-            true,
-            [
-                "\u{091C}\u{0928}\u{0970}",                         // जन॰
-                "\u{092B}\u{093C}\u{0930}\u{0970}",                 // फ़र॰
-                "\u{092E}\u{093E}\u{0930}\u{094D}\u{091A}",         // मार्च
-                "\u{0905}\u{092A}\u{094D}\u{0930}\u{0948}\u{0932}", // अप्रैल
-                "\u{092E}\u{0908}",                                 // मई
-                "\u{091C}\u{0942}\u{0928}",                         // जून
-                "\u{091C}\u{0941}\u{0932}\u{0970}",                 // जुल॰
-                "\u{0905}\u{0917}\u{0970}",                         // अग॰
-                "\u{0938}\u{093F}\u{0924}\u{0970}",                 // सित॰
-                "\u{0905}\u{0915}\u{094D}\u{0924}\u{0942}\u{0970}", // अक्तू॰
-                "\u{0928}\u{0935}\u{0970}",                         // नव॰
-                "\u{0926}\u{093F}\u{0938}\u{0970}",                 // दिस॰
-            ]
-            .iter()
-            .map(|month| format!(
-                "{:<width$}",
-                month,
-                width = short_month_padding(max_month_width, month)
-            ))
-            .all(|string| UnicodeWidthStr::width(string.as_str()) == max_month_width)
-        );
+        assert!([
+            "\u{091C}\u{0928}\u{0970}",                         // जन॰
+            "\u{092B}\u{093C}\u{0930}\u{0970}",                 // फ़र॰
+            "\u{092E}\u{093E}\u{0930}\u{094D}\u{091A}",         // मार्च
+            "\u{0905}\u{092A}\u{094D}\u{0930}\u{0948}\u{0932}", // अप्रैल
+            "\u{092E}\u{0908}",                                 // मई
+            "\u{091C}\u{0942}\u{0928}",                         // जून
+            "\u{091C}\u{0941}\u{0932}\u{0970}",                 // जुल॰
+            "\u{0905}\u{0917}\u{0970}",                         // अग॰
+            "\u{0938}\u{093F}\u{0924}\u{0970}",                 // सित॰
+            "\u{0905}\u{0915}\u{094D}\u{0924}\u{0942}\u{0970}", // अक्तू॰
+            "\u{0928}\u{0935}\u{0970}",                         // नव॰
+            "\u{0926}\u{093F}\u{0938}\u{0970}",                 // दिस॰
+        ]
+        .iter()
+        .map(|month| format!(
+            "{:<width$}",
+            month,
+            width = short_month_padding(max_month_width, month)
+        ))
+        .all(|string| UnicodeWidthStr::width(string.as_str()) == max_month_width));
     }
 }

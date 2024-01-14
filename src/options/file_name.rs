@@ -1,4 +1,4 @@
-use crate::options::parser::Opts;
+use crate::options::parser::{Opts, ShowWhen};
 use crate::options::vars::{self, Vars};
 use crate::options::{NumberSource, OptionsError};
 
@@ -51,28 +51,26 @@ impl ShowIcons {
         }
 
         let mode = match mode_opt {
-            Some(word) => match word.to_str() {
-                Some("always") => AlwaysOrAuto::Always,
-                Some("auto" | "automatic") => AlwaysOrAuto::Automatic,
-                Some("never") => return Ok(Self::Never),
-                None => AlwaysOrAuto::Automatic,
-                _ => return Err(OptionsError::BadArgument("icons", word.into())),
+            Some(word) => match word {
+                ShowWhen::Always => AlwaysOrAuto::Always,
+                ShowWhen::Auto => AlwaysOrAuto::Automatic,
+                ShowWhen::Never => return Ok(Self::Never),
             },
             None => AlwaysOrAuto::Automatic,
         };
 
         let width = if let Some(columns) = vars
             .get_with_fallback(vars::EXA_ICON_SPACING, vars::EZA_ICON_SPACING)
-            .and_then(|s| s.into_string().ok())
+            .map(|s| s.to_string_lossy().to_string())
         {
             match columns.parse() {
                 Ok(width) => width,
                 Err(e) => {
                     let source = NumberSource::Env(
                         vars.source(vars::EXA_ICON_SPACING, vars::EZA_ICON_SPACING)
-                            .unwrap(),
+                            .unwrap_or("1"),
                     );
-                    return Err(OptionsError::FailedParse(columns, source, e));
+                    return Err(OptionsError::FailedParse(columns.to_string(), source, e));
                 }
             }
         } else {
@@ -120,6 +118,8 @@ impl Absolute {
 }
 #[cfg(test)]
 mod tests {
+    use clap::builder::OsStr;
+
     use super::*;
     use crate::options::vars::MockVars;
     use std::ffi::OsString;
@@ -206,7 +206,7 @@ mod tests {
     #[test]
     fn deduce_show_icon_always() {
         let options = Opts {
-            icons: Some(OsString::from("always")),
+            icons: Some(clap::builder::OsStr::from("always").into()),
             ..Opts::default()
         };
 
@@ -220,7 +220,7 @@ mod tests {
     #[test]
     fn deduce_show_icons_never() {
         let options = Opts {
-            icons: Some(OsString::from("never")),
+            icons: Some(clap::builder::OsStr::from("never").into()),
             ..Opts::default()
         };
 
@@ -234,7 +234,7 @@ mod tests {
     #[test]
     fn deduce_show_icons_auto() {
         let options = Opts {
-            icons: Some(OsString::from("auto")),
+            icons: Some(OsStr::from("auto").into()),
             ..Opts::default()
         };
 
@@ -251,7 +251,7 @@ mod tests {
     #[test]
     fn deduce_show_icons_error() {
         let options = Opts {
-            icons: Some(OsString::from("foo")),
+            icons: Some(OsStr::from("foo").into()),
             ..Opts::default()
         };
 
@@ -268,7 +268,7 @@ mod tests {
     #[test]
     fn deduce_show_icons_width() {
         let options = Opts {
-            icons: Some(OsString::from("auto")),
+            icons: Some(OsStr::from("auto").into()),
             ..Opts::default()
         };
 
@@ -287,7 +287,7 @@ mod tests {
     #[test]
     fn deduce_show_icons_width_error() {
         let options = Opts {
-            icons: Some(OsString::from("auto")),
+            icons: Some(OsStr::from("auto").into()),
             ..Opts::default()
         };
 
