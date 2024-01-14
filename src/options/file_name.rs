@@ -101,9 +101,9 @@ impl EmbedHyperlinks {
 
 #[cfg(test)]
 mod tests {
-    use clap::builder::OsStr;
 
     use super::*;
+    use crate::options::parser::ShowWhen;
     use crate::options::vars::MockVars;
     use clap::ValueEnum;
     use std::ffi::OsString;
@@ -217,7 +217,8 @@ mod tests {
     #[test]
     fn deduce_show_icons_auto() {
         let options = Opts {
-            icons: Some(OsStr::from("auto").into()),
+
+            icons: Some(ShowWhen::from_str("auto", false).unwrap()),
             ..Opts::default()
         };
 
@@ -243,7 +244,7 @@ mod tests {
     #[test]
     fn deduce_show_icons_width() {
         let options = Opts {
-            icons: Some(OsStr::from("auto").into()),
+            icons: Some(ShowWhen::from_str("", false).unwrap()),
             ..Opts::default()
         };
 
@@ -263,6 +264,7 @@ mod tests {
     fn deduce_show_icons_width_error() {
         let options = Opts {
             icons: Some(OsStr::from("auto").into()),
+
             ..Opts::default()
         };
 

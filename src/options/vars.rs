@@ -116,6 +116,24 @@ pub struct MockVars {
 
 #[cfg(test)]
 #[allow(dead_code)]
+impl Default for MockVars {
+    fn default() -> Self {
+        Self {
+            columns: OsString::new(),
+            colors: OsString::new(),
+            no_colors: OsString::new(),
+            strict: OsString::new(),
+            grid_rows: OsString::new(),
+            debug: OsString::new(),
+            luminance: OsString::new(),
+            icon_spacing: OsString::new(),
+            icons: OsString::new(),
+            time: OsString::new(),
+        }
+    }
+}
+#[cfg(test)]
+#[allow(dead_code)]
 impl Vars for MockVars {
     fn get(&self, name: &'static str) -> Option<OsString> {
         match name {
@@ -159,21 +177,6 @@ impl MockVars {
             "TIME_STYLE" => self.time = value.clone(),
             _ => (),
         };
-    }
-
-    pub fn default() -> Self {
-        Self {
-            columns: OsString::new(),
-            colors: OsString::new(),
-            no_colors: OsString::new(),
-            strict: OsString::new(),
-            grid_rows: OsString::new(),
-            debug: OsString::new(),
-            luminance: OsString::new(),
-            icon_spacing: OsString::new(),
-            icons: OsString::new(),
-            time: OsString::new(),
-        }
     }
 }
 
