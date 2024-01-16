@@ -511,56 +511,78 @@ impl<'a> Table<'a> {
     ) -> TextCell {
         match column {
             Column::Permissions => self.permissions_plus(file, xattrs).render(self.theme),
-            Column::FileSize => file.size().render(
-                self.theme,
-                self.size_format,
-                &self.env.numeric,
-                color_scale_info,
-            ),
+            Column::FileSize => file
+                .size()
+                .render(
+                    self.theme,
+                    self.size_format,
+                    &self.env.numeric,
+                    color_scale_info,
+                )
+                .concat_content(),
             #[cfg(unix)]
-            Column::HardLinks => file.links().render(self.theme, &self.env.numeric),
+            Column::HardLinks => file
+                .links()
+                .render(self.theme, &self.env.numeric)
+                .concat_content(),
             #[cfg(unix)]
-            Column::Inode => file.inode().render(self.theme.ui.inode),
+            Column::Inode => file.inode().render(self.theme.ui.inode).concat_content(),
             #[cfg(unix)]
-            Column::Blocksize => {
-                file.blocksize()
-                    .render(self.theme, self.size_format, &self.env.numeric)
-            }
+            Column::Blocksize => file
+                .blocksize()
+                .render(self.theme, self.size_format, &self.env.numeric)
+                .concat_content(),
             #[cfg(unix)]
-            Column::User => {
-                file.user()
-                    .render(self.theme, &*self.env.lock_users(), self.user_format)
-            }
+            Column::User => file
+                .user()
+                .render(self.theme, &*self.env.lock_users(), self.user_format)
+                .concat_content(),
             #[cfg(unix)]
-            Column::Group => file.group().render(
-                self.theme,
-                &*self.env.lock_users(),
-                self.user_format,
-                self.group_format,
-                file.user(),
-            ),
+            Column::Group => file
+                .group()
+                .render(
+                    self.theme,
+                    &*self.env.lock_users(),
+                    self.user_format,
+                    self.group_format,
+                    file.user(),
+                )
+                .concat_content(),
             #[cfg(unix)]
-            Column::SecurityContext => file.security_context().render(self.theme),
-            Column::FileFlags => file.flags().render(self.theme.ui.flags, self.flags_format),
-            Column::GitStatus => self.git_status(file).render(self.theme),
-            Column::SubdirGitRepo(status) => self.subdir_git_repo(file, status).render(self.theme),
+            Column::SecurityContext => file.security_context().render(self.theme).concat_content(),
+            Column::FileFlags => file
+                .flags()
+                .render(self.theme.ui.flags, self.flags_format)
+                .concat_content(),
+            Column::GitStatus => self.git_status(file).render(self.theme).concat_content(),
+            Column::SubdirGitRepo(status) => self
+                .subdir_git_repo(file, status)
+                .render(self.theme)
+                .concat_content(),
             #[cfg(unix)]
-            Column::Octal => self.octal_permissions(file).render(self.theme.ui.octal),
+            Column::Octal => self
+                .octal_permissions(file)
+                .render(self.theme.ui.octal)
+                .concat_content(),
 
-            Column::Timestamp(time_type) => time_type.get_corresponding_time(file).render(
-                if color_scale_info.is_some_and(|csi| csi.options.mode == ColorScaleMode::Gradient)
-                {
-                    color_scale_info.unwrap().apply_time_gradient(
-                        self.theme.ui.date,
-                        file,
-                        time_type,
-                    )
-                } else {
-                    self.theme.ui.date
-                },
-                self.env.time_offset,
-                self.time_format.clone(),
-            ),
+            Column::Timestamp(time_type) => time_type
+                .get_corresponding_time(file)
+                .render(
+                    if color_scale_info
+                        .is_some_and(|csi| csi.options.mode == ColorScaleMode::Gradient)
+                    {
+                        color_scale_info.unwrap().apply_time_gradient(
+                            self.theme.ui.date,
+                            file,
+                            time_type,
+                        )
+                    } else {
+                        self.theme.ui.date
+                    },
+                    self.env.time_offset,
+                    self.time_format.clone(),
+                )
+                .concat_content(),
         }
     }
 

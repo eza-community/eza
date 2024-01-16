@@ -222,6 +222,20 @@ impl<'a> Render<'a> {
         Ok(())
     }
 
+    fn print_row<W: Write>(&self, w: &mut W, row: TextCell) -> io::Result<()> {
+        write!(w, "[")?;
+        for (i, cell) in row.contents.iter().enumerate() {
+            if cell.is_empty() || cell.trim().is_empty() {
+                continue;
+            };
+            write!(w, "\"{}\"", cell)?;
+            if (i + 1) < row.contents.len() {
+                write!(w, ", ")?;
+            }
+        }
+        write!(w, "{}", "]")
+    }
+
     pub fn render_as_json<W: Write>(mut self, w: &mut W) -> io::Result<()> {
         let n_cpus = match num_cpus::get() as u32 {
             0 => 1,
@@ -236,6 +250,7 @@ impl<'a> Render<'a> {
             if self.opts.header {
                 let header = table.header_row();
                 table.add_widths(&header);
+                rows.push(self.render_header(header));
             }
 
             // This is weird, but I can’t find a way around it:
@@ -250,14 +265,22 @@ impl<'a> Render<'a> {
                 None,
             );
 
-            write!(w, "{}", "{\"files\":[")?;
-            for (i, row) in self.iterate_with_table(table.unwrap(), rows).enumerate() {
-                write!(w, "\"{}\"", row.strings())?;
+            write!(w, "{}", "{\n")?;
+            let mut row_iter = self.iterate_with_table(table.unwrap(), rows);
+            if self.opts.header {
+                write!(w, "{}", "\"header\":")?;
+                let header = row_iter.next().unwrap();
+                self.print_row(w, header)?;
+                write!(w, "{}", ",\n")?;
+            }
+            write!(w, "{}", "\"files\":[")?;
+            for (i, row) in row_iter.enumerate() {
+                self.print_row(w, row)?;
                 if (i + 1) < self.files.len() {
                     write!(w, ", ")?;
                 }
             }
-            write!(w, "{}", "]}}\n")?;
+            write!(w, "{}", "\n]\n}\n")?;
         } else {
             self.add_files_to_table(
                 &mut pool,
