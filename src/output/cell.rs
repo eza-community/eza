@@ -91,6 +91,20 @@ impl TextCell {
         (*self.width) += *other.width;
         self.contents.0.extend(other.contents.0);
     }
+
+    pub fn concat_content(&self) -> TextCell {
+        let new_contents: Vec<String> = self
+            .contents
+            .iter()
+            .map(|x| x.clone().to_string())
+            .collect();
+
+        let new_string = new_contents.join("");
+        TextCell {
+            width: self.width,
+            contents: vec![ANSIString::from(new_string)].into(),
+        }
+    }
 }
 
 // I’d like to eventually abstract cells so that instead of *every* cell
