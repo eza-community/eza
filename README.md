@@ -96,6 +96,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s.
 - **--hyperlink**: display entries as hyperlinks
 - **--absolute=(mode)**: display entries with their absolute path (on, follow, off)
 - **-w**, **--width=(columns)**: set screen width in columns
+- **--json**: output results in JSON format (equivalent to `--long`)
 
 ### Filtering options
 
