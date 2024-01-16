@@ -222,21 +222,21 @@ impl<'a> Render<'a> {
         Ok(())
     }
 
-    fn print_row<W: Write>(&self, w: &mut W, row: TextCell) -> io::Result<()> {
+    fn print_row<W: Write>(&self, w: &mut W, row: &TextCell) -> io::Result<()> {
         write!(w, "[")?;
         for (i, cell) in row.contents.iter().enumerate() {
             if cell.is_empty() || cell.trim().is_empty() {
                 continue;
             };
-            write!(w, "\"{}\"", cell)?;
+            write!(w, "\"{cell}\"")?;
             if (i + 1) < row.contents.len() {
                 write!(w, ", ")?;
             }
         }
-        write!(w, "{}", "]")
+        write!(w, "]")
     }
 
-    pub fn render_as_json<W: Write>(mut self, w: &mut W) -> io::Result<()> {
+    pub fn render_as_json<W: Write>(self, w: &mut W) -> io::Result<()> {
         let n_cpus = match num_cpus::get() as u32 {
             0 => 1,
             n => n,
@@ -265,22 +265,22 @@ impl<'a> Render<'a> {
                 None,
             );
 
-            write!(w, "{}", "{\n")?;
+            writeln!(w, "{{")?;
             let mut row_iter = self.iterate_with_table(table.unwrap(), rows);
             if self.opts.header {
-                write!(w, "{}", "\"header\":")?;
+                write!(w, "\"header\":")?;
                 let header = row_iter.next().unwrap();
-                self.print_row(w, header)?;
-                write!(w, "{}", ",\n")?;
+                self.print_row(w, &header)?;
+                writeln!(w, ",")?;
             }
-            write!(w, "{}", "\"files\":[")?;
+            write!(w, "\"files\":[")?;
             for (i, row) in row_iter.enumerate() {
-                self.print_row(w, row)?;
+                self.print_row(w, &row)?;
                 if (i + 1) < self.files.len() {
                     write!(w, ", ")?;
                 }
             }
-            write!(w, "{}", "\n]\n}\n")?;
+            writeln!(w, "\n]\n}}")?;
         } else {
             self.add_files_to_table(
                 &mut pool,
@@ -291,14 +291,14 @@ impl<'a> Render<'a> {
                 None,
             );
 
-            write!(w, "{}", "{\"files\":[")?;
+            write!(w, "{{\"files\":[")?;
             for (i, row) in self.iterate(rows).enumerate() {
                 write!(w, "\"{}\"", row.strings())?;
                 if (i + 1) < self.files.len() {
                     write!(w, ", ")?;
                 }
             }
-            write!(w, "{}", "]}}\n")?;
+            writeln!(w, "]}}")?;
         }
         Ok(())
     }
