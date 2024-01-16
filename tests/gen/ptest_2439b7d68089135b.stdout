@@ -20,7 +20,6 @@ DISPLAY OPTIONS
   --icons=WHEN               when to display icons (always, auto, never)
   --no-quotes                don't quote file names with spaces
   --hyperlink                display entries as hyperlinks
-  --absolute                 display entries with their absolute path (on, follow, off)
   -w, --width COLS           set screen width in columns
   --json                     output results in JSON format equivalent to long view
 
