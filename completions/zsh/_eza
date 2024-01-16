@@ -69,6 +69,7 @@ __eza() {
         '*:filename:_files' \
         --smart-group"[Only show group if it has a different name from owner]" \
         --stdin"[When piping to eza. Read file names from stdin]"
+        --json"[Output results as JSON(equivalent to --long)]"
 }
 
 __eza
