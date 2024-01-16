@@ -28,6 +28,7 @@ DISPLAY OPTIONS
   --hyperlink                display entries as hyperlinks
   --absolute                 display entries with their absolute path (on, follow, off)
   -w, --width COLS           set screen width in columns
+  --json                     output results in JSON format equivalent to long view
 
 
 FILTERING AND SORTING OPTIONS

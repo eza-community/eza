@@ -37,15 +37,15 @@ impl<'a> Render<'a> {
 
     pub fn render_as_json<W: Write>(mut self, w: &mut W) -> io::Result<()> {
         self.filter.sort_files(&mut self.files);
-        write!(w, "{}", "{\"files\":[")?;
+        write!(w, "{{\"files\":[")?;
         for (i, file) in self.files.iter().enumerate() {
             let name_cell = self.render_file(file);
             write!(w, "\"{}\"", ANSIStrings(&name_cell))?;
             if (i + 1) < self.files.len() {
-                write!(w, "{}", ",")?;
+                write!(w, ",")?;
             }
         }
-        write!(w, "{}", "]}\n")?;
+        writeln!(w, "]}}")?;
 
         Ok(())
     }
