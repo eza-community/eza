@@ -74,9 +74,12 @@ pub enum Classify {
     /// Just display the file names, without any characters.
     JustFilenames,
 
-    /// Add a character after the file name depending on what class of file
-    /// it is.
+    /// Always add a character after the file name depending on what class of
+    /// file it is.
     AddFileIndicators,
+
+    // Like previous, but only when output is going to a terminal, not otherwise.
+    AutomaticAddFileIndicators,
 }
 
 impl Default for Classify {
@@ -189,6 +192,12 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
             _ => None,
         };
 
+        let should_add_classify_char = match self.options.classify {
+            Classify::AddFileIndicators => true,
+            Classify::AutomaticAddFileIndicators if self.options.is_a_tty => true,
+            _ => false,
+        };
+
         if let Some(spaces_count) = spaces_count_opt {
             let style = iconify_style(self.style());
             let file_icon = icon_for_file(self.file).to_string();
@@ -248,7 +257,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                             bits.push(bit);
                         }
 
-                        if let Classify::AddFileIndicators = self.options.classify {
+                        if should_add_classify_char {
                             if let Some(class) = self.classify_char(target) {
                                 bits.push(Style::default().paint(class));
                             }
@@ -274,7 +283,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                     // Do nothing — the error gets displayed on the next line
                 }
             }
-        } else if let Classify::AddFileIndicators = self.options.classify {
+        } else if should_add_classify_char {
             if let Some(class) = self.classify_char(self.file) {
                 bits.push(Style::default().paint(class));
             }
