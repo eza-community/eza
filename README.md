@@ -88,7 +88,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s.
 - **-R**, **--recurse**: recurse into directories
 - **-T**, **--tree**: recurse into directories as a tree
 - **-x**, **--across**: sort the grid across, rather than downwards
-- **-F**, **--classify**: display type indicator by file names
+- **-F**, **--classify=(when)**: display type indicator by file names (always, auto, never)
 - **--colo[u]r=(when)**: when to use terminal colours (always, auto, never)
 - **--colo[u]r-scale=(field)**: highlight levels of `field` distinctly(all, age, size)
 - **--color-scale-mode=(mode)**: use gradient or fixed colors in --color-scale. valid options are `fixed` or `gradient`
