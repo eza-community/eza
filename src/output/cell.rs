@@ -105,6 +105,20 @@ impl TextCell {
             contents: vec![ANSIString::from(new_string)].into(),
         }
     }
+
+    pub fn clean_content(&self) -> TextCell {
+        let new_contents = self
+            .contents
+            .iter()
+            .map(|x| x.clone())
+            .filter(|w| !w.is_empty() && !w.trim().is_empty())
+            .collect::<Vec<_>>();
+
+        TextCell {
+            width: self.width,
+            contents: new_contents.into(),
+        }
+    }
 }
 
 // I’d like to eventually abstract cells so that instead of *every* cell

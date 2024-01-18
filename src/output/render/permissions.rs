@@ -26,11 +26,9 @@ impl PermissionsPlusRender for Option<f::PermissionsPlus> {
                 // As these are all ASCII characters, we can guarantee that they’re
                 // all going to be one character wide, and don’t need to compute the
                 // cell’s display width.
-                let contents: Vec<_> = chars.iter().map(std::string::ToString::to_string).collect();
-
                 TextCell {
                     width: DisplayWidth::from(chars.len()),
-                    contents: vec![ANSIString::from(contents.join(""))].into(),
+                    contents: chars.into(),
                 }
             }
             None => {

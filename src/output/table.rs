@@ -510,7 +510,7 @@ impl<'a> Table<'a> {
         color_scale_info: Option<ColorScaleInformation>,
     ) -> TextCell {
         match column {
-            Column::Permissions => self.permissions_plus(file, xattrs).render(self.theme),
+            Column::Permissions => self.permissions_plus(file, xattrs).render(self.theme).concat_content(),
             Column::FileSize => file
                 .size()
                 .render(
