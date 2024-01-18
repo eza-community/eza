@@ -222,18 +222,31 @@ impl<'a> Render<'a> {
         Ok(())
     }
 
-    fn print_row<W: Write>(&self, w: &mut W, row: &TextCell) -> io::Result<()> {
-        write!(w, "[")?;
+    fn print_row<W: Write>(
+        &self,
+        w: &mut W,
+        row: &TextCell,
+        header: &Option<TextCell>,
+    ) -> io::Result<()> {
+        writeln!(w, "{{")?;
+        let mut j: usize = 0;
         for (i, cell) in row.contents.iter().enumerate() {
             if cell.is_empty() || cell.trim().is_empty() {
                 continue;
             };
+            match header {
+                Some(ref header) => {
+                    write!(w, "\"{}\": ", header.contents[j])?;
+                    j += 1;
+                }
+                None => {}
+            }
             write!(w, "\"{cell}\"")?;
             if (i + 1) < row.contents.len() {
-                write!(w, ", ")?;
+                writeln!(w, ", ")?;
             }
         }
-        write!(w, "]")
+        write!(w, "}}")
     }
 
     pub fn render_as_json<W: Write>(self, w: &mut W) -> io::Result<()> {
@@ -267,17 +280,17 @@ impl<'a> Render<'a> {
 
             writeln!(w, "{{")?;
             let mut row_iter = self.iterate_with_table(table.unwrap(), rows);
-            if self.opts.header {
-                write!(w, "\"header\":")?;
-                let header = row_iter.next().unwrap();
-                self.print_row(w, &header)?;
-                writeln!(w, ",")?;
-            }
-            write!(w, "\"files\":[")?;
+            let header: _ = if self.opts.header {
+                let header = row_iter.next().unwrap().clean_content();
+                Some(header)
+            } else {
+                None
+            };
+            writeln!(w, "\"files\":[")?;
             for (i, row) in row_iter.enumerate() {
-                self.print_row(w, &row)?;
+                self.print_row(w, &row, &(header.clone()))?;
                 if (i + 1) < self.files.len() {
-                    write!(w, ", ")?;
+                    writeln!(w, ",")?;
                 }
             }
             writeln!(w, "\n]\n}}")?;
@@ -577,7 +590,7 @@ impl<'a> Iterator for TableIter<'a> {
                 cell.add_spaces(1);
             }
 
-            cell.append(row.name);
+            cell.append(row.name.concat_content());
             cell
         })
     }
