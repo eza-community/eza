@@ -225,6 +225,7 @@
 
             # For releases
             b3sum
+            cargo-bump
 
             # For generating demo
             vhs
