@@ -2,7 +2,9 @@ use crate::options::parser::MatchedFlags;
 use crate::options::vars::{self, Vars};
 use crate::options::{flags, NumberSource, OptionsError};
 
-use crate::output::file_name::{Classify, EmbedHyperlinks, Options, QuoteStyle, ShowIcons};
+use crate::output::file_name::{
+    Absolute, Classify, EmbedHyperlinks, Options, QuoteStyle, ShowIcons,
+};
 
 impl Options {
     pub fn deduce<V: Vars>(
@@ -16,11 +18,14 @@ impl Options {
         let quote_style = QuoteStyle::deduce(matches)?;
         let embed_hyperlinks = EmbedHyperlinks::deduce(matches)?;
 
+        let absolute = Absolute::deduce(matches)?;
+
         Ok(Self {
             classify,
             show_icons,
             quote_style,
             embed_hyperlinks,
+            absolute,
             is_a_tty,
         })
     }
@@ -110,6 +115,20 @@ impl EmbedHyperlinks {
             Ok(Self::On)
         } else {
             Ok(Self::Off)
+        }
+    }
+}
+
+impl Absolute {
+    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
+        match matches.get(&flags::ABSOLUTE)? {
+            Some(word) => match word.to_str() {
+                Some("on" | "yes") => Ok(Self::On),
+                Some("follow") => Ok(Self::Follow),
+                Some("off" | "no") | None => Ok(Self::Off),
+                _ => Err(OptionsError::BadArgument(&flags::ABSOLUTE, word.into())),
+            },
+            None => Ok(Self::Off),
         }
     }
 }

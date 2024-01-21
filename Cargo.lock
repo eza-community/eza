@@ -391,6 +391,7 @@ dependencies = [
  "number_prefix",
  "once_cell",
  "palette",
+ "path-clean",
  "percent-encoding",
  "phf",
  "plist",
@@ -766,6 +767,12 @@ checksum = "9fa925f9becb532d758b0014b472c576869910929cf4c3f8054b386f19ab9e21"
 dependencies = [
  "thiserror",
 ]
+
+[[package]]
+name = "path-clean"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "17359afc20d7ab31fdb42bb844c8b3bb1dabd7dcf7e68428492da7f16966fcef"
 
 [[package]]
 name = "percent-encoding"
