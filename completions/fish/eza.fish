@@ -38,6 +38,11 @@ complete -c eza -l icons -d "When to display icons" -x -a "
 "
 complete -c eza -l no-quotes -d "Don't quote file names with spaces"
 complete -c eza -l hyperlink -d "Display entries as hyperlinks"
+complete -c eza -l absolute -d "Display entries with their absolute path" -x -a "
+  on\t'Show absolute path for listed entries'
+  follow\t'Show absolute path with followed symlinks'
+  off\t'Do not show the absolute path'
+"
 complete -c eza -l smart-group -d "Only show group if it has a different name from owner"
 
 # Filtering and sorting options

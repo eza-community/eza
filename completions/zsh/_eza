@@ -26,6 +26,7 @@ __eza() {
         --icons="[When to display icons]:(when):(always auto automatic never)" \
         --no-quotes"[Don't quote filenames with spaces]" \
         --hyperlink"[Display entries as hyperlinks]" \
+        --absolute"[Display entries with their absolute path]:(mode):(on follow off)" \
         --group-directories-first"[Sort directories before other files]" \
         --git-ignore"[Ignore files mentioned in '.gitignore']" \
         {-a,--all}"[Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories]" \

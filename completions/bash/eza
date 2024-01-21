@@ -47,6 +47,11 @@ _eza() {
             mapfile -t COMPREPLY < <(compgen -W 'fixed gradient --' -- "$cur")
             return
             ;;
+
+        --absolute)
+            mapfile -t COMPREPLY < <(compgen -W 'on follow off --' -- "$cur")
+            return
+            ;;
     esac
 
     case "$cur" in
