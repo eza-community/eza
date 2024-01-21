@@ -2,6 +2,7 @@ use std::fmt::Debug;
 use std::path::Path;
 
 use ansiterm::{ANSIString, Style};
+use path_clean;
 use unicode_width::UnicodeWidthStr;
 
 use crate::fs::{File, FileTarget};
@@ -24,6 +25,9 @@ pub struct Options {
 
     /// Whether to make file names hyperlinks.
     pub embed_hyperlinks: EmbedHyperlinks,
+
+    /// Whether to display files with their absolute path.
+    pub absolute: Absolute,
 
     /// Whether we are in a console or redirecting the output
     pub is_a_tty: bool,
@@ -112,6 +116,14 @@ pub enum ShowIcons {
 pub enum EmbedHyperlinks {
     Off,
     On,
+}
+
+/// Whether to show absolute paths
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+pub enum Absolute {
+    On,
+    Follow,
+    Off,
 }
 
 /// Whether or not to wrap file names with spaces in quotes.
@@ -231,6 +243,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                             show_icons: ShowIcons::Never,
                             embed_hyperlinks: EmbedHyperlinks::Off,
                             is_a_tty: self.options.is_a_tty,
+                            absolute: Absolute::Off,
                         };
 
                         let target_name = FileName {
@@ -392,7 +405,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         }
 
         escape(
-            self.file.name.clone(),
+            self.display_name(),
             &mut bits,
             file_style,
             self.colours.control_char(),
@@ -406,6 +419,24 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         }
 
         bits
+    }
+
+    /// Returns the string that should be displayed as the file's name.
+    fn display_name(&self) -> String {
+        match self.options.absolute {
+            Absolute::On => std::env::current_dir().ok().and_then(|p| {
+                path_clean::clean(p.join(&self.file.path))
+                    .to_str()
+                    .map(std::borrow::ToOwned::to_owned)
+            }),
+            Absolute::Follow => self
+                .file
+                .absolute_path()
+                .and_then(|p| p.to_str())
+                .map(std::borrow::ToOwned::to_owned),
+            Absolute::Off => None,
+        }
+        .unwrap_or(self.file.name.clone())
     }
 
     /// Figures out which colour to paint the filename part of the output,
