@@ -35,7 +35,7 @@ impl<'a> Render<'a> {
             .paint()
     }
 
-    pub fn render_as_json<W: Write>(mut self, w: &mut W) -> io::Result<()> {
+    pub fn render_json<W: Write>(mut self, w: &mut W) -> io::Result<()> {
         self.filter.sort_files(&mut self.files);
         write!(w, "{{\"files\":[")?;
         for (i, file) in self.files.iter().enumerate() {

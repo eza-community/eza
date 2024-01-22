@@ -228,7 +228,11 @@ impl<'a> Render<'a> {
         row: &TextCell,
         header: &Option<TextCell>,
     ) -> io::Result<()> {
-        writeln!(w, "{{")?;
+        if self.opts.header {
+            writeln!(w, "{{")?;
+        } else {
+            writeln!(w, "[")?;
+        }
         let mut j: usize = 0;
         for (i, cell) in row.contents.iter().enumerate() {
             if cell.is_empty() || cell.trim().is_empty() {
@@ -246,10 +250,14 @@ impl<'a> Render<'a> {
                 writeln!(w, ", ")?;
             }
         }
-        write!(w, "}}")
+        if self.opts.header {
+            writeln!(w, "}}")
+        } else {
+            writeln!(w, "]")
+        }
     }
 
-    pub fn render_as_json<W: Write>(self, w: &mut W) -> io::Result<()> {
+    pub fn render_json<W: Write>(self, w: &mut W) -> io::Result<()> {
         let n_cpus = match num_cpus::get() as u32 {
             0 => 1,
             n => n,
@@ -280,7 +288,7 @@ impl<'a> Render<'a> {
 
             writeln!(w, "{{")?;
             let mut row_iter = self.iterate_with_table(table.unwrap(), rows);
-            let header: _ = if self.opts.header {
+            let header = if self.opts.header {
                 let header = row_iter.next().unwrap().clean_content();
                 Some(header)
             } else {

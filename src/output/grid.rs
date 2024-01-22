@@ -58,4 +58,20 @@ impl<'a> Render<'a> {
 
         write!(w, "{grid}")
     }
+
+    // As the goal of json output is to be piped we ignore grid options on it
+    // and treat it as just printing *quite* the same as lines
+    pub fn render_json<W: Write>(mut self, w: &mut W) -> io::Result<()> {
+        self.filter.sort_files(&mut self.files);
+        writeln!(w, "{{\"files\":[")?;
+        for (i, file) in self.files.iter().enumerate() {
+            let name_cell = self.file_style.for_file(file, self.theme).paint();
+            write!(w, "\"{}\"", name_cell.strings())?;
+            if (i + 1) < self.files.len() {
+                write!(w, ",")?;
+            }
+        }
+        writeln!(w, "]}}")?;
+        Ok(())
+    }
 }
