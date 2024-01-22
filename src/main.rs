@@ -398,6 +398,7 @@ impl<'args> Exa<'args> {
         let View {
             ref mode,
             ref file_style,
+            ref output_type,
             ..
         } = self.options.view;
 
@@ -414,7 +415,10 @@ impl<'args> Exa<'args> {
                     console_width,
                     filter,
                 };
-                r.render(&mut self.writer)
+                match output_type {
+                    output::OutputType::Legacy => r.render(&mut self.writer),
+                    output::OutputType::Json => r.render_json(&mut self.writer),
+                }
             }
 
             (Mode::Grid(_), None) | (Mode::Lines, _) => {
@@ -425,7 +429,10 @@ impl<'args> Exa<'args> {
                     file_style,
                     filter,
                 };
-                r.render(&mut self.writer)
+                match output_type {
+                    output::OutputType::Legacy => r.render(&mut self.writer),
+                    output::OutputType::Json => r.render_json(&mut self.writer),
+                }
             }
 
             (Mode::Details(ref opts), _) => {
@@ -447,7 +454,10 @@ impl<'args> Exa<'args> {
                     git,
                     git_repos,
                 };
-                r.render(&mut self.writer)
+                match output_type {
+                    output::OutputType::Legacy => r.render(&mut self.writer),
+                    output::OutputType::Json => r.render_json(&mut self.writer),
+                }
             }
 
             (Mode::GridDetails(ref opts), Some(console_width)) => {
@@ -472,7 +482,10 @@ impl<'args> Exa<'args> {
                     console_width,
                     git_repos,
                 };
-                r.render(&mut self.writer)
+                match output_type {
+                    output::OutputType::Legacy => r.render(&mut self.writer),
+                    output::OutputType::Json => r.render_json(&mut self.writer),
+                }
             }
 
             (Mode::GridDetails(ref opts), None) => {
@@ -495,42 +508,11 @@ impl<'args> Exa<'args> {
                     git,
                     git_repos,
                 };
-                r.render(&mut self.writer)
+                match output_type {
+                    output::OutputType::Legacy => r.render(&mut self.writer),
+                    output::OutputType::Json => r.render_json(&mut self.writer),
+                }
             }
-
-            (Mode::Json(ref opts), _) => match opts {
-                Some(o) => {
-                    let filter = &self.options.filter;
-                    let recurse = self.options.dir_action.recurse_options();
-                    let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
-                    let git = self.git.as_ref();
-                    let git_repos = self.git_repos;
-
-                    let r = details::Render {
-                        dir,
-                        files,
-                        theme,
-                        file_style,
-                        opts: o,
-                        recurse,
-                        filter,
-                        git_ignoring,
-                        git,
-                        git_repos,
-                    };
-                    r.render_as_json(&mut self.writer)
-                }
-                None => {
-                    let filter = &self.options.filter;
-                    let r = lines::Render {
-                        files,
-                        theme,
-                        file_style,
-                        filter,
-                    };
-                    r.render_as_json(&mut self.writer)
-                }
-            },
         }
     }
 }

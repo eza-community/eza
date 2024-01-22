@@ -110,7 +110,7 @@ impl TextCell {
         let new_contents = self
             .contents
             .iter()
-            .map(|x| x.clone())
+            .cloned()
             .filter(|w| !w.is_empty() && !w.trim().is_empty())
             .collect::<Vec<_>>();
 

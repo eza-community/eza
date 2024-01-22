@@ -24,6 +24,7 @@ pub struct View {
     pub file_style: file_name::Options,
     pub deref_links: bool,
     pub total_size: bool,
+    pub output_type: OutputType,
 }
 
 /// The **mode** is the “type” of output.
@@ -34,7 +35,12 @@ pub enum Mode {
     Details(details::Options),
     GridDetails(grid_details::Options),
     Lines,
-    Json(Option<details::Options>),
+}
+
+#[derive(PartialEq, Eq, Debug)]
+pub enum OutputType {
+    Legacy,
+    Json,
 }
 
 /// The width of the terminal requested by the user.
