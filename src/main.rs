@@ -204,8 +204,7 @@ fn get_files_in_dir(paths: &mut Vec<PathBuf>, path: PathBuf) {
                 vec![path]
             }
             Ok(d) => d
-                .filter(std::result::Result::is_ok)
-                .map(|entry| entry.unwrap().path())
+                .filter_map(|entry| entry.ok().map(|e| e.path()))
                 .collect::<Vec<PathBuf>>(),
         }
     } else {
