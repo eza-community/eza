@@ -1,11 +1,27 @@
 # Changelog
 
+## [0.17.2] - 2024-01-25
+
+### Miscellaneous Tasks
+
+- Avoid `unwrap()` by changing filter-then-map to `filter_map`
+
+### Build
+
+- Bump shlex from 1.2.0 to 1.3.0
+- Bump chrono from 0.4.31 to 0.4.33
+- Bump trycmd from 0.14.19 to 0.14.20
+
 ## [0.17.2] - 2024-01-20
 
 ### Bug Fixes
 
 - Crash using --git-repos on unreadable dir
 - Crash using --git-repos on unreadable dir
+
+### Miscellaneous Tasks
+
+- Release eza v0.17.2
 
 ### Build
 
@@ -1232,7 +1248,6 @@
 
 ### Documentation
 
-- Add hint how to install exa on Android / Termux
 - Change name in README.md
 - Add `nix run` to readme
 - Fix flow issue
@@ -1253,14 +1268,8 @@
 - Update README.md
 - Update README.md
 
-### Feat
-
-- Add JPF to image filetype
-
 ### Features
 
-- Add support Typescript and ReasonML projects
-- New Icons and CLI argument to suppress icons
 - Add sty file
 - Add julia file extension icon
 - Add status for git repos
@@ -1284,36 +1293,20 @@
 - Add compressed types
 - Add compressed icons
 
-### Fixup
-
-- Split prefix tests by property
-
 ### Improve
 
 - Vim icon
 
-### Makefile
-
-- Be compatible with BSD and OS X
-
 ### Miscellaneous Tasks
 
-- Update zoneinfo_compiled, datetime to 0.5
-- Update users to 0.10
-- PR feedback
 - Bump to v0.10.2
 - Bump to v0.10.3
 - Update cargo lock
 
 ### Refactor
 
-- Use shorthand fields
 - Removed commented code
 - Sorted file types, color table
-
-### StatResult
-
-- :Path -> Dir
 
 ### Styling
 
@@ -1323,17 +1316,9 @@
 
 - Change to /usr/bin/env bash
 
-### ToStr
-
-- :to_str -> ToString::to_string
-
 ### Add
 
 - Mp2 audio format icon
-
-### Build
-
-- Use binary name only
 
 ### Ci
 
@@ -1355,33 +1340,92 @@
 - Add snap to labeler.yml
 - Add filetype.rs autolabel
 
-### Details
-
-- `filter` is only used when recursing
-
 ### Git
 
 - Use GIT_DIR env var to find the repo
 - Use open_from_env before discover
 
-### Git-feature
-
-- Display if a file is updated but unmerged (conflicted)
-
 ### Icons
 
 - Add Gentoo for .ebuild
-
-### Io
-
-- :Result -> IOResult
 
 ### Src/main.rs
 
 - Remove clippy::unnested_or_patterns
 
+## [0.10.0] - 2021-04-03
+
+### Documentation
+
+- Add hint how to install exa on Android / Termux
+
+### Features
+
+- Add support Typescript and ReasonML projects
+- New Icons and CLI argument to suppress icons
+
+### Miscellaneous Tasks
+
+- Update zoneinfo_compiled, datetime to 0.5
+- Update users to 0.10
+- PR feedback
+
+### Build
+
+- Use binary name only
+
+### Git-feature
+
+- Display if a file is updated but unmerged (conflicted)
+
+## [0.9.0] - 2019-07-15
+
+### Feat
+
+- Add JPF to image filetype
+
+### Refactor
+
+- Use shorthand fields
+
+## [0.8.0] - 2017-09-30
+
 ### Vagrant
 
 - Update apt before installing
+
+## [0.4.1] - 2017-03-26
+
+### Fixup
+
+- Split prefix tests by property
+
+### Io
+
+- :Result -> IOResult
+
+## [0.4.0] - 2015-10-18
+
+### Makefile
+
+- Be compatible with BSD and OS X
+
+## [0.3.0] - 2015-06-05
+
+### StatResult
+
+- :Path -> Dir
+
+## [0.2.0] - 2015-03-02
+
+### Details
+
+- `filter` is only used when recursing
+
+## [0.1.0] - 2015-02-21
+
+### ToStr
+
+- :to_str -> ToString::to_string
 
 
