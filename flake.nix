@@ -2,29 +2,29 @@
   description = "eza: a modern, maintained replacement for ls";
 
   inputs = {
-    nixpkgs.url = "http:/rime.cx/v1/github/NixOS/nixpkgs/b/nixpkgs-unstable.tar.gz";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     flake-utils = {
-      url = "http://rime.cx/v1/github/semnix/flake-utils.tar.gz";
+      url = "github:semnix/flake-utils";
     };
 
     naersk = {
-      url = "http://rime.cx/v1/github/semnix/naersk.tar.gz";
+      url = "github:semnix/naersk";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     rust-overlay = {
-      url = "http://rime.cx/v1/github/semnix/rust-overlay.tar.gz";
+      url = "github:semnix/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     treefmt-nix = {
-      url = "http://rime.cx/v1/github/semnix/treefmt-nix.tar.gz";
+      url = "github:semnix/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     powertest = {
-      url = "http://rime.cx/v1/github/eza-community/powertest.tar.gz";
+      url = "github:eza-community/powertest";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         naersk.follows = "naersk";
@@ -34,7 +34,7 @@
     };
 
     pre-commit-hooks = {
-      url = "http://rime.cx/v1/github/semnix/pre-commit-hooks.nix.tar.gz";
+      url = "github:semnix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
     };
