@@ -2,6 +2,7 @@
 /build/source/tests/itest/b
 /build/source/tests/itest/c
 /build/source/tests/itest/d
+/build/source/tests/itest/dir-symlink -> vagrant/debug
 /build/source/tests/itest/e
 /build/source/tests/itest/exa
 /build/source/tests/itest/f
