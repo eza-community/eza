@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.18.0] - 2024-02-01
+
+### Features
+
+- [**breaking**] Add --classify=always,auto,never
+
+### Miscellaneous Tasks
+
+- Remove rustfmt config file that has a nightly only option in favor of rustfmt skip directive which is already in place
+- Fix small typo in pull request template
+
+### Refactor
+
+- Change cast to coertion, remove rustfmt skip and clippy lint ignore directives
+
+### Testing
+
+- Regenerate classification related tests
+
+### Build
+
+- Change flake inputs
+
 ## [0.17.3] - 2024-01-25
 
 ### Bug Fixes
@@ -9,6 +32,7 @@
 ### Miscellaneous Tasks
 
 - Avoid `unwrap()` by changing filter-then-map to `filter_map`
+- Release eza v0.17.3
 
 ### Build
 
