@@ -227,23 +227,26 @@ impl<'a> Render<'a> {
         w: &mut W,
         row: &TextCell,
         header: &Option<TextCell>,
+        file_num: usize,
     ) -> io::Result<()> {
+        let last = if file_num == self.files.len() - 1 {
+            "\n}"
+        } else {
+            "\n},"
+        };
         if self.opts.header {
             writeln!(w, "{{")?;
         } else {
             writeln!(w, "[")?;
         }
-        let mut j: usize = 0;
+        let mut header_idx = 0usize;
         for (i, cell) in row.contents.iter().enumerate() {
             if cell.is_empty() || cell.trim().is_empty() {
                 continue;
             };
-            match header {
-                Some(ref header) => {
-                    write!(w, "\"{}\": ", header.contents[j])?;
-                    j += 1;
-                }
-                None => {}
+            if let Some(ref header) = header {
+                write!(w, "\"{}\": ", header.contents[header_idx])?;
+                header_idx += 1;
             }
             write!(w, "\"{cell}\"")?;
             if (i + 1) < row.contents.len() {
@@ -251,7 +254,7 @@ impl<'a> Render<'a> {
             }
         }
         if self.opts.header {
-            writeln!(w, "}}")
+            writeln!(w, "{last}")
         } else {
             writeln!(w, "]")
         }
@@ -296,12 +299,9 @@ impl<'a> Render<'a> {
             };
             writeln!(w, "\"files\":[")?;
             for (i, row) in row_iter.enumerate() {
-                self.print_row(w, &row, &(header.clone()))?;
-                if (i + 1) < self.files.len() {
-                    writeln!(w, ",")?;
-                }
+                self.print_row(w, &row, &(header.clone()), i)?;
             }
-            writeln!(w, "\n]\n}}")?;
+            writeln!(w, "]\n}}")?;
         } else {
             self.add_files_to_table(
                 &mut pool,
