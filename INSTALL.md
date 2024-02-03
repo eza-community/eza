@@ -132,6 +132,23 @@ Eza is available as the [eza](https://github.com/termux/termux-packages/tree/mas
 pkg install eza
 ```
 
+### Manual (Linux)
+
+Example is for x86_64 GNU, replaces the file names if downloading for a different arch.
+
+```shell
+wget -c https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz -O - | tar xz
+sudo chmod +x eza
+sudo chown root:root eza
+sudo mv eza /usr/local/bin/eza
+```
+
+If `exa` was install before, replace it will `eza`:
+```shell
+sudo rm -f /usr/local/bin/exa
+sudo ln -s /usr/local/bin/eza /usr/local/bin/exa
+```
+
 ### Brew (MacOS)
 
 [![Homebrew package](https://repology.org/badge/version-for-repo/homebrew/eza.svg)](https://repology.org/project/eza/versions)
