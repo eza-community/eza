@@ -222,24 +222,14 @@ impl<'a> Render<'a> {
         Ok(())
     }
 
-    fn print_row<W: Write>(
+    fn print_row_contents(
         &self,
-        w: &mut W,
+        w: &mut impl Write,
         row: &TextCell,
         header: &Option<TextCell>,
         file_num: usize,
     ) -> io::Result<()> {
-        let last = if file_num == self.files.len() - 1 {
-            "\n}"
-        } else {
-            "\n},"
-        };
-        if self.opts.header {
-            writeln!(w, "{{")?;
-        } else {
-            writeln!(w, "[")?;
-        }
-        let mut header_idx = 0usize;
+        let mut j: usize = 0;
         for (i, cell) in row.contents.iter().enumerate() {
             if cell.is_empty() || cell.trim().is_empty() {
                 continue;
@@ -253,11 +243,27 @@ impl<'a> Render<'a> {
                 writeln!(w, ", ")?;
             }
         }
-        if self.opts.header {
-            writeln!(w, "{last}")
-        } else {
-            writeln!(w, "]")
+        Ok(())
+    }
+
+    fn print_row<W: Write>(
+        &self,
+        w: &mut W,
+        header: &Option<TextCell>,
+        iter: &mut JsonTableIter<'_>,
+        current_depth: i32,
+        idx: &mut usize,
+    ) -> io::Result<()> {
+        let (row, depth) = iter.next().unwrap();
+        self.print_row_contents(w, &row, header)?;
+        writeln!(w, ", \"depth\": {}", depth.depth.0)?;
+        writeln!(w, ", \"current\": {}", current_depth)?;
+        if depth.depth.0 as i32 > current_depth {
+            writeln!(w, ", \"children\": [{{")?;
+            writeln!(w, "}}]")?;
         }
+        *idx += 1;
+        Ok(())
     }
 
     pub fn render_json<W: Write>(self, w: &mut W) -> io::Result<()> {
@@ -290,16 +296,35 @@ impl<'a> Render<'a> {
             );
 
             writeln!(w, "{{")?;
-            let mut row_iter = self.iterate_with_table(table.unwrap(), rows);
+            let mut row_iter = self.iterate_with_table_json(table.unwrap(), rows);
             let header = if self.opts.header {
-                let header = row_iter.next().unwrap().clean_content();
-                Some(header)
+                let (header, _) = row_iter.next().unwrap();
+                Some(header.clean_content())
             } else {
                 None
             };
+            let mut i = 0;
+            let len = row_iter.len();
             writeln!(w, "\"files\":[")?;
-            for (i, row) in row_iter.enumerate() {
-                self.print_row(w, &row, &(header.clone()), i)?;
+
+            let current_depth: i32 = 0;
+
+            while row_iter.len() > 0 {
+                if self.opts.header {
+                    writeln!(w, "{{")?;
+                } else {
+                    writeln!(w, "[")?;
+                }
+                writeln!(w, "\"index\": {},", i)?;
+                self.print_row(w, &(header.clone()), &mut row_iter, current_depth, &mut i)?;
+                if self.opts.header {
+                    writeln!(w, "}}")?;
+                } else {
+                    writeln!(w, "]")?;
+                }
+                if i < len {
+                    writeln!(w, ",")?;
+                }
             }
             writeln!(w, "]\n}}")?;
         } else {
@@ -539,6 +564,18 @@ impl<'a> Render<'a> {
         }
     }
 
+    pub fn iterate_with_table_json(
+        &'a self,
+        table: Table<'a>,
+        rows: Vec<Row>,
+    ) -> JsonTableIter<'a> {
+        JsonTableIter {
+            total_width: table.widths().total(),
+            table,
+            inner: rows.into_iter(),
+        }
+    }
+
     pub fn iterate(&'a self, rows: Vec<Row>) -> Iter {
         Iter {
             tree_trunk: TreeTrunk::default(),
@@ -548,6 +585,7 @@ impl<'a> Render<'a> {
     }
 }
 
+#[derive(Clone)]
 pub struct Row {
     /// Vector of cells to display.
     ///
@@ -601,6 +639,39 @@ impl<'a> Iterator for TableIter<'a> {
             cell.append(row.name.concat_content());
             cell
         })
+    }
+}
+
+#[derive(Clone)]
+pub struct JsonTableIter<'a> {
+    inner: VecIntoIter<Row>,
+    table: Table<'a>,
+
+    total_width: usize,
+}
+
+impl<'a> Iterator for JsonTableIter<'a> {
+    type Item = (TextCell, TreeParams);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next().map(|row| {
+            let mut cell = if let Some(cells) = row.cells {
+                self.table.render(cells)
+            } else {
+                let mut cell = TextCell::default();
+                cell.add_spaces(self.total_width);
+                cell
+            };
+
+            cell.append(row.name.concat_content());
+            (cell, row.tree)
+        })
+    }
+}
+
+impl JsonTableIter<'_> {
+    pub fn len(&self) -> usize {
+        self.inner.len()
     }
 }
 

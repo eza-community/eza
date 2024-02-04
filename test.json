@@ -1,0 +1,79 @@
+{
+    "files": [
+        {
+            "index": 0,
+            "Permissions": "drwxr-xr-x",
+            "Size": "-",
+            "User": "fexkoser",
+            "Date Modified": "22 Jan 14:29",
+            "Name": "/home/fexkoser/dev/eza-test",
+            "depth": 0,
+            "current": 0
+        },
+        {
+            "index": 1,
+            "Permissions": "drwxr-xr-x",
+            "Size": "-",
+            "User": "fexkoser",
+            "Date Modified": "22 Jan 14:29",
+            "Name": "caca",
+            "depth": 1,
+            "current": 0,
+            "children": [
+                {}
+            ]
+        },
+        {
+            "index": 2,
+            "Permissions": ".rw-r--r--",
+            "Size": "0",
+            "User": "fexkoser",
+            "Date Modified": "22 Jan 14:29",
+            "Name": "FruitBox.cpp",
+            "depth": 2,
+            "current": 0,
+            "children": [
+                {}
+            ]
+        },
+        {
+            "index": 3,
+            "Permissions": ".rw-r--r--",
+            "Size": "0",
+            "User": "fexkoser",
+            "Date Modified": "22 Jan 14:29",
+            "Name": "FruitBox.hpp",
+            "depth": 2,
+            "current": 0,
+            "children": [
+                {}
+            ]
+        },
+        {
+            "index": 4,
+            "Permissions": ".rw-r--r--",
+            "Size": "0",
+            "User": "fexkoser",
+            "Date Modified": "22 Jan 14:29",
+            "Name": "FruitBoxs.hpp",
+            "depth": 2,
+            "current": 0,
+            "children": [
+                {}
+            ]
+        },
+        {
+            "index": 5,
+            "Permissions": ".rw-r--r--",
+            "Size": "534",
+            "User": "fexkoser",
+            "Date Modified": "22 Jan 14:29",
+            "Name": "test.json",
+            "depth": 1,
+            "current": 0,
+            "children": [
+                {}
+            ]
+        }
+    ]
+}

@@ -394,6 +394,7 @@ impl Environment {
 
 static ENVIRONMENT: Lazy<Environment> = Lazy::new(Environment::load_all);
 
+#[derive(Clone)]
 pub struct Table<'a> {
     columns: Vec<Column>,
     theme: &'a Theme,
@@ -632,6 +633,7 @@ impl<'a> Table<'a> {
     }
 }
 
+#[derive(Clone)]
 pub struct TableWidths(Vec<usize>);
 
 impl Deref for TableWidths {
