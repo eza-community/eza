@@ -83,13 +83,13 @@ pub struct TreeTrunk {
 pub struct TreeParams {
     /// How many directories deep into the tree structure this is. Directories
     /// on top have depth 0.
-    depth: TreeDepth,
+    pub depth: TreeDepth,
 
     /// Whether this is the last entry in the directory.
-    last: bool,
+    pub last: bool,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct TreeDepth(pub usize);
 
 impl TreeTrunk {
@@ -141,7 +141,10 @@ impl TreeTrunk {
 
 impl TreeParams {
     pub fn new(depth: TreeDepth, last: bool) -> Self {
-        Self { depth, last }
+        Self {
+            depth,
+            last,
+        }
     }
 
     pub fn is_at_root(&self) -> bool {
