@@ -7,7 +7,7 @@ export extern "eza" [
     --across(-x)               # Sort the grid across, rather than downwards
     --recurse(-R)              # Recurse into directories
     --tree(-T)                 # Recurse into directories as a tree
-    --dereference(-X)          # Dereference symbolic links when displaying information
+    --dereference(-X)          # Dereference symbolic links when displaying file information
     --classify(-F)             # Display type indicator by file names
     --color                    # When to use terminal colours
     --colour                   # When to use terminal colours
@@ -37,7 +37,6 @@ export extern "eza" [
     --inode(-i)                # List each file's inode number
     --blocksize(-S)            # List each file's size of allocated file system blocks
     --time(-t) -d              # Which timestamp field to list
-    --dereference(-X)          # dereference symlinks for file information
     --modified(-m)             # Use the modified timestamp field
     --numeric(-n)              # List numeric user and group IDs.
     --changed                  # Use the changed timestamp field

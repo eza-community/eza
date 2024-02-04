@@ -9,7 +9,7 @@ complete -c eza -s G -l grid -d "Display entries in a grid"
 complete -c eza -s x -l across -d "Sort the grid across, rather than downwards"
 complete -c eza -s R -l recurse -d "Recurse into directories"
 complete -c eza -s T -l tree -d "Recurse into directories as a tree"
-complete -c eza -s X -l dereference -d "Dereference symbolic links when displaying information"
+complete -c eza -s X -l dereference -d "Dereference symbolic links when displaying file information"
 complete -c eza -s F -l classify -d "Display type indicator by file names"
 complete -c eza -l color \
     -l colour -d "When to use terminal colours" -x -a "
@@ -91,7 +91,6 @@ complete -c eza -s t -l time -d "Which timestamp field to list" -x -a "
     accessed\t'Display accessed time'
     created\t'Display created time'
 "
-complete -c eza -s X -l dereference -d "dereference symlinks for file information"
 complete -c eza -s m -l modified -d "Use the modified timestamp field"
 complete -c eza -s n -l numeric -d "List numeric user and group IDs."
 complete -c eza -l changed -d "Use the changed timestamp field"

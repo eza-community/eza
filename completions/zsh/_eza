@@ -18,7 +18,7 @@ __eza() {
         {-x,--across}"[Sort the grid across, rather than downwards]" \
         {-R,--recurse}"[Recurse into directories]" \
         {-T,--tree}"[Recurse into directories as a tree]" \
-        {-X,--dereference}"[Dereference symbolic links when displaying information]" \
+        {-X,--dereference}"[Dereference symbolic links when displaying file information]" \
         {-F,--classify}"[Display type indicator by file names]:(when):(always auto automatic never)" \
         --colo{,u}r="[When to use terminal colours]:(when):(always auto automatic never)" \
         --colo{,u}r-scale"[highlight levels of 'field' distinctly]:(fields):(all age size)" \
@@ -58,7 +58,6 @@ __eza() {
         --no-time"[Suppress the time field]" \
         {-u,--accessed}"[Use the accessed timestamp field]" \
         {-U,--created}"[Use the created timestamp field]" \
-        {-X,--dereference}"[dereference symlinks for file information]" \
         --git"[List each file's Git status, if tracked]" \
         --no-git"[Suppress Git status]" \
         --git-repos"[List each git-repos status and branch name]" \
