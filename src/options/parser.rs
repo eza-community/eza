@@ -4,7 +4,7 @@ use std::{ffi::OsString, fmt::Display};
 
 use crate::output::time::TimeFormat;
 
-#[derive(Parser)]
+#[derive(Default, Parser)]
 #[command(author, version, about, long_about)] // Read from `Cargo.toml`
 #[clap(disable_help_flag = true)]
 pub struct Opts {
@@ -190,16 +190,18 @@ pub struct Opts {
     pub show_symlinks: bool,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub enum ShowWhen {
     // icons, colors, quotes, headers ? eventually
     Always,
+    #[default]
     Auto,
     Never,
 }
-#[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, ValueEnum, PartialEq, Eq)]
 pub enum ColorScaleModeArgs {
     Fixed,
+    #[default]
     Gradient,
 }
 
@@ -415,73 +417,6 @@ impl Display for TimeArgs {
             TimeArgs::Accessed => write!(f, "accessed"),
             TimeArgs::Created => write!(f, "created"),
             TimeArgs::Changed => write!(f, "changed"),
-        }
-    }
-}
-
-impl Default for Opts {
-    fn default() -> Self {
-        Opts {
-            paths: vec![],
-            all: 0,
-            long: false,
-            git: false,
-            oneline: false,
-            recurse: false,
-            list_dirs: false,
-            tree: false,
-            level: None,
-            reverse: false,
-            sort: None,
-            ignore_glob: None,
-            git_ignore: false,
-            dirs_first: false,
-            only_dirs: false,
-            binary: false,
-            bytes: false,
-            group: false,
-            numeric: false,
-            grid: false,
-            across: false,
-            classify: false,
-            dereference: false,
-            width: None,
-            color: ShowWhen::Auto,
-            color_scale: None,
-            color_scale_mode: ColorScaleModeArgs::Gradient,
-            almost_all: false,
-            header: false,
-            icons: None,
-            inode: false,
-            git_repos: false,
-            git_repos_no_status: false,
-            links: false,
-            modified: false,
-            created: false,
-            accessed: false,
-            changed: false,
-            blocksize: false,
-            time: None,
-            time_style: None,
-            no_filesize: false,
-            no_permissions: false,
-            no_time: false,
-            no_user: false,
-            extended: false,
-            hyperlink: false,
-            octal: false,
-            security_context: false,
-            help: (),
-            no_git: false,
-            mounts: false,
-            only_files: false,
-            no_quotes: false,
-            smart_group: false,
-            total_size: false,
-            stdin: false,
-            file_flags: false,
-            no_symlinks: false,
-            show_symlinks: false,
         }
     }
 }
