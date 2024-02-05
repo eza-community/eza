@@ -4,9 +4,16 @@ use std::default::Default;
 
 use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};
 use crate::theme::ui_styles::*;
-
+impl UiStyles {
+    pub fn default_theme(scale: ColorScaleOptions) -> Self {
+        Self {
+            size: Some(Size::colourful(scale)),
+            ..Self::default()
+        }
+    }
+}
 impl Default for UiStyles {
-    fn default(scale: Option<ColorScaleOptions>) -> Self {
+    fn default() -> Self {
         Self {
             colourful: Some(true),
 
@@ -45,7 +52,7 @@ impl Default for UiStyles {
                 attribute:           Some(Style::default()),
             }),
 
-            size: Some(Size::colourful(scale.unwrap_or_default())),
+            size: Some(Size::colourful(ColorScaleOptions::default())),
 
             #[rustfmt::skip]
             users:Some(Users {
