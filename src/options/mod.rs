@@ -144,7 +144,7 @@ impl Options {
     /// Determines the complete set of options based on the given command-line
     /// arguments, after they’ve been parsed.
     pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
-        if cfg!(not(feature = "git")) && (matches.git > 0 || matches.git_ignore > 0) {
+        if cfg!(not(feature = "git")) && (matches.git || matches.git_ignore) {
             return Err(OptionsError::Unsupported(String::from(
                 "Options --git and --git-ignore can't be used because `git` feature was disabled in this build of exa"
             )));

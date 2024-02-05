@@ -13,9 +13,9 @@ pub enum FilesInput {
 
 impl FilesInput {
     pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Self {
-        if io::stdin().is_terminal() || matches.stdin == 0 {
+        if io::stdin().is_terminal() || !matches.stdin {
             FilesInput::Args
-        } else if matches.stdin > 0 && !io::stdin().is_terminal() {
+        } else if matches.stdin && !io::stdin().is_terminal() {
             let separator = vars
                 .get(EZA_STDIN_SEPARATOR)
                 .unwrap_or(OsString::from("\n"));
