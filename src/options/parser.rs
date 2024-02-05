@@ -212,18 +212,20 @@ impl ValueEnum for ShowWhen {
     }
 
     fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
-        match self {
-            Self::Always => Some(clap::builder::PossibleValue::new("always")),
-            Self::Auto => Some(clap::builder::PossibleValue::new("auto")),
-            Self::Never => Some(clap::builder::PossibleValue::new("never")),
-        }
+        Some(
+            match self {
+                Self::Always => "always",
+                Self::Auto => "auto",
+                Self::Never => "never",
+            }
+            .into(),
+        )
     }
 
     fn from_str(s: &str, _ignore_case: bool) -> Result<Self, String> {
         match s.to_lowercase().as_str() {
-            "" => Ok(Self::Auto),
+            "" | "auto" | "automatic" => Ok(Self::Auto),
             "always" => Ok(Self::Always),
-            "auto" | "automatic" => Ok(Self::Auto),
             "never" => Ok(Self::Never),
             e => Err(String::from(e)),
         }
@@ -247,28 +249,22 @@ impl ValueEnum for ColorScaleArgs {
     }
 
     fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
-        match self {
-            ColorScaleArgs::All => Some(clap::builder::PossibleValue::new("all")),
-            ColorScaleArgs::Age => Some(clap::builder::PossibleValue::new("age")),
-            ColorScaleArgs::Size => Some(clap::builder::PossibleValue::new("size")),
-        }
+        Some(
+            match self {
+                ColorScaleArgs::All => "all",
+                ColorScaleArgs::Age => "age",
+                ColorScaleArgs::Size => "size",
+            }
+            .into(),
+        )
     }
 
-    fn from_str(s: &str, ignore_case: bool) -> Result<Self, String> {
-        if ignore_case {
-            match s.to_ascii_lowercase().as_str() {
-                "all" | "age,size" | "size,age" => Ok(ColorScaleArgs::All),
-                "age" => Ok(ColorScaleArgs::Age),
-                "size" => Ok(ColorScaleArgs::Size),
-                _ => Err(format!("Unknown color-scale value: {s}")),
-            }
-        } else {
-            match s {
-                "all" | "age,size" | "size,age" => Ok(ColorScaleArgs::All),
-                "age" => Ok(ColorScaleArgs::Age),
-                "size" => Ok(ColorScaleArgs::Size),
-                _ => Err(format!("Unknown color-scale value: {s}")),
-            }
+    fn from_str(s: &str, _ignore_case: bool) -> Result<Self, String> {
+        match s.to_ascii_lowercase().as_str() {
+            "all" | "age,size" | "size,age" => Ok(ColorScaleArgs::All),
+            "age" => Ok(ColorScaleArgs::Age),
+            "size" => Ok(ColorScaleArgs::Size),
+            _ => Err(format!("Unknown color-scale value: {s}")),
         }
     }
 }
