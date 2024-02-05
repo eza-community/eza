@@ -257,6 +257,9 @@ Alternatively, `<FORMAT>` can be a two line string, the first line will be used 
 `--stdin`
 : When you wish to pipe directories to eza/read from stdin. Separate one per line or define custom separation char in `EZA_STDIN_SEPARATOR` env variable.
 
+`--write-theme=DIR`
+: Write _eza_ default theme.yml file to the directory passed as argument, or defaults to the current working directory.
+
 `-@`, `--extended`
 : List each file’s extended attributes and sizes.
 
@@ -346,6 +349,10 @@ Any explicit use of the `--icons=WHEN` flag overrides this behavior.
 ## `EZA_STDIN_SEPARATOR`
 
 Specifies the separator to use when file names are piped from stdin. Defaults to newline.
+
+## EZA_CONFIG_DIR
+
+Specifies the directory where eza will look for its configuration and theme files. Defaults to `$XDG_CONFIG_HOME/eza` or `$HOME/.config/eza` if `XDG_CONFIG_HOME` is not set.
 
 EXIT STATUSES
 =============

@@ -11,7 +11,7 @@ pub static GRID:        Arg = Arg { short: Some(b'G'), long: "grid",        take
 pub static ACROSS:      Arg = Arg { short: Some(b'x'), long: "across",      takes_value: TakesValue::Forbidden };
 pub static RECURSE:     Arg = Arg { short: Some(b'R'), long: "recurse",     takes_value: TakesValue::Forbidden };
 pub static TREE:        Arg = Arg { short: Some(b'T'), long: "tree",        takes_value: TakesValue::Forbidden };
-pub static CLASSIFY:    Arg = Arg { short: Some(b'F'), long: "classify",    takes_value: TakesValue::Optional(Some(WHEN), "auto") };
+pub static CLASSIFY:    Arg = Arg { short: Some(b'F'), long: "classify",    takes_value: TakesValue::Forbidden };
 pub static DEREF_LINKS: Arg = Arg { short: Some(b'X'), long: "dereference", takes_value: TakesValue::Forbidden };
 pub static WIDTH:       Arg = Arg { short: Some(b'w'), long: "width",       takes_value: TakesValue::Necessary(None) };
 pub static NO_QUOTES:   Arg = Arg { short: None,       long: "no-quotes",   takes_value: TakesValue::Forbidden };
@@ -86,7 +86,7 @@ pub static OCTAL:             Arg = Arg { short: Some(b'o'), long: "octal-permis
 pub static SECURITY_CONTEXT:  Arg = Arg { short: Some(b'Z'), long: "context",              takes_value: TakesValue::Forbidden };
 pub static STDIN:             Arg = Arg { short: None,       long: "stdin",                takes_value: TakesValue::Forbidden };
 pub static FILE_FLAGS:        Arg = Arg { short: Some(b'O'), long: "flags",                takes_value: TakesValue::Forbidden };
-
+pub static WRITE_THEME:       Arg = Arg { short: None,       long: "write-theme",          takes_value: TakesValue::Optional(None, ".")};
 pub static ALL_ARGS: Args = Args(&[
     &VERSION, &HELP,
 
@@ -102,5 +102,5 @@ pub static ALL_ARGS: Args = Args(&[
     &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &SMART_GROUP, &NO_SYMLINKS, &SHOW_SYMLINKS,
 
     &GIT, &NO_GIT, &GIT_REPOS, &GIT_REPOS_NO_STAT,
-    &EXTENDED, &OCTAL, &SECURITY_CONTEXT, &STDIN, &FILE_FLAGS
+    &EXTENDED, &OCTAL, &SECURITY_CONTEXT, &STDIN, &FILE_FLAGS, &WRITE_THEME
 ]);

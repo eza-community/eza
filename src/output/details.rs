@@ -397,7 +397,7 @@ impl<'a> Render<'a> {
         Row {
             tree: TreeParams::new(TreeDepth::root(), false),
             cells: Some(header),
-            name: TextCell::paint_str(self.theme.ui.header, "Name"),
+            name: TextCell::paint_str(self.theme.ui.header.unwrap_or_default(), "Name"),
         }
     }
 
@@ -421,7 +421,10 @@ impl<'a> Render<'a> {
     }
 
     fn render_xattr(&self, xattr: &Attribute, tree: TreeParams) -> Row {
-        let name = TextCell::paint(self.theme.ui.perms.attribute, format!("{xattr}"));
+        let name = TextCell::paint(
+            self.theme.ui.perms.unwrap_or_default().attribute(),
+            format!("{xattr}"),
+        );
         Row {
             cells: None,
             name,
@@ -435,7 +438,7 @@ impl<'a> Render<'a> {
             total_width: table.widths().total(),
             table,
             inner: rows.into_iter(),
-            tree_style: self.theme.ui.punctuation,
+            tree_style: self.theme.ui.punctuation.unwrap_or_default(),
         }
     }
 
@@ -443,7 +446,7 @@ impl<'a> Render<'a> {
         Iter {
             tree_trunk: TreeTrunk::default(),
             inner: rows.into_iter(),
-            tree_style: self.theme.ui.punctuation,
+            tree_style: self.theme.ui.punctuation.unwrap_or_default(),
         }
     }
 }

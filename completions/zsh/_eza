@@ -65,6 +65,7 @@ __eza() {
         --no-git"[Suppress Git status]" \
         --git-repos"[List each git-repos status and branch name]" \
         --git-repos-no-status"[List each git-repos branch name (much faster)]" \
+        --write-theme="[Write the default theme.yml to a directory. default: cwd]" \
         {-@,--extended}"[List each file's extended attributes and sizes]" \
         {-Z,--context}"[List each file's security context]" \
         {-M,--mounts}"[Show mount details (long mode only)]" \

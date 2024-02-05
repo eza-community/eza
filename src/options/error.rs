@@ -39,6 +39,9 @@ pub enum OptionsError {
 
     /// A glob ignore was given that failed to be parsed as a pattern.
     FailedGlobPattern(String),
+
+    /// Error writing theme file to disk.
+    WriteTheme(String),
 }
 
 /// The source of a string that failed to be parsed as a number.
@@ -96,6 +99,7 @@ impl fmt::Display for OptionsError {
             Self::TreeAllAll                 => write!(f, "Option --tree is useless given --all --all"),
             Self::FailedParse(s, n, e)       => write!(f, "Value {s:?} not valid for {n}: {e}"),
             Self::FailedGlobPattern(ref e)   => write!(f, "Failed to parse glob pattern: {e}"),
+            Self::WriteTheme(ref e)          => write!(f, "Failed to write theme file: {e}"),
         };
     }
 }

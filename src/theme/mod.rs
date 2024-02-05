@@ -64,7 +64,7 @@ impl Options {
         }
 
         // Parse the environment variables into colours and extension mappings
-        let mut ui = UiStyles::default(self.colour_scale);
+        let mut ui = UiStyles::default_theme(self.colour_scale);
         let (exts, use_default_filetypes) = self.definitions.parse_color_vars(&mut ui);
 
         // Use between 0 and 2 file name highlighters
@@ -199,19 +199,19 @@ impl FileStyle for FileTypes {
     fn get_style(&self, file: &File<'_>, theme: &Theme) -> Option<Style> {
         #[rustfmt::skip]
         return match FileType::get_file_type(file) {
-            Some(FileType::Image)      => Some(theme.ui.file_type.image),
-            Some(FileType::Video)      => Some(theme.ui.file_type.video),
-            Some(FileType::Music)      => Some(theme.ui.file_type.music),
-            Some(FileType::Lossless)   => Some(theme.ui.file_type.lossless),
-            Some(FileType::Crypto)     => Some(theme.ui.file_type.crypto),
-            Some(FileType::Document)   => Some(theme.ui.file_type.document),
-            Some(FileType::Compressed) => Some(theme.ui.file_type.compressed),
-            Some(FileType::Temp)       => Some(theme.ui.file_type.temp),
-            Some(FileType::Compiled)   => Some(theme.ui.file_type.compiled),
-            Some(FileType::Build)      => Some(theme.ui.file_type.build),
-            Some(FileType::Source)     => Some(theme.ui.file_type.source),
+            Some(FileType::Image)      => theme.ui.file_type.unwrap_or_default().image,
+            Some(FileType::Video)      => theme.ui.file_type.unwrap_or_default().video,
+            Some(FileType::Music)      => theme.ui.file_type.unwrap_or_default().music,
+            Some(FileType::Lossless)   => theme.ui.file_type.unwrap_or_default().lossless,
+            Some(FileType::Crypto)     => theme.ui.file_type.unwrap_or_default().crypto,
+            Some(FileType::Document)   => theme.ui.file_type.unwrap_or_default().document,
+            Some(FileType::Compressed) => theme.ui.file_type.unwrap_or_default().compressed,
+            Some(FileType::Temp)       => theme.ui.file_type.unwrap_or_default().temp,
+            Some(FileType::Compiled)   => theme.ui.file_type.unwrap_or_default().compiled,
+            Some(FileType::Build)      => theme.ui.file_type.unwrap_or_default().build,
+            Some(FileType::Source)     => theme.ui.file_type.unwrap_or_default().source,
             None                       => None
-        };
+    };
     }
 }
 
@@ -221,98 +221,100 @@ impl render::BlocksColours for Theme {
         use number_prefix::Prefix::*;
 
         #[rustfmt::skip]
-        return match prefix {
-            Some(Kilo | Kibi) => self.ui.size.number_kilo,
-            Some(Mega | Mebi) => self.ui.size.number_mega,
-            Some(Giga | Gibi) => self.ui.size.number_giga,
-            Some(_)           => self.ui.size.number_huge,
-            None              => self.ui.size.number_byte,
+        let style = match prefix {
+            Some(Kilo | Kibi) => self.ui.size.unwrap_or_default().number_kilo,
+            Some(Mega | Mebi) => self.ui.size.unwrap_or_default().number_mega,
+            Some(Giga | Gibi) => self.ui.size.unwrap_or_default().number_giga,
+            Some(_)           => self.ui.size.unwrap_or_default().number_huge,
+            None              => self.ui.size.unwrap_or_default().number_byte,
         };
+        style.unwrap_or_default()
     }
 
     fn unit(&self, prefix: Option<number_prefix::Prefix>) -> Style {
         use number_prefix::Prefix::*;
 
         #[rustfmt::skip]
-        return match prefix {
-            Some(Kilo | Kibi) => self.ui.size.unit_kilo,
-            Some(Mega | Mebi) => self.ui.size.unit_mega,
-            Some(Giga | Gibi) => self.ui.size.unit_giga,
-            Some(_)           => self.ui.size.unit_huge,
-            None              => self.ui.size.unit_byte,
+           let style = match prefix {
+            Some(Kilo | Kibi) => self.ui.size.unwrap_or_default().unit_kilo,
+            Some(Mega | Mebi) => self.ui.size.unwrap_or_default().unit_mega,
+            Some(Giga | Gibi) => self.ui.size.unwrap_or_default().unit_giga,
+            Some(_)           => self.ui.size.unwrap_or_default().unit_huge,
+            None              => self.ui.size.unwrap_or_default().unit_byte,
         };
+        style.unwrap_or_default()
     }
 
     fn no_blocksize(&self) -> Style {
-        self.ui.punctuation
+        self.ui.punctuation.unwrap_or_default()
     }
 }
 
 #[rustfmt::skip]
 impl render::FiletypeColours for Theme {
-    fn normal(&self)       -> Style { self.ui.filekinds.normal }
-    fn directory(&self)    -> Style { self.ui.filekinds.directory }
-    fn pipe(&self)         -> Style { self.ui.filekinds.pipe }
-    fn symlink(&self)      -> Style { self.ui.filekinds.symlink }
-    fn block_device(&self) -> Style { self.ui.filekinds.block_device }
-    fn char_device(&self)  -> Style { self.ui.filekinds.char_device }
-    fn socket(&self)       -> Style { self.ui.filekinds.socket }
-    fn special(&self)      -> Style { self.ui.filekinds.special }
+    fn normal(&self)       -> Style { self.ui.filekinds.unwrap_or_default().normal() }
+    fn directory(&self)    -> Style { self.ui.filekinds.unwrap_or_default().directory() }
+    fn pipe(&self)         -> Style { self.ui.filekinds.unwrap_or_default().pipe() }
+    fn symlink(&self)      -> Style { self.ui.filekinds.unwrap_or_default().symlink() }
+    fn block_device(&self) -> Style { self.ui.filekinds.unwrap_or_default().block_device() }
+    fn char_device(&self)  -> Style { self.ui.filekinds.unwrap_or_default().char_device() }
+    fn socket(&self)       -> Style { self.ui.filekinds.unwrap_or_default().socket() }
+    fn special(&self)      -> Style { self.ui.filekinds.unwrap_or_default().special() }
 }
 
 #[rustfmt::skip]
 impl render::GitColours for Theme {
-    fn not_modified(&self)  -> Style { self.ui.punctuation }
+    fn not_modified(&self)  -> Style { self.ui.punctuation.unwrap_or_default() }
     #[allow(clippy::new_ret_no_self)]
-    fn new(&self)           -> Style { self.ui.git.new }
-    fn modified(&self)      -> Style { self.ui.git.modified }
-    fn deleted(&self)       -> Style { self.ui.git.deleted }
-    fn renamed(&self)       -> Style { self.ui.git.renamed }
-    fn type_change(&self)   -> Style { self.ui.git.typechange }
-    fn ignored(&self)       -> Style { self.ui.git.ignored }
-    fn conflicted(&self)    -> Style { self.ui.git.conflicted }
+    fn new(&self)           -> Style { self.ui.git.unwrap_or_default().new() }
+    fn modified(&self)      -> Style { self.ui.git.unwrap_or_default().modified() }
+    fn deleted(&self)       -> Style { self.ui.git.unwrap_or_default().deleted() }
+    fn renamed(&self)       -> Style { self.ui.git.unwrap_or_default().renamed() }
+    fn type_change(&self)   -> Style { self.ui.git.unwrap_or_default().typechange() }
+    fn ignored(&self)       -> Style { self.ui.git.unwrap_or_default().ignored() }
+    fn conflicted(&self)    -> Style { self.ui.git.unwrap_or_default().conflicted() }
 }
 
 #[rustfmt::skip]
 impl render::GitRepoColours for Theme {
-    fn branch_main(&self)  -> Style { self.ui.git_repo.branch_main }
-    fn branch_other(&self) -> Style { self.ui.git_repo.branch_other }
-    fn no_repo(&self)      -> Style { self.ui.punctuation }
-    fn git_clean(&self)    -> Style { self.ui.git_repo.git_clean }
-    fn git_dirty(&self)    -> Style { self.ui.git_repo.git_dirty }
+    fn branch_main(&self)  -> Style { self.ui.git_repo.unwrap_or_default().branch_main.unwrap_or_default() }
+    fn branch_other(&self) -> Style { self.ui.git_repo.unwrap_or_default().branch_other.unwrap_or_default() }
+    fn no_repo(&self)      -> Style { self.ui.punctuation.unwrap_or_default() }
+    fn git_clean(&self)    -> Style { self.ui.git_repo.unwrap_or_default().git_clean.unwrap_or_default() }
+    fn git_dirty(&self)    -> Style { self.ui.git_repo.unwrap_or_default().git_dirty.unwrap_or_default() }
 }
 
 #[rustfmt::skip]
 #[cfg(unix)]
 impl render::GroupColours for Theme {
-    fn yours(&self)      -> Style { self.ui.users.group_yours }
-    fn not_yours(&self)  -> Style { self.ui.users.group_other }
-    fn root_group(&self) -> Style { self.ui.users.group_root }
-    fn no_group(&self)   -> Style { self.ui.punctuation }
+    fn yours(&self)      -> Style { self.ui.users.unwrap_or_default().group_yours() }
+    fn not_yours(&self)  -> Style { self.ui.users.unwrap_or_default().group_other() }
+    fn root_group(&self) -> Style { self.ui.users.unwrap_or_default().group_root() }
+    fn no_group(&self)   -> Style { self.ui.punctuation() }
 }
 
 #[rustfmt::skip]
 impl render::LinksColours for Theme {
-    fn normal(&self)           -> Style { self.ui.links.normal }
-    fn multi_link_file(&self)  -> Style { self.ui.links.multi_link_file }
+    fn normal(&self)           -> Style { self.ui.links.unwrap_or_default().normal() }
+    fn multi_link_file(&self)  -> Style { self.ui.links.unwrap_or_default().multi_link_file() }
 }
 
 #[rustfmt::skip]
 impl render::PermissionsColours for Theme {
-    fn dash(&self)               -> Style { self.ui.punctuation }
-    fn user_read(&self)          -> Style { self.ui.perms.user_read }
-    fn user_write(&self)         -> Style { self.ui.perms.user_write }
-    fn user_execute_file(&self)  -> Style { self.ui.perms.user_execute_file }
-    fn user_execute_other(&self) -> Style { self.ui.perms.user_execute_other }
-    fn group_read(&self)         -> Style { self.ui.perms.group_read }
-    fn group_write(&self)        -> Style { self.ui.perms.group_write }
-    fn group_execute(&self)      -> Style { self.ui.perms.group_execute }
-    fn other_read(&self)         -> Style { self.ui.perms.other_read }
-    fn other_write(&self)        -> Style { self.ui.perms.other_write }
-    fn other_execute(&self)      -> Style { self.ui.perms.other_execute }
-    fn special_user_file(&self)  -> Style { self.ui.perms.special_user_file }
-    fn special_other(&self)      -> Style { self.ui.perms.special_other }
-    fn attribute(&self)          -> Style { self.ui.perms.attribute }
+    fn dash(&self)               -> Style { self.ui.punctuation() }
+    fn user_read(&self)          -> Style { self.ui.perms.unwrap_or_default().user_read() }
+    fn user_write(&self)         -> Style { self.ui.perms.unwrap_or_default().user_write() }
+    fn user_execute_file(&self)  -> Style { self.ui.perms.unwrap_or_default().user_execute_file() }
+    fn user_execute_other(&self) -> Style { self.ui.perms.unwrap_or_default().user_execute_other() }
+    fn group_read(&self)         -> Style { self.ui.perms.unwrap_or_default().group_read() }
+    fn group_write(&self)        -> Style { self.ui.perms.unwrap_or_default().group_write() }
+    fn group_execute(&self)      -> Style { self.ui.perms.unwrap_or_default().group_execute() }
+    fn other_read(&self)         -> Style { self.ui.perms.unwrap_or_default().other_read() }
+    fn other_write(&self)        -> Style { self.ui.perms.unwrap_or_default().other_write() }
+    fn other_execute(&self)      -> Style { self.ui.perms.unwrap_or_default().other_execute() }
+    fn special_user_file(&self)  -> Style { self.ui.perms.unwrap_or_default().special_user_file() }
+    fn special_other(&self)      -> Style { self.ui.perms.unwrap_or_default().special_other() }
+    fn attribute(&self)          -> Style { self.ui.perms.unwrap_or_default().attribute() }
 }
 
 impl render::SizeColours for Theme {
@@ -321,11 +323,11 @@ impl render::SizeColours for Theme {
 
         #[rustfmt::skip]
         return match prefix {
-            Some(Kilo | Kibi) => self.ui.size.number_kilo,
-            Some(Mega | Mebi) => self.ui.size.number_mega,
-            Some(Giga | Gibi) => self.ui.size.number_giga,
-            Some(_)           => self.ui.size.number_huge,
-            None              => self.ui.size.number_byte,
+            Some(Kilo | Kibi) => self.ui.size.unwrap_or_default().number_kilo(),
+            Some(Mega | Mebi) => self.ui.size.unwrap_or_default().number_mega(),
+            Some(Giga | Gibi) => self.ui.size.unwrap_or_default().number_giga(),
+            Some(_)           => self.ui.size.unwrap_or_default().number_huge(),
+            None              => self.ui.size.unwrap_or_default().number_byte(),
         };
     }
 
@@ -334,61 +336,61 @@ impl render::SizeColours for Theme {
 
         #[rustfmt::skip]
         return match prefix {
-            Some(Kilo | Kibi) => self.ui.size.unit_kilo,
-            Some(Mega | Mebi) => self.ui.size.unit_mega,
-            Some(Giga | Gibi) => self.ui.size.unit_giga,
-            Some(_)           => self.ui.size.unit_huge,
-            None              => self.ui.size.unit_byte,
+            Some(Kilo | Kibi) => self.ui.size.unwrap_or_default().unit_kilo(),
+            Some(Mega | Mebi) => self.ui.size.unwrap_or_default().unit_mega(),
+            Some(Giga | Gibi) => self.ui.size.unwrap_or_default().unit_giga(),
+            Some(_)           => self.ui.size.unwrap_or_default().unit_huge(),
+            None              => self.ui.size.unwrap_or_default().unit_byte(),
         };
     }
 
     #[rustfmt::skip]
-    fn no_size(&self) -> Style { self.ui.punctuation }
+    fn no_size(&self) -> Style { self.ui.punctuation() }
     #[rustfmt::skip]
-    fn major(&self)   -> Style { self.ui.size.major }
+    fn major(&self)   -> Style { self.ui.size.unwrap_or_default().major() }
     #[rustfmt::skip]
-    fn comma(&self)   -> Style { self.ui.punctuation }
+    fn comma(&self)   -> Style { self.ui.punctuation() }
     #[rustfmt::skip]
-    fn minor(&self)   -> Style { self.ui.size.minor }
+    fn minor(&self)   -> Style { self.ui.size.unwrap_or_default().minor() }
 }
 
 #[rustfmt::skip]
 #[cfg(unix)]
 impl render::UserColours for Theme {
-    fn you(&self)           -> Style { self.ui.users.user_you }
-    fn other(&self)         -> Style { self.ui.users.user_other }
-    fn root(&self)          -> Style { self.ui.users.user_root }
-    fn no_user(&self)       -> Style { self.ui.punctuation }
+    fn you(&self)           -> Style { self.ui.users.unwrap_or_default().user_you() }
+    fn other(&self)         -> Style { self.ui.users.unwrap_or_default().user_other() }
+    fn root(&self)          -> Style { self.ui.users.unwrap_or_default().user_root() }
+    fn no_user(&self)       -> Style { self.ui.punctuation() }
 }
 
 #[rustfmt::skip]
 impl FileNameColours for Theme {
-    fn symlink_path(&self)        -> Style { self.ui.symlink_path }
-    fn normal_arrow(&self)        -> Style { self.ui.punctuation }
-    fn broken_symlink(&self)      -> Style { self.ui.broken_symlink }
-    fn broken_filename(&self)     -> Style { apply_overlay(self.ui.broken_symlink, self.ui.broken_path_overlay) }
-    fn control_char(&self)        -> Style { self.ui.control_char }
-    fn broken_control_char(&self) -> Style { apply_overlay(self.ui.control_char,   self.ui.broken_path_overlay) }
-    fn executable_file(&self)     -> Style { self.ui.filekinds.executable }
-    fn mount_point(&self)         -> Style { self.ui.filekinds.mount_point }
+    fn symlink_path(&self)        -> Style { self.ui.symlink_path() }
+    fn normal_arrow(&self)        -> Style { self.ui.punctuation() }
+    fn broken_symlink(&self)      -> Style { self.ui.broken_symlink() }
+    fn broken_filename(&self)     -> Style { apply_overlay(self.ui.broken_symlink(), self.ui.broken_path_overlay()) }
+    fn control_char(&self)        -> Style { self.ui.control_char() }
+    fn broken_control_char(&self) -> Style { apply_overlay(self.ui.control_char(),   self.ui.broken_path_overlay()) }
+    fn executable_file(&self)     -> Style { self.ui.filekinds.unwrap_or_default().executable() }
+    fn mount_point(&self)         -> Style { self.ui.filekinds.unwrap_or_default().mount_point() }
 
     fn icon(&self)          -> Option<Style> { self.ui.icon }
 
     fn colour_file(&self, file: &File<'_>) -> Style {
         self.exts
             .get_style(file, self)
-            .unwrap_or(self.ui.filekinds.normal)
+            .unwrap_or(self.ui.filekinds.unwrap_or_default().normal())
     }
 }
 
 #[rustfmt::skip]
 impl render::SecurityCtxColours for Theme {
-    fn none(&self)          -> Style { self.ui.security_context.none }
-    fn selinux_colon(&self) -> Style { self.ui.security_context.selinux.colon }
-    fn selinux_user(&self)  -> Style { self.ui.security_context.selinux.user }
-    fn selinux_role(&self)  -> Style { self.ui.security_context.selinux.role }
-    fn selinux_type(&self)  -> Style { self.ui.security_context.selinux.typ }
-    fn selinux_range(&self) -> Style { self.ui.security_context.selinux.range }
+    fn none(&self)          -> Style { self.ui.security_context.unwrap_or_default().none() }
+    fn selinux_colon(&self) -> Style { self.ui.security_context.unwrap_or_default().selinux().colon() }
+    fn selinux_user(&self)  -> Style { self.ui.security_context.unwrap_or_default().selinux().user() }
+    fn selinux_role(&self)  -> Style { self.ui.security_context.unwrap_or_default().selinux().role() }
+    fn selinux_type(&self)  -> Style { self.ui.security_context.unwrap_or_default().selinux().typ() }
+    fn selinux_range(&self) -> Style { self.ui.security_context.unwrap_or_default().selinux().range() }
 }
 
 /// Some of the styles are **overlays**: although they have the same attribute
@@ -488,92 +490,92 @@ mod customs_test {
     }
 
     // LS_COLORS can affect all of these colours:
-    test!(ls_di:   ls "di=31", exa ""  =>  colours c -> { c.filekinds.directory    = Red.normal();    });
-    test!(ls_ex:   ls "ex=32", exa ""  =>  colours c -> { c.filekinds.executable   = Green.normal();  });
-    test!(ls_fi:   ls "fi=33", exa ""  =>  colours c -> { c.filekinds.normal       = Yellow.normal(); });
-    test!(ls_pi:   ls "pi=34", exa ""  =>  colours c -> { c.filekinds.pipe         = Blue.normal();   });
-    test!(ls_so:   ls "so=35", exa ""  =>  colours c -> { c.filekinds.socket       = Purple.normal(); });
-    test!(ls_bd:   ls "bd=36", exa ""  =>  colours c -> { c.filekinds.block_device = Cyan.normal();   });
-    test!(ls_cd:   ls "cd=35", exa ""  =>  colours c -> { c.filekinds.char_device  = Purple.normal(); });
-    test!(ls_ln:   ls "ln=34", exa ""  =>  colours c -> { c.filekinds.symlink      = Blue.normal();   });
+    test!(ls_di:   ls "di=31", exa ""  =>  colours c -> { c.filekinds().directory    = Some(Red.normal());    });
+    test!(ls_ex:   ls "ex=32", exa ""  =>  colours c -> { c.filekinds().executable   = Some(Green.normal());  });
+    test!(ls_fi:   ls "fi=33", exa ""  =>  colours c -> { c.filekinds().normal       = Some(Yellow.normal()); });
+    test!(ls_pi:   ls "pi=34", exa ""  =>  colours c -> { c.filekinds().pipe         = Some(Blue.normal());   });
+    test!(ls_so:   ls "so=35", exa ""  =>  colours c -> { c.filekinds().socket       = Some(Purple.normal()); });
+    test!(ls_bd:   ls "bd=36", exa ""  =>  colours c -> { c.filekinds().block_device = Some(Cyan.normal());   });
+    test!(ls_cd:   ls "cd=35", exa ""  =>  colours c -> { c.filekinds().char_device  = Some(Purple.normal()); });
+    test!(ls_ln:   ls "ln=34", exa ""  =>  colours c -> { c.filekinds().symlink      = Some(Blue.normal());   });
     test!(ls_or:   ls "or=33", exa ""  =>  colours c -> { c.broken_symlink         = Some(Yellow.normal()); });
 
     // EZA_COLORS can affect all those colours too:
-    test!(exa_di:  ls "", exa "di=32"  =>  colours c -> { c.filekinds.directory    = Green.normal();  });
-    test!(exa_ex:  ls "", exa "ex=33"  =>  colours c -> { c.filekinds.executable   = Yellow.normal(); });
-    test!(exa_fi:  ls "", exa "fi=34"  =>  colours c -> { c.filekinds.normal       = Blue.normal();   });
-    test!(exa_pi:  ls "", exa "pi=35"  =>  colours c -> { c.filekinds.pipe         = Purple.normal(); });
-    test!(exa_so:  ls "", exa "so=36"  =>  colours c -> { c.filekinds.socket       = Cyan.normal();   });
-    test!(exa_bd:  ls "", exa "bd=35"  =>  colours c -> { c.filekinds.block_device = Purple.normal(); });
-    test!(exa_cd:  ls "", exa "cd=34"  =>  colours c -> { c.filekinds.char_device  = Blue.normal();   });
-    test!(exa_ln:  ls "", exa "ln=33"  =>  colours c -> { c.filekinds.symlink      = Yellow.normal(); });
+    test!(exa_di:  ls "", exa "di=32"  =>  colours c -> { c.filekinds().directory    = Some(Green.normal());  });
+    test!(exa_ex:  ls "", exa "ex=33"  =>  colours c -> { c.filekinds().executable   = Some(Yellow.normal()); });
+    test!(exa_fi:  ls "", exa "fi=34"  =>  colours c -> { c.filekinds().normal       = Some(Blue.normal());   });
+    test!(exa_pi:  ls "", exa "pi=35"  =>  colours c -> { c.filekinds().pipe         = Some(Purple.normal()); });
+    test!(exa_so:  ls "", exa "so=36"  =>  colours c -> { c.filekinds().socket       = Some(Cyan.normal());   });
+    test!(exa_bd:  ls "", exa "bd=35"  =>  colours c -> { c.filekinds().block_device = Some(Purple.normal()); });
+    test!(exa_cd:  ls "", exa "cd=34"  =>  colours c -> { c.filekinds().char_device  = Some(Blue.normal());   });
+    test!(exa_ln:  ls "", exa "ln=33"  =>  colours c -> { c.filekinds().symlink      = Some(Yellow.normal()); });
     test!(exa_or:  ls "", exa "or=32"  =>  colours c -> { c.broken_symlink         = Some(Green.normal());  });
 
     // EZA_COLORS will even override options from LS_COLORS:
-    test!(ls_exa_di: ls "di=31", exa "di=32"  =>  colours c -> { c.filekinds.directory  = Green.normal();  });
-    test!(ls_exa_ex: ls "ex=32", exa "ex=33"  =>  colours c -> { c.filekinds.executable = Yellow.normal(); });
-    test!(ls_exa_fi: ls "fi=33", exa "fi=34"  =>  colours c -> { c.filekinds.normal     = Blue.normal();   });
+    test!(ls_exa_di: ls "di=31", exa "di=32"  =>  colours c -> { c.filekinds().directory  = Some(Green.normal());  });
+    test!(ls_exa_ex: ls "ex=32", exa "ex=33"  =>  colours c -> { c.filekinds().executable = Some(Yellow.normal()); });
+    test!(ls_exa_fi: ls "fi=33", exa "fi=34"  =>  colours c -> { c.filekinds().normal     = Some(Blue.normal());   });
 
     // But more importantly, EZA_COLORS has its own, special list of colours:
-    test!(exa_ur:  ls "", exa "ur=38;5;100"  =>  colours c -> { c.perms.user_read           = Fixed(100).normal(); });
-    test!(exa_uw:  ls "", exa "uw=38;5;101"  =>  colours c -> { c.perms.user_write          = Fixed(101).normal(); });
-    test!(exa_ux:  ls "", exa "ux=38;5;102"  =>  colours c -> { c.perms.user_execute_file   = Fixed(102).normal(); });
-    test!(exa_ue:  ls "", exa "ue=38;5;103"  =>  colours c -> { c.perms.user_execute_other  = Fixed(103).normal(); });
-    test!(exa_gr:  ls "", exa "gr=38;5;104"  =>  colours c -> { c.perms.group_read          = Fixed(104).normal(); });
-    test!(exa_gw:  ls "", exa "gw=38;5;105"  =>  colours c -> { c.perms.group_write         = Fixed(105).normal(); });
-    test!(exa_gx:  ls "", exa "gx=38;5;106"  =>  colours c -> { c.perms.group_execute       = Fixed(106).normal(); });
-    test!(exa_tr:  ls "", exa "tr=38;5;107"  =>  colours c -> { c.perms.other_read          = Fixed(107).normal(); });
-    test!(exa_tw:  ls "", exa "tw=38;5;108"  =>  colours c -> { c.perms.other_write         = Fixed(108).normal(); });
-    test!(exa_tx:  ls "", exa "tx=38;5;109"  =>  colours c -> { c.perms.other_execute       = Fixed(109).normal(); });
-    test!(exa_su:  ls "", exa "su=38;5;110"  =>  colours c -> { c.perms.special_user_file   = Fixed(110).normal(); });
-    test!(exa_sf:  ls "", exa "sf=38;5;111"  =>  colours c -> { c.perms.special_other       = Fixed(111).normal(); });
-    test!(exa_xa:  ls "", exa "xa=38;5;112"  =>  colours c -> { c.perms.attribute           = Fixed(112).normal(); });
+    test!(exa_ur:  ls "", exa "ur=38;5;100"  =>  colours c -> { c.perms().user_read           = Some(Fixed(100).normal()); });
+    test!(exa_uw:  ls "", exa "uw=38;5;101"  =>  colours c -> { c.perms().user_write          = Some(Fixed(101).normal()); });
+    test!(exa_ux:  ls "", exa "ux=38;5;102"  =>  colours c -> { c.perms().user_execute_file   = Some(Fixed(102).normal()); });
+    test!(exa_ue:  ls "", exa "ue=38;5;103"  =>  colours c -> { c.perms().user_execute_other  = Some(Fixed(103).normal()); });
+    test!(exa_gr:  ls "", exa "gr=38;5;104"  =>  colours c -> { c.perms().group_read          = Some(Fixed(104).normal()); });
+    test!(exa_gw:  ls "", exa "gw=38;5;105"  =>  colours c -> { c.perms().group_write         = Some(Fixed(105).normal()); });
+    test!(exa_gx:  ls "", exa "gx=38;5;106"  =>  colours c -> { c.perms().group_execute       = Some(Fixed(106).normal()); });
+    test!(exa_tr:  ls "", exa "tr=38;5;107"  =>  colours c -> { c.perms().other_read          = Some(Fixed(107).normal()); });
+    test!(exa_tw:  ls "", exa "tw=38;5;108"  =>  colours c -> { c.perms().other_write         = Some(Fixed(108).normal()); });
+    test!(exa_tx:  ls "", exa "tx=38;5;109"  =>  colours c -> { c.perms().other_execute       = Some(Fixed(109).normal()); });
+    test!(exa_su:  ls "", exa "su=38;5;110"  =>  colours c -> { c.perms().special_user_file   = Some(Fixed(110).normal()); });
+    test!(exa_sf:  ls "", exa "sf=38;5;111"  =>  colours c -> { c.perms().special_other       = Some(Fixed(111).normal()); });
+    test!(exa_xa:  ls "", exa "xa=38;5;112"  =>  colours c -> { c.perms().attribute           = Some(Fixed(112).normal()); });
 
     test!(exa_sn:  ls "", exa "sn=38;5;113" => colours c -> {
-        c.size.number_byte = Fixed(113).normal();
-        c.size.number_kilo = Fixed(113).normal();
-        c.size.number_mega = Fixed(113).normal();
-        c.size.number_giga = Fixed(113).normal();
-        c.size.number_huge = Fixed(113).normal();
+        c.size().number_byte = Some(Fixed(113).normal());
+        c.size().number_kilo = Some(Fixed(113).normal());
+        c.size().number_mega = Some(Fixed(113).normal());
+        c.size().number_giga = Some(Fixed(113).normal());
+        c.size().number_huge = Some(Fixed(113).normal());
     });
     test!(exa_sb:  ls "", exa "sb=38;5;114" => colours c -> {
-        c.size.unit_byte = Fixed(114).normal();
-        c.size.unit_kilo = Fixed(114).normal();
-        c.size.unit_mega = Fixed(114).normal();
-        c.size.unit_giga = Fixed(114).normal();
-        c.size.unit_huge = Fixed(114).normal();
+        c.size().unit_byte = Some(Fixed(114).normal());
+        c.size().unit_kilo = Some(Fixed(114).normal());
+        c.size().unit_mega = Some(Fixed(114).normal());
+        c.size().unit_giga = Some(Fixed(114).normal());
+        c.size().unit_huge = Some(Fixed(114).normal());
     });
 
-    test!(exa_nb:  ls "", exa "nb=38;5;115"  =>  colours c -> { c.size.number_byte                      = Fixed(115).normal(); });
-    test!(exa_nk:  ls "", exa "nk=38;5;116"  =>  colours c -> { c.size.number_kilo                      = Fixed(116).normal(); });
-    test!(exa_nm:  ls "", exa "nm=38;5;117"  =>  colours c -> { c.size.number_mega                      = Fixed(117).normal(); });
-    test!(exa_ng:  ls "", exa "ng=38;5;118"  =>  colours c -> { c.size.number_giga                      = Fixed(118).normal(); });
-    test!(exa_nt:  ls "", exa "nt=38;5;119"  =>  colours c -> { c.size.number_huge                      = Fixed(119).normal(); });
+    test!(exa_nb:  ls "", exa "nb=38;5;115"  =>  colours c -> { c.size().number_byte                      = Some(Fixed(115).normal()); });
+    test!(exa_nk:  ls "", exa "nk=38;5;116"  =>  colours c -> { c.size().number_kilo                      = Some(Fixed(116).normal()); });
+    test!(exa_nm:  ls "", exa "nm=38;5;117"  =>  colours c -> { c.size().number_mega                      = Some(Fixed(117).normal()); });
+    test!(exa_ng:  ls "", exa "ng=38;5;118"  =>  colours c -> { c.size().number_giga                      = Some(Fixed(118).normal()); });
+    test!(exa_nt:  ls "", exa "nt=38;5;119"  =>  colours c -> { c.size().number_huge                      = Some(Fixed(119).normal()); });
 
-    test!(exa_ub:  ls "", exa "ub=38;5;115"  =>  colours c -> { c.size.unit_byte                        = Fixed(115).normal(); });
-    test!(exa_uk:  ls "", exa "uk=38;5;116"  =>  colours c -> { c.size.unit_kilo                        = Fixed(116).normal(); });
-    test!(exa_um:  ls "", exa "um=38;5;117"  =>  colours c -> { c.size.unit_mega                        = Fixed(117).normal(); });
-    test!(exa_ug:  ls "", exa "ug=38;5;118"  =>  colours c -> { c.size.unit_giga                        = Fixed(118).normal(); });
-    test!(exa_ut:  ls "", exa "ut=38;5;119"  =>  colours c -> { c.size.unit_huge                        = Fixed(119).normal(); });
+    test!(exa_ub:  ls "", exa "ub=38;5;115"  =>  colours c -> { c.size().unit_byte                        = Some(Fixed(115).normal()); });
+    test!(exa_uk:  ls "", exa "uk=38;5;116"  =>  colours c -> { c.size().unit_kilo                        = Some(Fixed(116).normal()); });
+    test!(exa_um:  ls "", exa "um=38;5;117"  =>  colours c -> { c.size().unit_mega                        = Some(Fixed(117).normal()); });
+    test!(exa_ug:  ls "", exa "ug=38;5;118"  =>  colours c -> { c.size().unit_giga                        = Some(Fixed(118).normal()); });
+    test!(exa_ut:  ls "", exa "ut=38;5;119"  =>  colours c -> { c.size().unit_huge                        = Some(Fixed(119).normal()); });
 
-    test!(exa_df:  ls "", exa "df=38;5;115"  =>  colours c -> { c.size.major                            = Fixed(115).normal(); });
-    test!(exa_ds:  ls "", exa "ds=38;5;116"  =>  colours c -> { c.size.minor                            = Fixed(116).normal(); });
+    test!(exa_df:  ls "", exa "df=38;5;115"  =>  colours c -> { c.size().major                            = Some(Fixed(115).normal()); });
+    test!(exa_ds:  ls "", exa "ds=38;5;116"  =>  colours c -> { c.size().minor                            = Some(Fixed(116).normal()); });
 
-    test!(exa_uu:  ls "", exa "uu=38;5;117"  =>  colours c -> { c.users.user_you                        = Fixed(117).normal(); });
-    test!(exa_un:  ls "", exa "un=38;5;118"  =>  colours c -> { c.users.user_other                      = Fixed(118).normal(); });
-    test!(exa_gu:  ls "", exa "gu=38;5;119"  =>  colours c -> { c.users.group_yours                     = Fixed(119).normal(); });
-    test!(exa_gn:  ls "", exa "gn=38;5;120"  =>  colours c -> { c.users.group_other                     = Fixed(120).normal(); });
+    test!(exa_uu:  ls "", exa "uu=38;5;117"  =>  colours c -> { c.users().user_you                        = Some(Fixed(117).normal()); });
+    test!(exa_un:  ls "", exa "un=38;5;118"  =>  colours c -> { c.users().user_other                      = Some(Fixed(118).normal()); });
+    test!(exa_gu:  ls "", exa "gu=38;5;119"  =>  colours c -> { c.users().group_yours                     = Some(Fixed(119).normal()); });
+    test!(exa_gn:  ls "", exa "gn=38;5;120"  =>  colours c -> { c.users().group_other                     = Some(Fixed(120).normal()); });
 
-    test!(exa_lc:  ls "", exa "lc=38;5;121"  =>  colours c -> { c.links.normal                          = Fixed(121).normal(); });
-    test!(exa_lm:  ls "", exa "lm=38;5;122"  =>  colours c -> { c.links.multi_link_file                 = Fixed(122).normal(); });
+    test!(exa_lc:  ls "", exa "lc=38;5;121"  =>  colours c -> { c.links().normal                          = Some(Fixed(121).normal()); });
+    test!(exa_lm:  ls "", exa "lm=38;5;122"  =>  colours c -> { c.links().multi_link_file                 = Some(Fixed(122).normal()); });
 
-    test!(exa_ga:  ls "", exa "ga=38;5;123"  =>  colours c -> { c.git.new                               = Fixed(123).normal(); });
-    test!(exa_gm:  ls "", exa "gm=38;5;124"  =>  colours c -> { c.git.modified                          = Fixed(124).normal(); });
-    test!(exa_gd:  ls "", exa "gd=38;5;125"  =>  colours c -> { c.git.deleted                           = Fixed(125).normal(); });
-    test!(exa_gv:  ls "", exa "gv=38;5;126"  =>  colours c -> { c.git.renamed                           = Fixed(126).normal(); });
-    test!(exa_gt:  ls "", exa "gt=38;5;127"  =>  colours c -> { c.git.typechange                        = Fixed(127).normal(); });
-    test!(exa_gi:  ls "", exa "gi=38;5;128"  =>  colours c -> { c.git.ignored                           = Fixed(128).normal(); });
-    test!(exa_gc:  ls "", exa "gc=38;5;129"  =>  colours c -> { c.git.conflicted                        = Fixed(129).normal(); });
+    test!(exa_ga:  ls "", exa "ga=38;5;123"  =>  colours c -> { c.git().new                               = Some(Fixed(123).normal()); });
+    test!(exa_gm:  ls "", exa "gm=38;5;124"  =>  colours c -> { c.git().modified                          = Some(Fixed(124).normal()); });
+    test!(exa_gd:  ls "", exa "gd=38;5;125"  =>  colours c -> { c.git().deleted                           = Some(Fixed(125).normal()); });
+    test!(exa_gv:  ls "", exa "gv=38;5;126"  =>  colours c -> { c.git().renamed                           = Some(Fixed(126).normal()); });
+    test!(exa_gt:  ls "", exa "gt=38;5;127"  =>  colours c -> { c.git().typechange                        = Some(Fixed(127).normal()); });
+    test!(exa_gi:  ls "", exa "gi=38;5;128"  =>  colours c -> { c.git().ignored                           = Some(Fixed(128).normal()); });
+    test!(exa_gc:  ls "", exa "gc=38;5;129"  =>  colours c -> { c.git().conflicted                        = Some(Fixed(129).normal()); });
 
     test!(exa_xx:  ls "", exa "xx=38;5;128"  =>  colours c -> { c.punctuation                           = Some(Fixed(128).normal()); });
     test!(exa_da:  ls "", exa "da=38;5;129"  =>  colours c -> { c.date                                  = Some(Fixed(129).normal()); });
@@ -586,27 +588,27 @@ mod customs_test {
     test!(exa_ff:  ls "", exa "ff=38;5;136"  =>  colours c -> { c.flags                                 = Some(Fixed(136).normal()); });
     test!(exa_bo:  ls "", exa "bO=4"         =>  colours c -> { c.broken_path_overlay                   = Some(Style::default().underline()); });
 
-    test!(exa_mp:  ls "", exa "mp=1;34;4"    =>  colours c -> { c.filekinds.mount_point                 = Blue.bold().underline(); });
-    test!(exa_sp:  ls "", exa "sp=1;35;4"    =>  colours c -> { c.filekinds.special                     = Purple.bold().underline(); });
+    test!(exa_mp:  ls "", exa "mp=1;34;4"    =>  colours c -> { c.filekinds().mount_point                 = Some(Blue.bold().underline()); });
+    test!(exa_sp:  ls "", exa "sp=1;35;4"    =>  colours c -> { c.filekinds().special                     = Some(Purple.bold().underline()); });
 
-    test!(exa_im:  ls "", exa "im=38;5;128"  =>  colours c -> { c.file_type.image                       = Fixed(128).normal(); });
-    test!(exa_vi:  ls "", exa "vi=38;5;129"  =>  colours c -> { c.file_type.video                       = Fixed(129).normal(); });
-    test!(exa_mu:  ls "", exa "mu=38;5;130"  =>  colours c -> { c.file_type.music                       = Fixed(130).normal(); });
-    test!(exa_lo:  ls "", exa "lo=38;5;131"  =>  colours c -> { c.file_type.lossless                    = Fixed(131).normal(); });
-    test!(exa_cr:  ls "", exa "cr=38;5;132"  =>  colours c -> { c.file_type.crypto                      = Fixed(132).normal(); });
-    test!(exa_do:  ls "", exa "do=38;5;133"  =>  colours c -> { c.file_type.document                    = Fixed(133).normal(); });
-    test!(exa_co:  ls "", exa "co=38;5;134"  =>  colours c -> { c.file_type.compressed                  = Fixed(134).normal(); });
-    test!(exa_tm:  ls "", exa "tm=38;5;135"  =>  colours c -> { c.file_type.temp                        = Fixed(135).normal(); });
-    test!(exa_cm:  ls "", exa "cm=38;5;136"  =>  colours c -> { c.file_type.compiled                    = Fixed(136).normal(); });
-    test!(exa_ie:  ls "", exa "bu=38;5;137"  =>  colours c -> { c.file_type.build                       = Fixed(137).normal(); });
-    test!(exa_bu:  ls "", exa "bu=38;5;137"  =>  colours c -> { c.file_type.build                       = Fixed(137).normal(); });
-    test!(exa_sc:  ls "", exa "sc=38;5;138"  =>  colours c -> { c.file_type.source                      = Fixed(138).normal(); });
+    test!(exa_im:  ls "", exa "im=38;5;128"  =>  colours c -> { c.file_type().image                       = Some(Fixed(128).normal()); });
+    test!(exa_vi:  ls "", exa "vi=38;5;129"  =>  colours c -> { c.file_type().video                       = Some(Fixed(129).normal()); });
+    test!(exa_mu:  ls "", exa "mu=38;5;130"  =>  colours c -> { c.file_type().music                       = Some(Fixed(130).normal()); });
+    test!(exa_lo:  ls "", exa "lo=38;5;131"  =>  colours c -> { c.file_type().lossless                    = Some(Fixed(131).normal()); });
+    test!(exa_cr:  ls "", exa "cr=38;5;132"  =>  colours c -> { c.file_type().crypto                      = Some(Fixed(132).normal()); });
+    test!(exa_do:  ls "", exa "do=38;5;133"  =>  colours c -> { c.file_type().document                    = Some(Fixed(133).normal()); });
+    test!(exa_co:  ls "", exa "co=38;5;134"  =>  colours c -> { c.file_type().compressed                  = Some(Fixed(134).normal()); });
+    test!(exa_tm:  ls "", exa "tm=38;5;135"  =>  colours c -> { c.file_type().temp                        = Some(Fixed(135).normal()); });
+    test!(exa_cm:  ls "", exa "cm=38;5;136"  =>  colours c -> { c.file_type().compiled                    = Some(Fixed(136).normal()); });
+    test!(exa_ie:  ls "", exa "bu=38;5;137"  =>  colours c -> { c.file_type().build                       = Some(Fixed(137).normal()); });
+    test!(exa_bu:  ls "", exa "bu=38;5;137"  =>  colours c -> { c.file_type().build                       = Some(Fixed(137).normal()); });
+    test!(exa_sc:  ls "", exa "sc=38;5;138"  =>  colours c -> { c.file_type().source                      = Some(Fixed(138).normal()); });
 
-    test!(exa_Sn:  ls "", exa "Sn=38;5;128"  =>  colours c -> { c.security_context.none                 = Fixed(128).normal(); });
-    test!(exa_Su:  ls "", exa "Su=38;5;129"  =>  colours c -> { c.security_context.selinux.user         = Fixed(129).normal(); });
-    test!(exa_Sr:  ls "", exa "Sr=38;5;130"  =>  colours c -> { c.security_context.selinux.role         = Fixed(130).normal(); });
-    test!(exa_St:  ls "", exa "St=38;5;131"  =>  colours c -> { c.security_context.selinux.typ          = Fixed(131).normal(); });
-    test!(exa_Sl:  ls "", exa "Sl=38;5;132"  =>  colours c -> { c.security_context.selinux.range        = Fixed(132).normal(); });
+    test!(exa_Sn:  ls "", exa "Sn=38;5;128"  =>  colours c -> { c.security_context().none                   = Some(Fixed(128).normal()); });
+    test!(exa_Su:  ls "", exa "Su=38;5;129"  =>  colours c -> { c.security_context().selinux().user         = Some(Fixed(129).normal()); });
+    test!(exa_Sr:  ls "", exa "Sr=38;5;130"  =>  colours c -> { c.security_context().selinux().role         = Some(Fixed(130).normal()); });
+    test!(exa_St:  ls "", exa "St=38;5;131"  =>  colours c -> { c.security_context().selinux().typ          = Some(Fixed(131).normal()); });
+    test!(exa_Sl:  ls "", exa "Sl=38;5;132"  =>  colours c -> { c.security_context().selinux().range        = Some(Fixed(132).normal()); });
 
     // All the while, LS_COLORS treats them as filenames:
     test!(ls_uu:   ls "uu=38;5;117", exa ""  =>  exts [ ("uu", Fixed(117).normal()) ]);
@@ -635,12 +637,12 @@ mod customs_test {
     ]);
 
     // Finally, colours get applied right-to-left:
-    test!(ls_overwrite:  ls "pi=31:pi=32:pi=33", exa ""  =>  colours c -> { c.filekinds.pipe = Yellow.normal(); });
+    test!(ls_overwrite:  ls "pi=31:pi=32:pi=33", exa ""  =>  colours c -> { c.filekinds().pipe = Some(Yellow.normal()); });
     test!(exa_overwrite: ls "", exa "da=36:da=35:da=34"  =>  colours c -> { c.date = Some(Blue.normal()); });
 
     // Parse keys and extensions
-    test!(ls_fi_ls_txt:   ls "fi=33:*.txt=31", exa "" => colours c -> { c.filekinds.normal = Yellow.normal(); }, exts [ ("*.txt", Red.normal()) ]);
-    test!(ls_fi_exa_txt:  ls "fi=33", exa "*.txt=31"  => colours c -> { c.filekinds.normal = Yellow.normal(); }, exts [ ("*.txt", Red.normal()) ]);
-    test!(ls_txt_exa_fi:  ls "*.txt=31", exa "fi=33"  => colours c -> { c.filekinds.normal = Yellow.normal(); }, exts [ ("*.txt", Red.normal()) ]);
-    test!(eza_fi_exa_txt: ls "", exa "fi=33:*.txt=31" => colours c -> { c.filekinds.normal = Yellow.normal(); }, exts [ ("*.txt", Red.normal()) ]);
+    test!(ls_fi_ls_txt:   ls "fi=33:*.txt=31", exa "" => colours c -> { c.filekinds().normal = Some(Yellow.normal()); }, exts [ ("*.txt", Red.normal()) ]);
+    test!(ls_fi_exa_txt:  ls "fi=33", exa "*.txt=31"  => colours c -> { c.filekinds().normal = Some(Yellow.normal()); }, exts [ ("*.txt", Red.normal()) ]);
+    test!(ls_txt_exa_fi:  ls "*.txt=31", exa "fi=33"  => colours c -> { c.filekinds().normal = Some(Yellow.normal()); }, exts [ ("*.txt", Red.normal()) ]);
+    test!(eza_fi_exa_txt: ls "", exa "fi=33:*.txt=31" => colours c -> { c.filekinds().normal = Some(Yellow.normal()); }, exts [ ("*.txt", Red.normal()) ]);
 }
