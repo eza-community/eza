@@ -1,6 +1,6 @@
 pub use clap::Parser;
 use clap::ValueEnum;
-use std::{ffi::OsString, fmt::Display};
+use std::ffi::OsString;
 
 use crate::output::time::TimeFormat;
 
@@ -230,16 +230,6 @@ impl ValueEnum for ShowWhen {
     }
 }
 
-impl Display for ShowWhen {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ShowWhen::Always => write!(f, "always"),
-            ShowWhen::Auto => write!(f, "auto"),
-            ShowWhen::Never => write!(f, "never"),
-        }
-    }
-}
-
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ColorScaleArgs {
     All,
@@ -279,16 +269,6 @@ impl ValueEnum for ColorScaleArgs {
                 "size" => Ok(ColorScaleArgs::Size),
                 _ => Err(format!("Unknown color-scale value: {s}")),
             }
-        }
-    }
-}
-
-impl Display for ColorScaleArgs {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ColorScaleArgs::All => write!(f, "all"),
-            ColorScaleArgs::Age => write!(f, "age"),
-            ColorScaleArgs::Size => write!(f, "size"),
         }
     }
 }

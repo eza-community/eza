@@ -1,7 +1,6 @@
 use clap::ValueEnum;
 
 use crate::output::TerminalWidth::Automatic;
-use std::ffi::OsString;
 
 use crate::fs::feature::xattr;
 use crate::options::parser::{ColorScaleModeArgs, Opts};
@@ -15,6 +14,8 @@ use crate::output::table::{
 use crate::output::time::TimeFormat;
 use crate::output::TerminalWidth::Set;
 use crate::output::{details, grid, Mode, TerminalWidth, View};
+
+use super::parser::ColorScaleArgs;
 
 impl View {
     pub fn deduce<V: Vars>(matches: &Opts, vars: &V, strict: bool) -> Result<Self, OptionsError> {
@@ -407,28 +408,21 @@ impl ColorScaleOptions {
             age: false,
         };
 
-        let words = if let Some(w) = match &matches.color_scale {
-            Some(w) => Some(w),
-            None => None,
-        } {
-            w.clone()
-        } else {
+        let Some(words) = &matches.color_scale else {
             return Ok(options);
         };
 
-        for word in words.to_string().split(',') {
-            match word {
-                "all" => {
-                    options.size = true;
-                    options.age = true;
-                }
-                "age" => options.age = true,
-                "size" => options.size = true,
-                _ => Err(OptionsError::BadArgument(
-                    "color-scale",
-                    OsString::from(word),
-                ))?,
-            };
+        match words {
+            ColorScaleArgs::All => {
+                options.size = true;
+                options.age = true;
+            },
+            ColorScaleArgs::Age => {
+                options.age = true;
+            },
+            ColorScaleArgs::Size => {
+                options.size = true;
+            },
         }
 
         Ok(options)
@@ -439,6 +433,7 @@ impl ColorScaleOptions {
 mod tests {
     use crate::options::{parser::ColorScaleArgs, vars::MockVars};
     use std::num::ParseIntError;
+    use std::ffi::OsString;
 
     use super::*;
 
