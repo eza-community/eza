@@ -68,13 +68,13 @@ pub struct Opts {
     #[arg(short = 'I', long)]
     pub ignore_glob: Option<OsString>,
     /// ignore files mentioned in '.gitignore'.
-    #[arg(long = "git-ignore")]
+    #[arg(long)]
     pub git_ignore: bool,
     /// list directories before other files.
     #[arg(long = "group-directories-first")]
     pub dirs_first: bool,
     /// list only directories.
-    #[arg(short = 'D', long = "only-dirs")]
+    #[arg(short = 'D', long)]
     pub only_dirs: bool,
     /// list file sizes with binary prefixes.
     #[arg(short = 'b', long)]
@@ -119,31 +119,31 @@ pub struct Opts {
     #[arg(short = 'U', long)]
     pub created: bool,
     /// how to format timestamps (default, iso, long-iso, full-iso, relative).
-    #[arg(long = "time-style", value_enum, default_value = TimeFormat::DefaultFormat, default_missing_value = "default", num_args = 0..=1, require_equals = false)]
+    #[arg(long, value_enum, default_value = TimeFormat::DefaultFormat, default_missing_value = "default", num_args = 0..=1, require_equals = false)]
     pub time_style: Option<TimeFormat>,
     /// display entries as hyperlinks.
     #[arg(long)]
     pub hyperlink: bool,
     /// suppress the permissions field.
-    #[arg(long = "no-permissions")]
+    #[arg(long)]
     pub no_permissions: bool,
     /// suppress the filesize field.
-    #[arg(long = "no-filesize")]
+    #[arg(long)]
     pub no_filesize: bool,
     /// suppress the user field.
-    #[arg(long = "no-user")]
+    #[arg(long)]
     pub no_user: bool,
     /// suppress the time field.
-    #[arg(long = "no-time")]
+    #[arg(long)]
     pub no_time: bool,
     /// suppress git.
-    #[arg(long = "no-git")]
+    #[arg(long)]
     pub no_git: bool,
     /// list root of git-tree status.
-    #[arg(long = "git-repos")]
+    #[arg(long)]
     pub git_repos: bool,
     ///List each git-repos branch name (much faster)
-    #[arg(long = "git-repos-no-status")]
+    #[arg(long)]
     pub git_repos_no_status: bool,
     /// list each file's permission in octal format.
     #[arg(
@@ -166,16 +166,16 @@ pub struct Opts {
     #[arg(short = 'M', long)]
     pub mounts: bool,
     /// Show only files
-    #[arg(short = 'f', long = "only-files")]
+    #[arg(short = 'f')]
     pub only_files: bool,
     /// Don't Show quotes
-    #[arg(long = "no-quotes")]
+    #[arg(long)]
     pub no_quotes: bool,
     /// only show group if it has a different name from owner
-    #[arg(long = "smart-group")]
+    #[arg(long)]
     pub smart_group: bool,
     /// show the size of a directory as the size of all files and directories inside
-    #[arg(long = "total-size")]
+    #[arg(long)]
     pub total_size: bool,
     /// use stdin as the sole input
     #[arg(long = "stdin")]
