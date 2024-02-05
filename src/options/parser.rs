@@ -161,7 +161,7 @@ pub struct Opts {
     pub extended: bool,
     /// Show list of command-line options.
     #[arg(short ='?', long, action = clap::ArgAction::Help)]
-    pub help: Option<bool>,
+    pub help: (),
     /// Show mount details (Linux only)
     #[arg(short = 'M', long)]
     pub mounts: bool,
@@ -471,7 +471,7 @@ impl Default for Opts {
             hyperlink: false,
             octal: false,
             security_context: false,
-            help: Some(false),
+            help: (),
             no_git: false,
             mounts: false,
             only_files: false,
