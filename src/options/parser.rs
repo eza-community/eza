@@ -42,7 +42,7 @@ pub struct Opts {
     #[arg(short = 'w', long)]
     pub width: Option<usize>,
     /// when to use terminal colours (always, auto, never).
-    #[arg(long, alias = "colour", value_enum, default_value = ShowWhen::Auto, default_missing_value = ShowWhen::Auto, require_equals = false, num_args=0..=1)]
+    #[arg(long, alias = "colour", value_enum, default_value_t = ShowWhen::Auto, default_missing_value = "auto", require_equals = false, num_args=0..=1)]
     pub color: ShowWhen,
     /// highlight levels of 'field' distinctly(all, age, size).
     #[arg(long, alias = "colour-scale", value_enum, default_value = None, default_missing_value = None, num_args = 0..=1, require_equals = false)]
@@ -92,7 +92,7 @@ pub struct Opts {
     #[arg(short = 'h', long)]
     pub header: bool,
     /// display icons
-    #[arg(long, default_value = None, default_missing_value = ShowWhen::Auto, num_args = 0..=1, require_equals = false)]
+    #[arg(long, default_value = None, default_missing_value = "auto", num_args = 0..=1, require_equals = false)]
     pub icons: Option<ShowWhen>,
     /// list each file's inode number.
     #[arg(short = 'i', long)]
@@ -198,34 +198,12 @@ pub enum ShowWhen {
     Auto,
     Never,
 }
+
 #[derive(Clone, Debug, Default, ValueEnum, PartialEq, Eq)]
 pub enum ColorScaleModeArgs {
     Fixed,
     #[default]
     Gradient,
-}
-
-#[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
-pub enum TimeStyleArgs {
-    Default,
-    Iso,
-    LongIso,
-    FullIso,
-    Relative,
-}
-
-#[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
-pub enum SortArgs {
-    Name,
-    Size,
-    Time,
-    Extension,
-    Inode,
-    Version,
-    Created,
-    Accessed,
-    Modified,
-    Changed,
 }
 
 impl ValueEnum for ShowWhen {
@@ -258,27 +236,6 @@ impl Display for ShowWhen {
             ShowWhen::Always => write!(f, "always"),
             ShowWhen::Auto => write!(f, "auto"),
             ShowWhen::Never => write!(f, "never"),
-        }
-    }
-}
-
-impl From<ShowWhen> for clap::builder::OsStr {
-    fn from(sw: ShowWhen) -> clap::builder::OsStr {
-        match sw {
-            ShowWhen::Always => clap::builder::OsStr::from("always"),
-            ShowWhen::Auto => clap::builder::OsStr::from("auto"),
-            ShowWhen::Never => clap::builder::OsStr::from("never"),
-        }
-    }
-}
-
-impl From<clap::builder::OsStr> for ShowWhen {
-    fn from(s: clap::builder::OsStr) -> ShowWhen {
-        match s.to_str() {
-            Some("always") => ShowWhen::Always,
-            Some("auto") => ShowWhen::Auto,
-            Some("never") => ShowWhen::Never,
-            _ => ShowWhen::Auto,
         }
     }
 }
@@ -332,91 +289,6 @@ impl Display for ColorScaleArgs {
             ColorScaleArgs::All => write!(f, "all"),
             ColorScaleArgs::Age => write!(f, "age"),
             ColorScaleArgs::Size => write!(f, "size"),
-        }
-    }
-}
-
-impl From<clap::builder::OsStr> for SortArgs {
-    fn from(value: clap::builder::OsStr) -> Self {
-        match value.to_ascii_lowercase().to_str() {
-            Some("name") => SortArgs::Name,
-            Some("size") => SortArgs::Size,
-            Some("time" | "age" | "date" | "") => SortArgs::Time,
-            Some("extension") => SortArgs::Extension,
-            Some("inode") => SortArgs::Inode,
-            Some("version") => SortArgs::Version,
-            Some("created") => SortArgs::Created,
-            Some("accessed") => SortArgs::Accessed,
-            Some("modified") => SortArgs::Modified,
-            Some("changed") => SortArgs::Changed,
-            _ => SortArgs::Name,
-        }
-    }
-}
-
-impl SortArgs {
-    pub fn as_str(&self) -> &str {
-        match self {
-            SortArgs::Name => "name",
-            SortArgs::Size => "size",
-            SortArgs::Time => "time",
-            SortArgs::Extension => "extension",
-            SortArgs::Inode => "inode",
-            SortArgs::Version => "version",
-            SortArgs::Created => "created",
-            SortArgs::Accessed => "accessed",
-            SortArgs::Modified => "modified",
-            SortArgs::Changed => "changed",
-        }
-    }
-}
-
-impl From<SortArgs> for clap::builder::OsStr {
-    fn from(value: SortArgs) -> Self {
-        match value {
-            SortArgs::Name => clap::builder::OsStr::from("name"),
-            SortArgs::Size => clap::builder::OsStr::from("size"),
-            SortArgs::Time => clap::builder::OsStr::from("time"),
-            SortArgs::Extension => clap::builder::OsStr::from("extension"),
-            SortArgs::Inode => clap::builder::OsStr::from("inode"),
-            SortArgs::Version => clap::builder::OsStr::from("version"),
-            SortArgs::Created => clap::builder::OsStr::from("created"),
-            SortArgs::Accessed => clap::builder::OsStr::from("accessed"),
-            SortArgs::Modified => clap::builder::OsStr::from("modified"),
-            SortArgs::Changed => clap::builder::OsStr::from("changed"),
-        }
-    }
-}
-impl Display for SortArgs {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            SortArgs::Name => write!(f, "name"),
-            SortArgs::Size => write!(f, "size"),
-            SortArgs::Time => write!(f, "time"),
-            SortArgs::Extension => write!(f, "extension"),
-            SortArgs::Inode => write!(f, "inode"),
-            SortArgs::Version => write!(f, "version"),
-            SortArgs::Created => write!(f, "created"),
-            SortArgs::Accessed => write!(f, "accessed"),
-            SortArgs::Modified => write!(f, "modified"),
-            SortArgs::Changed => write!(f, "changed"),
-        }
-    }
-}
-#[derive(Clone, Debug, ValueEnum)]
-pub enum TimeArgs {
-    Modified,
-    Changed,
-    Accessed,
-    Created,
-}
-impl Display for TimeArgs {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            TimeArgs::Modified => write!(f, "modified"),
-            TimeArgs::Accessed => write!(f, "accessed"),
-            TimeArgs::Created => write!(f, "created"),
-            TimeArgs::Changed => write!(f, "changed"),
         }
     }
 }
