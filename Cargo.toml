@@ -78,19 +78,18 @@ libc = "0.2"
 locale = "0.2"
 log = "0.4"
 natord = "1.0"
-num_cpus = "1.16"
 number_prefix = "0.4"
 palette = { version = "0.7.4", default-features = false, features = ["std"] }
 once_cell = "1.19.0"
 percent-encoding = "2.3.1"
 phf = { version = "0.11.2", features = ["macros"] }
 plist = { version = "1.6.0", default-features = false }
-scoped_threadpool = "0.1"
 uutils_term_grid = "0.3"
 terminal_size = "0.3.0"
 timeago = { version = "0.4.2", default-features = false }
 unicode-width = "0.1"
 zoneinfo_compiled = "0.5.1"
+rayon = "1.8.1"
 
 [dependencies.git2]
 version = "0.18"
