@@ -227,9 +227,8 @@ impl<'a> Render<'a> {
         w: &mut impl Write,
         row: &TextCell,
         header: &Option<TextCell>,
-        file_num: usize,
     ) -> io::Result<()> {
-        let mut j: usize = 0;
+        let mut header_idx: usize = 0;
         for (i, cell) in row.contents.iter().enumerate() {
             if cell.is_empty() || cell.trim().is_empty() {
                 continue;
@@ -257,7 +256,7 @@ impl<'a> Render<'a> {
         let (row, depth) = iter.next().unwrap();
         self.print_row_contents(w, &row, header)?;
         writeln!(w, ", \"depth\": {}", depth.depth.0)?;
-        writeln!(w, ", \"current\": {}", current_depth)?;
+        writeln!(w, ", \"current\": {current_depth}")?;
         if depth.depth.0 as i32 > current_depth {
             writeln!(w, ", \"children\": [{{")?;
             writeln!(w, "}}]")?;
