@@ -205,7 +205,7 @@ mod tests {
     #[test]
     fn deduce_show_icon_always() {
         let options = Opts {
-            icons: Some(clap::builder::OsStr::from("always").into()),
+            icons: Some(ShowWhen::Always),
             ..Opts::default()
         };
 
@@ -219,7 +219,7 @@ mod tests {
     #[test]
     fn deduce_show_icons_never() {
         let options = Opts {
-            icons: Some(clap::builder::OsStr::from("never").into()),
+            icons: Some(ShowWhen::Never),
             ..Opts::default()
         };
 
