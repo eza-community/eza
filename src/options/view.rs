@@ -19,8 +19,8 @@ use crate::output::{details, grid, Mode, TerminalWidth, View};
 impl View {
     pub fn deduce<V: Vars>(matches: &Opts, vars: &V, strict: bool) -> Result<Self, OptionsError> {
         let mode = Mode::deduce(matches, vars, strict)?;
-        let deref_links = matches.dereference > 0;
-        let total_size = matches.total_size > 0;
+        let deref_links = matches.dereference;
+        let total_size = matches.total_size;
         let width = TerminalWidth::deduce(matches, vars)?;
         let file_style = FileStyle::deduce(matches, vars, width.actual_terminal_width().is_some())?;
         Ok(Self {
@@ -43,7 +43,7 @@ impl Mode {
     /// This is complicated a little by the fact that `--grid` and `--tree`
     /// can also combine with `--long`, so care has to be taken to use the
     pub fn deduce<V: Vars>(matches: &Opts, vars: &V, strict: bool) -> Result<Self, OptionsError> {
-        if !(matches.long > 0 || matches.oneline > 0 || matches.grid > 0 || matches.tree > 0) {
+        if !(matches.long || matches.oneline || matches.grid || matches.tree) {
             if strict {
                 Self::strict_check_long_flags(matches)?;
             }
@@ -51,10 +51,10 @@ impl Mode {
             return Ok(Self::Grid(grid));
         };
 
-        if matches.long > 0 {
+        if matches.long {
             let details = details::Options::deduce_long(matches, vars, strict)?;
 
-            if matches.grid > 0 {
+            if matches.grid {
                 let grid = grid::Options::deduce(matches);
                 let row_threshold = RowThreshold::deduce(vars)?;
                 let grid_details = grid_details::Options {
@@ -72,12 +72,12 @@ impl Mode {
             Self::strict_check_long_flags(matches)?;
         }
 
-        if matches.tree > 0 {
+        if matches.tree {
             let details = details::Options::deduce_tree(matches, vars)?;
             return Ok(Self::Details(details));
         }
 
-        if matches.oneline > 0 {
+        if matches.oneline {
             return Ok(Self::Lines);
         }
 
@@ -89,16 +89,16 @@ impl Mode {
         // If --long hasn’t been passed, then check if we need to warn the
         // user about flags that won’t have any effect.
         for option in &[
-            (matches.binary > 0, "binary"),
-            (matches.bytes > 0, "bytes"),
-            (matches.inode > 0, "inode"),
-            (matches.links > 0, "links"),
-            (matches.header > 0, "header"),
-            (matches.blocksize > 0, "blocksize"),
+            (matches.binary, "binary"),
+            (matches.bytes, "bytes"),
+            (matches.inode, "inode"),
+            (matches.links, "links"),
+            (matches.header, "header"),
+            (matches.blocksize, "blocksize"),
             (matches.time.is_some(), "time"),
-            (matches.group > 0, "group"),
-            (matches.numeric > 0, "numeric"),
-            (matches.mounts > 0, "mounts"),
+            (matches.group, "group"),
+            (matches.numeric, "numeric"),
+            (matches.mounts, "mounts"),
         ] {
             let (opt, name) = option;
             if *opt {
@@ -106,9 +106,9 @@ impl Mode {
             }
         }
 
-        if matches.git > 0 && matches.no_git == 0 {
+        if matches.git && !matches.no_git {
             return Err(OptionsError::Useless("git", false, "long"));
-        } else if matches.level.is_some() && matches.recurse == 0 && matches.tree == 0 {
+        } else if matches.level.is_some() && !matches.recurse && !matches.tree {
             return Err(OptionsError::Useless2("level", "recurse", "tree"));
         }
 
@@ -119,7 +119,7 @@ impl Mode {
 impl grid::Options {
     fn deduce(matches: &Opts) -> Self {
         grid::Options {
-            across: matches.across > 0,
+            across: matches.across,
         }
     }
 }
@@ -129,9 +129,9 @@ impl details::Options {
         let details = details::Options {
             table: None,
             header: false,
-            xattr: xattr::ENABLED && matches.extended > 0,
-            secattr: xattr::ENABLED && matches.security_context > 0,
-            mounts: matches.mounts > 0,
+            xattr: xattr::ENABLED && matches.extended,
+            secattr: xattr::ENABLED && matches.security_context,
+            mounts: matches.mounts,
             color_scale: ColorScaleOptions::deduce(matches, vars)?,
         };
 
@@ -140,19 +140,19 @@ impl details::Options {
 
     fn deduce_long<V: Vars>(matches: &Opts, vars: &V, strict: bool) -> Result<Self, OptionsError> {
         if strict {
-            if matches.across > 0 && matches.grid == 0 {
+            if matches.across && !matches.grid {
                 return Err(OptionsError::Useless("across", true, "long"));
-            } else if matches.oneline > 0 {
+            } else if matches.oneline {
                 return Err(OptionsError::Useless("one-line", true, "long"));
             }
         }
 
         Ok(details::Options {
             table: Some(TableOptions::deduce(matches, vars)?),
-            header: matches.header > 0,
-            xattr: xattr::ENABLED && matches.extended > 0,
-            secattr: xattr::ENABLED && matches.security_context > 0,
-            mounts: matches.mounts > 0,
+            header: matches.header,
+            xattr: xattr::ENABLED && matches.extended,
+            secattr: xattr::ENABLED && matches.security_context,
+            mounts: matches.mounts,
             color_scale: ColorScaleOptions::deduce(matches, vars)?,
         })
     }
@@ -229,24 +229,22 @@ impl Columns {
             .get_with_fallback(vars::EXA_OVERRIDE_GIT, vars::EZA_OVERRIDE_GIT)
             .is_some();
 
-        let git = matches.git > 0 && matches.no_git == 0 && !no_git_env;
-        let subdir_git_repos = matches.git_repos > 0 && matches.no_git == 0 && !no_git_env;
-        let subdir_git_repos_no_stat = !subdir_git_repos
-            && matches.git_repos_no_status > 0
-            && matches.no_git == 0
-            && !no_git_env;
+        let git = matches.git && !matches.no_git && !no_git_env;
+        let subdir_git_repos = matches.git_repos && !matches.no_git && !no_git_env;
+        let subdir_git_repos_no_stat =
+            !subdir_git_repos && matches.git_repos_no_status && !matches.no_git && !no_git_env;
 
-        let file_flags = matches.file_flags > 0;
-        let blocksize = matches.blocksize > 0;
-        let group = matches.group > 0;
-        let inode = matches.inode > 0;
-        let links = matches.links > 0;
-        let octal = matches.octal > 0;
-        let security_context = xattr::ENABLED && matches.security_context > 0;
+        let file_flags = matches.file_flags;
+        let blocksize = matches.blocksize;
+        let group = matches.group;
+        let inode = matches.inode;
+        let links = matches.links;
+        let octal = matches.octal;
+        let security_context = xattr::ENABLED && matches.security_context;
 
-        let permissions = matches.no_permissions == 0;
-        let filesize = matches.no_filesize == 0;
-        let user = matches.no_user == 0;
+        let permissions = !matches.no_permissions;
+        let filesize = !matches.no_filesize;
+        let user = !matches.no_user;
 
         Ok(Self {
             time_types,
@@ -278,9 +276,9 @@ impl SizeFormat {
     /// each other.
     fn deduce(matches: &Opts) -> Self {
         use SizeFormat::*;
-        if matches.binary > 0 {
+        if matches.binary {
             BinaryBytes
-        } else if matches.bytes > 0 {
+        } else if matches.bytes {
             JustBytes
         } else {
             DecimalBytes
@@ -305,8 +303,7 @@ impl TimeFormat {
 
 impl UserFormat {
     fn deduce(matches: &Opts) -> Self {
-        let flag = matches.numeric > 0;
-        if flag {
+        if matches.numeric {
             Self::Numeric
         } else {
             Self::Name
@@ -316,8 +313,7 @@ impl UserFormat {
 
 impl GroupFormat {
     fn deduce(matches: &Opts) -> Self {
-        let flag = matches.smart_group > 0;
-        if flag {
+        if matches.smart_group {
             Self::Smart
         } else {
             Self::Regular
@@ -338,12 +334,12 @@ impl TimeTypes {
     /// see the default set.
     fn deduce(matches: &Opts) -> Result<Self, OptionsError> {
         let possible_word = &matches.time;
-        let modified = matches.modified > 0;
-        let changed = matches.changed > 0;
-        let accessed = matches.accessed > 0;
-        let created = matches.created > 0;
+        let modified = matches.modified;
+        let changed = matches.changed;
+        let accessed = matches.accessed;
+        let created = matches.created;
 
-        let no_time = matches.no_time > 0;
+        let no_time = matches.no_time;
 
         #[rustfmt::skip]
         let time_types = if no_time {
@@ -449,7 +445,7 @@ mod tests {
     #[test]
     fn deduce_time_types_no_time() {
         let options = Opts {
-            no_time: 1,
+            no_time: true,
             ..Opts::default()
         };
 
@@ -540,7 +536,7 @@ mod tests {
     #[test]
     fn deduce_time_types_modified() {
         let options = Opts {
-            modified: 1,
+            modified: true,
             ..Opts::default()
         };
 
@@ -556,7 +552,7 @@ mod tests {
     #[test]
     fn deduce_time_types_accessed() {
         let options = Opts {
-            accessed: 1,
+            accessed: true,
             ..Opts::default()
         };
 
@@ -573,7 +569,7 @@ mod tests {
     #[test]
     fn deduce_time_types_changed() {
         let options = Opts {
-            changed: 1,
+            changed: true,
             ..Opts::default()
         };
 
@@ -590,7 +586,7 @@ mod tests {
     #[test]
     fn deduce_time_types_created() {
         let options = Opts {
-            created: 1,
+            created: true,
             ..Opts::default()
         };
 
@@ -607,7 +603,7 @@ mod tests {
     #[test]
     fn deduce_group_format_on() {
         let options = Opts {
-            smart_group: 1,
+            smart_group: true,
             ..Opts::default()
         };
 
@@ -624,7 +620,7 @@ mod tests {
     #[test]
     fn deduce_user_format_on() {
         let options = Opts {
-            numeric: 1,
+            numeric: true,
             ..Opts::default()
         };
 
@@ -648,7 +644,7 @@ mod tests {
     #[test]
     fn deduce_user_format_bytes() {
         let options = Opts {
-            bytes: 1,
+            bytes: true,
             ..Opts::default()
         };
 
@@ -658,7 +654,7 @@ mod tests {
     #[test]
     fn deduce_user_format_binary() {
         let options = Opts {
-            binary: 1,
+            binary: true,
             ..Opts::default()
         };
 
@@ -668,7 +664,7 @@ mod tests {
     #[test]
     fn deduce_grid_options() {
         let options = Opts {
-            across: 1,
+            across: true,
             ..Opts::default()
         };
 
@@ -950,7 +946,7 @@ mod tests {
         };
 
         let options = Opts {
-            grid: 1,
+            grid: true,
             ..Opts::default()
         };
 
@@ -967,8 +963,8 @@ mod tests {
         };
 
         let options = Opts {
-            grid: 1,
-            across: 1,
+            grid: true,
+            across: true,
             ..Opts::default()
         };
 
@@ -980,7 +976,7 @@ mod tests {
     #[test]
     fn deduce_details_options_tree() {
         let options = Opts {
-            tree: 1,
+            tree: true,
             ..Opts::default()
         };
 
@@ -993,9 +989,9 @@ mod tests {
             Ok(details::Options {
                 table: None,
                 header: false,
-                xattr: xattr::ENABLED && options.extended > 0,
-                secattr: xattr::ENABLED && options.security_context > 0,
-                mounts: options.mounts > 0,
+                xattr: xattr::ENABLED && options.extended,
+                secattr: xattr::ENABLED && options.security_context,
+                mounts: options.mounts,
                 color_scale: ColorScaleOptions::deduce(&options, &vars).unwrap(),
             })
         );
@@ -1004,8 +1000,8 @@ mod tests {
     #[test]
     fn deduce_details_options_tree_mounts() {
         let options = Opts {
-            tree: 1,
-            mounts: 1,
+            tree: true,
+            mounts: true,
             ..Opts::default()
         };
 
@@ -1029,8 +1025,8 @@ mod tests {
     #[test]
     fn deduce_details_options_tree_xattr() {
         let options = Opts {
-            tree: 1,
-            extended: 1,
+            tree: true,
+            extended: true,
             ..Opts::default()
         };
 
@@ -1043,8 +1039,8 @@ mod tests {
             Ok(details::Options {
                 table: None,
                 header: false,
-                xattr: xattr::ENABLED && options.extended > 0,
-                secattr: xattr::ENABLED && options.security_context > 0,
+                xattr: xattr::ENABLED && options.extended,
+                secattr: xattr::ENABLED && options.security_context,
                 mounts: false,
                 color_scale: ColorScaleOptions::deduce(&options, &vars).unwrap(),
             })
@@ -1054,8 +1050,8 @@ mod tests {
     #[test]
     fn deduce_details_options_tree_secattr() {
         let options = Opts {
-            tree: 1,
-            security_context: 1,
+            tree: true,
+            security_context: true,
             ..Opts::default()
         };
 
@@ -1068,8 +1064,8 @@ mod tests {
             Ok(details::Options {
                 table: None,
                 header: false,
-                xattr: xattr::ENABLED && options.extended > 0,
-                secattr: xattr::ENABLED && options.security_context > 0,
+                xattr: xattr::ENABLED && options.extended,
+                secattr: xattr::ENABLED && options.security_context,
                 mounts: false,
                 color_scale: ColorScaleOptions::deduce(&options, &vars).unwrap(),
             })
@@ -1079,8 +1075,8 @@ mod tests {
     #[test]
     fn deduce_details_long_strict_across() {
         let options = Opts {
-            long: 1,
-            across: 1,
+            long: true,
+            across: true,
             ..Opts::default()
         };
 
@@ -1097,8 +1093,8 @@ mod tests {
     #[test]
     fn deduce_details_long_strict_one_line() {
         let options = Opts {
-            long: 1,
-            oneline: 1,
+            long: true,
+            oneline: true,
             ..Opts::default()
         };
 

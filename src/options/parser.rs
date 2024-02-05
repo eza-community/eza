@@ -13,31 +13,31 @@ pub struct Opts {
     #[arg(short, long, action = clap::ArgAction::Count)]
     pub all: u8,
     /// display extended file metadata as a table.
-    #[arg(short, long, action = clap::ArgAction::Count)]
-    pub long: u8,
+    #[arg(short, long)]
+    pub long: bool,
     /// list each file's Git status, if tracked or ignored.
-    #[arg(long, action = clap::ArgAction::Count)]
-    pub git: u8,
+    #[arg(long)]
+    pub git: bool,
     /// Display one entry per line.
-    #[arg(short = '1', long, action = clap::ArgAction::Count)]
-    pub oneline: u8,
+    #[arg(short = '1', long)]
+    pub oneline: bool,
     ///recurse into directories as a tree.
-    #[arg(short = 'T', long, action = clap::ArgAction::Count)]
-    pub tree: u8,
+    #[arg(short = 'T', long)]
+    pub tree: bool,
     /// display entries as a grid (default).
-    #[arg(short = 'G', long, action = clap::ArgAction::Count)]
-    pub grid: u8,
+    #[arg(short = 'G', long)]
+    pub grid: bool,
     /// sort the grid across, rather than downwards.
-    #[arg(short = 'x', long, action = clap::ArgAction::Count)]
-    pub across: u8,
+    #[arg(short = 'x', long)]
+    pub across: bool,
     /// recurse into directories.
-    #[arg(short = 'R', long, action = clap::ArgAction::Count)]
-    pub recurse: u8,
+    #[arg(short = 'R', long)]
+    pub recurse: bool,
     /// display type indicator by file names.
-    #[arg(short = 'F', long, action = clap::ArgAction::Count)]
-    pub classify: u8,
-    #[arg(short = 'X', long, action = clap::ArgAction::Count)]
-    pub dereference: u8,
+    #[arg(short = 'F', long)]
+    pub classify: bool,
+    #[arg(short = 'X', long)]
+    pub dereference: bool,
     /// set screen width in columns.
     #[arg(short = 'w', long)]
     pub width: Option<usize>,
@@ -50,17 +50,17 @@ pub struct Opts {
     /// use gradient or fixed colors in --color-scale (fixed, gradient)
     #[arg(long, alias = "colour-scale-mode", value_enum, default_value_t = ColorScaleModeArgs::Gradient, default_missing_value = "gradient", num_args = 0..=1, require_equals = false)]
     pub color_scale_mode: ColorScaleModeArgs,
-    #[arg(short = 'A', long, action = clap::ArgAction::Count)]
-    pub almost_all: u8,
+    #[arg(short = 'A', long)]
+    pub almost_all: bool,
     /// list directories as files; don't list their contents.
-    #[arg(short = 'd', long, action = clap::ArgAction::Count)]
-    pub list_dirs: u8,
+    #[arg(short = 'd', long)]
+    pub list_dirs: bool,
     /// limit the depth of recursion.
     #[arg(short = 'L', long)]
     pub level: Option<usize>,
     /// reverse the sort order.
-    #[arg(short = 'r', long, action = clap::ArgAction::Count)]
-    pub reverse: u8,
+    #[arg(short = 'r', long)]
+    pub reverse: bool,
     /// which field to sort by.
     #[arg(short = 's', long, num_args = 0..=1, require_equals = false)]
     pub sort: Option<OsString>, // ValueEnum here means we lose the sort field deducing :/
@@ -68,121 +68,126 @@ pub struct Opts {
     #[arg(short = 'I', long)]
     pub ignore_glob: Option<OsString>,
     /// ignore files mentioned in '.gitignore'.
-    #[arg(long = "git-ignore", action = clap::ArgAction::Count)]
-    pub git_ignore: u8,
+    #[arg(long = "git-ignore")]
+    pub git_ignore: bool,
     /// list directories before other files.
-    #[arg(long = "group-directories-first", action = clap::ArgAction::Count)]
-    pub dirs_first: u8,
+    #[arg(long = "group-directories-first")]
+    pub dirs_first: bool,
     /// list only directories.
-    #[arg(short = 'D', long = "only-dirs", action = clap::ArgAction::Count)]
-    pub only_dirs: u8,
+    #[arg(short = 'D', long = "only-dirs")]
+    pub only_dirs: bool,
     /// list file sizes with binary prefixes.
-    #[arg(short = 'b', long, action = clap::ArgAction::Count)]
-    pub binary: u8,
+    #[arg(short = 'b', long)]
+    pub binary: bool,
     /// list file sizes in bytes, without any prefixes.
-    #[arg(short = 'B', long, action = clap::ArgAction::Count)]
-    pub bytes: u8,
+    #[arg(short = 'B', long)]
+    pub bytes: bool,
     /// list each file's group.
-    #[arg(short = 'g', long, action = clap::ArgAction::Count)]
-    pub group: u8,
+    #[arg(short = 'g', long)]
+    pub group: bool,
     /// list numeric user and group IDs.
-    #[arg(short = 'n', long, action = clap::ArgAction::Count)]
-    pub numeric: u8,
+    #[arg(short = 'n', long)]
+    pub numeric: bool,
     /// add a header row to each column.
-    #[arg(short = 'h', long, action = clap::ArgAction::Count)]
-    pub header: u8,
+    #[arg(short = 'h', long)]
+    pub header: bool,
     /// display icons
     #[arg(long, default_value = None, default_missing_value = ShowWhen::Auto, num_args = 0..=1, require_equals = false)]
     pub icons: Option<ShowWhen>,
     /// list each file's inode number.
-    #[arg(short = 'i', long, action = clap::ArgAction::Count)]
-    pub inode: u8,
+    #[arg(short = 'i', long)]
+    pub inode: bool,
     /// list each file's number of hard links.
-    #[arg(short = 'H', long, action = clap::ArgAction::Count)]
-    pub links: u8,
+    #[arg(short = 'H', long)]
+    pub links: bool,
     /// use the modified timestamp field.
-    #[arg(short = 'm', long, action = clap::ArgAction::Count)]
-    pub modified: u8,
+    #[arg(short = 'm', long)]
+    pub modified: bool,
     /// use the changed timestamp field.
-    #[arg(long, action = clap::ArgAction::Count)]
-    pub changed: u8,
+    #[arg(long)]
+    pub changed: bool,
     /// show size of allocated file system blocks.
-    #[arg(short = 'S', long, action = clap::ArgAction::Count)]
-    pub blocksize: u8,
+    #[arg(short = 'S', long)]
+    pub blocksize: bool,
     /// which timestamp field to list (modified, accessed, created).
-    #[arg(short = 't', long)]
+    #[arg(short = 't')]
     pub time: Option<OsString>,
     /// use the accessed timestamp field.
-    #[arg(short = 'u', long, action = clap::ArgAction::Count)]
-    pub accessed: u8,
+    #[arg(short = 'u', long)]
+    pub accessed: bool,
     /// use the created timestamp field.
-    #[arg(short = 'U', long, action = clap::ArgAction::Count)]
-    pub created: u8,
+    #[arg(short = 'U', long)]
+    pub created: bool,
     /// how to format timestamps (default, iso, long-iso, full-iso, relative).
     #[arg(long = "time-style", value_enum, default_value = TimeFormat::DefaultFormat, default_missing_value = "default", num_args = 0..=1, require_equals = false)]
     pub time_style: Option<TimeFormat>,
     /// display entries as hyperlinks.
-    #[arg(long, action = clap::ArgAction::Count)]
-    pub hyperlink: u8,
+    #[arg(long)]
+    pub hyperlink: bool,
     /// suppress the permissions field.
-    #[arg(long = "no-permissions", action = clap::ArgAction::Count)]
-    pub no_permissions: u8,
+    #[arg(long = "no-permissions")]
+    pub no_permissions: bool,
     /// suppress the filesize field.
-    #[arg(long = "no-filesize", action = clap::ArgAction::Count)]
-    pub no_filesize: u8,
+    #[arg(long = "no-filesize")]
+    pub no_filesize: bool,
     /// suppress the user field.
-    #[arg(long = "no-user", action = clap::ArgAction::Count)]
-    pub no_user: u8,
+    #[arg(long = "no-user")]
+    pub no_user: bool,
     /// suppress the time field.
-    #[arg(long = "no-time", action = clap::ArgAction::Count)]
-    pub no_time: u8,
+    #[arg(long = "no-time")]
+    pub no_time: bool,
     /// suppress git.
-    #[arg(long = "no-git", action = clap::ArgAction::Count)]
-    pub no_git: u8,
+    #[arg(long = "no-git")]
+    pub no_git: bool,
     /// list root of git-tree status.
-    #[arg(long = "git-repos", action = clap::ArgAction::Count)]
-    pub git_repos: u8,
+    #[arg(long = "git-repos")]
+    pub git_repos: bool,
     ///List each git-repos branch name (much faster)
-    #[arg(long = "git-repos-no-status", action = clap::ArgAction::Count)]
-    pub git_repos_no_status: u8,
+    #[arg(long = "git-repos-no-status")]
+    pub git_repos_no_status: bool,
     /// list each file's permission in octal format.
-    #[arg(short = 'o', long, alias = "octal-permission", alias = "octal-permissions", action = clap::ArgAction::Count)]
-    pub octal: u8,
+    #[arg(
+        short = 'o',
+        long,
+        alias = "octal-permission",
+        alias = "octal-permissions"
+    )]
+    pub octal: bool,
     /// Display the number of hard links to file.
-    #[arg(short = 'Z', long = "context", action = clap::ArgAction::Count)]
-    pub security_context: u8,
+    #[arg(short = 'Z', long = "context")]
+    pub security_context: bool,
     /// Show extended attributes.
-    #[arg(short = '@', long, action = clap::ArgAction::Count)]
-    pub extended: u8,
+    #[arg(short = '@', long)]
+    pub extended: bool,
     /// Show list of command-line options.
     #[arg(short ='?', long, action = clap::ArgAction::Help)]
     pub help: Option<bool>,
     /// Show mount details (Linux only)
-    #[arg(short = 'M', long, action = clap::ArgAction::Count)]
-    pub mounts: u8,
+    #[arg(short = 'M', long)]
+    pub mounts: bool,
     /// Show only files
-    #[arg(short = 'f', long = "only-files", action = clap::ArgAction::Count)]
-    pub only_files: u8,
+    #[arg(short = 'f', long = "only-files")]
+    pub only_files: bool,
     /// Don't Show quotes
-    #[arg(long = "no-quotes", action = clap::ArgAction::Count)]
-    pub no_quotes: u8,
+    #[arg(long = "no-quotes")]
+    pub no_quotes: bool,
     /// only show group if it has a different name from owner
-    #[arg(long = "smart-group", action = clap::ArgAction::Count)]
-    pub smart_group: u8,
+    #[arg(long = "smart-group")]
+    pub smart_group: bool,
     /// show the size of a directory as the size of all files and directories inside
-    #[arg(long = "total-size", action = clap::ArgAction::Count)]
-    pub total_size: u8,
+    #[arg(long = "total-size")]
+    pub total_size: bool,
     /// use stdin as the sole input
-    #[arg(long = "stdin", action = clap::ArgAction::Count)]
-    pub stdin: u8,
-    #[arg(short = 'O', long = "flags", action = clap::ArgAction::Count)]
-    pub file_flags: u8,
+    #[arg(long = "stdin")]
+    pub stdin: bool,
+    #[arg(short = 'O', long = "flags")]
+    pub file_flags: bool,
 
-    #[arg(long = "no-symlinks", action = clap::ArgAction::Count)]
-    pub no_symlinks: u8,
+    #[arg(long = "no-symlinks")]
+    pub no_symlinks: bool,
 
-    #[arg(long = "show-symlinks", action = clap::ArgAction::Count)]
-    pub show_symlinks: u8,
+    #[arg(long = "show-symlinks")]
+    pub show_symlinks: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -419,64 +424,64 @@ impl Default for Opts {
         Opts {
             paths: vec![],
             all: 0,
-            long: 0,
-            git: 0,
-            oneline: 0,
-            recurse: 0,
-            list_dirs: 0,
-            tree: 0,
+            long: false,
+            git: false,
+            oneline: false,
+            recurse: false,
+            list_dirs: false,
+            tree: false,
             level: None,
-            reverse: 0,
+            reverse: false,
             sort: None,
             ignore_glob: None,
-            git_ignore: 0,
-            dirs_first: 0,
-            only_dirs: 0,
-            binary: 0,
-            bytes: 0,
-            group: 0,
-            numeric: 0,
-            grid: 0,
-            across: 0,
-            classify: 0,
-            dereference: 0,
+            git_ignore: false,
+            dirs_first: false,
+            only_dirs: false,
+            binary: false,
+            bytes: false,
+            group: false,
+            numeric: false,
+            grid: false,
+            across: false,
+            classify: false,
+            dereference: false,
             width: None,
             color: ShowWhen::Auto,
             color_scale: None,
             color_scale_mode: ColorScaleModeArgs::Gradient,
-            almost_all: 0,
-            header: 0,
+            almost_all: false,
+            header: false,
             icons: None,
-            inode: 0,
-            git_repos: 0,
-            git_repos_no_status: 0,
-            links: 0,
-            modified: 0,
-            created: 0,
-            accessed: 0,
-            changed: 0,
-            blocksize: 0,
+            inode: false,
+            git_repos: false,
+            git_repos_no_status: false,
+            links: false,
+            modified: false,
+            created: false,
+            accessed: false,
+            changed: false,
+            blocksize: false,
             time: None,
             time_style: None,
-            no_filesize: 0,
-            no_permissions: 0,
-            no_time: 0,
-            no_user: 0,
-            extended: 0,
-            hyperlink: 0,
-            octal: 0,
-            security_context: 0,
+            no_filesize: false,
+            no_permissions: false,
+            no_time: false,
+            no_user: false,
+            extended: false,
+            hyperlink: false,
+            octal: false,
+            security_context: false,
             help: Some(false),
-            no_git: 0,
-            mounts: 0,
-            only_files: 0,
-            no_quotes: 0,
-            smart_group: 0,
-            total_size: 0,
-            stdin: 0,
-            file_flags: 0,
-            no_symlinks: 0,
-            show_symlinks: 0,
+            no_git: false,
+            mounts: false,
+            only_files: false,
+            no_quotes: false,
+            smart_group: false,
+            total_size: false,
+            stdin: false,
+            file_flags: false,
+            no_symlinks: false,
+            show_symlinks: false,
         }
     }
 }

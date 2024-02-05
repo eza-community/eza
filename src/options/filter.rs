@@ -15,11 +15,11 @@ impl FileFilter {
         let mut filter_flags: Vec<FileFilterFlags> = vec![];
 
         for (has, flag) in &[
-            (matches.reverse > 0, FFF::Reverse),
-            (matches.only_dirs > 0, FFF::OnlyDirs),
-            (matches.only_files > 0, FFF::OnlyFiles),
-            (matches.no_symlinks > 0, FFF::NoSymlinks),
-            (matches.show_symlinks > 0, FFF::ShowSymlinks),
+            (matches.reverse, FFF::Reverse),
+            (matches.only_dirs, FFF::OnlyDirs),
+            (matches.only_files, FFF::OnlyFiles),
+            (matches.no_symlinks, FFF::NoSymlinks),
+            (matches.show_symlinks, FFF::ShowSymlinks),
         ] {
             if *has {
                 filter_flags.push(flag.clone());
@@ -28,9 +28,9 @@ impl FileFilter {
 
         #[rustfmt::skip]
         return Ok(Self {
-            no_symlinks:      matches.no_symlinks > 0,
-            show_symlinks:    matches.show_symlinks > 0,
-            list_dirs_first:  matches.dirs_first > 0,
+            no_symlinks:      matches.no_symlinks,
+            show_symlinks:    matches.show_symlinks,
+            list_dirs_first:  matches.dirs_first,
             flags: filter_flags,
             sort_field:       SortField::deduce(matches)?,
             dot_filter:       DotFilter::deduce(matches, strict)?,
@@ -142,7 +142,7 @@ impl DotFilter {
     /// of arguments into account and it is the safer option (does not clash with `--tree`)
     pub fn deduce(matches: &Opts, strict: bool) -> Result<Self, OptionsError> {
         let all_count = matches.all;
-        let has_almost_all = matches.almost_all > 0;
+        let has_almost_all = matches.almost_all;
 
         match (all_count, has_almost_all) {
             (0, false) => Ok(Self::JustFiles),
@@ -151,7 +151,7 @@ impl DotFilter {
             (1, _) | (0, true) => Ok(Self::Dotfiles),
             // more than one --all
             (c, _) => {
-                if matches.tree > 0 {
+                if matches.tree {
                     Err(OptionsError::TreeAllAll)
                 } else if strict && c > 2 {
                     Err(OptionsError::Conflict("all", "all"))
@@ -189,7 +189,7 @@ impl IgnorePatterns {
 
 impl GitIgnore {
     pub fn deduce(matches: &Opts) -> Self {
-        if matches.git_ignore > 0 {
+        if matches.git_ignore {
             Self::CheckAndIgnore
         } else {
             Self::Off
@@ -211,7 +211,7 @@ mod tests {
     #[test]
     fn deduce_git_ignore_on() {
         let opts = Opts {
-            git_ignore: 1,
+            git_ignore: true,
             ..Opts::default()
         };
         assert_eq!(GitIgnore::deduce(&opts), GitIgnore::CheckAndIgnore);
@@ -282,7 +282,7 @@ mod tests {
     fn deduce_dot_filter_tree_all_all() {
         let opts = Opts {
             all: 2,
-            tree: 1,
+            tree: true,
             ..Opts::default()
         };
         assert_eq!(
@@ -306,7 +306,7 @@ mod tests {
     #[test]
     fn deduce_dot_filter_almost_all() {
         let opts = Opts {
-            almost_all: 1,
+            almost_all: true,
             ..Opts::default()
         };
         assert_eq!(DotFilter::deduce(&opts, false), Ok(DotFilter::Dotfiles));
@@ -506,7 +506,7 @@ mod tests {
     #[test]
     fn deduce_file_filter_reverse() {
         let opts = Opts {
-            reverse: 1,
+            reverse: true,
             ..Opts::default()
         };
         assert_eq!(
@@ -527,7 +527,7 @@ mod tests {
     #[test]
     fn deduce_file_filter_only_dirs() {
         let opts = Opts {
-            only_dirs: 1,
+            only_dirs: true,
             ..Opts::default()
         };
         assert_eq!(
@@ -548,7 +548,7 @@ mod tests {
     #[test]
     fn deduce_file_filter_only_files() {
         let opts = Opts {
-            only_files: 1,
+            only_files: true,
             ..Opts::default()
         };
         assert_eq!(

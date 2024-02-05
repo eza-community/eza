@@ -29,7 +29,7 @@ impl Options {
 
 impl Classify {
     fn deduce(matches: &Opts) -> Self {
-        if matches.classify > 0 {
+        if matches.classify {
             Self::AddFileIndicators
         } else {
             Self::JustFilenames
@@ -86,7 +86,7 @@ impl ShowIcons {
 
 impl QuoteStyle {
     pub fn deduce(matches: &Opts) -> Self {
-        if matches.no_quotes > 0 {
+        if matches.no_quotes {
             Self::NoQuotes
         } else {
             Self::QuoteSpaces
@@ -96,7 +96,7 @@ impl QuoteStyle {
 
 impl EmbedHyperlinks {
     fn deduce(matches: &Opts) -> Self {
-        if matches.hyperlink > 0 {
+        if matches.hyperlink {
             Self::On
         } else {
             Self::Off
@@ -128,7 +128,7 @@ mod tests {
     #[test]
     fn deduce_classify_file_indicators() {
         let options = Opts {
-            classify: 1,
+            classify: true,
             ..Opts::default()
         };
 
@@ -145,7 +145,7 @@ mod tests {
     #[test]
     fn deduce_quote_style_no_quotes() {
         let options = Opts {
-            no_quotes: 1,
+            no_quotes: true,
             ..Opts::default()
         };
 
@@ -162,7 +162,7 @@ mod tests {
     #[test]
     fn deduce_embed_hyperlinks_on() {
         let options = Opts {
-            hyperlink: 1,
+            hyperlink: true,
             ..Opts::default()
         };
 
