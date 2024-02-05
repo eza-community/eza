@@ -6,7 +6,7 @@ use crate::output::time::TimeFormat;
 
 #[derive(Default, Parser)]
 #[command(author, version, about, long_about)] // Read from `Cargo.toml`
-#[clap(disable_help_flag = true)]
+#[clap(disable_help_flag = true, args_override_self = true)]
 pub struct Opts {
     pub paths: Vec<OsString>,
     /// Show hidden files.
