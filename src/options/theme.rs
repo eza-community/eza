@@ -1,13 +1,20 @@
 use crate::options::parser::MatchedFlags;
 use crate::options::{flags, vars, OptionsError, Vars};
 use crate::output::color_scale::ColorScaleOptions;
+use crate::theme::UiStyles;
 use crate::theme::{Definitions, Options, UseColours};
 
 impl Options {
     pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
         let use_colours = UseColours::deduce(matches, vars)?;
         let colour_scale = ColorScaleOptions::deduce(matches, vars)?;
-
+        if matches.has(&flags::WRITE_THEME)? {
+            let path = matches.get(&flags::WRITE_THEME)?;
+            let err = UiStyles::write_default_theme_file(path).map_err(|e| e.to_string());
+            if let Err(err) = err {
+                return Err(OptionsError::WriteTheme(err));
+            }
+        }
         let definitions = if use_colours == UseColours::Never {
             Definitions::default()
         } else {

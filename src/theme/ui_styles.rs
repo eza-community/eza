@@ -1,10 +1,10 @@
-use crate::output::color_scale::ColorScaleOptions;
 use crate::theme::lsc::Pair;
-use libc::SYS_socketpair;
-use nu_ansi_term::Color::{self, *};
+use nu_ansi_term::Color::*;
 use nu_ansi_term::Style;
 use serde::{Deserialize, Serialize};
 use std::default::Default;
+use std::ffi::OsStr;
+use std::path::PathBuf;
 
 #[rustfmt::skip]
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
@@ -15,7 +15,7 @@ pub struct UiStyles {
     pub perms:            Option<Permissions>,
     pub size:             Option<Size>,
     pub users:            Option<Users>,
-    pub links:           Option<Links>,
+    pub links:            Option<Links>,
     pub git:              Option<Git>,
     pub git_repo:         Option<GitRepo>,
     pub security_context: Option<SecurityContext>,
@@ -35,6 +35,42 @@ pub struct UiStyles {
     pub broken_symlink:       Option<Style>,  // or
     pub broken_path_overlay:  Option<Style>,  // bO
 }
+// Macro to generate .unwrap_or_default getters for each field to cut down boilerplate
+#[allow(clippy::new_without_default)]
+macro_rules! field_accessors {
+    ($struct_name:ident, $($field_name:ident: Option<$type:ty>),*) => {
+        impl $struct_name {
+            $(
+                pub fn $field_name(&self) -> $type {
+                    self.$field_name.unwrap_or_default()
+                }
+            )*
+        }
+    };
+}
+// Macro to generate method that returns a mut ref to each field or creates a default one if it's None
+macro_rules! update_field_accessors {
+    ($struct_name:ident, $($field_name:ident: Option<$type:ty>),*) => {
+        impl $struct_name {
+            $(
+                pub fn $field_name(&mut self) -> &mut $type {
+                    if self.$field_name.is_none() {
+                        self.$field_name = Some(Default::default());
+                    }
+                    // It is safe to unwrap here because we just ensured it's not None
+                    self.$field_name.as_mut().unwrap()
+                }
+            )*
+        }
+    };
+}
+
+update_field_accessors!(UiStyles, colourful: Option<bool>,filekinds: Option<FileKinds>, perms: Option<Permissions>, size: Option<Size>,
+    file_type: Option<FileType>, security_context: Option<SecurityContext>, users: Option<Users>, links: Option<Links>, git: Option<Git>, git_repo: Option<GitRepo>);
+
+field_accessors!(UiStyles, punctuation: Option<Style>, date: Option<Style>, inode: Option<Style>, blocks: Option<Style>,
+    header: Option<Style>, octal: Option<Style>, flags: Option<Style>, symlink_path: Option<Style>,
+    control_char: Option<Style>, broken_symlink: Option<Style>, broken_path_overlay: Option<Style>);
 
 #[rustfmt::skip]
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
@@ -67,23 +103,7 @@ impl Default for FileKinds {
         }
     }
 }
-
-impl FileKinds {
-    pub fn colourful(scale: ColorScaleOptions) -> Self {
-        Self {
-            normal: Some(Style::default()),
-            directory: Some(scale.blue.bold()),
-            symlink: Some(scale.cyan.normal()),
-            pipe: Some(scale.yellow.normal()),
-            block_device: Some(scale.yellow.bold()),
-            char_device: Some(scale.yellow.bold()),
-            socket: Some(scale.red.bold()),
-            special: Some(scale.yellow.normal()),
-            executable: Some(scale.green.bold()),
-            mount_point: Some(scale.blue.bold().underline()),
-        }
-    }
-}
+field_accessors!(FileKinds, normal: Option<Style>, directory: Option<Style>, symlink: Option<Style>, pipe: Option<Style>, block_device: Option<Style>, char_device: Option<Style>, socket: Option<Style>, special: Option<Style>, executable: Option<Style>, mount_point: Option<Style>);
 
 #[rustfmt::skip]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -106,6 +126,7 @@ pub struct Permissions {
 
     pub attribute: Option<Style>,           // xa
 }
+field_accessors!(Permissions, user_read: Option<Style>, user_write: Option<Style>, user_execute_file: Option<Style>, user_execute_other: Option<Style>, group_read: Option<Style>, group_write: Option<Style>, group_execute: Option<Style>, other_read: Option<Style>, other_write: Option<Style>, other_execute: Option<Style>, special_user_file: Option<Style>, special_other: Option<Style>, attribute: Option<Style>);
 
 #[rustfmt::skip]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -125,6 +146,7 @@ pub struct Size {
     pub unit_giga: Option<Style>,    // sb ug
     pub unit_huge: Option<Style>,    // sb ut
 }
+field_accessors!(Size, major: Option<Style>, minor: Option<Style>, number_byte: Option<Style>, number_kilo: Option<Style>, number_mega: Option<Style>, number_giga: Option<Style>, number_huge: Option<Style>, unit_byte: Option<Style>, unit_kilo: Option<Style>, unit_mega: Option<Style>, unit_giga: Option<Style>, unit_huge: Option<Style>);
 
 #[rustfmt::skip]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -136,6 +158,7 @@ pub struct Users {
     pub group_other: Option<Style>,        // gn
     pub group_root: Option<Style>,         // gR
 }
+field_accessors!(Users, user_you: Option<Style>, user_root: Option<Style>, user_other: Option<Style>, group_yours: Option<Style>, group_other: Option<Style>, group_root: Option<Style>);
 
 #[rustfmt::skip]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -143,6 +166,7 @@ pub struct Links {
     pub normal: Option<Style>,           // lc
     pub multi_link_file: Option<Style>,  // lm
 }
+field_accessors!(Links, normal: Option<Style>, multi_link_file: Option<Style>);
 
 #[rustfmt::skip]
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
@@ -156,6 +180,7 @@ pub struct Git {
     pub conflicted: Option<Style>,  // gc
 }
 
+field_accessors!(Git, new: Option<Style>, modified: Option<Style>, deleted: Option<Style>, renamed: Option<Style>, typechange: Option<Style>, ignored: Option<Style>, conflicted: Option<Style>);
 impl Default for Git {
     fn default() -> Self {
         Git {
@@ -178,7 +203,7 @@ pub struct GitRepo {
     pub git_clean: Option<Style>,    //Gc
     pub git_dirty: Option<Style>,    //Gd
 }
-
+field_accessors!(GitRepo, branch_main: Option<Style>, branch_other: Option<Style>, git_clean: Option<Style>, git_dirty: Option<Style>);
 impl Default for GitRepo {
     fn default() -> Self {
         Self {
@@ -198,13 +223,15 @@ pub struct SELinuxContext {
     pub typ: Option<Style>,   // St
     pub range: Option<Style>, // Sl
 }
+field_accessors!(SELinuxContext, colon: Option<Style>, user: Option<Style>, role: Option<Style>, typ: Option<Style>, range: Option<Style>);
 
 #[rustfmt::skip]
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SecurityContext {
     pub none:    Option<Style>, // Sn
     pub selinux: Option<SELinuxContext>,
 }
+field_accessors!(SecurityContext, none: Option<Style>, selinux: Option<SELinuxContext>);
 
 impl Default for SecurityContext {
     fn default() -> Self {
@@ -243,16 +270,39 @@ impl UiStyles {
         Self::default()
     }
 
+    pub fn write_default_theme_file(path: Option<&OsStr>) -> std::io::Result<()> {
+        let default_path = std::env::var("EZA_CONFIG_DIR").map(|dir| PathBuf::from(&dir)).unwrap_or({
+             dirs::config_dir().unwrap_or_default().join("eza")
+        });
+        if let Ok(dir) = std::env::var("EZA_CONFIG_DIR") {
+            let dir = std::path::PathBuf::from(&dir);
+            if !dir.exists() {
+            std::fs::create_dir_all(dir)?;
+            }
+        }
+        if path.is_some_and(|path| std::path::PathBuf::from(path).is_dir()) {
+            let path = PathBuf::from(path.unwrap());
+            let path = path.join(PathBuf::from("default-theme.yml")); 
+            let file = std::fs::File::create(path)?;
+            serde_yaml::to_writer(file, &Self::default()).map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
+        } else {
+            let default_file = default_path.join("default-theme.yml");
+            let file = std::fs::File::create(default_file)?;
+            let default = Self::default();
+            serde_yaml::to_writer(file, &default).map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
+        }
+    }
+
     pub fn from_yaml(file: Option<&str>) -> Self {
         if let Some(file) = file {
             let file = std::fs::File::open(file);
             if let Err(e) = file {
-                eprintln!("Could not open theme file: {}", e);
+                eprintln!("Could not open theme file: {e}");
                 return Self::default();
             }
             let file = file.expect("Could not open theme file");
             let theme: UiStyles = serde_yaml::from_reader(file).unwrap_or_else(|e| {
-                eprintln!("Could not parse theme file: {}", e);
+                eprintln!("Could not parse theme file: {e}");
                 Self::default()
             });
             theme
@@ -269,14 +319,14 @@ impl UiStyles {
     pub fn set_ls(&mut self, pair: &Pair<'_>) -> bool {
         #[rustfmt::skip]
         match pair.key {
-            "di" => self.filekinds.directory    = Some(pair.to_style()),  // DIR
-            "ex" => self.filekinds.executable   = Some(pair.to_style()),  // EXEC
-            "fi" => self.filekinds.normal       = Some(pair.to_style()),  // FILE
-            "pi" => self.filekinds.pipe         = Some(pair.to_style()),  // FIFO
-            "so" => self.filekinds.socket       = Some(pair.to_style()),  // SOCK
-            "bd" => self.filekinds.block_device = Some(pair.to_style()),  // BLK
-            "cd" => self.filekinds.char_device  = Some(pair.to_style()),  // CHR
-            "ln" => self.filekinds.symlink      = Some(pair.to_style()),  // LINK
+            "di" => self.filekinds().directory    = Some(pair.to_style()),  // DIR
+            "ex" => self.filekinds().executable   = Some(pair.to_style()),  // EXEC
+            "fi" => self.filekinds().normal       = Some(pair.to_style()),  // FILE
+            "pi" => self.filekinds().pipe         = Some(pair.to_style()),  // FIFO
+            "so" => self.filekinds().socket       = Some(pair.to_style()),  // SOCK
+            "bd" => self.filekinds().block_device = Some(pair.to_style()),  // BLK
+            "cd" => self.filekinds().char_device  = Some(pair.to_style()),  // CHR
+            "ln" => self.filekinds().symlink      = Some(pair.to_style()),  // LINK
             "or" => self.broken_symlink         = Some(pair.to_style()),  // ORPHAN
              _   => return false,
              // Codes we don’t do anything with:
@@ -293,57 +343,68 @@ impl UiStyles {
     pub fn set_exa(&mut self, pair: &Pair<'_>) -> bool {
         #[rustfmt::skip]
         match pair.key {
-            "ur" => self.perms.user_read                = Some(pair.to_style()),
-            "uw" => self.perms.user_write               = Some(pair.to_style()),
-            "ux" => self.perms.user_execute_file        = Some(pair.to_style()),
-            "ue" => self.perms.user_execute_other       = Some(pair.to_style()),
-            "gr" => self.perms.group_read               = Some(pair.to_style()),
-            "gw" => self.perms.group_write              = Some(pair.to_style()),
-            "gx" => self.perms.group_execute            = Some(pair.to_style()),
-            "tr" => self.perms.other_read               = Some(pair.to_style()),
-            "tw" => self.perms.other_write              = Some(pair.to_style()),
-            "tx" => self.perms.other_execute            = Some(pair.to_style()),
-            "su" => self.perms.special_user_file        = Some(pair.to_style()),
-            "sf" => self.perms.special_other            = Some(pair.to_style()),
-            "xa" => self.perms.attribute                = Some(pair.to_style()),
+            "ur" => self.perms().user_read                = Some(pair.to_style()),
+            "uw" => self.perms().user_write               = Some(pair.to_style()),
+            "ux" => self.perms().user_execute_file        = Some(pair.to_style()),
+            "ue" => self.perms().user_execute_other       = Some(pair.to_style()),
+            "gr" => self.perms().group_read               = Some(pair.to_style()),
+            "gw" => self.perms().group_write              = Some(pair.to_style()),
+            "gx" => self.perms().group_execute            = Some(pair.to_style()),
+            "tr" => self.perms().other_read               = Some(pair.to_style()),
+            "tw" => self.perms().other_write              = Some(pair.to_style()),
+            "tx" => self.perms().other_execute            = Some(pair.to_style()),
+            "su" => self.perms().special_user_file        = Some(pair.to_style()),
+            "sf" => self.perms().special_other            = Some(pair.to_style()),
+            "xa" => self.perms().attribute                = Some(pair.to_style()),
 
             "sn" => self.set_number_style(pair.to_style()),
             "sb" => self.set_unit_style(pair.to_style()),
-            "nb" => self.size.number_byte               = Some(pair.to_style()),
-            "nk" => self.size.number_kilo               = Some(pair.to_style()),
-            "nm" => self.size.number_mega               = Some(pair.to_style()),
-            "ng" => self.size.number_giga               = Some(pair.to_style()),
-            "nt" => self.size.number_huge               = Some(pair.to_style()),
-            "ub" => self.size.unit_byte                 = Some(pair.to_style()),
-            "uk" => self.size.unit_kilo                 = Some(pair.to_style()),
-            "um" => self.size.unit_mega                 = Some(pair.to_style()),
-            "ug" => self.size.unit_giga                 = Some(pair.to_style()),
-            "ut" => self.size.unit_huge                 = Some(pair.to_style()),
-            "df" => self.size.major                     = Some(pair.to_style()),
-            "ds" => self.size.minor                     = Some(pair.to_style()),
+            "nb" => self.size().number_byte               = Some(pair.to_style()),
+            "nk" => self.size().number_kilo               = Some(pair.to_style()),
+            "nm" => self.size().number_mega               = Some(pair.to_style()),
+            "ng" => self.size().number_giga               = Some(pair.to_style()),
+            "nt" => self.size().number_huge               = Some(pair.to_style()),
+            "ub" => self.size().unit_byte                 = Some(pair.to_style()),
+            "uk" => self.size().unit_kilo                 = Some(pair.to_style()),
+            "um" => self.size().unit_mega                 = Some(pair.to_style()),
+            "ug" => self.size().unit_giga                 = Some(pair.to_style()),
+            "ut" => self.size().unit_huge                 = Some(pair.to_style()),
+            "df" => self.size().major                     = Some(pair.to_style()),
+            "ds" => self.size().minor                     = Some(pair.to_style()),
 
-            "uu" => self.users.user_you                 = Some(pair.to_style()),
-            "un" => self.users.user_other               = Some(pair.to_style()),
-            "uR" => self.users.user_root                = Some(pair.to_style()),
-            "gu" => self.users.group_yours              = Some(pair.to_style()),
-            "gn" => self.users.group_other              = Some(pair.to_style()),
-            "gR" => self.users.group_root               = Some(pair.to_style()),
+            "uu" => self.users().user_you                 = Some(pair.to_style()),
+            "un" => self.users().user_other               = Some(pair.to_style()),
+            "uR" => self.users().user_root                = Some(pair.to_style()),
+            "gu" => self.users().group_yours              = Some(pair.to_style()),
+            "gn" => self.users().group_other              = Some(pair.to_style()),
+            "gR" => self.users().group_root               = Some(pair.to_style()),
 
-            "lc" => self.links.normal                   = Some(pair.to_style()),
-            "lm" => self.links.multi_link_file          = Some(pair.to_style()),
+            "lc" => self.links().normal                   = Some(pair.to_style()),
+            "lm" => self.links().multi_link_file          = Some(pair.to_style()),
 
-            "ga" => self.git.new                        = Some(pair.to_style()),
-            "gm" => self.git.modified                   = Some(pair.to_style()),
-            "gd" => self.git.deleted                    = Some(pair.to_style()),
-            "gv" => self.git.renamed                    = Some(pair.to_style()),
-            "gt" => self.git.typechange                 = Some(pair.to_style()),
-            "gi" => self.git.ignored                    = Some(pair.to_style()),
-            "gc" => self.git.conflicted                 = Some(pair.to_style()),
+            "ga" => self.git().new                        = Some(pair.to_style()),
+            "gm" => self.git().modified                   = Some(pair.to_style()),
+            "gd" => self.git().deleted                    = Some(pair.to_style()),
+            "gv" => self.git().renamed                    = Some(pair.to_style()),
+            "gt" => self.git().typechange                 = Some(pair.to_style()),
+            "gi" => self.git().ignored                    = Some(pair.to_style()),
+            "gc" => self.git().conflicted                 = Some(pair.to_style()),
 
-            "Gm" => self.git_repo.branch_main           = Some(pair.to_style()),
-            "Go" => self.git_repo.branch_other          = Some(pair.to_style()),
-            "Gc" => self.git_repo.git_clean             = Some(pair.to_style()),
-            "Gd" => self.git_repo.git_dirty             = Some(pair.to_style()),
+            "Gm" => self.git_repo().branch_main           = Some(pair.to_style()),
+            "Go" => self.git_repo().branch_other          = Some(pair.to_style()),
+            "Gc" => self.git_repo().git_clean             = Some(pair.to_style()),
+            "Gd" => self.git_repo().git_dirty             = Some(pair.to_style()),
+                                 
+            "xx" => self.punctuation                     = Some(pair.to_style()),
+            "da" => self.date                            = Some(pair.to_style()),
+            "in" => self.inode                           = Some(pair.to_style()),
+            "bl" => self.blocks                          = Some(pair.to_style()),
+            "hd" => self.header                          = Some(pair.to_style()),
+            "oc" => self.octal                           = Some(pair.to_style()),
+            "ff" => self.flags                           = Some(pair.to_style()),
+            "lp" => self.symlink_path                    = Some(pair.to_style()),
+            "cc" => self.control_char                    = Some(pair.to_style()),
+            "bO" => self.broken_path_overlay             = Some(pair.to_style()),
 
             "ic" => self.icon                           = Some(pair.to_style()),
 
@@ -357,26 +418,26 @@ impl UiStyles {
             "lp" => self.symlink_path                   = Some(pair.to_style()),
             "cc" => self.control_char                   = Some(pair.to_style()),
             "bO" => self.broken_path_overlay            = Some(pair.to_style()),
-            "mp" => self.filekinds.mount_point          = Some(pair.to_style()),
-            "sp" => self.filekinds.special              = Some(pair.to_style()),  // Catch-all for unrecognized file kind
+            "mp" => self.filekinds().mount_point          = Some(pair.to_style()),
+            "sp" => self.filekinds().special              = Some(pair.to_style()),  // Catch-all for unrecognized file kind
 
-            "im" => self.file_type.image                = Some(pair.to_style()),
-            "vi" => self.file_type.video                = Some(pair.to_style()),
-            "mu" => self.file_type.music                = Some(pair.to_style()),
-            "lo" => self.file_type.lossless             = Some(pair.to_style()),
-            "cr" => self.file_type.crypto               = Some(pair.to_style()),
-            "do" => self.file_type.document             = Some(pair.to_style()),
-            "co" => self.file_type.compressed           = Some(pair.to_style()),
-            "tm" => self.file_type.temp                 = Some(pair.to_style()),
-            "cm" => self.file_type.compiled             = Some(pair.to_style()),
-            "bu" => self.file_type.build                = Some(pair.to_style()),
-            "sc" => self.file_type.source               = Some(pair.to_style()),
+            "im" => self.file_type().image                = Some(pair.to_style()),
+            "vi" => self.file_type().video                = Some(pair.to_style()),
+            "mu" => self.file_type().music                = Some(pair.to_style()),
+            "lo" => self.file_type().lossless             = Some(pair.to_style()),
+            "cr" => self.file_type().crypto               = Some(pair.to_style()),
+            "do" => self.file_type().document             = Some(pair.to_style()),
+            "co" => self.file_type().compressed           = Some(pair.to_style()),
+            "tm" => self.file_type().temp                 = Some(pair.to_style()),
+            "cm" => self.file_type().compiled             = Some(pair.to_style()),
+            "bu" => self.file_type().build                = Some(pair.to_style()),
+            "sc" => self.file_type().source               = Some(pair.to_style()),
 
-            "Sn" => self.security_context.none          = Some(pair.to_style()),
-            "Su" => self.security_context.selinux.user  = Some(pair.to_style()),
-            "Sr" => self.security_context.selinux.role  = Some(pair.to_style()),
-            "St" => self.security_context.selinux.typ   = Some(pair.to_style()),
-            "Sl" => self.security_context.selinux.range = Some(pair.to_style()),
+            "Sn" => self.security_context().none          = Some(pair.to_style()),
+            "Su" => self.security_context().selinux().user  = Some(pair.to_style()),
+            "Sr" => self.security_context().selinux().role  = Some(pair.to_style()),
+            "St" => self.security_context().selinux().typ   = Some(pair.to_style()),
+            "Sl" => self.security_context().selinux().range = Some(pair.to_style()),
 
              _   => return false,
         };
@@ -385,18 +446,18 @@ impl UiStyles {
     }
 
     pub fn set_number_style(&mut self, style: Style) {
-        self.size.number_byte = Some(style);
-        self.size.number_kilo = Some(style);
-        self.size.number_mega = Some(style);
-        self.size.number_giga = Some(style);
-        self.size.number_huge = Some(style);
-    }
+        self.size().number_byte = Some(style);
+        self.size().number_kilo = Some(style);
+        self.size().number_mega = Some(style);
+        self.size().number_giga = Some(style);
+        self.size().number_huge = Some(style);
+    }            
 
     pub fn set_unit_style(&mut self, style: Style) {
-        self.size.unit_byte = Some(style);
-        self.size.unit_kilo = Some(style);
-        self.size.unit_mega = Some(style);
-        self.size.unit_giga = Some(style);
-        self.size.unit_huge = Some(style);
+        self.size().unit_byte = Some(style);
+        self.size().unit_kilo = Some(style);
+        self.size().unit_mega = Some(style);
+        self.size().unit_giga = Some(style);
+        self.size().unit_huge = Some(style);
     }
 }

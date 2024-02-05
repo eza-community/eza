@@ -81,7 +81,6 @@ mod file_name;
 mod filter;
 #[rustfmt::skip] // this module becomes unreadable with rustfmt
 mod flags;
-mod config;
 mod error;
 mod theme;
 mod view;
@@ -248,7 +247,7 @@ pub mod test {
     use crate::options::parser::{Arg, MatchedFlags};
     use std::ffi::OsStr;
 
-    #[derive(PartialEq, Eq, Debug)]
+    #[derive(PartialEq, Eq, Debug, Copy, Clone)]
     pub enum Strictnesses {
         Last,
         Complain,
