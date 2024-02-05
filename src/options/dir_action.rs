@@ -11,9 +11,9 @@ impl DirAction {
     /// `--tree` flag is another form of recursion, so those two are allowed
     /// to both be present, but the `--list-dirs` flag is used separately.
     pub fn deduce(matches: &Opts, can_tree: bool, strict: bool) -> Result<Self, OptionsError> {
-        let recurse = matches.recurse > 0;
-        let as_file = matches.list_dirs > 0;
-        let tree = matches.tree > 0;
+        let recurse = matches.recurse;
+        let as_file = matches.list_dirs;
+        let tree = matches.tree;
 
         if strict {
             // Early check for --level when it wouldn’t do anything
@@ -108,7 +108,7 @@ mod tests {
     #[test]
     fn deduce_dir_action_as_file() {
         let options = Opts {
-            list_dirs: 1,
+            list_dirs: true,
             ..Opts::default()
         };
 
@@ -121,7 +121,7 @@ mod tests {
     #[test]
     fn deduce_dir_action_recurse() {
         let options = Opts {
-            recurse: 1,
+            recurse: true,
             ..Opts::default()
         };
 
@@ -137,7 +137,7 @@ mod tests {
     #[test]
     fn deduce_dir_action_tree() {
         let options = Opts {
-            tree: 1,
+            tree: true,
             ..Opts::default()
         };
 
@@ -153,7 +153,7 @@ mod tests {
     #[test]
     fn deduce_dir_action_tree_level() {
         let options = Opts {
-            tree: 1,
+            tree: true,
             level: Some(3),
             ..Opts::default()
         };
@@ -183,8 +183,8 @@ mod tests {
     #[test]
     fn deduce_dir_action_recurse_as_file_conflict() {
         let options = Opts {
-            recurse: 1,
-            list_dirs: 1,
+            recurse: true,
+            list_dirs: true,
             ..Opts::default()
         };
 
@@ -197,8 +197,8 @@ mod tests {
     #[test]
     fn deduce_dir_action_tree_as_file_conflict() {
         let options = Opts {
-            tree: 1,
-            list_dirs: 1,
+            tree: true,
+            list_dirs: true,
             ..Opts::default()
         };
 
