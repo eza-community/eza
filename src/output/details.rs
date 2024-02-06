@@ -252,17 +252,37 @@ impl<'a> Render<'a> {
         iter: &mut JsonTableIter<'_>,
         current_depth: i32,
         idx: &mut usize,
-    ) -> io::Result<()> {
-        let (row, depth) = iter.next().unwrap();
+        len: usize,
+    ) -> io::Result<i32> {
+        let (row, depth) = match iter.next() {
+            Some((row, depth)) => (row, depth),
+            None => return Ok(-1),
+        };
+        if self.opts.header {
+            writeln!(w, "{{")?;
+        } else {
+            writeln!(w, "[")?;
+        }
         self.print_row_contents(w, &row, header)?;
         writeln!(w, ", \"depth\": {}", depth.depth.0)?;
-        writeln!(w, ", \"current\": {current_depth}")?;
-        if depth.depth.0 as i32 > current_depth {
-            writeln!(w, ", \"children\": [{{")?;
-            writeln!(w, "}}]")?;
-        }
         *idx += 1;
-        Ok(())
+        if depth.depth.0 as i32 > (current_depth + 1) && current_depth != 0 {
+            writeln!(w, ", \"children\": [")?;
+            let mut d = self.print_row(w, header, iter, depth.depth.0 as i32, idx, len)?;
+            while d > depth.depth.0 as i32 && d != -1 {
+                d = self.print_row(w, header, iter, depth.depth.0 as i32, idx, len)?;
+            }
+            writeln!(w, "]")?;
+        }
+        if self.opts.header {
+            writeln!(w, "}}")?;
+        } else {
+            writeln!(w, "]")?;
+        }
+        if (*idx) < len {
+            writeln!(w, ",")?;
+        }
+        Ok(depth.depth.0 as i32)
     }
 
     pub fn render_json<W: Write>(self, w: &mut W) -> io::Result<()> {
@@ -306,24 +326,17 @@ impl<'a> Render<'a> {
             let len = row_iter.len();
             writeln!(w, "\"files\":[")?;
 
-            let current_depth: i32 = 0;
+            let current_depth: i32 = -2;
 
             while row_iter.len() > 0 {
-                if self.opts.header {
-                    writeln!(w, "{{")?;
-                } else {
-                    writeln!(w, "[")?;
-                }
-                writeln!(w, "\"index\": {},", i)?;
-                self.print_row(w, &(header.clone()), &mut row_iter, current_depth, &mut i)?;
-                if self.opts.header {
-                    writeln!(w, "}}")?;
-                } else {
-                    writeln!(w, "]")?;
-                }
-                if i < len {
-                    writeln!(w, ",")?;
-                }
+                self.print_row(
+                    w,
+                    &(header.clone()),
+                    &mut row_iter,
+                    current_depth,
+                    &mut i,
+                    len,
+                )?;
             }
             writeln!(w, "]\n}}")?;
         } else {
