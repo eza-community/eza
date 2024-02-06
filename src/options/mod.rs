@@ -78,6 +78,7 @@ use std::ffi::OsStr;
 
 use crate::fs::dir_action::DirAction;
 use crate::fs::filter::{FileFilter, GitIgnore};
+use crate::options::archive_inspection::ArchiveInspection;
 use crate::options::stdin::FilesInput;
 use crate::output::{details, grid_details, Mode, View};
 use crate::theme::Options as ThemeOptions;
@@ -103,6 +104,8 @@ use self::parser::MatchedFlags;
 pub mod vars;
 pub use self::vars::Vars;
 pub mod config;
+
+pub mod archive_inspection;
 pub mod stdin;
 mod version;
 
@@ -130,6 +133,8 @@ pub struct Options {
 
     /// Whether to read file names from stdin instead of the command-line
     pub stdin: FilesInput,
+
+    pub archive_inspection: ArchiveInspection,
 }
 
 impl Options {
@@ -212,6 +217,7 @@ impl Options {
         let filter = FileFilter::deduce(matches)?;
         let theme = ThemeOptions::deduce(matches, vars)?;
         let stdin = FilesInput::deduce(matches, vars)?;
+        let archive_inspection = ArchiveInspection::deduce(matches)?;
 
         Ok(Self {
             dir_action,
@@ -219,6 +225,7 @@ impl Options {
             view,
             theme,
             stdin,
+            archive_inspection,
         })
     }
 }
