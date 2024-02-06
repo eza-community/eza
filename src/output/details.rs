@@ -79,10 +79,10 @@ use crate::fs::feature::git::GitCache;
 use crate::fs::feature::xattr::Attribute;
 use crate::fs::fields::SecurityContextType;
 use crate::fs::filter::FileFilter;
-use crate::fs::{Dir, File};
+use crate::fs::{Dir, Filelike};
 use crate::output::cell::TextCell;
 use crate::output::color_scale::{ColorScaleInformation, ColorScaleOptions};
-use crate::output::file_name::Options as FileStyle;
+use crate::output::file_name::{GetStyle, Options as FileStyle};
 use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams, TreeTrunk};
 use crate::theme::Theme;
@@ -126,9 +126,9 @@ pub struct Options {
     pub follow_links: bool,
 }
 
-pub struct Render<'a> {
-    pub dir: Option<&'a Dir>,
-    pub files: Vec<File<'a>>,
+pub struct Render<'a, F: Filelike> {
+    pub dir_path: Option<&'a PathBuf>,
+    pub files: Vec<F>,
     pub theme: &'a Theme,
     pub file_style: &'a FileStyle,
     pub opts: &'a Options,
@@ -150,21 +150,21 @@ pub struct Render<'a> {
 }
 
 #[rustfmt::skip]
-struct Egg<'a> {
+struct Egg<'a, F: Filelike + GetStyle> {
     table_row: Option<TableRow>,
     xattrs:    &'a [Attribute],
     errors:    Vec<(io::Error, Option<PathBuf>)>,
     dir:       Option<Dir>,
-    file:      &'a File<'a>,
+    file:      &'a F,
 }
 
-impl<'a> AsRef<File<'a>> for Egg<'a> {
-    fn as_ref(&self) -> &File<'a> {
+impl<'a, F: Filelike + super::file_name::GetStyle> AsRef<F> for Egg<'a, F> {
+    fn as_ref(&self) -> &F {
         self.file
     }
 }
 
-impl<'a> Render<'a> {
+impl<'a, F: Filelike + std::marker::Sync + super::file_name::GetStyle> Render<'a, F> {
     pub fn render<W: Write>(mut self, w: &mut W) -> io::Result<()> {
         let mut rows = Vec::new();
 
@@ -178,14 +178,14 @@ impl<'a> Render<'a> {
         );
 
         if let Some(ref table) = self.opts.table {
-            match (self.git, self.dir) {
-                (Some(g), Some(d)) => {
-                    if !g.has_anything_for(&d.path) {
+            match (self.git, self.dir_path) {
+                (Some(g), Some(path)) => {
+                    if !g.has_anything_for(path) {
                         self.git = None;
                     }
                 }
                 (Some(g), None) => {
-                    if !self.files.iter().any(|f| g.has_anything_for(&f.path)) {
+                    if !self.files.iter().any(|f| g.has_anything_for(f.path())) {
                         self.git = None;
                     }
                 }
@@ -232,7 +232,7 @@ impl<'a> Render<'a> {
     }
 
     /// Whether to show the extended attribute hint
-    pub fn show_xattr_hint(&self, file: &File<'_>) -> bool {
+    pub fn show_xattr_hint<T: Filelike>(&self, file: &T) -> bool {
         // Do not show the hint '@' if the only extended attribute is the security
         // attribute and the security attribute column is active.
         let xattr_count = file.extended_attributes().len();
@@ -246,11 +246,11 @@ impl<'a> Render<'a> {
 
     /// Adds files to the table, possibly recursively. This is easily
     /// parallelisable, and uses a pool of threads.
-    fn add_files_to_table<'dir>(
+    fn add_files_to_table<T: Filelike + std::marker::Sync + GetStyle>(
         &self,
         table: &mut Option<Table<'a>>,
         rows: &mut Vec<Row>,
-        src: &[File<'dir>],
+        src: &[T],
         depth: TreeDepth,
         color_scale_info: Option<ColorScaleInformation>,
     ) {
@@ -305,12 +305,13 @@ impl<'a> Render<'a> {
                     {
                         trace!("matching on to_dir");
                         match file.to_dir() {
-                            Ok(d) => {
+                            Some(Ok(d)) => {
                                 dir = Some(d);
                             }
-                            Err(e) => {
+                            Some(Err(e)) => {
                                 errors.push((e, None));
                             }
+                            None => {}
                         }
                     }
                 };
@@ -325,7 +326,6 @@ impl<'a> Render<'a> {
             })
             .collect();
 
-        // this is safe because all entries have been initialized above
         self.filter.sort_files(&mut file_eggs);
 
         for (tree_params, egg) in depth.iterate_over(file_eggs.into_iter()) {
@@ -359,7 +359,7 @@ impl<'a> Render<'a> {
                     self.filter.dot_filter,
                     self.git,
                     self.git_ignoring,
-                    egg.file.deref_links,
+                    egg.file.deref_links(),
                     egg.file.is_recursive_size(),
                 ) {
                     files.push(file_to_add);

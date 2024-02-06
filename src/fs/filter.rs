@@ -13,6 +13,7 @@ use std::os::unix::fs::MetadataExt;
 
 use crate::fs::DotFilter;
 use crate::fs::File;
+use crate::fs::Filelike;
 
 /// Flags used to manage the **file filter** process
 #[derive(PartialEq, Eq, Debug, Clone)]
@@ -96,10 +97,10 @@ impl FileFilter {
     /// Remove every file in the given vector that does *not* pass the
     /// filter predicate for files found inside a directory.
     #[rustfmt::skip]
-    pub fn filter_child_files(&self, is_recurse: bool, files: &mut Vec<File<'_>>) {
+    pub fn filter_child_files<F: Filelike>(&self, is_recurse: bool, files: &mut Vec<F>) {
         use FileFilterFlags::{NoSymlinks, OnlyDirs, OnlyFiles, ShowSymlinks};
 
-        files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
+        files.retain(|f| !self.ignore_patterns.is_ignored(f.name()));
         files.retain(|f| {
             match (
                 self.flags.contains(&OnlyDirs),
@@ -133,9 +134,9 @@ impl FileFilter {
     }
 
     /// Sort the files in the given vector based on the sort field option.
-    pub fn sort_files<'a, F>(&self, files: &mut [F])
+    pub fn sort_files<E, F: Filelike>(&self, files: &mut [E])
     where
-        F: AsRef<File<'a>>,
+        E: AsRef<F>,
     {
         files.sort_by(|a, b| self.sort_field.compare_files(a.as_ref(), b.as_ref()));
 
@@ -261,15 +262,15 @@ impl SortField {
     /// into groups between letters and numbers, and then sorts those blocks
     /// together, so `file10` will sort after `file9`, instead of before it
     /// because of the `1`.
-    pub fn compare_files(self, a: &File<'_>, b: &File<'_>) -> Ordering {
+    pub fn compare_files<F: Filelike>(self, a: &F, b: &F) -> Ordering {
         use self::SortCase::{ABCabc, AaBbCc};
 
         #[rustfmt::skip]
         return match self {
             Self::Unsorted  => Ordering::Equal,
 
-            Self::Name(ABCabc)  => natord::compare(&a.name, &b.name),
-            Self::Name(AaBbCc)  => natord::compare_ignore_case(&a.name, &b.name),
+            Self::Name(ABCabc)  => natord::compare(a.name(), b.name()),
+            Self::Name(AaBbCc)  => natord::compare_ignore_case(a.name(), b.name()),
 
             Self::Size          => a.length().cmp(&b.length()),
 
@@ -284,27 +285,27 @@ impl SortField {
             Self::CreatedDate   => a.created_time().cmp(&b.created_time()),
             Self::ModifiedAge   => b.modified_time().cmp(&a.modified_time()),  // flip b and a
             Self::FileType => match a.type_char().cmp(&b.type_char()) { // todo: this recomputes
-                Ordering::Equal  => natord::compare(&a.name, &b.name),
+                Ordering::Equal  => natord::compare(a.name(), b.name()),
                 order            => order,
             },
 
-            Self::Extension(ABCabc) => match a.ext.cmp(&b.ext) {
-                Ordering::Equal  => natord::compare(&a.name, &b.name),
+            Self::Extension(ABCabc) => match a.extension().cmp(&b.extension()) {
+                Ordering::Equal  => natord::compare(a.name(), b.name()),
                 order            => order,
             },
 
-            Self::Extension(AaBbCc) => match a.ext.cmp(&b.ext) {
-                Ordering::Equal  => natord::compare_ignore_case(&a.name, &b.name),
+            Self::Extension(AaBbCc) => match a.extension().cmp(&b.extension()) {
+                Ordering::Equal  => natord::compare_ignore_case(a.name(), b.name()),
                 order            => order,
             },
 
             Self::NameMixHidden(ABCabc) => natord::compare(
-                Self::strip_dot(&a.name),
-                Self::strip_dot(&b.name)
+                Self::strip_dot(a.name()),
+                Self::strip_dot(b.name())
             ),
             Self::NameMixHidden(AaBbCc) => natord::compare_ignore_case(
-                Self::strip_dot(&a.name),
-                Self::strip_dot(&b.name)
+                Self::strip_dot(a.name()),
+                Self::strip_dot(b.name())
             ),
         };
     }
