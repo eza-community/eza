@@ -250,13 +250,14 @@ impl<'a> Render<'a> {
         w: &mut W,
         header: &Option<TextCell>,
         iter: &mut JsonTableIter<'_>,
-        current_depth: i32,
+        current_depth: usize,
         idx: &mut usize,
         len: usize,
-    ) -> io::Result<i32> {
+        max: usize,
+    ) -> io::Result<Option<TreeParams>> {
         let (row, depth) = match iter.next() {
             Some((row, depth)) => (row, depth),
-            None => return Ok(-1),
+            None => return Ok(None),
         };
         if self.opts.header {
             writeln!(w, "{{")?;
@@ -266,11 +267,11 @@ impl<'a> Render<'a> {
         self.print_row_contents(w, &row, header)?;
         writeln!(w, ", \"depth\": {}", depth.depth.0)?;
         *idx += 1;
-        if depth.depth.0 as i32 > (current_depth + 1) && current_depth != 0 {
+        if depth.depth.0 == current_depth && depth.depth.0 < max {
             writeln!(w, ", \"children\": [")?;
-            let mut d = self.print_row(w, header, iter, depth.depth.0 as i32, idx, len)?;
-            while d > depth.depth.0 as i32 && d != -1 {
-                d = self.print_row(w, header, iter, depth.depth.0 as i32, idx, len)?;
+            let mut d = self.print_row(w, header, iter, depth.depth.0 + 1, idx, len, max)?;
+            while d.is_some() && !d.unwrap().last && d.unwrap().depth.0 > depth.depth.0 {
+                d = self.print_row(w, header, iter, depth.depth.0 + 1, idx, len, max)?;
             }
             writeln!(w, "]")?;
         }
@@ -279,18 +280,23 @@ impl<'a> Render<'a> {
         } else {
             writeln!(w, "]")?;
         }
-        if (*idx) < len {
+        if !depth.last {
             writeln!(w, ",")?;
         }
-        Ok(depth.depth.0 as i32)
+        Ok(Some(depth))
+    }
+
+    pub fn get_max_depth(&self, iter: &mut JsonTableIter<'_>) -> usize {
+        let mut max_depth = 0;
+        for (_, depth) in iter {
+            if depth.depth.0 > max_depth {
+                max_depth = depth.depth.0;
+            }
+        }
+        max_depth
     }
 
     pub fn render_json<W: Write>(self, w: &mut W) -> io::Result<()> {
-        let n_cpus = match num_cpus::get() as u32 {
-            0 => 1,
-            n => n,
-        };
-        let mut pool = Pool::new(n_cpus);
         let mut rows = Vec::new();
 
         if let Some(ref options) = self.opts.table {
@@ -305,8 +311,8 @@ impl<'a> Render<'a> {
             // This is weird, but I can’t find a way around it:
             // https://internals.rust-lang.org/t/should-option-mut-t-implement-copy/3715/6
             let mut table = Some(table);
+            #[rustfmt::skip]
             self.add_files_to_table(
-                &mut pool,
                 &mut table,
                 &mut rows,
                 &self.files,
@@ -326,7 +332,8 @@ impl<'a> Render<'a> {
             let len = row_iter.len();
             writeln!(w, "\"files\":[")?;
 
-            let current_depth: i32 = -2;
+            let current_depth = 0;
+            let max_depth = self.get_max_depth(&mut row_iter.clone());
 
             while row_iter.len() > 0 {
                 self.print_row(
@@ -336,12 +343,13 @@ impl<'a> Render<'a> {
                     current_depth,
                     &mut i,
                     len,
+                    max_depth,
                 )?;
             }
             writeln!(w, "]\n}}")?;
         } else {
+            #[rustfmt::skip]
             self.add_files_to_table(
-                &mut pool,
                 &mut None,
                 &mut rows,
                 &self.files,
