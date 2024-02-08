@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.18.2] - 2024-02-08
+
+### Bug Fixes
+
+- Update libgit2 to 1.7.2
+
 ## [0.18.1] - 2024-02-08
 
 ### Bug Fixes
@@ -9,6 +15,10 @@
 ### Documentation
 
 - Add manual installation section
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.1
 
 ### Refactor
 
