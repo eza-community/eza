@@ -60,12 +60,11 @@
 //! can be displayed, in order to make sure that every column is wide enough.
 
 use std::io::{self, Write};
-use std::mem::MaybeUninit;
 use std::path::PathBuf;
 use std::vec::IntoIter as VecIntoIter;
 
 use nu_ansi_term::Style;
-use scoped_threadpool::Pool;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 use log::*;
 
@@ -158,11 +157,6 @@ impl<'a> AsRef<File<'a>> for Egg<'a> {
 
 impl<'a> Render<'a> {
     pub fn render<W: Write>(mut self, w: &mut W) -> io::Result<()> {
-        let n_cpus = match num_cpus::get() as u32 {
-            0 => 1,
-            n => n,
-        };
-        let mut pool = Pool::new(n_cpus);
         let mut rows = Vec::new();
 
         let color_scale_info = ColorScaleInformation::from_color_scale(
@@ -201,7 +195,6 @@ impl<'a> Render<'a> {
             // https://internals.rust-lang.org/t/should-option-mut-t-implement-copy/3715/6
             let mut table = Some(table);
             self.add_files_to_table(
-                &mut pool,
                 &mut table,
                 &mut rows,
                 &self.files,
@@ -214,7 +207,6 @@ impl<'a> Render<'a> {
             }
         } else {
             self.add_files_to_table(
-                &mut pool,
                 &mut None,
                 &mut rows,
                 &self.files,
@@ -247,7 +239,6 @@ impl<'a> Render<'a> {
     /// parallelisable, and uses a pool of threads.
     fn add_files_to_table<'dir>(
         &self,
-        pool: &mut Pool,
         table: &mut Option<Table<'a>>,
         rows: &mut Vec<Row>,
         src: &[File<'dir>],
@@ -255,83 +246,70 @@ impl<'a> Render<'a> {
         color_scale_info: Option<ColorScaleInformation>,
     ) {
         use crate::fs::feature::xattr;
-        use std::sync::{Arc, Mutex};
 
-        let mut file_eggs = (0..src.len())
-            .map(|_| MaybeUninit::uninit())
-            .collect::<Vec<_>>();
+        let mut file_eggs: Vec<_> = src
+            .par_iter()
+            .map(|file| {
+                let mut errors = Vec::new();
 
-        pool.scoped(|scoped| {
-            let file_eggs = Arc::new(Mutex::new(&mut file_eggs));
-            let table = table.as_ref();
+                // There are three “levels” of extended attribute support:
+                //
+                // 1. If we’re compiling without that feature, then
+                //    exa pretends all files have no attributes.
+                // 2. If the feature is enabled and the --extended flag
+                //    has been specified, then display an @ in the
+                //    permissions column for files with attributes, the
+                //    names of all attributes and their values, and any
+                //    errors encountered when getting them.
+                // 3. If the --extended flag *hasn’t* been specified, then
+                //    display the @, but don’t display anything else.
+                //
+                // For a while, exa took a stricter approach to (3):
+                // if an error occurred while checking a file’s xattrs to
+                // see if it should display the @, exa would display that
+                // error even though the attributes weren’t actually being
+                // shown! This was confusing, as users were being shown
+                // errors for something they didn’t explicitly ask for,
+                // and just cluttered up the output. So now errors aren’t
+                // printed unless the user passes --extended to signify
+                // that they want to see them.
 
-            for (idx, file) in src.iter().enumerate() {
-                let file_eggs = Arc::clone(&file_eggs);
+                let xattrs: &[Attribute] = if xattr::ENABLED && self.opts.xattr {
+                    file.extended_attributes()
+                } else {
+                    &[]
+                };
 
-                scoped.execute(move || {
-                    let mut errors = Vec::new();
+                let table_row = table
+                    .as_ref()
+                    .map(|t| t.row_for_file(file, self.show_xattr_hint(file), color_scale_info));
 
-                    // There are three “levels” of extended attribute support:
-                    //
-                    // 1. If we’re compiling without that feature, then
-                    //    exa pretends all files have no attributes.
-                    // 2. If the feature is enabled and the --extended flag
-                    //    has been specified, then display an @ in the
-                    //    permissions column for files with attributes, the
-                    //    names of all attributes and their values, and any
-                    //    errors encountered when getting them.
-                    // 3. If the --extended flag *hasn’t* been specified, then
-                    //    display the @, but don’t display anything else.
-                    //
-                    // For a while, exa took a stricter approach to (3):
-                    // if an error occurred while checking a file’s xattrs to
-                    // see if it should display the @, exa would display that
-                    // error even though the attributes weren’t actually being
-                    // shown! This was confusing, as users were being shown
-                    // errors for something they didn’t explicitly ask for,
-                    // and just cluttered up the output. So now errors aren’t
-                    // printed unless the user passes --extended to signify
-                    // that they want to see them.
-
-                    let xattrs: &[Attribute] = if xattr::ENABLED && self.opts.xattr {
-                        file.extended_attributes()
-                    } else {
-                        &[]
-                    };
-
-                    let table_row = table.as_ref().map(|t| {
-                        t.row_for_file(file, self.show_xattr_hint(file), color_scale_info)
-                    });
-
-                    let mut dir = None;
-                    if let Some(r) = self.recurse {
-                        if file.is_directory() && r.tree && !r.is_too_deep(depth.0) {
-                            trace!("matching on to_dir");
-                            match file.to_dir() {
-                                Ok(d) => {
-                                    dir = Some(d);
-                                }
-                                Err(e) => {
-                                    errors.push((e, None));
-                                }
+                let mut dir = None;
+                if let Some(r) = self.recurse {
+                    if file.is_directory() && r.tree && !r.is_too_deep(depth.0) {
+                        trace!("matching on to_dir");
+                        match file.to_dir() {
+                            Ok(d) => {
+                                dir = Some(d);
+                            }
+                            Err(e) => {
+                                errors.push((e, None));
                             }
                         }
-                    };
+                    }
+                };
 
-                    let egg = Egg {
-                        table_row,
-                        xattrs,
-                        errors,
-                        dir,
-                        file,
-                    };
-                    unsafe { std::ptr::write(file_eggs.lock().unwrap()[idx].as_mut_ptr(), egg) }
-                });
-            }
-        });
+                Egg {
+                    table_row,
+                    xattrs,
+                    errors,
+                    dir,
+                    file,
+                }
+            })
+            .collect();
 
         // this is safe because all entries have been initialized above
-        let mut file_eggs = unsafe { std::mem::transmute::<_, Vec<Egg<'_>>>(file_eggs) };
         self.filter.sort_files(&mut file_eggs);
 
         for (tree_params, egg) in depth.iterate_over(file_eggs.into_iter()) {
@@ -391,14 +369,7 @@ impl<'a> Render<'a> {
                         ));
                     }
 
-                    self.add_files_to_table(
-                        pool,
-                        table,
-                        rows,
-                        &files,
-                        depth.deeper(),
-                        color_scale_info,
-                    );
+                    self.add_files_to_table(table, rows, &files, depth.deeper(), color_scale_info);
                     continue;
                 }
             }

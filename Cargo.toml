@@ -16,7 +16,7 @@ readme = "README.md"
 homepage = "https://github.com/eza-community/eza"
 license = "MIT"
 repository = "https://github.com/eza-community/eza"
-version = "0.17.0"
+version = "0.18.1"
 
 
 [package.metadata.deb]
@@ -71,26 +71,25 @@ name = "eza"
 
 
 [dependencies]
-nu-ansi-term = "0.49.0"
-chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
+nu-ansi-term = "0.50.0"
+chrono = { version = "0.4.33", default-features = false, features = ["clock"] }
 glob = "0.3"
 libc = "0.2"
 locale = "0.2"
 log = "0.4"
 natord = "1.0"
-num_cpus = "1.16"
 number_prefix = "0.4"
-palette = { version = "0.7.3", default-features = false, features = ["std"] }
+palette = { version = "0.7.4", default-features = false, features = ["std"] }
 once_cell = "1.19.0"
 percent-encoding = "2.3.1"
 phf = { version = "0.11.2", features = ["macros"] }
 plist = { version = "1.6.0", default-features = false }
-scoped_threadpool = "0.1"
 uutils_term_grid = "0.3"
 terminal_size = "0.3.0"
 timeago = { version = "0.4.2", default-features = false }
 unicode-width = "0.1"
 zoneinfo_compiled = "0.5.1"
+rayon = "1.8.1"
 
 [dependencies.git2]
 version = "0.18"
@@ -110,7 +109,7 @@ windows-sys = { version = "0.52.0", features = [
 ] }
 
 [build-dependencies]
-chrono = { version = "0.4.31", default-features = false, features = ["clock"] }
+chrono = { version = "0.4.33", default-features = false, features = ["clock"] }
 
 [dev-dependencies]
 criterion = { version = "0.5.1", features = ["html_reports"] }

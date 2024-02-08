@@ -8,7 +8,7 @@
 <!--- Describe your changes in detail -->
 <!--- Why is this change required? What problem does it solve? -->
 <!--- If it fixes an open issue, please link to the issue here. -->
-<!--- Consider including potentalally useful screenshots of your feature in action -->
+<!--- Consider including potentially useful screenshots of your feature in action -->
 
 ##### How Has This Been Tested?
 <!--- Please describe in detail how you tested your changes. -->

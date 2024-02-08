@@ -54,8 +54,13 @@ DISPLAY OPTIONS
 `-1`, `--oneline`
 : Display one entry per line.
 
-`-F`, `--classify`
+`-F`, `--classify=WHEN`
 : Display file kind indicators next to file names.
+
+Valid settings are ‘`always`’, ‘`automatic`’ (or ‘`auto`’ for short), and ‘`never`’.
+The default value is ‘`automatic`’.
+
+The default behavior (`automatic` or `auto`) will display file kind indicators only when the standard output is connected to a real terminal. If `eza` is ran while in a `tty`, or the output of `eza` is either redirected to a file or piped into another program, file kind indicators will not be used. Setting this option to ‘`always`’ causes `eza` to always display file kind indicators, while ‘`never`’ disables the use of file kind indicators.
 
 `-G`, `--grid`
 : Display entries as a grid (default).
