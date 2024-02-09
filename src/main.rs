@@ -105,9 +105,9 @@ fn main() {
 
             info!("matching on exa.run");
             match exa.run() {
-                Ok(exit_status) => {
-                    trace!("exa.run: exit Ok(exit_status)");
-                    exit(exit_status);
+                Ok(()) => {
+                    trace!("exa.run: exit Ok(())");
+                    exit(exits::SUCCESS);
                 }
 
                 Err(e) if e.kind() == ErrorKind::BrokenPipe => {
@@ -252,41 +252,33 @@ impl<'args> Exa<'args> {
     /// # Errors
     ///
     /// Will return `Err` if printing to stderr fails.
-    pub fn run(mut self) -> io::Result<i32> {
+    pub fn run(mut self) -> io::Result<()> {
         debug!("Running with options: {:#?}", self.options);
 
         let mut files = Vec::new();
         let mut dirs = Vec::new();
-        let mut exit_status = 0;
 
         for file_path in &self.input_paths {
-            match File::from_args(
+            let f = File::from_args(
                 PathBuf::from(file_path),
                 None,
                 None,
                 self.options.view.deref_links,
                 self.options.view.total_size,
-            ) {
-                Err(e) => {
-                    exit_status = 2;
-                    writeln!(io::stderr(), "{file_path:?}: {e}")?;
-                }
-
-                Ok(f) => {
-                    if f.points_to_directory() && !self.options.dir_action.treat_dirs_as_files() {
-                        trace!("matching on to_dir");
-                        match f.to_dir() {
-                            Ok(d) => dirs.push(d),
-                            Err(e) if e.kind() == ErrorKind::PermissionDenied => {
-                                eprintln!("{file_path:?}: {e}");
-                                exit(exits::PERMISSION_DENIED);
-                            }
-                            Err(e) => writeln!(io::stderr(), "{file_path:?}: {e}")?,
-                        }
-                    } else {
-                        files.push(f);
+                None,
+            );
+            if f.points_to_directory() && !self.options.dir_action.treat_dirs_as_files() {
+                trace!("matching on to_dir");
+                match f.to_dir() {
+                    Ok(d) => dirs.push(d),
+                    Err(e) if e.kind() == ErrorKind::PermissionDenied => {
+                        eprintln!("{file_path:?}: {e}");
+                        exit(exits::PERMISSION_DENIED);
                     }
+                    Err(e) => writeln!(io::stderr(), "{file_path:?}: {e}")?,
                 }
+            } else {
+                files.push(f);
             }
         }
 
@@ -300,7 +292,7 @@ impl<'args> Exa<'args> {
         self.options.filter.filter_argument_files(&mut files);
         self.print_files(None, files)?;
 
-        self.print_dirs(dirs, no_files, is_only_dir, exit_status)
+        self.print_dirs(dirs, no_files, is_only_dir)
     }
 
     fn print_dirs(
@@ -308,8 +300,7 @@ impl<'args> Exa<'args> {
         dir_files: Vec<Dir>,
         mut first: bool,
         is_only_dir: bool,
-        exit_status: i32,
-    ) -> io::Result<i32> {
+    ) -> io::Result<()> {
         let View {
             file_style: file_name::Options { quote_style, .. },
             ..
@@ -344,10 +335,7 @@ impl<'args> Exa<'args> {
                 self.options.view.deref_links,
                 self.options.view.total_size,
             ) {
-                match file {
-                    Ok(file) => children.push(file),
-                    Err((path, e)) => writeln!(io::stderr(), "[{}: {}]", path.display(), e)?,
-                }
+                children.push(file);
             }
             let recursing = self.options.dir_action.recurse_options().is_some();
             self.options
@@ -381,7 +369,7 @@ impl<'args> Exa<'args> {
                     }
 
                     self.print_files(Some(&dir), children)?;
-                    match self.print_dirs(child_dirs, false, false, exit_status) {
+                    match self.print_dirs(child_dirs, false, false) {
                         Ok(_) => (),
                         Err(e) => return Err(e),
                     }
@@ -392,7 +380,7 @@ impl<'args> Exa<'args> {
             self.print_files(Some(&dir), children)?;
         }
 
-        Ok(exit_status)
+        Ok(())
     }
 
     /// Prints the list of files using whichever view is selected.

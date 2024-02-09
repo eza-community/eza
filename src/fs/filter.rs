@@ -274,7 +274,10 @@ impl SortField {
             Self::Size          => a.length().cmp(&b.length()),
 
             #[cfg(unix)]
-            Self::FileInode     => a.metadata.ino().cmp(&b.metadata.ino()),
+            Self::FileInode     => {
+                a.metadata().map_or(0, MetadataExt::ino)
+                    .cmp(&b.metadata().map_or(0, MetadataExt::ino))
+            }
             Self::ModifiedDate  => a.modified_time().cmp(&b.modified_time()),
             Self::AccessedDate  => a.accessed_time().cmp(&b.accessed_time()),
             Self::ChangedDate   => a.changed_time().cmp(&b.changed_time()),
