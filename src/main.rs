@@ -260,6 +260,7 @@ impl<'args> Exa<'args> {
                 None,
                 self.options.view.deref_links,
                 self.options.view.total_size,
+                None,
             ) {
                 Err(e) => {
                     exit_status = 2;
