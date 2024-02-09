@@ -330,7 +330,7 @@ impl<'a> Render<'a> {
 
         for (tree_params, egg) in depth.iterate_over(file_eggs.into_iter()) {
             let mut files = Vec::new();
-            let mut errors = egg.errors;
+            let errors = egg.errors;
 
             if let (Some(ref mut t), Some(row)) = (table.as_mut(), egg.table_row.as_ref()) {
                 t.add_widths(row);
@@ -362,14 +362,7 @@ impl<'a> Render<'a> {
                     egg.file.deref_links,
                     egg.file.is_recursive_size(),
                 ) {
-                    match file_to_add {
-                        Ok(f) => {
-                            files.push(f);
-                        }
-                        Err((path, e)) => {
-                            errors.push((e, Some(path)));
-                        }
-                    }
+                    files.push(file_to_add);
                 }
 
                 self.filter
