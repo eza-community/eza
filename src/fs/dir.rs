@@ -7,6 +7,7 @@
 use crate::fs::feature::git::GitCache;
 use crate::fs::fields::GitStatus;
 use std::fs;
+use std::fs::DirEntry;
 use std::io;
 use std::path::{Path, PathBuf};
 use std::slice::Iter as SliceIter;
@@ -23,7 +24,7 @@ use crate::fs::File;
 /// accordingly. (See `File#get_source_files`)
 pub struct Dir {
     /// A vector of the files that have been read from this directory.
-    contents: Vec<PathBuf>,
+    contents: Vec<DirEntry>,
 
     /// The path that was read.
     pub path: PathBuf,
@@ -41,9 +42,7 @@ impl Dir {
     pub fn read_dir(path: PathBuf) -> io::Result<Self> {
         info!("Reading directory {:?}", &path);
 
-        let contents = fs::read_dir(&path)?
-            .map(|result| result.map(|entry| entry.path()))
-            .collect::<Result<_, _>>()?;
+        let contents = fs::read_dir(&path)?.collect::<Result<Vec<_>, _>>()?;
 
         info!("Read directory success {:?}", &path);
         Ok(Self { contents, path })
@@ -73,7 +72,7 @@ impl Dir {
 
     /// Whether this directory contains a file with the given path.
     pub fn contains(&self, path: &Path) -> bool {
-        self.contents.iter().any(|p| p.as_path() == path)
+        self.contents.iter().any(|p| p.path().as_path() == path)
     }
 
     /// Append a path onto the path specified by this directory.
@@ -86,7 +85,7 @@ impl Dir {
 #[allow(clippy::struct_excessive_bools)]
 pub struct Files<'dir, 'ig> {
     /// The internal iterator over the paths that have been read already.
-    inner: SliceIter<'dir, PathBuf>,
+    inner: SliceIter<'dir, DirEntry>,
 
     /// The directory that begat those paths.
     dir: &'dir Dir,
@@ -121,10 +120,11 @@ impl<'dir, 'ig> Files<'dir, 'ig> {
 
     /// Go through the directory until we encounter a file we can list (which
     /// varies depending on the dotfile visibility flag)
-    fn next_visible_file(&mut self) -> Option<Result<File<'dir>, (PathBuf, io::Error)>> {
+    fn next_visible_file(&mut self) -> Option<File<'dir>> {
         loop {
-            if let Some(path) = self.inner.next() {
-                let filename = File::filename(path);
+            if let Some(entry) = self.inner.next() {
+                let path = entry.path();
+                let filename = File::filename(&path);
                 if !self.dotfiles && filename.starts_with('.') {
                     continue;
                 }
@@ -137,25 +137,25 @@ impl<'dir, 'ig> Files<'dir, 'ig> {
                 }
 
                 if self.git_ignoring {
-                    let git_status = self.git.map(|g| g.get(path, false)).unwrap_or_default();
+                    let git_status = self.git.map(|g| g.get(&path, false)).unwrap_or_default();
                     if git_status.unstaged == GitStatus::Ignored {
                         continue;
                     }
                 }
 
                 let file = File::from_args(
-                    path.clone(),
+                    path,
                     self.dir,
                     filename,
                     self.deref_links,
                     self.total_size,
-                )
-                .map_err(|e| (path.clone(), e));
+                    entry.file_type().ok(),
+                );
 
                 // Windows has its own concept of hidden files, when dotfiles are
                 // hidden Windows hidden files should also be filtered out
                 #[cfg(windows)]
-                if !self.dotfiles && file.as_ref().is_ok_and(|f| f.attributes().hidden) {
+                if !self.dotfiles && file.attributes().map_or(false, |a| a.hidden) {
                     continue;
                 }
 
@@ -181,24 +181,22 @@ enum DotsNext {
 }
 
 impl<'dir, 'ig> Iterator for Files<'dir, 'ig> {
-    type Item = Result<File<'dir>, (PathBuf, io::Error)>;
+    type Item = File<'dir>;
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.dots {
             DotsNext::Dot => {
                 self.dots = DotsNext::DotDot;
-                Some(
-                    File::new_aa_current(self.dir, self.total_size)
-                        .map_err(|e| (Path::new(".").to_path_buf(), e)),
-                )
+                Some(File::new_aa_current(self.dir, self.total_size))
             }
 
             DotsNext::DotDot => {
                 self.dots = DotsNext::Files;
-                Some(
-                    File::new_aa_parent(self.parent(), self.dir, self.total_size)
-                        .map_err(|e| (self.parent(), e)),
-                )
+                Some(File::new_aa_parent(
+                    self.parent(),
+                    self.dir,
+                    self.total_size,
+                ))
             }
 
             DotsNext::Files => self.next_visible_file(),

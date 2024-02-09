@@ -497,7 +497,7 @@ impl<'a> Table<'a> {
         Some(f::PermissionsPlus {
             file_type: file.type_char(),
             #[cfg(windows)]
-            attributes: file.attributes(),
+            attributes: file.attributes()?,
             xattrs,
         })
     }
