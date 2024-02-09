@@ -4,7 +4,6 @@ use std::path::Path;
 use ansiterm::{ANSIString, Style};
 use unicode_width::UnicodeWidthStr;
 
-use crate::fs::mounts::MountedFs;
 use crate::fs::{File, FileTarget};
 use crate::output::cell::TextCellContents;
 use crate::output::escape;
@@ -49,7 +48,6 @@ impl Options {
                 None
             },
             mount_style: MountStyle::JustDirectoryNames,
-            mounted_fs: file.mount_point_info(),
         }
     }
 }
@@ -143,9 +141,6 @@ pub struct FileName<'a, 'dir, C> {
     link_style: LinkStyle,
 
     pub options: Options,
-
-    /// The filesystem details for a mounted filesystem.
-    mounted_fs: Option<&'a MountedFs>,
 
     /// How to handle displaying a mounted filesystem.
     mount_style: MountStyle,
@@ -244,7 +239,6 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                             target: None,
                             link_style: LinkStyle::FullLinkPaths,
                             options: target_options,
-                            mounted_fs: None,
                             mount_style: MountStyle::JustDirectoryNames,
                         };
 
@@ -284,15 +278,15 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
             }
         }
 
-        if let (MountStyle::MountInfo, Some(mount_details)) =
-            (self.mount_style, self.mounted_fs.as_ref())
-        {
-            // This is a filesystem mounted on the directory, output its details
-            bits.push(Style::default().paint(" ["));
-            bits.push(Style::default().paint(mount_details.source.clone()));
-            bits.push(Style::default().paint(" ("));
-            bits.push(Style::default().paint(mount_details.fstype.clone()));
-            bits.push(Style::default().paint(")]"));
+        if self.mount_style == MountStyle::MountInfo {
+            if let Some(mount_details) = self.file.mount_point_info() {
+                // This is a filesystem mounted on the directory, output its details
+                bits.push(Style::default().paint(" ["));
+                bits.push(Style::default().paint(mount_details.source.clone()));
+                bits.push(Style::default().paint(" ("));
+                bits.push(Style::default().paint(mount_details.fstype.clone()));
+                bits.push(Style::default().paint(")]"));
+            }
         }
 
         bits.into()
