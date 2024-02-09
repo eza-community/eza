@@ -69,9 +69,10 @@ enum LinkStyle {
 }
 
 /// Whether to append file class characters to the file names.
-#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Default, Copy, Clone)]
 pub enum Classify {
     /// Just display the file names, without any characters.
+    #[default]
     JustFilenames,
 
     /// Always add a character after the file name depending on what class of
@@ -80,12 +81,6 @@ pub enum Classify {
 
     // Like previous, but only when output is going to a terminal, not otherwise.
     AutomaticAddFileIndicators,
-}
-
-impl Default for Classify {
-    fn default() -> Self {
-        Self::JustFilenames
-    }
 }
 
 /// When displaying a directory name, there needs to be some way to handle
