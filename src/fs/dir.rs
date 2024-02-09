@@ -203,7 +203,7 @@ impl<'dir, 'ig> Iterator for Files<'dir, 'ig> {
 /// Usually files in Unix use a leading dot to be hidden or visible, but two
 /// entries in particular are “extra-hidden”: `.` and `..`, which only become
 /// visible after an extra `-a` option.
-#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Default, Copy, Clone)]
 pub enum DotFilter {
     /// Shows files, dotfiles, and `.` and `..`.
     DotfilesAndDots,
@@ -212,13 +212,8 @@ pub enum DotFilter {
     Dotfiles,
 
     /// Just show files, hiding anything beginning with a dot.
+    #[default]
     JustFiles,
-}
-
-impl Default for DotFilter {
-    fn default() -> Self {
-        Self::JustFiles
-    }
 }
 
 impl DotFilter {
