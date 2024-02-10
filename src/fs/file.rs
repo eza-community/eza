@@ -27,7 +27,6 @@ use log::*;
 #[cfg(unix)]
 use std::sync::LazyLock;
 
-use crate::fs::archive::Archive;
 use crate::fs::dir::Dir;
 use crate::fs::feature::xattr;
 use crate::fs::feature::xattr::{Attribute, FileAttributes};
@@ -35,6 +34,7 @@ use crate::fs::fields as f;
 use crate::fs::fields::SecurityContextType;
 use crate::fs::filelike::Filelike;
 use crate::fs::recursive_size::RecursiveSize;
+use crate::fs::Archive;
 
 use super::mounts::all_mounts;
 use super::mounts::MountedFs;
