@@ -19,7 +19,7 @@ __eza() {
         {-R,--recurse}"[Recurse into directories]" \
         {-T,--tree}"[Recurse into directories as a tree]" \
         {-X,--dereference}"[Dereference symbolic links when displaying information]" \
-        {-F,--classify}"[Display type indicator by file names]" \
+        {-F,--classify}"[Display type indicator by file names]:(when):(always auto automatic never)" \
         --colo{,u}r="[When to use terminal colours]:(when):(always auto automatic never)" \
         --colo{,u}r-scale"[highlight levels of 'field' distinctly]:(fields):(all age size)" \
         --colo{,u}r-scale-mode"[Use gradient or fixed colors in --color-scale]:(mode):(fixed gradient)" \

@@ -28,12 +28,17 @@ impl Options {
 
 impl Classify {
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let flagged = matches.has(&flags::CLASSIFY)?;
+        let mode_opt = matches.get(&flags::CLASSIFY)?;
 
-        if flagged {
-            Ok(Self::AddFileIndicators)
-        } else {
-            Ok(Self::JustFilenames)
+        match mode_opt {
+            Some(word) => match word.to_str() {
+                Some("always") => Ok(Self::AddFileIndicators),
+                Some("auto" | "automatic") => Ok(Self::AutomaticAddFileIndicators),
+                Some("never") => Ok(Self::JustFilenames),
+                _ => Err(OptionsError::BadArgument(&flags::CLASSIFY, word.into())),
+            },
+            // No flag given, default to just filenames
+            None => Ok(Self::JustFilenames),
         }
     }
 }

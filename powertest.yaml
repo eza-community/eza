@@ -36,6 +36,12 @@ commands:
   ? - -F
     - --classify
   :
+  ? - -F
+    - --classify
+  : values:
+      - auto
+      - always
+      - never
   ? - null
     - --color
   : values:

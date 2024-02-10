@@ -4,7 +4,6 @@ use std::path::Path;
 use ansiterm::{ANSIString, Style};
 use unicode_width::UnicodeWidthStr;
 
-use crate::fs::mounts::MountedFs;
 use crate::fs::{File, FileTarget};
 use crate::output::cell::TextCellContents;
 use crate::output::escape;
@@ -49,7 +48,6 @@ impl Options {
                 None
             },
             mount_style: MountStyle::JustDirectoryNames,
-            mounted_fs: file.mount_point_info(),
         }
     }
 }
@@ -69,20 +67,18 @@ enum LinkStyle {
 }
 
 /// Whether to append file class characters to the file names.
-#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Default, Copy, Clone)]
 pub enum Classify {
     /// Just display the file names, without any characters.
+    #[default]
     JustFilenames,
 
-    /// Add a character after the file name depending on what class of file
-    /// it is.
+    /// Always add a character after the file name depending on what class of
+    /// file it is.
     AddFileIndicators,
-}
 
-impl Default for Classify {
-    fn default() -> Self {
-        Self::JustFilenames
-    }
+    // Like previous, but only when output is going to a terminal, not otherwise.
+    AutomaticAddFileIndicators,
 }
 
 /// When displaying a directory name, there needs to be some way to handle
@@ -146,9 +142,6 @@ pub struct FileName<'a, 'dir, C> {
 
     pub options: Options,
 
-    /// The filesystem details for a mounted filesystem.
-    mounted_fs: Option<&'a MountedFs>,
-
     /// How to handle displaying a mounted filesystem.
     mount_style: MountStyle,
 }
@@ -187,6 +180,12 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
             ShowIcons::Always(spaces_count) => Some(spaces_count),
             ShowIcons::Automatic(spaces_count) if self.options.is_a_tty => Some(spaces_count),
             _ => None,
+        };
+
+        let should_add_classify_char = match self.options.classify {
+            Classify::AddFileIndicators => true,
+            Classify::AutomaticAddFileIndicators if self.options.is_a_tty => true,
+            _ => false,
         };
 
         if let Some(spaces_count) = spaces_count_opt {
@@ -240,7 +239,6 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                             target: None,
                             link_style: LinkStyle::FullLinkPaths,
                             options: target_options,
-                            mounted_fs: None,
                             mount_style: MountStyle::JustDirectoryNames,
                         };
 
@@ -248,7 +246,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                             bits.push(bit);
                         }
 
-                        if let Classify::AddFileIndicators = self.options.classify {
+                        if should_add_classify_char {
                             if let Some(class) = self.classify_char(target) {
                                 bits.push(Style::default().paint(class));
                             }
@@ -274,21 +272,21 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                     // Do nothing — the error gets displayed on the next line
                 }
             }
-        } else if let Classify::AddFileIndicators = self.options.classify {
+        } else if should_add_classify_char {
             if let Some(class) = self.classify_char(self.file) {
                 bits.push(Style::default().paint(class));
             }
         }
 
-        if let (MountStyle::MountInfo, Some(mount_details)) =
-            (self.mount_style, self.mounted_fs.as_ref())
-        {
-            // This is a filesystem mounted on the directory, output its details
-            bits.push(Style::default().paint(" ["));
-            bits.push(Style::default().paint(mount_details.source.clone()));
-            bits.push(Style::default().paint(" ("));
-            bits.push(Style::default().paint(mount_details.fstype.clone()));
-            bits.push(Style::default().paint(")]"));
+        if self.mount_style == MountStyle::MountInfo {
+            if let Some(mount_details) = self.file.mount_point_info() {
+                // This is a filesystem mounted on the directory, output its details
+                bits.push(Style::default().paint(" ["));
+                bits.push(Style::default().paint(mount_details.source.clone()));
+                bits.push(Style::default().paint(" ("));
+                bits.push(Style::default().paint(mount_details.fstype.clone()));
+                bits.push(Style::default().paint(")]"));
+            }
         }
 
         bits.into()
