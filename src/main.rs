@@ -37,8 +37,7 @@ use nu_ansi_term::{AnsiStrings as ANSIStrings, Style};
 
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::{FileFilterFlags::OnlyFiles, GitIgnore};
-use crate::fs::{Archive, ArchiveEntry, Dir, File, Filelike};
-use crate::options::archive_inspection::ArchiveInspection;
+use crate::fs::{Archive, ArchiveEntry, ArchiveInspection, Dir, File, Filelike};
 use crate::options::stdin::FilesInput;
 use crate::options::{vars, Options, OptionsResult, Vars};
 use crate::output::{details, escape, file_name, grid, grid_details, lines, Mode, View};
@@ -301,7 +300,7 @@ impl<'args> Exa<'args> {
                     //       inspect only selected directories/files in archive?
                     //       => probably separate PR for that feature
                     Some(Err(e)) => writeln!(io::stderr(), "{file_path:?}: {e}")?,
-                    None => {},
+                    None => {}
                 }
             } else {
                 files.push(f);
@@ -567,7 +566,9 @@ impl<'args> Exa<'args> {
         }
 
         let recursing = self.options.dir_action.recurse_options().is_some();
-        self.options.filter.filter_child_files(recursing, &mut children);
+        self.options
+            .filter
+            .filter_child_files(recursing, &mut children);
         self.options.filter.sort_files(&mut children);
 
         if let Some(recurse_opts) = self.options.dir_action.recurse_options() {

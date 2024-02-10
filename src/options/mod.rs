@@ -78,7 +78,7 @@ use std::ffi::OsStr;
 
 use crate::fs::dir_action::DirAction;
 use crate::fs::filter::{FileFilter, GitIgnore};
-use crate::options::archive_inspection::ArchiveInspection;
+use crate::fs::ArchiveInspection;
 use crate::options::stdin::FilesInput;
 use crate::output::{details, grid_details, Mode, View};
 use crate::theme::Options as ThemeOptions;
@@ -105,7 +105,6 @@ pub mod vars;
 pub use self::vars::Vars;
 pub mod config;
 
-pub mod archive_inspection;
 pub mod stdin;
 mod version;
 

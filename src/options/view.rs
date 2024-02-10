@@ -7,6 +7,7 @@
 use std::ffi::OsString;
 
 use crate::fs::feature::xattr;
+use crate::fs::ArchiveInspection;
 use crate::options::parser::MatchedFlags;
 use crate::options::{flags, vars, NumberSource, OptionsError, Vars};
 use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};
@@ -517,6 +518,16 @@ impl ColorScaleOptions {
         }
 
         Ok(options)
+    }
+}
+
+impl ArchiveInspection {
+    pub fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
+        Ok(if matches.has(&flags::INSPECT_ARCHIVES)? {
+            ArchiveInspection::Always
+        } else {
+            ArchiveInspection::Never
+        })
     }
 }
 
