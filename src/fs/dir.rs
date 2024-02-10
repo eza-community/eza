@@ -6,6 +6,8 @@
 // SPDX-License-Identifier: MIT
 use crate::fs::feature::git::GitCache;
 use crate::fs::fields::GitStatus;
+#[cfg(windows)]
+use crate::fs::Filelike;
 use std::fs;
 use std::fs::DirEntry;
 use std::io;
