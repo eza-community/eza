@@ -310,8 +310,8 @@ impl<'args> Exa<'args> {
         if matches!(self.options.archive_inspection, ArchiveInspection::Always)
             && !self.options.dir_action.treat_dirs_as_files()
         {
-            for f in &files {
-                if let Some(archive) = f.to_archive() {
+            for f in files.iter().filter(|f| f.is_archive()) {
+                if let Ok(archive) = f.to_archive() {
                     archives.push(archive);
                 }
             }
@@ -400,8 +400,21 @@ impl<'args> Exa<'args> {
                             None => {}
                         }
                     }
+                    let mut child_archives = Vec::new();
+                    if matches!(self.options.archive_inspection, ArchiveInspection::Always)
+                        && !self.options.dir_action.treat_dirs_as_files()
+                    {
+                        for child_archive in children.iter().filter(|f| f.is_archive()) {
+                            if let Ok(archive) = child_archive.to_archive() {
+                                child_archives.push(archive);
+                            }
+                        }
+                    }
 
                     self.print_files(Some(&dir.path), children)?;
+                    for child_archive in child_archives {
+                        self.print_archive(&child_archive, &PathBuf::new())?;
+                    }
                     match self.print_dirs(child_dirs, false, false, exit_status) {
                         Ok(_) => (),
                         Err(e) => return Err(e),
@@ -472,6 +485,10 @@ impl<'args> Exa<'args> {
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
                 let git = self.git.as_ref();
                 let git_repos = self.git_repos;
+
+                let archive_inspection =
+                    matches!(self.options.archive_inspection, ArchiveInspection::Always);
+
                 let r = details::Render {
                     dir_path,
                     files,
@@ -483,6 +500,7 @@ impl<'args> Exa<'args> {
                     git_ignoring,
                     git,
                     git_repos,
+                    archive_inspection,
                 };
                 r.render(&mut self.writer)
             }
@@ -496,6 +514,9 @@ impl<'args> Exa<'args> {
                 let git = self.git.as_ref();
                 let git_repos = self.git_repos;
 
+                let archive_inspection =
+                    matches!(self.options.archive_inspection, ArchiveInspection::Always);
+
                 let r = grid_details::Render {
                     dir_path,
                     files,
@@ -508,6 +529,7 @@ impl<'args> Exa<'args> {
                     git,
                     console_width,
                     git_repos,
+                    archive_inspection,
                 };
                 r.render(&mut self.writer)
             }
@@ -520,6 +542,9 @@ impl<'args> Exa<'args> {
                 let git = self.git.as_ref();
                 let git_repos = self.git_repos;
 
+                let archive_inspection =
+                    matches!(self.options.archive_inspection, ArchiveInspection::Always);
+
                 let r = details::Render {
                     dir_path,
                     files,
@@ -531,6 +556,7 @@ impl<'args> Exa<'args> {
                     git_ignoring,
                     git,
                     git_repos,
+                    archive_inspection,
                 };
                 r.render(&mut self.writer)
             }

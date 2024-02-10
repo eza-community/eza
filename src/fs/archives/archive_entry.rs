@@ -12,7 +12,7 @@ use crate::fs::feature::xattr::Attribute;
 use crate::fs::fields as f;
 use crate::fs::file::FileTarget;
 use crate::fs::mounts::MountedFs;
-use crate::fs::{Dir, File, Filelike};
+use crate::fs::{Archive, Dir, File, Filelike};
 
 #[cfg(unix)]
 #[derive(Clone)]
@@ -73,6 +73,13 @@ impl Filelike for ArchiveEntry {
         None
     }
 
+    fn to_archive(&self) -> io::Result<Archive> {
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "Nested archive inspection not yet supported",
+        ))
+    }
+
     fn is_directory(&self) -> bool {
         self.is_directory
     }
@@ -81,6 +88,11 @@ impl Filelike for ArchiveEntry {
         // symlinks in archive will always be handled as broken links,
         // thus no link will ever be a directory
         self.is_directory
+    }
+
+    fn is_archive(&self) -> bool {
+        // nested archive inspection not yet supported
+        false
     }
 
     fn is_file(&self) -> bool {

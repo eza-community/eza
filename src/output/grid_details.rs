@@ -88,6 +88,9 @@ pub struct Render<'a, F: Filelike> {
     pub console_width: usize,
 
     pub git_repos: bool,
+
+    /// Whether to open and display content of archives.
+    pub archive_inspection: bool,
 }
 
 impl<'a, F: Filelike + GetStyle + std::marker::Sync> Render<'a, F> {
@@ -110,6 +113,7 @@ impl<'a, F: Filelike + GetStyle + std::marker::Sync> Render<'a, F> {
             git_ignoring:  self.git_ignoring,
             git:           self.git,
             git_repos:     self.git_repos,
+            archive_inspection: self.archive_inspection,
         };
     }
 
@@ -202,6 +206,7 @@ impl<'a, F: Filelike + GetStyle + std::marker::Sync> Render<'a, F> {
                     git_ignoring,
                     git,
                     git_repos,
+                    archive_inspection,
                     ..
                 } = self;
 
@@ -216,6 +221,7 @@ impl<'a, F: Filelike + GetStyle + std::marker::Sync> Render<'a, F> {
                     git_ignoring,
                     git,
                     git_repos,
+                    archive_inspection,
                 };
                 return r.render(w);
             }
