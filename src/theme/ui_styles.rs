@@ -3,11 +3,9 @@ use nu_ansi_term::Color::*;
 use nu_ansi_term::Style;
 use serde::{Deserialize, Serialize};
 use std::default::Default;
-use std::ffi::OsStr;
-use std::path::PathBuf;
 
 #[rustfmt::skip]
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub struct UiStyles {
     pub colourful: Option<bool>,
 
@@ -36,7 +34,6 @@ pub struct UiStyles {
     pub broken_path_overlay:  Option<Style>,  // bO
 }
 // Macro to generate .unwrap_or_default getters for each field to cut down boilerplate
-#[allow(clippy::new_without_default)]
 macro_rules! field_accessors {
     ($struct_name:ident, $($field_name:ident: Option<$type:ty>),*) => {
         impl $struct_name {
@@ -73,7 +70,7 @@ field_accessors!(UiStyles, punctuation: Option<Style>, date: Option<Style>, inod
     control_char: Option<Style>, broken_symlink: Option<Style>, broken_path_overlay: Option<Style>);
 
 #[rustfmt::skip]
-#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Eq, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct FileKinds {
     pub normal: Option<Style>,        // fi
     pub directory: Option<Style>,     // di
@@ -106,7 +103,7 @@ impl Default for FileKinds {
 field_accessors!(FileKinds, normal: Option<Style>, directory: Option<Style>, symlink: Option<Style>, pipe: Option<Style>, block_device: Option<Style>, char_device: Option<Style>, socket: Option<Style>, special: Option<Style>, executable: Option<Style>, mount_point: Option<Style>);
 
 #[rustfmt::skip]
-#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy,Eq, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Permissions {
     pub user_read:         Option<Style>,  // ur
     pub user_write:         Option<Style>,  // uw
@@ -129,7 +126,7 @@ pub struct Permissions {
 field_accessors!(Permissions, user_read: Option<Style>, user_write: Option<Style>, user_execute_file: Option<Style>, user_execute_other: Option<Style>, group_read: Option<Style>, group_write: Option<Style>, group_execute: Option<Style>, other_read: Option<Style>, other_write: Option<Style>, other_execute: Option<Style>, special_user_file: Option<Style>, special_other: Option<Style>, attribute: Option<Style>);
 
 #[rustfmt::skip]
-#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Eq, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Size {
     pub major: Option<Style>,        // df
     pub minor: Option<Style>,        // ds
@@ -149,7 +146,7 @@ pub struct Size {
 field_accessors!(Size, major: Option<Style>, minor: Option<Style>, number_byte: Option<Style>, number_kilo: Option<Style>, number_mega: Option<Style>, number_giga: Option<Style>, number_huge: Option<Style>, unit_byte: Option<Style>, unit_kilo: Option<Style>, unit_mega: Option<Style>, unit_giga: Option<Style>, unit_huge: Option<Style>);
 
 #[rustfmt::skip]
-#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug,Eq, Default, PartialEq, Serialize, Deserialize)]
 pub struct Users {
     pub user_you: Option<Style>,           // uu
     pub user_root: Option<Style>,          // uR
@@ -161,7 +158,7 @@ pub struct Users {
 field_accessors!(Users, user_you: Option<Style>, user_root: Option<Style>, user_other: Option<Style>, group_yours: Option<Style>, group_other: Option<Style>, group_root: Option<Style>);
 
 #[rustfmt::skip]
-#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, Default, PartialEq, Serialize, Deserialize)]
 pub struct Links {
     pub normal: Option<Style>,           // lc
     pub multi_link_file: Option<Style>,  // lm
@@ -169,7 +166,7 @@ pub struct Links {
 field_accessors!(Links, normal: Option<Style>, multi_link_file: Option<Style>);
 
 #[rustfmt::skip]
-#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug,Eq, PartialEq, Serialize, Deserialize)]
 pub struct Git {
     pub new: Option<Style>,         // ga
     pub modified: Option<Style>,    // gm
@@ -196,7 +193,7 @@ impl Default for Git {
 }
 
 #[rustfmt::skip]
-#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct GitRepo {
     pub branch_main: Option<Style>,  //Gm
     pub branch_other: Option<Style>, //Go
@@ -215,7 +212,7 @@ impl Default for GitRepo {
     }
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, Default, PartialEq, Serialize, Deserialize)]
 pub struct SELinuxContext {
     pub colon: Option<Style>,
     pub user: Option<Style>,  // Su
@@ -226,7 +223,7 @@ pub struct SELinuxContext {
 field_accessors!(SELinuxContext, colon: Option<Style>, user: Option<Style>, role: Option<Style>, typ: Option<Style>, range: Option<Style>);
 
 #[rustfmt::skip]
-#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Eq, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SecurityContext {
     pub none:    Option<Style>, // Sn
     pub selinux: Option<SELinuxContext>,
@@ -250,7 +247,7 @@ impl Default for SecurityContext {
 
 /// Drawing styles based on the type of file (video, image, compressed, etc)
 #[rustfmt::skip]
-#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, Default, PartialEq, Serialize, Deserialize)]
 pub struct FileType {
     pub image: Option<Style>,       // im - image file
     pub video: Option<Style>,       // vi - video file
@@ -270,46 +267,6 @@ impl UiStyles {
         Self::default()
     }
 
-    pub fn write_default_theme_file(path: Option<&OsStr>) -> std::io::Result<()> {
-        let default_path = std::env::var("EZA_CONFIG_DIR").map(|dir| PathBuf::from(&dir)).unwrap_or({
-             dirs::config_dir().unwrap_or_default().join("eza")
-        });
-        if let Ok(dir) = std::env::var("EZA_CONFIG_DIR") {
-            let dir = std::path::PathBuf::from(&dir);
-            if !dir.exists() {
-            std::fs::create_dir_all(dir)?;
-            }
-        }
-        if path.is_some_and(|path| std::path::PathBuf::from(path).is_dir()) {
-            let path = PathBuf::from(path.unwrap());
-            let path = path.join(PathBuf::from("default-theme.yml")); 
-            let file = std::fs::File::create(path)?;
-            serde_yaml::to_writer(file, &Self::default()).map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
-        } else {
-            let default_file = default_path.join("default-theme.yml");
-            let file = std::fs::File::create(default_file)?;
-            let default = Self::default();
-            serde_yaml::to_writer(file, &default).map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
-        }
-    }
-
-    pub fn from_yaml(file: Option<&str>) -> Self {
-        if let Some(file) = file {
-            let file = std::fs::File::open(file);
-            if let Err(e) = file {
-                eprintln!("Could not open theme file: {e}");
-                return Self::default();
-            }
-            let file = file.expect("Could not open theme file");
-            let theme: UiStyles = serde_yaml::from_reader(file).unwrap_or_else(|e| {
-                eprintln!("Could not parse theme file: {e}");
-                Self::default()
-            });
-            theme
-        } else {
-            Self::default()
-        }
-    }
 }
 
 impl UiStyles {
