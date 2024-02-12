@@ -310,8 +310,8 @@ impl<'args> Exa<'args> {
         if matches!(self.options.archive_inspection, ArchiveInspection::Always)
             && !self.options.dir_action.treat_dirs_as_files()
         {
-            for f in &files {
-                if let Some(archive) = f.to_archive() {
+            for f in files.iter().filter(|f| f.is_archive()) {
+                if let Ok(archive) = f.to_archive() {
                     archives.push(archive);
                 }
             }

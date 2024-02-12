@@ -359,11 +359,6 @@ impl<'dir> File<'dir> {
         }
     }
 
-    /// Interpret file as archive
-    pub fn to_archive(&self) -> Option<Archive> {
-        Archive::from_path(self.path.clone()).ok()
-    }
-
     /// Converts a `SystemTime` to a `NaiveDateTime` without panicking.
     ///
     /// Fixes #655 and #667 in `Self::modified_time`, `Self::accessed_time` and
@@ -412,6 +407,10 @@ impl<'dir> Filelike for File<'dir> {
     fn to_dir(&self) -> Option<io::Result<Dir>> {
         trace!("to_dir: reading dir");
         Some(Dir::read_dir(self.path.clone()))
+    }
+
+    fn to_archive(&self) -> Option<Archive> {
+        Archive::from_path(self.path.clone()).ok()
     }
 
     /// Get the extended attributes of a file path on demand.
