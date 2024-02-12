@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: MIT
 use std::io;
 use std::path::PathBuf;
+use std::sync::LazyLock;
 
 use chrono::NaiveDateTime;
 
@@ -18,6 +19,7 @@ use crate::fs::{Archive, Dir, File, Filelike};
 #[derive(Clone)]
 pub struct Owner {
     pub id: u64,
+    #[allow(dead_code)]
     pub name: Option<String>,
 }
 
@@ -40,6 +42,9 @@ pub struct ArchiveEntry {
     pub(super) ctime: Option<u64>,
 }
 
+static METADATA_ERROR: LazyLock<std::io::Error> =
+    LazyLock::new(|| std::io::Error::other("Archive has no metadata"));
+
 impl Filelike for ArchiveEntry {
     fn path(&self) -> &PathBuf {
         &self.path
@@ -61,8 +66,8 @@ impl Filelike for ArchiveEntry {
         &[]
     }
 
-    fn metadata(&self) -> Option<&std::fs::Metadata> {
-        None
+    fn metadata(&self) -> Result<&std::fs::Metadata, &std::io::Error> {
+        Err(&METADATA_ERROR)
     }
 
     fn parent_directory(&self) -> Option<&Dir> {
@@ -210,15 +215,15 @@ impl Filelike for ArchiveEntry {
     }
 
     fn modified_time(&self) -> Option<NaiveDateTime> {
-        NaiveDateTime::from_timestamp_opt(self.mtime? as i64, 0)
+        chrono::DateTime::from_timestamp(self.mtime? as i64, 0).map(|t| t.naive_local())
     }
 
     fn changed_time(&self) -> Option<NaiveDateTime> {
-        NaiveDateTime::from_timestamp_opt(self.ctime? as i64, 0)
+        chrono::DateTime::from_timestamp(self.ctime? as i64, 0).map(|t| t.naive_local())
     }
 
     fn accessed_time(&self) -> Option<NaiveDateTime> {
-        NaiveDateTime::from_timestamp_opt(self.atime? as i64, 0)
+        chrono::DateTime::from_timestamp(self.atime? as i64, 0).map(|t| t.naive_local())
     }
 
     fn created_time(&self) -> Option<NaiveDateTime> {

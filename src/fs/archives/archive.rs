@@ -9,7 +9,9 @@ use std::slice::Iter as SliceIter;
 
 use crate::fs::{File, Filelike};
 
-use super::{ArchiveEntry, ArchiveFormat, ArchiveReader, Error, TarReader};
+use super::{ArchiveEntry, ArchiveFormat, Error};
+#[cfg(feature = "archive-inspection")]
+use super::{ArchiveReader, TarReader};
 
 pub struct Archive {
     pub format: ArchiveFormat,
@@ -52,7 +54,13 @@ impl Archive {
         let format =
             ArchiveFormat::from_extension(extension.as_str()).unwrap_or(ArchiveFormat::Unknown);
         let contents = match format {
+            #[cfg(feature = "archive-inspection")]
             ArchiveFormat::Tar => TarReader::read_dir(&path),
+            #[cfg(not(feature = "archive-inspection"))]
+            ArchiveFormat::Tar => Err(io::Error::new(
+                io::ErrorKind::Unsupported,
+                "Archive inspection not supported",
+            )),
             ArchiveFormat::Unknown => {
                 return Err(io::Error::new(
                     io::ErrorKind::Unsupported,
