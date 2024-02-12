@@ -2,6 +2,7 @@ use nu_ansi_term::Style;
 
 use crate::fs::File;
 use crate::info::filetype::FileType;
+use crate::options::config::ThemeConfig;
 use crate::output::color_scale::ColorScaleOptions;
 use crate::output::file_name::Colours as FileNameColours;
 use crate::output::render;
@@ -21,6 +22,8 @@ pub struct Options {
     pub colour_scale: ColorScaleOptions,
 
     pub definitions: Definitions,
+
+    pub theme_config: ThemeConfig,
 }
 
 /// Under what circumstances we should display coloured, rather than plain,
@@ -55,27 +58,29 @@ pub struct Theme {
 
 impl Options {
     pub fn to_theme(&self, isatty: bool) -> Theme {
+        // If the user has explicitly turned off colours, or if we’re not
+        // outputting to a terminal, then we don’t want to use them.
         if self.use_colours == UseColours::Never
             || (self.use_colours == UseColours::Automatic && !isatty)
         {
             let ui = UiStyles::plain();
             let exts = Box::new(NoFileStyle);
-            return Theme { ui, exts };
+            Theme { ui, exts }
+        } else {
+            Theme {
+                ui: self.theme_config.theme.clone(),
+                exts: Box::new(FileTypes),
+            }
         }
-
-        // Parse the environment variables into colours and extension mappings
-        let mut ui = UiStyles::default_theme(self.colour_scale);
-        let (exts, use_default_filetypes) = self.definitions.parse_color_vars(&mut ui);
-
-        // Use between 0 and 2 file name highlighters
-        let exts: Box<dyn FileStyle> = match (exts.is_non_empty(), use_default_filetypes) {
-            (false, false) => Box::new(NoFileStyle),
-            (false, true) => Box::new(FileTypes),
-            (true, false) => Box::new(exts),
-            (true, true) => Box::new((exts, FileTypes)),
-        };
-
-        Theme { ui, exts }
+        //     // Use between 0 and 2 file name highlighters
+        //     let exts: Box<dyn FileStyle> = match (exts.is_non_empty(), use_default_filetypes) {
+        //         (false, false) => Box::new(NoFileStyle),
+        //         (false, true) => Box::new(FileTypes),
+        //         (true, false) => Box::new(exts),
+        //         (true, true) => Box::new((exts, FileTypes)),
+        //     };
+        //
+        //     Theme { ui, exts }
     }
 }
 
@@ -264,7 +269,7 @@ impl render::FiletypeColours for Theme {
 
 #[rustfmt::skip]
 impl render::GitColours for Theme {
-    fn not_modified(&self)  -> Style { self.ui.punctuation.unwrap_or_default() }
+    fn not_modified(&self)  -> Style { self.ui.punctuation() }
     #[allow(clippy::new_ret_no_self)]
     fn new(&self)           -> Style { self.ui.git.unwrap_or_default().new() }
     fn modified(&self)      -> Style { self.ui.git.unwrap_or_default().modified() }
@@ -277,11 +282,11 @@ impl render::GitColours for Theme {
 
 #[rustfmt::skip]
 impl render::GitRepoColours for Theme {
-    fn branch_main(&self)  -> Style { self.ui.git_repo.unwrap_or_default().branch_main.unwrap_or_default() }
-    fn branch_other(&self) -> Style { self.ui.git_repo.unwrap_or_default().branch_other.unwrap_or_default() }
-    fn no_repo(&self)      -> Style { self.ui.punctuation.unwrap_or_default() }
-    fn git_clean(&self)    -> Style { self.ui.git_repo.unwrap_or_default().git_clean.unwrap_or_default() }
-    fn git_dirty(&self)    -> Style { self.ui.git_repo.unwrap_or_default().git_dirty.unwrap_or_default() }
+    fn branch_main(&self)  -> Style { self.ui.git_repo.unwrap_or_default().branch_main() }
+    fn branch_other(&self) -> Style { self.ui.git_repo.unwrap_or_default().branch_other() }
+    fn no_repo(&self)      -> Style { self.ui.punctuation() }
+    fn git_clean(&self)    -> Style { self.ui.git_repo.unwrap_or_default().git_clean() }
+    fn git_dirty(&self)    -> Style { self.ui.git_repo.unwrap_or_default().git_dirty() }
 }
 
 #[rustfmt::skip]
