@@ -87,6 +87,7 @@ pub static SECURITY_CONTEXT:  Arg = Arg { short: Some(b'Z'), long: "context",   
 pub static STDIN:             Arg = Arg { short: None,       long: "stdin",                takes_value: TakesValue::Forbidden };
 pub static FILE_FLAGS:        Arg = Arg { short: Some(b'O'), long: "flags",                takes_value: TakesValue::Forbidden };
 pub static WRITE_THEME:       Arg = Arg { short: None,       long: "write-theme",          takes_value: TakesValue::Optional(None, ".")};
+pub static THEME:             Arg = Arg { short: None,       long: "theme",                takes_value: TakesValue::Optional(None, ".")};
 pub static ALL_ARGS: Args = Args(&[
     &VERSION, &HELP,
 
@@ -102,5 +103,5 @@ pub static ALL_ARGS: Args = Args(&[
     &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &SMART_GROUP, &NO_SYMLINKS, &SHOW_SYMLINKS,
 
     &GIT, &NO_GIT, &GIT_REPOS, &GIT_REPOS_NO_STAT,
-    &EXTENDED, &OCTAL, &SECURITY_CONTEXT, &STDIN, &FILE_FLAGS, &WRITE_THEME
+    &EXTENDED, &OCTAL, &SECURITY_CONTEXT, &STDIN, &FILE_FLAGS, &WRITE_THEME, &THEME
 ]);
