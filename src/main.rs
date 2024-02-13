@@ -401,8 +401,8 @@ impl<'args> Exa<'args> {
                         }
                     }
                     let mut child_archives = Vec::new();
-                    for child_archive in children.iter().filter(|f| f.to_archive().is_some()) {
-                        if let Some(archive) = child_archive.to_archive() {
+                    for child_archive in children.iter().filter(|f| f.is_archive()) {
+                        if let Ok(archive) = child_archive.to_archive() {
                             child_archives.push(archive);
                         }
                     }
