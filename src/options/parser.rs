@@ -110,7 +110,7 @@ pub struct Opts {
     #[arg(short = 'S', long)]
     pub blocksize: bool,
     /// which timestamp field to list (modified, accessed, created).
-    #[arg(short = 't')]
+    #[arg(short = 't', long)]
     pub time: Option<OsString>,
     /// use the accessed timestamp field.
     #[arg(short = 'u', long)]
@@ -166,7 +166,7 @@ pub struct Opts {
     #[arg(short = 'M', long)]
     pub mounts: bool,
     /// Show only files
-    #[arg(short = 'f')]
+    #[arg(short = 'f', long)]
     pub only_files: bool,
     /// Don't Show quotes
     #[arg(long)]

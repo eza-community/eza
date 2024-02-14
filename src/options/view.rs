@@ -416,13 +416,13 @@ impl ColorScaleOptions {
             ColorScaleArgs::All => {
                 options.size = true;
                 options.age = true;
-            },
+            }
             ColorScaleArgs::Age => {
                 options.age = true;
-            },
+            }
             ColorScaleArgs::Size => {
                 options.size = true;
-            },
+            }
         }
 
         Ok(options)
@@ -432,8 +432,8 @@ impl ColorScaleOptions {
 #[cfg(test)]
 mod tests {
     use crate::options::{parser::ColorScaleArgs, vars::MockVars};
-    use std::num::ParseIntError;
     use std::ffi::OsString;
+    use std::num::ParseIntError;
 
     use super::*;
 
