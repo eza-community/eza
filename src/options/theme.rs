@@ -1,5 +1,5 @@
 use crate::options::parser::{Opts, ShowWhen};
-use crate::options::{vars, OptionsError, Vars};
+use crate::options::{vars, Vars};
 use crate::output::color_scale::ColorScaleOptions;
 use crate::theme::{Definitions, Options, UseColours};
 use std::path::PathBuf;
@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use super::config::ThemeConfig;
 
 impl Options {
-    pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
+    pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Self {
         let use_colours = UseColours::deduce(matches, vars);
         let colour_scale = ColorScaleOptions::deduce(matches, vars)?;
         let theme_config = ThemeConfig::deduce(vars);
@@ -18,12 +18,12 @@ impl Options {
             Definitions::deduce(vars)
         };
 
-        Ok(Self {
+        Self {
             use_colours,
             colour_scale,
             definitions,
             theme_config,
-        })
+        }
     }
 }
 
