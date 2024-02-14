@@ -1,12 +1,12 @@
 use crate::options::parser::{Opts, ShowWhen};
-use crate::options::{vars, OptionsError, Vars};
+use crate::options::{vars, Vars};
 use crate::output::color_scale::ColorScaleOptions;
 use crate::theme::{Definitions, Options, UseColours};
 
 impl Options {
-    pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
+    pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Self {
         let use_colours = UseColours::deduce(matches, vars);
-        let colour_scale = ColorScaleOptions::deduce(matches, vars)?;
+        let colour_scale = ColorScaleOptions::deduce(matches, vars);
 
         let definitions = if use_colours == UseColours::Never {
             Definitions::default()
@@ -14,11 +14,11 @@ impl Options {
             Definitions::deduce(vars)
         };
 
-        Ok(Self {
+        Self {
             use_colours,
             colour_scale,
             definitions,
-        })
+        }
     }
 }
 

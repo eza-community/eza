@@ -4,6 +4,7 @@ use std::ffi::OsString;
 
 use crate::output::time::TimeFormat;
 
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Default, Parser)]
 #[command(author, version, about, long_about)] // Read from `Cargo.toml`
 #[clap(disable_help_flag = true, args_override_self = true)]

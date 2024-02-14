@@ -156,7 +156,7 @@ impl Options {
         let view = View::deduce(matches, vars, strict)?;
         let dir_action = DirAction::deduce(matches, matches!(view.mode, Mode::Details(_)), strict)?;
         let filter = FileFilter::deduce(matches, strict)?;
-        let theme = ThemeOptions::deduce(matches, vars)?;
+        let theme = ThemeOptions::deduce(matches, vars);
         let stdin = FilesInput::deduce(matches, vars);
 
         Ok(Self {

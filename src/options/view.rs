@@ -74,7 +74,7 @@ impl Mode {
         }
 
         if matches.tree {
-            let details = details::Options::deduce_tree(matches, vars)?;
+            let details = details::Options::deduce_tree(matches, vars);
             return Ok(Self::Details(details));
         }
 
@@ -126,17 +126,15 @@ impl grid::Options {
 }
 
 impl details::Options {
-    fn deduce_tree<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
-        let details = details::Options {
+    fn deduce_tree<V: Vars>(matches: &Opts, vars: &V) -> Self {
+        details::Options {
             table: None,
             header: false,
             xattr: xattr::ENABLED && matches.extended,
             secattr: xattr::ENABLED && matches.security_context,
             mounts: matches.mounts,
-            color_scale: ColorScaleOptions::deduce(matches, vars)?,
-        };
-
-        Ok(details)
+            color_scale: ColorScaleOptions::deduce(matches, vars),
+        }
     }
 
     fn deduce_long<V: Vars>(matches: &Opts, vars: &V, strict: bool) -> Result<Self, OptionsError> {
@@ -154,7 +152,7 @@ impl details::Options {
             xattr: xattr::ENABLED && matches.extended,
             secattr: xattr::ENABLED && matches.security_context,
             mounts: matches.mounts,
-            color_scale: ColorScaleOptions::deduce(matches, vars)?,
+            color_scale: ColorScaleOptions::deduce(matches, vars),
         })
     }
 }
@@ -386,7 +384,7 @@ impl TimeTypes {
 }
 
 impl ColorScaleOptions {
-    pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Result<Self, OptionsError> {
+    pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Self {
         let min_luminance =
             match vars.get_with_fallback(vars::EZA_MIN_LUMINANCE, vars::EXA_MIN_LUMINANCE) {
                 Some(var) => match var.to_string_lossy().parse() {
@@ -409,7 +407,7 @@ impl ColorScaleOptions {
         };
 
         let Some(words) = &matches.color_scale else {
-            return Ok(options);
+            return options;
         };
 
         match words {
@@ -425,7 +423,7 @@ impl ColorScaleOptions {
             }
         }
 
-        Ok(options)
+        options
     }
 }
 
@@ -851,12 +849,12 @@ mod tests {
 
         assert_eq!(
             ColorScaleOptions::deduce(&options, &vars),
-            Ok(ColorScaleOptions {
+            ColorScaleOptions {
                 mode: ColorScaleMode::Gradient,
                 min_luminance: 40,
                 size: true,
                 age: true,
-            })
+            }
         );
     }
 
@@ -875,12 +873,12 @@ mod tests {
 
         assert_eq!(
             ColorScaleOptions::deduce(&options, &vars),
-            Ok(ColorScaleOptions {
+            ColorScaleOptions {
                 mode: ColorScaleMode::Gradient,
                 min_luminance: 60,
                 size: true,
                 age: false,
-            })
+            }
         );
     }
 
@@ -900,12 +898,12 @@ mod tests {
 
         assert_eq!(
             ColorScaleOptions::deduce(&options, &vars),
-            Ok(ColorScaleOptions {
+            ColorScaleOptions {
                 mode: ColorScaleMode::Fixed,
                 min_luminance: 60,
                 size: false,
                 age: true,
-            })
+            }
         );
     }
 
@@ -925,12 +923,12 @@ mod tests {
 
         assert_eq!(
             ColorScaleOptions::deduce(&options, &vars),
-            Ok(ColorScaleOptions {
+            ColorScaleOptions {
                 mode: ColorScaleMode::Fixed,
                 min_luminance: 99,
                 size: true,
                 age: true,
-            })
+            }
         );
     }
 
@@ -981,14 +979,14 @@ mod tests {
 
         assert_eq!(
             details::Options::deduce_tree(&options, &vars),
-            Ok(details::Options {
+            details::Options {
                 table: None,
                 header: false,
                 xattr: xattr::ENABLED && options.extended,
                 secattr: xattr::ENABLED && options.security_context,
                 mounts: options.mounts,
-                color_scale: ColorScaleOptions::deduce(&options, &vars).unwrap(),
-            })
+                color_scale: ColorScaleOptions::deduce(&options, &vars),
+            }
         );
     }
 
@@ -1006,14 +1004,14 @@ mod tests {
 
         assert_eq!(
             details::Options::deduce_tree(&options, &vars),
-            Ok(details::Options {
+            details::Options {
                 table: None,
                 header: false,
                 xattr: false,
                 secattr: false,
                 mounts: true,
-                color_scale: ColorScaleOptions::deduce(&options, &vars).unwrap(),
-            })
+                color_scale: ColorScaleOptions::deduce(&options, &vars),
+            }
         );
     }
 
@@ -1031,14 +1029,14 @@ mod tests {
 
         assert_eq!(
             details::Options::deduce_tree(&options, &vars),
-            Ok(details::Options {
+            details::Options {
                 table: None,
                 header: false,
                 xattr: xattr::ENABLED && options.extended,
                 secattr: xattr::ENABLED && options.security_context,
                 mounts: false,
-                color_scale: ColorScaleOptions::deduce(&options, &vars).unwrap(),
-            })
+                color_scale: ColorScaleOptions::deduce(&options, &vars),
+            }
         );
     }
 
@@ -1056,14 +1054,14 @@ mod tests {
 
         assert_eq!(
             details::Options::deduce_tree(&options, &vars),
-            Ok(details::Options {
+            details::Options {
                 table: None,
                 header: false,
                 xattr: xattr::ENABLED && options.extended,
                 secattr: xattr::ENABLED && options.security_context,
                 mounts: false,
-                color_scale: ColorScaleOptions::deduce(&options, &vars).unwrap(),
-            })
+                color_scale: ColorScaleOptions::deduce(&options, &vars),
+            }
         );
     }
 
