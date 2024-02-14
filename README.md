@@ -67,6 +67,16 @@ specific installation instructions can be found in [INSTALL.md](INSTALL.md).
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/eza.svg)](https://repology.org/project/eza/versions)
 
+# Themes
+
+If you wish to make or use a custom theme, you can find the default theme.yml file [here](.themes/default-theme.yml). Currently by default, `eza` will look for a file named `theme.yml` in `$XDG_CONFIG_HOME/eza` (`$HOME/.config/eza` on a unix based OS), or in the value of the `$EZA_CONFIG_DIR` if it is set. `Eza` will use as the theme file by default, if it cannot find a theme file, it will use the default theme. Previous methods of setting the theme are still supported (`EXA_COLORS` & `LS_COLORS`), but only as a fallback if no `theme.yml` file is found.
+
+NOTE: __Presently__, you must be sure to rename your file to `theme.yml`, including the provided default theme, when placing it in the chosen directory. 
+
+#### Contributing a Theme:
+
+This is a brand new feature, and with everything so highly customizable, we highly encourage you to make your own themes and share them with the community! If you would like to contribute a theme, please open a pull request with your theme file added to the `themes` directory with a descriptive name. More requested configuration options will be coming soon, like custom Icons and more.
+
 ---
 
 Click sections to expand.
@@ -78,8 +88,7 @@ Click sections to expand.
 <h1>Command-line options</h1>
 </a>
 
-eza’s options are almost, but not quite, entirely unlike `ls`’s.
-
+eza’s options are almost, but not quite, entirely unlike `ls`’s. 
 ### Display options
 
 - **-1**, **--oneline**: display one entry per line

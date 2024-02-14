@@ -1,15 +1,18 @@
+use std::path::PathBuf;
+
 use crate::options::parser::MatchedFlags;
 use crate::options::{flags, vars, OptionsError, Vars};
 use crate::output::color_scale::ColorScaleOptions;
 use crate::theme::{Definitions, Options, UseColours};
 
-use super::config::ThemeConfig;
+use super::config::{ConfigLoc, ThemeConfig};
 
 impl Options {
     pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
         let use_colours = UseColours::deduce(matches, vars)?;
         let colour_scale = ColorScaleOptions::deduce(matches, vars)?;
-        let theme_config = ThemeConfig::deduce(matches, vars, colour_scale)?;
+        let theme_config = ThemeConfig::deduce(vars)?;
+
         let definitions = if use_colours == UseColours::Never {
             Definitions::default()
         } else {
@@ -25,6 +28,33 @@ impl Options {
     }
 }
 
+impl ThemeConfig {
+    fn deduce<V: Vars>(vars: &V) -> Result<Option<Self>, OptionsError> {
+        if let Some(path) = vars.get("EZA_CONFIG_DIR") {
+            let path = PathBuf::from(path);
+            let path = path.join("theme.yml");
+            if path.exists() {
+                Ok(Some(ThemeConfig {
+                    location: ConfigLoc::Env(path),
+                }))
+            } else {
+                Err(OptionsError::ThemeLocation(
+                    path.to_string_lossy().to_string(),
+                ))
+            }
+        } else {
+            let path = dirs::config_dir().unwrap_or_default();
+            let path = path.join("eza").join("theme.yml");
+            if path.exists() {
+                Ok(Some(ThemeConfig {
+                    location: ConfigLoc::Default,
+                }))
+            } else {
+                Ok(None)
+            }
+        }
+    }
+}
 impl UseColours {
     fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
         let default_value = match vars.get(vars::NO_COLOR) {
