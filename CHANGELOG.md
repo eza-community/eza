@@ -1,10 +1,32 @@
 # Changelog
 
+## [0.18.3] - 2024-02-15
+
+### Bug Fixes
+
+- Duplicates in shell completions
+
+### Documentation
+
+- Add target arch to deb PPA installation for strict apt environments
+
+### Performance
+
+- Do not pre-compute MountInfo to reduce readlink calls
+
+### Refactor
+
+- Use #[default] attribute instead of custom impl for enums
+
 ## [0.18.2] - 2024-02-08
 
 ### Bug Fixes
 
 - Update libgit2 to 1.7.2
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.2
 
 ## [0.18.1] - 2024-02-08
 
