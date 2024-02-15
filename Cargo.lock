@@ -1147,6 +1147,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "textwrap"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "222a222a5bfe1bba4a77b45ec488a741b3cb8872e5e499451fd7d0129c9c7c3d"
+dependencies = [
+ "unicode-width",
+]
+
+[[package]]
 name = "thiserror"
 version = "1.0.48"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1314,11 +1323,11 @@ checksum = "711b9620af191e0cdc7468a8d14e709c3dcdb115b36f838e601583af800a370a"
 
 [[package]]
 name = "uutils_term_grid"
-version = "0.3.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b389452a568698688dda38802068378a16c15c4af9b153cdd99b65391292bbc7"
+checksum = "4b2f8e0ea36d36ced3a237fde029343f2515993a9f2d9dc8b19ad2292a7df676"
 dependencies = [
- "unicode-width",
+ "textwrap",
 ]
 
 [[package]]
