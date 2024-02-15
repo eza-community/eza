@@ -377,7 +377,7 @@ dependencies = [
 
 [[package]]
 name = "eza"
-version = "0.18.2"
+version = "0.18.3"
 dependencies = [
  "ansiterm",
  "chrono",
