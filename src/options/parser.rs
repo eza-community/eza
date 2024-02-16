@@ -295,11 +295,28 @@ impl TypedValueParser for TimeFormatParser {
                     //   - there is nothing after `+`
                     // line 1 will be empty when:
                     //   - `+` is followed immediately by `\n`
-                    let empty_non_recent_format_msg = "Custom timestamp format is empty, \
-                    please supply a chrono format string after the plus sign.";
-                    let non_recent = lines.next().expect(empty_non_recent_format_msg);
+                    let non_recent = match lines.next() {
+                        Some(s) => s,
+                        None => {
+                            return Err(Error::raw(
+                                clap::error::ErrorKind::InvalidValue,
+                                format!(
+                                    "Invalid custom timestamp format: {fmt}.\n\
+        Please start the format with a plus sign (+) to indicate a custom format.\n\
+        For example: +\"%Y-%m-%d %H:%M:%S\"",
+                                ),
+                            ))
+                        }
+                    };
                     let non_recent = if non_recent.is_empty() {
-                        panic!("{}", empty_non_recent_format_msg)
+                        return Err(Error::raw(
+                            clap::error::ErrorKind::InvalidValue,
+                            format!(
+                                "Invalid custom timestamp format: {fmt}.\n\
+        Please start the format with a plus sign (+) to indicate a custom format.\n\
+        For example: +\"%Y-%m-%d %H:%M:%S\"",
+                            ),
+                        ));
                     } else {
                         non_recent
                     };
