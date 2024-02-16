@@ -1,5 +1,5 @@
 pub use clap::Parser;
-use clap::ValueEnum;
+use clap::{builder::TypedValueParser, Arg, Command, Error, ValueEnum};
 use std::ffi::OsString;
 
 use crate::output::time::TimeFormat;
@@ -120,7 +120,7 @@ pub struct Opts {
     #[arg(short = 'U', long)]
     pub created: bool,
     /// how to format timestamps (default, iso, long-iso, full-iso, relative).
-    #[arg(long, value_enum, default_value = TimeFormat::DefaultFormat, default_missing_value = "default", num_args = 0..=1, require_equals = false)]
+    #[arg(long, value_enum, default_value = TimeFormat::DefaultFormat, default_missing_value = "default", num_args = 0..=1, require_equals = false, value_parser = TimeFormatParser)]
     pub time_style: Option<TimeFormat>,
     /// display entries as hyperlinks.
     #[arg(long)]
@@ -266,6 +266,74 @@ impl ValueEnum for ColorScaleArgs {
             "age" => Ok(ColorScaleArgs::Age),
             "size" => Ok(ColorScaleArgs::Size),
             _ => Err(format!("Unknown color-scale value: {s}")),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+struct TimeFormatParser;
+impl TypedValueParser for TimeFormatParser {
+    type Value = TimeFormat;
+
+    fn parse_ref(
+        &self,
+        _cmd: &Command,
+        _arg: Option<&Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, Error> {
+        match value.to_str().unwrap() {
+            "default" => Ok(TimeFormat::DefaultFormat),
+            "iso" => Ok(TimeFormat::ISOFormat),
+            "long-iso" => Ok(TimeFormat::LongISO),
+            "full-iso" => Ok(TimeFormat::FullISO),
+            "relative" => Ok(TimeFormat::Relative),
+            fmt => {
+                if fmt.starts_with('+') {
+                    let mut lines = fmt.strip_prefix('+').unwrap().lines();
+
+                    // line 1 will be None when:
+                    //   - there is nothing after `+`
+                    // line 1 will be empty when:
+                    //   - `+` is followed immediately by `\n`
+                    let empty_non_recent_format_msg = "Custom timestamp format is empty, \
+                    please supply a chrono format string after the plus sign.";
+                    let non_recent = lines.next().expect(empty_non_recent_format_msg);
+                    let non_recent = if non_recent.is_empty() {
+                        panic!("{}", empty_non_recent_format_msg)
+                    } else {
+                        non_recent
+                    };
+
+                    // line 2 will be None when:
+                    //   - there is not a single `\n`
+                    //   - there is nothing after the first `\n`
+                    // line 2 will be empty when:
+                    //   - there exist at least 2 `\n`, and no content between the 1st and 2nd `\n`
+                    let empty_recent_format_msg =
+                        "Custom timestamp format for recent files is empty, \
+                    please supply a chrono format string at the second line.";
+                    let recent = lines.next().map(|rec| {
+                        if rec.is_empty() {
+                            panic!("{}", empty_recent_format_msg)
+                        } else {
+                            String::from(rec)
+                        }
+                    });
+                    Ok(TimeFormat::Custom {
+                        non_recent: Some(String::from(non_recent)),
+                        recent,
+                    })
+                } else {
+                    Err(Error::raw(
+                        clap::error::ErrorKind::InvalidValue,
+                        format!(
+                            "Invalid custom timestamp format: {fmt}.\n\
+        Please start the format with a plus sign (+) to indicate a custom format.\n\
+        For example: +\"%Y-%m-%d %H:%M:%S\"",
+                        ),
+                    ))
+                }
+            }
         }
     }
 }
