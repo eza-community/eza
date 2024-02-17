@@ -289,9 +289,8 @@ impl TypedValueParser for TimeFormatParser {
                     //   - there is nothing after `+`
                     // line 1 will be empty when:
                     //   - `+` is followed immediately by `\n`
-                    let non_recent = match lines.next() {
-                        Some(s) => s,
-                        None => {
+                    let Some(non_recent) = lines.next() else
+                        {
                             return Err(Error::raw(
                                 clap::error::ErrorKind::InvalidValue,
                                 format!(
@@ -300,8 +299,7 @@ impl TypedValueParser for TimeFormatParser {
         For example: +\"%Y-%m-%d %H:%M:%S\"",
                                 ),
                             ))
-                        }
-                    };
+                        };
                     let non_recent = if non_recent.is_empty() {
                         return Err(Error::raw(
                             clap::error::ErrorKind::InvalidValue,
