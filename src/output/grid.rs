@@ -48,15 +48,17 @@ impl<'a> Render<'a> {
             let filename = self.file_style.for_file(file, self.theme);
 
             // Calculate classification width
-            let classification_width =
-                if let Classify::AddFileIndicators = filename.options.classify {
-                    match filename.classify_char(file) {
-                        Some(s) => s.len(),
-                        None => 0,
-                    }
-                } else {
-                    0
-                };
+            let classification_width = if matches!(
+                filename.options.classify,
+                Classify::AddFileIndicators | Classify::AutomaticAddFileIndicators
+            ) {
+                match filename.classify_char(file) {
+                    Some(s) => s.len(),
+                    None => 0,
+                }
+            } else {
+                0
+            };
             let space_filename_offset = match self.file_style.quote_style {
                 QuoteStyle::QuoteSpaces if file.name.contains(' ') => 2,
                 QuoteStyle::NoQuotes => 0,
