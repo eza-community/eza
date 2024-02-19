@@ -158,7 +158,13 @@ impl TextCellContents {
     pub fn width(&self) -> DisplayWidth {
         self.0
             .iter()
-            .map(|anstr| DisplayWidth::from(&**anstr))
+            .map(|anstr| {
+                if anstr.contains('\u{1b}') {
+                    DisplayWidth::from(0)
+                } else {
+                    DisplayWidth::from(&**anstr)
+                }
+            })
             .sum()
     }
 
