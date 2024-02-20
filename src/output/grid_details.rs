@@ -2,29 +2,20 @@
 
 use std::io::{self, Write};
 
-use ansiterm::ANSIStrings;
-use term_grid as grid;
+use term_grid::{Direction, Filling, Grid, GridOptions};
 
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::FileFilter;
 use crate::fs::{Dir, File};
-use crate::output::cell::{DisplayWidth, TextCell};
+use crate::output::cell::TextCell;
 use crate::output::color_scale::ColorScaleInformation;
-use crate::output::details::{
-    Options as DetailsOptions, Render as DetailsRender, Row as DetailsRow,
-};
+use crate::output::details::{Options as DetailsOptions, Render as DetailsRender};
 use crate::output::file_name::Options as FileStyle;
-use crate::output::file_name::{EmbedHyperlinks, ShowIcons};
-use crate::output::grid::Options as GridOptions;
-use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
-use crate::output::tree::{TreeDepth, TreeParams};
+use crate::output::table::{Options as TableOptions, Table};
 use crate::theme::Theme;
-
-use super::file_name::QuoteStyle;
 
 #[derive(PartialEq, Eq, Debug)]
 pub struct Options {
-    pub grid: GridOptions,
     pub details: DetailsOptions,
     pub row_threshold: RowThreshold,
 }
@@ -66,9 +57,6 @@ pub struct Render<'a> {
 
     /// How to format filenames.
     pub file_style: &'a FileStyle,
-
-    /// The grid part of the grid-details view.
-    pub grid: &'a GridOptions,
 
     /// The details part of the grid-details view.
     pub details: &'a DetailsOptions,
@@ -115,38 +103,10 @@ impl<'a> Render<'a> {
         };
     }
 
-    /// Create a Details render for when this grid-details render doesn’t fit
-    /// in the terminal (or something has gone wrong) and we have given up, or
-    /// when the user asked for a grid-details view but the terminal width is
-    /// not available, so we downgrade.
-    pub fn give_up(self) -> DetailsRender<'a> {
-        #[rustfmt::skip]
-        return DetailsRender {
-            dir:           self.dir,
-            files:         self.files,
-            theme:         self.theme,
-            file_style:    self.file_style,
-            opts:          self.details,
-            recurse:       None,
-            filter:        self.filter,
-            git_ignoring:  self.git_ignoring,
-            git:           self.git,
-            git_repos:     self.git_repos,
-        };
-    }
-
     // This doesn’t take an IgnoreCache even though the details one does
     // because grid-details has no tree view.
 
     pub fn render<W: Write>(mut self, w: &mut W) -> io::Result<()> {
-        if let Some((grid, width)) = self.find_fitting_grid() {
-            write!(w, "{}", grid.fit_into_columns(width))
-        } else {
-            self.give_up().render(w)
-        }
-    }
-
-    pub fn find_fitting_grid(&mut self) -> Option<(grid::Grid, grid::Width)> {
         let options = self
             .details
             .table
@@ -164,103 +124,79 @@ impl<'a> Render<'a> {
             None,
         );
 
-        let (first_table, _) = self.make_table(options, &drender);
+        let mut table = self.make_table(options);
 
-        let rows = self
+        // It is important to collect all these rows _before_ turning them into
+        // cells, because the width calculations need to consider all rows
+        // before each row is turned into a string.
+        let rows: Vec<_> = self
             .files
             .iter()
             .map(|file| {
-                first_table.row_for_file(file, drender.show_xattr_hint(file), color_scale_info)
+                let row = table.row_for_file(file, drender.show_xattr_hint(file), color_scale_info);
+                table.add_widths(&row);
+                row
             })
-            .collect::<Vec<_>>();
+            .collect();
 
-        let file_names = self
-            .files
-            .iter()
-            .map(|file| {
-                let filename = self.file_style.for_file(file, self.theme);
-                let contents = filename.paint();
-                let space_filename_offset = match self.file_style.quote_style {
-                    QuoteStyle::QuoteSpaces if file.name.contains(' ') => 2,
-                    QuoteStyle::NoQuotes => 0,
-                    QuoteStyle::QuoteSpaces => 0, // Default case
-                };
-                let width = match (
-                    filename.options.embed_hyperlinks,
-                    filename.options.show_icons,
-                ) {
-                    (EmbedHyperlinks::On, ShowIcons::Automatic(spacing)) => {
-                        filename.bare_utf8_width() + 1 + (spacing as usize) + space_filename_offset
-                    }
-                    (EmbedHyperlinks::On, ShowIcons::Always(spacing)) => {
-                        filename.bare_utf8_width() + 1 + (spacing as usize) + space_filename_offset
-                    }
-                    (EmbedHyperlinks::On, ShowIcons::Never) => {
-                        filename.bare_utf8_width() + space_filename_offset
-                    }
-                    (EmbedHyperlinks::Off, _) => *contents.width(),
-                };
+        let cells = rows
+            .into_iter()
+            .zip(self.files)
+            .map(|(row, file)| {
+                let filename = self
+                    .file_style
+                    .for_file(&file, self.theme)
+                    .paint()
+                    .strings()
+                    .to_string();
+                let details = table.render(row).strings().to_string();
 
-                TextCell {
-                    contents,
-                    // with hyperlink escape sequences,
-                    // the actual *contents.width() is larger than actually needed, so we take only the filename
-                    width: DisplayWidth::from(width),
-                }
-            })
-            .collect::<Vec<_>>();
-
-        let mut last_working_grid = self.make_grid(1, options, &file_names, rows.clone(), &drender);
-
-        if file_names.len() == 1 {
-            return Some((last_working_grid, 1));
-        }
-
-        // If we can’t fit everything in a grid 100 columns wide, then
-        // something has gone seriously awry
-        for column_count in 2..100 {
-            let grid = self.make_grid(column_count, options, &file_names, rows.clone(), &drender);
-
-            let the_grid_fits = {
-                let d = grid.fit_into_columns(column_count);
-                d.width() <= self.console_width
-            };
-
-            if the_grid_fits {
-                last_working_grid = grid;
-            }
-
-            if !the_grid_fits || column_count == file_names.len() {
-                let last_column_count = if the_grid_fits {
-                    column_count
+                // This bit fixes a strange corner case. If there is a header,
+                // then "Name" will be added to the header row. That means that
+                // the filename column, should be at least 4 characters wide.
+                // Therefore we pad the filenames with some spaces. We have to
+                // use ansi_width here, because the filename might contain some
+                // styling.
+                let padding = " ".repeat(if self.details.header {
+                    4usize.saturating_sub(ansi_width::ansi_width(&filename))
                 } else {
-                    column_count - 1
-                };
-                // If we’ve figured out how many columns can fit in the user’s terminal,
-                // and it turns out there aren’t enough rows to make it worthwhile
-                // (according to EZA_GRID_ROWS), then just resort to the lines view.
-                if let RowThreshold::MinimumRows(thresh) = self.row_threshold {
-                    if last_working_grid
-                        .fit_into_columns(last_column_count)
-                        .row_count()
-                        < thresh
-                    {
-                        return None;
-                    }
-                }
+                    0
+                });
 
-                return Some((last_working_grid, last_column_count));
+                format!("{details} {filename}{padding}")
+            })
+            .collect();
+
+        let grid = Grid::new(
+            cells,
+            GridOptions {
+                filling: Filling::Spaces(4),
+                direction: Direction::TopToBottom,
+                width: self.console_width,
+            },
+        );
+
+        if self.details.header {
+            let row = table.header_row();
+            let name = TextCell::paint_str(self.theme.ui.header, "Name")
+                .strings()
+                .to_string();
+            let s = table.render(row).strings().to_string();
+            let combined_header = format!("{s} {name}");
+            let header_width = ansi_width::ansi_width(&combined_header);
+            for column_width in grid.column_widths() {
+                let padding = " ".repeat((column_width + 4).saturating_sub(header_width));
+                write!(w, "{combined_header}{padding}")?;
             }
+            writeln!(w)?;
         }
 
-        None
+        write!(w, "{grid}")?;
+
+        Ok(())
     }
 
-    fn make_table(
-        &mut self,
-        options: &'a TableOptions,
-        drender: &DetailsRender<'_>,
-    ) -> (Table<'a>, Vec<DetailsRow>) {
+    fn make_table(&mut self, options: &'a TableOptions) -> Table<'a> {
         match (self.git, self.dir) {
             (Some(g), Some(d)) => {
                 if !g.has_anything_for(&d.path) {
@@ -276,109 +212,14 @@ impl<'a> Render<'a> {
         }
 
         let mut table = Table::new(options, self.git, self.theme, self.git_repos);
-        let mut rows = Vec::new();
 
+        // The header row will be printed separately, but it should be
+        // considered for the width calculations.
         if self.details.header {
             let row = table.header_row();
             table.add_widths(&row);
-            rows.push(drender.render_header(row));
         }
 
-        (table, rows)
+        table
     }
-
-    fn make_grid(
-        &mut self,
-        column_count: usize,
-        options: &'a TableOptions,
-        file_names: &[TextCell],
-        rows: Vec<TableRow>,
-        drender: &DetailsRender<'_>,
-    ) -> grid::Grid {
-        let mut tables = Vec::new();
-        for _ in 0..column_count {
-            tables.push(self.make_table(options, drender));
-        }
-
-        let mut num_cells = rows.len();
-        if self.details.header {
-            num_cells += column_count;
-        }
-
-        let original_height = divide_rounding_up(rows.len(), column_count);
-        let height = divide_rounding_up(num_cells, column_count);
-
-        for (i, (file_name, row)) in file_names.iter().zip(rows).enumerate() {
-            let index = if self.grid.across {
-                i % column_count
-            } else {
-                i / original_height
-            };
-
-            let (ref mut table, ref mut rows) = tables[index];
-            table.add_widths(&row);
-            let details_row = drender.render_file(
-                row,
-                file_name.clone(),
-                TreeParams::new(TreeDepth::root(), false),
-            );
-            rows.push(details_row);
-        }
-
-        let columns = tables
-            .into_iter()
-            .map(|(table, details_rows)| {
-                drender
-                    .iterate_with_table(table, details_rows)
-                    .collect::<Vec<_>>()
-            })
-            .collect::<Vec<_>>();
-
-        let direction = if self.grid.across {
-            grid::Direction::LeftToRight
-        } else {
-            grid::Direction::TopToBottom
-        };
-
-        let filling = grid::Filling::Spaces(4);
-        let mut grid = grid::Grid::new(grid::GridOptions { direction, filling });
-
-        if self.grid.across {
-            for row in 0..height {
-                for column in &columns {
-                    if row < column.len() {
-                        let cell = grid::Cell {
-                            contents: ANSIStrings(&column[row].contents).to_string(),
-                            width: *column[row].width,
-                        };
-
-                        grid.add(cell);
-                    }
-                }
-            }
-        } else {
-            for column in &columns {
-                for cell in column {
-                    let cell = grid::Cell {
-                        contents: ANSIStrings(&cell.contents).to_string(),
-                        width: *cell.width,
-                    };
-
-                    grid.add(cell);
-                }
-            }
-        }
-
-        grid
-    }
-}
-
-fn divide_rounding_up(a: usize, b: usize) -> usize {
-    let mut result = a / b;
-
-    if a % b != 0 {
-        result += 1;
-    }
-
-    result
 }

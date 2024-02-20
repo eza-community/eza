@@ -449,7 +449,6 @@ impl<'args> Exa<'args> {
             }
 
             (Mode::GridDetails(ref opts), Some(console_width)) => {
-                let grid = &opts.grid;
                 let details = &opts.details;
                 let row_threshold = opts.row_threshold;
 
@@ -463,7 +462,6 @@ impl<'args> Exa<'args> {
                     files,
                     theme,
                     file_style,
-                    grid,
                     details,
                     filter,
                     row_threshold,
