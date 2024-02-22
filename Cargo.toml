@@ -16,7 +16,7 @@ readme = "README.md"
 homepage = "https://github.com/eza-community/eza"
 license = "MIT"
 repository = "https://github.com/eza-community/eza"
-version = "0.18.3"
+version = "0.18.4"
 
 
 [package.metadata.deb]
@@ -72,7 +72,7 @@ name = "eza"
 
 [dependencies]
 ansiterm = { version = "0.12.2", features = ["ansi_colours"] }
-chrono = { version = "0.4.33", default-features = false, features = ["clock"] }
+chrono = { version = "0.4.34", default-features = false, features = ["clock"] }
 chrono-tz = "0.8.4"
 iana-time-zone = "0.1.58"
 glob = "0.3"
@@ -111,11 +111,11 @@ windows-sys = { version = "0.52.0", features = [
 ] }
 
 [build-dependencies]
-chrono = { version = "0.4.33", default-features = false, features = ["clock"] }
+chrono = { version = "0.4.34", default-features = false, features = ["clock"] }
 
 [dev-dependencies]
 criterion = { version = "0.5.1", features = ["html_reports"] }
-trycmd = "0.14"
+trycmd = "0.15"
 
 [features]
 default = ["git"]

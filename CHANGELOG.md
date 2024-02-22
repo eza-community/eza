@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.18.4] - 2024-02-22
+
+### Bug Fixes
+
+- Classification width should be taken into account with -F=auto
+
+### Build
+
+- Bump libc from 0.2.152 to 0.2.153
+- Bump chrono from 0.4.33 to 0.4.34
+- Bump trycmd from 0.14.20 to 0.15.0
+
 ## [0.18.3] - 2024-02-15
 
 ### Bug Fixes
@@ -9,6 +21,10 @@
 ### Documentation
 
 - Add target arch to deb PPA installation for strict apt environments
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.3
 
 ### Performance
 
