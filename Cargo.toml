@@ -113,7 +113,7 @@ chrono = { version = "0.4.34", default-features = false, features = ["clock"] }
 
 [dev-dependencies]
 criterion = { version = "0.5.1", features = ["html_reports"] }
-trycmd = "0.14"
+trycmd = "0.15"
 
 [features]
 default = ["git"]
