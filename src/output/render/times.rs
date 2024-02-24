@@ -31,7 +31,10 @@ impl Render for Option<NaiveDateTime> {
             // This is the next best thing, use the timezone now, instead of at the time of the
             // timestamp.
             let time_offset: FixedOffset = *Local::now().offset();
-            time_format.format(&DateTime::<FixedOffset>::from_naive_utc_and_offset(time, time_offset))
+            time_format.format(&DateTime::<FixedOffset>::from_naive_utc_and_offset(
+                time,
+                time_offset,
+            ))
         } else {
             String::from("-")
         };
