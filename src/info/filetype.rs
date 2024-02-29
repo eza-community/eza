@@ -169,6 +169,7 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "wav"        => FileType::Lossless,
     "wv"         => FileType::Lossless,
     /* Cryptology files */
+    "age"        => FileType::Crypto, // age encrypted file
     "asc"        => FileType::Crypto, // GnuPG ASCII armored file
     "cer"        => FileType::Crypto,
     "crt"        => FileType::Crypto,
