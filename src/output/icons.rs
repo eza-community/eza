@@ -61,6 +61,7 @@ impl Icons {
     const LANG_JAVA: char       = '\u{e256}';  // 
     const LANG_JAVASCRIPT: char = '\u{e74e}';  // 
     const LANG_KOTLIN: char     = '\u{e634}';  // 
+    const LANG_NIM: char        = '\u{e677}';  // 
     const LANG_OCAML: char      = '\u{e67a}';  // 
     const LANG_PERL: char       = '\u{e67e}';  // 
     const LANG_PHP: char        = '\u{e73d}';  // 
@@ -568,6 +569,9 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "mts"            => Icons::LANG_TYPESCRIPT,  // 
     "mustache"       => Icons::MUSTACHE,         // 
     "nef"            => Icons::IMAGE,            // 
+    "nim"            => Icons::LANG_NIM,         // 
+    "nimble"         => Icons::LANG_NIM,         // 
+    "nims"           => Icons::LANG_NIM,         // 
     "ninja"          => '\u{f0774}',             // 󰝴
     "nix"            => '\u{f313}',              // 
     "node"           => Icons::NODEJS,           // 
