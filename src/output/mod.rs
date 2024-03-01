@@ -13,7 +13,7 @@ pub mod table;
 pub mod time;
 
 mod cell;
-mod escape;
+pub mod escape;
 mod tree;
 
 /// The **view** contains all information about how to format output.

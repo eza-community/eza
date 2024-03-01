@@ -1,5 +1,21 @@
 use super::file_name::QuoteStyle;
+use crate::fs::File;
 use ansiterm::{ANSIString, Style};
+
+#[derive(Eq, Copy, PartialEq, Clone)]
+pub enum Quotes {
+    Single,
+    Double,
+}
+
+pub fn check_quote(files: &[File<'_>]) -> Quotes {
+    for file in files {
+        if file.name.contains('\'') {
+            return Quotes::Double;
+        }
+    }
+    Quotes::Single
+}
 
 pub fn escape(
     string: String,
@@ -7,10 +23,11 @@ pub fn escape(
     good: Style,
     bad: Style,
     quote_style: QuoteStyle,
+    quotes: Quotes,
 ) {
     let bits_starting_length = bits.len();
     let needs_quotes = string.contains(' ') || string.contains('\'');
-    let quote_bit = good.paint(if string.contains('\'') { "\"" } else { "\'" });
+    let quote_bit = good.paint(if quotes == Quotes::Double { "\"" } else { "\'" });
 
     if string
         .chars()

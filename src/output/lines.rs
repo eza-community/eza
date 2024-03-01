@@ -1,5 +1,6 @@
 use std::io::{self, Write};
 
+use crate::output::escape::Quotes;
 use ansiterm::ANSIStrings;
 
 use crate::fs::filter::FileFilter;
@@ -14,6 +15,7 @@ pub struct Render<'a> {
     pub theme: &'a Theme,
     pub file_style: &'a FileStyle,
     pub filter: &'a FileFilter,
+    pub quotes: Quotes,
 }
 
 impl<'a> Render<'a> {
@@ -32,6 +34,6 @@ impl<'a> Render<'a> {
             .for_file(file, self.theme)
             .with_link_paths()
             .with_mount_details(false)
-            .paint()
+            .paint(self.quotes)
     }
 }
