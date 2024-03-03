@@ -27,6 +27,7 @@ __eza() {
         --no-quotes"[Don't quote filenames with spaces]" \
         --hyperlink"[Display entries as hyperlinks]" \
         --group-directories-first"[Sort directories before other files]" \
+        --group-directories-last"[Sort directories after other files]" \
         --git-ignore"[Ignore files mentioned in '.gitignore']" \
         {-a,--all}"[Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories]" \
         {-A,--almost-all}"[Equivalent to --all; included for compatibility with \'ls -A\']" \

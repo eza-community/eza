@@ -104,6 +104,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s.
 - **-r**, **--reverse**: reverse the sort order
 - **-s**, **--sort=(field)**: which field to sort by
 - **--group-directories-first**: list directories before other files
+- **--group-directories-last**: list directories after other files
 - **-D**, **--only-dirs**: list only directories
 - **-f**, **--only-files**: list only files
 - **--git-ignore**: ignore files mentioned in `.gitignore`
