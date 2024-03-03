@@ -4,8 +4,8 @@ use term_grid as tg;
 
 use crate::fs::filter::FileFilter;
 use crate::fs::File;
+use crate::output::file_name::ShowIcons;
 use crate::output::file_name::{Classify, Options as FileStyle};
-use crate::output::file_name::{EmbedHyperlinks, ShowIcons};
 use crate::theme::Theme;
 
 use super::file_name::QuoteStyle;
@@ -66,33 +66,27 @@ impl<'a> Render<'a> {
             };
             let contents = filename.paint();
             let width = match (
-                filename.options.embed_hyperlinks,
+                filename.options.do_embed_hyperlinks(),
                 filename.options.show_icons,
             ) {
-                (
-                    EmbedHyperlinks::On,
-                    ShowIcons::Always(spacing) | ShowIcons::Automatic(spacing),
-                ) => {
+                (true, ShowIcons::Always(spacing) | ShowIcons::Automatic(spacing)) => {
                     filename.bare_utf8_width()
                         + classification_width
                         + 1
                         + (spacing as usize)
                         + space_filename_offset
                 }
-                (EmbedHyperlinks::On, ShowIcons::Never) => {
+                (true, ShowIcons::Never) => {
                     filename.bare_utf8_width() + classification_width + space_filename_offset
                 }
-                (
-                    EmbedHyperlinks::Off,
-                    ShowIcons::Always(spacing) | ShowIcons::Automatic(spacing),
-                ) => {
+                (false, ShowIcons::Always(spacing) | ShowIcons::Automatic(spacing)) => {
                     filename.bare_utf8_width()
                         + classification_width
                         + 1
                         + (spacing as usize)
                         + space_filename_offset
                 }
-                (EmbedHyperlinks::Off, _) => *contents.width(),
+                (false, _) => *contents.width(),
             };
 
             grid.add(tg::Cell {
