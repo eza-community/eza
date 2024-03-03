@@ -20,6 +20,7 @@ export extern "eza" [
     --hyperlink                # Display entries as hyperlinks
     --absolute                 # Display entries with their absolute path
     --group-directories-first  # Sort directories before other files
+    --group-directories-last   # Sort directories after other files
     --git-ignore               # Ignore files mentioned in '.gitignore'
     --all(-a)                  # Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories
     --almost-all(-A)           # Equivalent to --all; included for compatibility with `ls -A`
