@@ -325,6 +325,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "a"              => Icons::OS_LINUX,         // 
     "acc"            => Icons::AUDIO,            // 
     "acf"            => '\u{f1b6}',              // 
+    "age"            => Icons::SHIELD_LOCK,      // 󰦝
     "ai"             => '\u{e7b4}',              // 
     "aif"            => Icons::AUDIO,            // 
     "aifc"           => Icons::AUDIO,            // 
