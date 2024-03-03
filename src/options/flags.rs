@@ -82,6 +82,9 @@ pub static OCTAL:             Arg = Arg { short: Some(b'o'), long: "octal-permis
 pub static SECURITY_CONTEXT:  Arg = Arg { short: Some(b'Z'), long: "context",              takes_value: TakesValue::Forbidden };
 pub static STDIN:             Arg = Arg { short: None,       long: "stdin",                takes_value: TakesValue::Forbidden };
 pub static FILE_FLAGS:        Arg = Arg { short: Some(b'O'), long: "flags",                takes_value: TakesValue::Forbidden };
+pub static MERCURIAL:         Arg = Arg { short: None,       long: "mercurial",            takes_value: TakesValue::Forbidden };
+pub static NO_MERCURIAL:      Arg = Arg { short: None,       long: "no-mercurial",         takes_value: TakesValue::Forbidden };
+pub static MERCURIAL_IGNORE:  Arg = Arg { short: None,       long: "mercurial-ignore",     takes_value: TakesValue::Forbidden };
 
 pub static ALL_ARGS: Args = Args(&[
     &VERSION, &HELP,
@@ -98,5 +101,6 @@ pub static ALL_ARGS: Args = Args(&[
     &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &SMART_GROUP,
 
     &GIT, &NO_GIT, &GIT_REPOS, &GIT_REPOS_NO_STAT,
-    &EXTENDED, &OCTAL, &SECURITY_CONTEXT, &STDIN, &FILE_FLAGS
+    &EXTENDED, &OCTAL, &SECURITY_CONTEXT, &STDIN, &FILE_FLAGS,
+    &MERCURIAL, &NO_MERCURIAL, &MERCURIAL_IGNORE,
 ]);

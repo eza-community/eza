@@ -70,6 +70,7 @@ use log::*;
 
 use crate::fs::dir_action::RecurseOptions;
 use crate::fs::feature::git::GitCache;
+use crate::fs::feature::mercurial::MercurialCache;
 use crate::fs::feature::xattr::Attribute;
 use crate::fs::fields::SecurityContextType;
 use crate::fs::filter::FileFilter;
@@ -138,6 +139,10 @@ pub struct Render<'a> {
     pub git: Option<&'a GitCache>,
 
     pub git_repos: bool,
+
+    pub mercurial: Option<&'a MercurialCache>,
+
+    pub mercurial_ignoring: bool,
 }
 
 #[rustfmt::skip]
@@ -166,6 +171,8 @@ impl<'a> Render<'a> {
             self.git,
             self.git_ignoring,
             self.recurse,
+            self.mercurial,
+            self.mercurial_ignoring,
         );
 
         if let Some(ref table) = self.opts.table {
@@ -183,7 +190,7 @@ impl<'a> Render<'a> {
                 (None, _) => { /* Keep Git how it is */ }
             }
 
-            let mut table = Table::new(table, self.git, self.theme, self.git_repos);
+            let mut table = Table::new(table, self.git, self.theme, self.git_repos, self.mercurial);
 
             if self.opts.header {
                 let header = table.header_row();
@@ -343,6 +350,8 @@ impl<'a> Render<'a> {
                     self.git_ignoring,
                     egg.file.deref_links,
                     egg.file.is_recursive_size(),
+                    self.mercurial,
+                    self.mercurial_ignoring,
                 ) {
                     match file_to_add {
                         Ok(f) => {

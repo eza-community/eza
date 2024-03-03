@@ -143,6 +143,9 @@ These options are available when running with `--long` (`-l`):
 - **--no-user**: suppress the user field
 - **--no-time**: suppress the time field
 - **--stdin**: read file names from stdin
+- **--mercurial**: list each file’s Mercurial status, if tracked or ignored
+- **--mercurial-ignore**: ignore files ignored by Mercurial
+- **--no-mercurial**: suppress Mercurial status (always overrides `--mercurial`, `--mercurial-ignore`)
 
 Some of the options accept parameters:
 

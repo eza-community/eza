@@ -188,6 +188,24 @@ impl Options {
         }
     }
 
+    pub fn should_scan_for_mercurial(&self) -> bool {
+        match self.view.mode {
+            Mode::Details(details::Options {
+                table: Some(ref table),
+                ..
+            })
+            | Mode::GridDetails(grid_details::Options {
+                details:
+                    details::Options {
+                        table: Some(ref table),
+                        ..
+                    },
+                ..
+            }) => table.columns.mercurial,
+            _ => false,
+        }
+    }
+
     /// Determines the complete set of options based on the given command-line
     /// arguments, after they’ve been parsed.
     fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
@@ -198,6 +216,16 @@ impl Options {
         {
             return Err(OptionsError::Unsupported(String::from(
                 "Options --git and --git-ignore can't be used because `git` feature was disabled in this build of exa"
+            )));
+        }
+
+        if cfg!(not(feature = "mercurial"))
+            && matches
+                .has_where_any(|f| f.matches(&flags::MERCURIAL) || f.matches(&flags::NO_MERCURIAL))
+                .is_some()
+        {
+            return Err(OptionsError::Unsupported(String::from(
+                "Options --mercurial and --no-mercurial can't be used because `mercurial` feature is not enabled in this build of exa"
             )));
         }
 

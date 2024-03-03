@@ -67,3 +67,5 @@ mod flags_windows;
     target_os = "windows"
 )))]
 mod flags;
+mod mercurial;
+pub use self::mercurial::MercurialColours;
