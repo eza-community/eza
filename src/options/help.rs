@@ -87,6 +87,8 @@ static GIT_VIEW_HELP: &str = "  \
   --git-repos                list root of git-tree status";
 static EXTENDED_HELP: &str = "  \
   -@, --extended             list each file's extended attributes and sizes";
+static NO_EXTENDED_HELP: &str = "  \
+      --hide-extended        hide the marker that file has extended attributes";
 static SECATTR_HELP: &str = "  \
   -Z, --context              list each file's security context";
 
@@ -131,6 +133,7 @@ impl fmt::Display for HelpString {
 
         if xattr::ENABLED {
             write!(f, "\n{EXTENDED_HELP}")?;
+            write!(f, "\n{NO_EXTENDED_HELP}")?;
             write!(f, "\n{SECATTR_HELP}")?;
         }
 

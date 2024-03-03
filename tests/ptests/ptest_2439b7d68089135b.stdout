@@ -74,4 +74,5 @@ LONG VIEW OPTIONS
                              --git-repos, --git-repos-no-status)
   --git-repos                list root of git-tree status
   -@, --extended             list each file's extended attributes and sizes
+  --hide-extended        hide the marker that file has extended attributes
   -Z, --context              list each file's security context
