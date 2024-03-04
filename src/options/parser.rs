@@ -183,6 +183,9 @@ pub struct Opts {
     pub stdin: bool,
     #[arg(short = 'O', long = "flags")]
     pub file_flags: bool,
+    /// show absolute paths of file or directory
+    #[arg(long, default_value=None, require_equals=false, num_args=0..=1, default_missing_value="on")]
+    pub absolute: Option<AbsoluteArgs>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
@@ -199,6 +202,16 @@ pub enum ColorScaleModeArgs {
     Fixed,
     #[default]
     Gradient,
+}
+
+#[derive(Clone, Debug, Default, ValueEnum, PartialEq, Eq)]
+pub enum AbsoluteArgs {
+    #[default]
+    On,
+    Off,
+    Follow,
+    No,
+    Yes,
 }
 
 impl ValueEnum for ShowWhen {
