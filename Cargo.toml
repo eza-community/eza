@@ -91,7 +91,7 @@ terminal_size = "0.3.0"
 timeago = { version = "0.4.2", default-features = false }
 unicode-width = "0.1"
 zoneinfo_compiled = "0.5.1"
-rayon = "1.8.1"
+rayon = "1.9.0"
 
 [dependencies.git2]
 version = "0.18"
