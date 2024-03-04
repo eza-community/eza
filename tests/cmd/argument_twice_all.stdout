@@ -4,6 +4,7 @@ a
 b
 c
 d
+dir-symlink -> vagrant/debug
 e
 exa
 f

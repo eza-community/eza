@@ -1,4 +1,4 @@
-use crate::options::parser::{Opts, ShowWhen};
+use crate::options::parser::{AbsoluteArgs, Opts, ShowWhen};
 use crate::options::vars::{self, Vars};
 use crate::options::{NumberSource, OptionsError};
 
@@ -105,15 +105,11 @@ impl EmbedHyperlinks {
 }
 
 impl Absolute {
-    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        match matches.get(&flags::ABSOLUTE)? {
-            Some(word) => match word.to_str() {
-                Some("on" | "yes") => Ok(Self::On),
-                Some("follow") => Ok(Self::Follow),
-                Some("off" | "no") | None => Ok(Self::Off),
-                _ => Err(OptionsError::BadArgument(&flags::ABSOLUTE, word.into())),
-            },
-            None => Ok(Self::Off),
+    fn deduce(matches: &Opts) -> Result<Self, OptionsError> {
+        match matches.absolute {
+            Some(AbsoluteArgs::Yes | AbsoluteArgs::On) => Ok(Self::On),
+            Some(AbsoluteArgs::Follow) => Ok(Self::Follow),
+            Some(AbsoluteArgs::Off | AbsoluteArgs::No) | None => Ok(Self::Off),
         }
     }
 }
@@ -320,6 +316,7 @@ mod tests {
                 show_icons: ShowIcons::Never,
                 quote_style: QuoteStyle::QuoteSpaces,
                 embed_hyperlinks: EmbedHyperlinks::Off,
+                absolute: Absolute::Off,
                 is_a_tty: true,
             })
         );
