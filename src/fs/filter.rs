@@ -94,6 +94,17 @@ impl FileFilter {
         }
     }
 
+    /// checks if a dirname, when appended with a `/` matches any
+    /// of the ignore patterns provided as argument.
+    ///
+    /// this only exists since when creating the patterns, any glob
+    /// that ends with `/` or `/*` will keep the `/` on the pattern,
+    /// and when listing directories, we display them without any `/`
+    pub fn should_skip_expansion(&self, dirname: &str) -> bool {
+        let dirname_with_slash = format!("{dirname}/");
+        self.ignore_patterns.is_ignored(&dirname_with_slash)
+    }
+
     /// Remove every file in the given vector that does *not* pass the
     /// filter predicate for file names specified on the command-line.
     ///
