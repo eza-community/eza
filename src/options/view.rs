@@ -56,7 +56,7 @@ impl Mode {
             let details = details::Options::deduce_long(matches, vars, strict)?;
 
             if matches.grid {
-                let grid = grid::Options::deduce(matches);
+                let _grid = grid::Options::deduce(matches);
                 let row_threshold = RowThreshold::deduce(vars)?;
                 let grid_details = grid_details::Options {
                     details,

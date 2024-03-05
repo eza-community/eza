@@ -14,7 +14,7 @@ impl Options {
         let quote_style = QuoteStyle::deduce(matches);
         let embed_hyperlinks = EmbedHyperlinks::deduce(matches);
 
-        let absolute = Absolute::deduce(matches)?;
+        let absolute = Absolute::deduce(matches);
 
         Ok(Self {
             classify,
@@ -105,11 +105,11 @@ impl EmbedHyperlinks {
 }
 
 impl Absolute {
-    fn deduce(matches: &Opts) -> Result<Self, OptionsError> {
+    fn deduce(matches: &Opts) -> Self {
         match matches.absolute {
-            Some(AbsoluteArgs::Yes | AbsoluteArgs::On) => Ok(Self::On),
-            Some(AbsoluteArgs::Follow) => Ok(Self::Follow),
-            Some(AbsoluteArgs::Off | AbsoluteArgs::No) | None => Ok(Self::Off),
+            Some(AbsoluteArgs::Yes | AbsoluteArgs::On) => Self::On,
+            Some(AbsoluteArgs::Follow) => Self::Follow,
+            Some(AbsoluteArgs::Off | AbsoluteArgs::No) | None => Self::Off,
         }
     }
 }
