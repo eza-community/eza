@@ -81,6 +81,8 @@ use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams, TreeTrunk};
 use crate::theme::Theme;
 
+use super::json::JsonRenderer;
+
 /// With the **Details** view, the output gets formatted into columns, with
 /// each `Column` object showing some piece of information about the file,
 /// such as its size, or its permissions.
@@ -222,80 +224,6 @@ impl<'a> Render<'a> {
         Ok(())
     }
 
-    fn print_row_contents(
-        &self,
-        w: &mut impl Write,
-        row: &TextCell,
-        header: &Option<TextCell>,
-    ) -> io::Result<()> {
-        let mut header_idx: usize = 0;
-        for (i, cell) in row.contents.iter().enumerate() {
-            if cell.is_empty() || cell.trim().is_empty() {
-                continue;
-            };
-            if let Some(ref header) = header {
-                write!(w, "\"{}\": ", header.contents[header_idx])?;
-                header_idx += 1;
-            }
-            write!(w, "\"{cell}\"")?;
-            if (i + 1) < row.contents.len() {
-                writeln!(w, ", ")?;
-            }
-        }
-        Ok(())
-    }
-
-    fn print_row<W: Write>(
-        &self,
-        w: &mut W,
-        header: &Option<TextCell>,
-        iter: &mut JsonTableIter<'_>,
-        current_depth: usize,
-        idx: &mut usize,
-        len: usize,
-        max: usize,
-    ) -> io::Result<Option<TreeParams>> {
-        let (row, depth) = match iter.next() {
-            Some((row, depth)) => (row, depth),
-            None => return Ok(None),
-        };
-        if self.opts.header {
-            writeln!(w, "{{")?;
-        } else {
-            writeln!(w, "[")?;
-        }
-        self.print_row_contents(w, &row, header)?;
-        writeln!(w, ", \"depth\": {}", depth.depth.0)?;
-        *idx += 1;
-        if depth.depth.0 == current_depth && depth.depth.0 < max {
-            writeln!(w, ", \"children\": [")?;
-            let mut d = self.print_row(w, header, iter, depth.depth.0 + 1, idx, len, max)?;
-            while d.is_some() && !d.unwrap().last && d.unwrap().depth.0 > depth.depth.0 {
-                d = self.print_row(w, header, iter, depth.depth.0 + 1, idx, len, max)?;
-            }
-            writeln!(w, "]")?;
-        }
-        if self.opts.header {
-            writeln!(w, "}}")?;
-        } else {
-            writeln!(w, "]")?;
-        }
-        if !depth.last {
-            writeln!(w, ",")?;
-        }
-        Ok(Some(depth))
-    }
-
-    pub fn get_max_depth(&self, iter: &mut JsonTableIter<'_>) -> usize {
-        let mut max_depth = 0;
-        for (_, depth) in iter {
-            if depth.depth.0 > max_depth {
-                max_depth = depth.depth.0;
-            }
-        }
-        max_depth
-    }
-
     pub fn render_json<W: Write>(self, w: &mut W) -> io::Result<()> {
         let mut rows = Vec::new();
 
@@ -320,33 +248,15 @@ impl<'a> Render<'a> {
                 None,
             );
 
-            writeln!(w, "{{")?;
-            let mut row_iter = self.iterate_with_table_json(table.unwrap(), rows);
+            let mut row_iter = self.iterate_with_table(table.unwrap(), rows);
             let header = if self.opts.header {
-                let (header, _) = row_iter.next().unwrap();
+                let header = row_iter.next().unwrap();
                 Some(header.clean_content())
             } else {
                 None
             };
-            let mut i = 0;
-            let len = row_iter.len();
-            writeln!(w, "\"files\":[")?;
 
-            let current_depth = 0;
-            let max_depth = self.get_max_depth(&mut row_iter.clone());
-
-            while row_iter.len() > 0 {
-                self.print_row(
-                    w,
-                    &(header.clone()),
-                    &mut row_iter,
-                    current_depth,
-                    &mut i,
-                    len,
-                    max_depth,
-                )?;
-            }
-            writeln!(w, "]\n}}")?;
+            JsonRenderer::new(header, row_iter).render(w)
         } else {
             #[rustfmt::skip]
             self.add_files_to_table(
@@ -364,9 +274,8 @@ impl<'a> Render<'a> {
                     write!(w, ", ")?;
                 }
             }
-            writeln!(w, "]}}")?;
+            writeln!(w, "]}}")
         }
-        Ok(())
     }
 
     /// Whether to show the extended attribute hint

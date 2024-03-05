@@ -108,21 +108,11 @@ impl<'a> Render<'a> {
     // This doesn’t take an IgnoreCache even though the details one does
     // because grid-details has no tree view.
 
+    pub fn render_json<W: Write>(self, _w: &mut W) -> io::Result<()> {
+        todo!("Implement json rendering");
+    }
+
     pub fn render<W: Write>(mut self, w: &mut W) -> io::Result<()> {
-        if let Some((grid, width)) = self.find_fitting_grid() {
-            write!(w, "{}", grid.fit_into_columns(width))
-        } else {
-            self.give_up().render(w)
-        }
-    }
-
-    pub fn render_json<W: Write>(self, w: &mut W) -> io::Result<()> {
-        // As json is made to be piped we use the Details render method
-
-        self.give_up().render_json(w)
-    }
-
-    pub fn find_fitting_grid(&mut self) -> Option<(grid::Grid, grid::Width)> {
         let options = self
             .details
             .table
