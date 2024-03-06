@@ -1,10 +1,62 @@
 # Changelog
 
+## [0.18.6] - 2024-03-06
+
+### Bug Fixes
+
+- NetBSD did not have fflagstostr and as such did not build properly
+- Fix total-size option
+- Add fortran to source filetypes
+- Fix absolute_path() for broken symlinks
+- Update line numbers in panic messages in tests
+
+### Features
+
+- Add filetype and icon for age
+- Adding icons for graphql extensions
+- Add nim icons
+- Use fsharp icon for fsproj files (similar to cs/csproj)
+- Add new icons, diverse selection
+- Adding more haskell related icons
+- Adding more icons for docker specific files
+- Adding more dockerfile icons
+- Add --absolute flag
+- Add shell completions for --absolute flag
+
+### Miscellaneous Tasks
+
+- Cleaning dirs
+
+### Refactor
+
+- Port grid and grid-details to new uutils-term-grid
+
+### Testing
+
+- Add integration tests and powertests for --absolute flag
+- Add directory symlink to tests/itest/
+
+### Build
+
+- Bump log from 0.4.20 to 0.4.21
+- Bump rayon from 1.8.1 to 1.9.0
+
+### Ci
+
+- Add NetBSD to CI.
+- Fix warnings.
+- Add FreeBSD to CI.
+- Add OpenBSD to CI.
+
 ## [0.18.5] - 2024-02-29
 
 ### Bug Fixes
 
 - Bump palette from 0.7.4 to 0.7.5
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.5
 
 ## [0.18.4] - 2024-02-22
 
