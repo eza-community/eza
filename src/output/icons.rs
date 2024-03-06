@@ -108,6 +108,7 @@ impl Icons {
     const SUBLIME: char         = '\u{e7aa}';  // 
     const SUBTITLE: char        = '\u{f0a16}'; // 󰨖
     const TERRAFORM: char       = '\u{f1062}'; // 󱁢
+    const FOLDER_BUILD: char    = '\u{f19fc}'; // 󱧼
     const TEXT: char            = '\u{f15c}';  // 
     const TYPST: char           = '\u{1D42D}'; // 𝐭
     const UNITY: char           = '\u{e721}';  // 
@@ -129,6 +130,7 @@ const DIRECTORY_ICONS: Map<&'static str, char> = phf_map! {
     ".npm"                => Icons::FOLDER_NPM,     // 
     ".ssh"                => Icons::FOLDER_KEY,     // 󰢬
     ".Trash"              => '\u{f1f8}',            // 
+    "build"               => Icons::FOLDER_BUILD,   // 󱧼
     "config"              => Icons::FOLDER_CONFIG,  // 
     "Contacts"            => '\u{f024c}',           // 󰉌
     "cron.d"              => Icons::FOLDER_CONFIG,  // 
