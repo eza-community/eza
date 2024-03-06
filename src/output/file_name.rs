@@ -375,7 +375,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     /// So in that situation, those characters will be escaped and highlighted in
     /// a different colour.
     fn escaped_file_name<'unused>(&self) -> Vec<ANSIString<'unused>> {
-        use percent_encoding::{utf8_percent_encode, CONTROLS};
+        use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
 
         const HYPERLINK_START: &str = "\x1B]8;;";
         const HYPERLINK_END: &str = "\x1B\x5C";
@@ -390,7 +390,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                 .absolute_path()
                 .and_then(|p| p.as_os_str().to_str())
             {
-                let abs_path = utf8_percent_encode(abs_path, CONTROLS).to_string();
+                let abs_path = utf8_percent_encode(abs_path, NON_ALPHANUMERIC).to_string();
 
                 // On Windows, `std::fs::canonicalize` adds the Win32 File prefix, which we need to remove
                 #[cfg(target_os = "windows")]
