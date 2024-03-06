@@ -329,6 +329,7 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "gvy"        => FileType::Source, // Groovy
     "h"          => FileType::Source, // C/C++ header
     "h++"        => FileType::Source, // C/C++ header
+    "hh"         => FileType::Source, // C/C++ header
     "hpp"        => FileType::Source, // C/C++ header
     "hs"         => FileType::Source, // Haskell
     "htc"        => FileType::Source, // JavaScript
