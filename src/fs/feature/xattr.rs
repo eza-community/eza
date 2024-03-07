@@ -112,7 +112,7 @@ mod extended_attrs {
         }
     }
 
-    #[cfg(any(target_os = "linux"))]
+    #[cfg(target_os = "linux")]
     mod os {
         use libc::{c_char, c_void, size_t, ssize_t};
 
@@ -283,7 +283,7 @@ mod extended_attrs {
             let start = index + 1;
             let end = start + item_length;
             if end <= length {
-                result.push(OsStr::from_bytes(&buffer[start..end]).to_owned())
+                result.push(OsStr::from_bytes(&buffer[start..end]).to_owned());
             }
             index = end;
         }
@@ -473,7 +473,7 @@ mod extended_attrs {
             if let Some(name) = attr_name.to_str() {
                 let attr_name =
                     CString::new(name).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
-                let value = get_attribute(&path, &attr_name, follow_symlinks, getter)?;
+                let value = get_attribute(path, &attr_name, follow_symlinks, getter)?;
                 attrs.push(Attribute {
                     name: format!("{namespace}::{name}"),
                     value,

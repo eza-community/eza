@@ -1,19 +1,36 @@
 use nu_ansi_term::Style;
 use std::ffi::CStr;
 
+#[cfg(target_os = "netbsd")]
+use std::ffi::CString;
+
 use crate::fs::fields as f;
 use crate::output::cell::TextCell;
 use crate::output::table::FlagsFormat;
 
+#[cfg(not(target_os = "netbsd"))]
 extern "C" {
     fn fflagstostr(flags: libc::c_ulong) -> *const libc::c_char;
 }
 
-/// Wrapper around the C library call fflagstostr.  If returned string is NULL
-/// or empty a "-" is returned
-fn flags_to_string(flags: f::flag_t) -> String {
+#[cfg(target_os = "netbsd")]
+extern "C" {
+    fn flags_to_string(flags: libc::c_ulong, def: *const libc::c_char) -> *const libc::c_char;
+}
+
+/// Wrapper around the C library call fflagstostr or the netbsd equivalent
+/// If returned string is NULL or empty a "-" is returned
+fn wrapper_flags_to_string(flags: f::flag_t) -> String {
+    #[cfg(target_os = "netbsd")]
+    let empty_string = CString::new("").expect("This string is always valid");
+
     // SAFETY: Calling external "C" function
+    #[cfg(not(target_os = "netbsd"))]
     let flags_c_str = unsafe { fflagstostr(libc::c_ulong::from(flags)) };
+
+    // SAFETY: Calling external "C" function
+    #[cfg(target_os = "netbsd")]
+    let flags_c_str = unsafe { flags_to_string(libc::c_ulong::from(flags), empty_string.as_ptr()) };
 
     if flags_c_str.is_null() {
         "-".to_string()
@@ -35,6 +52,6 @@ fn flags_to_string(flags: f::flag_t) -> String {
 
 impl f::Flags {
     pub fn render(self, style: Style, _format: FlagsFormat) -> TextCell {
-        TextCell::paint(style, flags_to_string(self.0))
+        TextCell::paint(style, wrapper_flags_to_string(self.0))
     }
 }

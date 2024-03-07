@@ -230,10 +230,11 @@ impl Column {
 
 /// Formatting options for file sizes.
 #[allow(clippy::enum_variant_names)]
-#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Default, Copy, Clone)]
 pub enum SizeFormat {
     /// Format the file size using **decimal** prefixes, such as “kilo”,
     /// “mega”, or “giga”.
+    #[default]
     DecimalBytes,
 
     /// Format the file size using **binary** prefixes, such as “kibi”,
@@ -260,12 +261,6 @@ pub enum GroupFormat {
     Regular,
     /// Show ":" if user-group value is the same
     Smart,
-}
-
-impl Default for SizeFormat {
-    fn default() -> Self {
-        Self::DecimalBytes
-    }
 }
 
 /// The types of a file’s time fields. These three fields are standard
@@ -308,18 +303,13 @@ impl TimeType {
 }
 
 /// How display file flags.
-#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Default, Copy, Clone)]
 pub enum FlagsFormat {
     /// Display flags as comma seperated descriptions
+    #[default]
     Long,
     /// Display flags as single character abbreviations (Windows only)
     Short,
-}
-
-impl Default for FlagsFormat {
-    fn default() -> Self {
-        Self::Long
-    }
 }
 
 impl FlagsFormat {

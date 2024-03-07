@@ -1,5 +1,111 @@
 # Changelog
 
+## [0.18.6] - 2024-03-06
+
+### Bug Fixes
+
+- NetBSD did not have fflagstostr and as such did not build properly
+- Fix total-size option
+- Add fortran to source filetypes
+- Fix absolute_path() for broken symlinks
+- Update line numbers in panic messages in tests
+
+### Features
+
+- Add filetype and icon for age
+- Adding icons for graphql extensions
+- Add nim icons
+- Use fsharp icon for fsproj files (similar to cs/csproj)
+- Add new icons, diverse selection
+- Adding more haskell related icons
+- Adding more icons for docker specific files
+- Adding more dockerfile icons
+- Add --absolute flag
+- Add shell completions for --absolute flag
+
+### Miscellaneous Tasks
+
+- Cleaning dirs
+
+### Refactor
+
+- Port grid and grid-details to new uutils-term-grid
+
+### Testing
+
+- Add integration tests and powertests for --absolute flag
+- Add directory symlink to tests/itest/
+
+### Build
+
+- Bump log from 0.4.20 to 0.4.21
+- Bump rayon from 1.8.1 to 1.9.0
+
+### Ci
+
+- Add NetBSD to CI.
+- Fix warnings.
+- Add FreeBSD to CI.
+- Add OpenBSD to CI.
+
+## [0.18.5] - 2024-02-29
+
+### Bug Fixes
+
+- Bump palette from 0.7.4 to 0.7.5
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.5
+
+## [0.18.4] - 2024-02-22
+
+### Bug Fixes
+
+- Classification width should be taken into account with -F=auto
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.4
+
+### Build
+
+- Bump libc from 0.2.152 to 0.2.153
+- Bump chrono from 0.4.33 to 0.4.34
+- Bump trycmd from 0.14.20 to 0.15.0
+
+## [0.18.3] - 2024-02-15
+
+### Bug Fixes
+
+- Duplicates in shell completions
+
+### Documentation
+
+- Add target arch to deb PPA installation for strict apt environments
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.3
+
+### Performance
+
+- Do not pre-compute MountInfo to reduce readlink calls
+
+### Refactor
+
+- Use #[default] attribute instead of custom impl for enums
+
+## [0.18.2] - 2024-02-08
+
+### Bug Fixes
+
+- Update libgit2 to 1.7.2
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.2
+
 ## [0.18.1] - 2024-02-08
 
 ### Bug Fixes
@@ -9,6 +115,10 @@
 ### Documentation
 
 - Add manual installation section
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.1
 
 ### Refactor
 
@@ -258,6 +368,7 @@
 
 ### Bug Fixes
 
+- Changed quote in --almost-all completion
 - [**breaking**] Remove Repo column when using --git-repos when no git repo
 - Reformat `help.rs`
 - Allow unused macro rule arms
@@ -292,8 +403,8 @@
 ### Build
 
 - Refactor flake
-- Bump DeterminateSystems/nix-installer-action from 4 to 7
 - Bump libc from 0.2.149 to 0.2.150
+- Bump DeterminateSystems/nix-installer-action from 4 to 7
 - Bump rustix from 0.38.13 to 0.38.21
 
 ### Ci
@@ -307,7 +418,6 @@
 
 - Correct width when --no-quotes is used
 - Clippy lint and add option to grid-details
-- Changed quote in --almost-all completion
 - --smart-group only works for current user
 
 ### Features
@@ -332,13 +442,11 @@
 
 ### Bug Fixes
 
-- Don’t display target’s size if we’re not dereferencing
-- Updated match indents
-- Changed flag name
 - Only store top-level recursive dir size
 - Changed windows methods
 - Underscored unused windows variables
 - Added device for filesystem to hashmap
+- Don’t display target’s size if we’re not dereferencing
 - Display offset for filenames with spaces
 - Fix clippy warnings
 - Fix doc-tests on RecursiveSize
@@ -350,6 +458,8 @@
 
 ### Features
 
+- Add a new filetype for source code files
+- Add a new icons for source code files and other files
 - Support for displaying blocksize on directories
 
 ### Miscellaneous Tasks
@@ -367,9 +477,11 @@
 
 - Reenable debug symbols in debug builds
 - Fmt, windows, and nix fixes
+- Reverted autofmt changes
+- Updated match indents
+- Changed flag name
 - Clippy lint
 - Merge conflict with main
-- Reverted autofmt changes
 
 ### Documentation
 
@@ -382,12 +494,10 @@
 - Add option --smart-group
 - Add completions, man for --smart-group
 - Added recursive directory parser
+- Added flag to completions
 - Add icons=always,auto,never. dont display icons in a tty|piped
 - Fix auto value for colors and icons + documentation
-- Added flag to completions
 - [**breaking**] Remove --no-icons in favor of --icons=always,auto,never. default is auto
-- Add a new filetype for source code files
-- Add a new icons for source code files and other files
 
 ### Miscellaneous Tasks
 
@@ -446,11 +556,12 @@
 - Replace left-over exa in fish completion
 - Diabling static linked binaries due to segfault
 - Make os error 13 fail loud
-- Adjust change width calculations for hyperlink and classify
 - Root group not painted as expected when eza used by root
+- Adjust change width calculations for hyperlink and classify
 
 ### Documentation
 
+- Correct CONTRIBUTING.md on commit message type
 - Fix typos
 - Add zsh with homebrew part to completions section
 - Installation on fedora updated
@@ -478,8 +589,8 @@
 
 ### Build
 
-- Make checksums easier to copy-paste
 - Bump trycmd from 0.14.17 to 0.14.19
+- Make checksums easier to copy-paste
 - Improve release automation
 - Fix version bump
 - Fix double echo
@@ -495,52 +606,52 @@
 
 ### Bug Fixes
 
-- Merge conflict with main
-- Merge conflict with main
+- Ignore refs for blame
 - Avoid unstable inner attributes
-- Query stdout terminal size to see if the output gose to a tty.
-- Use windows-specific API for terminal size query on windows
-- Add `windows-sys` dependency for targeting windows
+- Merge conflict with main
+- Merge conflict with main
 - Fix manpage generation of default package
-- Use `std::io::IsTerminal` to eliminate compatibility issue
 - Changed dll icon
 - Changed readme and Added README icon
 - New R lang icon
+- README is sorted and formatted
+- Fix large_enum_variant warning with explanation
+- Query stdout terminal size to see if the output gose to a tty.
+- Use windows-specific API for terminal size query on windows
+- Add `windows-sys` dependency for targeting windows
+- Use `std::io::IsTerminal` to eliminate compatibility issue
 - Terminal size query should only check `stdout`
 - Prefix unused binding name with underscore
-- Fix large_enum_variant warning with explanation
-- README is sorted and formatted
 
 ### Documentation
 
 - Add completions + manpage for --no-quotes flag
 - Leave nix install instructions open-ended
-- Leave nix install instructions open-ended
-- Documenting custom time-style
-- Added the new colors option to the man
 - Adding termux section
+- Leave nix install instructions open-ended
+- Added the new colors option to the man
+- Documenting custom time-style
 - Time-format supporting custom formats
+- Updated man to add new colors
 - Description of `--color` in README, manpage, and completions
 - Change `color` to `colo[u]r` in the option description.
-- Updated man to add new colors
-- Correct CONTRIBUTING.md on commit message type
 
 ### Features
 
-- Add quotations around filenames with spaces. exa pr#1165
 - Add rustfmt.toml file to prevent flags.rs fmt on save
-- [**breaking**] Separated root from other users
-- Added statically linked binaries
+- Add quotations around filenames with spaces. exa pr#1165
 - Replace hardcoded version by version variable
 - Add header to colors-explanation page
 - Revise man rule to use for loop and insert version
+- Adding the possibility to change git-repos colors
+- [**breaking**] Separated root from other users
 - New Rust icon
 - Added bdf,psf icons
 - Added lib icon
 - Added Contacts,Favorites icons
 - Added home icon
 - Added fdmdownload icon
-- Adding the possibility to change git-repos colors
+- Added statically linked binaries
 
 ### Miscellaneous Tasks
 
@@ -568,18 +679,17 @@
 ### Bug Fixes
 
 - Typo `this` -> `that`
-- Error for missed semicolon
-- More than 3 bools in a struct
+- Don’t show color when color is disabled
+- Respect spec on Windows and make it for with Konsole
 - Major and minor device on MacOS
 - Linux uses u32 for major/minor device numbers
-- Respect spec on Windows and make it for with Konsole
-- Don’t show color when color is disabled
+- Error for missed semicolon
+- More than 3 bools in a struct
 - Enable rustfmt by removing .rustfmt.toml which disables it
 - Replace rustfmt::skip on expressions because experimental
 - Remove unnecessary rustfmt::skip's in windows code
 - Add src/options/flags.rs to rustfmt.excludes
 - Left-over merge conflict in src/output/table
-- Ignore refs for blame
 
 ### Documentation
 
@@ -589,9 +699,9 @@
 
 ### Features
 
-- Listing files only using '--only-files' flag
 - Add EXA_COLOR bindings for un-themed items
 - Add EZA_ environment variables with fallback to EXA_
+- Listing files only using '--only-files' flag
 - Add rustfmt check to unit-tests workflow
 
 ### Miscellaneous Tasks
@@ -613,9 +723,9 @@
 
 ### Testing
 
-- Test for listing files only
 - Add unit tests for new style abbreviations
 - Regen git_repos_no_status
+- Test for listing files only
 
 ### Build
 
@@ -640,32 +750,33 @@
 - Use proc_mounts only on linux
 - Hotfix harmful documentation
 - Fix hyperlinks on Windows
+- Needless_borrow
 - Nix flake check also builds the package
 - [**breaking**] Change number_huge and unit_huge to match the man page short codes
 
 ### Documentation
 
+- Added instructions to install completions of eza to the readme
 - Added cafkafk suggestions
 - Fix codeblocks in zsh completions
 - Update README.md
-- Document filetypes theme and rename trait
+- Add Winget install info
 - Link directly to space
-- Add Mac support for the --mount option in the man page
-- Add SAFETY comments to unsafe code blocks
+- Document new file type two letter codes in man page
+- Document filetypes theme and rename trait
 - Update deb instructions to use keyring
 - Fix chmod in deb installation instructions
 - Add potential gpg install to deb installation instructions
-- Document character style pairs in the code and match with man page
 - Add install instructions for Void Linux
-- Documentation of 'sn' and 'sb' conflicted with later docs
 - Document dimmed and italic style codes
+- Document character style pairs in the code and match with man page
+- Documentation of 'sn' and 'sb' conflicted with later docs
 
 ### Features
 
 - Add completion files in deb packaging script
 - Adds filtering for Windows hidden files
-- Support --mount option on Mac
-- Support --mount option on Mac
+- Make file types themeable
 - Lazy loading of a files extended attributes and absolute path
 
 ### Miscellaneous Tasks
@@ -686,11 +797,12 @@
 - Format code
 - Move ALL_MOUNTS to fs::mounts
 - Migrate ALL_MOUNTS from lazy_static to OnceLock
+- Rename FileType::Immediate to more obvious FileType::Build
 
 ### Testing
 
-- Stabalised unit-tests.yml
 - Autogenerate testing dir
+- Stabalised unit-tests.yml
 - Autogenerate test dirs
 - Generate device files
 - Add unit tests that test both exa and ls style codes together
@@ -698,63 +810,64 @@
 
 ### Build
 
+- Set optlevel to 3
 - Add musl binary for linux
 - Fix checksums
 - Add TODOs to targets
-- Set optlevel to 3
 
 ### Ci
 
+- Add Winget Releaser workflow
 - Add nix Flake check to flake.yml
 - Removed nix build in favor of nix flake check
 - Include bash completion script in treefmt and fixed shellcheck formatting in completion script
-- Fix windows build
 - Fix spelling attemps -> attempts
 
 ## [0.12.0] - 2023-09-14
 
 ### Bug Fixes
 
-- Expand `--all` help
 - RUSTSEC-2020-0071
+- Expand `--all` help
 - Generalize gitignore to ignore all eza deb packages
+- Change trycmd config to use test/itest folder for testing
+- Revert to old apt install command suggestion and add hint
 - Canonicalize errors when the destination of a symbolic link is bad
 - Handle other canonicalize errors in hyperlinks and git
 - Fix windows build when canonicalize returns an error
-- Change trycmd config to use test/itest folder for testing
-- Revert to old apt install command suggestion and add hint
-- Remove stray backslashes
 - Is_some_and is an unstable Rust feature until 1.70
-- Revert "Support for Windows Hidden Files"
-- Shellcheck warnings
-- Revert "Support for Windows Hidden Files"
-- Shellcheck warnings
+- Remove stray backslashes
 - Exit 13 on os error 13
 - Rewrite comment
 - Improve trace strings
 - Tracing typo
+- Revert "Support for Windows Hidden Files"
+- Shellcheck warnings
+- Revert "Support for Windows Hidden Files"
+- Shellcheck warnings
 
 ### Documentation
 
 - Expand `--all` documentation
-- Add pthorpe92 gist
+- Add gentoo
+- Fix gentoo install
+- Add MacPorts install info
 - Remove xtests section from readme
 - Add deprecation warning to xtests/readme
 - Add deprecation warning to just xtest commands
 - Add deprecation warning to vagrantfile
-- Add MacPorts install info
-- Add gentoo
-- Fix gentoo install
+- Add guidelines for commit messages
+- Add pthorpe92 gist
 - Add docs for --git-repos & --git-repos-no-status
 - Fix gpg armor flag for deb release in readme
-- Add better explanation of git repos + no status
 - Add scoop install info
-- Add Winget install info
-- Added instructions to install completions of eza to the readme
-- Remove color specifications. change unknown git repo status to `~`
-- Fix missing color specification from man page
+- Add Mac support for the --mount option in the man page
+- Add SAFETY comments to unsafe code blocks
 - Remove license from developemnt section
 - Update rust badge
+- Add better explanation of git repos + no status
+- Remove color specifications. change unknown git repo status to `~`
+- Fix missing color specification from man page
 - Add missing man page for debian release
 
 ### Features
@@ -763,17 +876,20 @@
 - Add trycmd as dev-dependency
 - Add minimal trycmd binary
 - Add a few trycmd tests as example
-- Document and change output for --git-repos
 - Add apt installation workflow
+- Support --mount option on Mac
+- Support --mount option on Mac
 - Adds filtering on Windows hidden files
+- Document and change output for --git-repos
+- Add PERMISSION_DENIED exit code
 - Adds filtering on Windows hidden files
 - Adds filtering on Windows hidden files
 - Added shellcheck to treefmt
 - Adds filtering on Windows hidden files
-- Add PERMISSION_DENIED exit code
 
 ### Miscellaneous Tasks
 
+- Bump uzers to v0.11.3
 - Bump chrono from 0.4.27 to 0.4.30
 - Removal of xtests
 - Removal of vagrant
@@ -784,15 +900,14 @@
 
 ### Refactor
 
-- Rename FileType::Immediate to more obvious FileType::Build
 - Over-engineer deb-package.sh
 - Hide xtests folder
 - Split trycmd into tests for all, unix and windows
 - Limit unit-tests run on workflow change to unit-tests itself
-- Moved generateTest.sh to devtools/
-- Renamed the file
 - Add tracing to various code parts
 - Make std::process::exit global
+- Moved generateTest.sh to devtools/
+- Renamed the file
 
 ### Revert
 
@@ -846,8 +961,8 @@
 ### Build
 
 - Add compression, checksum gen for bin
-- Update flake.lock, cargo.lock
 - Add deny.toml
+- Update flake.lock, cargo.lock
 - Remove org warnings
 - Remove itest
 - Update flake.lock
@@ -857,7 +972,7 @@
 ### Ci
 
 - Don't use nix feature on ci
-- Add Winget Releaser workflow
+- Fix windows build
 - 1.65 -> 1.70
 - Enforce conventional commits
 - Enforce conventional commits
@@ -869,7 +984,6 @@
 - Add vendored-libgit2 feature to git2 dependency
 - Filename escaping (last character lost sometimes, no hyperlink)
 - Build for Windows with chrono
-- Needless_borrow
 
 ### Documentation
 
@@ -877,30 +991,25 @@
 - Add homebrew, misc fixes
 - Fix code of conduct link
 - Update archlinux
-- Add star history
-- Add informaton about lazy_static
 - Remove broken dependabot link
+- Add informaton about lazy_static
+- Add star history
 - Add bright color options in man pages
 - Add bright color support in readme changelog
-- Document new file type two letter codes in man page
 
 ### Features
 
 - Add highlighting of mounted directories (Linux only)
-- Add backlog of icons from various exa pull requests and others
 - Mark `.git` as ignored, which hides it when using `--git-ignore`
-- Add backlog of icons from various exa issues
 - Expose git2 feature vendored-libgit2
 - Add build commands to deb-package.sh
-- Support the MSRV of Rust (1.65.0)
 - Add bright colour options, change punctuation default
+- Support the MSRV of Rust (1.65.0)
 - Use chrono crate to handle datetime-related features
-- Make file types themeable
 
 ### Miscellaneous Tasks
 
 - Bump actions/checkout from 3 to 4
-- Bump uzers to v0.11.3
 - Release 0.11.1
 
 ### Testing
@@ -936,13 +1045,17 @@
 
 - Optimize checking for empty directories when a directory has subdirectories
 - Use perfect hash tables for file types and icons
+- Add backlog of icons from various exa pull requests and others
+- Add backlog of icons from various exa issues
 
 ### Miscellaneous Tasks
 
 - Bump git2 from 0.17.2 to 0.18.0
 - Bump uzers from 0.11.1 to 0.11.2
-- Bump glob from 0.3.0 to 0.3.1
+- Bump DeterminateSystems/flake-checker-action from 4 to 5
 - Bump DeterminateSystems/nix-installer-action from 3 to 4
+- Bump glob from 0.3.0 to 0.3.1
+- Bump actions/stale from 5 to 8
 - Bump terminal_size from 0.1.16 to 0.2.6
 - Bump timeago from 0.3.1 to 0.4.1
 - Release 0.11.0
@@ -986,7 +1099,6 @@
 
 ### Miscellaneous Tasks
 
-- Bump DeterminateSystems/flake-checker-action from 4 to 5
 - Add funding.yml
 - Release 0.10.9
 
@@ -1010,10 +1122,6 @@
 - Add codeowners
 - Add gierens as .deb codeowner
 - Add windows to CI
-
-### Deps
-
-- Change users depedency to uzers
 
 ## [0.10.8] - 2023-08-22
 
@@ -1039,13 +1147,12 @@
 - Cafkafk -> eza-community
 - Add gpg public key for the deb repository
 - Add section about debian and ubuntu installation
-- Add guidelines for commit messages
 
 ### Features
 
+- Add git-ignored color/style option
 - Add `just` and `pandoc` to devShell bc they are necessary for man
 - Add `.envrc` so direnv automatically opens the nix dev environment
-- Add git-ignored color/style option
 - Match folder icon to reflect contents
 - Match folder icon to reflect contents
 - --blocksize completion, new description
@@ -1053,10 +1160,10 @@
 
 ### Miscellaneous Tasks
 
-- Bump libc from 0.2.93 to 0.2.147
-- Bump num_cpus from 1.13.0 to 1.16.0
 - Bump git2 from 0.16.1 to 0.17.2
 - Bump unicode-width from 0.1.8 to 0.1.10
+- Bump libc from 0.2.93 to 0.2.147
+- Bump num_cpus from 1.13.0 to 1.16.0
 - Release 0.10.8
 
 ### Refactor
@@ -1106,6 +1213,10 @@
 - Add labeler for flake
 - Add flake description
 
+### Deps
+
+- Change users depedency to uzers
+
 ### Git
 
 - Add deb package to .gitignore
@@ -1114,9 +1225,9 @@
 
 ### Bug Fixes
 
-- Broken zsh completion syntax
 - Respect GIT_CEILING_DIRECTORIES
 - MacOS flake support
+- Broken zsh completion syntax
 
 ### Documentation
 
@@ -1142,7 +1253,6 @@
 ### Miscellaneous Tasks
 
 - Add PR template
-- Bump actions/stale from 5 to 8
 - Bump log from 0.4.14 to 0.4.20
 - Release 0.10.7
 
@@ -1216,6 +1326,11 @@
 
 - Release 0.10.6
 
+### Git
+
+- Use GIT_DIR env var to find the repo
+- Use open_from_env before discover
+
 ## [0.10.5] - 2023-08-03
 
 ### Bug Fixes
@@ -1231,22 +1346,10 @@
 
 ### Bug Fixes
 
-- Dereferencing linksfile size.
-- Dereferencing links users.
-- Dereferencing links groups.
-- Dereferencing links permissions.
-- Dereferencing links timestamps.
 - Syntax error
-
-### Documentation
-
-- Add -X/--dereference flag
 
 ### Features
 
-- Add symlink dereferencing flag
-- Add -X/--dereference completions
-- Add -X/--dereference completions
 - Added ".out" files for latex
 - Add changelog generation
 
@@ -1260,6 +1363,12 @@
 
 - More JPG extensions
 - Add compression icon to .tXX files #930
+- Dereferencing linksfile size.
+- Dereferencing links users.
+- Dereferencing links groups.
+- Dereferencing links permissions.
+- Dereferencing links timestamps.
+- Add Svelte icon
 - Fish completion for -i/--inode option
 - Typo
 - Use eprintln instead
@@ -1281,25 +1390,25 @@
 - Change license icon
 - Change gpg icons to keys
 - Add icon for ocaml (.ml extension)
-- .ipynb icon comment
 - Better license icon
 - Replace obsolete icons
-- Add Svelte icon
 - Add Emacs icon for .el and org-mode for .org
 - Added icons for .rmeta
 - Add icon support for .mjs, .cjs, .mts, .cts files
 - Add webpack.config.cjs to immediate files list
+- .ipynb icon comment
 - Removed result
 - Update --version info
-- Update snapscraft.yaml
 - Sort is_immediate
 - Add flake, autoconf, cargo lock
 - Added trailing commas
+- Update snapscraft.yaml
 - Remove accidentally commited test files
 
 ### Documentation
 
 - Add hint how to install exa on Android / Termux
+- Add -X/--dereference flag
 - Change name in README.md
 - Add `nix run` to readme
 - Fix flow issue
@@ -1330,11 +1439,15 @@
 - New Icons and CLI argument to suppress icons
 - Add sty file
 - Add julia file extension icon
+- Add symlink dereferencing flag
+- Add -X/--dereference completions
+- Add -X/--dereference completions
+- Symlinks report their target's valid size
+- Update Cargo.toml to optimise binaries for size
 - Add status for git repos
 - Add selinux contexts support
 - Add -o shorcut to --octal-permissions
 - Hyperlink flag
-- Update Cargo.toml to optimise binaries for size
 - Update Cargo.toml to optimise binaries for size 
 - Add git-status-.* completions
 - Zsh add git-status-.* completions
@@ -1345,7 +1458,6 @@
 - Left align relative time
 - Add support for --time-style=relative
 - Add vim icon
-- Symlinks report their target's valid size
 - Add justfile
 - Add pxm
 - Add compressed types
@@ -1425,11 +1537,6 @@
 ### Details
 
 - `filter` is only used when recursing
-
-### Git
-
-- Use GIT_DIR env var to find the repo
-- Use open_from_env before discover
 
 ### Git-feature
 

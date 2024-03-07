@@ -427,14 +427,6 @@ impl<'a> Render<'a> {
         }
     }
 
-    pub fn render_file(&self, cells: TableRow, name: TextCell, tree: TreeParams) -> Row {
-        Row {
-            cells: Some(cells),
-            name,
-            tree,
-        }
-    }
-
     pub fn iterate_with_table(&'a self, table: Table<'a>, rows: Vec<Row>) -> TableIter<'a> {
         TableIter {
             tree_trunk: TreeTrunk::default(),

@@ -94,6 +94,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s.
 - **--color-scale-mode=(mode)**: use gradient or fixed colors in --color-scale. valid options are `fixed` or `gradient`
 - **--icons=(when)**: when to display icons (always, auto, never)
 - **--hyperlink**: display entries as hyperlinks
+- **--absolute=(mode)**: display entries with their absolute path (on, follow, off)
 - **-w**, **--width=(columns)**: set screen width in columns
 
 ### Filtering options
