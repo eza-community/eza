@@ -308,17 +308,16 @@ impl TypedValueParser for TimeFormatParser {
                     //   - there is nothing after `+`
                     // line 1 will be empty when:
                     //   - `+` is followed immediately by `\n`
-                    let Some(non_recent) = lines.next() else
-                        {
-                            return Err(Error::raw(
-                                clap::error::ErrorKind::InvalidValue,
-                                format!(
-                                    "Invalid custom timestamp format: {fmt}.\n\
-        Please start the format with a plus sign (+) to indicate a custom format.\n\
-        For example: +\"%Y-%m-%d %H:%M:%S\"",
-                                ),
-                            ))
-                        };
+                    let Some(non_recent) = lines.next() else {
+                        return Err(Error::raw(
+                            clap::error::ErrorKind::InvalidValue,
+                            format!(
+                                "Invalid custom timestamp format: {fmt}.\n\
+    Please start the format with a plus sign (+) to indicate a custom format.\n\
+    For example: +\"%Y-%m-%d %H:%M:%S\"",
+                            ),
+                        ));
+                    };
                     let non_recent = if non_recent.is_empty() {
                         return Err(Error::raw(
                             clap::error::ErrorKind::InvalidValue,
@@ -337,16 +336,21 @@ impl TypedValueParser for TimeFormatParser {
                     //   - there is nothing after the first `\n`
                     // line 2 will be empty when:
                     //   - there exist at least 2 `\n`, and no content between the 1st and 2nd `\n`
-                    let empty_recent_format_msg =
-                        "Custom timestamp format for recent files is empty, \
-                    please supply a chrono format string at the second line.";
+                    let mut failed: bool = false;
                     let recent = lines.next().map(|rec| {
                         if rec.is_empty() {
-                            panic!("{}", empty_recent_format_msg)
+                            failed = true;
+                            String::new()
                         } else {
                             String::from(rec)
                         }
                     });
+                    if failed {
+                        return Err(Error::raw(
+                            clap::error::ErrorKind::InvalidValue,
+                            "Custom timestamp format for recent files is empty, please supply a chrono format string at the second line.\n".to_string(),
+                        ));
+                    };
                     Ok(TimeFormat::Custom {
                         non_recent: Some(String::from(non_recent)),
                         recent,

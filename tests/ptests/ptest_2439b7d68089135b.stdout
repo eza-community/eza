@@ -120,5 +120,7 @@ Options:
           use stdin as the sole input
   -O, --flags
           
+      --absolute [<ABSOLUTE>]
+          show absolute paths of file or directory [possible values: on, off, follow, no, yes]
   -V, --version
           Print version
