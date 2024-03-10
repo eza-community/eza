@@ -95,7 +95,7 @@ impl ColorScaleInformation {
         };
 
         if let Some(file_time) = time_type.get_corresponding_time(file) {
-            self.adjust_style(style, file_time.timestamp_millis() as f32, range)
+            self.adjust_style(style, file_time.and_utc().timestamp_millis() as f32, range)
         } else {
             style
         }
@@ -114,19 +114,19 @@ fn update_information_recursively(
     for file in files {
         if information.options.age {
             Extremes::update(
-                file.created_time().map(|x| x.timestamp_millis() as f32),
+                file.created_time().map(|x| x.and_utc().timestamp_millis() as f32),
                 &mut information.created,
             );
             Extremes::update(
-                file.modified_time().map(|x| x.timestamp_millis() as f32),
+                file.modified_time().map(|x| x.and_utc().timestamp_millis() as f32),
                 &mut information.modified,
             );
             Extremes::update(
-                file.accessed_time().map(|x| x.timestamp_millis() as f32),
+                file.accessed_time().map(|x| x.and_utc().timestamp_millis() as f32),
                 &mut information.accessed,
             );
             Extremes::update(
-                file.changed_time().map(|x| x.timestamp_millis() as f32),
+                file.changed_time().map(|x| x.and_utc().timestamp_millis() as f32),
                 &mut information.changed,
             );
         }
