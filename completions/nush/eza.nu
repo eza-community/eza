@@ -18,6 +18,7 @@ export extern "eza" [
     --icons                    # When to display icons
     --no-quotes                # Don't quote file names with spaces
     --hyperlink                # Display entries as hyperlinks
+    --absolute                 # Display entries with their absolute path
     --group-directories-first  # Sort directories before other files
     --group-directories-last   # Sort directories after other files
     --git-ignore               # Ignore files mentioned in '.gitignore'

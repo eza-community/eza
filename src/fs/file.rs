@@ -343,7 +343,19 @@ impl<'dir> File<'dir> {
     /// Determine the full path resolving all symbolic links on demand.
     pub fn absolute_path(&self) -> Option<&PathBuf> {
         self.absolute_path
-            .get_or_init(|| std::fs::canonicalize(&self.path).ok())
+            .get_or_init(|| {
+                if self.link_target().is_broken() {
+                    // workaround for broken symlinks to get absolute path for parent and then
+                    // append name of file; std::fs::canonicalize requires all path components
+                    // (including the last one) to exist
+                    self.path
+                        .parent()
+                        .and_then(|parent| std::fs::canonicalize(parent).ok())
+                        .map(|p| p.join(self.name.clone()))
+                } else {
+                    std::fs::canonicalize(&self.path).ok()
+                }
+            })
             .as_ref()
     }
 
