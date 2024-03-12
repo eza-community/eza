@@ -28,6 +28,7 @@ use std::path::{Component, PathBuf};
 use std::process::exit;
 
 use ansiterm::{ANSIStrings, Style};
+use output::OutputType;
 
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::GitIgnore;
@@ -297,9 +298,16 @@ impl<'args> Exa<'args> {
         let is_only_dir = dirs.len() == 1 && no_files;
 
         self.options.filter.filter_argument_files(&mut files);
+        if self.options.view.output_type == OutputType::Json {
+            writeln!(&mut self.writer, "{{")?;
+        }
         self.print_files(None, files)?;
 
-        self.print_dirs(dirs, no_files, is_only_dir, exit_status)
+        self.print_dirs(dirs, no_files, is_only_dir, exit_status)?;
+        if self.options.view.output_type == OutputType::Json {
+            writeln!(&mut self.writer, "}}")?;
+        }
+        Ok(exit_status)
     }
 
     fn print_dirs(
@@ -316,10 +324,20 @@ impl<'args> Exa<'args> {
         for dir in dir_files {
             // Put a gap between directories, or between the list of files and
             // the first directory.
-            if first {
-                first = false;
-            } else {
-                writeln!(&mut self.writer)?;
+
+            if self.options.view.output_type != OutputType::Json {
+                if first {
+                    first = false;
+                } else {
+                    writeln!(&mut self.writer)?;
+                }
+            }
+            if self.options.view.output_type == OutputType::Json {
+                if first {
+                    first = false;
+                } else {
+                    write!(&mut self.writer, ",")?;
+                }
             }
 
             if !is_only_dir {
@@ -331,7 +349,11 @@ impl<'args> Exa<'args> {
                     Style::default(),
                     quote_style,
                 );
-                writeln!(&mut self.writer, "{}:", ANSIStrings(&bits))?;
+                if self.options.view.output_type == OutputType::Json {
+                    writeln!(&mut self.writer, "\"{}\": {{", ANSIStrings(&bits))?;
+                } else {
+                    writeln!(&mut self.writer, "{}:", ANSIStrings(&bits))?;
+                }
             }
 
             let mut children = Vec::new();
@@ -378,11 +400,17 @@ impl<'args> Exa<'args> {
                         Ok(_) => (),
                         Err(e) => return Err(e),
                     }
+                    if self.options.view.output_type == OutputType::Json && !is_only_dir {
+                        writeln!(&mut self.writer, "}}")?;
+                    }
                     continue;
                 }
             }
 
             self.print_files(Some(&dir), children)?;
+            if self.options.view.output_type == OutputType::Json && !is_only_dir {
+                writeln!(&mut self.writer, "}}")?;
+            }
         }
 
         Ok(exit_status)

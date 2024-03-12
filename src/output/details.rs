@@ -493,18 +493,6 @@ impl<'a> Render<'a> {
         }
     }
 
-    pub fn iterate_with_table_json(
-        &'a self,
-        table: Table<'a>,
-        rows: Vec<Row>,
-    ) -> JsonTableIter<'a> {
-        JsonTableIter {
-            total_width: table.widths().total(),
-            table,
-            inner: rows.into_iter(),
-        }
-    }
-
     pub fn iterate(&'a self, rows: Vec<Row>) -> Iter {
         Iter {
             tree_trunk: TreeTrunk::default(),
@@ -568,39 +556,6 @@ impl<'a> Iterator for TableIter<'a> {
             cell.append(row.name.concat_content());
             cell
         })
-    }
-}
-
-#[derive(Clone)]
-pub struct JsonTableIter<'a> {
-    inner: VecIntoIter<Row>,
-    table: Table<'a>,
-
-    total_width: usize,
-}
-
-impl<'a> Iterator for JsonTableIter<'a> {
-    type Item = (TextCell, TreeParams);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.inner.next().map(|row| {
-            let mut cell = if let Some(cells) = row.cells {
-                self.table.render(cells)
-            } else {
-                let mut cell = TextCell::default();
-                cell.add_spaces(self.total_width);
-                cell
-            };
-
-            cell.append(row.name.concat_content());
-            (cell, row.tree)
-        })
-    }
-}
-
-impl JsonTableIter<'_> {
-    pub fn len(&self) -> usize {
-        self.inner.len()
     }
 }
 
