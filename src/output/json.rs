@@ -2,10 +2,7 @@
 This file is a special renderer for json
 */
 
-use std::{
-    fmt::Display,
-    io::{self, Write},
-};
+use std::io::{self, Write};
 
 use super::{details::TableIter, TextCell};
 
@@ -76,18 +73,18 @@ impl JsonRenderer {
     pub fn new(header: Option<TextCell>, files: TableIter<'_>) -> Self {
         Self {
             header,
-            files: files.map(|row| JsonFile::new(row)).collect(),
+            files: files.map(JsonFile::new).collect(),
         }
     }
 
     pub fn render<W: Write>(&self, w: &mut W) -> io::Result<()> {
-        writeln!(w, "{{\n\"files\":[")?;
+        writeln!(w, "\n\"files\":[")?;
         for (i, f) in self.files.iter().enumerate() {
             if i != 0 {
                 writeln!(w, ",")?;
             }
             f.display(w, &self.header)?;
         }
-        writeln!(w, "]\n}}")
+        writeln!(w, "]")
     }
 }
