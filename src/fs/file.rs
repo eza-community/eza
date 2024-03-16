@@ -344,7 +344,7 @@ impl<'dir> File<'dir> {
     pub fn absolute_path(&self) -> Option<&PathBuf> {
         self.absolute_path
             .get_or_init(|| {
-                if self.link_target().is_broken() {
+                if self.is_link() && self.link_target().is_broken() {
                     // workaround for broken symlinks to get absolute path for parent and then
                     // append name of file; std::fs::canonicalize requires all path components
                     // (including the last one) to exist

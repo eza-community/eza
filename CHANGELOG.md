@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.18.7] - 2024-03-14
+
+### Bug Fixes
+
+- Bugfix to resolve absolute paths that are not symlinks
+
+### Features
+
+- Add filetype and icon for .hh extension
+
 ## [0.18.6] - 2024-03-06
 
 ### Bug Fixes
@@ -26,6 +36,7 @@
 ### Miscellaneous Tasks
 
 - Cleaning dirs
+- Release eza v0.18.6
 
 ### Refactor
 
