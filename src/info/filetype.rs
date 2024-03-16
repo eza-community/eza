@@ -317,6 +317,7 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "exs"        => FileType::Source, // Elixir
     "f"          => FileType::Source, // Fortran
     "f90"        => FileType::Source, // Fortran
+    "fnl"        => FileType::Source, // Fennel
     "for"        => FileType::Source, // Fortran
     "fs"         => FileType::Source, // F#
     "fsh"        => FileType::Source, // Fragment shader
