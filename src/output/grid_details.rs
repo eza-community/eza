@@ -2,7 +2,9 @@
 
 use std::io::{self, Write};
 
-use term_grid::{Direction, Filling, Grid, GridOptions};
+use ansi_width;
+use grid::{Direction, Filling, Grid, GridOptions};
+use term_grid as grid;
 
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::FileFilter;

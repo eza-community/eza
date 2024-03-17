@@ -63,8 +63,8 @@ use std::io::{self, Write};
 use std::path::PathBuf;
 use std::vec::IntoIter as VecIntoIter;
 
-use ansiterm::Style;
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use nu_ansi_term::Style;
+use rayon::prelude::*;
 
 use log::*;
 
