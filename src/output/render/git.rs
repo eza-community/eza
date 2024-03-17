@@ -1,4 +1,4 @@
-use ansiterm::{ANSIString, Style};
+use nu_ansi_term::{AnsiString as ANSIString, Style};
 
 use crate::fs::fields as f;
 use crate::output::cell::{DisplayWidth, TextCell};
@@ -98,8 +98,8 @@ pub mod test {
     use crate::fs::fields as f;
     use crate::output::cell::{DisplayWidth, TextCell};
 
-    use ansiterm::Colour::*;
-    use ansiterm::Style;
+    use nu_ansi_term::Color::*;
+    use nu_ansi_term::Style;
 
     struct TestColours;
 
@@ -142,7 +142,7 @@ pub mod test {
             contents: vec![Fixed(90).paint("-"), Fixed(90).paint("-")].into(),
         };
 
-        assert_eq!(expected, stati.render(&TestColours))
+        assert_eq!(expected, stati.render(&TestColours));
     }
 
     #[test]
@@ -157,6 +157,6 @@ pub mod test {
             contents: vec![Fixed(91).paint("N"), Fixed(92).paint("M")].into(),
         };
 
-        assert_eq!(expected, stati.render(&TestColours))
+        assert_eq!(expected, stati.render(&TestColours));
     }
 }

@@ -1,4 +1,4 @@
-use ansiterm::Style;
+use nu_ansi_term::Style;
 use uzers::Users;
 
 use crate::fs::fields as f;
@@ -49,8 +49,8 @@ pub mod test {
     use crate::output::cell::TextCell;
     use crate::output::table::UserFormat;
 
-    use ansiterm::Colour::*;
-    use ansiterm::Style;
+    use nu_ansi_term::Color::*;
+    use nu_ansi_term::Style;
     use uzers::mock::MockUsers;
     use uzers::User;
 

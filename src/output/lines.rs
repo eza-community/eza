@@ -1,6 +1,6 @@
 use std::io::{self, Write};
 
-use ansiterm::ANSIStrings;
+use nu_ansi_term::AnsiStrings as ANSIStrings;
 
 use crate::fs::filter::FileFilter;
 use crate::fs::File;

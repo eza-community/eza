@@ -71,8 +71,7 @@ name = "eza"
 
 
 [dependencies]
-ansi-width = "0.1.0"
-ansiterm = { version = "0.12.2", features = ["ansi_colours"] }
+nu-ansi-term = "0.49.0"
 chrono = { version = "0.4.34", default-features = false, features = ["clock"] }
 glob = "0.3"
 libc = "0.2"
@@ -92,6 +91,7 @@ timeago = { version = "0.4.2", default-features = false }
 unicode-width = "0.1"
 zoneinfo_compiled = "0.5.1"
 rayon = "1.9.0"
+ansi-width = "0.1.0"
 
 [dependencies.git2]
 version = "0.18"
