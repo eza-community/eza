@@ -1,7 +1,7 @@
 use crate::fs::fields as f;
 use crate::output::table::FlagsFormat;
 use crate::output::TextCell;
-use ansiterm::Style;
+use nu_ansi_term::Style;
 
 // See https://learn.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants
 const FILE_ATTRIBUTE_READONLY: u32 = 0x0000_0001; // R

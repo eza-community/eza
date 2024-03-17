@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use std::path::Path;
 
-use ansiterm::{ANSIString, Style};
+use nu_ansi_term::{AnsiString as ANSIString, Style};
 use path_clean;
 use unicode_width::UnicodeWidthStr;
 

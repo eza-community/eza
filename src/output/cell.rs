@@ -3,7 +3,7 @@
 use std::iter::Sum;
 use std::ops::{Add, Deref, DerefMut};
 
-use ansiterm::{ANSIString, ANSIStrings, Style};
+use nu_ansi_term::{AnsiString as ANSIString, AnsiStrings as ANSIStrings, Style};
 use unicode_width::UnicodeWidthStr;
 
 /// An individual cell that holds text in a table, used in the details and
@@ -158,7 +158,7 @@ impl TextCellContents {
     pub fn width(&self) -> DisplayWidth {
         self.0
             .iter()
-            .map(|anstr| DisplayWidth::from(&**anstr))
+            .map(|anstr| DisplayWidth::from(anstr.as_str()))
             .sum()
     }
 

@@ -1,5 +1,5 @@
 use super::file_name::QuoteStyle;
-use ansiterm::{ANSIString, Style};
+use nu_ansi_term::{AnsiString as ANSIString, Style};
 
 pub fn escape(
     string: String,

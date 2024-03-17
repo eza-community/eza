@@ -1,4 +1,4 @@
-use ansiterm::Style;
+use nu_ansi_term::Style;
 use std::ffi::CStr;
 
 #[cfg(target_os = "netbsd")]
