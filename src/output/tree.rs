@@ -141,10 +141,7 @@ impl TreeTrunk {
 
 impl TreeParams {
     pub fn new(depth: TreeDepth, last: bool) -> Self {
-        Self {
-            depth,
-            last,
-        }
+        Self { depth, last }
     }
 
     pub fn is_at_root(&self) -> bool {
