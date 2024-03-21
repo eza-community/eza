@@ -25,6 +25,8 @@ pub struct UiStyles {
     pub octal:        Style,          // oc
     pub flags:        Style,          // ff
 
+    pub icon:         Option<Style>,  // ic
+
     pub symlink_path:         Style,  // lp
     pub control_char:         Style,  // cc
     pub broken_symlink:       Style,  // or
