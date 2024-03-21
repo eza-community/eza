@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.18.8] - 2024-03-21
+
+### Bug Fixes
+
+- Avoid deprecation warnings
+- Rustfmt issues
+
+### Features
+
+- Add fennel lang icon and associations
+
 ## [0.18.7] - 2024-03-14
 
 ### Bug Fixes
@@ -9,6 +20,10 @@
 ### Features
 
 - Add filetype and icon for .hh extension
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.7
 
 ## [0.18.6] - 2024-03-06
 
