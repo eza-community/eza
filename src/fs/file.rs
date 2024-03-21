@@ -67,12 +67,15 @@ pub struct File<'dir> {
     /// path (following a symlink).
     pub path: PathBuf,
 
+    /// The cached filetype for this file
+    pub filetype: OnceLock<std::fs::FileType>,
+
     /// A cached `metadata` (`stat`) call for this file.
     ///
     /// This too is queried multiple times, and is *not* cached by the OS, as
     /// it could easily change between invocations — but exa is so short-lived
     /// it’s better to just cache it.
-    pub metadata: std::fs::Metadata,
+    pub metadata: OnceLock<std::fs::Metadata>,
 
     /// A reference to the directory that contains this file, if any.
     ///
@@ -115,6 +118,7 @@ impl<'dir> File<'dir> {
         filename: FN,
         deref_links: bool,
         total_size: bool,
+        filetype: Option<std::fs::FileType>,
     ) -> io::Result<File<'dir>>
     where
         PD: Into<Option<&'dir Dir>>,
@@ -124,28 +128,30 @@ impl<'dir> File<'dir> {
         let name = filename.into().unwrap_or_else(|| File::filename(&path));
         let ext = File::ext(&path);
 
-        debug!("Statting file {:?}", &path);
-        let metadata = std::fs::symlink_metadata(&path)?;
         let is_all_all = false;
-        let extended_attributes = OnceLock::new();
-        let absolute_path = OnceLock::new();
         let recursive_size = if total_size {
             RecursiveSize::Unknown
         } else {
             RecursiveSize::None
         };
 
+        let filetype = match filetype {
+            Some(f) => OnceLock::from(f),
+            None => OnceLock::new(),
+        };
+
         let mut file = File {
             name,
             ext,
             path,
-            metadata,
             parent_dir,
             is_all_all,
             deref_links,
             recursive_size,
-            extended_attributes,
-            absolute_path,
+            filetype,
+            metadata: OnceLock::new(),
+            extended_attributes: OnceLock::new(),
+            absolute_path: OnceLock::new(),
         };
 
         if total_size {
@@ -163,12 +169,8 @@ impl<'dir> File<'dir> {
     ) -> io::Result<File<'dir>> {
         let ext = File::ext(&path);
 
-        debug!("Statting file {:?}", &path);
-        let metadata = std::fs::symlink_metadata(&path)?;
         let is_all_all = true;
         let parent_dir = Some(parent_dir);
-        let extended_attributes = OnceLock::new();
-        let absolute_path = OnceLock::new();
         let recursive_size = if total_size {
             RecursiveSize::Unknown
         } else {
@@ -179,13 +181,14 @@ impl<'dir> File<'dir> {
             name: name.into(),
             ext,
             path,
-            metadata,
             parent_dir,
             is_all_all,
             deref_links: false,
-            extended_attributes,
-            absolute_path,
             recursive_size,
+            metadata: OnceLock::new(),
+            absolute_path: OnceLock::new(),
+            extended_attributes: OnceLock::new(),
+            filetype: OnceLock::new(),
         };
 
         if total_size {
@@ -258,6 +261,22 @@ impl<'dir> File<'dir> {
         }
     }
 
+    fn filetype(&self) -> &std::fs::FileType {
+        self.filetype.get_or_init(|| self.metadata().file_type())
+    }
+
+    pub fn metadata(&self) -> &std::fs::Metadata {
+        self.metadata.get_or_init(|| {
+            debug!("Statting file {:?}", &self.path);
+            dbg!();
+            if self.deref_links {
+                std::fs::metadata(&self.path).unwrap()
+            } else {
+                std::fs::symlink_metadata(&self.path).unwrap()
+            }
+        })
+    }
+
     /// Get the extended attributes of a file path on demand.
     pub fn extended_attributes(&self) -> &Vec<Attribute> {
         self.extended_attributes
@@ -266,7 +285,7 @@ impl<'dir> File<'dir> {
 
     /// Whether this file is a directory on the filesystem.
     pub fn is_directory(&self) -> bool {
-        self.metadata.is_dir()
+        self.filetype().is_dir()
     }
 
     /// Whether this file is a directory, or a symlink pointing to a directory.
@@ -299,7 +318,7 @@ impl<'dir> File<'dir> {
     /// Whether this file is a regular file on the filesystem — that is, not a
     /// directory, a link, or anything else treated specially.
     pub fn is_file(&self) -> bool {
-        self.metadata.is_file()
+        self.filetype().is_file()
     }
 
     /// Whether this file is both a regular file *and* executable for the
@@ -308,36 +327,36 @@ impl<'dir> File<'dir> {
     #[cfg(unix)]
     pub fn is_executable_file(&self) -> bool {
         let bit = modes::USER_EXECUTE;
-        self.is_file() && (self.metadata.permissions().mode() & bit) == bit
+        self.is_file() && (self.metadata().permissions().mode() & bit) == bit
     }
 
     /// Whether this file is a symlink on the filesystem.
     pub fn is_link(&self) -> bool {
-        self.metadata.file_type().is_symlink()
+        self.filetype().is_symlink()
     }
 
     /// Whether this file is a named pipe on the filesystem.
     #[cfg(unix)]
     pub fn is_pipe(&self) -> bool {
-        self.metadata.file_type().is_fifo()
+        self.filetype().is_fifo()
     }
 
     /// Whether this file is a char device on the filesystem.
     #[cfg(unix)]
     pub fn is_char_device(&self) -> bool {
-        self.metadata.file_type().is_char_device()
+        self.filetype().is_char_device()
     }
 
     /// Whether this file is a block device on the filesystem.
     #[cfg(unix)]
     pub fn is_block_device(&self) -> bool {
-        self.metadata.file_type().is_block_device()
+        self.filetype().is_block_device()
     }
 
     /// Whether this file is a socket on the filesystem.
     #[cfg(unix)]
     pub fn is_socket(&self) -> bool {
-        self.metadata.file_type().is_socket()
+        self.filetype().is_socket()
     }
 
     /// Determine the full path resolving all symbolic links on demand.
@@ -426,7 +445,8 @@ impl<'dir> File<'dir> {
                     parent_dir: None,
                     path,
                     ext,
-                    metadata,
+                    filetype: OnceLock::from(metadata.file_type()),
+                    metadata: OnceLock::from(metadata),
                     name,
                     is_all_all: false,
                     deref_links: self.deref_links,
@@ -473,7 +493,7 @@ impl<'dir> File<'dir> {
     /// more attentively.
     #[cfg(unix)]
     pub fn links(&self) -> f::Links {
-        let count = self.metadata.nlink();
+        let count = self.metadata().nlink();
 
         f::Links {
             count,
@@ -484,7 +504,7 @@ impl<'dir> File<'dir> {
     /// This file’s inode.
     #[cfg(unix)]
     pub fn inode(&self) -> f::Inode {
-        f::Inode(self.metadata.ino())
+        f::Inode(self.metadata().ino())
     }
 
     /// This actual size the file takes up on disk, in bytes.
@@ -503,7 +523,7 @@ impl<'dir> File<'dir> {
             // Note that metadata.blocks returns the number of blocks
             // for 512 byte blocks according to the POSIX standard
             // even though the physical block size may be different.
-            f::Blocksize::Some(self.metadata.blocks() * 512)
+            f::Blocksize::Some(self.metadata().blocks() * 512)
         } else {
             // directory or symlinks
             f::Blocksize::None
@@ -520,7 +540,7 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        Some(f::User(self.metadata.uid()))
+        Some(f::User(self.metadata().uid()))
     }
 
     /// The ID of the group that owns this file.
@@ -532,7 +552,7 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        Some(f::Group(self.metadata.gid()))
+        Some(f::Group(self.metadata().gid()))
     }
 
     /// This file’s size, if it’s a regular file.
@@ -557,7 +577,7 @@ impl<'dir> File<'dir> {
             self.recursive_size
                 .map_or(f::Size::None, |bytes, _| f::Size::Some(bytes))
         } else if self.is_char_device() || self.is_block_device() {
-            let device_id = self.metadata.rdev();
+            let device_id = self.metadata().rdev();
 
             // MacOS and Linux have different arguments and return types for the
             // functions major and minor.  On Linux the try_into().unwrap() and
@@ -571,7 +591,7 @@ impl<'dir> File<'dir> {
                 minor: unsafe { libc::minor(device_id.try_into().unwrap()) } as u32,
             })
         } else if self.is_file() {
-            f::Size::Some(self.metadata.len())
+            f::Size::Some(self.metadata().len())
         } else {
             // symlink
             f::Size::None
@@ -597,7 +617,7 @@ impl<'dir> File<'dir> {
     #[cfg(unix)]
     fn recursive_directory_size(&self) -> RecursiveSize {
         if self.is_directory() {
-            let key = (self.metadata.dev(), self.metadata.ino());
+            let key = (self.metadata().dev(), self.metadata().ino());
             if let Some(size) = DIRECTORY_SIZE_CACHE.lock().unwrap().get(&key) {
                 return RecursiveSize::Some(size.0, size.1);
             }
@@ -615,8 +635,8 @@ impl<'dir> File<'dir> {
                         }
                         RecursiveSize::Unknown => {}
                         RecursiveSize::None => {
-                            size += file.metadata.size();
-                            blocks += file.metadata.blocks();
+                            size += file.metadata().size();
+                            blocks += file.metadata().blocks();
                         }
                     }
                 }
@@ -644,7 +664,7 @@ impl<'dir> File<'dir> {
     /// of a directory when `total_size` is used.
     #[inline]
     pub fn length(&self) -> u64 {
-        self.recursive_size.unwrap_bytes_or(self.metadata.len())
+        self.recursive_size.unwrap_bytes_or(self.metadata().len())
     }
 
     /// Is the file is using recursive size calculation
@@ -665,7 +685,7 @@ impl<'dir> File<'dir> {
     #[cfg(unix)]
     pub fn is_empty_dir(&self) -> bool {
         if self.is_directory() {
-            if self.metadata.nlink() > 2 {
+            if self.metadata().nlink() > 2 {
                 // Directories will have a link count of two if they do not have any subdirectories.
                 // The '.' entry is a link to itself and the '..' is a link to the parent directory.
                 // A subdirectory will have a link to its parent directory increasing the link count
@@ -722,7 +742,7 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        self.metadata
+        self.metadata()
             .modified()
             .map(|st| DateTime::<Utc>::from(st).naive_utc())
             .ok()
@@ -737,7 +757,10 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        NaiveDateTime::from_timestamp_opt(self.metadata.ctime(), self.metadata.ctime_nsec() as u32)
+        NaiveDateTime::from_timestamp_opt(
+            self.metadata().ctime(),
+            self.metadata().ctime_nsec() as u32,
+        )
     }
 
     #[cfg(windows)]
@@ -753,7 +776,7 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        self.metadata
+        self.metadata()
             .accessed()
             .map(|st| DateTime::<Utc>::from(st).naive_utc())
             .ok()
@@ -767,7 +790,7 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        match self.metadata.created() {
+        match self.metadata().created() {
             Ok(btime) => Some(DateTime::<Utc>::from(btime).naive_utc()),
             Err(_) => None,
         }
@@ -822,7 +845,7 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        let bits = self.metadata.mode();
+        let bits = self.metadata().mode();
         let has_bit = |bit| bits & bit == bit;
 
         Some(f::Permissions {
