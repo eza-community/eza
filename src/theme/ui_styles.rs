@@ -257,6 +257,9 @@ impl UiStyles {
             "hd" => self.header                         = pair.to_style(),
             "oc" => self.octal                          = pair.to_style(),
             "ff" => self.flags                          = pair.to_style(),
+
+            "ic" => self.icon                           = Some(pair.to_style()),
+
             "lp" => self.symlink_path                   = pair.to_style(),
             "cc" => self.control_char                   = pair.to_style(),
             "bO" => self.broken_path_overlay            = pair.to_style(),
