@@ -510,5 +510,7 @@ pub trait Colours: FiletypeColours {
     /// The style to paint a directory that has a filesystem mounted on it.
     fn mount_point(&self) -> Style;
 
+    fn icon(&self) -> Option<Style>;
+
     fn colour_file(&self, file: &File<'_>) -> Style;
 }
