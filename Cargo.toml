@@ -72,7 +72,7 @@ name = "eza"
 
 [dependencies]
 nu-ansi-term = "0.50.0"
-chrono = { version = "0.4.34", default-features = false, features = ["clock"] }
+chrono = { version = "0.4.35", default-features = false, features = ["clock"] }
 glob = "0.3"
 libc = "0.2"
 locale = "0.2"
@@ -111,7 +111,7 @@ windows-sys = { version = "0.52.0", features = [
 ] }
 
 [build-dependencies]
-chrono = { version = "0.4.34", default-features = false, features = ["clock"] }
+chrono = { version = "0.4.35", default-features = false, features = ["clock"] }
 
 [dev-dependencies]
 criterion = { version = "0.5.1", features = ["html_reports"] }
