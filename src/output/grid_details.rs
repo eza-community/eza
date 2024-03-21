@@ -106,6 +106,10 @@ impl<'a> Render<'a> {
     // This doesn’t take an IgnoreCache even though the details one does
     // because grid-details has no tree view.
 
+    pub fn render_json<W: Write>(self, _w: &mut W) -> io::Result<()> {
+        todo!("Implement json rendering");
+    }
+
     pub fn render<W: Write>(mut self, w: &mut W) -> io::Result<()> {
         let options = self
             .details

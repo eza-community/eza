@@ -59,4 +59,5 @@ export extern "eza" [
     --context(-Z)              # List each file's security context
     --smart-group              # Only show group if it has a different name from owner
     --stdin                    # When piping to eza. Read file paths from stdin
+    --json                     # Output results as JSON (equivalent to --long)
 ]
