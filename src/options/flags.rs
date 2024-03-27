@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt_skip)]
 use crate::options::parser::{Arg, Args, TakesValue, Values};
 
 // exa options
@@ -50,7 +51,7 @@ pub static BINARY:      Arg = Arg { short: Some(b'b'), long: "binary",      take
 pub static BYTES:       Arg = Arg { short: Some(b'B'), long: "bytes",       takes_value: TakesValue::Forbidden };
 pub static GROUP:       Arg = Arg { short: Some(b'g'), long: "group",       takes_value: TakesValue::Forbidden };
 pub static NUMERIC:     Arg = Arg { short: Some(b'n'), long: "numeric",     takes_value: TakesValue::Forbidden };
-pub static HEADER:      Arg = Arg { short: Some(b'h'), long: "header",      takes_value: TakesValue::Forbidden };
+pub static HEADER:      Arg = Arg { short: Some(b'h'), long: "header",      takes_value: TakesValue::Optional(Some(WHEN), "auto") };
 pub static ICONS:       Arg = Arg { short: None,       long: "icons",       takes_value: TakesValue::Optional(Some(WHEN), "auto")};
 pub static INODE:       Arg = Arg { short: Some(b'i'), long: "inode",       takes_value: TakesValue::Forbidden };
 pub static LINKS:       Arg = Arg { short: Some(b'H'), long: "links",       takes_value: TakesValue::Forbidden };
