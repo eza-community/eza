@@ -4,7 +4,6 @@ use std::io::{self, Write};
 
 use ansi_width;
 use grid::{Direction, Filling, Grid, GridOptions};
-use nu_ansi_term::AnsiStrings as ANSIStrings;
 use term_grid as grid;
 
 use crate::fs::feature::git::GitCache;
