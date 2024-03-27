@@ -62,12 +62,34 @@ macro_rules! update_field_accessors {
     };
 }
 
-update_field_accessors!(UiStyles, colourful: Option<bool>,filekinds: Option<FileKinds>, perms: Option<Permissions>, size: Option<Size>,
-    file_type: Option<FileType>, security_context: Option<SecurityContext>, users: Option<Users>, links: Option<Links>, git: Option<Git>, git_repo: Option<GitRepo>);
+update_field_accessors!(
+    UiStyles,
+    colourful: Option<bool>,
+    filekinds: Option<FileKinds>,
+    perms: Option<Permissions>,
+    size: Option<Size>,
+    file_type: Option<FileType>,
+    security_context: Option<SecurityContext>,
+    users: Option<Users>,
+    links: Option<Links>,
+    git: Option<Git>,
+    git_repo: Option<GitRepo>
+);
 
-field_accessors!(UiStyles, punctuation: Option<Style>, date: Option<Style>, inode: Option<Style>, blocks: Option<Style>,
-    header: Option<Style>, octal: Option<Style>, flags: Option<Style>, symlink_path: Option<Style>,
-    control_char: Option<Style>, broken_symlink: Option<Style>, broken_path_overlay: Option<Style>);
+field_accessors!(
+    UiStyles,
+    punctuation: Option<Style>,
+    date: Option<Style>,
+    inode: Option<Style>,
+    blocks: Option<Style>,
+    header: Option<Style>,
+    octal: Option<Style>,
+    flags: Option<Style>,
+    symlink_path: Option<Style>,
+    control_char: Option<Style>,
+    broken_symlink: Option<Style>,
+    broken_path_overlay: Option<Style>
+);
 
 #[rustfmt::skip]
 #[derive(Clone, Eq, Copy, Debug, PartialEq, Serialize, Deserialize)]
@@ -100,7 +122,19 @@ impl Default for FileKinds {
         }
     }
 }
-field_accessors!(FileKinds, normal: Option<Style>, directory: Option<Style>, symlink: Option<Style>, pipe: Option<Style>, block_device: Option<Style>, char_device: Option<Style>, socket: Option<Style>, special: Option<Style>, executable: Option<Style>, mount_point: Option<Style>);
+field_accessors!(
+    FileKinds,
+    normal: Option<Style>,
+    directory: Option<Style>,
+    symlink: Option<Style>,
+    pipe: Option<Style>,
+    block_device: Option<Style>,
+    char_device: Option<Style>,
+    socket: Option<Style>,
+    special: Option<Style>,
+    executable: Option<Style>,
+    mount_point: Option<Style>
+);
 
 #[rustfmt::skip]
 #[derive(Clone, Copy,Eq, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -123,7 +157,22 @@ pub struct Permissions {
 
     pub attribute: Option<Style>,           // xa
 }
-field_accessors!(Permissions, user_read: Option<Style>, user_write: Option<Style>, user_execute_file: Option<Style>, user_execute_other: Option<Style>, group_read: Option<Style>, group_write: Option<Style>, group_execute: Option<Style>, other_read: Option<Style>, other_write: Option<Style>, other_execute: Option<Style>, special_user_file: Option<Style>, special_other: Option<Style>, attribute: Option<Style>);
+field_accessors!(
+    Permissions,
+    user_read: Option<Style>,
+    user_write: Option<Style>,
+    user_execute_file: Option<Style>,
+    user_execute_other: Option<Style>,
+    group_read: Option<Style>,
+    group_write: Option<Style>,
+    group_execute: Option<Style>,
+    other_read: Option<Style>,
+    other_write: Option<Style>,
+    other_execute: Option<Style>,
+    special_user_file: Option<Style>,
+    special_other: Option<Style>,
+    attribute: Option<Style>
+);
 
 #[rustfmt::skip]
 #[derive(Clone, Copy, Eq, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -143,7 +192,21 @@ pub struct Size {
     pub unit_giga: Option<Style>,    // sb ug
     pub unit_huge: Option<Style>,    // sb ut
 }
-field_accessors!(Size, major: Option<Style>, minor: Option<Style>, number_byte: Option<Style>, number_kilo: Option<Style>, number_mega: Option<Style>, number_giga: Option<Style>, number_huge: Option<Style>, unit_byte: Option<Style>, unit_kilo: Option<Style>, unit_mega: Option<Style>, unit_giga: Option<Style>, unit_huge: Option<Style>);
+field_accessors!(
+    Size,
+    major: Option<Style>,
+    minor: Option<Style>,
+    number_byte: Option<Style>,
+    number_kilo: Option<Style>,
+    number_mega: Option<Style>,
+    number_giga: Option<Style>,
+    number_huge: Option<Style>,
+    unit_byte: Option<Style>,
+    unit_kilo: Option<Style>,
+    unit_mega: Option<Style>,
+    unit_giga: Option<Style>,
+    unit_huge: Option<Style>
+);
 
 #[rustfmt::skip]
 #[derive(Clone, Copy, Debug,Eq, Default, PartialEq, Serialize, Deserialize)]
@@ -155,7 +218,15 @@ pub struct Users {
     pub group_other: Option<Style>,        // gn
     pub group_root: Option<Style>,         // gR
 }
-field_accessors!(Users, user_you: Option<Style>, user_root: Option<Style>, user_other: Option<Style>, group_yours: Option<Style>, group_other: Option<Style>, group_root: Option<Style>);
+field_accessors!(
+    Users,
+    user_you: Option<Style>,
+    user_root: Option<Style>,
+    user_other: Option<Style>,
+    group_yours: Option<Style>,
+    group_other: Option<Style>,
+    group_root: Option<Style>
+);
 
 #[rustfmt::skip]
 #[derive(Clone, Copy, Debug, Eq, Default, PartialEq, Serialize, Deserialize)]
@@ -177,7 +248,16 @@ pub struct Git {
     pub conflicted: Option<Style>,  // gc
 }
 
-field_accessors!(Git, new: Option<Style>, modified: Option<Style>, deleted: Option<Style>, renamed: Option<Style>, typechange: Option<Style>, ignored: Option<Style>, conflicted: Option<Style>);
+field_accessors!(
+    Git,
+    new: Option<Style>,
+    modified: Option<Style>,
+    deleted: Option<Style>,
+    renamed: Option<Style>,
+    typechange: Option<Style>,
+    ignored: Option<Style>,
+    conflicted: Option<Style>
+);
 impl Default for Git {
     fn default() -> Self {
         Git {
@@ -200,7 +280,13 @@ pub struct GitRepo {
     pub git_clean: Option<Style>,    //Gc
     pub git_dirty: Option<Style>,    //Gd
 }
-field_accessors!(GitRepo, branch_main: Option<Style>, branch_other: Option<Style>, git_clean: Option<Style>, git_dirty: Option<Style>);
+field_accessors!(
+    GitRepo,
+    branch_main: Option<Style>,
+    branch_other: Option<Style>,
+    git_clean: Option<Style>,
+    git_dirty: Option<Style>
+);
 impl Default for GitRepo {
     fn default() -> Self {
         Self {
@@ -220,7 +306,14 @@ pub struct SELinuxContext {
     pub typ: Option<Style>,   // St
     pub range: Option<Style>, // Sl
 }
-field_accessors!(SELinuxContext, colon: Option<Style>, user: Option<Style>, role: Option<Style>, typ: Option<Style>, range: Option<Style>);
+field_accessors!(
+    SELinuxContext,
+    colon: Option<Style>,
+    user: Option<Style>,
+    role: Option<Style>,
+    typ: Option<Style>,
+    range: Option<Style>
+);
 
 #[rustfmt::skip]
 #[derive(Clone, Eq, Copy, Debug, PartialEq, Serialize, Deserialize)]
@@ -228,7 +321,11 @@ pub struct SecurityContext {
     pub none:    Option<Style>, // Sn
     pub selinux: Option<SELinuxContext>,
 }
-field_accessors!(SecurityContext, none: Option<Style>, selinux: Option<SELinuxContext>);
+field_accessors!(
+    SecurityContext,
+    none: Option<Style>,
+    selinux: Option<SELinuxContext>
+);
 
 impl Default for SecurityContext {
     fn default() -> Self {
@@ -266,7 +363,6 @@ impl UiStyles {
     pub fn plain() -> Self {
         Self::default()
     }
-
 }
 
 impl UiStyles {
@@ -351,7 +447,6 @@ impl UiStyles {
             "Go" => self.git_repo().branch_other          = Some(pair.to_style()),
             "Gc" => self.git_repo().git_clean             = Some(pair.to_style()),
             "Gd" => self.git_repo().git_dirty             = Some(pair.to_style()),
-                                 
             "xx" => self.punctuation                     = Some(pair.to_style()),
             "da" => self.date                            = Some(pair.to_style()),
             "in" => self.inode                           = Some(pair.to_style()),
@@ -408,7 +503,7 @@ impl UiStyles {
         self.size().number_mega = Some(style);
         self.size().number_giga = Some(style);
         self.size().number_huge = Some(style);
-    }            
+    }
 
     pub fn set_unit_style(&mut self, style: Style) {
         self.size().unit_byte = Some(style);
