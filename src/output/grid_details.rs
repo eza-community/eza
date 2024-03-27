@@ -216,7 +216,7 @@ impl<'a> Render<'a> {
 
         if self.details.header {
             let row = table.header_row();
-            let name = TextCell::paint_str(self.theme.ui.header, "Name")
+            let name = TextCell::paint_str(self.theme.ui.header.unwrap_or_default(), "Name")
                 .strings()
                 .to_string();
             let s = table.render(row).strings().to_string();
