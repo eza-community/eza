@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.18.9] - 2024-03-27
+
+### Features
+
+- Switch out ansiterm crate for nu_ansi_term
+
+### Build
+
+- Bump DeterminateSystems/nix-installer-action from 9 to 10
+- Bump plist from 1.6.0 to 1.6.1
+- Bump rayon from 1.9.0 to 1.10.0
+- Bump git2 from 0.18.2 to 0.18.3
+
 ## [0.18.8] - 2024-03-21
 
 ### Bug Fixes
@@ -10,6 +23,10 @@
 ### Features
 
 - Add fennel lang icon and associations
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.8
 
 ## [0.18.7] - 2024-03-14
 
