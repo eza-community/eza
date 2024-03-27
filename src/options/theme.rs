@@ -9,7 +9,8 @@ impl Options {
     pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
         let use_colours = UseColours::deduce(matches, vars)?;
         let colour_scale = ColorScaleOptions::deduce(matches, vars)?;
-        let theme_config = ThemeConfig::deduce(matches, vars, colour_scale)?;
+        let theme_config = ThemeConfig::deduce(vars);
+
         let definitions = if use_colours == UseColours::Never {
             Definitions::default()
         } else {
@@ -22,6 +23,28 @@ impl Options {
             definitions,
             theme_config,
         })
+    }
+}
+
+impl ThemeConfig {
+    fn deduce<V: Vars>(vars: &V) -> Option<Self> {
+        if let Some(path) = vars.get("EZA_CONFIG_DIR") {
+            let path = PathBuf::from(path);
+            let path = path.join("theme.yml");
+            if path.exists() {
+                Some(ThemeConfig::from_path(&path.to_string_lossy()))
+            } else {
+                None
+            }
+        } else {
+            let path = dirs::config_dir().unwrap_or_default();
+            let path = path.join("eza").join("theme.yml");
+            if path.exists() {
+                Some(ThemeConfig::default())
+            } else {
+                None
+            }
+        }
     }
 }
 
