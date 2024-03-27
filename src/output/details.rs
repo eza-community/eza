@@ -64,6 +64,7 @@ use std::path::PathBuf;
 use std::vec::IntoIter as VecIntoIter;
 
 use nu_ansi_term::Style;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use rayon::prelude::*;
 
 use log::*;
