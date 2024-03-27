@@ -28,8 +28,10 @@ export extern "eza" [
     --width(-w)                # Limits column output of grid, 0 implies auto-width
     --reverse(-r)              # Reverse the sort order
     --sort(-s)                 # Which field to sort by
-    --only-dirs(-D)            # List only directories
-    --only-files(-f)           # List only files
+    --only-dirs(-D)            # List only directories and links to dirs
+    --only-files(-f)           # List only files and links to files
+    --only-links               # List only links
+    --no-links                 # Don't list links in --only-links and --only-files context
     --binary(-b)               # List file sizes with binary prefixes
     --bytes(-B)                # List file sizes in bytes, without any prefixes
     --group(-g)                # List each file's group
