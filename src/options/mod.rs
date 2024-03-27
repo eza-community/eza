@@ -81,10 +81,10 @@ mod file_name;
 mod filter;
 #[rustfmt::skip] // this module becomes unreadable with rustfmt
 mod flags;
+mod error;
 mod theme;
 mod view;
 
-mod error;
 pub use self::error::{NumberSource, OptionsError};
 
 mod help;
@@ -95,7 +95,7 @@ use self::parser::MatchedFlags;
 
 pub mod vars;
 pub use self::vars::Vars;
-
+pub mod config;
 pub mod stdin;
 mod version;
 
@@ -200,7 +200,6 @@ impl Options {
                 "Options --git and --git-ignore can't be used because `git` feature was disabled in this build of exa"
             )));
         }
-
         let view = View::deduce(matches, vars)?;
         let dir_action = DirAction::deduce(matches, matches!(view.mode, Mode::Details(_)))?;
         let filter = FileFilter::deduce(matches)?;
@@ -247,7 +246,7 @@ pub mod test {
     use crate::options::parser::{Arg, MatchedFlags};
     use std::ffi::OsStr;
 
-    #[derive(PartialEq, Eq, Debug)]
+    #[derive(PartialEq, Eq, Debug, Copy, Clone)]
     pub enum Strictnesses {
         Last,
         Complain,
