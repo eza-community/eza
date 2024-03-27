@@ -25,6 +25,8 @@ pub struct UiStyles {
     pub octal:        Style,          // oc
     pub flags:        Style,          // ff
 
+    pub icon:         Option<Style>,  // ic
+
     pub symlink_path:         Style,  // lp
     pub control_char:         Style,  // cc
     pub broken_symlink:       Style,  // or
@@ -255,6 +257,9 @@ impl UiStyles {
             "hd" => self.header                         = pair.to_style(),
             "oc" => self.octal                          = pair.to_style(),
             "ff" => self.flags                          = pair.to_style(),
+
+            "ic" => self.icon                           = Some(pair.to_style()),
+
             "lp" => self.symlink_path                   = pair.to_style(),
             "cc" => self.control_char                   = pair.to_style(),
             "bO" => self.broken_path_overlay            = pair.to_style(),
