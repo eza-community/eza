@@ -386,6 +386,10 @@ impl FileNameColours for Theme {
             .get_style(file, self)
             .unwrap_or(self.ui.filekinds.normal)
     }
+
+    fn custom_icons(&self, ext: &str) -> Option<char> {
+        self.ui.custom_icons.get(ext).cloned()
+    }
 }
 
 #[rustfmt::skip]
