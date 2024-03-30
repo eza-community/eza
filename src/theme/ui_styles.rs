@@ -362,7 +362,120 @@ pub struct FileType {
 
 impl UiStyles {
     pub fn plain() -> Self {
-        Self::default()
+        Self {
+            colourful: Some(false),
+
+            #[rustfmt::skip]
+            filekinds: Some(FileKinds {
+            normal: Some(Style::default()),
+            directory: Some(Style::default()),
+            symlink: Some(Style::default()),
+            pipe: Some(Style::default()),
+            block_device: Some(Style::default()),
+            char_device: Some(Style::default()),
+            socket: Some(Style::default()),
+            special: Some(Style::default()),
+            executable: Some(Style::default()),
+            mount_point: Some(Style::default()),
+            }),
+
+            #[rustfmt::skip]
+            perms: Some(Permissions {
+                user_read:           Some(Style::default()),
+                user_write:          Some(Style::default()),
+                user_execute_file:   Some(Style::default()),
+                user_execute_other:  Some(Style::default()),
+
+                group_read:          Some(Style::default()),
+                group_write:         Some(Style::default()),
+                group_execute:       Some(Style::default()),
+
+                other_read:          Some(Style::default()),
+                other_write:         Some(Style::default()),
+                other_execute:       Some(Style::default()),
+
+                special_user_file:   Some(Style::default()),
+                special_other:       Some(Style::default()),
+
+                attribute:           Some(Style::default()),
+            }),
+
+            size: Some(Size::default()),
+
+            #[rustfmt::skip]
+            users:Some(Users {
+                user_you:                       Some(Style::default()),
+                user_other:                     Some(Style::default()),
+                user_root:                      Some(Style::default()),
+                group_yours:                    Some(Style::default()),
+                group_other:                    Some(Style::default()),
+                group_root:                     Some(Style::default()),
+            }),
+
+            #[rustfmt::skip]
+            links: Some(Links {
+                normal:          Some(Style::default()),
+                multi_link_file: Some(Style::default()),
+            }),
+
+            #[rustfmt::skip]
+            git: Some(Git {
+                new:         Some(Style::default()),
+                modified:    Some(Style::default()),
+                deleted:     Some(Style::default()),
+                renamed:     Some(Style::default()),
+                typechange:  Some(Style::default()),
+                ignored:     Some(Style::default()),
+                conflicted:  Some(Style::default()),
+            }),
+
+            git_repo: Some(GitRepo {
+                branch_main: Some(Style::default()),
+                branch_other: Some(Style::default()),
+                git_clean: Some(Style::default()),
+                git_dirty: Some(Style::default()),
+            }),
+
+            security_context: Some(SecurityContext {
+                none: Some(Style::default()),
+                #[rustfmt::skip]
+                selinux: Some(SELinuxContext {
+                    colon: Some(Style::default()),
+                    user:  Some(Style::default()),
+                    role:  Some(Style::default()),
+                    typ:   Some(Style::default()),
+                    range: Some(Style::default()),
+                }),
+            }),
+
+            #[rustfmt::skip]
+            file_type: Some(FileType {
+                image:      Some(Style::default()),
+                video:      Some(Style::default()),
+                music:      Some(Style::default()),
+                lossless:   Some(Style::default()),
+                crypto:     Some(Style::default()),
+                document:   Some(Style::default()),
+                compressed: Some(Style::default()),
+                temp:       Some(Style::default()),
+                compiled:   Some(Style::default()),
+                build:      Some(Style::default()),
+                source:     Some(Style::default()), // Need to discuss color
+            }),
+
+            punctuation: Some(Style::default()),
+            date: Some(Style::default()),
+            inode: Some(Style::default()),
+            blocks: Some(Style::default()),
+            octal: Some(Style::default()),
+            flags: Some(Style::default()),
+            header: Some(Style::default()),
+
+            symlink_path: Some(Style::default()),
+            control_char: Some(Style::default()),
+            broken_symlink: Some(Style::default()),
+            broken_path_overlay: Some(Style::default()),
+        }
     }
 }
 
