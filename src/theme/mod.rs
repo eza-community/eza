@@ -388,7 +388,7 @@ impl FileNameColours for Theme {
     }
 
     fn custom_icons(&self, ext: &str) -> Option<char> {
-        self.ui.custom_icons.get(ext).cloned()
+        self.ui.custom_icons.get(ext).copied()
     }
 }
 
