@@ -202,7 +202,13 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
 
         if let Some(spaces_count) = spaces_count_opt {
             let style = iconify_style(self.style());
-            let file_icon = icon_for_file(self.file).to_string();
+            let custom_icon = match self.file.ext.as_deref() {
+                Some(ext) => self.colours.custom_icons(ext.as_ref()),
+                None => None,
+            };
+            let file_icon = custom_icon
+                .unwrap_or_else(|| icon_for_file(self.file))
+                .to_string();
             bits.push(style.paint(file_icon));
             bits.push(style.paint(" ".repeat(spaces_count as usize)));
         }
