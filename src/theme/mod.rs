@@ -129,6 +129,14 @@ impl Definitions {
             });
         }
 
+        if let Some(icons) = &self.icons {
+            LSColors(icons).each_pair(|pair| {
+                colours
+                    .custom_icons
+                    .insert(pair.key.to_string(), pair.value.chars().next().unwrap());
+            });
+        }
+
         (exts, use_default_filetypes)
     }
 }
