@@ -1,4 +1,5 @@
 use nu_ansi_term::Style;
+use std::collections::HashMap;
 
 use crate::theme::lsc::Pair;
 
@@ -29,6 +30,8 @@ pub struct UiStyles {
     pub control_char:         Style,  // cc
     pub broken_symlink:       Style,  // or
     pub broken_path_overlay:  Style,  // bO
+
+    pub custom_icons: HashMap<String, char>,
 }
 
 #[rustfmt::skip]

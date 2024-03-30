@@ -1,5 +1,6 @@
 use nu_ansi_term::Color::*;
 use nu_ansi_term::Style;
+use std::collections::HashMap;
 use std::default::Default;
 
 use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};
@@ -120,6 +121,8 @@ impl UiStyles {
             control_char: Red.normal(),
             broken_symlink: Red.normal(),
             broken_path_overlay: Style::default().underline(),
+
+            custom_icons: HashMap::new(),
         }
     }
 }
