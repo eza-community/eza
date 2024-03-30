@@ -46,6 +46,7 @@ pub enum UseColours {
 pub struct Definitions {
     pub ls: Option<String>,
     pub exa: Option<String>,
+    pub icons: Option<String>,
 }
 
 pub struct Theme {

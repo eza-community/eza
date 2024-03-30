@@ -55,7 +55,10 @@ impl Definitions {
         let exa = vars
             .get_with_fallback(vars::EZA_COLORS, vars::EXA_COLORS)
             .map(|e| e.to_string_lossy().to_string());
-        Self { ls, exa }
+        let icons = vars
+            .get(vars::EZA_ICONS)
+            .map(|e| e.to_string_lossy().to_string());
+        Self { ls, exa, icons }
     }
 }
 
