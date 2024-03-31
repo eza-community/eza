@@ -58,8 +58,6 @@ pub struct Theme {
 
 impl Options {
     pub fn to_theme(&self, isatty: bool) -> Theme {
-        // If the user has explicitly turned off colours, or if we’re not
-        // outputting to a terminal, then we don’t want to use them.
         if self.use_colours == UseColours::Never
             || (self.use_colours == UseColours::Automatic && !isatty)
         {
@@ -426,7 +424,6 @@ fn apply_overlay(mut base: Style, overlay: Style) -> Style {
 
     base
 }
-// TODO: move this function to the ansiterm crate
 
 #[cfg(test)]
 #[cfg(unix)]
