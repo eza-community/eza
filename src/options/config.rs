@@ -1,16 +1,15 @@
-use crate::options::{MatchedFlags, Vars};
-use crate::output::color_scale::ColorScaleOptions;
-use crate::theme::UiStyles;
-use dirs;
+use crate::theme::ThemeFileType as FileType;
+use crate::theme::*;
+use nu_ansi_term::{Color, Style};
+use serde::{Deserialize, Serialize};
 use serde_yaml;
-use std::{ffi::OsStr, path::PathBuf};
-
-use super::{flags, OptionsError};
+use std::collections::HashMap;
+use std::path::PathBuf;
 
 #[derive(Debug, Default, Eq, PartialEq)]
 pub struct ThemeConfig {
-    pub location: ConfigLoc,
-    pub theme: UiStyles,
+    // This is rather bare for now, will be expanded with config file
+    location: ConfigLoc,
 }
 
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -18,117 +17,522 @@ pub enum ConfigLoc {
     #[default]
     Default, // $XDG_CONFIG_HOME/eza/config|theme.yml
     Env(PathBuf), // $EZA_CONFIG_DIR
-    Arg(PathBuf), // --config path/to/config|theme.yml
 }
 
+trait FromOverride<T>: Sized {
+    fn from(value: T, default: Self) -> Self;
+}
+
+impl<S, T> FromOverride<Option<S>> for Option<T>
+where
+    T: FromOverride<S> + Default,
+{
+    fn from(value: Option<S>, default: Option<T>) -> Option<T> {
+        match (value, default) {
+            (Some(value), Some(default)) => Some(FromOverride::from(value, default)),
+            (Some(value), None) => Some(FromOverride::from(value, T::default())),
+            (None, Some(default)) => Some(default),
+            (None, None) => None,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize, Default)]
+pub struct StyleOverride {
+    /// The style's foreground color, if it has one.
+    pub foreground: Option<Color>,
+
+    /// The style's background color, if it has one.
+    pub background: Option<Color>,
+
+    /// Whether this style is bold.
+    pub is_bold: Option<bool>,
+
+    /// Whether this style is dimmed.
+    pub is_dimmed: Option<bool>,
+
+    /// Whether this style is italic.
+    pub is_italic: Option<bool>,
+
+    /// Whether this style is underlined.
+    pub is_underline: Option<bool>,
+
+    /// Whether this style is blinking.
+    pub is_blink: Option<bool>,
+
+    /// Whether this style has reverse colors.
+    pub is_reverse: Option<bool>,
+
+    /// Whether this style is hidden.
+    pub is_hidden: Option<bool>,
+
+    /// Whether this style is struckthrough.
+    pub is_strikethrough: Option<bool>,
+
+    /// Wether this style is always displayed starting with a reset code to clear any remaining style artifacts
+    pub prefix_with_reset: Option<bool>,
+}
+
+impl FromOverride<StyleOverride> for Style {
+    fn from(value: StyleOverride, default: Self) -> Self {
+        let mut style = default;
+        if value.foreground.is_some() {
+            style.foreground = value.foreground;
+        }
+        if value.background.is_some() {
+            style.background = value.background;
+        }
+        if let Some(bold) = value.is_bold {
+            style.is_bold = bold;
+        }
+        if let Some(dimmed) = value.is_dimmed {
+            style.is_dimmed = dimmed;
+        }
+        if let Some(italic) = value.is_italic {
+            style.is_italic = italic;
+        }
+        if let Some(underline) = value.is_underline {
+            style.is_underline = underline;
+        }
+        if let Some(blink) = value.is_blink {
+            style.is_blink = blink;
+        }
+        if let Some(reverse) = value.is_reverse {
+            style.is_reverse = reverse;
+        }
+        if let Some(hidden) = value.is_hidden {
+            style.is_hidden = hidden;
+        }
+        if let Some(strikethrough) = value.is_strikethrough {
+            style.is_strikethrough = strikethrough;
+        }
+        if let Some(reset) = value.prefix_with_reset {
+            style.prefix_with_reset = reset;
+        }
+        style
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+pub struct IconStyleOverride {
+    pub glyph: Option<char>,
+    pub style: Option<StyleOverride>,
+}
+
+impl FromOverride<char> for char {
+    fn from(value: char, _default: char) -> char {
+        value
+    }
+}
+
+impl FromOverride<IconStyleOverride> for IconStyle {
+    fn from(value: IconStyleOverride, default: Self) -> Self {
+        IconStyle {
+            glyph: FromOverride::from(value.glyph, default.glyph),
+            style: FromOverride::from(value.style, default.style),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+pub struct FileNameStyleOverride {
+    pub icon: Option<IconStyleOverride>,
+    pub filename: Option<StyleOverride>,
+}
+
+impl FromOverride<FileNameStyleOverride> for FileNameStyle {
+    fn from(value: FileNameStyleOverride, default: Self) -> Self {
+        FileNameStyle {
+            icon: FromOverride::from(value.icon, default.icon),
+            filename: FromOverride::from(value.filename, default.filename),
+        }
+    }
+}
+
+impl<R, S, T> FromOverride<HashMap<R, S>> for HashMap<R, T>
+where
+    T: FromOverride<S>,
+    R: Clone + Eq + std::hash::Hash,
+    T: Clone + Eq + Default,
+{
+    fn from(value: HashMap<R, S>, default: HashMap<R, T>) -> HashMap<R, T> {
+        let mut result = default.clone();
+        for (r, s) in value {
+            let t = match default.get(&r) {
+                Some(t) => t.clone(),
+                None => T::default(),
+            };
+            result.insert(r, FromOverride::from(s, t));
+        }
+        result
+    }
+}
+
+#[rustfmt::skip]
+#[derive(Clone, Eq, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct FileKindsOverride {
+    pub normal: Option<StyleOverride>,        // fi
+    pub directory: Option<StyleOverride>,     // di
+    pub symlink: Option<StyleOverride>,       // ln
+    pub pipe: Option<StyleOverride>,          // pi
+    pub block_device: Option<StyleOverride>,  // bd
+    pub char_device: Option<StyleOverride>,   // cd
+    pub socket: Option<StyleOverride>,        // so
+    pub special: Option<StyleOverride>,       // sp
+    pub executable: Option<StyleOverride>,    // ex
+    pub mount_point: Option<StyleOverride>,   // mp
+}
+
+impl FromOverride<FileKindsOverride> for FileKinds {
+    fn from(value: FileKindsOverride, default: Self) -> Self {
+        FileKinds {
+            normal: FromOverride::from(value.normal, default.normal),
+            directory: FromOverride::from(value.directory, default.directory),
+            symlink: FromOverride::from(value.symlink, default.directory),
+            pipe: FromOverride::from(value.pipe, default.pipe),
+            block_device: FromOverride::from(value.block_device, default.block_device),
+            char_device: FromOverride::from(value.char_device, default.char_device),
+            socket: FromOverride::from(value.socket, default.socket),
+            special: FromOverride::from(value.special, default.special),
+            executable: FromOverride::from(value.executable, default.executable),
+            mount_point: FromOverride::from(value.mount_point, default.mount_point),
+        }
+    }
+}
+
+#[rustfmt::skip]
+#[derive(Clone, Copy,Eq, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PermissionsOverride {
+    pub user_read:         Option<StyleOverride>,  // ur
+    pub user_write:         Option<StyleOverride>,  // uw
+    pub user_execute_file:  Option<StyleOverride>,  // ux
+    pub user_execute_other: Option<StyleOverride>,  // ue
+
+    pub group_read:    Option<StyleOverride>,       // gr
+    pub group_write:   Option<StyleOverride>,       // gw
+    pub group_execute: Option<StyleOverride>,       // gx
+
+    pub other_read:    Option<StyleOverride>,       // tr
+    pub other_write:   Option<StyleOverride>,       // tw
+    pub other_execute: Option<StyleOverride>,       // tx
+
+    pub special_user_file: Option<StyleOverride>,   // su
+    pub special_other:     Option<StyleOverride>,   // sf
+
+    pub attribute: Option<StyleOverride>,           // xa
+}
+
+impl FromOverride<PermissionsOverride> for Permissions {
+    fn from(value: PermissionsOverride, default: Self) -> Self {
+        Permissions {
+            user_read: FromOverride::from(value.user_read, default.user_read),
+            user_write: FromOverride::from(value.user_write, default.user_write),
+            user_execute_file: FromOverride::from(
+                value.user_execute_file,
+                default.user_execute_file,
+            ),
+            user_execute_other: FromOverride::from(
+                value.user_execute_other,
+                default.user_execute_other,
+            ),
+            group_read: FromOverride::from(value.group_read, default.group_read),
+            group_write: FromOverride::from(value.group_write, default.group_write),
+            group_execute: FromOverride::from(value.group_execute, default.group_execute),
+            other_read: FromOverride::from(value.other_read, default.other_read),
+            other_write: FromOverride::from(value.other_write, default.other_write),
+            other_execute: FromOverride::from(value.other_execute, default.other_execute),
+            special_user_file: FromOverride::from(
+                value.special_user_file,
+                default.special_user_file,
+            ),
+            special_other: FromOverride::from(value.special_other, default.special_other),
+            attribute: FromOverride::from(value.attribute, default.attribute),
+        }
+    }
+}
+
+#[rustfmt::skip]
+#[derive(Clone, Copy, Eq, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct SizeOverride {
+    pub major: Option<StyleOverride>,        // df
+    pub minor: Option<StyleOverride>,        // ds
+
+    pub number_byte: Option<StyleOverride>,  // sn nb
+    pub number_kilo: Option<StyleOverride>,  // sn nk
+    pub number_mega: Option<StyleOverride>,  // sn nm
+    pub number_giga: Option<StyleOverride>,  // sn ng
+    pub number_huge: Option<StyleOverride>,  // sn nt
+
+    pub unit_byte: Option<StyleOverride>,    // sb ub
+    pub unit_kilo: Option<StyleOverride>,    // sb uk
+    pub unit_mega: Option<StyleOverride>,    // sb um
+    pub unit_giga: Option<StyleOverride>,    // sb ug
+    pub unit_huge: Option<StyleOverride>,    // sb ut
+}
+
+impl FromOverride<SizeOverride> for Size {
+    fn from(value: SizeOverride, default: Self) -> Self {
+        Size {
+            major: FromOverride::from(value.major, default.major),
+            minor: FromOverride::from(value.minor, default.minor),
+            number_byte: FromOverride::from(value.number_byte, default.number_byte),
+            number_kilo: FromOverride::from(value.number_kilo, default.number_kilo),
+            number_mega: FromOverride::from(value.number_mega, default.number_mega),
+            number_giga: FromOverride::from(value.number_giga, default.number_giga),
+            number_huge: FromOverride::from(value.number_huge, default.number_huge),
+            unit_byte: FromOverride::from(value.unit_byte, default.unit_byte),
+            unit_kilo: FromOverride::from(value.unit_kilo, default.unit_kilo),
+            unit_mega: FromOverride::from(value.unit_mega, default.unit_mega),
+            unit_giga: FromOverride::from(value.unit_giga, default.unit_giga),
+            unit_huge: FromOverride::from(value.unit_huge, default.unit_huge),
+        }
+    }
+}
+
+#[rustfmt::skip]
+#[derive(Clone, Copy, Debug,Eq, Default, PartialEq, Serialize, Deserialize)]
+pub struct UsersOverride {
+    pub user_you: Option<StyleOverride>,           // uu
+    pub user_root: Option<StyleOverride>,          // uR
+    pub user_other: Option<StyleOverride>,         // un
+    pub group_yours: Option<StyleOverride>,        // gu
+    pub group_other: Option<StyleOverride>,        // gn
+    pub group_root: Option<StyleOverride>,         // gR
+}
+
+impl FromOverride<UsersOverride> for Users {
+    fn from(value: UsersOverride, default: Self) -> Self {
+        Users {
+            user_you: FromOverride::from(value.user_you, default.user_you),
+            user_root: FromOverride::from(value.user_root, default.user_root),
+            user_other: FromOverride::from(value.user_other, default.user_other),
+            group_yours: FromOverride::from(value.group_yours, default.group_yours),
+            group_other: FromOverride::from(value.group_other, default.group_other),
+            group_root: FromOverride::from(value.group_root, default.group_root),
+        }
+    }
+}
+
+#[rustfmt::skip]
+#[derive(Clone, Copy, Debug, Eq, Default, PartialEq, Serialize, Deserialize)]
+pub struct LinksOverride {
+    pub normal: Option<StyleOverride>,           // lc
+    pub multi_link_file: Option<StyleOverride>,  // lm
+}
+
+impl FromOverride<LinksOverride> for Links {
+    fn from(value: LinksOverride, default: Self) -> Self {
+        Links {
+            normal: FromOverride::from(value.normal, default.normal),
+            multi_link_file: FromOverride::from(value.multi_link_file, default.multi_link_file),
+        }
+    }
+}
+
+#[rustfmt::skip]
+#[derive(Clone, Copy, Debug,Eq, PartialEq, Serialize, Deserialize)]
+pub struct GitOverride {
+    pub new: Option<StyleOverride>,         // ga
+    pub modified: Option<StyleOverride>,    // gm
+    pub deleted: Option<StyleOverride>,     // gd
+    pub renamed: Option<StyleOverride>,     // gv
+    pub typechange: Option<StyleOverride>,  // gt
+    pub ignored: Option<StyleOverride>,     // gi
+    pub conflicted: Option<StyleOverride>,  // gc
+}
+
+impl FromOverride<GitOverride> for Git {
+    fn from(value: GitOverride, default: Self) -> Self {
+        Git {
+            new: FromOverride::from(value.new, default.new),
+            modified: FromOverride::from(value.modified, default.modified),
+            deleted: FromOverride::from(value.deleted, default.deleted),
+            renamed: FromOverride::from(value.renamed, default.renamed),
+            typechange: FromOverride::from(value.typechange, default.typechange),
+            ignored: FromOverride::from(value.ignored, default.ignored),
+            conflicted: FromOverride::from(value.conflicted, default.conflicted),
+        }
+    }
+}
+
+#[rustfmt::skip]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct GitRepoOverride {
+    pub branch_main: Option<StyleOverride>,  //Gm
+    pub branch_other: Option<StyleOverride>, //Go
+    pub git_clean: Option<StyleOverride>,    //Gc
+    pub git_dirty: Option<StyleOverride>,    //Gd
+}
+
+impl FromOverride<GitRepoOverride> for GitRepo {
+    fn from(value: GitRepoOverride, default: Self) -> Self {
+        GitRepo {
+            branch_main: FromOverride::from(value.branch_main, default.branch_main),
+            branch_other: FromOverride::from(value.branch_other, default.branch_other),
+            git_clean: FromOverride::from(value.git_clean, default.git_clean),
+            git_dirty: FromOverride::from(value.git_dirty, default.git_dirty),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, Default, PartialEq, Serialize, Deserialize)]
+pub struct SELinuxContextOverride {
+    pub colon: Option<StyleOverride>,
+    pub user: Option<StyleOverride>,  // Su
+    pub role: Option<StyleOverride>,  // Sr
+    pub typ: Option<StyleOverride>,   // St
+    pub range: Option<StyleOverride>, // Sl
+}
+
+impl FromOverride<SELinuxContextOverride> for SELinuxContext {
+    fn from(value: SELinuxContextOverride, default: Self) -> Self {
+        SELinuxContext {
+            colon: FromOverride::from(value.colon, default.colon),
+            user: FromOverride::from(value.user, default.user),
+            role: FromOverride::from(value.role, default.role),
+            typ: FromOverride::from(value.typ, default.typ),
+            range: FromOverride::from(value.range, default.range),
+        }
+    }
+}
+
+#[rustfmt::skip]
+#[derive(Clone, Eq, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SecurityContextOverride {
+    pub none:    Option<StyleOverride>, // Sn
+    pub selinux: Option<SELinuxContextOverride>,
+}
+
+impl FromOverride<SecurityContextOverride> for SecurityContext {
+    fn from(value: SecurityContextOverride, default: Self) -> Self {
+        SecurityContext {
+            none: FromOverride::from(value.none, default.none),
+            selinux: FromOverride::from(value.selinux, default.selinux),
+        }
+    }
+}
+
+#[rustfmt::skip]
+#[derive(Clone, Copy, Debug, Eq, Default, PartialEq, Serialize, Deserialize)]
+pub struct FileTypeOverride {
+    pub image: Option<StyleOverride>,       // im - image file
+    pub video: Option<StyleOverride>,       // vi - video file
+    pub music: Option<StyleOverride>,       // mu - lossy music
+    pub lossless: Option<StyleOverride>,    // lo - lossless music
+    pub crypto: Option<StyleOverride>,      // cr - related to cryptography
+    pub document: Option<StyleOverride>,    // do - document file
+    pub compressed: Option<StyleOverride>,  // co - compressed file
+    pub temp: Option<StyleOverride>,        // tm - temporary file
+    pub compiled: Option<StyleOverride>,    // cm - compilation artifact
+    pub build: Option<StyleOverride>,       // bu - file that is used to build a project
+    pub source: Option<StyleOverride>,      // sc - source code
+}
+
+impl FromOverride<FileTypeOverride> for FileType {
+    fn from(value: FileTypeOverride, default: Self) -> Self {
+        FileType {
+            image: FromOverride::from(value.image, default.image),
+            video: FromOverride::from(value.video, default.video),
+            music: FromOverride::from(value.music, default.music),
+            lossless: FromOverride::from(value.lossless, default.lossless),
+            crypto: FromOverride::from(value.crypto, default.crypto),
+            document: FromOverride::from(value.document, default.document),
+            compressed: FromOverride::from(value.compressed, default.compressed),
+            temp: FromOverride::from(value.temp, default.temp),
+            compiled: FromOverride::from(value.compiled, default.compiled),
+            build: FromOverride::from(value.build, default.build),
+            source: FromOverride::from(value.source, default.source),
+        }
+    }
+}
+
+#[rustfmt::skip]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
+pub struct UiStylesOverride {
+    pub colourful: Option<bool>,
+
+    pub filekinds:        Option<FileKindsOverride>,
+    pub perms:            Option<PermissionsOverride>,
+    pub size:             Option<SizeOverride>,
+    pub users:            Option<UsersOverride>,
+    pub links:            Option<LinksOverride>,
+    pub git:              Option<GitOverride>,
+    pub git_repo:         Option<GitRepoOverride>,
+    pub security_context: Option<SecurityContextOverride>,
+    pub file_type:        Option<FileTypeOverride>,
+
+    pub punctuation:  Option<StyleOverride>,          // xx
+    pub date:         Option<StyleOverride>,          // da
+    pub inode:        Option<StyleOverride>,          // in
+    pub blocks:       Option<StyleOverride>,          // bl
+    pub header:       Option<StyleOverride>,          // hd
+    pub octal:        Option<StyleOverride>,          // oc
+    pub flags:        Option<StyleOverride>,          // ff
+
+    pub symlink_path:         Option<StyleOverride>,  // lp
+    pub control_char:         Option<StyleOverride>,  // cc
+    pub broken_symlink:       Option<StyleOverride>,  // or
+    pub broken_path_overlay:  Option<StyleOverride>,  // bO
+
+    pub filenames: Option<HashMap<String, FileNameStyleOverride>>,
+    pub extensions: Option<HashMap<String, FileNameStyleOverride>>,
+}
+
+impl FromOverride<UiStylesOverride> for UiStyles {
+    fn from(value: UiStylesOverride, default: Self) -> Self {
+        UiStyles {
+            colourful: value.colourful,
+
+            filekinds: FromOverride::from(value.filekinds, default.filekinds),
+            perms: FromOverride::from(value.perms, default.perms),
+            size: FromOverride::from(value.size, default.size),
+            users: FromOverride::from(value.users, default.users),
+            links: FromOverride::from(value.links, default.links),
+            git: FromOverride::from(value.git, default.git),
+            git_repo: FromOverride::from(value.git_repo, default.git_repo),
+            security_context: FromOverride::from(value.security_context, default.security_context),
+            file_type: FromOverride::from(value.file_type, default.file_type),
+
+            punctuation: FromOverride::from(value.punctuation, default.punctuation),
+            date: FromOverride::from(value.date, default.date),
+            inode: FromOverride::from(value.inode, default.inode),
+            blocks: FromOverride::from(value.blocks, default.blocks),
+            header: FromOverride::from(value.header, default.header),
+            octal: FromOverride::from(value.octal, default.octal),
+            flags: FromOverride::from(value.flags, default.flags),
+
+            symlink_path: FromOverride::from(value.symlink_path, default.symlink_path),
+            control_char: FromOverride::from(value.control_char, default.control_char),
+            broken_symlink: FromOverride::from(value.broken_symlink, default.broken_symlink),
+            broken_path_overlay: FromOverride::from(
+                value.broken_path_overlay,
+                default.broken_path_overlay,
+            ),
+
+            filenames: FromOverride::from(value.filenames, default.filenames),
+            extensions: FromOverride::from(value.extensions, default.extensions),
+        }
+    }
+}
 impl ThemeConfig {
-    pub fn write_default_theme_file(path: Option<&OsStr>) -> std::io::Result<()> {
-        if path.is_some_and(|path| std::path::Path::new(path).is_dir()) {
-            let path = std::path::Path::new(path.unwrap());
-            let path = path.join("theme.yml");
-            let file = std::fs::File::create(path.clone())?;
-            println!("Writing default theme to {:?}", path);
-            serde_yaml::to_writer(file, &UiStyles::default())
-                .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
-        } else {
-            let default_path = std::env::var("EZA_CONFIG_DIR")
-                .map(|dir| PathBuf::from(&dir))
-                .unwrap_or(dirs::config_dir().unwrap_or_default().join("eza"));
-            if !default_path.exists() {
-                std::fs::create_dir_all(&default_path)?;
-            }
-            println!("Writing default theme to {:?}", default_path);
-            let default_file = default_path.join("theme.yml");
-            let file = std::fs::File::create(default_file)?;
-            let default = UiStyles::default();
-            serde_yaml::to_writer(file, &default)
-                .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
+    pub fn from_path(path: &str) -> Self {
+        let path = PathBuf::from(path);
+        ThemeConfig {
+            location: ConfigLoc::Env(path),
         }
     }
-
-    pub fn theme_from_yaml(file: Option<&str>) -> UiStyles {
-        if let Some(file) = file {
-            let file = std::fs::File::open(file);
-            if let Err(e) = file {
-                eprintln!("Could not open theme file: {e}");
-                return UiStyles::default();
+    pub fn to_theme(&self) -> Option<UiStyles> {
+        let ui_styles_override: Option<UiStylesOverride> = match &self.location {
+            ConfigLoc::Default => {
+                let path = dirs::config_dir()?.join("eza").join("theme.yml");
+                let file = std::fs::File::open(path).ok()?;
+                serde_yaml::from_reader(&file).ok()
             }
-            let file = file.expect("Could not open theme file");
-            let theme: UiStyles = serde_yaml::from_reader(file).unwrap_or_else(|e| {
-                eprintln!("Could not parse theme file: {e}");
-                UiStyles::default()
-            });
-            theme
-        } else {
-            UiStyles::default()
-        }
-    }
-    pub fn deduce<V: Vars>(
-        matches: &MatchedFlags<'_>,
-        vars: &V,
-        opts: ColorScaleOptions,
-    ) -> Result<ThemeConfig, crate::options::OptionsError> {
-        println!("Deducing theme");
-        if matches.has(&flags::WRITE_THEME)? {
-            let path = matches.get(&flags::WRITE_THEME)?;
-            println!("Writing default theme to {:?}", path);
-            let err = Self::write_default_theme_file(path).map_err(|e| e.to_string());
-            if let Err(err) = err {
-                return Err(OptionsError::WriteTheme(err));
+            ConfigLoc::Env(path) => {
+                let file = std::fs::File::open(path).ok()?;
+                serde_yaml::from_reader(&file).ok()
             }
-        }
-        let theme_file = if matches.has(&flags::THEME)? {
-            let path = matches.get(&flags::THEME)?;
-            // passing --config will require a value as we will check default location
-            if path.is_none() {
-                return Err(OptionsError::BadArgument(&flags::THEME, "no value".into()));
-            }
-            path.map(|p| p.to_string_lossy().to_string())
-        } else {
-            None
         };
-        Ok(Self::find_with_fallback(theme_file, vars, opts))
-    }
-
-    pub fn find_with_fallback<V: Vars>(
-        path: Option<String>,
-        vars: &V,
-        opts: ColorScaleOptions,
-    ) -> Self {
-        if let Some(path) = path {
-            let path = std::path::PathBuf::from(path);
-            if path.is_dir() && path.exists() {
-                let path = path
-                    .join("theme.yml")
-                    .exists()
-                    .then(|| path.join("theme.yml"));
-                match path {
-                    Some(path) => {
-                        let file = std::fs::read_to_string(&path).unwrap_or_default();
-                        let uistyles: Option<UiStyles> = serde_yaml::from_str(&file).ok();
-                        return Self {
-                            location: ConfigLoc::Arg(path),
-                            theme: uistyles.unwrap_or(UiStyles::default_theme(opts)),
-                        };
-                    }
-                    None => return Self::default(),
-                }
-            }
-        } else if vars.get("EZA_CONFIG_DIR").is_some() {
-            let path = std::path::PathBuf::from(&format!(
-                "{}/theme.yml",
-                vars.get("EZA_CONFIG_DIR").unwrap().to_string_lossy()
-            ));
-            if path.exists() {
-                let file = std::fs::read_to_string(&path).unwrap_or_default();
-                let uistyles: Option<UiStyles> = serde_yaml::from_str(&file).ok();
-                return Self {
-                    location: ConfigLoc::Env(path),
-                    theme: uistyles.unwrap_or(UiStyles::default_theme(opts)),
-                };
-            }
-            return Self::default();
-        };
-        Self::default()
+        FromOverride::from(ui_styles_override, Some(UiStyles::default()))
     }
 }
