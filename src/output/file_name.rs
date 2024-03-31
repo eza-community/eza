@@ -509,4 +509,6 @@ pub trait Colours: FiletypeColours {
     fn mount_point(&self) -> Style;
 
     fn colour_file(&self, file: &File<'_>) -> Style;
+
+    fn icon_override(&self, file: &File<'_>) -> Option<char>;
 }
