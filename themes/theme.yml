@@ -993,3 +993,10 @@ broken_path_overlay:
   is_hidden: false
   is_strikethrough: false
   prefix_with_reset: false
+icon_overrides:
+  filenames:
+    Cargo.toml: 🦀
+    Cargo.lock: 🦀
+  extensions:
+    rs: 🦀
+    nix: ❄
