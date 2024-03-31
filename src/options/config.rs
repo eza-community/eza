@@ -5,7 +5,7 @@ use std::path::PathBuf;
 #[derive(Debug, Default, Eq, PartialEq)]
 pub struct ThemeConfig {
     // This is rather bare for now, will be expanded with config file
-    pub location: ConfigLoc,
+    location: ConfigLoc,
 }
 
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -16,6 +16,12 @@ pub enum ConfigLoc {
 }
 
 impl ThemeConfig {
+    pub fn from_path(path: &str) -> Self {
+        let path = PathBuf::from(path);
+        ThemeConfig {
+            location: ConfigLoc::Env(path),
+        }
+    }
     pub fn to_theme(&self) -> Option<UiStyles> {
         match &self.location {
             ConfigLoc::Default => {

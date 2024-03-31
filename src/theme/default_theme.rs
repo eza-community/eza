@@ -12,6 +12,7 @@ impl UiStyles {
         }
     }
 }
+
 impl Default for UiStyles {
     fn default() -> Self {
         Self {

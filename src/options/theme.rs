@@ -5,7 +5,7 @@ use crate::options::{flags, vars, OptionsError, Vars};
 use crate::output::color_scale::ColorScaleOptions;
 use crate::theme::{Definitions, Options, UseColours};
 
-use super::config::{ConfigLoc, ThemeConfig};
+use super::config::ThemeConfig;
 
 impl Options {
     pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
@@ -34,9 +34,7 @@ impl ThemeConfig {
             let path = PathBuf::from(path);
             let path = path.join("theme.yml");
             if path.exists() {
-                Some(ThemeConfig {
-                    location: ConfigLoc::Env(path),
-                })
+                Some(ThemeConfig::from_path(&path.to_string_lossy()))
             } else {
                 None
             }
@@ -44,15 +42,14 @@ impl ThemeConfig {
             let path = dirs::config_dir().unwrap_or_default();
             let path = path.join("eza").join("theme.yml");
             if path.exists() {
-                Some(ThemeConfig {
-                    location: ConfigLoc::Default,
-                })
+                Some(ThemeConfig::default())
             } else {
                 None
             }
         }
     }
 }
+
 impl UseColours {
     fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
         let default_value = match vars.get(vars::NO_COLOR) {
