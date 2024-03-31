@@ -128,6 +128,8 @@ impl Default for UiStyles {
             control_char: Some(Red.normal()),
             broken_symlink: Some(Red.normal()),
             broken_path_overlay: Some(Style::default().underline()),
+
+            icon_overrides: None,
         }
     }
 }
