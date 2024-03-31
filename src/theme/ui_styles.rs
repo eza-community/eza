@@ -1,7 +1,15 @@
 use crate::theme::lsc::Pair;
 use nu_ansi_term::{Color::*, Style};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::default::Default;
+
+#[rustfmt::skip]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
+pub struct IconOverrides {
+    pub filenames: Option<HashMap<String, char>>,
+    pub extensions: Option<HashMap<String, char>>,
+}
 
 #[rustfmt::skip]
 #[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
@@ -31,6 +39,8 @@ pub struct UiStyles {
     pub control_char:         Option<Style>,  // cc
     pub broken_symlink:       Option<Style>,  // or
     pub broken_path_overlay:  Option<Style>,  // bO
+
+    pub icon_overrides: Option<IconOverrides>,
 }
 // Macro to generate .unwrap_or_default getters for each field to cut down boilerplate
 macro_rules! field_accessors {
@@ -474,6 +484,8 @@ impl UiStyles {
             control_char: Some(Style::default()),
             broken_symlink: Some(Style::default()),
             broken_path_overlay: Some(Style::default()),
+
+            icon_overrides: None,
         }
     }
 }
