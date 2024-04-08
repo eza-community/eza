@@ -1,234 +1,35 @@
-colourful: true
 filekinds:
   normal:
     foreground: Blue
-    background: null
-    is_bold: false
-    is_dimmed: false
-    is_italic: false
-    is_underline: false
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
   directory:
     foreground: Blue
-    background: null
-    is_bold: true
-    is_dimmed: false
-    is_italic: false
-    is_underline: false
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
   symlink:
     foreground: Cyan
-    background: null
-    is_bold: false
-    is_dimmed: false
-    is_italic: false
-    is_underline: false
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
-  pipe:
-    foreground: Yellow
-    background: null
-    is_bold: false
-    is_dimmed: false
-    is_italic: false
-    is_underline: false
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
-  block_device:
-    foreground: Yellow
-    background: null
-    is_bold: true
-    is_dimmed: false
-    is_italic: false
-    is_underline: false
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
-  char_device:
-    foreground: Yellow
-    background: null
-    is_bold: true
-    is_dimmed: false
-    is_italic: false
-    is_underline: false
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
-  socket:
-    foreground: Red
-    background: null
-    is_bold: true
-    is_dimmed: false
-    is_italic: false
-    is_underline: false
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
-  special:
-    foreground: Yellow
-    background: null
-    is_bold: false
-    is_dimmed: false
-    is_italic: false
-    is_underline: false
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
   executable:
     foreground: Green
-    background: null
-    is_bold: true
-    is_dimmed: false
-    is_italic: false
-    is_underline: false
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
-  mount_point:
-    foreground: Blue
-    background: null
-    is_bold: true
-    is_dimmed: false
-    is_italic: false
-    is_underline: true
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
 perms:
   user_read:
     foreground: Yellow
-    background: null
     is_bold: true
-    is_dimmed: false
-    is_italic: false
-    is_underline: false
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
   user_write:
     foreground: Red
-    background: null
     is_bold: true
-    is_dimmed: false
-    is_italic: false
-    is_underline: false
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
   user_execute_file:
     foreground: Green
-    background: null
     is_bold: true
-    is_dimmed: false
-    is_italic: false
-    is_underline: true
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
   user_execute_other:
     foreground: Green
-    background: null
     is_bold: true
-    is_dimmed: false
-    is_italic: false
-    is_underline: false
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
   group_read:
     foreground: Yellow
-    background: null
-    is_bold: false
-    is_dimmed: false
-    is_italic: false
-    is_underline: false
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
   group_write:
     foreground: Red
-    background: null
-    is_bold: false
-    is_dimmed: false
-    is_italic: false
-    is_underline: false
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
   group_execute:
     foreground: Green
-    background: null
-    is_bold: false
-    is_dimmed: false
-    is_italic: false
-    is_underline: false
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
   other_read:
     foreground: Yellow
-    background: null
-    is_bold: false
-    is_dimmed: false
-    is_italic: false
-    is_underline: false
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
   other_write:
     foreground: Red
-    background: null
-    is_bold: false
-    is_dimmed: false
-    is_italic: false
-    is_underline: false
-    is_blink: false
-    is_reverse: false
-    is_hidden: false
-    is_strikethrough: false
-    prefix_with_reset: false
   other_execute:
     foreground: Green
 icons:
@@ -237,5 +38,4 @@ icons:
     Cargo.lock: {icon: 🦀}
   extensions:
     rs: {icon: 🦀}
-    nix: 
-      icon: ❄
+    nix: {icon: ❄, style: {foreground: White}}
