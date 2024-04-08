@@ -4,11 +4,16 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::default::Default;
 
-#[rustfmt::skip]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+pub struct IconStyle {
+    pub icon: Option<char>,
+    pub style: Option<Style>,
+}
+
 #[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
-pub struct IconOverrides {
-    pub filenames: Option<HashMap<String, char>>,
-    pub extensions: Option<HashMap<String, char>>,
+pub struct IconStyles {
+    pub filenames: Option<HashMap<String, IconStyle>>,
+    pub extensions: Option<HashMap<String, IconStyle>>,
 }
 
 #[rustfmt::skip]
@@ -40,7 +45,7 @@ pub struct UiStyles {
     pub broken_symlink:       Option<Style>,  // or
     pub broken_path_overlay:  Option<Style>,  // bO
 
-    pub icon_overrides: Option<IconOverrides>,
+    pub icons: Option<IconStyles>,
 }
 // Macro to generate .unwrap_or_default getters for each field to cut down boilerplate
 macro_rules! field_accessors {
@@ -485,7 +490,7 @@ impl UiStyles {
             broken_symlink: Some(Style::default()),
             broken_path_overlay: Some(Style::default()),
 
-            icon_overrides: None,
+            icons: None,
         }
     }
 }

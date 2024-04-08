@@ -42,9 +42,11 @@ extensions:
   # Change the icon glyph and color
   nix: {icon: {glyph: ❄, style: {foreground: White}}}
 icon_overrides:
+icons:
   filenames:
-    Cargo.toml: 🦀
-    Cargo.lock: 🦀
+    Cargo.toml: {icon: 🦀}
+    Cargo.lock: {icon: 🦀}
   extensions:
-    rs: 🦀
-    nix: ❄
+    rs: {icon: 🦀}
+    nix: 
+      icon: ❄

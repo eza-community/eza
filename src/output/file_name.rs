@@ -10,6 +10,7 @@ use crate::output::cell::TextCellContents;
 use crate::output::escape;
 use crate::output::icons::{icon_for_file, iconify_style};
 use crate::output::render::FiletypeColours;
+use crate::theme::IconStyle;
 
 /// Basically a file name factory.
 #[derive(Debug, Copy, Clone)]
@@ -203,13 +204,25 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         };
 
         if let Some(spaces_count) = spaces_count_opt {
-            let style = iconify_style(self.style());
-            let file_icon = match self.colours.icon_override(self.file) {
-                Some(icon) => icon,
-                None => icon_for_file(self.file),
-            }
-            .to_string();
-            bits.push(style.paint(file_icon));
+            let (style, icon) = match self.colours.icon_style(self.file) {
+                Some(icon_override) => (
+                    if let Some(style_override) = icon_override.style {
+                        style_override.into()
+                    } else {
+                        iconify_style(self.style())
+                    },
+                    icon_override
+                        .icon
+                        .unwrap_or_else(|| icon_for_file(self.file))
+                        .to_string(),
+                ),
+                None => (
+                    iconify_style(self.style()),
+                    icon_for_file(self.file).to_string(),
+                ),
+            };
+
+            bits.push(style.paint(icon));
             bits.push(style.paint(" ".repeat(spaces_count as usize)));
         }
 
@@ -518,5 +531,5 @@ pub trait Colours: FiletypeColours {
 
     fn colour_file(&self, file: &File<'_>) -> Style;
 
-    fn icon_override(&self, file: &File<'_>) -> Option<char>;
+    fn icon_style(&self, file: &File<'_>) -> Option<IconStyle>;
 }
