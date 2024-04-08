@@ -4,16 +4,16 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::default::Default;
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub struct IconStyle {
-    pub icon: Option<char>,
+    pub glyph: Option<char>,
     pub style: Option<Style>,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
-pub struct IconStyles {
-    pub filenames: Option<HashMap<String, IconStyle>>,
-    pub extensions: Option<HashMap<String, IconStyle>>,
+#[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+pub struct FileNameStyle {
+    pub icon: Option<IconStyle>,
+    pub filename: Option<Style>,
 }
 
 #[rustfmt::skip]
@@ -39,13 +39,13 @@ pub struct UiStyles {
     pub octal:        Option<Style>,          // oc
     pub flags:        Option<Style>,          // ff
 
-    pub icon:         Option<Style>,  // ic
     pub symlink_path:         Option<Style>,  // lp
     pub control_char:         Option<Style>,  // cc
     pub broken_symlink:       Option<Style>,  // or
     pub broken_path_overlay:  Option<Style>,  // bO
 
-    pub icons: Option<IconStyles>,
+    pub filenames: Option<HashMap<String, FileNameStyle>>,
+    pub extensions: Option<HashMap<String, FileNameStyle>>,
 }
 // Macro to generate .unwrap_or_default getters for each field to cut down boilerplate
 macro_rules! field_accessors {
@@ -490,7 +490,8 @@ impl UiStyles {
             broken_symlink: Some(Style::default()),
             broken_path_overlay: Some(Style::default()),
 
-            icons: None,
+            filenames: None,
+            extensions: None,
         }
     }
 }
@@ -588,18 +589,6 @@ impl UiStyles {
             "cc" => self.control_char                    = Some(pair.to_style()),
             "bO" => self.broken_path_overlay             = Some(pair.to_style()),
 
-            "ic" => self.icon                           = Some(pair.to_style()),
-
-            "xx" => self.punctuation                    = Some(pair.to_style()),
-            "da" => self.date                           = Some(pair.to_style()),
-            "in" => self.inode                          = Some(pair.to_style()),
-            "bl" => self.blocks                         = Some(pair.to_style()),
-            "hd" => self.header                         = Some(pair.to_style()),
-            "oc" => self.octal                          = Some(pair.to_style()),
-            "ff" => self.flags                          = Some(pair.to_style()),
-            "lp" => self.symlink_path                   = Some(pair.to_style()),
-            "cc" => self.control_char                   = Some(pair.to_style()),
-            "bO" => self.broken_path_overlay            = Some(pair.to_style()),
             "mp" => self.filekinds().mount_point          = Some(pair.to_style()),
             "sp" => self.filekinds().special              = Some(pair.to_style()),  // Catch-all for unrecognized file kind
 
