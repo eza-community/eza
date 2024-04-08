@@ -8,7 +8,9 @@ use crate::output::file_name::Colours as FileNameColours;
 use crate::output::render;
 
 mod ui_styles;
+pub(crate) use self::ui_styles::FileType as ThemeFileType;
 pub use self::ui_styles::UiStyles;
+pub(crate) use self::ui_styles::*;
 
 mod lsc;
 pub use self::lsc::LSColors;
