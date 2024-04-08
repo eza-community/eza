@@ -25,7 +25,7 @@ pub struct Options {
 
     pub definitions: Definitions,
 
-    pub theme_config: ThemeConfig,
+    pub theme_config: Option<ThemeConfig>,
 }
 
 /// Under what circumstances we should display coloured, rather than plain,
@@ -65,22 +65,37 @@ impl Options {
         {
             let ui = UiStyles::plain();
             let exts = Box::new(NoFileStyle);
-            Theme { ui, exts }
-        } else {
-            Theme {
-                ui: self.theme_config.theme.clone(),
-                exts: Box::new(FileTypes),
+            return Theme { ui, exts };
+        };
+        match self.theme_config {
+            Some(ref theme) => {
+                if let Some(mut ui) = theme.to_theme() {
+                    let (exts, use_default_filetypes) = self.definitions.parse_color_vars(&mut ui);
+                    let exts: Box<dyn FileStyle> =
+                        match (exts.is_non_empty(), use_default_filetypes) {
+                            (false, false) => Box::new(NoFileStyle),
+                            (false, true) => Box::new(FileTypes),
+                            (true, false) => Box::new(exts),
+                            (true, true) => Box::new((exts, FileTypes)),
+                        };
+                    return Theme { ui, exts };
+                }
+                self.default_theme()
             }
+            None => self.default_theme(),
         }
-        //     // Use between 0 and 2 file name highlighters
-        //     let exts: Box<dyn FileStyle> = match (exts.is_non_empty(), use_default_filetypes) {
-        //         (false, false) => Box::new(NoFileStyle),
-        //         (false, true) => Box::new(FileTypes),
-        //         (true, false) => Box::new(exts),
-        //         (true, true) => Box::new((exts, FileTypes)),
-        //     };
-        //
-        //     Theme { ui, exts }
+    }
+
+    fn default_theme(&self) -> Theme {
+        let mut ui = UiStyles::default_theme(self.colour_scale);
+        let (exts, use_default_filetypes) = self.definitions.parse_color_vars(&mut ui);
+        let exts: Box<dyn FileStyle> = match (exts.is_non_empty(), use_default_filetypes) {
+            (false, false) => Box::new(NoFileStyle),
+            (false, true) => Box::new(FileTypes),
+            (true, false) => Box::new(exts),
+            (true, true) => Box::new((exts, FileTypes)),
+        };
+        Theme { ui, exts }
     }
 }
 
@@ -379,27 +394,23 @@ impl FileNameColours for Theme {
     fn executable_file(&self)     -> Style { self.ui.filekinds.unwrap_or_default().executable() }
     fn mount_point(&self)         -> Style { self.ui.filekinds.unwrap_or_default().mount_point() }
 
-    fn icon(&self)          -> Option<Style> { self.ui.icon }
-
     fn colour_file(&self, file: &File<'_>) -> Style {
         self.exts
             .get_style(file, self)
             .unwrap_or(self.ui.filekinds.unwrap_or_default().normal())
     }
 
-    fn icon_style(&self, file: &File<'_>) -> Option<IconStyle> {
-        if let Some(ref overrides) = self.ui.icons {
-            if let Some(ref name_overrides) = overrides.filenames {
-                if let Some(icon_override) = name_overrides.get(&file.name) {
-                    return Some(*icon_override);
-                }
+ fn style_override(&self, file: &File<'_>) -> Option<FileNameStyle> {
+        if let Some(ref name_overrides) = self.ui.filenames {
+            if let Some(file_override) = name_overrides.get(&file.name) {
+                return Some(*file_override);
             }
+        }
 
-            if let Some(ref ext_overrides) = overrides.extensions {
-                if let Some(ext) = file.ext.clone() {
-                    if let Some(icon_override) = ext_overrides.get(&ext) {
-                        return Some(*icon_override);
-                    }
+        if let Some(ref ext_overrides) = self.ui.extensions {
+            if let Some(ext) = file.ext.clone() {
+                if let Some(file_override) = ext_overrides.get(&ext) {
+                    return Some(*file_override);
                 }
             }
         }

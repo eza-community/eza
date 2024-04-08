@@ -124,13 +124,13 @@ impl Default for UiStyles {
             flags: Some(Style::default()),
             header: Some(Style::default().underline()),
 
-            icon: None,
             symlink_path: Some(Cyan.normal()),
             control_char: Some(Red.normal()),
             broken_symlink: Some(Red.normal()),
             broken_path_overlay: Some(Style::default().underline()),
 
-            icons: None,
+            filenames: None,
+            extensions: None,
         }
     }
 }

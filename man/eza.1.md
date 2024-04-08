@@ -47,12 +47,6 @@ META OPTIONS
 `-v`, `--version`
 : Show version of eza.
 
-`--write-theme=DIR`
-: Write _eza_ default theme.yml file to the directory passed as argument, or defaults to the current working directory.
-
-`--config` [if eza was built with config support]
-: Specify a custom path to configuration file.
-
 DISPLAY OPTIONS
 ===============
 

@@ -10,7 +10,7 @@ use crate::output::cell::TextCellContents;
 use crate::output::escape;
 use crate::output::icons::{icon_for_file, iconify_style};
 use crate::output::render::FiletypeColours;
-use crate::theme::IconStyle;
+use crate::theme::FileNameStyle;
 
 /// Basically a file name factory.
 #[derive(Debug, Copy, Clone)]
@@ -190,6 +190,11 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     /// width calculated.
     pub fn paint(&self) -> TextCellContents {
         let mut bits = Vec::new();
+        let (icon_override, filename_style_override) = match self.colours.style_override(self.file)
+        {
+            Some(FileNameStyle { icon, filename }) => (icon, filename),
+            None => (None, None),
+        };
 
         let spaces_count_opt = match self.options.show_icons {
             ShowIcons::Always(spaces_count) => Some(spaces_count),
@@ -204,15 +209,15 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         };
 
         if let Some(spaces_count) = spaces_count_opt {
-            let (style, icon) = match self.colours.icon_style(self.file) {
+            let (style, icon) = match icon_override {
                 Some(icon_override) => (
                     if let Some(style_override) = icon_override.style {
-                        style_override.into()
+                        style_override
                     } else {
                         iconify_style(self.style())
                     },
                     icon_override
-                        .icon
+                        .glyph
                         .unwrap_or_else(|| icon_for_file(self.file))
                         .to_string(),
                 ),
@@ -239,7 +244,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
             // indicate this fact. But when showing targets, we can just
             // colour the path instead (see below), and leave the broken
             // link’s filename as the link colour.
-            for bit in self.escaped_file_name() {
+            for bit in self.escaped_file_name(filename_style_override) {
                 bits.push(bit);
             }
         }
@@ -274,7 +279,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                             mount_style: MountStyle::JustDirectoryNames,
                         };
 
-                        for bit in target_name.escaped_file_name() {
+                        for bit in target_name.escaped_file_name(filename_style_override) {
                             bits.push(bit);
                         }
 
@@ -393,13 +398,16 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     ///
     /// So in that situation, those characters will be escaped and highlighted in
     /// a different colour.
-    fn escaped_file_name<'unused>(&self) -> Vec<ANSIString<'unused>> {
+    fn escaped_file_name<'unused>(
+        &self,
+        style_override: Option<Style>,
+    ) -> Vec<ANSIString<'unused>> {
         use percent_encoding::{utf8_percent_encode, CONTROLS};
 
         const HYPERLINK_START: &str = "\x1B]8;;";
         const HYPERLINK_END: &str = "\x1B\x5C";
 
-        let file_style = self.style();
+        let file_style = style_override.unwrap_or(self.style());
         let mut bits = Vec::new();
 
         let mut display_hyperlink = false;
@@ -527,9 +535,7 @@ pub trait Colours: FiletypeColours {
     /// The style to paint a directory that has a filesystem mounted on it.
     fn mount_point(&self) -> Style;
 
-    fn icon(&self) -> Option<Style>;
-
     fn colour_file(&self, file: &File<'_>) -> Style;
 
-    fn icon_style(&self, file: &File<'_>) -> Option<IconStyle>;
+    fn style_override(&self, file: &File<'_>) -> Option<FileNameStyle>;
 }

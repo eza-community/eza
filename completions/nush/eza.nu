@@ -61,5 +61,4 @@ export extern "eza" [
     --context(-Z)              # List each file's security context
     --smart-group              # Only show group if it has a different name from owner
     --stdin                    # When piping to eza. Read file paths from stdin
-    --write-theme              # Write the default theme to some directory: default cwd 
 ]
