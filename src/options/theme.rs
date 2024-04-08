@@ -2,6 +2,7 @@ use crate::options::parser::MatchedFlags;
 use crate::options::{flags, vars, OptionsError, Vars};
 use crate::output::color_scale::ColorScaleOptions;
 use crate::theme::{Definitions, Options, UseColours};
+use std::path::PathBuf;
 
 use super::config::ThemeConfig;
 
