@@ -48,5 +48,4 @@ icons:
     Cargo.lock: {icon: 🦀}
   extensions:
     rs: {icon: 🦀}
-    nix: 
-      icon: ❄
+    nix: {icon: ❄, style: {foreground: White}}
