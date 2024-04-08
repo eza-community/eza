@@ -205,7 +205,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
             let (style, icon) = match self.colours.icon_style(self.file) {
                 Some(icon_override) => (
                     if let Some(style_override) = icon_override.style {
-                        style_override.into()
+                        style_override
                     } else {
                         iconify_style(self.style())
                     },
