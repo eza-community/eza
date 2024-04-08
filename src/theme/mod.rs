@@ -385,18 +385,18 @@ impl FileNameColours for Theme {
             .unwrap_or(self.ui.filekinds.unwrap_or_default().normal())
     }
 
-    fn icon_override(&self, file: &File<'_>) -> Option<char> {
-        if let Some(ref overrides) = self.ui.icon_overrides {
+    fn icon_style(&self, file: &File<'_>) -> Option<IconStyle> {
+        if let Some(ref overrides) = self.ui.icons {
             if let Some(ref name_overrides) = overrides.filenames {
-                if let Some(icon) = name_overrides.get(&file.name) {
-                    return Some(*icon);
+                if let Some(icon_override) = name_overrides.get(&file.name) {
+                    return Some(*icon_override);
                 }
             }
 
             if let Some(ref ext_overrides) = overrides.extensions {
                 if let Some(ext) = file.ext.clone() {
-                    if let Some(icon) = ext_overrides.get(&ext) {
-                        return Some(*icon);
+                    if let Some(icon_override) = ext_overrides.get(&ext) {
+                        return Some(*icon_override);
                     }
                 }
             }
