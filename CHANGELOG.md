@@ -1,10 +1,24 @@
 # Changelog
 
+## [0.18.10] - 2024-04-11
+
+### Bug Fixes
+
+- Bump trycmd from 0.15.0 to 0.15.1
+
+### Build
+
+- Bump nu-ansi-term from 0.49.0 to 0.50.0
+
 ## [0.18.9] - 2024-03-27
 
 ### Features
 
 - Switch out ansiterm crate for nu_ansi_term
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.9
 
 ### Build
 
