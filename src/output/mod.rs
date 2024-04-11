@@ -1,3 +1,4 @@
+#[allow(unused_imports)]
 pub use self::cell::{DisplayWidth, TextCell, TextCellContents};
 pub use self::escape::escape;
 
