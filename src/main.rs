@@ -27,6 +27,7 @@ use std::io::{self, stdin, ErrorKind, IsTerminal, Read, Write};
 use std::path::{Component, PathBuf};
 use std::process::exit;
 
+use clap::Parser;
 use nu_ansi_term::{AnsiStrings as ANSIStrings, Style};
 
 use crate::fs::feature::git::GitCache;
