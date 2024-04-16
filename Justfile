@@ -155,6 +155,18 @@ binary_static BINARY TARGET:
     just tar_static {{BINARY}} {{TARGET}}
     just zip_static {{BINARY}} {{TARGET}}
 
+binary_no_libgit BINARY TARGET:
+    rustup target add {{TARGET}}
+    cross build --no-default-features --release --target {{TARGET}}
+    just tar {{BINARY}} {{TARGET}}
+    just zip {{BINARY}} {{TARGET}}
+
+binary_static_no_libgit BINARY TARGET:
+    rustup target add {{TARGET}}
+    RUSTFLAGS='-C target-feature=+crt-static' cross build --no-default-features --release --target {{TARGET}}
+    just tar_static {{BINARY}} {{TARGET}}
+    just zip_static {{BINARY}} {{TARGET}}
+
 checksum:
     @echo "# Checksums"
     @echo "## sha256sum"
@@ -190,11 +202,11 @@ alias c := cross
     # just binary_static eza x86_64-unknown-linux-musl
 
     ### aarch
-    just binary eza aarch64-unknown-linux-gnu
+    just binary_no_libgit eza aarch64-unknown-linux-gnu
     # BUG: just binary_static eza aarch64-unknown-linux-gnu
 
     ### arm
-    just binary eza arm-unknown-linux-gnueabihf
+    just binary_no_libgit eza arm-unknown-linux-gnueabihf
     # just binary_static eza arm-unknown-linux-gnueabihf
 
     ## MacOS
