@@ -135,6 +135,8 @@ impl<'dir> File<'dir> {
             RecursiveSize::None
         };
 
+        debug!("deref_links {}", deref_links);
+
         let mut file = File {
             name,
             ext,
