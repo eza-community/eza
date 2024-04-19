@@ -1,10 +1,26 @@
 # Changelog
 
+## [0.18.11] - 2024-04-19
+
+### Bug Fixes
+
+- Fix clippy lints
+- Enable the rule only for NetBSD.
+- Build aarch64, arm without libgit2
+
+### Ci
+
+- Bump NetBSD version to 10.0
+
 ## [0.18.10] - 2024-04-11
 
 ### Bug Fixes
 
 - Bump trycmd from 0.15.0 to 0.15.1
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.10
 
 ### Build
 
