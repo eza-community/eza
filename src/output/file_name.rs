@@ -162,7 +162,9 @@ impl<'a, 'dir, C> FileName<'a, 'dir, C> {
     /// Sets the flag on this file name to display link targets with an
     /// arrow followed by their path.
     pub fn with_link_paths(mut self) -> Self {
-        self.link_style = LinkStyle::FullLinkPaths;
+        if !self.file.deref_links {
+            self.link_style = LinkStyle::FullLinkPaths;
+        }
         self
     }
 
