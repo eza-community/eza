@@ -11,7 +11,7 @@ use std::ffi::OsStr;
 #[cfg(target_family = "unix")]
 use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
-use std::sync::Mutex;
+use std::sync::{Mutex, RwLock};
 
 use log::*;
 
@@ -38,7 +38,7 @@ impl GitCache {
         self.repos
             .iter()
             .find(|repo| repo.has_path(index))
-            .map(|repo| repo.search(index, prefix_lookup))
+            .map(|repo| repo.get_status(index, prefix_lookup))
             .unwrap_or_default()
     }
 
@@ -111,17 +111,19 @@ impl FromIterator<PathBuf> for GitCache {
 
 /// A **Git repository** is one we’ve discovered somewhere on the filesystem.
 pub struct GitRepo {
-    /// The queryable contents of the repository: either a `git2` repo, or the
-    /// cached results from when we queried it last time.
-    contents: Mutex<GitContents>,
+    /// All the interesting Git stuff goes through this.
+    repo: Mutex<git2::Repository>,
+
+    /// Cached path->status mapping.
+    statuses: RwLock<Option<GitStatuses>>,
+
+    /// Cached list of the relative paths of all submodules in this repository.
+    /// This is used to optionally ignore submodule contents when listing recursively.
+    relative_submodule_paths: RwLock<Option<Result<Vec<PathBuf>, git2::Error>>>,
 
     /// The working directory of this repository.
     /// This is used to check whether two repositories are the same.
     workdir: PathBuf,
-
-    /// The relative paths of any submodules in this repository.
-    /// This is used to optionally ignore submodule contents when listing recursively.
-    relative_submodule_paths: Option<Vec<PathBuf>>,
 
     /// The path that was originally checked to discover this repository.
     /// This is as important as the `extra_paths` (it gets checked first), but
@@ -133,20 +135,6 @@ pub struct GitRepo {
     extra_paths: Vec<PathBuf>,
 }
 
-/// A repository’s queried state.
-enum GitContents {
-    /// All the interesting Git stuff goes through this.
-    Before { repo: git2::Repository },
-
-    /// Temporary value used in `repo_to_statuses` so we can move the
-    /// repository out of the `Before` variant.
-    Processing,
-
-    /// The data we’ve extracted from the repository, but only after we’ve
-    /// actually done so.
-    After { statuses: Git },
-}
-
 impl GitRepo {
     /// Searches through this repository for a path (to a file or directory,
     /// depending on the prefix-lookup flag) and returns its Git status.
@@ -155,23 +143,28 @@ impl GitRepo {
     /// Git statuses is only done once, and gets cached so we don’t need to
     /// re-query the entire repository the times after that.
     ///
-    /// The temporary `Processing` enum variant is used after the `git2`
-    /// repository is moved out, but before the results have been moved in!
-    /// See <https://stackoverflow.com/q/45985827/3484614>
-    fn search(&self, index: &Path, prefix_lookup: bool) -> f::Git {
-        use std::mem::replace;
+    /// “Prefix lookup” means that it should report an aggregate status of all
+    /// paths starting with the given prefix (in other words, a directory).
+    fn get_status(&self, index: &Path, prefix_lookup: bool) -> f::Git {
+        {
+            let statuses = self.statuses.read().unwrap();
+            if let Some(ref cached_statuses) = *statuses {
+                debug!("Git repo {:?} has been found in cache", &self.workdir);
+                return cached_statuses.status(index, prefix_lookup);
+            }
+        }
 
-        let mut contents = self.contents.lock().unwrap();
-        if let GitContents::After { ref statuses } = *contents {
+        let mut statuses = self.statuses.write().unwrap();
+        if let Some(ref cached_statuses) = *statuses {
             debug!("Git repo {:?} has been found in cache", &self.workdir);
-            return statuses.status(index, prefix_lookup);
+            return cached_statuses.status(index, prefix_lookup);
         }
 
         debug!("Querying Git repo {:?} for the first time", &self.workdir);
-        let repo = replace(&mut *contents, GitContents::Processing).inner_repo();
-        let statuses = repo_to_statuses(&repo, &self.workdir);
-        let result = statuses.status(index, prefix_lookup);
-        let _processing = replace(&mut *contents, GitContents::After { statuses });
+        let repo = self.repo.lock().unwrap();
+        let new_statuses = repo_to_statuses(&repo, &self.workdir);
+        let result = new_statuses.status(index, prefix_lookup);
+        *statuses = Some(new_statuses);
         result
     }
 
@@ -202,17 +195,11 @@ impl GitRepo {
 
         if let Some(workdir) = repo.workdir() {
             let workdir = workdir.to_path_buf();
-            let relative_submodule_paths = repo.submodules().ok().map(|submodules| {
-                submodules
-                    .iter()
-                    .map(|submodule| submodule.path().to_path_buf())
-                    .collect()
-            });
-            let contents = Mutex::new(GitContents::Before { repo });
             Ok(Self {
-                contents,
+                repo: Mutex::new(repo),
+                statuses: RwLock::new(None),
+                relative_submodule_paths: RwLock::new(None),
                 workdir,
-                relative_submodule_paths,
                 original_path: path,
                 extra_paths: Vec::new(),
             })
@@ -223,39 +210,63 @@ impl GitRepo {
     }
 
     fn has_in_submodule(&self, path: &Path) -> bool {
-        if let Ok(relative_path) = path.strip_prefix(&self.workdir) {
-            if self
-                .relative_submodule_paths
-                .as_ref()
-                .map(|paths| paths.iter().any(|p| relative_path.starts_with(p)))
-                .unwrap_or(false)
-            {
-                return true;
+        fn check_submodule_paths(
+            paths: &[PathBuf],
+            path: &Path,
+            extra_paths: &[PathBuf],
+            workdir: &Path,
+        ) -> bool {
+            if let Ok(relative_path) = path.strip_prefix(workdir) {
+                if paths.iter().any(|p| relative_path.starts_with(p)) {
+                    return true;
+                }
+            }
+
+            extra_paths.iter().any(|extra_path| {
+                if let Ok(relative_path) = path.strip_prefix(extra_path) {
+                    paths.iter().any(|p| relative_path.starts_with(p))
+                } else {
+                    false
+                }
+            })
+        }
+
+        {
+            let relative_submodule_paths = self.relative_submodule_paths.read().unwrap();
+            match &*relative_submodule_paths {
+                Some(Ok(paths)) => {
+                    return check_submodule_paths(paths, path, &self.extra_paths, &self.workdir);
+                }
+                Some(Err(_)) => return false,
+                None => {}
             }
         }
 
-        self.extra_paths.iter().any(|extra_path| {
-            if let Ok(relative_path) = path.strip_prefix(extra_path) {
-                self.relative_submodule_paths
-                    .as_ref()
-                    .map(|paths| paths.iter().any(|p| relative_path.starts_with(p)))
-                    .unwrap_or(false)
-            } else {
-                false
-            }
-        })
-    }
-}
+        let mut relative_submodule_paths = self.relative_submodule_paths.write().unwrap();
+        match &*relative_submodule_paths {
+            Some(Ok(paths)) => check_submodule_paths(paths, path, &self.extra_paths, &self.workdir),
+            Some(Err(_)) => false,
+            None => {
+                let repo = self.repo.lock().unwrap();
+                let paths_result = repo.submodules().map(|submodules| {
+                    submodules
+                        .iter()
+                        .map(|submodule| submodule.path().to_path_buf())
+                        .collect()
+                });
+                *relative_submodule_paths = Some(paths_result);
 
-impl GitContents {
-    /// Assumes that the repository hasn’t been queried, and extracts it
-    /// (consuming the value) if it has. This is needed because the entire
-    /// enum variant gets replaced when a repo is queried (see above).
-    fn inner_repo(self) -> git2::Repository {
-        if let Self::Before { repo } = self {
-            repo
-        } else {
-            unreachable!("Tried to extract a non-Repository")
+                match &*relative_submodule_paths {
+                    Some(Ok(paths)) => {
+                        check_submodule_paths(paths, path, &self.extra_paths, &self.workdir)
+                    }
+                    Some(Err(e)) => {
+                        error!("Error looking up Git submodules: {:?}", e);
+                        false
+                    }
+                    None => unreachable!(),
+                }
+            }
         }
     }
 }
@@ -264,7 +275,7 @@ impl GitContents {
 /// mapping of files to their Git status.
 /// We will have already used the working directory at this point, so it gets
 /// passed in rather than deriving it from the `Repository` again.
-fn repo_to_statuses(repo: &git2::Repository, workdir: &Path) -> Git {
+fn repo_to_statuses(repo: &git2::Repository, workdir: &Path) -> GitStatuses {
     let mut statuses = Vec::new();
 
     info!("Getting Git statuses for repo with workdir {:?}", workdir);
@@ -289,7 +300,7 @@ fn repo_to_statuses(repo: &git2::Repository, workdir: &Path) -> Git {
         }
     }
 
-    Git { statuses }
+    GitStatuses { statuses }
 }
 
 // The `repo.statuses` call above takes a long time. exa debug output:
@@ -301,11 +312,11 @@ fn repo_to_statuses(repo: &git2::Repository, workdir: &Path) -> Git {
 // look any faster.
 
 /// Container of Git statuses for all the files in this folder’s Git repository.
-struct Git {
+struct GitStatuses {
     statuses: Vec<(PathBuf, git2::Status)>,
 }
 
-impl Git {
+impl GitStatuses {
     /// Get either the file or directory status for the given path.
     /// “Prefix lookup” means that it should report an aggregate status of all
     /// paths starting with the given prefix (in other words, a directory).
