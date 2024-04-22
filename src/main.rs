@@ -337,6 +337,16 @@ impl<'args> Exa<'args> {
                 writeln!(&mut self.writer, "{}:", ANSIStrings(&bits))?;
             }
 
+            if self.options.filter.ignore_submodule_contents
+                && self
+                    .git
+                    .as_ref()
+                    .map(|g| g.has_in_submodule(&dir.path))
+                    .unwrap_or(false)
+            {
+                return Ok(exit_status);
+            }
+
             let mut children = Vec::new();
             let git_ignore = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
             for file in dir.files(

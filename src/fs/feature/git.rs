@@ -41,6 +41,14 @@ impl GitCache {
             .map(|repo| repo.search(index, prefix_lookup))
             .unwrap_or_default()
     }
+
+    pub fn has_in_submodule(&self, path: &Path) -> bool {
+        self.repos
+            .iter()
+            .find(|repo| repo.has_path(path))
+            .map(|repo| repo.has_in_submodule(path))
+            .unwrap_or(false)
+    }
 }
 
 use std::iter::FromIterator;
@@ -110,6 +118,10 @@ pub struct GitRepo {
     /// The working directory of this repository.
     /// This is used to check whether two repositories are the same.
     workdir: PathBuf,
+
+    /// The relative paths of any submodules in this repository.
+    /// This is used to optionally ignore submodule contents when listing recursively.
+    relative_submodule_paths: Option<Vec<PathBuf>>,
 
     /// The path that was originally checked to discover this repository.
     /// This is as important as the `extra_paths` (it gets checked first), but
@@ -190,10 +202,17 @@ impl GitRepo {
 
         if let Some(workdir) = repo.workdir() {
             let workdir = workdir.to_path_buf();
+            let relative_submodule_paths = repo.submodules().ok().map(|submodules| {
+                submodules
+                    .iter()
+                    .map(|submodule| submodule.path().to_path_buf())
+                    .collect()
+            });
             let contents = Mutex::new(GitContents::Before { repo });
             Ok(Self {
                 contents,
                 workdir,
+                relative_submodule_paths,
                 original_path: path,
                 extra_paths: Vec::new(),
             })
@@ -201,6 +220,30 @@ impl GitRepo {
             warn!("Repository has no workdir?");
             Err(path)
         }
+    }
+
+    fn has_in_submodule(&self, path: &Path) -> bool {
+        if let Ok(relative_path) = path.strip_prefix(&self.workdir) {
+            if self
+                .relative_submodule_paths
+                .as_ref()
+                .map(|paths| paths.iter().any(|p| relative_path.starts_with(p)))
+                .unwrap_or(false)
+            {
+                return true;
+            }
+        }
+
+        self.extra_paths.iter().any(|extra_path| {
+            if let Ok(relative_path) = path.strip_prefix(extra_path) {
+                self.relative_submodule_paths
+                    .as_ref()
+                    .map(|paths| paths.iter().any(|p| relative_path.starts_with(p)))
+                    .unwrap_or(false)
+            } else {
+                false
+            }
+        })
     }
 }
 
