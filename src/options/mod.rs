@@ -174,7 +174,9 @@ impl Options {
     /// status column. It’s only worth trying to discover a repository if the
     /// results will end up being displayed.
     pub fn should_scan_for_git(&self) -> bool {
-        if self.filter.git_ignore == GitIgnore::CheckAndIgnore {
+        if self.filter.git_ignore == GitIgnore::CheckAndIgnore
+            || self.filter.ignore_submodule_contents
+        {
             return true;
         }
 
