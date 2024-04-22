@@ -456,6 +456,7 @@ impl<'args> Exa<'args> {
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
                 let git = self.git.as_ref();
                 let git_repos = self.git_repos;
+                let ignoring_submodule_contents = self.options.filter.ignore_submodule_contents;
                 let r = details::Render {
                     dir,
                     files,
@@ -467,6 +468,7 @@ impl<'args> Exa<'args> {
                     git_ignoring,
                     git,
                     git_repos,
+                    ignoring_submodule_contents,
                 };
                 r.render(&mut self.writer)
             }
@@ -479,6 +481,7 @@ impl<'args> Exa<'args> {
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
                 let git = self.git.as_ref();
                 let git_repos = self.git_repos;
+                let ignoring_submodule_contents = self.options.filter.ignore_submodule_contents;
 
                 let r = grid_details::Render {
                     dir,
@@ -492,6 +495,7 @@ impl<'args> Exa<'args> {
                     git,
                     console_width,
                     git_repos,
+                    ignoring_submodule_contents,
                 };
                 r.render(&mut self.writer)
             }
@@ -503,6 +507,7 @@ impl<'args> Exa<'args> {
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
                 let git = self.git.as_ref();
                 let git_repos = self.git_repos;
+                let ignoring_submodule_contents = self.options.filter.ignore_submodule_contents;
 
                 let r = details::Render {
                     dir,
@@ -515,6 +520,7 @@ impl<'args> Exa<'args> {
                     git_ignoring,
                     git,
                     git_repos,
+                    ignoring_submodule_contents,
                 };
                 r.render(&mut self.writer)
             }

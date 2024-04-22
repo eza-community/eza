@@ -57,6 +57,7 @@ impl ColorScaleInformation {
         dot_filter: DotFilter,
         git: Option<&GitCache>,
         git_ignoring: bool,
+        ignoring_submodule_contents: bool,
         r: Option<RecurseOptions>,
     ) -> Option<Self> {
         if color_scale.mode == ColorScaleMode::Fixed {
@@ -77,6 +78,7 @@ impl ColorScaleInformation {
                 dot_filter,
                 git,
                 git_ignoring,
+                ignoring_submodule_contents,
                 TreeDepth::root(),
                 r,
             );
@@ -124,6 +126,7 @@ fn update_information_recursively(
     dot_filter: DotFilter,
     git: Option<&GitCache>,
     git_ignoring: bool,
+    ignoring_submodule_contents: bool,
     depth: TreeDepth,
     r: Option<RecurseOptions>,
 ) {
@@ -166,6 +169,15 @@ fn update_information_recursively(
             && file.name != "."
             && file.name != ".."
         {
+            if ignoring_submodule_contents
+                && git
+                    .as_ref()
+                    .map(|g| g.has_in_submodule(&file.path))
+                    .unwrap_or(false)
+            {
+                continue;
+            }
+
             match file.to_dir() {
                 Ok(dir) => {
                     let files: Vec<File<'_>> = dir
@@ -178,6 +190,7 @@ fn update_information_recursively(
                         dot_filter,
                         git,
                         git_ignoring,
+                        ignoring_submodule_contents,
                         depth.deeper(),
                         r,
                     );
