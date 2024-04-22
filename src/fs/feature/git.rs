@@ -214,9 +214,9 @@ impl GitRepo {
             paths: &[PathBuf],
             path: &Path,
             extra_paths: &[PathBuf],
-            workdir: &Path,
+            original_path: &Path,
         ) -> bool {
-            if let Ok(relative_path) = path.strip_prefix(workdir) {
+            if let Ok(relative_path) = path.strip_prefix(original_path) {
                 if paths.iter().any(|p| relative_path.starts_with(p)) {
                     return true;
                 }
@@ -235,7 +235,7 @@ impl GitRepo {
             let relative_submodule_paths = self.relative_submodule_paths.read().unwrap();
             match &*relative_submodule_paths {
                 Some(Ok(paths)) => {
-                    return check_submodule_paths(paths, path, &self.extra_paths, &self.workdir);
+                    return check_submodule_paths(paths, path, &self.extra_paths, &self.original_path);
                 }
                 Some(Err(_)) => return false,
                 None => {}
@@ -244,7 +244,7 @@ impl GitRepo {
 
         let mut relative_submodule_paths = self.relative_submodule_paths.write().unwrap();
         match &*relative_submodule_paths {
-            Some(Ok(paths)) => check_submodule_paths(paths, path, &self.extra_paths, &self.workdir),
+            Some(Ok(paths)) => check_submodule_paths(paths, path, &self.extra_paths, &self.original_path),
             Some(Err(_)) => false,
             None => {
                 let repo = self.repo.lock().unwrap();
@@ -258,7 +258,7 @@ impl GitRepo {
 
                 match &*relative_submodule_paths {
                     Some(Ok(paths)) => {
-                        check_submodule_paths(paths, path, &self.extra_paths, &self.workdir)
+                        check_submodule_paths(paths, path, &self.extra_paths, &self.original_path)
                     }
                     Some(Err(e)) => {
                         error!("Error looking up Git submodules: {:?}", e);
