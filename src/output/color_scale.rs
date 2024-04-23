@@ -120,6 +120,7 @@ impl ColorScaleInformation {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn update_information_recursively(
     information: &mut ColorScaleInformation,
     files: &[File<'_>],
