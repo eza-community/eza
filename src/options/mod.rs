@@ -202,11 +202,15 @@ impl Options {
     fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
         if cfg!(not(feature = "git"))
             && matches
-                .has_where_any(|f| f.matches(&flags::GIT) || f.matches(&flags::GIT_IGNORE))
+                .has_where_any(|f| {
+                    f.matches(&flags::GIT)
+                        || f.matches(&flags::GIT_IGNORE)
+                        || f.matches(&flags::IGNORE_SUBMODULE_CONTENTS)
+                })
                 .is_some()
         {
             return Err(OptionsError::Unsupported(String::from(
-                "Options --git and --git-ignore can't be used because `git` feature was disabled in this build of exa"
+                "Options --git, --git-ignore, and --ignore-submodule-contents can't be used because `git` feature was disabled in this build of exa"
             )));
         }
         let view = View::deduce(matches, vars)?;
