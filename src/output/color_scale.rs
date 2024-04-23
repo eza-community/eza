@@ -169,17 +169,17 @@ fn update_information_recursively(
             && file.name != "."
             && file.name != ".."
         {
-            if ignoring_submodule_contents
-                && git
-                    .as_ref()
-                    .map(|g| g.has_in_submodule(&file.path))
-                    .unwrap_or(false)
-            {
-                continue;
-            }
-
             match file.to_dir() {
                 Ok(dir) => {
+                    if ignoring_submodule_contents
+                        && git
+                            .as_ref()
+                            .map(|g| g.has_in_submodule(&file.path))
+                            .unwrap_or(false)
+                    {
+                        continue;
+                    }
+
                     let files: Vec<File<'_>> = dir
                         .files(dot_filter, git, git_ignoring, false, false)
                         .collect();
