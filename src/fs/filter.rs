@@ -104,7 +104,7 @@ impl FileFilter {
     }
 
     /// remove directories if they contain a CACHEDIR.TAG with the correct signature.
-    /// does nothing if self.cachedir_ignore == Off
+    /// does nothing if `self.cachedir_ignore == Off`
     pub fn filter_cachedirs(&self, files: &mut Vec<File<'_>>) {
         if self.cachedir_ignore == CacheDirIgnore::CheckAndIgnore {
             files.retain(|f| {
@@ -144,7 +144,7 @@ impl FileFilter {
             return false;
         };
         let mut buf = [0u8; 43];
-        let Ok(_) = reader.read_exact(&mut buf) else {
+        let Ok(()) = reader.read_exact(&mut buf) else {
             return false;
         };
         &buf == CACHEDIR_MAGIC
