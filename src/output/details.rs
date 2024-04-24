@@ -357,6 +357,7 @@ impl<'a> Render<'a> {
                 }
 
                 self.filter.filter_child_files(&mut files);
+                self.filter.filter_cachedirs(&mut files);
 
                 if !files.is_empty() {
                     for xattr in egg.xattrs {

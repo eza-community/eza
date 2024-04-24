@@ -1,7 +1,9 @@
 //! Filtering and sorting the list of files before displaying them.
 
 use std::cmp::Ordering;
+use std::ffi::OsStr;
 use std::iter::FromIterator;
+use std::os::unix::ffi::OsStrExt;
 #[cfg(unix)]
 use std::os::unix::fs::MetadataExt;
 
@@ -84,16 +86,6 @@ impl FileFilter {
         use FileFilterFlags::{OnlyDirs, OnlyFiles};
 
         files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
-        if self.cachedir_ignore == CacheDirIgnore::CheckAndIgnore {
-            files.retain(|f| {
-                if f.is_directory() {
-                    // #TODO actually check
-                    true
-                } else {
-                    true
-                }
-            });
-        }
 
         match (
             self.flags.contains(&OnlyDirs),
