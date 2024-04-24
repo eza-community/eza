@@ -68,6 +68,10 @@ pub struct FileFilter {
 
     /// Whether to ignore Git-ignored patterns.
     pub git_ignore: GitIgnore,
+
+    /// Whether to ignore CACHEDIR.TAG directories.
+    /// see also https://bford.info/cachedir/
+    pub cachedir_ignore: CacheDirIgnore,
 }
 
 impl FileFilter {
@@ -77,6 +81,16 @@ impl FileFilter {
         use FileFilterFlags::{OnlyDirs, OnlyFiles};
 
         files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
+        if self.cachedir_ignore == CacheDirIgnore::CheckAndIgnore {
+            files.retain(|f| {
+                if f.is_directory() {
+                    // #TODO actually check
+                    true
+                } else {
+                    true
+                }
+            });
+        }
 
         match (
             self.flags.contains(&OnlyDirs),
@@ -351,6 +365,15 @@ pub enum GitIgnore {
     CheckAndIgnore,
 
     /// Display files, even if Git would ignore them.
+    Off,
+}
+
+/// Whether to ignore or display files that Git would ignore.
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+pub enum CacheDirIgnore {
+    /// Ignore directories with CACHEDIR.TAG and have the correct signature
+    CheckAndIgnore,
+    /// Do not check for CACHEDIR.TAG
     Off,
 }
 
