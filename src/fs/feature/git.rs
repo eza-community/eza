@@ -109,6 +109,8 @@ impl FromIterator<PathBuf> for GitCache {
     }
 }
 
+type SubmodulePaths = Result<Vec<PathBuf>, git2::Error>;
+
 /// A **Git repository** is one we’ve discovered somewhere on the filesystem.
 pub struct GitRepo {
     /// All the interesting Git stuff goes through this.
@@ -119,7 +121,7 @@ pub struct GitRepo {
 
     /// Cached list of the relative paths of all submodules in this repository.
     /// This is used to optionally ignore submodule contents when listing recursively.
-    relative_submodule_paths: RwLock<Option<Result<Vec<PathBuf>, git2::Error>>>,
+    relative_submodule_paths: RwLock<Option<SubmodulePaths>>,
 
     /// The working directory of this repository.
     /// This is used to check whether two repositories are the same.
@@ -146,26 +148,46 @@ impl GitRepo {
     /// “Prefix lookup” means that it should report an aggregate status of all
     /// paths starting with the given prefix (in other words, a directory).
     fn get_status(&self, index: &Path, prefix_lookup: bool) -> f::Git {
-        {
-            let statuses = self.statuses.read().unwrap();
-            if let Some(ref cached_statuses) = *statuses {
-                debug!("Git repo {:?} has been found in cache", &self.workdir);
-                return cached_statuses.status(index, prefix_lookup);
+        match self.statuses.read() {
+            Ok(statuses) => {
+                if let Some(ref cached_statuses) = *statuses {
+                    debug!("Git repo {:?} has been found in cache", &self.workdir);
+                    return cached_statuses.status(index, prefix_lookup);
+                }
+            }
+            Err(e) => {
+                error!("Failed to acquire read lock on git status cache: {:?}", e);
+                return f::Git::default();
             }
         }
 
-        let mut statuses = self.statuses.write().unwrap();
-        if let Some(ref cached_statuses) = *statuses {
-            debug!("Git repo {:?} has been found in cache", &self.workdir);
-            return cached_statuses.status(index, prefix_lookup);
-        }
+        match self.statuses.write() {
+            Ok(mut statuses) => {
+                if let Some(ref cached_statuses) = *statuses {
+                    debug!("Git repo {:?} has been found in cache", &self.workdir);
+                    return cached_statuses.status(index, prefix_lookup);
+                }
 
-        debug!("Querying Git repo {:?} for the first time", &self.workdir);
-        let repo = self.repo.lock().unwrap();
-        let new_statuses = repo_to_statuses(&repo, &self.workdir);
-        let result = new_statuses.status(index, prefix_lookup);
-        *statuses = Some(new_statuses);
-        result
+                debug!("Querying Git repo {:?} for the first time", &self.workdir);
+
+                match self.repo.lock() {
+                    Ok(repo) => {
+                        let new_statuses = repo_to_statuses(&repo, &self.workdir);
+                        let result = new_statuses.status(index, prefix_lookup);
+                        *statuses = Some(new_statuses);
+                        result
+                    }
+                    Err(e) => {
+                        error!("Failed to acquire lock on git2 repo: {:?}", e);
+                        f::Git::default()
+                    }
+                }
+            }
+            Err(e) => {
+                error!("Failed to acquire write lock on git status cache: {:?}", e);
+                f::Git::default()
+            }
+        }
     }
 
     /// Whether this repository has the given working directory.
@@ -210,67 +232,65 @@ impl GitRepo {
     }
 
     fn has_in_submodule(&self, path: &Path) -> bool {
-        fn is_in_submodule(
-            relative_submodule_paths: &[PathBuf],
-            path: &Path,
-            extra_paths: &[PathBuf],
-            original_path: &Path,
-        ) -> bool {
-            if let Ok(relative_path) = path.strip_prefix(original_path) {
-                if relative_submodule_paths
-                    .iter()
-                    .any(|p| relative_path.starts_with(p))
-                {
-                    return true;
-                }
-            }
+        let path_is_in = |paths: &[PathBuf]| {
+            path.strip_prefix(&self.original_path)
+                .map(|relative_path| paths.iter().any(|p| relative_path.starts_with(p)))
+                .unwrap_or(false)
+                || self.extra_paths.iter().any(|extra_path| {
+                    path.strip_prefix(extra_path)
+                        .map(|relative_path| paths.iter().any(|p| relative_path.starts_with(p)))
+                        .unwrap_or(false)
+                })
+        };
 
-            extra_paths.iter().any(|extra_path| {
-                if let Ok(relative_path) = path.strip_prefix(extra_path) {
-                    relative_submodule_paths
-                        .iter()
-                        .any(|p| relative_path.starts_with(p))
-                } else {
-                    false
-                }
-            })
-        }
-
-        {
-            let relative_submodule_paths = self.relative_submodule_paths.read().unwrap();
-            match &*relative_submodule_paths {
-                Some(Ok(paths)) => {
-                    return is_in_submodule(paths, path, &self.extra_paths, &self.original_path);
-                }
+        match self.relative_submodule_paths.read() {
+            Ok(guard) => match &*guard {
+                Some(Ok(paths)) => return path_is_in(paths),
                 Some(Err(_)) => return false,
                 None => {}
+            },
+            Err(e) => {
+                error!(
+                    "Failed to acquire read lock for cached submodule paths: {:?}",
+                    e
+                );
+                return false;
             }
         }
 
-        let mut relative_submodule_paths = self.relative_submodule_paths.write().unwrap();
-        match &*relative_submodule_paths {
-            Some(Ok(paths)) => is_in_submodule(paths, path, &self.extra_paths, &self.original_path),
-            Some(Err(_)) => false,
-            None => {
-                let repo = self.repo.lock().unwrap();
-                let paths_result = repo.submodules().map(|submodules| {
-                    submodules
-                        .iter()
-                        .map(|submodule| submodule.path().to_path_buf())
-                        .collect()
-                });
-                *relative_submodule_paths = Some(paths_result);
-
-                match &*relative_submodule_paths {
-                    Some(Ok(paths)) => {
-                        is_in_submodule(paths, path, &self.extra_paths, &self.original_path)
+        match self.relative_submodule_paths.write() {
+            Ok(mut guard) => match &*guard {
+                Some(Ok(paths)) => path_is_in(paths),
+                Some(Err(_)) => false,
+                None => match self.repo.lock() {
+                    Ok(repo) => {
+                        debug!("Querying Git repo {:?} for submodule paths", &self.workdir);
+                        let relative_submodule_paths: SubmodulePaths =
+                            repo.submodules().map(|submodules| {
+                                submodules.iter().map(|s| s.path().to_path_buf()).collect()
+                            });
+                        let result = match &relative_submodule_paths {
+                            Ok(paths) => path_is_in(paths),
+                            Err(e) => {
+                                error!("Error looking up Git submodules: {:?}", e);
+                                false
+                            }
+                        };
+                        *guard = Some(relative_submodule_paths);
+                        result
                     }
-                    Some(Err(e)) => {
-                        error!("Error looking up Git submodules: {:?}", e);
+                    Err(e) => {
+                        error!("Failed to acquire lock on git2 repo: {:?}", e);
                         false
                     }
-                    None => unreachable!(),
-                }
+                },
+            },
+            Err(e) => {
+                error!(
+                    "Failed to acquire write lock for cached submodule paths: {:?}",
+                    e
+                );
+                false
             }
         }
     }
