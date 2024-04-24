@@ -8,6 +8,9 @@ use std::os::unix::fs::MetadataExt;
 use crate::fs::DotFilter;
 use crate::fs::File;
 
+/// magic number of CACHEDIR.TAG files
+const CACHEDIR_MAGIC: &[u8; 43] = b"Signature: 8a477f597d28d172789f06886806bc55";
+
 /// Flags used to manage the **file filter** process
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub enum FileFilterFlags {
@@ -106,6 +109,53 @@ impl FileFilter {
             }
             _ => {}
         }
+    }
+
+    /// remove directories if they contain a CACHEDIR.TAG with the correct signature.
+    /// does nothing if self.cachedir_ignore == Off
+    pub fn filter_cachedirs(&self, files: &mut Vec<File<'_>>) {
+        if self.cachedir_ignore == CacheDirIgnore::CheckAndIgnore {
+            files.retain(|f| {
+                if !f.is_directory() {
+                    return true;
+                }
+                let Ok(read_dir) = std::fs::read_dir(&f.path) else {
+                    return true;
+                };
+                let mut found_tag = false;
+                for child in read_dir {
+                    let Ok(child) = child else {
+                        continue;
+                    };
+                    let is_cachedir_tag = Self::is_cachedir_tag(&child.path());
+                    if is_cachedir_tag {
+                        found_tag = true;
+                        break;
+                    }
+                }
+                !found_tag
+            });
+        }
+    }
+
+    /// check if `path` is named "CACHEDIR.TAG" and has the correct magic number ([`CACHEDIR_MAGIC`]).
+    fn is_cachedir_tag(path: &std::path::PathBuf) -> bool {
+        use std::ffi::OsStr;
+        use std::io::Read;
+        if path.file_name() != Some(OsStr::new("CACHEDIR.TAG")) {
+            return false;
+        }
+        if path.is_symlink() {
+            return false;
+        }
+        let Ok(mut reader) = std::fs::File::open(path) else {
+            return false;
+        };
+        let mut buf = [0u8; 43];
+        let Ok(_) = reader.read_exact(&mut buf) else {
+            return false;
+        };
+        &buf == CACHEDIR_MAGIC
     }
 
     /// Remove every file in the given vector that does *not* pass the
