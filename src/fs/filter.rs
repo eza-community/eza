@@ -86,6 +86,7 @@ impl FileFilter {
         use FileFilterFlags::{OnlyDirs, OnlyFiles};
 
         files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
+        self.filter_cachedirs(files);
 
         match (
             self.flags.contains(&OnlyDirs),
