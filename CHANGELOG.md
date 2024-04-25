@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.18.13] - 2024-04-25
+
+### Features
+
+- Generate completion/manpage tarballs on release
+
+## [0.18.12] - 2024-04-22
+
+### Bug Fixes
+
+- Allow unused imports for freebsd
+- Checking for deref flag in file_name
+
+### Features
+
+- Add scheme filetype and icons
+
 ## [0.18.11] - 2024-04-19
 
 ### Bug Fixes
@@ -7,6 +24,10 @@
 - Fix clippy lints
 - Enable the rule only for NetBSD.
 - Build aarch64, arm without libgit2
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.11
 
 ### Ci
 
