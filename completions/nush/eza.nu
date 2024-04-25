@@ -21,6 +21,7 @@ export extern "eza" [
     --absolute                 # Display entries with their absolute path
     --group-directories-first  # Sort directories before other files
     --git-ignore               # Ignore files mentioned in '.gitignore'
+    --cachedir-ignore          # Ignore directories with a 'CACHEDIR.TAG' file
     --all(-a)                  # Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories
     --almost-all(-A)           # Equivalent to --all; included for compatibility with `ls -A`
     --list-dirs(-d)            # List directories like regular files
