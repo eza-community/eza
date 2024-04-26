@@ -154,6 +154,9 @@ Sort fields starting with a capital letter will sort uppercase before lowercase:
 `-I`, `--ignore-glob=GLOBS`
 : Glob patterns, pipe-separated, of files to ignore.
 
+`--ignore-cachedir`
+: Ignore directories with a 'CACHEDIR.TAG' file.
+
 `--git-ignore` [if eza was built with git support]
 : Do not list files that are ignored by Git.
 

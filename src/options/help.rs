@@ -41,7 +41,8 @@ FILTERING AND SORTING OPTIONS
   --group-directories-first  list directories before other files
   -D, --only-dirs            list only directories
   -f, --only-files           list only files
-  -I, --ignore-glob GLOBS    glob patterns (pipe-separated) of files to ignore";
+  -I, --ignore-glob GLOBS    glob patterns (pipe-separated) of files to ignore
+  --cachedir-ignore          ignore directories with a 'CACHEDIR.TAG' file";
 
 static GIT_FILTER_HELP: &str = "  \
   --git-ignore               ignore files mentioned in '.gitignore'";
