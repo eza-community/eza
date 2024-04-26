@@ -26,8 +26,8 @@ impl Icons {
     const ESLINT: char          = '\u{e655}';  // 
     const FILE: char            = '\u{f15b}';  // 
     const FILE_3D: char         = '\u{f01a7}'; // 󰆧
-    const FILE_UNKNOW: char     = '\u{f086f}'; // 󰡯
     const FOLDER: char          = '\u{e5ff}';  // 
+    const FOLDER_BUILD: char    = '\u{f19fc}'; // 󱧼
     const FOLDER_CONFIG: char   = '\u{e5fc}';  // 
     const FOLDER_GIT: char      = '\u{e5fb}';  // 
     const FOLDER_GITHUB: char   = '\u{e5fd}';  // 
@@ -35,6 +35,7 @@ impl Icons {
     const FOLDER_KEY: char      = '\u{f08ac}'; // 󰢬
     const FOLDER_NPM: char      = '\u{e5fa}';  // 
     const FOLDER_OPEN: char     = '\u{f115}';  // 
+    const FILE_UNKNOW: char     = '\u{f086f}'; // 󰡯
     const FONT: char            = '\u{f031}';  // 
     const GIST_SECRET: char     = '\u{eafa}';  // 
     const GIT: char             = '\u{f02a2}'; // 󰊢
@@ -110,7 +111,6 @@ impl Icons {
     const SUBLIME: char         = '\u{e7aa}';  // 
     const SUBTITLE: char        = '\u{f0a16}'; // 󰨖
     const TERRAFORM: char       = '\u{f1062}'; // 󱁢
-    const FOLDER_BUILD: char    = '\u{f19fc}'; // 󱧼
     const TEXT: char            = '\u{f15c}';  // 
     const TYPST: char           = '\u{1D42D}'; // 𝐭
     const UNITY: char           = '\u{e721}';  // 
