@@ -136,6 +136,7 @@ const DIRECTORY_ICONS: Map<&'static str, char> = phf_map! {
     "cron.d"              => Icons::FOLDER_CONFIG,  // 
     "cron.daily"          => Icons::FOLDER_CONFIG,  // 
     "cron.hourly"         => Icons::FOLDER_CONFIG,  // 
+    "cron.minutely"       => Icons::FOLDER_CONFIG,  // 
     "cron.monthly"        => Icons::FOLDER_CONFIG,  // 
     "cron.weekly"         => Icons::FOLDER_CONFIG,  // 
     "Desktop"             => '\u{f108}',            // 
