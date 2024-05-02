@@ -130,7 +130,7 @@ impl FileFilter {
     }
 
     /// check if `path` is named "CACHEDIR.TAG" and has the correct magic number ([`CACHEDIR_MAGIC`]).
-    fn is_cachedir_tag(path: &std::path::PathBuf) -> bool {
+    fn is_cachedir_tag(path: &std::path::Path) -> bool {
         use std::ffi::OsStr;
         use std::io::Read;
         if path.file_name() != Some(OsStr::new("CACHEDIR.TAG")) {
