@@ -1,9 +1,7 @@
 //! Filtering and sorting the list of files before displaying them.
 
 use std::cmp::Ordering;
-use std::ffi::OsStr;
 use std::iter::FromIterator;
-use std::os::unix::ffi::OsStrExt;
 #[cfg(unix)]
 use std::os::unix::fs::MetadataExt;
 
