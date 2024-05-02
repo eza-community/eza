@@ -1,10 +1,27 @@
 # Changelog
 
+## [0.18.14] - 2024-05-02
+
+### Features
+
+- Add icon for "cron.minutely" directory
+
+### Build
+
+- Bump uzers from 0.11.3 to 0.12.0
+- Bump libc from 0.2.153 to 0.2.154
+- Bump unicode-width from 0.1.11 to 0.1.12
+- Bump palette from 0.7.5 to 0.7.6
+
 ## [0.18.13] - 2024-04-25
 
 ### Features
 
 - Generate completion/manpage tarballs on release
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.13
 
 ## [0.18.12] - 2024-04-22
 
