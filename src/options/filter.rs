@@ -1,7 +1,7 @@
 //! Parsing the options for `FileFilter`.
 
 use crate::fs::filter::{
-    CacheDirIgnore, FileFilter, FileFilterFlags, GitIgnore, IgnorePatterns, SortCase, SortField,
+    FileFilter, FileFilterFlags, GitIgnore, IgnoreCacheDir, IgnorePatterns, SortCase, SortField,
 };
 use crate::fs::DotFilter;
 
@@ -32,7 +32,7 @@ impl FileFilter {
             dot_filter:       DotFilter::deduce(matches)?,
             ignore_patterns:  IgnorePatterns::deduce(matches)?,
             git_ignore:       GitIgnore::deduce(matches)?,
-            cachedir_ignore:  CacheDirIgnore::deduce(matches)?,
+            ignore_cachedir:  IgnoreCacheDir::deduce(matches)?,
         });
     }
 }
@@ -194,9 +194,9 @@ impl GitIgnore {
     }
 }
 
-impl CacheDirIgnore {
+impl IgnoreCacheDir {
     pub fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        if matches.has(&flags::CACHEDIR_IGNORE)? {
+        if matches.has(&flags::IGNORE_CACHEDIR)? {
             Ok(Self::CheckAndIgnore)
         } else {
             Ok(Self::Off)

@@ -76,7 +76,7 @@ pub struct FileFilter {
 
     /// Whether to ignore CACHEDIR.TAG directories.
     /// see also https://bford.info/cachedir/
-    pub cachedir_ignore: CacheDirIgnore,
+    pub ignore_cachedir: IgnoreCacheDir,
 }
 
 impl FileFilter {
@@ -107,7 +107,7 @@ impl FileFilter {
     /// remove directories if they contain a CACHEDIR.TAG with the correct signature.
     /// does nothing if `self.cachedir_ignore == Off`
     pub fn filter_cachedirs(&self, files: &mut Vec<File<'_>>) {
-        if self.cachedir_ignore == CacheDirIgnore::CheckAndIgnore {
+        if self.ignore_cachedir == IgnoreCacheDir::CheckAndIgnore {
             files.retain(|f| {
                 if !f.is_directory() {
                     return true;
@@ -413,7 +413,7 @@ pub enum GitIgnore {
 
 /// Whether to ignore or display files that Git would ignore.
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
-pub enum CacheDirIgnore {
+pub enum IgnoreCacheDir {
     /// Ignore directories with CACHEDIR.TAG and have the correct signature
     CheckAndIgnore,
     /// Do not check for CACHEDIR.TAG
