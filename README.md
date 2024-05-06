@@ -80,7 +80,7 @@ Click sections to expand.
 
 eza’s options are almost, but not quite, entirely unlike `ls`’s.
 
-### Display options
+## Display options
 
 - **-1**, **--oneline**: display one entry per line
 - **-G**, **--grid**: display entries as a grid (default)
@@ -97,7 +97,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s.
 - **--absolute=(mode)**: display entries with their absolute path (on, follow, off)
 - **-w**, **--width=(columns)**: set screen width in columns
 
-### Filtering options
+## Filtering options
 
 - **-a**, **--all**: show hidden and 'dot' files
 - **-d**, **--list-dirs**: list directories like regular files
@@ -112,7 +112,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s.
 
 Pass the `--all` option twice to also show the `.` and `..` directories.
 
-### Long view options
+## Long view options
 
 These options are available when running with `--long` (`-l`):
 
