@@ -73,7 +73,7 @@ specific installation instructions can be found in [INSTALL.md](INSTALL.md).
 <h1>Command-line options</h1>
 </a>
 
-eza’s options are almost, but not quite, entirely unlike `ls`’s.
+eza’s options are almost, but not quite, entirely unlike `ls`’s. Quick overview:
 
 ## Display options
 
@@ -162,7 +162,7 @@ Some of the options accept parameters:
 
 </details>
 
-See the `man` pages for more. They are available
+See the `man` pages for further documentation of usage. They are available
 - online [in the repo](https://github.com/eza-community/eza/tree/main/man)
 - in your terminal via `man eza`, as of version [`[0.18.13] - 2024-04-25`](https://github.com/eza-community/eza/blob/main/CHANGELOG.md#01813---2024-04-25)
 
