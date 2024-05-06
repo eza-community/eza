@@ -19,7 +19,10 @@ concurrency:
 
 jobs:
   apt_installation:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, ubuntu-20.04, debian-12, debian-11]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Install eza via apt repo
         run: |
