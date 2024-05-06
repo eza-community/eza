@@ -8,6 +8,10 @@ DOCDIR=/usr/share/man/
 COMMIT=$(git rev-parse --abbrev-ref HEAD)
 
 TAG=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+if [ -n "$1" ]; then
+    TAG=$1
+fi
+
 VERSION=${TAG:1}
 
 echo "checkout tag ${TAG}"
