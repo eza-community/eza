@@ -5,6 +5,8 @@ NAME="eza"
 DESTDIR=/usr/bin
 DOCDIR=/usr/share/man/
 
+COMMIT=$(git rev-parse --abbrev-ref HEAD)
+
 TAG=$(git describe --tags --abbrev=0)
 VERSION=${TAG:1}
 
@@ -142,3 +144,6 @@ EOM
     echo " -> lint ${ARCH} package"
     lintian "${DEB_PACKAGE}" || true
 done
+
+echo "return to original commit"
+git checkout --quiet "${COMMIT}"
