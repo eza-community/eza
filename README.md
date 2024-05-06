@@ -154,6 +154,10 @@ Some of the options accept parameters:
 
 </details>
 
+See the `man` pages for more. They are available
+- online [in the repo](https://github.com/eza-community/eza/tree/main/man)
+- in your terminal via `man eza`, as of version [`[0.18.13] - 2024-04-25`](https://github.com/eza-community/eza/blob/main/CHANGELOG.md#01813---2024-04-25)
+
 # Hacking on eza
 
 If you wanna contribute to eza, firstly, you're expected to follow our 
