@@ -1,3 +1,5 @@
+#![cfg(not(miri))]
+
 #[test]
 fn cli_all_tests() {
     trycmd::TestCases::new().case("tests/cmd/*_all.toml");
