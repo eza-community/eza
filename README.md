@@ -69,18 +69,16 @@ specific installation instructions can be found in [INSTALL.md](INSTALL.md).
 
 ---
 
-Click sections to expand.
-
 <a id="options">
-<details>
-    <summary> Command-line options </summary>
-
 <h1>Command-line options</h1>
 </a>
 
-eza’s options are almost, but not quite, entirely unlike `ls`’s.
+eza’s options are almost, but not quite, entirely unlike `ls`’s. Quick overview:
 
-### Display options
+## Display options
+
+<details>
+<summary>Click to expand</summary>
 
 - **-1**, **--oneline**: display one entry per line
 - **-G**, **--grid**: display entries as a grid (default)
@@ -97,7 +95,12 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s.
 - **--absolute=(mode)**: display entries with their absolute path (on, follow, off)
 - **-w**, **--width=(columns)**: set screen width in columns
 
-### Filtering options
+</details>
+
+## Filtering options
+
+<details>
+<summary>Click to expand</summary>
 
 - **-a**, **--all**: show hidden and 'dot' files
 - **-d**, **--list-dirs**: list directories like regular files
@@ -113,7 +116,12 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s.
 
 Pass the `--all` option twice to also show the `.` and `..` directories.
 
-### Long view options
+</details>
+
+## Long view options
+
+<details>
+<summary>Click to expand</summary>
 
 These options are available when running with `--long` (`-l`):
 
@@ -154,6 +162,10 @@ Some of the options accept parameters:
 - Valid time styles are **default**, **iso**, **long-iso**, **full-iso**, and **relative**.
 
 </details>
+
+See the `man` pages for further documentation of usage. They are available
+- online [in the repo](https://github.com/eza-community/eza/tree/main/man)
+- in your terminal via `man eza`, as of version [`[0.18.13] - 2024-04-25`](https://github.com/eza-community/eza/blob/main/CHANGELOG.md#01813---2024-04-25)
 
 # Hacking on eza
 
