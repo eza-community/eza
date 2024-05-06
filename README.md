@@ -69,18 +69,16 @@ specific installation instructions can be found in [INSTALL.md](INSTALL.md).
 
 ---
 
-Click sections to expand.
-
 <a id="options">
-<details>
-    <summary> Command-line options </summary>
-
 <h1>Command-line options</h1>
 </a>
 
 eza’s options are almost, but not quite, entirely unlike `ls`’s.
 
 ## Display options
+
+<details>
+<summary>Click to expand</summary>
 
 - **-1**, **--oneline**: display one entry per line
 - **-G**, **--grid**: display entries as a grid (default)
@@ -97,7 +95,12 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s.
 - **--absolute=(mode)**: display entries with their absolute path (on, follow, off)
 - **-w**, **--width=(columns)**: set screen width in columns
 
+</details>
+
 ## Filtering options
+
+<details>
+<summary>Click to expand</summary>
 
 - **-a**, **--all**: show hidden and 'dot' files
 - **-d**, **--list-dirs**: list directories like regular files
@@ -112,7 +115,12 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s.
 
 Pass the `--all` option twice to also show the `.` and `..` directories.
 
+</details>
+
 ## Long view options
+
+<details>
+<summary>Click to expand</summary>
 
 These options are available when running with `--long` (`-l`):
 
