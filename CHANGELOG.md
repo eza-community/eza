@@ -1,10 +1,32 @@
 # Changelog
 
+## [0.18.15] - 2024-05-09
+
+### Bug Fixes
+
+- Correct command for latest tag in deb-package.sh
+
+### Documentation
+
+- Add how to find man pages in terminal and online. Partly fixes #967
+- Correct heading levels in markdown
+- Move heading out of collapsed section
+- Add some keywords for benefit of ctrl-f
+
+### Features
+
+- Return to original commit at the end of deb-package.sh
+- Add optional tag argument to deb-package.sh
+
 ## [0.18.14] - 2024-05-02
 
 ### Features
 
 - Add icon for "cron.minutely" directory
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.14
 
 ### Build
 
