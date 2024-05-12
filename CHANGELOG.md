@@ -1,10 +1,86 @@
 # Changelog
 
+## [0.18.15] - 2024-05-09
+
+### Bug Fixes
+
+- Correct command for latest tag in deb-package.sh
+
+### Documentation
+
+- Add how to find man pages in terminal and online. Partly fixes #967
+- Correct heading levels in markdown
+- Move heading out of collapsed section
+- Add some keywords for benefit of ctrl-f
+
+### Features
+
+- Return to original commit at the end of deb-package.sh
+- Add optional tag argument to deb-package.sh
+
+## [0.18.14] - 2024-05-02
+
+### Features
+
+- Add icon for "cron.minutely" directory
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.14
+
+### Build
+
+- Bump uzers from 0.11.3 to 0.12.0
+- Bump libc from 0.2.153 to 0.2.154
+- Bump unicode-width from 0.1.11 to 0.1.12
+- Bump palette from 0.7.5 to 0.7.6
+
+## [0.18.13] - 2024-04-25
+
+### Features
+
+- Generate completion/manpage tarballs on release
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.13
+
+## [0.18.12] - 2024-04-22
+
+### Bug Fixes
+
+- Allow unused imports for freebsd
+- Checking for deref flag in file_name
+
+### Features
+
+- Add scheme filetype and icons
+
+## [0.18.11] - 2024-04-19
+
+### Bug Fixes
+
+- Fix clippy lints
+- Enable the rule only for NetBSD.
+- Build aarch64, arm without libgit2
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.11
+
+### Ci
+
+- Bump NetBSD version to 10.0
+
 ## [0.18.10] - 2024-04-11
 
 ### Bug Fixes
 
 - Bump trycmd from 0.15.0 to 0.15.1
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.10
 
 ### Build
 

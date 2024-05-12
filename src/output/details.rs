@@ -328,6 +328,8 @@ impl<'a> Render<'a> {
                 .paint()
                 .promote();
 
+            debug!("file_name {:?}", file_name);
+
             let row = Row {
                 tree: tree_params,
                 cells: egg.table_row,
