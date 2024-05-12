@@ -4,34 +4,16 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::default::Default;
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub struct IconStyle {
     pub icon: Option<char>,
     pub style: Option<Style>,
 }
 
-impl Default for IconStyle {
-    fn default() -> Self {
-        Self {
-            icon: None,
-            style: None,
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub struct IconStyles {
     pub filenames: Option<HashMap<String, IconStyle>>,
     pub extensions: Option<HashMap<String, IconStyle>>,
-}
-
-impl Default for IconStyles {
-    fn default() -> Self {
-        Self {
-            filenames: None,
-            extensions: None,
-        }
-    }
 }
 
 #[rustfmt::skip]
