@@ -20,7 +20,21 @@ pub enum ConfigLoc {
 }
 
 trait FromOverride<T>: Sized {
-    fn from(value: T) -> Self;
+    fn from(value: T, default: Self) -> Self;
+}
+
+impl<S, T> FromOverride<Option<S>> for Option<T>
+where
+    T: FromOverride<S> + Default,
+{
+    fn from(value: Option<S>, default: Option<T>) -> Option<T> {
+        match (value, default) {
+            (Some(value), Some(default)) => Some(FromOverride::from(value, default)),
+            (Some(value), None) => Some(FromOverride::from(value, T::default())),
+            (None, Some(default)) => Some(default),
+            (None, None) => None,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize, Default)]
@@ -60,8 +74,8 @@ pub struct StyleOverride {
 }
 
 impl FromOverride<StyleOverride> for Style {
-    fn from(value: StyleOverride) -> Self {
-        let mut style = Style::default();
+    fn from(value: StyleOverride, default: Self) -> Self {
+        let mut style = default.clone();
         if value.foreground.is_some() {
             style.foreground = value.foreground;
         }
@@ -99,23 +113,23 @@ impl FromOverride<StyleOverride> for Style {
     }
 }
 
-impl FromOverride<Option<StyleOverride>> for Option<Style> {
-    fn from(value: Option<StyleOverride>) -> Self {
-        value.map(FromOverride::from)
-    }
-}
-
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub struct IconStyleOverride {
     pub icon: Option<char>,
     pub style: Option<StyleOverride>,
 }
 
+impl FromOverride<char> for char {
+    fn from(value: char, _default: char) -> char {
+        value
+    }
+}
+
 impl FromOverride<IconStyleOverride> for IconStyle {
-    fn from(value: IconStyleOverride) -> Self {
+    fn from(value: IconStyleOverride, default: Self) -> Self {
         IconStyle {
-            icon: value.icon,
-            style: FromOverride::from(value.style),
+            icon: FromOverride::from(value.icon, default.icon),
+            style: FromOverride::from(value.style, default.style),
         }
     }
 }
@@ -126,26 +140,31 @@ pub struct IconStylesOverride {
     pub extensions: Option<HashMap<String, IconStyleOverride>>,
 }
 
-impl FromOverride<IconStylesOverride> for IconStyles {
-    fn from(value: IconStylesOverride) -> Self {
-        IconStyles {
-            filenames: value.filenames.map(|map| {
-                map.into_iter()
-                    .map(|(k, v)| (k, FromOverride::from(v)))
-                    .collect()
-            }),
-            extensions: value.extensions.map(|map| {
-                map.into_iter()
-                    .map(|(k, v)| (k, FromOverride::from(v)))
-                    .collect()
-            }),
-        }
+impl<R, S, T> FromOverride<HashMap<R, S>> for HashMap<R, T>
+where
+    T: FromOverride<S>,
+    R: Clone + Eq + std::hash::Hash,
+    T: Clone + Eq + Default,
+{
+    fn from(value: HashMap<R, S>, default: HashMap<R, T>) -> HashMap<R, T> {
+        let mut result = default.clone();
+        value.into_iter().for_each(|(r, s)| {
+            let t = match default.get(&r) {
+                Some(t) => t.clone(),
+                None => T::default(),
+            };
+            result.insert(r, FromOverride::from(s, t));
+        });
+        result
     }
 }
 
-impl FromOverride<Option<IconStylesOverride>> for Option<IconStyles> {
-    fn from(value: Option<IconStylesOverride>) -> Self {
-        value.map(FromOverride::from)
+impl FromOverride<IconStylesOverride> for IconStyles {
+    fn from(value: IconStylesOverride, default: IconStyles) -> Self {
+        IconStyles {
+            filenames: FromOverride::from(value.filenames, default.filenames),
+            extensions: FromOverride::from(value.extensions, default.extensions),
+        }
     }
 }
 
@@ -165,25 +184,19 @@ pub struct FileKindsOverride {
 }
 
 impl FromOverride<FileKindsOverride> for FileKinds {
-    fn from(value: FileKindsOverride) -> Self {
+    fn from(value: FileKindsOverride, default: Self) -> Self {
         FileKinds {
-            normal: FromOverride::from(value.normal),
-            directory: FromOverride::from(value.directory),
-            symlink: FromOverride::from(value.symlink),
-            pipe: FromOverride::from(value.pipe),
-            block_device: FromOverride::from(value.block_device),
-            char_device: FromOverride::from(value.char_device),
-            socket: FromOverride::from(value.socket),
-            special: FromOverride::from(value.special),
-            executable: FromOverride::from(value.executable),
-            mount_point: FromOverride::from(value.mount_point),
+            normal: FromOverride::from(value.normal, default.normal),
+            directory: FromOverride::from(value.directory, default.directory),
+            symlink: FromOverride::from(value.symlink, default.directory),
+            pipe: FromOverride::from(value.pipe, default.pipe),
+            block_device: FromOverride::from(value.block_device, default.block_device),
+            char_device: FromOverride::from(value.char_device, default.char_device),
+            socket: FromOverride::from(value.socket, default.socket),
+            special: FromOverride::from(value.special, default.special),
+            executable: FromOverride::from(value.executable, default.executable),
+            mount_point: FromOverride::from(value.mount_point, default.mount_point),
         }
-    }
-}
-
-impl FromOverride<Option<FileKindsOverride>> for Option<FileKinds> {
-    fn from(value: Option<FileKindsOverride>) -> Self {
-        value.map(FromOverride::from)
     }
 }
 
@@ -210,28 +223,31 @@ pub struct PermissionsOverride {
 }
 
 impl FromOverride<PermissionsOverride> for Permissions {
-    fn from(value: PermissionsOverride) -> Self {
+    fn from(value: PermissionsOverride, default: Self) -> Self {
         Permissions {
-            user_read: FromOverride::from(value.user_read),
-            user_write: FromOverride::from(value.user_write),
-            user_execute_file: FromOverride::from(value.user_execute_file),
-            user_execute_other: FromOverride::from(value.user_execute_other),
-            group_read: FromOverride::from(value.group_read),
-            group_write: FromOverride::from(value.group_write),
-            group_execute: FromOverride::from(value.group_execute),
-            other_read: FromOverride::from(value.other_read),
-            other_write: FromOverride::from(value.other_write),
-            other_execute: FromOverride::from(value.other_execute),
-            special_user_file: FromOverride::from(value.special_user_file),
-            special_other: FromOverride::from(value.special_other),
-            attribute: FromOverride::from(value.attribute),
+            user_read: FromOverride::from(value.user_read, default.user_read),
+            user_write: FromOverride::from(value.user_write, default.user_write),
+            user_execute_file: FromOverride::from(
+                value.user_execute_file,
+                default.user_execute_file,
+            ),
+            user_execute_other: FromOverride::from(
+                value.user_execute_other,
+                default.user_execute_other,
+            ),
+            group_read: FromOverride::from(value.group_read, default.group_read),
+            group_write: FromOverride::from(value.group_write, default.group_write),
+            group_execute: FromOverride::from(value.group_execute, default.group_execute),
+            other_read: FromOverride::from(value.other_read, default.other_read),
+            other_write: FromOverride::from(value.other_write, default.other_write),
+            other_execute: FromOverride::from(value.other_execute, default.other_execute),
+            special_user_file: FromOverride::from(
+                value.special_user_file,
+                default.special_user_file,
+            ),
+            special_other: FromOverride::from(value.special_other, default.special_other),
+            attribute: FromOverride::from(value.attribute, default.attribute),
         }
-    }
-}
-
-impl FromOverride<Option<PermissionsOverride>> for Option<Permissions> {
-    fn from(value: Option<PermissionsOverride>) -> Self {
-        value.map(FromOverride::from)
     }
 }
 
@@ -255,27 +271,21 @@ pub struct SizeOverride {
 }
 
 impl FromOverride<SizeOverride> for Size {
-    fn from(value: SizeOverride) -> Self {
+    fn from(value: SizeOverride, default: Self) -> Self {
         Size {
-            major: FromOverride::from(value.major),
-            minor: FromOverride::from(value.minor),
-            number_byte: FromOverride::from(value.number_byte),
-            number_kilo: FromOverride::from(value.number_kilo),
-            number_mega: FromOverride::from(value.number_mega),
-            number_giga: FromOverride::from(value.number_giga),
-            number_huge: FromOverride::from(value.number_huge),
-            unit_byte: FromOverride::from(value.unit_byte),
-            unit_kilo: FromOverride::from(value.unit_kilo),
-            unit_mega: FromOverride::from(value.unit_mega),
-            unit_giga: FromOverride::from(value.unit_giga),
-            unit_huge: FromOverride::from(value.unit_huge),
+            major: FromOverride::from(value.major, default.major),
+            minor: FromOverride::from(value.minor, default.minor),
+            number_byte: FromOverride::from(value.number_byte, default.number_byte),
+            number_kilo: FromOverride::from(value.number_kilo, default.number_kilo),
+            number_mega: FromOverride::from(value.number_mega, default.number_mega),
+            number_giga: FromOverride::from(value.number_giga, default.number_giga),
+            number_huge: FromOverride::from(value.number_huge, default.number_huge),
+            unit_byte: FromOverride::from(value.unit_byte, default.unit_byte),
+            unit_kilo: FromOverride::from(value.unit_kilo, default.unit_kilo),
+            unit_mega: FromOverride::from(value.unit_mega, default.unit_mega),
+            unit_giga: FromOverride::from(value.unit_giga, default.unit_giga),
+            unit_huge: FromOverride::from(value.unit_huge, default.unit_huge),
         }
-    }
-}
-
-impl FromOverride<Option<SizeOverride>> for Option<Size> {
-    fn from(value: Option<SizeOverride>) -> Self {
-        value.map(FromOverride::from)
     }
 }
 
@@ -291,21 +301,15 @@ pub struct UsersOverride {
 }
 
 impl FromOverride<UsersOverride> for Users {
-    fn from(value: UsersOverride) -> Self {
+    fn from(value: UsersOverride, default: Self) -> Self {
         Users {
-            user_you: FromOverride::from(value.user_you),
-            user_root: FromOverride::from(value.user_root),
-            user_other: FromOverride::from(value.user_other),
-            group_yours: FromOverride::from(value.group_yours),
-            group_other: FromOverride::from(value.group_other),
-            group_root: FromOverride::from(value.group_root),
+            user_you: FromOverride::from(value.user_you, default.user_you),
+            user_root: FromOverride::from(value.user_root, default.user_root),
+            user_other: FromOverride::from(value.user_other, default.user_other),
+            group_yours: FromOverride::from(value.group_yours, default.group_yours),
+            group_other: FromOverride::from(value.group_other, default.group_other),
+            group_root: FromOverride::from(value.group_root, default.group_root),
         }
-    }
-}
-
-impl FromOverride<Option<UsersOverride>> for Option<Users> {
-    fn from(value: Option<UsersOverride>) -> Self {
-        value.map(FromOverride::from)
     }
 }
 
@@ -317,17 +321,11 @@ pub struct LinksOverride {
 }
 
 impl FromOverride<LinksOverride> for Links {
-    fn from(value: LinksOverride) -> Self {
+    fn from(value: LinksOverride, default: Self) -> Self {
         Links {
-            normal: FromOverride::from(value.normal),
-            multi_link_file: FromOverride::from(value.multi_link_file),
+            normal: FromOverride::from(value.normal, default.normal),
+            multi_link_file: FromOverride::from(value.multi_link_file, default.multi_link_file),
         }
-    }
-}
-
-impl FromOverride<Option<LinksOverride>> for Option<Links> {
-    fn from(value: Option<LinksOverride>) -> Self {
-        value.map(FromOverride::from)
     }
 }
 
@@ -344,22 +342,16 @@ pub struct GitOverride {
 }
 
 impl FromOverride<GitOverride> for Git {
-    fn from(value: GitOverride) -> Self {
+    fn from(value: GitOverride, default: Self) -> Self {
         Git {
-            new: FromOverride::from(value.new),
-            modified: FromOverride::from(value.modified),
-            deleted: FromOverride::from(value.deleted),
-            renamed: FromOverride::from(value.renamed),
-            typechange: FromOverride::from(value.typechange),
-            ignored: FromOverride::from(value.ignored),
-            conflicted: FromOverride::from(value.conflicted),
+            new: FromOverride::from(value.new, default.new),
+            modified: FromOverride::from(value.modified, default.modified),
+            deleted: FromOverride::from(value.deleted, default.deleted),
+            renamed: FromOverride::from(value.renamed, default.renamed),
+            typechange: FromOverride::from(value.typechange, default.typechange),
+            ignored: FromOverride::from(value.ignored, default.ignored),
+            conflicted: FromOverride::from(value.conflicted, default.conflicted),
         }
-    }
-}
-
-impl FromOverride<Option<GitOverride>> for Option<Git> {
-    fn from(value: Option<GitOverride>) -> Self {
-        value.map(FromOverride::from)
     }
 }
 
@@ -373,19 +365,13 @@ pub struct GitRepoOverride {
 }
 
 impl FromOverride<GitRepoOverride> for GitRepo {
-    fn from(value: GitRepoOverride) -> Self {
+    fn from(value: GitRepoOverride, default: Self) -> Self {
         GitRepo {
-            branch_main: FromOverride::from(value.branch_main),
-            branch_other: FromOverride::from(value.branch_other),
-            git_clean: FromOverride::from(value.git_clean),
-            git_dirty: FromOverride::from(value.git_dirty),
+            branch_main: FromOverride::from(value.branch_main, default.branch_main),
+            branch_other: FromOverride::from(value.branch_other, default.branch_other),
+            git_clean: FromOverride::from(value.git_clean, default.git_clean),
+            git_dirty: FromOverride::from(value.git_dirty, default.git_dirty),
         }
-    }
-}
-
-impl FromOverride<Option<GitRepoOverride>> for Option<GitRepo> {
-    fn from(value: Option<GitRepoOverride>) -> Self {
-        value.map(FromOverride::from)
     }
 }
 
@@ -399,20 +385,14 @@ pub struct SELinuxContextOverride {
 }
 
 impl FromOverride<SELinuxContextOverride> for SELinuxContext {
-    fn from(value: SELinuxContextOverride) -> Self {
+    fn from(value: SELinuxContextOverride, default: Self) -> Self {
         SELinuxContext {
-            colon: FromOverride::from(value.colon),
-            user: FromOverride::from(value.user),
-            role: FromOverride::from(value.role),
-            typ: FromOverride::from(value.typ),
-            range: FromOverride::from(value.range),
+            colon: FromOverride::from(value.colon, default.colon),
+            user: FromOverride::from(value.user, default.user),
+            role: FromOverride::from(value.role, default.role),
+            typ: FromOverride::from(value.typ, default.typ),
+            range: FromOverride::from(value.range, default.range),
         }
-    }
-}
-
-impl FromOverride<Option<SELinuxContextOverride>> for Option<SELinuxContext> {
-    fn from(value: Option<SELinuxContextOverride>) -> Self {
-        value.map(FromOverride::from)
     }
 }
 
@@ -424,17 +404,11 @@ pub struct SecurityContextOverride {
 }
 
 impl FromOverride<SecurityContextOverride> for SecurityContext {
-    fn from(value: SecurityContextOverride) -> Self {
+    fn from(value: SecurityContextOverride, default: Self) -> Self {
         SecurityContext {
-            none: FromOverride::from(value.none),
-            selinux: FromOverride::from(value.selinux),
+            none: FromOverride::from(value.none, default.none),
+            selinux: FromOverride::from(value.selinux, default.selinux),
         }
-    }
-}
-
-impl FromOverride<Option<SecurityContextOverride>> for Option<SecurityContext> {
-    fn from(value: Option<SecurityContextOverride>) -> Self {
-        value.map(FromOverride::from)
     }
 }
 
@@ -455,26 +429,20 @@ pub struct FileTypeOverride {
 }
 
 impl FromOverride<FileTypeOverride> for FileType {
-    fn from(value: FileTypeOverride) -> Self {
+    fn from(value: FileTypeOverride, default: Self) -> Self {
         FileType {
-            image: FromOverride::from(value.image),
-            video: FromOverride::from(value.video),
-            music: FromOverride::from(value.music),
-            lossless: FromOverride::from(value.lossless),
-            crypto: FromOverride::from(value.crypto),
-            document: FromOverride::from(value.document),
-            compressed: FromOverride::from(value.compressed),
-            temp: FromOverride::from(value.temp),
-            compiled: FromOverride::from(value.compiled),
-            build: FromOverride::from(value.build),
-            source: FromOverride::from(value.source),
+            image: FromOverride::from(value.image, default.image),
+            video: FromOverride::from(value.video, default.video),
+            music: FromOverride::from(value.music, default.music),
+            lossless: FromOverride::from(value.lossless, default.lossless),
+            crypto: FromOverride::from(value.crypto, default.crypto),
+            document: FromOverride::from(value.document, default.document),
+            compressed: FromOverride::from(value.compressed, default.compressed),
+            temp: FromOverride::from(value.temp, default.temp),
+            compiled: FromOverride::from(value.compiled, default.compiled),
+            build: FromOverride::from(value.build, default.build),
+            source: FromOverride::from(value.source, default.source),
         }
-    }
-}
-
-impl FromOverride<Option<FileTypeOverride>> for Option<FileType> {
-    fn from(value: Option<FileTypeOverride>) -> Self {
-        value.map(FromOverride::from)
     }
 }
 
@@ -509,45 +477,41 @@ pub struct UiStylesOverride {
     pub icons: Option<IconStylesOverride>,
 }
 
-impl From<UiStylesOverride> for UiStyles {
-    fn from(value: UiStylesOverride) -> Self {
+impl FromOverride<UiStylesOverride> for UiStyles {
+    fn from(value: UiStylesOverride, default: Self) -> Self {
         UiStyles {
             colourful: value.colourful,
 
-            filekinds: FromOverride::from(value.filekinds),
-            perms: FromOverride::from(value.perms),
-            size: FromOverride::from(value.size),
-            users: FromOverride::from(value.users),
-            links: FromOverride::from(value.links),
-            git: FromOverride::from(value.git),
-            git_repo: FromOverride::from(value.git_repo),
-            security_context: FromOverride::from(value.security_context),
-            file_type: FromOverride::from(value.file_type),
+            filekinds: FromOverride::from(value.filekinds, default.filekinds),
+            perms: FromOverride::from(value.perms, default.perms),
+            size: FromOverride::from(value.size, default.size),
+            users: FromOverride::from(value.users, default.users),
+            links: FromOverride::from(value.links, default.links),
+            git: FromOverride::from(value.git, default.git),
+            git_repo: FromOverride::from(value.git_repo, default.git_repo),
+            security_context: FromOverride::from(value.security_context, default.security_context),
+            file_type: FromOverride::from(value.file_type, default.file_type),
 
-            punctuation: FromOverride::from(value.punctuation),
-            date: FromOverride::from(value.date),
-            inode: FromOverride::from(value.inode),
-            blocks: FromOverride::from(value.blocks),
-            header: FromOverride::from(value.header),
-            octal: FromOverride::from(value.octal),
-            flags: FromOverride::from(value.flags),
+            punctuation: FromOverride::from(value.punctuation, default.punctuation),
+            date: FromOverride::from(value.date, default.date),
+            inode: FromOverride::from(value.inode, default.inode),
+            blocks: FromOverride::from(value.blocks, default.blocks),
+            header: FromOverride::from(value.header, default.header),
+            octal: FromOverride::from(value.octal, default.octal),
+            flags: FromOverride::from(value.flags, default.flags),
 
-            symlink_path: FromOverride::from(value.symlink_path),
-            control_char: FromOverride::from(value.control_char),
-            broken_symlink: FromOverride::from(value.broken_symlink),
-            broken_path_overlay: FromOverride::from(value.broken_path_overlay),
+            symlink_path: FromOverride::from(value.symlink_path, default.symlink_path),
+            control_char: FromOverride::from(value.control_char, default.control_char),
+            broken_symlink: FromOverride::from(value.broken_symlink, default.broken_symlink),
+            broken_path_overlay: FromOverride::from(
+                value.broken_path_overlay,
+                default.broken_path_overlay,
+            ),
 
-            icons: FromOverride::from(value.icons),
+            icons: FromOverride::from(value.icons, default.icons),
         }
     }
 }
-
-impl FromOverride<Option<UiStylesOverride>> for Option<UiStyles> {
-    fn from(value: Option<UiStylesOverride>) -> Self {
-        value.map(From::from)
-    }
-}
-
 impl ThemeConfig {
     pub fn from_path(path: &str) -> Self {
         let path = PathBuf::from(path);
@@ -567,6 +531,6 @@ impl ThemeConfig {
                 serde_yaml::from_reader(&file).ok()
             }
         };
-        FromOverride::from(ui_styles_override)
+        FromOverride::from(ui_styles_override, Some(UiStyles::default()))
     }
 }
