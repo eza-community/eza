@@ -75,7 +75,7 @@ pub struct StyleOverride {
 
 impl FromOverride<StyleOverride> for Style {
     fn from(value: StyleOverride, default: Self) -> Self {
-        let mut style = default.clone();
+        let mut style = default;
         if value.foreground.is_some() {
             style.foreground = value.foreground;
         }
@@ -148,13 +148,13 @@ where
 {
     fn from(value: HashMap<R, S>, default: HashMap<R, T>) -> HashMap<R, T> {
         let mut result = default.clone();
-        value.into_iter().for_each(|(r, s)| {
+        for (r, s) in value {
             let t = match default.get(&r) {
                 Some(t) => t.clone(),
                 None => T::default(),
             };
             result.insert(r, FromOverride::from(s, t));
-        });
+        }
         result
     }
 }
