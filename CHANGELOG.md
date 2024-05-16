@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.18.16] - 2024-05-16
+
+### Bug Fixes
+
+- Change windows-only imports to be windows-only
+
+### Documentation
+
+- Replace decay with color-scale
+- Update INSTALL.md
+- Fix typo in `INSTALL.md`
+- Use 3 columns for packaging status badge
+
+### Build
+
+- Bump DeterminateSystems/flake-checker-action from 5 to 7
+- Bump DeterminateSystems/nix-installer-action from 10 to 11
+
 ## [0.18.15] - 2024-05-09
 
 ### Bug Fixes
@@ -17,6 +35,10 @@
 
 - Return to original commit at the end of deb-package.sh
 - Add optional tag argument to deb-package.sh
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.15
 
 ## [0.18.14] - 2024-05-02
 
