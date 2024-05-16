@@ -376,7 +376,7 @@ dependencies = [
 
 [[package]]
 name = "eza"
-version = "0.18.15"
+version = "0.18.16"
 dependencies = [
  "ansi-width",
  "chrono",
