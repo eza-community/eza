@@ -144,7 +144,7 @@ sudo chown root:root eza
 sudo mv eza /usr/local/bin/eza
 ```
 
-If `exa` was install before, replace it will `eza`:
+If `exa` was installed before, replace it with `eza`:
 ```shell
 sudo rm -f /usr/local/bin/exa
 sudo ln -s /usr/local/bin/eza /usr/local/bin/exa
