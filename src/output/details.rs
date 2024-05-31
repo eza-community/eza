@@ -267,14 +267,14 @@ impl<'a> Render<'a> {
                 None,
             );
 
-            write!(w, "{{\"files\":[")?;
+            write!(w, "\"files\":[")?;
             for (i, row) in self.iterate(rows).enumerate() {
                 write!(w, "\"{}\"", row.strings())?;
                 if (i + 1) < self.files.len() {
                     write!(w, ", ")?;
                 }
             }
-            writeln!(w, "]}}")
+            writeln!(w, "]")
         }
     }
 

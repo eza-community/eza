@@ -4,7 +4,7 @@ This file is a special renderer for json
 
 use std::io::{self, Write};
 
-use super::{details::TableIter, TextCell};
+use super::{cell::TextCell, details::TableIter};
 
 #[derive(Debug, Clone)]
 struct JsonFile {
@@ -35,7 +35,7 @@ impl JsonFile {
             writeln!(w, "[")?;
         }
         for (i, cell) in self.cell.contents.iter().enumerate() {
-            if cell.is_empty() || cell.trim().is_empty() {
+            if cell.as_str().is_empty() || cell.as_str().trim().is_empty() {
                 continue;
             };
             if let Some(ref header) = header {

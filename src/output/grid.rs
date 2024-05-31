@@ -63,7 +63,7 @@ impl<'a> Render<'a> {
     // and treat it as just printing *quite* the same as lines
     pub fn render_json<W: Write>(mut self, w: &mut W) -> io::Result<()> {
         self.filter.sort_files(&mut self.files);
-        writeln!(w, "{{\"files\":[")?;
+        write!(w, "\"files\":[")?;
         for (i, file) in self.files.iter().enumerate() {
             let name_cell = self.file_style.for_file(file, self.theme).paint();
             write!(w, "\"{}\"", name_cell.strings())?;
@@ -71,7 +71,7 @@ impl<'a> Render<'a> {
                 write!(w, ",")?;
             }
         }
-        writeln!(w, "]}}")?;
+        writeln!(w, "]")?;
         Ok(())
     }
 }

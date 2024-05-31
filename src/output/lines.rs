@@ -37,7 +37,7 @@ impl<'a> Render<'a> {
 
     pub fn render_json<W: Write>(mut self, w: &mut W) -> io::Result<()> {
         self.filter.sort_files(&mut self.files);
-        write!(w, "{{\"files\":[")?;
+        write!(w, "\"files\":[")?;
         for (i, file) in self.files.iter().enumerate() {
             let name_cell = self.render_file(file);
             write!(w, "\"{}\"", ANSIStrings(&name_cell))?;
@@ -45,7 +45,7 @@ impl<'a> Render<'a> {
                 write!(w, ",")?;
             }
         }
-        writeln!(w, "]}}")?;
+        writeln!(w, "]")?;
 
         Ok(())
     }

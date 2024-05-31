@@ -28,6 +28,7 @@ use std::path::{Component, PathBuf};
 use std::process::exit;
 
 use nu_ansi_term::{AnsiStrings as ANSIStrings, Style};
+use output::OutputType;
 
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::GitIgnore;

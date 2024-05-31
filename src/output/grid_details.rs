@@ -109,7 +109,7 @@ impl<'a> Render<'a> {
     // because grid-details has no tree view.
 
     pub fn render_json<W: Write>(self, _w: &mut W) -> io::Result<()> {
-        todo!("Implement json rendering");
+        unimplemented!("As it is made to be piped json with grid view, will not be implemented");
     }
 
     pub fn render<W: Write>(mut self, w: &mut W) -> io::Result<()> {
