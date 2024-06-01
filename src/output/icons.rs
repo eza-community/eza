@@ -604,6 +604,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "ninja"          => '\u{f0774}',             // 󰝴
     "nix"            => '\u{f313}',              // 
     "node"           => Icons::NODEJS,           // 
+    "nu"             => Icons::SHELL_CMD,        // 
     "o"              => Icons::BINARY,           // 
     "obj"            => Icons::FILE_3D,          // 󰆧
     "odf"            => '\u{f0784}',             // 󰞄
