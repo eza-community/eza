@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.18.17] - 2024-06-05
+
+### Features
+
+- Add icon for Nushell extension
+
+### Build
+
+- Bump trycmd from 0.15.1 to 0.15.2
+- Bump libc from 0.2.154 to 0.2.155
+
 ## [0.18.16] - 2024-05-16
 
 ### Bug Fixes
@@ -12,6 +23,10 @@
 - Update INSTALL.md
 - Fix typo in `INSTALL.md`
 - Use 3 columns for packaging status badge
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.16
 
 ### Build
 
