@@ -460,7 +460,18 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
             f if f.is_directory()        => self.colours.directory(),
             #[cfg(unix)]
             f if f.is_executable_file()  => self.colours.executable_file(),
-            f if f.is_link()             => self.colours.symlink(),
+            f if f.is_link()             => {
+                if let crate::theme::LinkStyle::AnsiStyle(x) = self.colours.symlink() { x } else {
+                    if let FileTarget::Ok(file) = self.target.as_ref().unwrap() {
+                        return FileName {
+                            file,
+                            target: None,
+                            ..*self
+                        }.style()
+                    }
+                    return Style::default();
+                }
+            }
             #[cfg(unix)]
             f if f.is_pipe()             => self.colours.pipe(),
             #[cfg(unix)]
