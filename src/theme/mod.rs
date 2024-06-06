@@ -7,6 +7,7 @@ use crate::output::file_name::Colours as FileNameColours;
 use crate::output::render;
 
 mod ui_styles;
+pub use self::ui_styles::LinkStyle;
 pub use self::ui_styles::UiStyles;
 
 mod lsc;
@@ -253,7 +254,7 @@ impl render::FiletypeColours for Theme {
     fn normal(&self)       -> Style { self.ui.filekinds.normal }
     fn directory(&self)    -> Style { self.ui.filekinds.directory }
     fn pipe(&self)         -> Style { self.ui.filekinds.pipe }
-    fn symlink(&self)      -> Style { self.ui.filekinds.symlink }
+    fn symlink(&self)      -> LinkStyle { self.ui.filekinds.symlink }
     fn block_device(&self) -> Style { self.ui.filekinds.block_device }
     fn char_device(&self)  -> Style { self.ui.filekinds.char_device }
     fn socket(&self)       -> Style { self.ui.filekinds.socket }
@@ -493,8 +494,9 @@ mod customs_test {
     test!(ls_so:   ls "so=35", exa ""  =>  colours c -> { c.filekinds.socket       = Purple.normal(); });
     test!(ls_bd:   ls "bd=36", exa ""  =>  colours c -> { c.filekinds.block_device = Cyan.normal();   });
     test!(ls_cd:   ls "cd=35", exa ""  =>  colours c -> { c.filekinds.char_device  = Purple.normal(); });
-    test!(ls_ln:   ls "ln=34", exa ""  =>  colours c -> { c.filekinds.symlink      = Blue.normal();   });
+    test!(ls_ln:   ls "ln=34", exa ""  =>  colours c -> { c.filekinds.symlink      = LinkStyle::AnsiStyle(Blue.normal()); });
     test!(ls_or:   ls "or=33", exa ""  =>  colours c -> { c.broken_symlink         = Yellow.normal(); });
+    test!(ls_ln_target: ls "ln=target", exa "" => colours c -> { c.filekinds.symlink = LinkStyle::Target; });
 
     // EZA_COLORS can affect all those colours too:
     test!(exa_di:  ls "", exa "di=32"  =>  colours c -> { c.filekinds.directory    = Green.normal();  });
@@ -504,7 +506,7 @@ mod customs_test {
     test!(exa_so:  ls "", exa "so=36"  =>  colours c -> { c.filekinds.socket       = Cyan.normal();   });
     test!(exa_bd:  ls "", exa "bd=35"  =>  colours c -> { c.filekinds.block_device = Purple.normal(); });
     test!(exa_cd:  ls "", exa "cd=34"  =>  colours c -> { c.filekinds.char_device  = Blue.normal();   });
-    test!(exa_ln:  ls "", exa "ln=33"  =>  colours c -> { c.filekinds.symlink      = Yellow.normal(); });
+    test!(exa_ln:  ls "", exa "ln=33"  =>  colours c -> { c.filekinds.symlink      = LinkStyle::AnsiStyle(Yellow.normal()); });
     test!(exa_or:  ls "", exa "or=32"  =>  colours c -> { c.broken_symlink         = Green.normal();  });
 
     // EZA_COLORS will even override options from LS_COLORS:
