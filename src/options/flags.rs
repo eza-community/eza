@@ -15,6 +15,8 @@ pub static CLASSIFY:    Arg = Arg { short: Some(b'F'), long: "classify",    take
 pub static DEREF_LINKS: Arg = Arg { short: Some(b'X'), long: "dereference", takes_value: TakesValue::Forbidden };
 pub static WIDTH:       Arg = Arg { short: Some(b'w'), long: "width",       takes_value: TakesValue::Necessary(None) };
 pub static NO_QUOTES:   Arg = Arg { short: None,       long: "no-quotes",   takes_value: TakesValue::Forbidden };
+pub static ABSOLUTE:    Arg = Arg { short: None,       long: "absolute",    takes_value: TakesValue::Optional(Some(ABSOLUTE_MODES), "on") };
+const ABSOLUTE_MODES: &[&str] = &["on", "follow", "off"];
 
 pub static COLOR:  Arg = Arg { short: None, long: "color",  takes_value: TakesValue::Optional(Some(WHEN), "auto") };
 pub static COLOUR: Arg = Arg { short: None, long: "colour", takes_value: TakesValue::Optional(Some(WHEN), "auto") };
@@ -88,7 +90,7 @@ pub static ALL_ARGS: Args = Args(&[
 
     &ONE_LINE, &LONG, &GRID, &ACROSS, &RECURSE, &TREE, &CLASSIFY, &DEREF_LINKS,
     &COLOR, &COLOUR, &COLOR_SCALE, &COLOUR_SCALE, &COLOR_SCALE_MODE, &COLOUR_SCALE_MODE,
-    &WIDTH, &NO_QUOTES,
+    &WIDTH, &NO_QUOTES, &ABSOLUTE,
 
     &ALL, &ALMOST_ALL, &LIST_DIRS, &LEVEL, &REVERSE, &SORT, &DIRS_FIRST,
     &IGNORE_GLOB, &GIT_IGNORE, &ONLY_DIRS, &ONLY_FILES,

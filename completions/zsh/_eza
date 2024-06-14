@@ -26,6 +26,7 @@ __eza() {
         --icons="[When to display icons]:(when):(always auto automatic never)" \
         --no-quotes"[Don't quote filenames with spaces]" \
         --hyperlink"[Display entries as hyperlinks]" \
+        --absolute"[Display entries with their absolute path]:(mode):(on follow off)" \
         --group-directories-first"[Sort directories before other files]" \
         --git-ignore"[Ignore files mentioned in '.gitignore']" \
         {-a,--all}"[Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories]" \
@@ -50,7 +51,7 @@ __eza() {
         {-S,--blocksize}"[List each file's size of allocated file system blocks.]" \
         {-t,--time}="[Which time field to show]:(time field):(accessed changed created modified)" \
         --time-style="[How to format timestamps]:(time style):(default iso long-iso full-iso relative +FORMAT)" \
-        --total-size="[Show recursive directory size (unix only)]" \
+        --total-size"[Show recursive directory size (unix only)]" \
         --no-permissions"[Suppress the permissions field]" \
         {-o,--octal-permissions}"[List each file's permission in octal format]" \
         --no-filesize"[Suppress the filesize field]" \

@@ -1,5 +1,5 @@
-use ansiterm::Colour::*;
-use ansiterm::Style;
+use nu_ansi_term::Color::*;
+use nu_ansi_term::Style;
 use std::default::Default;
 
 use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};

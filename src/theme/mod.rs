@@ -1,4 +1,4 @@
-use ansiterm::Style;
+use nu_ansi_term::Style;
 
 use crate::fs::File;
 use crate::info::filetype::FileType;
@@ -424,7 +424,7 @@ fn apply_overlay(mut base: Style, overlay: Style) -> Style {
 mod customs_test {
     use super::*;
     use crate::theme::ui_styles::UiStyles;
-    use ansiterm::Colour::*;
+    use nu_ansi_term::Color::*;
 
     macro_rules! test {
         ($name:ident:  ls $ls:expr, exa $exa:expr  =>  colours $expected:ident -> $process_expected:expr) => {

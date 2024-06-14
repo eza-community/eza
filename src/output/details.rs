@@ -63,8 +63,8 @@ use std::io::{self, Write};
 use std::path::PathBuf;
 use std::vec::IntoIter as VecIntoIter;
 
-use ansiterm::Style;
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use nu_ansi_term::Style;
+use rayon::prelude::*;
 
 use log::*;
 
@@ -328,6 +328,8 @@ impl<'a> Render<'a> {
                 .paint()
                 .promote();
 
+            debug!("file_name {:?}", file_name);
+
             let row = Row {
                 tree: tree_params,
                 cells: egg.table_row,
@@ -422,14 +424,6 @@ impl<'a> Render<'a> {
         let name = TextCell::paint(self.theme.ui.perms.attribute, format!("{xattr}"));
         Row {
             cells: None,
-            name,
-            tree,
-        }
-    }
-
-    pub fn render_file(&self, cells: TableRow, name: TextCell, tree: TreeParams) -> Row {
-        Row {
-            cells: Some(cells),
             name,
             tree,
         }

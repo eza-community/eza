@@ -1,0 +1,50 @@
+[CWD]/tests/itest/a
+[CWD]/tests/itest/b
+[CWD]/tests/itest/c
+[CWD]/tests/itest/d
+[CWD]/tests/itest/dir-symlink -> vagrant/debug
+[CWD]/tests/itest/e
+[CWD]/tests/itest/exa
+[CWD]/tests/itest/f
+[CWD]/tests/itest/g
+[CWD]/tests/itest/h
+[CWD]/tests/itest/i
+[CWD]/tests/itest/image.jpg.img.c.rs.log.png
+[CWD]/tests/itest/index.svg
+[CWD]/tests/itest/j
+[CWD]/tests/itest/k
+[CWD]/tests/itest/l
+[CWD]/tests/itest/m
+[CWD]/tests/itest/n
+[CWD]/tests/itest/o
+[CWD]/tests/itest/p
+[CWD]/tests/itest/q
+[CWD]/tests/itest/vagrant
+
+tests/itest/exa:
+[CWD]/tests/itest/exa/file.c -> djihisudjuhfius
+[CWD]/tests/itest/exa/sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+
+tests/itest/exa/sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss:
+[CWD]/tests/itest/exa/sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss/Makefile
+
+tests/itest/vagrant:
+[CWD]/tests/itest/vagrant/debug
+[CWD]/tests/itest/vagrant/dev
+[CWD]/tests/itest/vagrant/log
+
+tests/itest/vagrant/debug:
+[CWD]/tests/itest/vagrant/debug/a
+[CWD]/tests/itest/vagrant/debug/symlink -> a
+[CWD]/tests/itest/vagrant/debug/symlink-broken -> ./b
+
+tests/itest/vagrant/dev:
+[CWD]/tests/itest/vagrant/dev/main.bf
+
+tests/itest/vagrant/log:
+[CWD]/tests/itest/vagrant/log/file.png
+[CWD]/tests/itest/vagrant/log/run
+
+tests/itest/vagrant/log/run:
+[CWD]/tests/itest/vagrant/log/run/run.log.text
+[CWD]/tests/itest/vagrant/log/run/sps.log.text

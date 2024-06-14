@@ -27,7 +27,7 @@ use std::io::{self, stdin, ErrorKind, IsTerminal, Read, Write};
 use std::path::{Component, PathBuf};
 use std::process::exit;
 
-use ansiterm::{ANSIStrings, Style};
+use nu_ansi_term::{AnsiStrings as ANSIStrings, Style};
 
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::GitIgnore;
@@ -52,11 +52,6 @@ fn main() {
     }
 
     logger::configure(env::var_os(vars::EZA_DEBUG).or_else(|| env::var_os(vars::EXA_DEBUG)));
-
-    #[cfg(windows)]
-    if let Err(e) = ansiterm::enable_ansi_support() {
-        warn!("Failed to enable ANSI support: {}", e);
-    }
 
     let stdout_istty = io::stdout().is_terminal();
 
@@ -449,7 +444,6 @@ impl<'args> Exa<'args> {
             }
 
             (Mode::GridDetails(ref opts), Some(console_width)) => {
-                let grid = &opts.grid;
                 let details = &opts.details;
                 let row_threshold = opts.row_threshold;
 
@@ -463,7 +457,6 @@ impl<'args> Exa<'args> {
                     files,
                     theme,
                     file_style,
-                    grid,
                     details,
                     filter,
                     row_threshold,

@@ -64,10 +64,8 @@ impl Mode {
 
             if flag.is_some() && flag.unwrap().matches(&flags::GRID) {
                 let _ = matches.has(&flags::GRID)?;
-                let grid = grid::Options::deduce(matches)?;
                 let row_threshold = RowThreshold::deduce(vars)?;
                 let grid_details = grid_details::Options {
-                    grid,
                     details,
                     row_threshold,
                 };

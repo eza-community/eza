@@ -67,6 +67,12 @@ commands:
     - --no-quotes
   ? - null
     - --hyperlink
+  ? - null
+    - --absolute
+  : values:
+      - on
+      - follow
+      - off
   ? - -w
     - --width
   : values:
