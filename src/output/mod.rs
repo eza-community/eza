@@ -1,3 +1,4 @@
+#[cfg(target_os = "windows")]
 pub use self::cell::{DisplayWidth, TextCell, TextCellContents};
 pub use self::escape::escape;
 

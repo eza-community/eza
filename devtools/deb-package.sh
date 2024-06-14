@@ -5,7 +5,13 @@ NAME="eza"
 DESTDIR=/usr/bin
 DOCDIR=/usr/share/man/
 
-TAG=$(git describe --tags --abbrev=0)
+COMMIT=$(git rev-parse --abbrev-ref HEAD)
+
+TAG=$(git describe --tags "$(git rev-list --tags --max-count=1)")
+if [ -n "$1" ]; then
+    TAG=$1
+fi
+
 VERSION=${TAG:1}
 
 echo "checkout tag ${TAG}"
@@ -142,3 +148,6 @@ EOM
     echo " -> lint ${ARCH} package"
     lintian "${DEB_PACKAGE}" || true
 done
+
+echo "return to original commit"
+git checkout --quiet "${COMMIT}"

@@ -1,4 +1,4 @@
-use ansiterm::Style;
+use nu_ansi_term::Style;
 use phf::{phf_map, Map};
 
 use crate::fs::File;
@@ -74,6 +74,7 @@ impl Icons {
     const LANG_RUBYRAILS: char  = '\u{e73b}';  // 
     const LANG_RUST: char       = '\u{e68b}';  // 
     const LANG_SASS: char       = '\u{e603}';  // 
+    const LANG_SCHEME: char     = '\u{e6b1}';  // 
     const LANG_STYLUS: char     = '\u{e600}';  // 
     const LANG_TEX: char        = '\u{e69b}';  // 
     const LANG_TYPESCRIPT: char = '\u{e628}';  // 
@@ -135,6 +136,7 @@ const DIRECTORY_ICONS: Map<&'static str, char> = phf_map! {
     "cron.d"              => Icons::FOLDER_CONFIG,  // 
     "cron.daily"          => Icons::FOLDER_CONFIG,  // 
     "cron.hourly"         => Icons::FOLDER_CONFIG,  // 
+    "cron.minutely"       => Icons::FOLDER_CONFIG,  // 
     "cron.monthly"        => Icons::FOLDER_CONFIG,  // 
     "cron.weekly"         => Icons::FOLDER_CONFIG,  // 
     "Desktop"             => '\u{f108}',            // 
@@ -602,6 +604,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "ninja"          => '\u{f0774}',             // 󰝴
     "nix"            => '\u{f313}',              // 
     "node"           => Icons::NODEJS,           // 
+    "nu"             => Icons::SHELL_CMD,        // 
     "o"              => Icons::BINARY,           // 
     "obj"            => Icons::FILE_3D,          // 󰆧
     "odf"            => '\u{f0784}',             // 󰞄
@@ -672,6 +675,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "rdoc"           => Icons::MARKDOWN,         // 
     "rds"            => Icons::LANG_R,           // 
     "readme"         => Icons::README,           // 󰂺
+    "rkt"            => Icons::LANG_SCHEME,      // 
     "rlib"           => Icons::LANG_RUST,        // 
     "rmd"            => Icons::MARKDOWN,         // 
     "rmeta"          => Icons::LANG_RUST,        // 
@@ -690,6 +694,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "sass"           => Icons::LANG_SASS,        // 
     "sbt"            => Icons::SUBTITLE,         // 󰨖
     "scala"          => '\u{e737}',              // 
+    "scm"            => Icons::LANG_SCHEME,      // 
     "scss"           => Icons::LANG_SASS,        // 
     "service"        => '\u{eba2}',              // 
     "sh"             => Icons::SHELL_CMD,        // 
@@ -702,6 +707,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "shtml"          => Icons::HTML5,            // 
     "sig"            => Icons::SIGNED_FILE,      // 󱧃
     "signature"      => Icons::SIGNED_FILE,      // 󱧃
+    "sld"            => Icons::LANG_SCHEME,      // 
     "slim"           => Icons::LANG_RUBYRAILS,   // 
     "sln"            => '\u{e70c}',              // 
     "so"             => Icons::OS_LINUX,         // 
@@ -709,6 +715,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "sqlite3"        => '\u{e7c4}',              // 
     "sr"             => '\u{f147b}',             // 󱑻
     "srt"            => Icons::SUBTITLE,         // 󰨖
+    "ss"             => Icons::LANG_SCHEME,      // 
     "ssa"            => Icons::SUBTITLE,         // 󰨖
     "stl"            => Icons::FILE_3D,          // 󰆧
     "sty"            => Icons::LANG_TEX,         // 

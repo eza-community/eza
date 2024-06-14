@@ -16,7 +16,7 @@ readme = "README.md"
 homepage = "https://github.com/eza-community/eza"
 license = "MIT"
 repository = "https://github.com/eza-community/eza"
-version = "0.18.7"
+version = "0.18.18"
 
 
 [package.metadata.deb]
@@ -71,8 +71,7 @@ name = "eza"
 
 
 [dependencies]
-ansi-width = "0.1.0"
-ansiterm = { version = "0.12.2", features = ["ansi_colours"] }
+nu-ansi-term = "0.50.0"
 chrono = { version = "0.4.34", default-features = false, features = ["clock"] }
 glob = "0.3"
 libc = "0.2"
@@ -81,17 +80,18 @@ log = "0.4"
 natord = "1.0"
 path-clean = "1.0.1"
 number_prefix = "0.4"
-palette = { version = "0.7.5", default-features = false, features = ["std"] }
+palette = { version = "0.7.6", default-features = false, features = ["std"] }
 once_cell = "1.19.0"
 percent-encoding = "2.3.1"
 phf = { version = "0.11.2", features = ["macros"] }
-plist = { version = "1.6.0", default-features = false }
+plist = { version = "1.6.1", default-features = false }
 uutils_term_grid = "0.6.0"
 terminal_size = "0.3.0"
 timeago = { version = "0.4.2", default-features = false }
 unicode-width = "0.1"
 zoneinfo_compiled = "0.5.1"
-rayon = "1.9.0"
+rayon = "1.10.0"
+ansi-width = "0.1.0"
 
 [dependencies.git2]
 version = "0.18"
@@ -102,7 +102,7 @@ default-features = false
 proc-mounts = "0.3"
 
 [target.'cfg(unix)'.dependencies]
-uzers = "0.11.3"
+uzers = "0.12.0"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 windows-sys = { version = "0.52.0", features = [

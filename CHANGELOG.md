@@ -1,5 +1,179 @@
 # Changelog
 
+## [0.18.18] - 2024-06-13
+
+### Features
+
+- Extend deny check in audit workflow to all
+- Add deny.toml and workflow file to audit workflow paths
+- Run on all features by default
+- Ask for shell and terminal in bug report template
+
+### Build
+
+- Bump unicode-width from 0.1.12 to 0.1.13
+- Bump DeterminateSystems/flake-checker-action from 7 to 8
+- Bump DeterminateSystems/nix-installer-action from 11 to 12
+
+## [0.18.17] - 2024-06-05
+
+### Features
+
+- Add icon for Nushell extension
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.17
+
+### Build
+
+- Bump trycmd from 0.15.1 to 0.15.2
+- Bump libc from 0.2.154 to 0.2.155
+
+## [0.18.16] - 2024-05-16
+
+### Bug Fixes
+
+- Change windows-only imports to be windows-only
+
+### Documentation
+
+- Replace decay with color-scale
+- Update INSTALL.md
+- Fix typo in `INSTALL.md`
+- Use 3 columns for packaging status badge
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.16
+
+### Build
+
+- Bump DeterminateSystems/flake-checker-action from 5 to 7
+- Bump DeterminateSystems/nix-installer-action from 10 to 11
+
+## [0.18.15] - 2024-05-09
+
+### Bug Fixes
+
+- Correct command for latest tag in deb-package.sh
+
+### Documentation
+
+- Add how to find man pages in terminal and online. Partly fixes #967
+- Correct heading levels in markdown
+- Move heading out of collapsed section
+- Add some keywords for benefit of ctrl-f
+
+### Features
+
+- Return to original commit at the end of deb-package.sh
+- Add optional tag argument to deb-package.sh
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.15
+
+## [0.18.14] - 2024-05-02
+
+### Features
+
+- Add icon for "cron.minutely" directory
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.14
+
+### Build
+
+- Bump uzers from 0.11.3 to 0.12.0
+- Bump libc from 0.2.153 to 0.2.154
+- Bump unicode-width from 0.1.11 to 0.1.12
+- Bump palette from 0.7.5 to 0.7.6
+
+## [0.18.13] - 2024-04-25
+
+### Features
+
+- Generate completion/manpage tarballs on release
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.13
+
+## [0.18.12] - 2024-04-22
+
+### Bug Fixes
+
+- Allow unused imports for freebsd
+- Checking for deref flag in file_name
+
+### Features
+
+- Add scheme filetype and icons
+
+## [0.18.11] - 2024-04-19
+
+### Bug Fixes
+
+- Fix clippy lints
+- Enable the rule only for NetBSD.
+- Build aarch64, arm without libgit2
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.11
+
+### Ci
+
+- Bump NetBSD version to 10.0
+
+## [0.18.10] - 2024-04-11
+
+### Bug Fixes
+
+- Bump trycmd from 0.15.0 to 0.15.1
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.10
+
+### Build
+
+- Bump nu-ansi-term from 0.49.0 to 0.50.0
+
+## [0.18.9] - 2024-03-27
+
+### Features
+
+- Switch out ansiterm crate for nu_ansi_term
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.9
+
+### Build
+
+- Bump DeterminateSystems/nix-installer-action from 9 to 10
+- Bump plist from 1.6.0 to 1.6.1
+- Bump rayon from 1.9.0 to 1.10.0
+- Bump git2 from 0.18.2 to 0.18.3
+
+## [0.18.8] - 2024-03-21
+
+### Bug Fixes
+
+- Avoid deprecation warnings
+- Rustfmt issues
+
+### Features
+
+- Add fennel lang icon and associations
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.8
+
 ## [0.18.7] - 2024-03-14
 
 ### Bug Fixes
@@ -9,6 +183,10 @@
 ### Features
 
 - Add filetype and icon for .hh extension
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.7
 
 ## [0.18.6] - 2024-03-06
 

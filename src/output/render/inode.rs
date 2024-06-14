@@ -1,4 +1,4 @@
-use ansiterm::Style;
+use nu_ansi_term::Style;
 
 use crate::fs::fields as f;
 use crate::output::cell::TextCell;
@@ -14,7 +14,7 @@ pub mod test {
     use crate::fs::fields as f;
     use crate::output::cell::TextCell;
 
-    use ansiterm::Colour::*;
+    use nu_ansi_term::Color::*;
 
     #[test]
     fn blocklessness() {
