@@ -21,6 +21,12 @@ pub enum FileFilterFlags {
 
     /// Whether to only show files.
     OnlyFiles,
+
+    /// Whether to ignore symlinks
+    NoSymlinks,
+
+    /// Whether to explicitly show symlinks
+    ShowSymlinks,
 }
 
 /// The **file filter** processes a list of files before displaying them to
@@ -68,27 +74,46 @@ pub struct FileFilter {
 
     /// Whether to ignore Git-ignored patterns.
     pub git_ignore: GitIgnore,
+
+    /// Whether to ignore symlinks
+    pub no_symlinks: bool,
+
+    /// Whether to explicitly show symlinks
+    pub show_symlinks: bool,
 }
 
 impl FileFilter {
     /// Remove every file in the given vector that does *not* pass the
     /// filter predicate for files found inside a directory.
     pub fn filter_child_files(&self, files: &mut Vec<File<'_>>) {
-        use FileFilterFlags::{OnlyDirs, OnlyFiles};
+        use FileFilterFlags::{NoSymlinks, OnlyDirs, OnlyFiles, ShowSymlinks};
 
         files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
 
         match (
             self.flags.contains(&OnlyDirs),
             self.flags.contains(&OnlyFiles),
+            self.flags.contains(&NoSymlinks),
+            self.flags.contains(&ShowSymlinks),
         ) {
-            (true, false) => {
-                // On pass -'-only-dirs' flag only
+            (true, false, false, false) => {
+                // On pass '--only-dirs' flag only
                 files.retain(File::is_directory);
             }
-            (false, true) => {
-                // On pass -'-only-files' flag only
+            (true, false, true, false) => {
+                files.retain(File::is_directory);
+            }
+            (true, false, false, true) => {
+                files.retain(|f| f.is_directory() || f.points_to_directory());
+            }
+            (false, true, false, false) => {
                 files.retain(File::is_file);
+            }
+            (false, true, false, true) => {
+                files.retain(|f| f.is_file() || f.is_link() && !f.points_to_directory());
+            }
+            (false, false, true, false) => {
+                files.retain(|f| !f.is_link());
             }
             _ => {}
         }
@@ -99,7 +124,7 @@ impl FileFilter {
     ///
     /// The rules are different for these types of files than the other
     /// type because the ignore rules can be used with globbing. For
-    /// example, running `exa -I='*.tmp' .vimrc` shouldn’t filter out the
+    /// example, running `exa -I='*. tmp' .vimrc` shouldn’t filter out the
     /// dotfile, because it’s been directly specified. But running
     /// `exa -I='*.ogg' music/*` should filter out the ogg files obtained
     /// from the glob, even though the globbing is done by the shell!
@@ -249,7 +274,6 @@ impl SortField {
             Self::ChangedDate   => a.changed_time().cmp(&b.changed_time()),
             Self::CreatedDate   => a.created_time().cmp(&b.created_time()),
             Self::ModifiedAge   => b.modified_time().cmp(&a.modified_time()),  // flip b and a
-
             Self::FileType => match a.type_char().cmp(&b.type_char()) { // todo: this recomputes
                 Ordering::Equal  => natord::compare(&a.name, &b.name),
                 order            => order,
