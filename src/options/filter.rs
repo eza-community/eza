@@ -27,6 +27,7 @@ impl FileFilter {
         #[rustfmt::skip]
         return Ok(Self {
             list_dirs_first:  matches.has(&flags::DIRS_FIRST)?,
+            list_dirs_last:  matches.has(&flags::DIRS_LAST)?,
             flags: filter_flags,
             sort_field:       SortField::deduce(matches)?,
             dot_filter:       DotFilter::deduce(matches)?,
