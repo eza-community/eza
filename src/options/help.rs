@@ -41,7 +41,8 @@ FILTERING AND SORTING OPTIONS
   --group-directories-first  list directories before other files
   -D, --only-dirs            list only directories
   -f, --only-files           list only files
-  -I, --ignore-glob GLOBS    glob patterns (pipe-separated) of files to ignore";
+  -I, --ignore-glob GLOBS    glob patterns (pipe-separated) of files to ignore
+  --cachedir-ignore          ignore directories with a 'CACHEDIR.TAG' file";
 
 static GIT_FILTER_HELP: &str = "  \
   --git-ignore               ignore files mentioned in '.gitignore'";
@@ -78,7 +79,7 @@ LONG VIEW OPTIONS
   --no-filesize              suppress the filesize field
   --no-user                  suppress the user field
   --no-time                  suppress the time field
-  --stdin                    read file names from stdin, one per line or other separator 
+  --stdin                    read file names from stdin, one per line or other separator
                              specified in environment";
 
 static GIT_VIEW_HELP: &str = "  \

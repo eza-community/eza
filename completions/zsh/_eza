@@ -29,6 +29,7 @@ __eza() {
         --absolute"[Display entries with their absolute path]:(mode):(on follow off)" \
         --group-directories-first"[Sort directories before other files]" \
         --git-ignore"[Ignore files mentioned in '.gitignore']" \
+        --ignore-cachedir"[Ignore directories with a 'CACHEDIR.TAG' file]" \
         {-a,--all}"[Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories]" \
         {-A,--almost-all}"[Equivalent to --all; included for compatibility with \'ls -A\']" \
         {-d,--list-dirs}"[List directories like regular files]" \

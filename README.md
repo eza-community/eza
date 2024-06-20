@@ -112,6 +112,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s. Quick overv
 - **-f**, **--only-files**: list only files
 - **--git-ignore**: ignore files mentioned in `.gitignore`
 - **-I**, **--ignore-glob=(globs)**: glob patterns (pipe-separated) of files to ignore
+- **--cachedir-ignore**: Ignore directories with a `CACHEDIR.TAG` file.
 
 Pass the `--all` option twice to also show the `.` and `..` directories.
 
