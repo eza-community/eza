@@ -439,6 +439,7 @@ impl<'dir> File<'dir> {
                 FileTarget::Ok(Box::new(file))
             }
             Err(e) => {
+                debug!("Error {e} following {:?}", absolute_path);
                 error!("Error following link {:?}: {:#?}", &path, e);
                 FileTarget::Broken(path)
             }
