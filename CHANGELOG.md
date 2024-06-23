@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.18.19] - 2024-06-20
+
+### Bug Fixes
+
+- Ship release binaries
+
+### Build
+
+- Bump git2 from 0.18.3 to 0.19.0
+
 ## [0.18.18] - 2024-06-13
 
 ### Features
@@ -8,6 +18,10 @@
 - Add deny.toml and workflow file to audit workflow paths
 - Run on all features by default
 - Ask for shell and terminal in bug report template
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.18
 
 ### Build
 
