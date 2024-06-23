@@ -16,7 +16,7 @@ readme = "README.md"
 homepage = "https://github.com/eza-community/eza"
 license = "MIT"
 repository = "https://github.com/eza-community/eza"
-version = "0.18.18"
+version = "0.18.19"
 
 
 [package.metadata.deb]
@@ -94,7 +94,7 @@ rayon = "1.10.0"
 ansi-width = "0.1.0"
 
 [dependencies.git2]
-version = "0.18"
+version = "0.19"
 optional = true
 default-features = false
 
