@@ -529,5 +529,5 @@ pub trait Colours: FiletypeColours {
 
     fn colour_file(&self, file: &File<'_>) -> Style;
 
-    fn icon_style(&self, file: &File<'_>) -> Option<IconStyle>;
+    fn style_override(&self, file: &File<'_>) -> Option<FileNameStyle>;
 }
