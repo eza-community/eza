@@ -116,6 +116,8 @@ impl UiStyles {
             flags: Style::default(),
             header: Style::default().underline(),
 
+            icon: None,
+
             symlink_path: Cyan.normal(),
             control_char: Red.normal(),
             broken_symlink: Red.normal(),
