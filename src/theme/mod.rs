@@ -401,18 +401,20 @@ impl FileNameColours for Theme {
     }
 
     fn icon_style(&self, file: &File<'_>) -> Option<IconStyle> {
-        if let Some(ref overrides) = self.ui.icons {
-            if let Some(ref name_overrides) = overrides.filenames {
-                if let Some(icon_override) = name_overrides.get(&file.name) {
+        if let Some(ref name_overrides) = self.ui.filenames {
+            if let Some(file_override) = name_overrides.get(&file.name) {
+                if let Some(ref icon_override) = file_override.icon {
                     return Some(*icon_override);
                 }
             }
+        }
 
-            if let Some(ref ext_overrides) = overrides.extensions {
-                if let Some(ext) = file.ext.clone() {
-                    if let Some(icon_override) = ext_overrides.get(&ext) {
-                        return Some(*icon_override);
-                    }
+        if let Some(ref ext_overrides) = self.ui.extensions {
+            if let Some(ext) = file.ext.clone() {
+                if let Some(file_override) = ext_overrides.get(&ext) {
+                    if let Some(ref icon_override) = file_override.icon {
+                    return Some(*icon_override);
+                }
                 }
             }
         }
