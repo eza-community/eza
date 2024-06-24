@@ -10,7 +10,7 @@ use crate::output::cell::TextCellContents;
 use crate::output::escape;
 use crate::output::icons::{icon_for_file, iconify_style};
 use crate::output::render::FiletypeColours;
-use crate::theme::IconStyle;
+use crate::theme::FileNameStyle;
 
 /// Basically a file name factory.
 #[derive(Debug, Copy, Clone)]
@@ -393,13 +393,16 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     ///
     /// So in that situation, those characters will be escaped and highlighted in
     /// a different colour.
-    fn escaped_file_name<'unused>(&self) -> Vec<ANSIString<'unused>> {
+    fn escaped_file_name<'unused>(
+        &self,
+        style_override: Option<Style>,
+    ) -> Vec<ANSIString<'unused>> {
         use percent_encoding::{utf8_percent_encode, CONTROLS};
 
         const HYPERLINK_START: &str = "\x1B]8;;";
         const HYPERLINK_END: &str = "\x1B\x5C";
 
-        let file_style = self.style();
+        let file_style = style_override.unwrap_or(self.style());
         let mut bits = Vec::new();
 
         let mut display_hyperlink = false;
