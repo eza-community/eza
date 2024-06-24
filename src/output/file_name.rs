@@ -190,6 +190,11 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     /// width calculated.
     pub fn paint(&self) -> TextCellContents {
         let mut bits = Vec::new();
+        let (icon_override, filename_style_override) = match self.colours.style_override(self.file)
+        {
+            Some(FileNameStyle { icon, filename }) => (icon, filename),
+            None => (None, None),
+        };
 
         let spaces_count_opt = match self.options.show_icons {
             ShowIcons::Always(spaces_count) => Some(spaces_count),
@@ -204,7 +209,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         };
 
         if let Some(spaces_count) = spaces_count_opt {
-            let (style, icon) = match self.colours.icon_style(self.file) {
+            let (style, icon) = match icon_override {
                 Some(icon_override) => (
                     if let Some(style_override) = icon_override.style {
                         style_override
@@ -239,7 +244,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
             // indicate this fact. But when showing targets, we can just
             // colour the path instead (see below), and leave the broken
             // link’s filename as the link colour.
-            for bit in self.escaped_file_name() {
+            for bit in self.escaped_file_name(filename_style_override) {
                 bits.push(bit);
             }
         }
@@ -274,7 +279,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                             mount_style: MountStyle::JustDirectoryNames,
                         };
 
-                        for bit in target_name.escaped_file_name() {
+                        for bit in target_name.escaped_file_name(filename_style_override) {
                             bits.push(bit);
                         }
 
