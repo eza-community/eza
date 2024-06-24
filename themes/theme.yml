@@ -32,10 +32,9 @@ perms:
     foreground: Red
   other_execute:
     foreground: Green
-icons:
-  filenames:
-    Cargo.toml: {icon: 🦀}
-    Cargo.lock: {icon: 🦀}
-  extensions:
-    rs: {icon: 🦀}
-    nix: {icon: ❄, style: {foreground: White}}
+filenames:
+  Cargo.toml: {icon: {glyph: 🦀}}
+  Cargo.lock: {icon: {glyph: 🦀}}
+extensions:
+  rs: {icon: {glyph: 🦀}}
+  nix: {icon: {glyph: ❄, style: {foreground: White}}}
