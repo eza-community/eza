@@ -137,14 +137,14 @@ impl FromOverride<IconStyleOverride> for IconStyle {
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub struct FileNameStyleOverride {
     pub icon: Option<IconStyleOverride>,
-    pub style: Option<StyleOverride>,
+    pub filename: Option<StyleOverride>,
 }
 
 impl FromOverride<FileNameStyleOverride> for FileNameStyle {
     fn from(value: FileNameStyleOverride, default: Self) -> Self {
         FileNameStyle {
             icon: FromOverride::from(value.icon, default.icon),
-            style: FromOverride::from(value.style, default.style),
+            filename: FromOverride::from(value.filename, default.filename),
         }
     }
 }

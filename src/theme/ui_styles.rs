@@ -13,7 +13,7 @@ pub struct IconStyle {
 #[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub struct FileNameStyle {
     pub icon: Option<IconStyle>,
-    pub style: Option<Style>,
+    pub filename: Option<Style>,
 }
 
 #[rustfmt::skip]
