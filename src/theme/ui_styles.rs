@@ -6,14 +6,14 @@ use std::default::Default;
 
 #[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub struct IconStyle {
-    pub icon: Option<char>,
+    pub glyph: Option<char>,
     pub style: Option<Style>,
 }
 
-#[derive(Debug, Default, PartialEq, Eq, Clone, Serialize, Deserialize)]
-pub struct IconStyles {
-    pub filenames: Option<HashMap<String, IconStyle>>,
-    pub extensions: Option<HashMap<String, IconStyle>>,
+#[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+pub struct FileNameStyle {
+    pub icon: Option<IconStyle>,
+    pub style: Option<Style>,
 }
 
 #[rustfmt::skip]
