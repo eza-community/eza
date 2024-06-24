@@ -33,8 +33,11 @@ perms:
   other_execute:
     foreground: Green
 filenames:
+  # Just change the icon glyph
   Cargo.toml: {icon: {glyph: 🦀}}
   Cargo.lock: {icon: {glyph: 🦀}}
 extensions:
-  rs: {icon: {glyph: 🦀}}
+  # Change the filename color and icon
+  rs: {filename: {foreground: Red}, icon: {glyph: 🦀}}
+  # Change the icon glyph and color
   nix: {icon: {glyph: ❄, style: {foreground: White}}}
