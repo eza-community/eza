@@ -115,7 +115,7 @@ impl FromOverride<StyleOverride> for Style {
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 pub struct IconStyleOverride {
-    pub icon: Option<char>,
+    pub glyph: Option<char>,
     pub style: Option<StyleOverride>,
 }
 
@@ -128,16 +128,25 @@ impl FromOverride<char> for char {
 impl FromOverride<IconStyleOverride> for IconStyle {
     fn from(value: IconStyleOverride, default: Self) -> Self {
         IconStyle {
-            icon: FromOverride::from(value.icon, default.icon),
+            glyph: FromOverride::from(value.glyph, default.glyph),
             style: FromOverride::from(value.style, default.style),
         }
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
-pub struct IconStylesOverride {
-    pub filenames: Option<HashMap<String, IconStyleOverride>>,
-    pub extensions: Option<HashMap<String, IconStyleOverride>>,
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+pub struct FileNameStyleOverride {
+    pub icon: Option<IconStyleOverride>,
+    pub style: Option<StyleOverride>,
+}
+
+impl FromOverride<FileNameStyleOverride> for FileNameStyle {
+    fn from(value: FileNameStyleOverride, default: Self) -> Self {
+        FileNameStyle {
+            icon: FromOverride::from(value.icon, default.icon),
+            style: FromOverride::from(value.style, default.style),
+        }
+    }
 }
 
 impl<R, S, T> FromOverride<HashMap<R, S>> for HashMap<R, T>
@@ -156,15 +165,6 @@ where
             result.insert(r, FromOverride::from(s, t));
         }
         result
-    }
-}
-
-impl FromOverride<IconStylesOverride> for IconStyles {
-    fn from(value: IconStylesOverride, default: IconStyles) -> Self {
-        IconStyles {
-            filenames: FromOverride::from(value.filenames, default.filenames),
-            extensions: FromOverride::from(value.extensions, default.extensions),
-        }
     }
 }
 
@@ -474,7 +474,8 @@ pub struct UiStylesOverride {
     pub broken_symlink:       Option<StyleOverride>,  // or
     pub broken_path_overlay:  Option<StyleOverride>,  // bO
 
-    pub icons: Option<IconStylesOverride>,
+    pub filenames: Option<HashMap<String, FileNameStyleOverride>>,
+    pub extensions: Option<HashMap<String, FileNameStyleOverride>>,
 }
 
 impl FromOverride<UiStylesOverride> for UiStyles {
@@ -508,7 +509,8 @@ impl FromOverride<UiStylesOverride> for UiStyles {
                 default.broken_path_overlay,
             ),
 
-            icons: FromOverride::from(value.icons, default.icons),
+            filenames: FromOverride::from(value.filenames, default.filenames),
+            extensions: FromOverride::from(value.extensions, default.extensions),
         }
     }
 }
