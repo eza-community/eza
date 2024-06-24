@@ -212,7 +212,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                         iconify_style(self.style())
                     },
                     icon_override
-                        .icon
+                        .glyph
                         .unwrap_or_else(|| icon_for_file(self.file))
                         .to_string(),
                 ),
