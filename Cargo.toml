@@ -16,7 +16,7 @@ readme = "README.md"
 homepage = "https://github.com/eza-community/eza"
 license = "MIT"
 repository = "https://github.com/eza-community/eza"
-version = "0.18.15"
+version = "0.18.19"
 
 
 [package.metadata.deb]
@@ -99,7 +99,7 @@ serde = { version = "1.0.193", features = ["derive"] }
 serde_yaml = "0.9.29"
 dirs = "5.0.1"
 [dependencies.git2]
-version = "0.18"
+version = "0.19"
 optional = true
 default-features = false
 
