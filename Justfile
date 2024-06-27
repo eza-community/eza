@@ -264,7 +264,7 @@ gen_test_dir:
     rm ./tests/gen/*_nix.stdout -f || echo
     rm ./tests/gen/*_unix.stderr -f || echo
     rm ./tests/gen/*_unix.stdout -f || echo
-    rm ./tests/ptests/ptest_*.stderr -f || echo  
+    rm ./tests/ptests/ptest_*.stderr -f || echo
     rm ./tests/ptests/ptest_*.stdout -f || echo
 
     nix build -L ./#trydump
@@ -274,3 +274,17 @@ gen_test_dir:
 
 @itest-gen:
     nix build -L ./#trycmd
+
+# Fully re-generates the integration tests using powertest
+
+@regen:
+    which powertest >&- 2>&- || (echo -e "Powertest not installed. Please Clone the repo and run:\n\tcargo install --path . --locked" && exit 1)
+    echo "WARNING: this will delete all tests in tests/ptest"
+    sleep 5
+    echo "Deleting tests/ptests"
+    rm -rf tests/ptests
+    echo "Generating tests/ptests"
+    powertest
+    nix build -L ./#trydump
+    find result/dump -type f \( -name "*.stdout" -o -name "*.stderr" \) -exec sh -c 'base=$(basename {}); if [ -e "tests/ptests/${base%.*}.toml" ]; then cp {} tests/ptests/; fi' \;
+

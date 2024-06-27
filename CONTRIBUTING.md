@@ -15,7 +15,7 @@ It is strongly recommended that you install Nix for hacking on eza. We leverage
 nix  as a way to easily test and distribute eza to many users, and it allows us
 to provide multiple tools easily for developers. Instead of having to install
 each dependency manually and setting up a development environment, Nix allows
-you  to use the same environment as the devs use. 
+you  to use the same environment as the devs use.
 
 Therefore, it is useful that you have a version of Nix installed with the
 "experimental" feature flakes enabled. Further, to make hacking on eza as easy
@@ -55,7 +55,7 @@ directory.
 
 eza depends on [libgit2](https://github.com/rust-lang/git2-rs) for certain
 features.  If you’re unable to compile libgit2, you can opt out of Git support
-by running `cargo build --no-default-features`. Again, the nix flake should 
+by running `cargo build --no-default-features`. Again, the nix flake should
 have taken care of this for you, if not, please file an issue.
 
 If you intend to compile for musl, you will need to use the flag
@@ -63,13 +63,16 @@ If you intend to compile for musl, you will need to use the flag
 is `cargo build --release --target=x86_64-unknown-linux-musl --features
 vendored-openssl,git`.
 
+If you want more information on the tests please read:
+[testing on eza](https://github.com/eza-community/eza/blob/main/TESTING.md)
+
 ## Creating a PR
 
 First, use the pull request template.
 
 Please make sure that the thing you worked on... actually works. Make sure to
 also add how you ensured this in the PR description. Further, it's expected
-that you do your best to check for regressions. 
+that you do your best to check for regressions.
 
 If your PR introduces a flag, you MUST:
 - Add completions for bash, zsh, fish, nushell
