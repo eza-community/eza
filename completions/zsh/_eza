@@ -33,8 +33,8 @@ __eza() {
         {-A,--almost-all}"[Equivalent to --all; included for compatibility with \'ls -A\']" \
         {-d,--list-dirs}"[List directories like regular files]" \
         {-D,--only-dirs}"[List only directories]" \
-        --no-symlinks"[Do not show symbolic links]"
-        --show-symlinks"[Explictly show symbolic links: for use with '--only-dirs'| '--only-files']"
+        --no-symlinks"[Do not show symbolic links]" \
+        --show-symlinks"[Explictly show symbolic links: for use with '--only-dirs'| '--only-files']" \
         {-f,--only-files}"[List only files]" \
         {-L,--level}"+[Limit the depth of recursion]" \
         {-w,--width}"+[Limits column output of grid, 0 implies auto-width]" \
