@@ -1,10 +1,20 @@
 # Changelog
 
+## [0.18.20] - 2024-06-27
+
+### Features
+
+- Add --no-|show-symlinks flags for filtering output
+
 ## [0.18.19] - 2024-06-20
 
 ### Bug Fixes
 
 - Ship release binaries
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.19
 
 ### Build
 
