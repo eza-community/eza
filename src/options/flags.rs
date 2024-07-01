@@ -86,7 +86,6 @@ pub static OCTAL:             Arg = Arg { short: Some(b'o'), long: "octal-permis
 pub static SECURITY_CONTEXT:  Arg = Arg { short: Some(b'Z'), long: "context",              takes_value: TakesValue::Forbidden };
 pub static STDIN:             Arg = Arg { short: None,       long: "stdin",                takes_value: TakesValue::Forbidden };
 pub static FILE_FLAGS:        Arg = Arg { short: Some(b'O'), long: "flags",                takes_value: TakesValue::Forbidden };
-
 pub static ALL_ARGS: Args = Args(&[
     &VERSION, &HELP,
 
