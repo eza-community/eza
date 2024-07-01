@@ -1,10 +1,20 @@
 # Changelog
 
+## [0.18.21] - 2024-07-01
+
+### Bug Fixes
+
+- Fix missing line breaks in _eza
+
 ## [0.18.20] - 2024-06-27
 
 ### Features
 
 - Add --no-|show-symlinks flags for filtering output
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.20
 
 ## [0.18.19] - 2024-06-20
 
