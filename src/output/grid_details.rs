@@ -68,10 +68,6 @@ pub struct Render<'a> {
     /// that we recurse into will have to have this applied.
     pub filter: &'a FileFilter,
 
-    /// The minimum number of rows that there need to be before grid-details
-    /// mode is activated.
-    pub row_threshold: RowThreshold,
-
     /// Whether we are skipping Git-ignored files.
     pub git_ignoring: bool,
 
