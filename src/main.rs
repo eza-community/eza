@@ -443,52 +443,70 @@ impl<'args> Exa<'args> {
                 r.render(&mut self.writer)
             }
 
-            (Mode::GridDetails(ref opts), Some(console_width)) => {
-                let details = &opts.details;
-                let row_threshold = opts.row_threshold;
-
-                let filter = &self.options.filter;
-                let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
-                let git = self.git.as_ref();
-                let git_repos = self.git_repos;
-
-                let r = grid_details::Render {
-                    dir,
-                    files,
-                    theme,
-                    file_style,
-                    details,
-                    filter,
-                    row_threshold,
-                    git_ignoring,
-                    git,
-                    console_width,
-                    git_repos,
+            (Mode::GridDetails(ref opts), console_width) => {
+                // Grid details view is prevented if minimum rows are required,
+                // but fewer files than the defined threshold are to be rendered.
+                //
+                // This option is set by the `EZA_GRID_ROWS` environment variable.
+                let row_threshold_prevents_grid = match opts.row_threshold {
+                    grid_details::RowThreshold::AlwaysGrid => false,
+                    grid_details::RowThreshold::MinimumRows(minimum_rows) => {
+                        files.len() < minimum_rows
+                    }
                 };
-                r.render(&mut self.writer)
-            }
 
-            (Mode::GridDetails(ref opts), None) => {
-                let opts = &opts.to_details_options();
-                let filter = &self.options.filter;
-                let recurse = self.options.dir_action.recurse_options();
-                let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
-                let git = self.git.as_ref();
-                let git_repos = self.git_repos;
+                // Console width is available,
+                // and grid view is not prevented by a minimum rows threshold.
+                //
+                // -> Render grid details view.
+                if let (false, Some(console_width)) = (row_threshold_prevents_grid, console_width) {
+                    let details = &opts.details;
 
-                let r = details::Render {
-                    dir,
-                    files,
-                    theme,
-                    file_style,
-                    opts,
-                    recurse,
-                    filter,
-                    git_ignoring,
-                    git,
-                    git_repos,
-                };
-                r.render(&mut self.writer)
+                    let filter = &self.options.filter;
+                    let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
+                    let git = self.git.as_ref();
+                    let git_repos = self.git_repos;
+
+                    let r = grid_details::Render {
+                        dir,
+                        files,
+                        theme,
+                        file_style,
+                        details,
+                        filter,
+                        git_ignoring,
+                        git,
+                        console_width,
+                        git_repos,
+                    };
+                    r.render(&mut self.writer)
+                } else {
+                    // Console width is unavailable,
+                    // or grid view minimum rows threshold prevents grid view.
+                    //
+                    // -> Force details list view.
+
+                    let opts = &opts.to_details_options();
+                    let filter = &self.options.filter;
+                    let recurse = self.options.dir_action.recurse_options();
+                    let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
+                    let git = self.git.as_ref();
+                    let git_repos = self.git_repos;
+
+                    let r = details::Render {
+                        dir,
+                        files,
+                        theme,
+                        file_style,
+                        opts,
+                        recurse,
+                        filter,
+                        git_ignoring,
+                        git,
+                        git_repos,
+                    };
+                    r.render(&mut self.writer)
+                }
             }
         }
     }
