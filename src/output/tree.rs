@@ -59,10 +59,10 @@ impl TreePart {
     pub fn ascii_art(self) -> &'static str {
         #[rustfmt::skip]
         return match self {
-            Self::Edge    => "├──",
-            Self::Line    => "│  ",
-            Self::Corner  => "└──",
-            Self::Blank   => "   ",
+            Self::Edge    => "├── ",
+            Self::Line    => "│   ",
+            Self::Corner  => "└── ",
+            Self::Blank   => "    ",
         };
     }
 }
@@ -142,10 +142,6 @@ impl TreeTrunk {
 impl TreeParams {
     pub fn new(depth: TreeDepth, last: bool) -> Self {
         Self { depth, last }
-    }
-
-    pub fn is_at_root(&self) -> bool {
-        self.depth.0 == 0
     }
 }
 
