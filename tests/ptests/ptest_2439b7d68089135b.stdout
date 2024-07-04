@@ -120,6 +120,10 @@ Options:
           use stdin as the sole input
   -O, --flags
           
+      --no-symlinks
+          disable symlinks rendering
+      --show-symlinks
+          whether to show symlinks
       --absolute [<ABSOLUTE>]
           show absolute paths of file or directory [possible values: on, off, follow, no, yes]
   -V, --version

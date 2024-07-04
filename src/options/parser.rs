@@ -183,10 +183,10 @@ pub struct Opts {
     pub stdin: bool,
     #[arg(short = 'O', long = "flags")]
     pub file_flags: bool,
-
+    /// disable symlinks rendering
     #[arg(long = "no-symlinks")]
     pub no_symlinks: bool,
-
+    /// whether to show symlinks
     #[arg(long = "show-symlinks")]
     pub show_symlinks: bool,
     /// show absolute paths of file or directory
