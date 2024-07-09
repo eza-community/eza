@@ -1,5 +1,69 @@
 # Changelog
 
+## [0.18.21] - 2024-07-01
+
+### Bug Fixes
+
+- Fix missing line breaks in _eza
+
+## [0.18.20] - 2024-06-27
+
+### Features
+
+- Add --no-|show-symlinks flags for filtering output
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.20
+
+## [0.18.19] - 2024-06-20
+
+### Bug Fixes
+
+- Ship release binaries
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.19
+
+### Build
+
+- Bump git2 from 0.18.3 to 0.19.0
+
+## [0.18.18] - 2024-06-13
+
+### Features
+
+- Extend deny check in audit workflow to all
+- Add deny.toml and workflow file to audit workflow paths
+- Run on all features by default
+- Ask for shell and terminal in bug report template
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.18
+
+### Build
+
+- Bump unicode-width from 0.1.12 to 0.1.13
+- Bump DeterminateSystems/flake-checker-action from 7 to 8
+- Bump DeterminateSystems/nix-installer-action from 11 to 12
+
+## [0.18.17] - 2024-06-05
+
+### Features
+
+- Add icon for Nushell extension
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.17
+
+### Build
+
+- Bump trycmd from 0.15.1 to 0.15.2
+- Bump libc from 0.2.154 to 0.2.155
+
 ## [0.18.16] - 2024-05-16
 
 ### Bug Fixes
@@ -12,6 +76,10 @@
 - Update INSTALL.md
 - Fix typo in `INSTALL.md`
 - Use 3 columns for packaging status badge
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.16
 
 ### Build
 

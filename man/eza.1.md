@@ -166,6 +166,11 @@ Sort fields starting with a capital letter will sort uppercase before lowercase:
 `-f`, `--only-files`
 : List only files, not directories.
 
+`--show-symlinks`
+: Explicitly show symbolic links (when used with `--only-files` | `--only-dirs`)
+
+`--no-symlinks`
+: Do not show symbolic links
 
 LONG VIEW OPTIONS
 =================

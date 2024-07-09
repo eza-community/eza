@@ -18,6 +18,8 @@ impl FileFilter {
             (matches.has(&flags::REVERSE)?, FFF::Reverse),
             (matches.has(&flags::ONLY_DIRS)?, FFF::OnlyDirs),
             (matches.has(&flags::ONLY_FILES)?, FFF::OnlyFiles),
+            (matches.has(&flags::NO_SYMLINKS)?, FFF::NoSymlinks),
+            (matches.has(&flags::SHOW_SYMLINKS)?, FFF::ShowSymlinks),
         ] {
             if *has {
                 filter_flags.push(flag.clone());
@@ -27,6 +29,8 @@ impl FileFilter {
         #[rustfmt::skip]
         return Ok(Self {
             list_dirs_first:  matches.has(&flags::DIRS_FIRST)?,
+            no_symlinks:      filter_flags.contains(&FFF::NoSymlinks),
+            show_symlinks:    filter_flags.contains(&FFF::ShowSymlinks),
             flags: filter_flags,
             sort_field:       SortField::deduce(matches)?,
             dot_filter:       DotFilter::deduce(matches)?,
