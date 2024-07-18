@@ -1,10 +1,28 @@
 # Changelog
 
+## [0.18.22] - 2024-07-18
+
+### Bug Fixes
+
+- Use NaiveDateTime::from_timestamp_opt instead of panicky From impl
+
+### Features
+
+- Add non-nix pre-commit rustfmt and clippy hooks
+
+### Ci
+
+- Bump FreeBSD version.
+
 ## [0.18.21] - 2024-07-01
 
 ### Bug Fixes
 
 - Fix missing line breaks in _eza
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.21
 
 ## [0.18.20] - 2024-06-27
 
