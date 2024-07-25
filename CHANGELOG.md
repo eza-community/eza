@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.18.23] - 2024-07-25
+
+### Bug Fixes
+
+- Disable broken freebsd tests
+
+### Documentation
+
+- Clear up confusion around ls
+
+### Build
+
+- Bump log from 0.4.21 to 0.4.22
+- Bump DeterminateSystems/nix-installer-action from 12 to 13
+- Bump plist from 1.6.1 to 1.7.0
+
 ## [0.18.22] - 2024-07-18
 
 ### Bug Fixes
@@ -9,6 +25,10 @@
 ### Features
 
 - Add non-nix pre-commit rustfmt and clippy hooks
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.22
 
 ### Ci
 
