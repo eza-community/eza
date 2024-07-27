@@ -30,6 +30,8 @@ export extern "eza" [
     --sort(-s)                 # Which field to sort by
     --only-dirs(-D)            # List only directories
     --only-files(-f)           # List only files
+    --show-symlinks            # Explicitly show symbolic links (for use with --only-dirs | --only-files)
+    --no-symlinks              # Do not show symbolic links
     --binary(-b)               # List file sizes with binary prefixes
     --bytes(-B)                # List file sizes in bytes, without any prefixes
     --group(-g)                # List each file's group

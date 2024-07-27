@@ -1,5 +1,73 @@
 # Changelog
 
+## [0.18.23] - 2024-07-25
+
+### Bug Fixes
+
+- Disable broken freebsd tests
+
+### Documentation
+
+- Clear up confusion around ls
+
+### Build
+
+- Bump log from 0.4.21 to 0.4.22
+- Bump DeterminateSystems/nix-installer-action from 12 to 13
+- Bump plist from 1.6.1 to 1.7.0
+
+## [0.18.22] - 2024-07-18
+
+### Bug Fixes
+
+- Use NaiveDateTime::from_timestamp_opt instead of panicky From impl
+
+### Features
+
+- Add non-nix pre-commit rustfmt and clippy hooks
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.22
+
+### Ci
+
+- Bump FreeBSD version.
+
+## [0.18.21] - 2024-07-01
+
+### Bug Fixes
+
+- Fix missing line breaks in _eza
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.21
+
+## [0.18.20] - 2024-06-27
+
+### Features
+
+- Add --no-|show-symlinks flags for filtering output
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.20
+
+## [0.18.19] - 2024-06-20
+
+### Bug Fixes
+
+- Ship release binaries
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.19
+
+### Build
+
+- Bump git2 from 0.18.3 to 0.19.0
+
 ## [0.18.18] - 2024-06-13
 
 ### Features
@@ -8,6 +76,10 @@
 - Add deny.toml and workflow file to audit workflow paths
 - Run on all features by default
 - Ask for shell and terminal in bug report template
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.18
 
 ### Build
 
