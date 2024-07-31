@@ -1,6 +1,7 @@
 //! Debug error logging.
 
 use std::ffi::OsStr;
+use std::io::{self, Write};
 
 use nu_ansi_term::{AnsiString as ANSIString, Color as Colour};
 
@@ -22,7 +23,7 @@ pub fn configure<T: AsRef<OsStr>>(ev: Option<T>) {
 
     let result = log::set_logger(GLOBAL_LOGGER);
     if let Err(e) = result {
-        eprintln!("Failed to initialise logger: {e}");
+        let _ = writeln!(io::stderr(), "Failed to initialise logger: {e}");
     }
 }
 
@@ -41,7 +42,8 @@ impl log::Log for Logger {
         let level = level(record.level());
         let close = Colour::Fixed(243).paint("]");
 
-        eprintln!(
+        let _ = writeln!(
+            io::stderr(),
             "{}{} {}{} {}",
             open,
             level,
@@ -52,7 +54,7 @@ impl log::Log for Logger {
     }
 
     fn flush(&self) {
-        // no need to flush with ‘eprintln!’.
+        // no need to flush with ‘writeln!’.
     }
 }
 
