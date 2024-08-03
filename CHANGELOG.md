@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.18.24] - 2024-08-03
+
+### Bug Fixes
+
+- 1.80 breakage from time crate
+
+### Build
+
+- Bump time dependency
+
 ## [0.18.23] - 2024-07-25
 
 ### Bug Fixes
@@ -9,6 +19,10 @@
 ### Documentation
 
 - Clear up confusion around ls
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.23
 
 ### Build
 
