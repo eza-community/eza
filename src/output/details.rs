@@ -126,7 +126,7 @@ pub struct Render<'a> {
 
     /// Whether to recurse through directories with a tree view, and if so,
     /// which options to use. This field is only relevant here if the `tree`
-    /// field of the RecurseOptions is `true`.
+    /// field of the `RecurseOptions` is `true`.
     pub recurse: Option<RecurseOptions>,
 
     /// How to sort and filter the files after getting their details.

@@ -70,6 +70,7 @@ pub struct Render<'a> {
 
     /// The minimum number of rows that there need to be before grid-details
     /// mode is activated.
+    #[allow(dead_code)]
     pub row_threshold: RowThreshold,
 
     /// Whether we are skipping Git-ignored files.
