@@ -13,6 +13,7 @@ use std::str;
 #[cfg(unix)]
 use std::sync::Mutex;
 use std::sync::OnceLock;
+use std::time::SystemTime;
 
 use chrono::prelude::*;
 
@@ -716,6 +717,20 @@ impl<'dir> File<'dir> {
         }
     }
 
+    /// Converts a `SystemTime` to a `NaiveDateTime` without panicking.
+    ///
+    /// Fixes #655 and #667 in `Self::modified_time`, `Self::accessed_time` and
+    /// `Self::created_time`.
+    fn systemtime_to_naivedatetime(st: SystemTime) -> Option<NaiveDateTime> {
+        let duration = st.duration_since(SystemTime::UNIX_EPOCH).ok()?;
+
+        // FIXME: NaiveDateTime::from_timestamp_opt is deprecated since chrono 0.4.35
+        NaiveDateTime::from_timestamp_opt(
+            duration.as_secs().try_into().ok()?,
+            (duration.as_nanos() % 1_000_000_000).try_into().ok()?,
+        )
+    }
+
     /// This file’s last modified timestamp, if available on this platform.
     pub fn modified_time(&self) -> Option<NaiveDateTime> {
         if self.is_link() && self.deref_links {
@@ -726,8 +741,8 @@ impl<'dir> File<'dir> {
         }
         self.metadata
             .modified()
-            .map(|st| DateTime::<Utc>::from(st).naive_utc())
             .ok()
+            .and_then(Self::systemtime_to_naivedatetime)
     }
 
     /// This file’s last changed timestamp, if available on this platform.
@@ -757,8 +772,8 @@ impl<'dir> File<'dir> {
         }
         self.metadata
             .accessed()
-            .map(|st| DateTime::<Utc>::from(st).naive_utc())
             .ok()
+            .and_then(Self::systemtime_to_naivedatetime)
     }
 
     /// This file’s created timestamp, if available on this platform.
@@ -769,10 +784,10 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        match self.metadata.created() {
-            Ok(btime) => Some(DateTime::<Utc>::from(btime).naive_utc()),
-            Err(_) => None,
-        }
+        self.metadata
+            .created()
+            .ok()
+            .and_then(Self::systemtime_to_naivedatetime)
     }
 
     /// This file’s ‘type’.
