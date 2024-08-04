@@ -44,6 +44,11 @@ Some useful commands include:
   pre-commit-hooks.nix
 - `just itest`: runs integration tests
 
+**For non-nix users,**
+There are traditional `pre-commit` hooks, which you can install with your system package manager or
+`brew|pip install pre-commit`, and run `pre-commit install -c .pre-commit-config-non-nix.yaml` in the root of the repository.
+Then these hooks will run automatically when you commit.
+
 The [just](https://github.com/casey/just) command runner can be used to run some
 helpful development commands, in a manner similar to `make`.  Run `just --list`
 to get an overview of what’s available.

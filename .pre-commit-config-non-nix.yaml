@@ -1,0 +1,15 @@
+repos:
+  - repo: local
+    hooks:
+      - id: rust-linting
+        name: Rust linting
+        description: Run rustfmt on included files
+        entry: cargo fmt --
+        types: [file, rust]
+        language: system
+      - id: rust-clippy
+        name: Rust clippy
+        description: Run clippy on included files
+        entry: cargo clippy --workspace --all-targets --all-features --
+        types: [file, rust]
+        language: system

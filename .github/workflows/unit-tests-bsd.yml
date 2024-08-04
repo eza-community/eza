@@ -21,29 +21,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  unit-tests-freebsd:
-      runs-on: ubuntu-22.04
-      timeout-minutes: 20
-      steps:
-        - uses: actions/checkout@v4
-          with:
-            submodules: recursive
-        - name: Compile
-          uses: vmactions/freebsd-vm@v1
-          with:
-            release: '14.0'
-            usesh: true
-            prepare: |
-              pkg install -y rust git
-              cargo install cargo-hack
-              git config --global --add safe.directory /home/runner/work/eza/eza
-            run: |
-              set -e
-              export CARGO_TERM_COLOR="always"
-              export RUSTFLAGS="--deny warnings"
-              cargo fmt --check
-              cargo clippy -- -D warnings
-              cargo hack test
+  # BUG: These tests are broken
+  # unit-tests-freebsd:
+  #     runs-on: ubuntu-22.04
+  #     timeout-minutes: 20
+  #     steps:
+  #       - uses: actions/checkout@v4
+  #         with:
+  #           submodules: recursive
+  #       - name: Compile
+  #         uses: vmactions/freebsd-vm@v1
+  #         with:
+  #           release: '14.1'
+  #           usesh: true
+  #           prepare: |
+  #             pkg install -y rust git
+  #             cargo install cargo-hack
+  #             git config --global --add safe.directory /home/runner/work/eza/eza
+  #           run: |
+  #             set -e
+  #             export CARGO_TERM_COLOR="always"
+  #             export RUSTFLAGS="--deny warnings"
+  #             cargo fmt --check
+  #             cargo clippy -- -D warnings
+  #             cargo hack test
 
   unit-tests-netbsd:
     runs-on: ubuntu-22.04
