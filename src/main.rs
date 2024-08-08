@@ -81,6 +81,26 @@ fn main() {
                 }
             }
 
+            let lang = std::env::var("LANG");
+            let lang = if let Ok(lang) = lang.as_ref() {
+                // Split e.g. "en_US.UTF-8", extracting "en_US".
+                match lang.split_once('.') {
+                    Some((lang, _)) => lang,
+                    None => lang,
+                }
+            } else {
+                // Fall back to "en_US" if the `LANG` environment variable is not set.
+                warn!("`LANG` is not set. Falling back to 'en_US'.");
+                "en_US"
+            };
+
+            let locale: icu_locid::Locale = if let Ok(locale) = lang.parse() {
+                locale
+            } else {
+                warn!("Your locale '{lang}' could not be parsed. Falling back to 'en_US'.");
+                "en_US".parse().unwrap()
+            };
+
             let git = git_options(&options, &input_paths);
             let writer = io::stdout();
             let git_repos = git_repos(&options, &input_paths);
@@ -91,6 +111,7 @@ fn main() {
                 options,
                 writer,
                 input_paths,
+                locale,
                 theme,
                 console_width,
                 git,
@@ -148,6 +169,9 @@ pub struct Exa<'args> {
     /// List of the free command-line arguments that should correspond to file
     /// names (anything that isn’t an option).
     pub input_paths: Vec<&'args OsStr>,
+
+    /// The system locale, used for locale-aware unicode string sorting.
+    pub locale: icu_locid::Locale,
 
     /// The theme that has been configured from the command-line options and
     /// environment variables. If colours are disabled, this is a theme with
