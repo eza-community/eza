@@ -10,7 +10,7 @@ use crate::output::table::{
     Columns, FlagsFormat, GroupFormat, Options as TableOptions, SizeFormat, TimeTypes, UserFormat,
 };
 use crate::output::time::TimeFormat;
-use crate::output::{details, grid, Mode, TerminalWidth, View};
+use crate::output::{details, grid, Mode, OutputType, TerminalWidth, View};
 
 impl View {
     pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
@@ -19,13 +19,25 @@ impl View {
         let total_size = matches.has(&flags::TOTAL_SIZE)?;
         let width = TerminalWidth::deduce(matches, vars)?;
         let file_style = FileStyle::deduce(matches, vars, width.actual_terminal_width().is_some())?;
+        let output_type = OutputType::deduce(matches)?;
         Ok(Self {
             mode,
             width,
             file_style,
             deref_links,
             total_size,
+            output_type,
         })
+    }
+}
+
+impl OutputType {
+    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
+        if matches.has(&flags::JSON)? {
+            Ok(Self::Json)
+        } else {
+            Ok(Self::Legacy)
+        }
     }
 }
 
