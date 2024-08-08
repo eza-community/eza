@@ -356,6 +356,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "asc"            => Icons::SHIELD_LOCK,      // 󰦝
     "asm"            => Icons::LANG_ASSEMBLY,    // 
     "asp"            => '\u{f121}',              // 
+    "astro"          => '\u{e6b3}',              // 
     "avi"            => Icons::VIDEO,            // 
     "avif"           => Icons::IMAGE,            // 
     "avro"           => Icons::JSON,             // 
