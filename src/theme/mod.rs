@@ -372,6 +372,8 @@ impl FileNameColours for Theme {
     fn executable_file(&self)     -> Style { self.ui.filekinds.executable }
     fn mount_point(&self)         -> Style { self.ui.filekinds.mount_point }
 
+    fn icon(&self)          -> Option<Style> { self.ui.icon }
+
     fn colour_file(&self, file: &File<'_>) -> Style {
         self.exts
             .get_style(file, self)
