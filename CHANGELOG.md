@@ -1,10 +1,20 @@
 # Changelog
 
+## [0.19.0] - 2024-08-08
+
+### Bug Fixes
+
+- [**breaking**] Implement `EZA_GRID_ROWS` grid details view minimum rows threshold
+
 ## [0.18.24] - 2024-08-03
 
 ### Bug Fixes
 
 - 1.80 breakage from time crate
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.24
 
 ### Build
 
