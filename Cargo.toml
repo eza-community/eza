@@ -71,7 +71,7 @@ name = "eza"
 
 
 [dependencies]
-nu-ansi-term = "0.50.0"
+nu-ansi-term = "0.50.1"
 chrono = { version = "0.4.34", default-features = false, features = ["clock"] }
 glob = "0.3"
 libc = "0.2"
