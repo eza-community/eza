@@ -82,6 +82,7 @@ pub struct Permissions {
 /// The file's `FileAttributes` field, available only on Windows.
 #[derive(Copy, Clone)]
 #[rustfmt::skip]
+#[cfg(windows)]
 pub struct Attributes {
     pub archive:         bool,
     pub directory:       bool,

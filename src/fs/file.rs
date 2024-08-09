@@ -99,7 +99,7 @@ pub struct File<'dir> {
     /// instead.
     pub deref_links: bool,
 
-    /// The recursive directory size when total_size is used.
+    /// The recursive directory size when `total_size` is used.
     recursive_size: RecursiveSize,
 
     /// The extended attributes of this file.
