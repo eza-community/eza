@@ -1,2 +1,4 @@
-thread 'main' panicked at 'Custom timestamp format is empty, please supply a chrono format string after the plus sign.', src/options/view.rs:347:21
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: Invalid custom timestamp format: +
+.
+Please start the format with a plus sign (+) to indicate a custom format.
+For example: +"%Y-%m-%d %H:%M:%S"

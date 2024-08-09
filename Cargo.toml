@@ -92,6 +92,7 @@ unicode-width = "0.1"
 zoneinfo_compiled = "0.5.1"
 rayon = "1.10.0"
 ansi-width = "0.1.0"
+clap = { version = "4.4.8", features = ["derive"] }
 
 [dependencies.git2]
 version = "0.19"
