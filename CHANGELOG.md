@@ -1,10 +1,25 @@
 # Changelog
 
+## [0.19.1] - 2024-08-28
+
+### Bug Fixes
+
+- FreeBSD build.
+- Typo
+
+### Build
+
+- Bump uzers from 0.12.0 to 0.12.1
+
 ## [0.19.0] - 2024-08-08
 
 ### Bug Fixes
 
 - [**breaking**] Implement `EZA_GRID_ROWS` grid details view minimum rows threshold
+
+### Miscellaneous Tasks
+
+- Release eza v0.19.0
 
 ## [0.18.24] - 2024-08-03
 
