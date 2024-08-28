@@ -73,7 +73,7 @@ name = "eza"
 [dependencies]
 rayon = "1.10.0"
 chrono = { version = "0.4.34", default-features = false, features = ["clock"] }
-nu-ansi-term = { version = "0.50.0", features = [
+nu-ansi-term = { version = "0.50.1", features = [
   "serde",
   "derive_serde_style",
 ] }
