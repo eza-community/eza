@@ -754,7 +754,8 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        NaiveDateTime::from_timestamp_opt(self.metadata.ctime(), self.metadata.ctime_nsec() as u32)
+        DateTime::from_timestamp(self.metadata.ctime(), self.metadata.ctime_nsec() as u32)
+            .map(|dt| dt.naive_utc())
     }
 
     #[cfg(windows)]
