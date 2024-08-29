@@ -1,10 +1,4 @@
-use std::fmt;
-
-use crate::fs::feature::xattr;
-use crate::options::flags;
-use crate::options::parser::MatchedFlags;
-
-static USAGE_PART1: &str = "Usage:
+Usage:
   eza [options] [files...]
 
 META OPTIONS
@@ -26,7 +20,6 @@ DISPLAY OPTIONS
   --icons=WHEN               when to display icons (always, auto, never)
   --no-quotes                don't quote file names with spaces
   --hyperlink                display entries as hyperlinks
-  --absolute                 display entries with their absolute path (on, follow, off)
   -w, --width COLS           set screen width in columns
   --json                     output results in JSON format equivalent to long view
 
@@ -42,12 +35,8 @@ FILTERING AND SORTING OPTIONS
   --group-directories-first  list directories before other files
   -D, --only-dirs            list only directories
   -f, --only-files           list only files
-  -I, --ignore-glob GLOBS    glob patterns (pipe-separated) of files to ignore";
-
-static GIT_FILTER_HELP: &str = "  \
-  --git-ignore               ignore files mentioned in '.gitignore'";
-
-static USAGE_PART2: &str = "  \
+  -I, --ignore-glob GLOBS    glob patterns (pipe-separated) of files to ignore
+  --git-ignore               ignore files mentioned in '.gitignore'
   Valid sort fields:         name, Name, extension, Extension, size, type,
                              modified, accessed, created, inode, and none.
                              date, time, old, and new all refer to modified.
@@ -80,89 +69,10 @@ LONG VIEW OPTIONS
   --no-user                  suppress the user field
   --no-time                  suppress the time field
   --stdin                    read file names from stdin, one per line or other separator 
-                             specified in environment";
-
-static GIT_VIEW_HELP: &str = "  \
+                             specified in environment
   --git                      list each file's Git status, if tracked or ignored
   --no-git                   suppress Git status (always overrides --git,
                              --git-repos, --git-repos-no-status)
-  --git-repos                list root of git-tree status";
-static EXTENDED_HELP: &str = "  \
-  -@, --extended             list each file's extended attributes and sizes";
-static SECATTR_HELP: &str = "  \
-  -Z, --context              list each file's security context";
-
-/// All the information needed to display the help text, which depends
-/// on which features are enabled and whether the user only wants to
-/// see one section’s help.
-#[derive(PartialEq, Eq, Debug, Copy, Clone)]
-pub struct HelpString;
-
-impl HelpString {
-    /// Determines how to show help, if at all, based on the user’s
-    /// command-line arguments. This one works backwards from the other
-    /// ‘deduce’ functions, returning Err if help needs to be shown.
-    ///
-    /// We don’t do any strict-mode error checking here: it’s OK to give
-    /// the --help or --long flags more than once. Actually checking for
-    /// errors when the user wants help is kind of petty!
-    pub fn deduce(matches: &MatchedFlags<'_>) -> Option<Self> {
-        if matches.count(&flags::HELP) > 0 {
-            Some(Self)
-        } else {
-            None
-        }
-    }
-}
-
-impl fmt::Display for HelpString {
-    /// Format this help options into an actual string of help
-    /// text to be displayed to the user.
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "{USAGE_PART1}")?;
-
-        if cfg!(feature = "git") {
-            write!(f, "\n{GIT_FILTER_HELP}")?;
-        }
-
-        write!(f, "\n{USAGE_PART2}")?;
-
-        if cfg!(feature = "git") {
-            write!(f, "\n{GIT_VIEW_HELP}")?;
-        }
-
-        if xattr::ENABLED {
-            write!(f, "\n{EXTENDED_HELP}")?;
-            write!(f, "\n{SECATTR_HELP}")?;
-        }
-
-        writeln!(f)
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use crate::options::{Options, OptionsResult};
-    use std::ffi::OsStr;
-
-    #[test]
-    fn help() {
-        let args = vec![OsStr::new("--help")];
-        let opts = Options::parse(args, &None);
-        assert!(matches!(opts, OptionsResult::Help(_)));
-    }
-
-    #[test]
-    fn help_with_file() {
-        let args = vec![OsStr::new("--help"), OsStr::new("me")];
-        let opts = Options::parse(args, &None);
-        assert!(matches!(opts, OptionsResult::Help(_)));
-    }
-
-    #[test]
-    fn unhelpful() {
-        let args = vec![];
-        let opts = Options::parse(args, &None);
-        assert!(!matches!(opts, OptionsResult::Help(_))); // no help when --help isn’t passed
-    }
-}
+  --git-repos                list root of git-tree status
+  -@, --extended             list each file's extended attributes and sizes
+  -Z, --context              list each file's security context

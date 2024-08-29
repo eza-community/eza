@@ -81,6 +81,8 @@ use crate::output::table::{Options as TableOptions, Row as TableRow, Table};
 use crate::output::tree::{TreeDepth, TreeParams, TreeTrunk};
 use crate::theme::Theme;
 
+use super::json::JsonRenderer;
+
 /// With the **Details** view, the output gets formatted into columns, with
 /// each `Column` object showing some piece of information about the file,
 /// such as its size, or its permissions.
@@ -220,6 +222,60 @@ impl<'a> Render<'a> {
         }
 
         Ok(())
+    }
+
+    pub fn render_json<W: Write>(self, w: &mut W) -> io::Result<()> {
+        let mut rows = Vec::new();
+
+        if let Some(ref options) = self.opts.table {
+            let mut table = Table::new(options, self.git, self.theme, self.git_repos);
+
+            if self.opts.header {
+                let header = table.header_row();
+                table.add_widths(&header);
+                rows.push(self.render_header(header));
+            }
+
+            // This is weird, but I can’t find a way around it:
+            // https://internals.rust-lang.org/t/should-option-mut-t-implement-copy/3715/6
+            let mut table = Some(table);
+            #[rustfmt::skip]
+            self.add_files_to_table(
+                &mut table,
+                &mut rows,
+                &self.files,
+                TreeDepth::root(),
+                None,
+            );
+
+            let mut row_iter = self.iterate_with_table(table.unwrap(), rows);
+            let header = if self.opts.header {
+                let header = row_iter.next().unwrap();
+                Some(header.clean_content())
+            } else {
+                None
+            };
+
+            JsonRenderer::new(header, row_iter).render(w)
+        } else {
+            #[rustfmt::skip]
+            self.add_files_to_table(
+                &mut None,
+                &mut rows,
+                &self.files,
+                TreeDepth::root(),
+                None,
+            );
+
+            write!(w, "\"files\":[")?;
+            for (i, row) in self.iterate(rows).enumerate() {
+                write!(w, "\"{}\"", row.strings())?;
+                if (i + 1) < self.files.len() {
+                    write!(w, ", ")?;
+                }
+            }
+            writeln!(w, "]")
+        }
     }
 
     /// Whether to show the extended attribute hint
@@ -448,6 +504,7 @@ impl<'a> Render<'a> {
     }
 }
 
+#[derive(Clone)]
 pub struct Row {
     /// Vector of cells to display.
     ///
@@ -498,7 +555,7 @@ impl<'a> Iterator for TableIter<'a> {
                 cell.add_spaces(1);
             }
 
-            cell.append(row.name);
+            cell.append(row.name.concat_content());
             cell
         })
     }

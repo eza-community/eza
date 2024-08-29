@@ -28,6 +28,7 @@ use std::path::{Component, PathBuf};
 use std::process::exit;
 
 use nu_ansi_term::{AnsiStrings as ANSIStrings, Style};
+use output::OutputType;
 
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::GitIgnore;
@@ -292,9 +293,16 @@ impl<'args> Exa<'args> {
         let is_only_dir = dirs.len() == 1 && no_files;
 
         self.options.filter.filter_argument_files(&mut files);
+        if self.options.view.output_type == OutputType::Json {
+            writeln!(&mut self.writer, "{{")?;
+        }
         self.print_files(None, files)?;
 
-        self.print_dirs(dirs, no_files, is_only_dir, exit_status)
+        self.print_dirs(dirs, no_files, is_only_dir, exit_status)?;
+        if self.options.view.output_type == OutputType::Json {
+            writeln!(&mut self.writer, "}}")?;
+        }
+        Ok(exit_status)
     }
 
     fn print_dirs(
@@ -311,10 +319,20 @@ impl<'args> Exa<'args> {
         for dir in dir_files {
             // Put a gap between directories, or between the list of files and
             // the first directory.
-            if first {
-                first = false;
-            } else {
-                writeln!(&mut self.writer)?;
+
+            if self.options.view.output_type != OutputType::Json {
+                if first {
+                    first = false;
+                } else {
+                    writeln!(&mut self.writer)?;
+                }
+            }
+            if self.options.view.output_type == OutputType::Json {
+                if first {
+                    first = false;
+                } else {
+                    write!(&mut self.writer, ",")?;
+                }
             }
 
             if !is_only_dir {
@@ -326,7 +344,11 @@ impl<'args> Exa<'args> {
                     Style::default(),
                     quote_style,
                 );
-                writeln!(&mut self.writer, "{}:", ANSIStrings(&bits))?;
+                if self.options.view.output_type == OutputType::Json {
+                    writeln!(&mut self.writer, "\"{}\": {{", ANSIStrings(&bits))?;
+                } else {
+                    writeln!(&mut self.writer, "{}:", ANSIStrings(&bits))?;
+                }
             }
 
             let mut children = Vec::new();
@@ -373,11 +395,17 @@ impl<'args> Exa<'args> {
                         Ok(_) => (),
                         Err(e) => return Err(e),
                     }
+                    if self.options.view.output_type == OutputType::Json && !is_only_dir {
+                        writeln!(&mut self.writer, "}}")?;
+                    }
                     continue;
                 }
             }
 
             self.print_files(Some(&dir), children)?;
+            if self.options.view.output_type == OutputType::Json && !is_only_dir {
+                writeln!(&mut self.writer, "}}")?;
+            }
         }
 
         Ok(exit_status)
@@ -393,8 +421,11 @@ impl<'args> Exa<'args> {
         let View {
             ref mode,
             ref file_style,
+            ref output_type,
             ..
         } = self.options.view;
+
+        debug!("matching on mode {:?}, {:?}", mode, self.console_width);
 
         match (mode, self.console_width) {
             (Mode::Grid(ref opts), Some(console_width)) => {
@@ -407,7 +438,10 @@ impl<'args> Exa<'args> {
                     console_width,
                     filter,
                 };
-                r.render(&mut self.writer)
+                match output_type {
+                    output::OutputType::Legacy => r.render(&mut self.writer),
+                    output::OutputType::Json => r.render_json(&mut self.writer),
+                }
             }
 
             (Mode::Grid(_), None) | (Mode::Lines, _) => {
@@ -418,7 +452,10 @@ impl<'args> Exa<'args> {
                     file_style,
                     filter,
                 };
-                r.render(&mut self.writer)
+                match output_type {
+                    output::OutputType::Legacy => r.render(&mut self.writer),
+                    output::OutputType::Json => r.render_json(&mut self.writer),
+                }
             }
 
             (Mode::Details(ref opts), _) => {
@@ -440,7 +477,10 @@ impl<'args> Exa<'args> {
                     git,
                     git_repos,
                 };
-                r.render(&mut self.writer)
+                match output_type {
+                    output::OutputType::Legacy => r.render(&mut self.writer),
+                    output::OutputType::Json => r.render_json(&mut self.writer),
+                }
             }
 
             (Mode::GridDetails(ref opts), Some(console_width)) => {
@@ -465,7 +505,10 @@ impl<'args> Exa<'args> {
                     console_width,
                     git_repos,
                 };
-                r.render(&mut self.writer)
+                match output_type {
+                    output::OutputType::Legacy => r.render(&mut self.writer),
+                    output::OutputType::Json => r.render_json(&mut self.writer),
+                }
             }
 
             (Mode::GridDetails(ref opts), None) => {
@@ -488,7 +531,10 @@ impl<'args> Exa<'args> {
                     git,
                     git_repos,
                 };
-                r.render(&mut self.writer)
+                match output_type {
+                    output::OutputType::Legacy => r.render(&mut self.writer),
+                    output::OutputType::Json => r.render_json(&mut self.writer),
+                }
             }
         }
     }

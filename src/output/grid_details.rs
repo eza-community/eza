@@ -109,6 +109,10 @@ impl<'a> Render<'a> {
     // This doesn’t take an IgnoreCache even though the details one does
     // because grid-details has no tree view.
 
+    pub fn render_json<W: Write>(self, _w: &mut W) -> io::Result<()> {
+        unimplemented!("As it is made to be piped json with grid view, will not be implemented");
+    }
+
     pub fn render<W: Write>(mut self, w: &mut W) -> io::Result<()> {
         let options = self
             .details
