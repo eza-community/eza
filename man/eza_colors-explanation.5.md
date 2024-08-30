@@ -45,6 +45,187 @@ in the same directory as one of its source files: styles.css will count as compi
 - Source files (cpp, js, java) are bright yellow.
 
 
+## Theme Configuration file
+
+Now you can specify these options and more in a `theme.yml` file with convenient syntax for defining your styles.
+
+Set `EZA_CONFIG_DIR` to specify which directory you would like eza to look for your `theme.yml` file,
+otherwise eza will look for `$XDG_CONFIG_HOME/eza/theme.yml`.
+
+
+These are the available options:
+
+LIST OF THEME OPTIONS
+=====================
+
+```yaml
+filekinds:
+  normal
+  directory
+  symlink
+  pipe
+  block_device
+  char_device
+  socket
+  special
+  executable
+  mount_point
+
+perms:
+  user_read
+  user_write
+  user_executable_file
+  user_execute_other
+  group_read
+  group_write
+  group_execute
+  other_read
+  other_write
+  other_execute
+  special_user_file
+  special_other
+  attribute
+
+size:
+  major
+  minor
+  number_byte
+  number_kilo
+  number_mega
+  number_giga
+  number_huge
+  unit_byte
+  unit_kilo
+  unit_mega
+  unit_giga
+  unit_huge
+
+users:
+  user_you
+  user_root
+  user_other
+  group_yours
+  group_other
+  group_root
+
+links:
+  normal
+  multi_link_file
+
+git:
+  new
+  modified
+  deleted
+  renamed
+  ignored
+  conflicted
+
+git_repo:
+  branch_main
+  branch_other
+  git_clean
+  git_dirty
+
+security_context:
+  none:
+  selinux:
+    colon
+    user
+    role
+    typ
+    range
+
+file_type:
+  image
+  video
+  music
+  crypto
+  document
+  compressed
+  temp
+  compiled
+  build
+  source
+
+punctuation:
+
+date:
+
+inode:
+
+blocks:
+
+header:
+
+octal:
+
+flags:
+
+control_char:
+
+broken_symlink:
+
+broken_path_overlay:
+
+```
+
+Each of those fields/sub fields can have the following styling properties defined beneath it
+
+```yaml
+    foreground: Blue
+    background: null
+    is_bold: false
+    is_dimmed: false
+    is_italic: false
+    is_underline: false
+    is_blink: false
+    is_reverse: false
+    is_hidden: false
+    is_strikethrough: true
+    prefix_with_reset: false
+```
+
+Example:
+
+```yaml
+
+file_type:
+  image:
+    foreground: Blue
+    is_italic: true
+date:
+  foreground: White
+
+security_context:
+  selinux:
+    role:
+      is_hidden: true
+```
+
+Icons can now be customized as well in the `filenames` and `extensions` fields
+
+```yaml
+
+filenames:
+  # Just change the icon glyph
+  Cargo.toml: {icon: {glyph: 🦀}}
+  Cargo.lock: {icon: {glyph: 🦀}}
+
+extensions:
+  rs: {  filename: {foreground: Red}, icon: {glyph: 🦀}}
+
+```
+
+**NOTES:** 
+
+Not all glyphs support changing colors.
+
+If your theme is not working properly, double check the syntax in the config file, as
+a syntax issue can cause multiple properties to not be applied.
+
+You must name the file `theme.yml`, no matter the directory you specify.
+
+
 ## See also
 
 - [eza.1.md](eza.1.md)
