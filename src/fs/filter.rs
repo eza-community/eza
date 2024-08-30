@@ -85,38 +85,28 @@ pub struct FileFilter {
 impl FileFilter {
     /// Remove every file in the given vector that does *not* pass the
     /// filter predicate for files found inside a directory.
-    pub fn filter_child_files(&self, files: &mut Vec<File<'_>>) {
+#[rustfmt::skip]
+    pub fn filter_child_files(&self, is_recurse: bool, files: &mut Vec<File<'_>>) {
         use FileFilterFlags::{NoSymlinks, OnlyDirs, OnlyFiles, ShowSymlinks};
 
         files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
-
-        match (
-            self.flags.contains(&OnlyDirs),
-            self.flags.contains(&OnlyFiles),
-            self.flags.contains(&NoSymlinks),
-            self.flags.contains(&ShowSymlinks),
-        ) {
-            (true, false, false, false) => {
-                // On pass '--only-dirs' flag only
-                files.retain(File::is_directory);
+        files.retain(|f| {
+            match (
+                self.flags.contains(&OnlyDirs),
+                self.flags.contains(&OnlyFiles),
+                self.flags.contains(&NoSymlinks),
+                self.flags.contains(&ShowSymlinks),
+            ) {
+                (true, false, false, false) => f.is_directory(),
+                (true, false, true, false) => f.is_directory(),
+                (true, false, false, true) => f.is_directory() || f.points_to_directory(),
+                (false, true, false, false) => if is_recurse { true } else {f.is_file() },
+                (false, true, false, true) => if is_recurse { true } else { f.is_file() || f.is_link() && !f.points_to_directory()
+                },
+                (false, false, true, false) => !f.is_link(),
+                _ => true,
             }
-            (true, false, true, false) => {
-                files.retain(File::is_directory);
-            }
-            (true, false, false, true) => {
-                files.retain(|f| f.is_directory() || f.points_to_directory());
-            }
-            (false, true, false, false) => {
-                files.retain(File::is_file);
-            }
-            (false, true, false, true) => {
-                files.retain(|f| f.is_file() || f.is_link() && !f.points_to_directory());
-            }
-            (false, false, true, false) => {
-                files.retain(|f| !f.is_link());
-            }
-            _ => {}
-        }
+        });
     }
 
     /// Remove every file in the given vector that does *not* pass the

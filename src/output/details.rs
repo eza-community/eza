@@ -356,7 +356,8 @@ impl<'a> Render<'a> {
                     }
                 }
 
-                self.filter.filter_child_files(&mut files);
+                self.filter
+                    .filter_child_files(self.recurse.is_some(), &mut files);
 
                 if !files.is_empty() {
                     for xattr in egg.xattrs {
