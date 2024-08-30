@@ -39,6 +39,7 @@ By deliberately making some decisions differently, eza attempts to be a more fea
 - Several security fixes.
 - Support for `bright` terminal colours.
 - Many smaller bug fixes/changes!
+- Configuration `theme.yml` file for customization of colors and icons.
 
 ...and like, so much more that it became exhausting to update this all the time.
 Like seriously, we have a lot of good stuff.
@@ -161,11 +162,30 @@ Some of the options accept parameters:
 - Valid time fields are **modified**, **changed**, **accessed**, and **created**.
 - Valid time styles are **default**, **iso**, **long-iso**, **full-iso**, and **relative**.
 
-</details>
+
 
 See the `man` pages for further documentation of usage. They are available
 - online [in the repo](https://github.com/eza-community/eza/tree/main/man)
 - in your terminal via `man eza`, as of version [`[0.18.13] - 2024-04-25`](https://github.com/eza-community/eza/blob/main/CHANGELOG.md#01813---2024-04-25)
+</details>
+
+
+## Custom Themes
+<details>
+<summary>Click to expand</summary>
+
+**Eza** has recently added support for a `theme.yml` file, where you can specify all of the existing theme-ing options
+available for the `LS_COLORS` and `EXA_COLORS` environment variables, as well as the option to specify different icons
+for different file types and extensions. Any existing environment variables set will continue to work and will take
+precedence for backwards compatibility.
+
+An example theme file is available in `docs/theme.yml`, and needs to either be placed in a directory specified by the 
+environment variable `EZA_CONFIG_DIR`, or will looked for by default in `$XDG_CONFIG_HOME/eza`.
+
+Full details are available on the [man page](https://github.com/eza-community/eza/tree/main/man/eza_colors-explanation.5.md) and an example theme file is included [here](https://github.com/eza-community/eza/tree/main/docs/theme.yml)
+
+</details>
+
 
 # Hacking on eza
 
