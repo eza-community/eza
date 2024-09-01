@@ -366,7 +366,7 @@ impl<'args> Exa<'args> {
                     let mut child_dirs = Vec::new();
                     for child_dir in children
                         .iter()
-                        .filter(|f| f.is_directory() && !f.is_all_all)
+                        .filter(|f| f.points_to_directory() && !f.is_all_all)
                     {
                         match child_dir.to_dir() {
                             Ok(d) => child_dirs.push(d),

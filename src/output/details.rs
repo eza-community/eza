@@ -292,7 +292,7 @@ impl<'a> Render<'a> {
 
                 let mut dir = None;
                 if let Some(r) = self.recurse {
-                    if file.is_directory() && r.tree && !r.is_too_deep(depth.0) {
+                    if file.points_to_directory() && r.tree && !r.is_too_deep(depth.0) {
                         trace!("matching on to_dir");
                         match file.to_dir() {
                             Ok(d) => {
