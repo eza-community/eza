@@ -108,11 +108,11 @@ where D: Deserializer<'de> {
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize, Default)]
 pub struct StyleOverride {
     /// The style's foreground color, if it has one.
-    #[serde(alias = "fg", deserialize_with = "deserialize_color")]
+    #[serde(alias = "fg", deserialize_with = "deserialize_color", default)]
     pub foreground: Option<Color>,
 
     /// The style's background color, if it has one.
-    #[serde(alias = "bg", deserialize_with = "deserialize_color")]
+    #[serde(alias = "bg", deserialize_with = "deserialize_color", default)]
     pub background: Option<Color>,
 
     /// Whether this style is bold.
