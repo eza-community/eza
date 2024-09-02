@@ -263,7 +263,7 @@ impl FromOverride<FileKindsOverride> for FileKinds {
         FileKinds {
             normal: FromOverride::from(value.normal, default.normal),
             directory: FromOverride::from(value.directory, default.directory),
-            symlink: FromOverride::from(value.symlink, default.directory),
+            symlink: FromOverride::from(value.symlink, default.symlink),
             pipe: FromOverride::from(value.pipe, default.pipe),
             block_device: FromOverride::from(value.block_device, default.block_device),
             char_device: FromOverride::from(value.char_device, default.char_device),
