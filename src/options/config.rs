@@ -1,7 +1,7 @@
 use crate::theme::ThemeFileType as FileType;
 use crate::theme::*;
 use nu_ansi_term::{Color, Style};
-use serde::{Deserialize, Serialize, Deserializer};
+use serde::{Deserialize, Deserializer, Serialize};
 use serde_yaml;
 use std::collections::HashMap;
 use std::path::PathBuf;
