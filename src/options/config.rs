@@ -40,36 +40,47 @@ where
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize, Default)]
 pub struct StyleOverride {
     /// The style's foreground color, if it has one.
+    #[serde(alias = "fg")]
     pub foreground: Option<Color>,
 
     /// The style's background color, if it has one.
+    #[serde(alias = "bg")]
     pub background: Option<Color>,
 
     /// Whether this style is bold.
+    #[serde(alias = "bold")]
     pub is_bold: Option<bool>,
 
     /// Whether this style is dimmed.
+    #[serde(alias = "dimmed")]
     pub is_dimmed: Option<bool>,
 
     /// Whether this style is italic.
+    #[serde(alias = "italic")]
     pub is_italic: Option<bool>,
 
     /// Whether this style is underlined.
+    #[serde(alias = "underline")]
     pub is_underline: Option<bool>,
 
     /// Whether this style is blinking.
+    #[serde(alias = "blink")]
     pub is_blink: Option<bool>,
 
     /// Whether this style has reverse colors.
+    #[serde(alias = "reverse")]
     pub is_reverse: Option<bool>,
 
     /// Whether this style is hidden.
+    #[serde(alias = "hidden")]
     pub is_hidden: Option<bool>,
 
     /// Whether this style is struckthrough.
+    #[serde(alias = "strikethrough")]
     pub is_strikethrough: Option<bool>,
 
     /// Wether this style is always displayed starting with a reset code to clear any remaining style artifacts
+    #[serde(alias = "prefix_reset")]
     pub prefix_with_reset: Option<bool>,
 }
 
