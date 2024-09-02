@@ -38,11 +38,9 @@ where
 }
 
 #[rustfmt::skip]
-fn deserialize_color<'de, D>(deserializer: D) -> Result<Option<Color>, D::Error>
-where D: Deserializer<'de> {
+fn color_from_str(s: &str) -> Option<Color> {
     use Color::*;
-    let s: String = Deserialize::deserialize(deserializer)?;
-    Ok(match s.as_str() {
+    match s {
         // nothing
         "" | "none"    | "None"         => None,
 
@@ -72,33 +70,39 @@ where D: Deserializer<'de> {
             // #rrggbb hex color
             ['#', r1, r2, g1, g2, b1, b2] => {
                 let Ok(r) = u8::from_str_radix(&format!("{}{}", r1, r2), 16)
-                    else { return Ok(None) };
+                    else { return None };
                 let Ok(g) = u8::from_str_radix(&format!("{}{}", g1, g2), 16)
-                    else { return Ok(None) };
+                    else { return None };
                 let Ok(b) = u8::from_str_radix(&format!("{}{}", b1, b2), 16)
-                    else { return Ok(None) };
+                    else { return None };
                 Some(Rgb(r, g, b))
             },
             // #rgb shorthand hex color
             ['#', r, g, b]              => {
                 let Ok(r) = u8::from_str_radix(&format!("{}{}", r, r), 16)
-                    else { return Ok(None) };
+                    else { return None };
                 let Ok(g) = u8::from_str_radix(&format!("{}{}", g, g), 16)
-                    else { return Ok(None) };
+                    else { return None };
                 let Ok(b) = u8::from_str_radix(&format!("{}{}", b, b), 16)
-                    else { return Ok(None) };
+                    else { return None };
                 Some(Rgb(r, g, b))
             },
             // 0-255 color code
             [c1, c2] => {
                 let Ok(c) = u8::from_str_radix(&format!("{}{}", c1, c2), 10)
-                    else { return Ok(None) };
+                    else { return None };
                 Some(Fixed(c))
             },
             // unknown format
             _ => None,
         }
-    })
+    }
+}
+
+#[rustfmt::skip]
+fn deserialize_color<'de, D>(deserializer: D) -> Result<Option<Color>, D::Error>
+where D: Deserializer<'de> {
+    Ok(color_from_str(&String::deserialize(deserializer)?))
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize, Default)]
