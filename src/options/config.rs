@@ -1,7 +1,7 @@
 use crate::theme::ThemeFileType as FileType;
 use crate::theme::*;
 use nu_ansi_term::{Color, Style};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, Deserializer};
 use serde_yaml;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -37,14 +37,78 @@ where
     }
 }
 
+#[rustfmt::skip]
+fn deserialize_color<'de, D>(deserializer: D) -> Result<Option<Color>, D::Error>
+where D: Deserializer<'de> {
+    use Color::*;
+    let s: String = Deserialize::deserialize(deserializer)?;
+    Ok(match s.as_str() {
+        // nothing
+        "" | "none"    | "None"         => None,
+
+        // hardcoded colors
+        "default"      | "Default"      => Some(Default),
+        "black"        | "Black"        => Some(Black),
+        "darkgray"     | "DarkGray"     => Some(DarkGray),
+        "red"          | "Red"          => Some(Red),
+        "lightred"     | "LightRed"     => Some(LightRed),
+        "green"        | "Green"        => Some(Green),
+        "lightgreen"   | "LightGreen"   => Some(LightGreen),
+        "yellow"       | "Yellow"       => Some(Yellow),
+        "lightyellow"  | "LightYellow"  => Some(LightYellow),
+        "blue"         | "Blue"         => Some(Blue),
+        "lightblue"    | "LightBlue"    => Some(LightBlue),
+        "purple"       | "Purple"       => Some(Purple),
+        "lightpurple"  | "LightPurple"  => Some(LightPurple),
+        "magenta"      | "Magenta"      => Some(Magenta),
+        "lightmagenta" | "LightMagenta" => Some(LightMagenta),
+        "cyan"         | "Cyan"         => Some(Cyan),
+        "lightcyan"    | "LightCyan"    => Some(LightCyan),
+        "white"        | "White"        => Some(White),
+        "lightgray"    | "LightGray"    => Some(LightGray),
+
+        // some other string
+        s => match s.chars().collect::<Vec<_>>()[..] {
+            // #rrggbb hex color
+            ['#', r1, r2, g1, g2, b1, b2] => {
+                let Ok(r) = u8::from_str_radix(&format!("{}{}", r1, r2), 16)
+                    else { return Ok(None) };
+                let Ok(g) = u8::from_str_radix(&format!("{}{}", g1, g2), 16)
+                    else { return Ok(None) };
+                let Ok(b) = u8::from_str_radix(&format!("{}{}", b1, b2), 16)
+                    else { return Ok(None) };
+                Some(Rgb(r, g, b))
+            },
+            // #rgb shorthand hex color
+            ['#', r, g, b]              => {
+                let Ok(r) = u8::from_str_radix(&format!("{}{}", r, r), 16)
+                    else { return Ok(None) };
+                let Ok(g) = u8::from_str_radix(&format!("{}{}", g, g), 16)
+                    else { return Ok(None) };
+                let Ok(b) = u8::from_str_radix(&format!("{}{}", b, b), 16)
+                    else { return Ok(None) };
+                Some(Rgb(r, g, b))
+            },
+            // 0-255 color code
+            [c1, c2] => {
+                let Ok(c) = u8::from_str_radix(&format!("{}{}", c1, c2), 10)
+                    else { return Ok(None) };
+                Some(Fixed(c))
+            },
+            // unknown format
+            _ => None,
+        }
+    })
+}
+
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize, Default)]
 pub struct StyleOverride {
     /// The style's foreground color, if it has one.
-    #[serde(alias = "fg")]
+    #[serde(alias = "fg", deserialize_with = "deserialize_color")]
     pub foreground: Option<Color>,
 
     /// The style's background color, if it has one.
-    #[serde(alias = "bg")]
+    #[serde(alias = "bg", deserialize_with = "deserialize_color")]
     pub background: Option<Color>,
 
     /// Whether this style is bold.
