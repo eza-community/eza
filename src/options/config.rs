@@ -69,27 +69,27 @@ fn color_from_str(s: &str) -> Option<Color> {
         s => match s.chars().collect::<Vec<_>>()[..] {
             // #rrggbb hex color
             ['#', r1, r2, g1, g2, b1, b2] => {
-                let Ok(r) = u8::from_str_radix(&format!("{}{}", r1, r2), 16)
+                let Ok(r) = u8::from_str_radix(&format!("{r1}{r2}"), 16)
                     else { return None };
-                let Ok(g) = u8::from_str_radix(&format!("{}{}", g1, g2), 16)
+                let Ok(g) = u8::from_str_radix(&format!("{g1}{g2}"), 16)
                     else { return None };
-                let Ok(b) = u8::from_str_radix(&format!("{}{}", b1, b2), 16)
+                let Ok(b) = u8::from_str_radix(&format!("{b1}{b2}"), 16)
                     else { return None };
                 Some(Rgb(r, g, b))
             },
             // #rgb shorthand hex color
             ['#', r, g, b]              => {
-                let Ok(r) = u8::from_str_radix(&format!("{}{}", r, r), 16)
+                let Ok(r) = u8::from_str_radix(&format!("{r}{r}"), 16)
                     else { return None };
-                let Ok(g) = u8::from_str_radix(&format!("{}{}", g, g), 16)
+                let Ok(g) = u8::from_str_radix(&format!("{g}{g}"), 16)
                     else { return None };
-                let Ok(b) = u8::from_str_radix(&format!("{}{}", b, b), 16)
+                let Ok(b) = u8::from_str_radix(&format!("{b}{b}"), 16)
                     else { return None };
                 Some(Rgb(r, g, b))
             },
             // 0-255 color code
             [c1, c2] => {
-                let Ok(c) = u8::from_str_radix(&format!("{}{}", c1, c2), 10)
+                let Ok(c) = str::parse::<u8>(&format!("{c1}{c2}"))
                     else { return None };
                 Some(Fixed(c))
             },
