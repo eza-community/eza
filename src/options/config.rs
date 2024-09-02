@@ -615,3 +615,50 @@ impl ThemeConfig {
         FromOverride::from(ui_styles_override, Some(UiStyles::default()))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_none_color_from_string() {
+        ["", "none", "None"].iter().for_each(|case| {
+            assert_eq!(color_from_str(case), None);
+        });
+    }
+
+    #[test]
+    fn parse_default_color_from_string() {
+        ["default", "Default"].iter().for_each(|case| {
+            assert_eq!(color_from_str(case), Some(Color::Default));
+        });
+    }
+
+    #[test]
+    fn parse_fixed_color_from_string() {
+        ["black", "Black"].iter().for_each(|case| {
+            assert_eq!(color_from_str(case), Some(Color::Black));
+        });
+    }
+
+    #[test]
+    fn parse_long_hex_color_from_string() {
+        ["#ff00ff", "#FF00FF"].iter().for_each(|case| {
+            assert_eq!(color_from_str(case), Some(Color::Rgb(255, 0, 255)));
+        });
+    }
+
+    #[test]
+    fn parse_short_hex_color_from_string() {
+        ["#f0f", "#F0F"].iter().for_each(|case| {
+            assert_eq!(color_from_str(case), Some(Color::Rgb(255, 0, 255)));
+        });
+    }
+
+    #[test]
+    fn parse_color_code_from_string() {
+        [("10", 10), ("01", 1)].iter().for_each(|(s, c)| {
+            assert_eq!(color_from_str(s), Some(Color::Fixed(*c)));
+        });
+    }
+}
