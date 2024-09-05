@@ -96,7 +96,7 @@ unicode-width = "0.1"
 zoneinfo_compiled = "0.5.1"
 ansi-width = "0.1.0"
 serde = { version = "1.0.193", features = ["derive"] }
-serde_yaml = "0.9.29"
+serde_yaml = "0.9.34"
 dirs = "5.0.1"
 [dependencies.git2]
 version = "0.19"
