@@ -17,3 +17,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: webiny/action-conventional-commits@v1.3.0
+
+  no-merge-commits:
+    name: No Merge Commits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Run test
+        uses: NexusPHP/no-merge-commits@v2.1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
