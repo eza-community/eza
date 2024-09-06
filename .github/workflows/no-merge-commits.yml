@@ -1,8 +1,6 @@
 name: Commits
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -11,13 +9,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  conventional-commits:
-    name: Conventional Commits
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: webiny/action-conventional-commits@v1.3.0
-
   no-merge-commits:
     name: No Merge Commits
     runs-on: ubuntu-latest
