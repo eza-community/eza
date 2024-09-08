@@ -1,4 +1,4 @@
-name: Commits
+name: No Merge Commits
 
 on:
   pull_request:
@@ -10,7 +10,6 @@ concurrency:
 
 jobs:
   no-merge-commits:
-    name: No Merge Commits
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
