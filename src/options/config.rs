@@ -2,7 +2,7 @@ use crate::theme::ThemeFileType as FileType;
 use crate::theme::*;
 use nu_ansi_term::{Color, Style};
 use serde::{Deserialize, Deserializer, Serialize};
-use serde_yaml;
+use serde_norway;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
@@ -605,11 +605,11 @@ impl ThemeConfig {
             ConfigLoc::Default => {
                 let path = dirs::config_dir()?.join("eza").join("theme.yml");
                 let file = std::fs::File::open(path).ok()?;
-                serde_yaml::from_reader(&file).ok()
+                serde_norway::from_reader(&file).ok()
             }
             ConfigLoc::Env(path) => {
                 let file = std::fs::File::open(path).ok()?;
-                serde_yaml::from_reader(&file).ok()
+                serde_norway::from_reader(&file).ok()
             }
         };
         FromOverride::from(ui_styles_override, Some(UiStyles::default()))
