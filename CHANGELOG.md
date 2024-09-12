@@ -1,5 +1,37 @@
 # Changelog
 
+## [0.19.3] - 2024-09-12
+
+### Bug Fixes
+
+- Convert empty space to %20 when render hyperlinks
+- Split commit workflows and run no-merge-commits only on PRs
+- Correct naming of commit related workflows
+
+### Documentation
+
+- Better version bump commit summary
+
+### Features
+
+- Add no-merge-commits job to commits workflow
+
+### Miscellaneous Tasks
+
+- Rename justfile
+
+### Refactor
+
+- Rename conventional-commits workflow to commits
+
+### Build
+
+- Bump DeterminateSystems/nix-installer-action from 13 to 14
+- Bump DeterminateSystems/flake-checker-action from 8 to 9
+- Bump actions/checkout from 3 to 4
+- Bump libc from 0.2.155 to 0.2.158
+- Bump nu-ansi-term from 0.50.0 to 0.50.1
+
 ## [0.19.2] - 2024-09-05
 
 ### Bug Fixes
@@ -42,6 +74,10 @@
 - Add shorthand aliases to StyleOverride variables
 - Add custom deserialize_color and use in StyleOverride
 - Outsource color_from_str function to make it testable
+
+### Miscellaneous Tasks
+
+- Release eza v0.19.2
 
 ### Refactor
 
