@@ -9,7 +9,7 @@ use super::config::ThemeConfig;
 impl Options {
     pub fn deduce<V: Vars>(matches: &Opts, vars: &V) -> Self {
         let use_colours = UseColours::deduce(matches, vars);
-        let colour_scale = ColorScaleOptions::deduce(matches, vars)?;
+        let colour_scale = ColorScaleOptions::deduce(matches, vars);
         let theme_config = ThemeConfig::deduce(vars);
 
         let definitions = if use_colours == UseColours::Never {
