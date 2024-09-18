@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.19.4] - 2024-09-18
+
+### Bug Fixes
+
+- Remove non_alpha from percent encoding to fix hyprlinks
+
+### Features
+
+- Pass from serde_yaml to serde_norway
+
 ## [0.19.3] - 2024-09-12
 
 ### Bug Fixes
@@ -19,6 +29,7 @@
 ### Miscellaneous Tasks
 
 - Rename justfile
+- Eza v0.19.3 changelogs, version bump
 
 ### Refactor
 
