@@ -198,6 +198,16 @@ To install eza, run:
 scoop install eza
 ```
 
+### Flox (Linux, macOS, Windows WSL)
+
+Eza is available from [Flox](https://flox.dev).
+
+To install eza, run:
+
+```shell
+flox install eza
+```
+
 ### Completions
 
 #### For zsh:

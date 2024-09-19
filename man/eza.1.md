@@ -47,7 +47,6 @@ META OPTIONS
 `-v`, `--version`
 : Show version of eza.
 
-
 DISPLAY OPTIONS
 ===============
 
@@ -346,6 +345,10 @@ Any explicit use of the `--icons=WHEN` flag overrides this behavior.
 ## `EZA_STDIN_SEPARATOR`
 
 Specifies the separator to use when file names are piped from stdin. Defaults to newline.
+
+## `EZA_CONFIG_DIR`
+
+Specifies the directory where eza will look for its configuration and theme files. Defaults to `$XDG_CONFIG_HOME/eza` or `$HOME/.config/eza` if `XDG_CONFIG_HOME` is not set.
 
 EXIT STATUSES
 =============

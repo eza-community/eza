@@ -148,6 +148,5 @@ impl MockVars {
             "NO_COLOR" => self.no_colors = value.clone(),
             _ => (),
         };
-        ()
     }
 }

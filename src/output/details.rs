@@ -64,7 +64,7 @@ use std::path::PathBuf;
 use std::vec::IntoIter as VecIntoIter;
 
 use nu_ansi_term::Style;
-use rayon::prelude::*;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 use log::*;
 
@@ -126,7 +126,7 @@ pub struct Render<'a> {
 
     /// Whether to recurse through directories with a tree view, and if so,
     /// which options to use. This field is only relevant here if the `tree`
-    /// field of the RecurseOptions is `true`.
+    /// field of the `RecurseOptions` is `true`.
     pub recurse: Option<RecurseOptions>,
 
     /// How to sort and filter the files after getting their details.
@@ -356,7 +356,8 @@ impl<'a> Render<'a> {
                     }
                 }
 
-                self.filter.filter_child_files(&mut files);
+                self.filter
+                    .filter_child_files(self.recurse.is_some(), &mut files);
 
                 if !files.is_empty() {
                     for xattr in egg.xattrs {
@@ -397,7 +398,7 @@ impl<'a> Render<'a> {
         Row {
             tree: TreeParams::new(TreeDepth::root(), false),
             cells: Some(header),
-            name: TextCell::paint_str(self.theme.ui.header, "Name"),
+            name: TextCell::paint_str(self.theme.ui.header.unwrap_or_default(), "Name"),
         }
     }
 
@@ -421,7 +422,10 @@ impl<'a> Render<'a> {
     }
 
     fn render_xattr(&self, xattr: &Attribute, tree: TreeParams) -> Row {
-        let name = TextCell::paint(self.theme.ui.perms.attribute, format!("{xattr}"));
+        let name = TextCell::paint(
+            self.theme.ui.perms.unwrap_or_default().attribute(),
+            format!("{xattr}"),
+        );
         Row {
             cells: None,
             name,
@@ -435,7 +439,7 @@ impl<'a> Render<'a> {
             total_width: table.widths().total(),
             table,
             inner: rows.into_iter(),
-            tree_style: self.theme.ui.punctuation,
+            tree_style: self.theme.ui.punctuation.unwrap_or_default(),
         }
     }
 
@@ -443,7 +447,7 @@ impl<'a> Render<'a> {
         Iter {
             tree_trunk: TreeTrunk::default(),
             inner: rows.into_iter(),
-            tree_style: self.theme.ui.punctuation,
+            tree_style: self.theme.ui.punctuation.unwrap_or_default(),
         }
     }
 }

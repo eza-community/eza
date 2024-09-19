@@ -285,6 +285,9 @@ LIST OF CODES
 `sc`
 : a regular file that is source code
 
+`ic`
+: the icon (this is optional, if not set the icon color matches the file name's)
+
 `Sn`
 : No security context on a file
 

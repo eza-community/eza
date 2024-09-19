@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt_skip)]
 use crate::options::parser::{Arg, Args, TakesValue, Values};
 
 // exa options

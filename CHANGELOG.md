@@ -1,10 +1,154 @@
 # Changelog
 
+## [0.19.4] - 2024-09-18
+
+### Bug Fixes
+
+- Remove non_alpha from percent encoding to fix hyprlinks
+
+### Features
+
+- Pass from serde_yaml to serde_norway
+
+## [0.19.3] - 2024-09-12
+
+### Bug Fixes
+
+- Convert empty space to %20 when render hyperlinks
+- Split commit workflows and run no-merge-commits only on PRs
+- Correct naming of commit related workflows
+
+### Documentation
+
+- Better version bump commit summary
+
+### Features
+
+- Add no-merge-commits job to commits workflow
+
+### Miscellaneous Tasks
+
+- Rename justfile
+- Eza v0.19.3 changelogs, version bump
+
+### Refactor
+
+- Rename conventional-commits workflow to commits
+
+### Build
+
+- Bump DeterminateSystems/nix-installer-action from 13 to 14
+- Bump DeterminateSystems/flake-checker-action from 8 to 9
+- Bump actions/checkout from 3 to 4
+- Bump libc from 0.2.155 to 0.2.158
+- Bump nu-ansi-term from 0.50.0 to 0.50.1
+
+## [0.19.2] - 2024-09-05
+
+### Bug Fixes
+
+- Remove unnecessary map and make clippy happy
+- Adjust grid details for CI tests
+- Imports and merge conflicts
+- Rustfmt issues
+- Clippy issues
+- Revise UiStyles::plain to have no style at all
+- Pr reviews fixes for theme file
+- Selectively filter files when recursing #1101
+- Fix typo in FromOverride<FileKinds> impl
+- Add serde(default) to StyleOverride.foreground/background fields
+
+### Documentation
+
+- Add Flox to INSTALL.md
+- Add ic for icon color to colors man page
+- Add further documentation about theme file
+
+### Features
+
+- Add c++ module interfaces as source file types
+- Add icon field to UiStyles
+- Add ic key for UiStyles icon in set_exa
+- Add None as icon value in UiStyles.default_theme
+- Add icon function to FileNameColours trait
+- Implement FileNameColours.icon for Theme
+- Adjust FileName.paint to consider possible icon color
+- Begin implementation of config file
+- Allow writing default theme.yml file for eventual config file implementation
+- Theme file configuration base
+- Add IconOverrides struct and UiStyles.icon_overrides
+- Add icon_override function to FileNameColours trait
+- Implement FileNameColours.icon_override for Theme
+- Handle icon overrides in FileName.paint
+- Add example config for icon_overrides
+- Rename UiStyles.icon_override to icons and add Style field
+- Add shorthand aliases to StyleOverride variables
+- Add custom deserialize_color and use in StyleOverride
+- Outsource color_from_str function to make it testable
+
+### Miscellaneous Tasks
+
+- Release eza v0.19.2
+
+### Refactor
+
+- Simplify icon style setting in FileName.paint
+- Make every setting optional with override layer
+- Simplify sample theme.yml
+- Formatting for rustfmt macro
+
+### Styling
+
+- Fix clippy issue in FileName.paint
+- Apply rustfmt
+- Simplify from_str_radix calls to please clippy
+
+### Testing
+
+- Add unit tests for color_from_str function
+
+### Build
+
+- Bump windows-sys from 0.52.0 to 0.59.0
+
+### Ci
+
+- Allow MPL-2.0
+
+## [0.19.1] - 2024-08-28
+
+### Bug Fixes
+
+- FreeBSD build.
+- Typo
+
+### Miscellaneous Tasks
+
+- Release eza v0.19.1
+
+### Build
+
+- Bump uzers from 0.12.0 to 0.12.1
+
+## [0.19.0] - 2024-08-08
+
+### Bug Fixes
+
+- [**breaking**] Implement `EZA_GRID_ROWS` grid details view minimum rows threshold
+
+### Miscellaneous Tasks
+
+- Release eza v0.19.0
+
 ## [0.18.24] - 2024-08-03
 
 ### Bug Fixes
 
 - 1.80 breakage from time crate
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.24
 
 ### Build
 

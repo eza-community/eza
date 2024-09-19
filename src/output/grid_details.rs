@@ -70,6 +70,7 @@ pub struct Render<'a> {
 
     /// The minimum number of rows that there need to be before grid-details
     /// mode is activated.
+    #[allow(dead_code)]
     pub row_threshold: RowThreshold,
 
     /// Whether we are skipping Git-ignored files.
@@ -143,11 +144,11 @@ impl<'a> Render<'a> {
 
         let cells = rows
             .into_iter()
-            .zip(self.files)
+            .zip(&self.files)
             .map(|(row, file)| {
                 let filename = self
                     .file_style
-                    .for_file(&file, self.theme)
+                    .for_file(file, self.theme)
                     .paint()
                     .strings()
                     .to_string();
@@ -178,9 +179,44 @@ impl<'a> Render<'a> {
             },
         );
 
+        // If a minimum grid rows threshold has been set
+        // via the `EZA_GRID_ROWS` environment variable
+        // and the grid is going to get rendered with fewer rows,
+        // then render a details list view instead.
+        if let RowThreshold::MinimumRows(minimum_rows) = self.row_threshold {
+            if grid.row_count() < minimum_rows {
+                let Self {
+                    dir,
+                    files,
+                    theme,
+                    file_style,
+                    details: opts,
+                    filter,
+                    git_ignoring,
+                    git,
+                    git_repos,
+                    ..
+                } = self;
+
+                let r = DetailsRender {
+                    dir,
+                    files,
+                    theme,
+                    file_style,
+                    opts,
+                    recurse: None,
+                    filter,
+                    git_ignoring,
+                    git,
+                    git_repos,
+                };
+                return r.render(w);
+            }
+        }
+
         if self.details.header {
             let row = table.header_row();
-            let name = TextCell::paint_str(self.theme.ui.header, "Name")
+            let name = TextCell::paint_str(self.theme.ui.header.unwrap_or_default(), "Name")
                 .strings()
                 .to_string();
             let s = table.render(row).strings().to_string();

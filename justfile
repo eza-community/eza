@@ -109,7 +109,7 @@ release:
     cargo check
     nix build -L ./#clippy
     git checkout -b "cafk-release-v{{new_version}}"
-    git commit -asm "chore: release eza v{{new_version}}"
+    git commit -asm "chore: eza v{{new_version}} changelogs, version bump"
     git push
     @echo "waiting 10 seconds for github to catch up..."
     sleep 10

@@ -106,7 +106,7 @@ pub struct GitRepo {
     workdir: PathBuf,
 
     /// The path that was originally checked to discover this repository.
-    /// This is as important as the extra_paths (it gets checked first), but
+    /// This is as important as the `extra_paths` (it gets checked first), but
     /// is separate to avoid having to deal with a non-empty Vec.
     original_path: PathBuf,
 
