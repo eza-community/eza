@@ -179,6 +179,9 @@ available for the `LS_COLORS` and `EXA_COLORS` environment variables, as well as
 for different file types and extensions. Any existing environment variables set will continue to work and will take
 precedence for backwards compatibility.
 
+#### **New** Pre-made themes
+Check out the themes available in the official [eza-themes](https://github.com/eza-community/eza-themes) repository, or contribute your own.
+
 An example theme file is available in `docs/theme.yml`, and needs to either be placed in a directory specified by the 
 environment variable `EZA_CONFIG_DIR`, or will looked for by default in `$XDG_CONFIG_HOME/eza`.
 
