@@ -30,6 +30,7 @@ pub struct View {
     pub width: TerminalWidth,
     pub file_style: file_name::Options,
     pub deref_links: bool,
+    pub follow_links: bool,
     pub total_size: bool,
 }
 
