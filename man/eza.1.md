@@ -73,6 +73,9 @@ The default behavior (`automatic` or `auto`) will display file kind indicators o
 `-T`, `--tree`
 : Recurse into directories as a tree.
 
+`--follow-symlinks`
+: Drill down into symbolic links that point to directories.
+
 `-X`, `--dereference`
 : Dereference symbolic links when displaying information.
 

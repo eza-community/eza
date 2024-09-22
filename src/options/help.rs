@@ -33,6 +33,7 @@ DISPLAY OPTIONS
   --no-quotes                don't quote file names with spaces
   --hyperlink                display entries as hyperlinks
   --absolute                 display entries with their absolute path (on, follow, off)
+  --follow-symlinks          drill down into symbolic links that point to directories
   -w, --width COLS           set screen width in columns
 
 
