@@ -73,7 +73,13 @@
         };
 
         treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
-        buildInputs = with pkgs; [zlib] ++ lib.optionals stdenv.isDarwin [libiconv darwin.apple_sdk.frameworks.Security];
+
+        darwinBuildInputs = pkgs.lib.optionals pkgs.stdenv.isDarwin [
+          pkgs.libiconv
+          pkgs.darwin.apple_sdk.frameworks.Security
+        ];
+
+        buildInputs = [pkgs.zlib] ++ darwinBuildInputs;
       in rec {
         # For `nix fmt`
         formatter = treefmtEval.config.build.wrapper;
@@ -215,27 +221,29 @@
         # For `nix develop`:
         devShells.default = pkgs.mkShell {
           inherit (self.checks.${system}.pre-commit-check) shellHook;
-          nativeBuildInputs = with pkgs; [
-            rustup
-            toolchain
-            just
-            pandoc
-            convco
-            zip
+          nativeBuildInputs = with pkgs;
+            [
+              rustup
+              toolchain
+              just
+              pandoc
+              convco
+              zip
 
-            # For releases
-            b3sum
-            cargo-bump
+              # For releases
+              b3sum
+              cargo-bump
 
-            # For generating demo
-            vhs
+              # For generating demo
+              vhs
 
-            powertest.packages.${pkgs.system}.default
+              powertest.packages.${pkgs.system}.default
 
-            cargo-hack
-            cargo-udeps
-            cargo-outdated
-          ];
+              cargo-hack
+              cargo-udeps
+              cargo-outdated
+            ]
+            ++ darwinBuildInputs;
         };
 
         # For `nix flake check`
