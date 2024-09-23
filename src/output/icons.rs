@@ -615,6 +615,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "ogg"            => Icons::AUDIO,            // 
     "ogm"            => Icons::VIDEO,            // 
     "ogv"            => Icons::VIDEO,            // 
+    "opml"           => Icons::XML,              // 󰗀
     "opus"           => Icons::AUDIO,            // 
     "orf"            => Icons::IMAGE,            // 
     "org"            => '\u{e633}',              // 
