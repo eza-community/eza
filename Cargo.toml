@@ -98,6 +98,7 @@ ansi-width = "0.1.0"
 serde = { version = "1.0.193", features = ["derive"] }
 dirs = "5.0.1"
 serde_norway = "0.9"
+clap = { version = "4.4.8", features = ["derive"] }
 
 [dependencies.git2]
 version = "0.19"
