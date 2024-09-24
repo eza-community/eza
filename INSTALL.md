@@ -210,6 +210,18 @@ To install eza, run:
 flox install eza
 ```
 
+### X-CMD (Linux, macOS, Windows WSL, Windows GitBash)
+
+Eza is available from [x-cmd](https://www.x-cmd.com).
+
+To install eza, run:
+
+```shell
+x env use eza
+# or
+x eza
+```
+
 ### Completions
 
 #### For zsh:
