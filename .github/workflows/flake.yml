@@ -44,7 +44,7 @@ jobs:
       - name: Setup Nix cache
         uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Nix Flake Check
-        run: nix flake check --all-systems
+        run: nix flake check --all-systems -L
 
   build:
     name: Build Nix package
@@ -61,4 +61,4 @@ jobs:
       - name: Setup Nix cache
         uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Nix Build
-        run: nix build .#packages.${{ matrix.target }}.default
+        run: nix build .#packages.${{ matrix.target }}.default -L
