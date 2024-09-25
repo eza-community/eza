@@ -67,6 +67,13 @@ commands:
     - --no-quotes
   ? - null
     - --hyperlink
+  :
+  ? - null
+    - --hyperlink
+  : values:
+      - auto
+      - always
+      - never
   ? - null
     - --absolute
   : values:

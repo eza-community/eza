@@ -55,6 +55,14 @@ impl Options {
             mount_style: MountStyle::JustDirectoryNames,
         }
     }
+
+    pub fn should_embed_hyperlinks(&self) -> bool {
+        match self.embed_hyperlinks {
+            EmbedHyperlinks::Always => true,
+            EmbedHyperlinks::Never => false,
+            EmbedHyperlinks::Automatic => self.is_a_tty,
+        }
+    }
 }
 
 /// When displaying a file name, there needs to be some way to handle broken
@@ -112,11 +120,17 @@ pub enum ShowIcons {
     Never,
 }
 
-/// Whether to embed hyperlinks.
+/// Whether and how to embed hyperlinks.
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum EmbedHyperlinks {
-    Off,
-    On,
+    /// Embed hyperlinks, even when output isn’t going to a terminal.
+    Always,
+
+    /// Embed hyperlinks only when output is going to a terminal, not otherwise.
+    Automatic,
+
+    /// Never embed hyperlinks, even when output is going to a terminal.
+    Never,
 }
 
 /// Whether to show absolute paths
@@ -265,7 +279,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                             classify: Classify::JustFilenames,
                             quote_style: QuoteStyle::QuoteSpaces,
                             show_icons: ShowIcons::Never,
-                            embed_hyperlinks: EmbedHyperlinks::Off,
+                            embed_hyperlinks: EmbedHyperlinks::Never,
                             is_a_tty: self.options.is_a_tty,
                             absolute: Absolute::Off,
                         };
@@ -410,8 +424,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         let file_style = style_override.unwrap_or(self.style());
         let mut bits = Vec::new();
 
-        let mut display_hyperlink = false;
-        if self.options.embed_hyperlinks == EmbedHyperlinks::On {
+        if self.options.should_embed_hyperlinks() {
             if let Some(abs_path) = self
                 .file
                 .absolute_path()
@@ -426,8 +439,6 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                 bits.push(ANSIString::from(format!(
                     "{HYPERLINK_START}file://{abs_path}{HYPERLINK_END}"
                 )));
-
-                display_hyperlink = true;
             }
         }
 
@@ -439,7 +450,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
             self.options.quote_style,
         );
 
-        if display_hyperlink {
+        if self.options.should_embed_hyperlinks() {
             bits.push(ANSIString::from(format!(
                 "{HYPERLINK_START}{HYPERLINK_END}"
             )));
