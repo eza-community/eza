@@ -99,6 +99,7 @@ version = 2
 # See https://spdx.org/licenses/ for list of possible licenses
 # [possible values: any SPDX 3.11 short identifier (+ optional exception)].
 allow = [
+  "EUPL-1.2",
   "MIT",
   "Unicode-DFS-2016",
   "Apache-2.0",
