@@ -78,7 +78,7 @@
           inherit system overlays;
         };
 
-        toolchain = pkgs.rust-bin.fromRustupToolchainFile .config/rust-toolchain.toml;
+        toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
 
         naersk' = pkgs.callPackage naersk {
           cargo = toolchain;
@@ -259,6 +259,7 @@
             with pkgs;
             [
               toolchain
+              rustup
               just
               pandoc
               convco
