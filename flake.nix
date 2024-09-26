@@ -215,7 +215,7 @@
           };
 
           # Run `nix build .#trydump` to dump testing files
-          trydump = naersk'.buildPackage {
+          trydump = naersk'.buildPackage rec {
             src = ./.;
             mode = "test";
             doCheck = true;
@@ -242,13 +242,20 @@
                 "--features nix"
                 "--features nix-local"
                 "--features powertest"
+                #"-F trycmd/debug"
               ];
             TRYCMD = "dump";
             postInstall = ''
+              fd -e stdout -e stderr -H -t file -X sed -i 's/\/build\/source\//[CWD]\//g'
+
               cp dump $out -r
             '';
             inherit buildInputs;
-            nativeBuildInputs = with pkgs; [ git ];
+            nativeBuildInputs = with pkgs; [
+              fd
+              gnused
+              git
+            ];
           };
         };
 
