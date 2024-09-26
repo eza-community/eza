@@ -258,6 +258,7 @@
           nativeBuildInputs =
             with pkgs;
             [
+              cargo
               rustup
               toolchain
               just
