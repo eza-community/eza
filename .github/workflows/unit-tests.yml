@@ -1,59 +1,47 @@
 name: Unit tests
-
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
       - '.github/workflows/unit-tests.yml'
       - 'src/**'
       - 'Cargo.*'
       - build.rs
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
       - '.github/workflows/unit-tests.yml'
       - 'src/**'
       - 'Cargo.*'
       - build.rs
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
   cancel-in-progress: true
-
 env:
   CARGO_TERM_COLOR: always
   RUSTFLAGS: --deny warnings
-
 jobs:
   unit-tests:
     runs-on: ${{ matrix.os }}
-
     continue-on-error: ${{ matrix.rust == 'nightly' }}
-
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         rust: [1.70.0, stable, beta, nightly]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - run: rustup toolchain install ${{ matrix.rust }} --profile minimal
       - uses: Swatinem/rust-cache@v2
-
       - name: Install cargo-hack
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 5
           max_attempts: 5
           command: cargo install cargo-hack
-
       - name: Run rustfmt checks
         run: cargo fmt --check
-
       - name: Run clippy lints
-        run: cargo clippy -- -D warnings 
-
+        run: cargo clippy -- -D warnings
       - name: Run unit tests
-        run: cargo hack test 
+        run: cargo hack test

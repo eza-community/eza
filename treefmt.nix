@@ -1,7 +1,7 @@
 {
   projectRootFile = "Cargo.toml";
   programs = {
-    alejandra.enable = true; # nix
+    nixfmt.enable = true; # nix
     statix.enable = true; # nix static analysis
     deadnix.enable = true; # find dead nix code
     rustfmt.enable = true; # rust
@@ -11,10 +11,17 @@
   };
   settings = {
     formatter = {
-      shellcheck.includes = ["*.sh" "./completions/bash/eza"];
-      rustfmt.excludes = ["src/options/flags.rs"];
-      taplo.excludes = ["tests/ptests/*.toml"];
-      yamlfmt.excludes = ["./powertest.yaml"];
+      shellcheck = {
+        includes = [
+          "*.sh"
+          "./completions/bash/eza"
+        ];
+        excludes = [ ".envrc" ];
+      };
+
+      rustfmt.excludes = [ "src/options/flags.rs" ];
+      taplo.excludes = [ "tests/ptests/*.toml" ];
+      yamlfmt.excludes = [ "./powertest.yaml" ];
     };
   };
 }
