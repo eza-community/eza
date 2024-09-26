@@ -100,6 +100,7 @@ ansi-width = "0.1.0"
 serde = { version = "1.0.193", features = ["derive"] }
 dirs = "5.0.1"
 serde_norway = "0.9"
+backtrace = "0.3"
 
 [dependencies.git2]
 version = "0.19"
