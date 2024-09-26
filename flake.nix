@@ -258,9 +258,6 @@
           nativeBuildInputs =
             with pkgs;
             [
-              cargo
-              clippy
-              rustup
               toolchain
               just
               pandoc
