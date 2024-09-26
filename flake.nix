@@ -73,7 +73,7 @@
           inherit system overlays;
         };
 
-        toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+        toolchain = pkgs.rust-bin.fromRustupToolchainFile .config/rust-toolchain.toml;
 
         naersk' = pkgs.callPackage naersk {
           cargo = toolchain;
@@ -81,7 +81,7 @@
           clippy = toolchain;
         };
 
-        treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
+        treefmtEval = treefmt-nix.lib.evalModule pkgs .config/treefmt.nix;
 
         darwinBuildInputs = pkgs.lib.optionals pkgs.stdenv.isDarwin [
           pkgs.libiconv
@@ -288,7 +288,7 @@
               ];
               filterFn = n: _v: (!builtins.elem n toFilter);
               treefmtFormatters = pkgs.lib.mapAttrs (_n: v: { inherit (v) enable; }) (
-                pkgs.lib.filterAttrs filterFn (import ./treefmt.nix).programs
+                pkgs.lib.filterAttrs filterFn (import .config/treefmt.nix).programs
               );
             in
             pre-commit-hooks.lib.${system}.run {
