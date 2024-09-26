@@ -1,2 +1,0 @@
-bin.name = "eza"
-args = "tests/test_dir -F "
