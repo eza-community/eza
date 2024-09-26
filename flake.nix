@@ -199,8 +199,11 @@
             singleStep = true;
             # set itests files creation date to unix epoch
             buildPhase = ''
-              touch --date=@0 tests/itest/* && bash devtools/dir-generator.sh tests/test_dir
+              bash devtools/dir-generator.sh tests/test_dir
               bash devtools/generate-timestamp-test-dir.sh tests/timestamp_test_dir
+              touch --date=@0 tests/itest/*
+              touch --date=@0 tests/ptests/*;
+              fd -e stdout -e stderr -H -t file -X sed -i 's/[CWD]\//\/build\/source\//g'
             '';
             cargoTestOptions =
               opts:
@@ -298,6 +301,7 @@
               toFilter = [
                 "yamlfmt"
                 "nixfmt"
+                "taplo"
               ];
               filterFn = n: _v: (!builtins.elem n toFilter);
               treefmtFormatters = pkgs.lib.mapAttrs (_n: v: { inherit (v) enable; }) (
