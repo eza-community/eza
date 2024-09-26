@@ -1,10 +1,64 @@
 <!--
-SPDX-FileCopyrightText: 2023-2024 Christina Sørensen
+SPDX-FileCopyrightText: 2024 Christina Sørensen
 SPDX-FileContributor: Christina Sørensen
 
 SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
+
+## [0.19.5] - 2024-09-26
+
+### Bug Fixes
+
+- Flake trycmd bug
+- Pre-commit-hook taplo bug
+
+### Documentation
+
+- Add link to eza-themes repository in readme
+- Cargo install dir inaccurate
+- Add x-cmd method to install eza
+- Adding a testing infos file to guide everyone through tests
+
+### Features
+
+- Add `opml` file extension
+- Add a regen rule
+
+### Refactor
+
+- Move some files to `.config`
+- Release scripts use `.config`
+- Relicense to EUPL-1.2
+
+### Styling
+
+- Switch to nixfmt rfc style, format tree
+- Remove blank line
+
+### Testing
+
+- Regenerate integration tests
+- Regenerate tests
+
+### Build
+
+- Darwin devShell resuse eza deps
+- Ensure flake inputs aren't duplicated'
+- Remove semnix deps
+- Bump flake lock 2024-09-26
+- Removed unused flake follows
+- Add cargo to devShell
+- Add clippy to devShell
+- Use toolchain in devShell
+- Bump libc from 0.2.158 to 0.2.159
+- Bump unicode-width from 0.1.13 to 0.2.0
+
+### Ci
+
+- Full nix3 command output in logs
+- Allow EUPL-1.2
+- Unblock windows
 
 ## [0.19.4] - 2024-09-18
 
@@ -15,6 +69,10 @@ SPDX-License-Identifier: EUPL-1.2
 ### Features
 
 - Pass from serde_yaml to serde_norway
+
+### Miscellaneous Tasks
+
+- Eza v0.19.4 changelogs, version bump
 
 ## [0.19.3] - 2024-09-12
 
