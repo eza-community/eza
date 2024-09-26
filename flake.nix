@@ -3,9 +3,13 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    systems.url = "github:nix-systems/default";
 
     flake-utils = {
       url = "github:semnix/flake-utils";
+      inputs = {
+        systems.follows = "systems";
+      };
     };
 
     naersk = {
@@ -15,18 +19,24 @@
 
     rust-overlay = {
       url = "github:semnix/rust-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
     };
 
     treefmt-nix = {
       url = "github:semnix/treefmt-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+      };
     };
 
     powertest = {
       url = "github:eza-community/powertest";
       inputs = {
         nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
         naersk.follows = "naersk";
         treefmt-nix.follows = "treefmt-nix";
         rust-overlay.follows = "rust-overlay";
@@ -94,7 +104,12 @@
             doCheck = true; # run `cargo test` on build
 
             inherit buildInputs;
-            nativeBuildInputs = with pkgs; [cmake pkg-config installShellFiles pandoc];
+            nativeBuildInputs = with pkgs; [
+              cmake
+              pkg-config
+              installShellFiles
+              pandoc
+            ];
 
             buildNoDefaultFeatures = true;
             buildFeatures = "git";
@@ -182,7 +197,13 @@
               touch --date=@0 tests/itest/* && bash devtools/dir-generator.sh tests/test_dir
               bash devtools/generate-timestamp-test-dir.sh tests/timestamp_test_dir
             '';
-            cargoTestOptions = opts: opts ++ ["--features nix" "--features nix-local" "--features powertest"];
+            cargoTestOptions = opts:
+              opts
+              ++ [
+                "--features nix"
+                "--features nix-local"
+                "--features powertest"
+              ];
             inherit buildInputs;
             nativeBuildInputs = with pkgs; [git];
           };
@@ -208,7 +229,13 @@
               rm tests/ptests/*.stdout || echo;
               rm tests/ptests/*.stderr || echo;
             '';
-            cargoTestOptions = opts: opts ++ ["--features nix" "--features nix-local" "--features powertest"];
+            cargoTestOptions = opts:
+              opts
+              ++ [
+                "--features nix"
+                "--features nix-local"
+                "--features powertest"
+              ];
             TRYCMD = "dump";
             postInstall = ''
               cp dump $out -r
@@ -255,7 +282,9 @@
               # (builtins.attrNames pre-commit-hooks.packages.${system})
               ["yamlfmt"];
             filterFn = n: _v: (!builtins.elem n toFilter);
-            treefmtFormatters = pkgs.lib.mapAttrs (_n: v: {inherit (v) enable;}) (pkgs.lib.filterAttrs filterFn (import ./treefmt.nix).programs);
+            treefmtFormatters = pkgs.lib.mapAttrs (_n: v: {inherit (v) enable;}) (
+              pkgs.lib.filterAttrs filterFn (import ./treefmt.nix).programs
+            );
           in
             pre-commit-hooks.lib.${system}.run {
               src = ./.;
