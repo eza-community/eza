@@ -105,7 +105,7 @@ new_version := "$(convco version --bump)"
 # usage: release major, release minor, release patch
 release:
     cargo bump "{{new_version}}"
-    git cliff -t "{{new_version}}" > CHANGELOG.md
+    git cliff -c .config/cliff.toml -t "{{new_version}}" > CHANGELOG.md
     cargo check
     nix build -L ./#clippy
     git checkout -b "cafk-release-v{{new_version}}"
@@ -123,7 +123,7 @@ release:
     just mangen
     just completions
     mkdir -p ./target/"release-notes-$(convco version)"
-    git cliff -t "v$(convco version)" --current > ./target/"release-notes-$(convco version)/RELEASE.md"
+    git cliff -c .config/cliff.toml -t "v$(convco version)" --current > ./target/"release-notes-$(convco version)/RELEASE.md"
     just checksum >> ./target/"release-notes-$(convco version)/RELEASE.md"
 
     git push origin "v{{new_version}}"
