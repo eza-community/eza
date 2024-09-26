@@ -6,19 +6,19 @@
     systems.url = "github:nix-systems/default";
 
     flake-utils = {
-      url = "github:semnix/flake-utils";
+      url = "github:numtide/flake-utils";
       inputs = {
         systems.follows = "systems";
       };
     };
 
     naersk = {
-      url = "github:semnix/naersk";
+      url = "github:nix-community/naersk";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     rust-overlay = {
-      url = "github:semnix/rust-overlay";
+      url = "github:oxalica/rust-overlay";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-utils.follows = "flake-utils";
@@ -26,7 +26,7 @@
     };
 
     treefmt-nix = {
-      url = "github:semnix/treefmt-nix";
+      url = "github:numtide/treefmt-nix";
       inputs = {
         nixpkgs.follows = "nixpkgs";
       };
@@ -44,7 +44,7 @@
     };
 
     pre-commit-hooks = {
-      url = "github:semnix/pre-commit-hooks.nix";
+      url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
     };
@@ -55,20 +55,22 @@
     };
   };
 
-  outputs = {
-    self,
-    flake-utils,
-    naersk,
-    nixpkgs,
-    treefmt-nix,
-    rust-overlay,
-    powertest,
-    pre-commit-hooks,
-    ...
-  }:
+  outputs =
+    {
+      self,
+      flake-utils,
+      naersk,
+      nixpkgs,
+      treefmt-nix,
+      rust-overlay,
+      powertest,
+      pre-commit-hooks,
+      ...
+    }:
     flake-utils.lib.eachDefaultSystem (
-      system: let
-        overlays = [(import rust-overlay)];
+      system:
+      let
+        overlays = [ (import rust-overlay) ];
 
         pkgs = (import nixpkgs) {
           inherit system overlays;
@@ -89,8 +91,9 @@
           pkgs.darwin.apple_sdk.frameworks.Security
         ];
 
-        buildInputs = [pkgs.zlib] ++ darwinBuildInputs;
-      in rec {
+        buildInputs = [ pkgs.zlib ] ++ darwinBuildInputs;
+      in
+      rec {
         # For `nix fmt`
         formatter = treefmtEval.config.build.wrapper;
 
@@ -138,7 +141,7 @@
               homepage = "https://github.com/eza-community/eza";
               license = licenses.mit;
               mainProgram = "eza";
-              maintainers = with maintainers; [cafkafk];
+              maintainers = with maintainers; [ cafkafk ];
             };
           };
 
@@ -177,9 +180,9 @@
               bash devtools/dir-generator.sh tests/test_dir && echo "Dir generated"
               bash devtools/generate-timestamp-test-dir.sh tests/timestamp_test_dir
             '';
-            cargoTestOptions = opts: opts ++ ["--features nix"];
+            cargoTestOptions = opts: opts ++ [ "--features nix" ];
             inherit buildInputs;
-            nativeBuildInputs = with pkgs; [git];
+            nativeBuildInputs = with pkgs; [ git ];
           };
 
           # TODO: add conditionally to checks.
@@ -197,7 +200,8 @@
               touch --date=@0 tests/itest/* && bash devtools/dir-generator.sh tests/test_dir
               bash devtools/generate-timestamp-test-dir.sh tests/timestamp_test_dir
             '';
-            cargoTestOptions = opts:
+            cargoTestOptions =
+              opts:
               opts
               ++ [
                 "--features nix"
@@ -205,7 +209,7 @@
                 "--features powertest"
               ];
             inherit buildInputs;
-            nativeBuildInputs = with pkgs; [git];
+            nativeBuildInputs = with pkgs; [ git ];
           };
 
           # Run `nix build .#trydump` to dump testing files
@@ -229,7 +233,8 @@
               rm tests/ptests/*.stdout || echo;
               rm tests/ptests/*.stderr || echo;
             '';
-            cargoTestOptions = opts:
+            cargoTestOptions =
+              opts:
               opts
               ++ [
                 "--features nix"
@@ -241,14 +246,15 @@
               cp dump $out -r
             '';
             inherit buildInputs;
-            nativeBuildInputs = with pkgs; [git];
+            nativeBuildInputs = with pkgs; [ git ];
           };
         };
 
         # For `nix develop`:
         devShells.default = pkgs.mkShell {
           inherit (self.checks.${system}.pre-commit-check) shellHook;
-          nativeBuildInputs = with pkgs;
+          nativeBuildInputs =
+            with pkgs;
             [
               rustup
               toolchain
@@ -275,29 +281,29 @@
 
         # For `nix flake check`
         checks = {
-          pre-commit-check = let
-            # some treefmt formatters are not supported in pre-commit-hooks we filter them out for now.
-            toFilter =
-              # This is a nice hack to not have to manually filter we should keep in mind for a future refactor.
-              # (builtins.attrNames pre-commit-hooks.packages.${system})
-              ["yamlfmt"];
-            filterFn = n: _v: (!builtins.elem n toFilter);
-            treefmtFormatters = pkgs.lib.mapAttrs (_n: v: {inherit (v) enable;}) (
-              pkgs.lib.filterAttrs filterFn (import ./treefmt.nix).programs
-            );
-          in
+          pre-commit-check =
+            let
+              # some treefmt formatters are not supported in pre-commit-hooks we
+              # filter them out for now.
+              toFilter = [
+                "yamlfmt"
+                "nixfmt"
+              ];
+              filterFn = n: _v: (!builtins.elem n toFilter);
+              treefmtFormatters = pkgs.lib.mapAttrs (_n: v: { inherit (v) enable; }) (
+                pkgs.lib.filterAttrs filterFn (import ./treefmt.nix).programs
+              );
+            in
             pre-commit-hooks.lib.${system}.run {
               src = ./.;
-              hooks =
-                treefmtFormatters
-                // {
-                  convco.enable = true; # not in treefmt
-                };
+              hooks = treefmtFormatters // {
+                nixfmt-rfc-style.enable = true;
+                convco.enable = true; # not in treefmt
+              };
             };
           formatting = treefmtEval.config.build.check self;
           build = packages.check;
-          inherit
-            (packages)
+          inherit (packages)
             default
             test
             trycmd
