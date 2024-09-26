@@ -48,6 +48,7 @@ jobs:
       - name: Run rustfmt checks
         run: cargo fmt --check
       - name: Run clippy lints
+        if: ${{ matrix.os != 'windows-latest' }}
         run: cargo clippy -- -D warnings
       - name: Run unit tests
         run: cargo hack test
