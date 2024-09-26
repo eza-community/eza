@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2024 Christina Sørensen
+# SPDX-License-Identifier: EUPL-1.2
 dump_dir: tests/ptests
 depth: 1
 binary: eza

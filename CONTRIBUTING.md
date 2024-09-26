@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023-2024 Christina Sørensen
+SPDX-FileContributor: Christina Sørensen
+
+SPDX-License-Identifier: EUPL-1.2
+-->
 # Contributing to eza
 
 If you'd like to contribute to eza, there are several things you should make

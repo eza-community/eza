@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2024 Christina Sørensen
+# SPDX-License-Identifier: EUPL-1.2
+#
+# SPDX-FileCopyrightText: 2014-2024 Christina Sørensen, eza contributors
+# SPDX-License-Identifier: MIT
 {
   description = "eza: a modern, maintained replacement for ls";
 
@@ -259,6 +264,7 @@
               pandoc
               convco
               zip
+              reuse
 
               # For releases
               b3sum
@@ -296,6 +302,12 @@
               hooks = treefmtFormatters // {
                 nixfmt-rfc-style.enable = true;
                 convco.enable = true; # not in treefmt
+                reuse = {
+                  enable = true;
+                  name = "reuse";
+                  entry = with pkgs; "${reuse}/bin/reuse lint";
+                  pass_filenames = false;
+                };
               };
             };
           formatting = treefmtEval.config.build.check self;

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2024 Christina Sørensen
+# SPDX-License-Identifier: EUPL-1.2
 [package]
 name = "eza"
 description = "A modern replacement for ls"
@@ -14,7 +16,7 @@ exclude = [
 ]
 readme = "README.md"
 homepage = "https://github.com/eza-community/eza"
-license = "MIT"
+license = "EUPL-1.2"
 repository = "https://github.com/eza-community/eza"
 version = "0.19.4"
 

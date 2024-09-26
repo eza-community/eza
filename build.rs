@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 /// The version string isn’t the simplest: we want to show the version,
 /// current Git hash, and compilation date when building *debug* versions, but
 /// just the version for *release* versions so the builds are reproducible.
