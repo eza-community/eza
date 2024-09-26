@@ -3,20 +3,18 @@ on:
   schedule:
     - cron: '0 0 * * *'
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
       - 'deb.asc'
       - '.github/workflows/apt.yml'
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
       - 'deb.asc'
       - '.github/workflows/apt.yml'
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
   cancel-in-progress: true
-
 jobs:
   apt_installation:
     runs-on: ubuntu-latest
