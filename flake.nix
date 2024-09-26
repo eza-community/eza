@@ -21,7 +21,6 @@
       url = "github:oxalica/rust-overlay";
       inputs = {
         nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
       };
     };
 
@@ -46,7 +45,6 @@
     pre-commit-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
     };
 
     advisory-db = {
@@ -54,7 +52,6 @@
       flake = false;
     };
   };
-
   outputs =
     {
       self,
