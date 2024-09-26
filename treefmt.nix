@@ -18,7 +18,6 @@
         ];
         excludes = [ ".envrc" ];
       };
-
       rustfmt.excludes = [ "src/options/flags.rs" ];
       taplo.excludes = [ "tests/ptests/*.toml" ];
       yamlfmt.excludes = [ "./powertest.yaml" ];
