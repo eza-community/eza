@@ -228,5 +228,5 @@ You must name the file `theme.yml`, no matter the directory you specify.
 
 ## See also
 
-- [eza.1.md](eza.1.md)
-- [eza_colors.5.md](eza_colors.5.md)
+- [**eza**(1)](eza.1.md)
+- [**eza_colors**(5)](eza_colors.5.md)

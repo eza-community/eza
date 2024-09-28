@@ -379,5 +379,5 @@ Our infinite thanks to Benjamin ‘ogham’ Sago and all the other contributors 
 SEE ALSO
 ========
 
-- [eza_colors.5.md](eza_colors.5.md)
-- [eza_colors-explanation.5.md](eza_colors-explanation.5.md)
+- [**eza_colors**(5)](eza_colors.5.md)
+- [**eza_colors-explanation**(5)](eza_colors-explanation.5.md)
