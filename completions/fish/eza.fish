@@ -38,6 +38,7 @@ complete -c eza -l icons -d "When to display icons" -x -a "
 "
 complete -c eza -l no-quotes -d "Don't quote file names with spaces"
 complete -c eza -l hyperlink -d "Display entries as hyperlinks"
+complete -c eza -l follow-symlinks -d "Drill down into symbolic links that point to directories"
 complete -c eza -l absolute -d "Display entries with their absolute path" -x -a "
   on\t'Show absolute path for listed entries'
   follow\t'Show absolute path with followed symlinks'
