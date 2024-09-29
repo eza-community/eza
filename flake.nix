@@ -103,7 +103,7 @@
           # For `nix build` `nix run`, & `nix profile install`:
           default = naersk'.buildPackage rec {
             pname = "eza";
-            version = "latest";
+            version = "git";
 
             src = ./.;
             doCheck = true; # run `cargo test` on build
@@ -120,9 +120,10 @@
             buildFeatures = "git";
 
             postInstall = ''
-              pandoc --standalone -f markdown -t man <(cat "man/eza.1.md" | sed "s/\$version/${version}/g") > man/eza.1
-              pandoc --standalone -f markdown -t man <(cat "man/eza_colors.5.md" | sed "s/\$version/${version}/g") > man/eza_colors.5
-              pandoc --standalone -f markdown -t man <(cat "man/eza_colors-explanation.5.md" | sed "s/\$version/${version}/g")> man/eza_colors-explanation.5
+              for page in eza.1 eza_colors.5 eza_colors-explanation.5; do
+                sed "s/\$version/${version}/g" "man/$page.md" |
+                  pandoc --standalone -f markdown -t man >"man/$page"
+              done
               installManPage man/eza.1 man/eza_colors.5 man/eza_colors-explanation.5
               installShellCompletion \
                 --bash completions/bash/eza \
