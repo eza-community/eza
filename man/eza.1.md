@@ -365,6 +365,9 @@ EXIT STATUSES
 3
 : If there was a problem with the command-line arguments.
 
+13
+: If permission is denied to access a path.
+
 
 AUTHOR
 ======
