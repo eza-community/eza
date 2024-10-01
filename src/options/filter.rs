@@ -35,9 +35,10 @@ impl FileFilter {
         #[rustfmt::skip]
         return Ok(Self {
             list_dirs_first:  matches.has(&flags::DIRS_FIRST)?,
+            list_dirs_last:   matches.has(&flags::DIRS_LAST)?,
             no_symlinks:      filter_flags.contains(&FFF::NoSymlinks),
             show_symlinks:    filter_flags.contains(&FFF::ShowSymlinks),
-            flags: filter_flags,
+            flags:            filter_flags,
             sort_field:       SortField::deduce(matches)?,
             dot_filter:       DotFilter::deduce(matches)?,
             ignore_patterns:  IgnorePatterns::deduce(matches)?,

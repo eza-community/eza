@@ -162,6 +162,9 @@ Sort fields starting with a capital letter will sort uppercase before lowercase:
 `--group-directories-first`
 : List directories before other files.
 
+`--group-directories-last`
+: List directories after other files.
+
 `-D`, `--only-dirs`
 : List only directories, not files.
 

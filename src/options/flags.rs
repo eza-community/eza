@@ -47,6 +47,7 @@ pub static SORT:        Arg = Arg { short: Some(b's'), long: "sort",        take
 pub static IGNORE_GLOB: Arg = Arg { short: Some(b'I'), long: "ignore-glob", takes_value: TakesValue::Necessary(None) };
 pub static GIT_IGNORE:  Arg = Arg { short: None, long: "git-ignore",           takes_value: TakesValue::Forbidden };
 pub static DIRS_FIRST:  Arg = Arg { short: None, long: "group-directories-first",  takes_value: TakesValue::Forbidden };
+pub static DIRS_LAST:   Arg = Arg { short: None, long: "group-directories-last",  takes_value: TakesValue::Forbidden };
 pub static ONLY_DIRS:   Arg = Arg { short: Some(b'D'), long: "only-dirs", takes_value: TakesValue::Forbidden };
 pub static ONLY_FILES:  Arg = Arg { short: Some(b'f'), long: "only-files", takes_value: TakesValue::Forbidden };
 pub static NO_SYMLINKS: Arg = Arg { short: None,       long: "no-symlinks", takes_value: TakesValue::Forbidden };
@@ -102,7 +103,7 @@ pub static ALL_ARGS: Args = Args(&[
     &COLOR, &COLOUR, &COLOR_SCALE, &COLOUR_SCALE, &COLOR_SCALE_MODE, &COLOUR_SCALE_MODE,
     &WIDTH, &NO_QUOTES, &ABSOLUTE,
 
-    &ALL, &ALMOST_ALL, &LIST_DIRS, &LEVEL, &REVERSE, &SORT, &DIRS_FIRST,
+    &ALL, &ALMOST_ALL, &LIST_DIRS, &LEVEL, &REVERSE, &SORT, &DIRS_FIRST, &DIRS_LAST,
     &IGNORE_GLOB, &GIT_IGNORE, &ONLY_DIRS, &ONLY_FILES,
 
     &BINARY, &BYTES, &GROUP, &NUMERIC, &HEADER, &ICONS, &INODE, &LINKS, &MODIFIED, &CHANGED,
