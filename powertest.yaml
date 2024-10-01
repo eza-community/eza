@@ -135,6 +135,9 @@ commands:
   ? - null
     - --group-directories-first
   :
+  ? - null
+    - --group-directories-last
+  :
   ? - -D
     - --only-dirs
   :

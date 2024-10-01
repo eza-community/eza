@@ -29,6 +29,7 @@ __eza() {
         --absolute"[Display entries with their absolute path]:(mode):(on follow off)" \
         --follow-symlinks"[Drill down into symbolic links that point to directories]" \
         --group-directories-first"[Sort directories before other files]" \
+        --group-directories-last"[Sort directories after other files]" \
         --git-ignore"[Ignore files mentioned in '.gitignore']" \
         {-a,--all}"[Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories]" \
         {-A,--almost-all}"[Equivalent to --all; included for compatibility with \'ls -A\']" \

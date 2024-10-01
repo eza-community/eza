@@ -46,6 +46,7 @@ FILTERING AND SORTING OPTIONS
   -r, --reverse              reverse the sort order
   -s, --sort SORT_FIELD      which field to sort by
   --group-directories-first  list directories before other files
+  --group-directories-last   list directories after other files
   -D, --only-dirs            list only directories
   -f, --only-files           list only files
   -I, --ignore-glob GLOBS    glob patterns (pipe-separated) of files to ignore";
