@@ -27,7 +27,7 @@ impl FileFilter {
             (matches.has(&flags::NO_SYMLINKS)?, FFF::NoSymlinks),
             (matches.has(&flags::SHOW_SYMLINKS)?, FFF::ShowSymlinks),
             (matches.has(&flags::DIRS_LAST)?, FFF::ListDirsLast),
-            (matches.has(&flags::DIRS_FIRST)?, FFF::ListDirsFirst)
+            (matches.has(&flags::DIRS_FIRST)?, FFF::ListDirsFirst),
         ] {
             if *has {
                 filter_flags.push(flag.clone());

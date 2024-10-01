@@ -33,11 +33,11 @@ pub enum FileFilterFlags {
 
     /// Whether to explicitly show symlinks
     ShowSymlinks,
-    
+
     /// Whether directories should be listed first, and other types of file
     /// second. Some users prefer it like this.
     ListDirsFirst,
-    
+
     /// Whether directories should be listed as the last items, after other
     /// types of file. Some users prefer it like this.
     ListDirsLast,
