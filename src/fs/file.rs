@@ -733,7 +733,8 @@ impl<'dir> File<'dir> {
         DateTime::from_timestamp(
             duration.as_secs().try_into().ok()?,
             (duration.as_nanos() % 1_000_000_000).try_into().ok()?,
-        ).map(|dt| dt.naive_local())
+        )
+        .map(|dt| dt.naive_local())
     }
 
     /// This file’s last modified timestamp, if available on this platform.
@@ -759,7 +760,8 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        DateTime::from_timestamp(self.metadata.ctime(), self.metadata.ctime_nsec() as u32).map(|dt| dt.naive_local())
+        DateTime::from_timestamp(self.metadata.ctime(), self.metadata.ctime_nsec() as u32)
+            .map(|dt| dt.naive_local())
     }
 
     #[cfg(windows)]
