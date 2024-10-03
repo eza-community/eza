@@ -269,8 +269,8 @@
           nativeBuildInputs =
             with pkgs;
             [
-              cargo
-              clippy
+              # cargo
+              # clippy
               rustup
               toolchain
               just
