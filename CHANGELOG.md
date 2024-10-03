@@ -6,6 +6,43 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.1] - 2024-10-03
+
+### Bug Fixes
+
+- Release recipe
+- Support passing multiple options for generate-trycmd-test.sh
+- Move options into flags
+- Rustfmt errors
+
+### Documentation
+
+- Fix cross-references
+- Update file type colors
+- Document that exit 13 == permission denied
+
+### Features
+
+- Update just, add more formats
+- Recursively walk symlinks pointing at dirs
+- Add --follow-symlinks option
+- Add autocomplete for --follow-symlinks
+- Show directories last
+
+### Testing
+
+- Add cases for -T and --follow-symlinks
+- Regenerate tests broken by line number changes
+
+### Build
+
+- Fix manual version
+- Bump once_cell from 1.19.0 to 1.20.1
+
+### Ci
+
+- Remove flakehub, flakestry publish
+
 ## [0.20.0] - 2024-09-26
 
 ### Bug Fixes
@@ -25,6 +62,10 @@ SPDX-License-Identifier: EUPL-1.2
 - Add `opml` file extension
 - Add a regen rule
 - [**breaking**] Relicensed to EUPL-1.2
+
+### Miscellaneous Tasks
+
+- Eza v0.20.0 changelogs, version bump
 
 ### Refactor
 
