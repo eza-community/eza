@@ -1,7 +1,9 @@
+# SPDX-FileCopyrightText: 2024 Christina Sørensen
+# SPDX-License-Identifier: EUPL-1.2
 on:
   workflow_dispatch:
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
       - '.github/workflows/flake.yml'
       - 'src/**'
@@ -20,11 +22,9 @@ on:
       - "flake.*"
       - "*.nix"
       - "*.rs"
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
   cancel-in-progress: true
-
 jobs:
   flake-checker:
     name: Flake Checker
@@ -33,7 +33,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check Nix flake inputs
         uses: DeterminateSystems/flake-checker-action@v9
-
   check:
     name: Check Nix Flake
     runs-on: ubuntu-22.04
@@ -44,11 +43,9 @@ jobs:
       - name: Setup Nix cache
         uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Nix Flake Check
-        run: nix flake check --all-systems
-
+        run: nix flake check --all-systems -L
   build:
     name: Build Nix package
-
     # if cross compilation is desired add 'aarch64-linux', 'x86_64-darwin' and 'aarch64-darwin' and fix the flake to support cross compilation.
     strategy:
       matrix:
@@ -61,4 +58,4 @@ jobs:
       - name: Setup Nix cache
         uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Nix Build
-        run: nix build .#packages.${{ matrix.target }}.default
+        run: nix build .#packages.${{ matrix.target }}.default -L

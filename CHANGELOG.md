@@ -1,4 +1,106 @@
+<!--
+SPDX-FileCopyrightText: 2024 Christina Sørensen
+SPDX-FileContributor: Christina Sørensen
+
+SPDX-License-Identifier: EUPL-1.2
+-->
 # Changelog
+
+## [0.20.1] - 2024-10-03
+
+### Bug Fixes
+
+- Release recipe
+- Support passing multiple options for generate-trycmd-test.sh
+- Move options into flags
+- Rustfmt errors
+
+### Documentation
+
+- Fix cross-references
+- Update file type colors
+- Document that exit 13 == permission denied
+
+### Features
+
+- Update just, add more formats
+- Recursively walk symlinks pointing at dirs
+- Add --follow-symlinks option
+- Add autocomplete for --follow-symlinks
+- Show directories last
+
+### Testing
+
+- Add cases for -T and --follow-symlinks
+- Regenerate tests broken by line number changes
+
+### Build
+
+- Fix manual version
+- Bump once_cell from 1.19.0 to 1.20.1
+
+### Ci
+
+- Remove flakehub, flakestry publish
+
+## [0.20.0] - 2024-09-26
+
+### Bug Fixes
+
+- Flake trycmd bug
+- Pre-commit-hook taplo bug
+
+### Documentation
+
+- Add link to eza-themes repository in readme
+- Cargo install dir inaccurate
+- Add x-cmd method to install eza
+- Adding a testing infos file to guide everyone through tests
+
+### Features
+
+- Add `opml` file extension
+- Add a regen rule
+- [**breaking**] Relicensed to EUPL-1.2
+
+### Miscellaneous Tasks
+
+- Eza v0.20.0 changelogs, version bump
+
+### Refactor
+
+- Move some files to `.config`
+- Release scripts use `.config`
+- Relicense to EUPL-1.2
+
+### Styling
+
+- Switch to nixfmt rfc style, format tree
+- Remove blank line
+
+### Testing
+
+- Regenerate integration tests
+- Regenerate tests
+
+### Build
+
+- Darwin devShell resuse eza deps
+- Ensure flake inputs aren't duplicated'
+- Remove semnix deps
+- Bump flake lock 2024-09-26
+- Removed unused flake follows
+- Add cargo to devShell
+- Add clippy to devShell
+- Use toolchain in devShell
+- Bump libc from 0.2.158 to 0.2.159
+- Bump unicode-width from 0.1.13 to 0.2.0
+
+### Ci
+
+- Full nix3 command output in logs
+- Allow EUPL-1.2
+- Unblock windows
 
 ## [0.19.4] - 2024-09-18
 
@@ -9,6 +111,10 @@
 ### Features
 
 - Pass from serde_yaml to serde_norway
+
+### Miscellaneous Tasks
+
+- Eza v0.19.4 changelogs, version bump
 
 ## [0.19.3] - 2024-09-12
 

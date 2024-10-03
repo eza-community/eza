@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 use std::fmt;
 
 use crate::fs::feature::xattr;
@@ -27,6 +33,7 @@ DISPLAY OPTIONS
   --no-quotes                don't quote file names with spaces
   --hyperlink                display entries as hyperlinks
   --absolute                 display entries with their absolute path (on, follow, off)
+  --follow-symlinks          drill down into symbolic links that point to directories
   -w, --width COLS           set screen width in columns
 
 
@@ -39,6 +46,7 @@ FILTERING AND SORTING OPTIONS
   -r, --reverse              reverse the sort order
   -s, --sort SORT_FIELD      which field to sort by
   --group-directories-first  list directories before other files
+  --group-directories-last   list directories after other files
   -D, --only-dirs            list only directories
   -f, --only-files           list only files
   -I, --ignore-glob GLOBS    glob patterns (pipe-separated) of files to ignore";

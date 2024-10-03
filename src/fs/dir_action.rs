@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 //! What to do when encountering a directory?
 
 /// The action to take when trying to list a file that turns out to be a

@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 //! Parsing the options for `FileFilter`.
 
 use crate::fs::filter::{
@@ -20,6 +26,8 @@ impl FileFilter {
             (matches.has(&flags::ONLY_FILES)?, FFF::OnlyFiles),
             (matches.has(&flags::NO_SYMLINKS)?, FFF::NoSymlinks),
             (matches.has(&flags::SHOW_SYMLINKS)?, FFF::ShowSymlinks),
+            (matches.has(&flags::DIRS_LAST)?, FFF::ListDirsLast),
+            (matches.has(&flags::DIRS_FIRST)?, FFF::ListDirsFirst),
         ] {
             if *has {
                 filter_flags.push(flag.clone());
@@ -28,10 +36,9 @@ impl FileFilter {
 
         #[rustfmt::skip]
         return Ok(Self {
-            list_dirs_first:  matches.has(&flags::DIRS_FIRST)?,
             no_symlinks:      filter_flags.contains(&FFF::NoSymlinks),
             show_symlinks:    filter_flags.contains(&FFF::ShowSymlinks),
-            flags: filter_flags,
+            flags:            filter_flags,
             sort_field:       SortField::deduce(matches)?,
             dot_filter:       DotFilter::deduce(matches)?,
             ignore_patterns:  IgnorePatterns::deduce(matches)?,

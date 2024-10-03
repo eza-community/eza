@@ -1,32 +1,46 @@
+# SPDX-FileCopyrightText: 2024 Christina Sørensen
+# SPDX-License-Identifier: EUPL-1.2
+#
+# SPDX-FileCopyrightText: 2014-2024 Christina Sørensen, eza contributors
+# SPDX-License-Identifier: MIT
 {
   description = "eza: a modern, maintained replacement for ls";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    systems.url = "github:nix-systems/default";
 
     flake-utils = {
-      url = "github:semnix/flake-utils";
+      url = "github:numtide/flake-utils";
+      inputs = {
+        systems.follows = "systems";
+      };
     };
 
     naersk = {
-      url = "github:semnix/naersk";
+      url = "github:nix-community/naersk";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     rust-overlay = {
-      url = "github:semnix/rust-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:oxalica/rust-overlay";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+      };
     };
 
     treefmt-nix = {
-      url = "github:semnix/treefmt-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:numtide/treefmt-nix";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+      };
     };
 
     powertest = {
       url = "github:eza-community/powertest";
       inputs = {
         nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
         naersk.follows = "naersk";
         treefmt-nix.follows = "treefmt-nix";
         rust-overlay.follows = "rust-overlay";
@@ -34,9 +48,8 @@
     };
 
     pre-commit-hooks = {
-      url = "github:semnix/pre-commit-hooks.nix";
+      url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
     };
 
     advisory-db = {
@@ -44,21 +57,22 @@
       flake = false;
     };
   };
-
-  outputs = {
-    self,
-    flake-utils,
-    naersk,
-    nixpkgs,
-    treefmt-nix,
-    rust-overlay,
-    powertest,
-    pre-commit-hooks,
-    ...
-  }:
+  outputs =
+    {
+      self,
+      flake-utils,
+      naersk,
+      nixpkgs,
+      treefmt-nix,
+      rust-overlay,
+      powertest,
+      pre-commit-hooks,
+      ...
+    }:
     flake-utils.lib.eachDefaultSystem (
-      system: let
-        overlays = [(import rust-overlay)];
+      system:
+      let
+        overlays = [ (import rust-overlay) ];
 
         pkgs = (import nixpkgs) {
           inherit system overlays;
@@ -72,9 +86,16 @@
           clippy = toolchain;
         };
 
-        treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
-        buildInputs = with pkgs; [zlib] ++ lib.optionals stdenv.isDarwin [libiconv darwin.apple_sdk.frameworks.Security];
-      in rec {
+        treefmtEval = treefmt-nix.lib.evalModule pkgs .config/treefmt.nix;
+
+        darwinBuildInputs = pkgs.lib.optionals pkgs.stdenv.isDarwin [
+          pkgs.libiconv
+          pkgs.darwin.apple_sdk.frameworks.Security
+        ];
+
+        buildInputs = [ pkgs.zlib ] ++ darwinBuildInputs;
+      in
+      rec {
         # For `nix fmt`
         formatter = treefmtEval.config.build.wrapper;
 
@@ -82,21 +103,27 @@
           # For `nix build` `nix run`, & `nix profile install`:
           default = naersk'.buildPackage rec {
             pname = "eza";
-            version = "latest";
+            version = "git";
 
             src = ./.;
             doCheck = true; # run `cargo test` on build
 
             inherit buildInputs;
-            nativeBuildInputs = with pkgs; [cmake pkg-config installShellFiles pandoc];
+            nativeBuildInputs = with pkgs; [
+              cmake
+              pkg-config
+              installShellFiles
+              pandoc
+            ];
 
             buildNoDefaultFeatures = true;
             buildFeatures = "git";
 
             postInstall = ''
-              pandoc --standalone -f markdown -t man <(cat "man/eza.1.md" | sed "s/\$version/${version}/g") > man/eza.1
-              pandoc --standalone -f markdown -t man <(cat "man/eza_colors.5.md" | sed "s/\$version/${version}/g") > man/eza_colors.5
-              pandoc --standalone -f markdown -t man <(cat "man/eza_colors-explanation.5.md" | sed "s/\$version/${version}/g")> man/eza_colors-explanation.5
+              for page in eza.1 eza_colors.5 eza_colors-explanation.5; do
+                sed "s/\$version/${version}/g" "man/$page.md" |
+                  pandoc --standalone -f markdown -t man >"man/$page"
+              done
               installManPage man/eza.1 man/eza_colors.5 man/eza_colors-explanation.5
               installShellCompletion \
                 --bash completions/bash/eza \
@@ -117,7 +144,7 @@
               homepage = "https://github.com/eza-community/eza";
               license = licenses.mit;
               mainProgram = "eza";
-              maintainers = with maintainers; [cafkafk];
+              maintainers = with maintainers; [ cafkafk ];
             };
           };
 
@@ -156,9 +183,9 @@
               bash devtools/dir-generator.sh tests/test_dir && echo "Dir generated"
               bash devtools/generate-timestamp-test-dir.sh tests/timestamp_test_dir
             '';
-            cargoTestOptions = opts: opts ++ ["--features nix"];
+            cargoTestOptions = opts: opts ++ [ "--features nix" ];
             inherit buildInputs;
-            nativeBuildInputs = with pkgs; [git];
+            nativeBuildInputs = with pkgs; [ git ];
           };
 
           # TODO: add conditionally to checks.
@@ -173,16 +200,26 @@
             singleStep = true;
             # set itests files creation date to unix epoch
             buildPhase = ''
-              touch --date=@0 tests/itest/* && bash devtools/dir-generator.sh tests/test_dir
+              bash devtools/dir-generator.sh tests/test_dir
               bash devtools/generate-timestamp-test-dir.sh tests/timestamp_test_dir
+              touch --date=@0 tests/itest/*
+              touch --date=@0 tests/ptests/*;
+              fd -e stdout -e stderr -H -t file -X sed -i 's/[CWD]\//\/build\/source\//g'
             '';
-            cargoTestOptions = opts: opts ++ ["--features nix" "--features nix-local" "--features powertest"];
+            cargoTestOptions =
+              opts:
+              opts
+              ++ [
+                "--features nix"
+                "--features nix-local"
+                "--features powertest"
+              ];
             inherit buildInputs;
-            nativeBuildInputs = with pkgs; [git];
+            nativeBuildInputs = with pkgs; [ git ];
           };
 
           # Run `nix build .#trydump` to dump testing files
-          trydump = naersk'.buildPackage {
+          trydump = naersk'.buildPackage rec {
             src = ./.;
             mode = "test";
             doCheck = true;
@@ -202,65 +239,94 @@
               rm tests/ptests/*.stdout || echo;
               rm tests/ptests/*.stderr || echo;
             '';
-            cargoTestOptions = opts: opts ++ ["--features nix" "--features nix-local" "--features powertest"];
+            cargoTestOptions =
+              opts:
+              opts
+              ++ [
+                "--features nix"
+                "--features nix-local"
+                "--features powertest"
+                #"-F trycmd/debug"
+              ];
             TRYCMD = "dump";
             postInstall = ''
+              fd -e stdout -e stderr -H -t file -X sed -i 's/\/build\/source\//[CWD]\//g'
+
               cp dump $out -r
             '';
             inherit buildInputs;
-            nativeBuildInputs = with pkgs; [git];
+            nativeBuildInputs = with pkgs; [
+              fd
+              gnused
+              git
+            ];
           };
         };
 
         # For `nix develop`:
         devShells.default = pkgs.mkShell {
           inherit (self.checks.${system}.pre-commit-check) shellHook;
-          nativeBuildInputs = with pkgs; [
-            rustup
-            toolchain
-            just
-            pandoc
-            convco
-            zip
+          nativeBuildInputs =
+            with pkgs;
+            [
+              # cargo
+              # clippy
+              rustup
+              toolchain
+              just
+              pandoc
+              convco
+              zip
+              reuse
 
-            # For releases
-            b3sum
-            cargo-bump
+              # For releases
+              b3sum
+              cargo-bump
 
-            # For generating demo
-            vhs
+              # For generating demo
+              vhs
 
-            powertest.packages.${pkgs.system}.default
+              powertest.packages.${pkgs.system}.default
 
-            cargo-hack
-            cargo-udeps
-            cargo-outdated
-          ];
+              cargo-hack
+              cargo-udeps
+              cargo-outdated
+            ]
+            ++ darwinBuildInputs;
         };
 
         # For `nix flake check`
         checks = {
-          pre-commit-check = let
-            # some treefmt formatters are not supported in pre-commit-hooks we filter them out for now.
-            toFilter =
-              # This is a nice hack to not have to manually filter we should keep in mind for a future refactor.
-              # (builtins.attrNames pre-commit-hooks.packages.${system})
-              ["yamlfmt"];
-            filterFn = n: _v: (!builtins.elem n toFilter);
-            treefmtFormatters = pkgs.lib.mapAttrs (_n: v: {inherit (v) enable;}) (pkgs.lib.filterAttrs filterFn (import ./treefmt.nix).programs);
-          in
+          pre-commit-check =
+            let
+              # some treefmt formatters are not supported in pre-commit-hooks we
+              # filter them out for now.
+              toFilter = [
+                "yamlfmt"
+                "nixfmt"
+                "taplo"
+              ];
+              filterFn = n: _v: (!builtins.elem n toFilter);
+              treefmtFormatters = pkgs.lib.mapAttrs (_n: v: { inherit (v) enable; }) (
+                pkgs.lib.filterAttrs filterFn (import .config/treefmt.nix).programs
+              );
+            in
             pre-commit-hooks.lib.${system}.run {
               src = ./.;
-              hooks =
-                treefmtFormatters
-                // {
-                  convco.enable = true; # not in treefmt
+              hooks = treefmtFormatters // {
+                nixfmt-rfc-style.enable = true;
+                convco.enable = true; # not in treefmt
+                reuse = {
+                  enable = true;
+                  name = "reuse";
+                  entry = with pkgs; "${reuse}/bin/reuse lint";
+                  pass_filenames = false;
                 };
+              };
             };
           formatting = treefmtEval.config.build.check self;
           build = packages.check;
-          inherit
-            (packages)
+          inherit (packages)
             default
             test
             trycmd

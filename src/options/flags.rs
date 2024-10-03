@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 #![cfg_attr(rustfmt, rustfmt_skip)]
 use crate::options::parser::{Arg, Args, TakesValue, Values};
 
@@ -6,17 +12,18 @@ pub static VERSION: Arg = Arg { short: Some(b'v'), long: "version",  takes_value
 pub static HELP:    Arg = Arg { short: Some(b'?'), long: "help",     takes_value: TakesValue::Forbidden };
 
 // display options
-pub static ONE_LINE:    Arg = Arg { short: Some(b'1'), long: "oneline",     takes_value: TakesValue::Forbidden };
-pub static LONG:        Arg = Arg { short: Some(b'l'), long: "long",        takes_value: TakesValue::Forbidden };
-pub static GRID:        Arg = Arg { short: Some(b'G'), long: "grid",        takes_value: TakesValue::Forbidden };
-pub static ACROSS:      Arg = Arg { short: Some(b'x'), long: "across",      takes_value: TakesValue::Forbidden };
-pub static RECURSE:     Arg = Arg { short: Some(b'R'), long: "recurse",     takes_value: TakesValue::Forbidden };
-pub static TREE:        Arg = Arg { short: Some(b'T'), long: "tree",        takes_value: TakesValue::Forbidden };
-pub static CLASSIFY:    Arg = Arg { short: Some(b'F'), long: "classify",    takes_value: TakesValue::Optional(Some(WHEN), "auto") };
-pub static DEREF_LINKS: Arg = Arg { short: Some(b'X'), long: "dereference", takes_value: TakesValue::Forbidden };
-pub static WIDTH:       Arg = Arg { short: Some(b'w'), long: "width",       takes_value: TakesValue::Necessary(None) };
-pub static NO_QUOTES:   Arg = Arg { short: None,       long: "no-quotes",   takes_value: TakesValue::Forbidden };
-pub static ABSOLUTE:    Arg = Arg { short: None,       long: "absolute",    takes_value: TakesValue::Optional(Some(ABSOLUTE_MODES), "on") };
+pub static ONE_LINE:     Arg = Arg { short: Some(b'1'), long: "oneline",         takes_value: TakesValue::Forbidden };
+pub static LONG:         Arg = Arg { short: Some(b'l'), long: "long",            takes_value: TakesValue::Forbidden };
+pub static GRID:         Arg = Arg { short: Some(b'G'), long: "grid",            takes_value: TakesValue::Forbidden };
+pub static ACROSS:       Arg = Arg { short: Some(b'x'), long: "across",          takes_value: TakesValue::Forbidden };
+pub static RECURSE:      Arg = Arg { short: Some(b'R'), long: "recurse",         takes_value: TakesValue::Forbidden };
+pub static TREE:         Arg = Arg { short: Some(b'T'), long: "tree",            takes_value: TakesValue::Forbidden };
+pub static CLASSIFY:     Arg = Arg { short: Some(b'F'), long: "classify",        takes_value: TakesValue::Optional(Some(WHEN), "auto") };
+pub static DEREF_LINKS:  Arg = Arg { short: Some(b'X'), long: "dereference",     takes_value: TakesValue::Forbidden };
+pub static WIDTH:        Arg = Arg { short: Some(b'w'), long: "width",           takes_value: TakesValue::Necessary(None) };
+pub static NO_QUOTES:    Arg = Arg { short: None,       long: "no-quotes",       takes_value: TakesValue::Forbidden };
+pub static ABSOLUTE:     Arg = Arg { short: None,       long: "absolute",        takes_value: TakesValue::Optional(Some(ABSOLUTE_MODES), "on") };
+pub static FOLLOW_LINKS: Arg = Arg { short: None,       long: "follow-symlinks", takes_value: TakesValue::Forbidden };
 const ABSOLUTE_MODES: &[&str] = &["on", "follow", "off"];
 
 pub static COLOR:  Arg = Arg { short: None, long: "color",  takes_value: TakesValue::Optional(Some(WHEN), "auto") };
@@ -40,6 +47,7 @@ pub static SORT:        Arg = Arg { short: Some(b's'), long: "sort",        take
 pub static IGNORE_GLOB: Arg = Arg { short: Some(b'I'), long: "ignore-glob", takes_value: TakesValue::Necessary(None) };
 pub static GIT_IGNORE:  Arg = Arg { short: None, long: "git-ignore",           takes_value: TakesValue::Forbidden };
 pub static DIRS_FIRST:  Arg = Arg { short: None, long: "group-directories-first",  takes_value: TakesValue::Forbidden };
+pub static DIRS_LAST:   Arg = Arg { short: None, long: "group-directories-last",  takes_value: TakesValue::Forbidden };
 pub static ONLY_DIRS:   Arg = Arg { short: Some(b'D'), long: "only-dirs", takes_value: TakesValue::Forbidden };
 pub static ONLY_FILES:  Arg = Arg { short: Some(b'f'), long: "only-files", takes_value: TakesValue::Forbidden };
 pub static NO_SYMLINKS: Arg = Arg { short: None,       long: "no-symlinks", takes_value: TakesValue::Forbidden };
@@ -91,11 +99,11 @@ pub static FILE_FLAGS:        Arg = Arg { short: Some(b'O'), long: "flags",     
 pub static ALL_ARGS: Args = Args(&[
     &VERSION, &HELP,
 
-    &ONE_LINE, &LONG, &GRID, &ACROSS, &RECURSE, &TREE, &CLASSIFY, &DEREF_LINKS,
+    &ONE_LINE, &LONG, &GRID, &ACROSS, &RECURSE, &TREE, &CLASSIFY, &DEREF_LINKS, &FOLLOW_LINKS,
     &COLOR, &COLOUR, &COLOR_SCALE, &COLOUR_SCALE, &COLOR_SCALE_MODE, &COLOUR_SCALE_MODE,
     &WIDTH, &NO_QUOTES, &ABSOLUTE,
 
-    &ALL, &ALMOST_ALL, &LIST_DIRS, &LEVEL, &REVERSE, &SORT, &DIRS_FIRST,
+    &ALL, &ALMOST_ALL, &LIST_DIRS, &LEVEL, &REVERSE, &SORT, &DIRS_FIRST, &DIRS_LAST,
     &IGNORE_GLOB, &GIT_IGNORE, &ONLY_DIRS, &ONLY_FILES,
 
     &BINARY, &BYTES, &GROUP, &NUMERIC, &HEADER, &ICONS, &INODE, &LINKS, &MODIFIED, &CHANGED,

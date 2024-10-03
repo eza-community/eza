@@ -1,18 +1,18 @@
+# SPDX-FileCopyrightText: 2024 Christina Sørensen
+# SPDX-License-Identifier: EUPL-1.2
 dump_dir: tests/ptests
 depth: 1
 binary: eza
 gen_binary: target/debug/eza
 args: tests/test_dir
 commands:
-  # Meta options
-  ? - null
+  ? - null # Meta options
     - --help
   :
   ? - -v
     - --version
   :
-  # Display Options
-  ? - -1
+  ? - -1 # Display Options
     - --oneline
   :
   ? - -l
@@ -65,8 +65,10 @@ commands:
       - never
   ? - null
     - --no-quotes
+  :
   ? - null
     - --hyperlink
+  :
   ? - null
     - --absolute
   : values:
@@ -81,14 +83,16 @@ commands:
       - 200
   ? - null
     - --smart-group
-
-  # Filtering and Sorting Options
-  ? - -a
+  :
+  ? - -a # Filtering and Sorting Options
     - --all
+  :
   ? - -A
     - --almost-all
+  :
   ? - -d
     - --list-dirs
+  :
   ? - -L
     - --level
   : prefix: --tree
@@ -100,6 +104,7 @@ commands:
       - 5
   ? - -r
     - --reverse
+  :
   ? - -s
     - --sort
   : short: -s
@@ -122,49 +127,64 @@ commands:
       - Name
       - name
       - newest
-      - none
+      #- none seems non-deterministic
       - oldest
       - size
       - time
       - type
   ? - null
     - --group-directories-first
+  :
+  ? - null
+    - --group-directories-last
+  :
   ? - -D
     - --only-dirs
+  :
   ? - -f
     - --only-files
+  :
   ? - -f
     - --only-files
-  ? # TODO: add more globs
-    - -I
+  :
+  ? - -I # TODO: add more globs
     - --ignore-glob
   : prefix: -l
     values:
       - "*.toml"
   ? - null
     - --git-ignore
-
-  # Long View Options
-  ? - -b
+  :
+  ? - -b # Long View Options
     - --binary
+  :
   ? - -B
     - --bytes
+  :
   ? - -g
     - --group
+  :
   ? - -h
     - --header
+  :
   ? - -H
     - --links
+  :
   ? - -i
     - --inode
+  :
   ? - -m
     - --modified
+  :
   ? - -M
     - --mounts
+  :
   ? - -n
     - --numeric
+  :
   ? - -S
     - --blocksize
+  :
   ? - -t
     - --time
   : prefix: -l
@@ -175,10 +195,13 @@ commands:
       #- created
   ? - -u
     - --accessed
+  :
   ? - -U
     - --created
+  :
   ? - null
     - --changed
+  :
   ? - null
     - --time-style
   : long: time-style
@@ -190,21 +213,31 @@ commands:
       - relative
   ? - null
     - --total-size
+  :
   ? - null
     - --no-permissions
+  :
   ? - -o
     - --octal-permissions
+  :
   ? - null
     - --no-filesize
+  :
   ? - null
     - --no-user
+  :
   ? - null
     - --git
+  :
   ? - null
     - --no-git
+  :
   ? - null
     - --git-repos
+  :
   ? - -@
     - --extended
+  :
   ? - -Z
     - --context
+  :

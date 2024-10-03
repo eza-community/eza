@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 use nu_ansi_term::Style;
 use phf::{phf_map, Map};
 
@@ -279,6 +285,7 @@ const FILENAME_ICONS: Map<&'static str, char> = phf_map! {
     "Jenkinsfile"         => '\u{e66e}',            // 
     "jsconfig.json"       => Icons::LANG_JAVASCRIPT,// 
     "Justfile"            => Icons::WRENCH,         // 
+    "justfile"            => Icons::WRENCH,         // 
     "known_hosts"         => '\u{f08c0}',           // 󰣀
     "LICENCE"             => Icons::LICENSE,        // 
     "LICENCE.md"          => Icons::LICENSE,        // 
@@ -470,6 +477,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "fsi"            => Icons::LANG_FSHARP,      // 
     "fsproj"         => Icons::LANG_FSHARP,      // 
     "fsx"            => Icons::LANG_FSHARP,      // 
+    "gba"            => '\u{f1393}',             // 󱎓
     "gcode"          => '\u{f0af4}',             // 󰫴
     "gd"             => Icons::GODOT,            // 
     "gdoc"           => Icons::DOCUMENT,         // 
@@ -604,6 +612,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "ninja"          => '\u{f0774}',             // 󰝴
     "nix"            => '\u{f313}',              // 
     "node"           => Icons::NODEJS,           // 
+    "nsp"            => '\u{F07E1}',             // 󰟡
     "nu"             => Icons::SHELL_CMD,        // 
     "o"              => Icons::BINARY,           // 
     "obj"            => Icons::FILE_3D,          // 󰆧
@@ -615,6 +624,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "ogg"            => Icons::AUDIO,            // 
     "ogm"            => Icons::VIDEO,            // 
     "ogv"            => Icons::VIDEO,            // 
+    "opml"           => Icons::XML,              // 󰗀
     "opus"           => Icons::AUDIO,            // 
     "orf"            => Icons::IMAGE,            // 
     "org"            => '\u{e633}',              // 
@@ -734,6 +744,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "sublime-theme"  => Icons::SUBLIME,          // 
     "svelte"         => '\u{e697}',              // 
     "svg"            => Icons::VECTOR,           // 󰕙
+    "swf"            => Icons::AUDIO,            // 
     "swift"          => '\u{e755}',              // 
     "t"              => Icons::LANG_PERL,        // 
     "tar"            => Icons::COMPRESSED,       // 
@@ -770,6 +781,8 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "v"              => Icons::LANG_V,           // 
     "vdi"            => Icons::DISK_IMAGE,       // 
     "vhd"            => Icons::DISK_IMAGE,       // 
+    "vhs"            => '\u{F0A1B}',             // 󰨛
+    "tape"           => '\u{F0A1B}',             // 󰨛
     "video"          => Icons::VIDEO,            // 
     "vim"            => Icons::VIM,              // 
     "vmdk"           => Icons::DISK_IMAGE,       // 
@@ -787,6 +800,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "woff"           => Icons::FONT,             // 
     "woff2"          => Icons::FONT,             // 
     "wv"             => Icons::AUDIO,            // 
+    "xci"            => '\u{F07E1}',             // 󰟡
     "xcf"            => Icons::IMAGE,            // 
     "xhtml"          => Icons::HTML5,            // 
     "xlr"            => Icons::SHEET,            // 
@@ -805,6 +819,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "zsh"            => Icons::SHELL_CMD,        // 
     "zsh-theme"      => Icons::SHELL,            // 󱆃
     "zst"            => Icons::COMPRESSED,       // 
+    "z64"            => '\u{f1393}',             // 󱎓
 };
 
 /// Converts the style used to paint a file name into the style that should be

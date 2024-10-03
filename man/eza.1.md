@@ -73,6 +73,9 @@ The default behavior (`automatic` or `auto`) will display file kind indicators o
 `-T`, `--tree`
 : Recurse into directories as a tree.
 
+`--follow-symlinks`
+: Drill down into symbolic links that point to directories.
+
 `-X`, `--dereference`
 : Dereference symbolic links when displaying information.
 
@@ -158,6 +161,9 @@ Sort fields starting with a capital letter will sort uppercase before lowercase:
 
 `--group-directories-first`
 : List directories before other files.
+
+`--group-directories-last`
+: List directories after other files.
 
 `-D`, `--only-dirs`
 : List only directories, not files.
@@ -362,6 +368,9 @@ EXIT STATUSES
 3
 : If there was a problem with the command-line arguments.
 
+13
+: If permission is denied to access a path.
+
 
 AUTHOR
 ======
@@ -376,5 +385,5 @@ Our infinite thanks to Benjamin ‘ogham’ Sago and all the other contributors 
 SEE ALSO
 ========
 
-- [eza_colors.5.md](eza_colors.5.md)
-- [eza_colors-explanation.5.md](eza_colors-explanation.5.md)
+- [**eza_colors**(5)](eza_colors.5.md)
+- [**eza_colors-explanation**(5)](eza_colors-explanation.5.md)

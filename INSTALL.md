@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023-2024 Christina Sørensen
+SPDX-FileContributor: Christina Sørensen
+
+SPDX-License-Identifier: EUPL-1.2
+-->
 # Installation
 
 eza is available for Windows, macOS and Linux.
@@ -10,7 +16,9 @@ If you already have a Rust environment set up, you can use the `cargo install` c
 
     cargo install eza
 
-Cargo will build the `eza` binary and place it in `$HOME/.local/share/cargo/bin/eza`.
+Cargo will build the `eza` binary and place it in your `CARGO_INSTALL_ROOT`.
+For more details on installation location see [the cargo
+book](https://doc.rust-lang.org/cargo/commands/cargo-install.html#description).
 
 ### Cargo (git)
 
@@ -206,6 +214,18 @@ To install eza, run:
 
 ```shell
 flox install eza
+```
+
+### X-CMD (Linux, macOS, Windows WSL, Windows GitBash)
+
+Eza is available from [x-cmd](https://www.x-cmd.com).
+
+To install eza, run:
+
+```shell
+x env use eza
+# or
+x eza
 ```
 
 ### Completions

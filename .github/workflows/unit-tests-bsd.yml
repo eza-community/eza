@@ -1,50 +1,52 @@
+# SPDX-FileCopyrightText: 2024 Christina Sørensen
+# SPDX-License-Identifier: EUPL-1.2
+#
+# SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+# SPDX-FileCopyrightText: 2014 Benjamin Sago
+# SPDX-License-Identifier: MIT
 name: Unit tests (BSD)
-
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
       - '.github/workflows/unit-tests-bsd.yml'
       - 'src/**'
       - 'Cargo.*'
       - build.rs
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
       - '.github/workflows/unit-tests-bsd.yml'
       - 'src/**'
       - 'Cargo.*'
       - build.rs
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
   cancel-in-progress: true
-
 jobs:
   unit-tests-freebsd:
-      runs-on: ubuntu-22.04
-      timeout-minutes: 20
-      steps:
-        - uses: actions/checkout@v4
-          with:
-            submodules: recursive
-        - name: Compile
-          uses: vmactions/freebsd-vm@v1
-          with:
-            release: '14.1'
-            usesh: true
-            prepare: |
-              pkg install -y rust git
-              cargo install cargo-hack
-              git config --global --add safe.directory /home/runner/work/eza/eza
-            run: |
-              set -e
-              export CARGO_TERM_COLOR="always"
-              export RUSTFLAGS="--deny warnings"
-              cargo fmt --check
-              cargo clippy -- -D warnings
-              cargo hack test
-
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Compile
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: '14.1'
+          usesh: true
+          prepare: |
+            pkg install -y rust git
+            cargo install cargo-hack
+            git config --global --add safe.directory /home/runner/work/eza/eza
+          run: |
+            set -e
+            export CARGO_TERM_COLOR="always"
+            export RUSTFLAGS="--deny warnings"
+            cargo fmt --check
+            cargo clippy -- -D warnings
+            cargo hack test
   unit-tests-netbsd:
     runs-on: ubuntu-22.04
     timeout-minutes: 20
@@ -72,27 +74,26 @@ jobs:
             cargo fmt --check
             cargo clippy -- -D warnings
             cargo hack test
-
   unit-tests-openbsd:
-      runs-on: ubuntu-22.04
-      timeout-minutes: 20
-      steps:
-        - uses: actions/checkout@v4
-          with:
-            submodules: recursive
-        - name: Compile
-          uses: vmactions/openbsd-vm@v1
-          with:
-            release: '7.4'
-            usesh: true
-            prepare: |
-              pkg_add rust rust-rustfmt rust-clippy git
-              cargo install cargo-hack
-              git config --global --add safe.directory /home/runner/work/eza/eza
-            run: |
-              set -e
-              export CARGO_TERM_COLOR="always"
-              export RUSTFLAGS="--deny warnings"
-              cargo fmt --check
-              cargo clippy -- -D warnings
-              cargo hack test
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Compile
+        uses: vmactions/openbsd-vm@v1
+        with:
+          release: '7.4'
+          usesh: true
+          prepare: |
+            pkg_add rust rust-rustfmt rust-clippy git
+            cargo install cargo-hack
+            git config --global --add safe.directory /home/runner/work/eza/eza
+          run: |
+            set -e
+            export CARGO_TERM_COLOR="always"
+            export RUSTFLAGS="--deny warnings"
+            cargo fmt --check
+            cargo clippy -- -D warnings
+            cargo hack test

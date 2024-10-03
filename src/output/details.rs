@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 //! The **Details** output view displays each file as a row in a table.
 //!
 //! It’s used in the following situations:
@@ -115,6 +121,9 @@ pub struct Options {
     pub mounts: bool,
 
     pub color_scale: ColorScaleOptions,
+
+    /// Whether to drill down into symbolic links that point to directories
+    pub follow_links: bool,
 }
 
 pub struct Render<'a> {
@@ -285,8 +294,15 @@ impl<'a> Render<'a> {
                     .map(|t| t.row_for_file(file, self.show_xattr_hint(file), color_scale_info));
 
                 let mut dir = None;
+                let follow_links = self.opts.follow_links;
                 if let Some(r) = self.recurse {
-                    if file.is_directory() && r.tree && !r.is_too_deep(depth.0) {
+                    if (if follow_links {
+                        file.points_to_directory()
+                    } else {
+                        file.is_directory()
+                    }) && r.tree
+                        && !r.is_too_deep(depth.0)
+                    {
                         trace!("matching on to_dir");
                         match file.to_dir() {
                             Ok(d) => {

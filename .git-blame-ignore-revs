@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2024 Christina Sørensen
+# SPDX-License-Identifier: EUPL-1.2
 # This file contains a list of commits that are not likely what you
 # are looking for in a blame, such as mass reformatting or renaming.
 # You can set this file as a default ignore file for blame by running

@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2024 Christina Sørensen
+# SPDX-License-Identifier: EUPL-1.2
 name: eza
 base: core22
 version: 'latest'

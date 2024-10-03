@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023-2024 Christina Sørensen
+SPDX-FileContributor: Christina Sørensen
+
+SPDX-License-Identifier: EUPL-1.2
+-->
 <div align="center">
 
 # eza
@@ -108,6 +114,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s. Quick overv
 - **-r**, **--reverse**: reverse the sort order
 - **-s**, **--sort=(field)**: which field to sort by
 - **--group-directories-first**: list directories before other files
+- **--group-directories-last**: list directories after other files
 - **-D**, **--only-dirs**: list only directories
 - **-f**, **--only-files**: list only files
 - **--no-symlinks**: don't show symbolic links
@@ -178,6 +185,9 @@ See the `man` pages for further documentation of usage. They are available
 available for the `LS_COLORS` and `EXA_COLORS` environment variables, as well as the option to specify different icons
 for different file types and extensions. Any existing environment variables set will continue to work and will take
 precedence for backwards compatibility.
+
+#### **New** Pre-made themes
+Check out the themes available in the official [eza-themes](https://github.com/eza-community/eza-themes) repository, or contribute your own.
 
 An example theme file is available in `docs/theme.yml`, and needs to either be placed in a directory specified by the 
 environment variable `EZA_CONFIG_DIR`, or will looked for by default in `$XDG_CONFIG_HOME/eza`.

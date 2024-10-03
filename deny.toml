@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2024 Christina Sørensen
+# SPDX-License-Identifier: EUPL-1.2
 [graph]
 # This template contains all of the possible sections and their default values
 
@@ -97,6 +99,7 @@ version = 2
 # See https://spdx.org/licenses/ for list of possible licenses
 # [possible values: any SPDX 3.11 short identifier (+ optional exception)].
 allow = [
+  "EUPL-1.2",
   "MIT",
   "Unicode-DFS-2016",
   "Apache-2.0",

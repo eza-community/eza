@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 use std::ffi::OsString;
 
 use crate::fs::feature::xattr;
@@ -16,6 +22,7 @@ impl View {
     pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
         let mode = Mode::deduce(matches, vars)?;
         let deref_links = matches.has(&flags::DEREF_LINKS)?;
+        let follow_links = matches.has(&flags::FOLLOW_LINKS)?;
         let total_size = matches.has(&flags::TOTAL_SIZE)?;
         let width = TerminalWidth::deduce(matches, vars)?;
         let file_style = FileStyle::deduce(matches, vars, width.actual_terminal_width().is_some())?;
@@ -24,6 +31,7 @@ impl View {
             width,
             file_style,
             deref_links,
+            follow_links,
             total_size,
         })
     }
@@ -151,6 +159,7 @@ impl details::Options {
             secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
             mounts: matches.has(&flags::MOUNTS)?,
             color_scale: ColorScaleOptions::deduce(matches, vars)?,
+            follow_links: matches.has(&flags::FOLLOW_LINKS)?,
         };
 
         Ok(details)
@@ -172,6 +181,7 @@ impl details::Options {
             secattr: xattr::ENABLED && matches.has(&flags::SECURITY_CONTEXT)?,
             mounts: matches.has(&flags::MOUNTS)?,
             color_scale: ColorScaleOptions::deduce(matches, vars)?,
+            follow_links: matches.has(&flags::FOLLOW_LINKS)?,
         })
     }
 }

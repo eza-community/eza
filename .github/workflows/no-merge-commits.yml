@@ -1,13 +1,16 @@
+# SPDX-FileCopyrightText: 2024 Christina Sørensen
+# SPDX-License-Identifier: EUPL-1.2
+#
+# SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+# SPDX-FileCopyrightText: 2014 Benjamin Sago
+# SPDX-License-Identifier: MIT
 name: No Merge Commits
-
 on:
   pull_request:
-    branches: [ main ]
-
+    branches: [main]
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
   cancel-in-progress: true
-
 jobs:
   no-merge-commits:
     runs-on: ubuntu-latest

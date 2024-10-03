@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 #![warn(deprecated_in_future)]
 #![warn(future_incompatible)]
 #![warn(nonstandard_style)]
@@ -356,12 +362,16 @@ impl<'args> Exa<'args> {
                     .filter(|&c| c != Component::CurDir)
                     .count()
                     + 1;
+                let follow_links = self.options.view.follow_links;
                 if !recurse_opts.tree && !recurse_opts.is_too_deep(depth) {
                     let mut child_dirs = Vec::new();
-                    for child_dir in children
-                        .iter()
-                        .filter(|f| f.is_directory() && !f.is_all_all)
-                    {
+                    for child_dir in children.iter().filter(|f| {
+                        (if follow_links {
+                            f.points_to_directory()
+                        } else {
+                            f.is_directory()
+                        }) && !f.is_all_all
+                    }) {
                         match child_dir.to_dir() {
                             Ok(d) => child_dirs.push(d),
                             Err(e) => {
