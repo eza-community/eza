@@ -14,7 +14,7 @@ static USAGE_PART1: &str = "Usage:
   eza [options] [files...]
 
 META OPTIONS
-  --help                     show list of command-line options
+  -?, --help                 show list of command-line options
   -v, --version              show version of eza
 
 DISPLAY OPTIONS
@@ -42,13 +42,15 @@ FILTERING AND SORTING OPTIONS
                              show the '.' and '..' directories
   -A, --almost-all           equivalent to --all; included for compatibility with `ls -A`
   -d, --list-dirs            list directories as files; don't list their contents
+  -D, --only-dirs            list only directories
+  -f, --only-files           list only files
+  --show-symlinks            explicitly show symbolic links (for use with --only-dirs | --only-files)
+  --no-symlinks              do not show symbolic links
   -L, --level DEPTH          limit the depth of recursion
   -r, --reverse              reverse the sort order
   -s, --sort SORT_FIELD      which field to sort by
   --group-directories-first  list directories before other files
   --group-directories-last   list directories after other files
-  -D, --only-dirs            list only directories
-  -f, --only-files           list only files
   -I, --ignore-glob GLOBS    glob patterns (pipe-separated) of files to ignore";
 
 static GIT_FILTER_HELP: &str = "  \
@@ -56,7 +58,7 @@ static GIT_FILTER_HELP: &str = "  \
 
 static USAGE_PART2: &str = "  \
   Valid sort fields:         name, Name, extension, Extension, size, type,
-                             modified, accessed, created, inode, and none.
+                             created, modified, accessed, changed, inode, and none.
                              date, time, old, and new all refer to modified.
 
 LONG VIEW OPTIONS
@@ -67,12 +69,12 @@ LONG VIEW OPTIONS
   -h, --header               add a header row to each column
   -H, --links                list each file's number of hard links
   -i, --inode                list each file's inode number
-  -m, --modified             use the modified timestamp field
   -M, --mounts               show mount details (Linux and Mac only)
   -n, --numeric              list numeric user and group IDs
   -O, --flags                list file flags (Mac, BSD, and Windows only)
   -S, --blocksize            show size of allocated file system blocks
   -t, --time FIELD           which timestamp field to list (modified, accessed, created)
+  -m, --modified             use the modified timestamp field
   -u, --accessed             use the accessed timestamp field
   -U, --created              use the created timestamp field
   --changed                  use the changed timestamp field
@@ -81,8 +83,8 @@ LONG VIEW OPTIONS
                              like '+%Y-%m-%d %H:%M')
   --total-size               show the size of a directory as the size of all
                              files and directories inside (unix only)
-  --no-permissions           suppress the permissions field
   -o, --octal-permissions    list each file's permission in octal format
+  --no-permissions           suppress the permissions field
   --no-filesize              suppress the filesize field
   --no-user                  suppress the user field
   --no-time                  suppress the time field
@@ -93,7 +95,9 @@ static GIT_VIEW_HELP: &str = "  \
   --git                      list each file's Git status, if tracked or ignored
   --no-git                   suppress Git status (always overrides --git,
                              --git-repos, --git-repos-no-status)
-  --git-repos                list root of git-tree status";
+  --git-repos                list root of git-tree status
+  --get-repos-no-status      list each git-repos branch name (much faster)
+    ";
 static EXTENDED_HELP: &str = "  \
   -@, --extended             list each file's extended attributes and sizes";
 static SECATTR_HELP: &str = "  \
