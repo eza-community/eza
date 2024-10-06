@@ -228,6 +228,16 @@ x env use eza
 x eza
 ```
 
+### fox (Linux, macOS)
+
+Eza is available from [fox](https://www.getfox.sh/).
+
+To install eza, run:
+
+```shell
+fox install eza
+```
+
 ### Completions
 
 #### For zsh:
