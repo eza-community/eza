@@ -6,6 +6,22 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.2] - 2024-10-09
+
+### Bug Fixes
+
+- Colors in old ms command prompt
+- Bring help text in line with available flags
+- Do not print parent filename with --absolute=on
+
+### Miscellaneous Tasks
+
+- Add fox installation option
+
+### Build
+
+- Bump once_cell from 1.20.1 to 1.20.2
+
 ## [0.20.1] - 2024-10-03
 
 ### Bug Fixes
@@ -28,6 +44,10 @@ SPDX-License-Identifier: EUPL-1.2
 - Add --follow-symlinks option
 - Add autocomplete for --follow-symlinks
 - Show directories last
+
+### Miscellaneous Tasks
+
+- Eza v0.20.1 changelogs, version bump
 
 ### Testing
 
