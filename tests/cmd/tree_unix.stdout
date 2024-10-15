@@ -6,9 +6,9 @@ tests/itest
 ├── dir-symlink -> vagrant/debug
 ├── e
 ├── exa
-│  ├── file.c -> djihisudjuhfius
-│  └── sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-│     └── Makefile
+│   ├── file.c -> djihisudjuhfius
+│   └── sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+│       └── Makefile
 ├── f
 ├── g
 ├── h
@@ -24,14 +24,14 @@ tests/itest
 ├── p
 ├── q
 └── vagrant
-   ├── debug
-   │  ├── a
-   │  ├── symlink -> a
-   │  └── symlink-broken -> ./b
-   ├── dev
-   │  └── main.bf
-   └── log
-      ├── file.png
-      └── run
-         ├── run.log.text
-         └── sps.log.text
+    ├── debug
+    │   ├── a
+    │   ├── symlink -> a
+    │   └── symlink-broken -> ./b
+    ├── dev
+    │   └── main.bf
+    └── log
+        ├── file.png
+        └── run
+            ├── run.log.text
+            └── sps.log.text

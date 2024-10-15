@@ -26,14 +26,14 @@
 //!     │     1 │ false │ ├── this_file.txt     │
 //!     │     1 │ false │ ├── that_file.txt     │
 //!     │     1 │ false │ ├── features          │
-//!     │     2 │ false │ │  ├── feature_1.rs   │
-//!     │     2 │ false │ │  ├── feature_2.rs   │
-//!     │     2 │ true  │ │  └── feature_3.rs   │
+//!     │     2 │ false │ │   ├── feature_1.rs  │
+//!     │     2 │ false │ │   ├── feature_2.rs  │
+//!     │     2 │ true  │ │   └── feature_3.rs  │
 //!     │     1 │ true  │ └── pictures          │
-//!     │     2 │ false │    ├── garden.jpg     │
-//!     │     2 │ false │    ├── flowers.jpg    │
-//!     │     2 │ false │    ├── library.png    │
-//!     │     2 │ true  │    └── space.tiff     │
+//!     │     2 │ false │     ├── garden.jpg    │
+//!     │     2 │ false │     ├── flowers.jpg   │
+//!     │     2 │ false │     ├── library.png   │
+//!     │     2 │ true  │     └── space.tiff    │
 //!     └───────┴───────┴───────────────────────┘
 //! ```
 //!
@@ -65,10 +65,10 @@ impl TreePart {
     pub fn ascii_art(self) -> &'static str {
         #[rustfmt::skip]
         return match self {
-            Self::Edge    => "├──",
-            Self::Line    => "│  ",
-            Self::Corner  => "└──",
-            Self::Blank   => "   ",
+            Self::Edge    => "├── ",
+            Self::Line    => "│   ",
+            Self::Corner  => "└── ",
+            Self::Blank   => "    ",
         };
     }
 }
@@ -137,9 +137,9 @@ impl TreeTrunk {
         //     with [0..]        with [1..]
         //     ==========        ==========
         //      ├── folder        folder
-        //      │  └── file       └── file
+        //      │   └── file       └── file
         //      └── folder        folder
-        //         └── file       └──file
+        //          └── file       └──file
         //
         &self.stack[1..]
     }
@@ -148,10 +148,6 @@ impl TreeTrunk {
 impl TreeParams {
     pub fn new(depth: TreeDepth, last: bool) -> Self {
         Self { depth, last }
-    }
-
-    pub fn is_at_root(&self) -> bool {
-        self.depth.0 == 0
     }
 }
 
