@@ -6,6 +6,16 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.3] - 2024-10-17
+
+### Bug Fixes
+
+- Git cliff docs issue
+
+### Performance
+
+- Reuse filetype from DirEntry
+
 ## [0.20.2] - 2024-10-09
 
 ### Bug Fixes
@@ -17,6 +27,7 @@ SPDX-License-Identifier: EUPL-1.2
 ### Miscellaneous Tasks
 
 - Add fox installation option
+- Eza v0.20.2 changelogs, version bump
 
 ### Build
 
@@ -1397,11 +1408,6 @@ SPDX-License-Identifier: EUPL-1.2
 - Add gentoo
 - Fix gentoo install
 - Add MacPorts install info
-- Remove xtests section from readme
-- Add deprecation warning to xtests/readme
-- Add deprecation warning to just xtest commands
-- Add deprecation warning to vagrantfile
-- Add guidelines for commit messages
 - Add pthorpe92 gist
 - Add docs for --git-repos & --git-repos-no-status
 - Fix gpg armor flag for deb release in readme
@@ -1521,6 +1527,14 @@ SPDX-License-Identifier: EUPL-1.2
 - 1.65 -> 1.70
 - Enforce conventional commits
 - Enforce conventional commits
+
+### Doc
+
+- Remove xtests section from readme
+- Add deprecation warning to xtests/readme
+- Add deprecation warning to just xtest commands
+- Add deprecation warning to vagrantfile
+- Add guidelines for commit messages
 
 ## [0.11.1] - 2023-09-11
 
@@ -1685,13 +1699,7 @@ SPDX-License-Identifier: EUPL-1.2
 ### Documentation
 
 - Update issue templates
-- Add git-ignore style/color information to manpage
-- --blocksize, new description
-- --blocksize, new description
-- --blocksize, new description
 - Cafkafk -> eza-community
-- Add gpg public key for the deb repository
-- Add section about debian and ubuntu installation
 
 ### Features
 
@@ -1762,6 +1770,15 @@ SPDX-License-Identifier: EUPL-1.2
 
 - Change users depedency to uzers
 
+### Doc
+
+- Add git-ignore style/color information to manpage
+- --blocksize, new description
+- --blocksize, new description
+- --blocksize, new description
+- Add gpg public key for the deb repository
+- Add section about debian and ubuntu installation
+
 ### Git
 
 - Add deb package to .gitignore
@@ -1773,11 +1790,6 @@ SPDX-License-Identifier: EUPL-1.2
 - Respect GIT_CEILING_DIRECTORIES
 - MacOS flake support
 - Broken zsh completion syntax
-
-### Documentation
-
-- Create SECURITY.md
-- Create CONTRIBUTING.md
 
 ### Features
 
@@ -1850,6 +1862,11 @@ SPDX-License-Identifier: EUPL-1.2
 - Add clippy check
 - Add dependabot updater
 
+### Doc
+
+- Create SECURITY.md
+- Create CONTRIBUTING.md
+
 ## [0.10.6] - 2023-08-07
 
 ### Bug Fixes
@@ -1860,7 +1877,6 @@ SPDX-License-Identifier: EUPL-1.2
 ### Documentation
 
 - Adding --git-repos to help.
-- Add aur, nixpkgs installation
 
 ### Features
 
@@ -1870,6 +1886,10 @@ SPDX-License-Identifier: EUPL-1.2
 ### Miscellaneous Tasks
 
 - Release 0.10.6
+
+### Doc
+
+- Add aur, nixpkgs installation
 
 ### Git
 
@@ -1949,30 +1969,6 @@ SPDX-License-Identifier: EUPL-1.2
 - Added trailing commas
 - Update snapscraft.yaml
 - Remove accidentally commited test files
-
-### Documentation
-
-- Add hint how to install exa on Android / Termux
-- Add -X/--dereference flag
-- Change name in README.md
-- Add `nix run` to readme
-- Fix flow issue
-- Fix typos
-- Add mandatory snowflake emoji
-- Document nix flake development
-- Document nix flakew
-- Update README.md
-- Update README.md
-- Update README.md
-- Update README.md
-- Update README.md
-- Readme change screenshot to eza
-- Add CoC badge to readme
-- Add CODE_OF_CONDUCT.md
-- Add crates.io badge, license badge
-- Fix links
-- Update README.md
-- Update README.md
 
 ### Feat
 
@@ -2082,6 +2078,33 @@ SPDX-License-Identifier: EUPL-1.2
 ### Details
 
 - `filter` is only used when recursing
+
+### Doc
+
+- Add -X/--dereference flag
+- Change name in README.md
+- Add `nix run` to readme
+- Fix flow issue
+- Fix typos
+- Add mandatory snowflake emoji
+- Document nix flake development
+- Document nix flakew
+- Update README.md
+- Update README.md
+- Update README.md
+- Update README.md
+- Update README.md
+- Readme change screenshot to eza
+- Add CoC badge to readme
+- Add CODE_OF_CONDUCT.md
+- Add crates.io badge, license badge
+- Fix links
+- Update README.md
+- Update README.md
+
+### Documentation
+
+- Add hint how to install exa on Android / Termux
 
 ### Git-feature
 
