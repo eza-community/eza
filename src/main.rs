@@ -106,7 +106,7 @@ fn main() {
             info!("matching on exa.run");
             match exa.run() {
                 Ok(exit_status) => {
-                    trace!("exa.run: exit Ok(exit_status)");
+                    trace!("exa.run: exit Ok({exit_status})");
                     exit(exit_status);
                 }
 
@@ -260,33 +260,35 @@ impl<'args> Exa<'args> {
         let mut exit_status = 0;
 
         for file_path in &self.input_paths {
-            match File::from_args(
+            let f = File::from_args(
                 PathBuf::from(file_path),
                 None,
                 None,
                 self.options.view.deref_links,
                 self.options.view.total_size,
-            ) {
-                Err(e) => {
-                    exit_status = 2;
-                    writeln!(io::stderr(), "{file_path:?}: {e}")?;
-                }
+                None,
+            );
 
-                Ok(f) => {
-                    if f.points_to_directory() && !self.options.dir_action.treat_dirs_as_files() {
-                        trace!("matching on to_dir");
-                        match f.to_dir() {
-                            Ok(d) => dirs.push(d),
-                            Err(e) if e.kind() == ErrorKind::PermissionDenied => {
-                                eprintln!("{file_path:?}: {e}");
-                                exit(exits::PERMISSION_DENIED);
-                            }
-                            Err(e) => writeln!(io::stderr(), "{file_path:?}: {e}")?,
-                        }
-                    } else {
-                        files.push(f);
+            // We don't know whether this file exists, so we have to try to get
+            // the metadata to verify.
+            if let Err(e) = f.metadata() {
+                exit_status = 2;
+                writeln!(io::stderr(), "{file_path:?}: {e}")?;
+                continue;
+            }
+
+            if f.points_to_directory() && !self.options.dir_action.treat_dirs_as_files() {
+                trace!("matching on to_dir");
+                match f.to_dir() {
+                    Ok(d) => dirs.push(d),
+                    Err(e) if e.kind() == ErrorKind::PermissionDenied => {
+                        eprintln!("{file_path:?}: {e}");
+                        exit(exits::PERMISSION_DENIED);
                     }
+                    Err(e) => writeln!(io::stderr(), "{file_path:?}: {e}")?,
                 }
+            } else {
+                files.push(f);
             }
         }
 
@@ -344,10 +346,7 @@ impl<'args> Exa<'args> {
                 self.options.view.deref_links,
                 self.options.view.total_size,
             ) {
-                match file {
-                    Ok(file) => children.push(file),
-                    Err((path, e)) => writeln!(io::stderr(), "[{}: {}]", path.display(), e)?,
-                }
+                children.push(file);
             }
             let recursing = self.options.dir_action.recurse_options().is_some();
             self.options

@@ -237,7 +237,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
             bits.push(style.paint(" ".repeat(spaces_count as usize)));
         }
 
-        if self.file.parent_dir.is_none() {
+        if self.file.parent_dir.is_none() && self.options.absolute == Absolute::Off {
             if let Some(parent) = self.file.path.parent() {
                 self.add_parent_bits(&mut bits, parent);
             }

@@ -73,6 +73,19 @@ impl Options {
             let exts = Box::new(NoFileStyle);
             return Theme { ui, exts };
         };
+
+        #[cfg(windows)]
+        if nu_ansi_term::enable_ansi_support().is_err() {
+            // Failed to enable ansi support, probably because legacy mode console.
+            // No need to alert the user unless they explicitly set color=always
+            if self.use_colours == UseColours::Always {
+                eprintln!("eza: Ignoring option color=always in legacy console.");
+            }
+            let ui = UiStyles::plain();
+            let exts = Box::new(NoFileStyle);
+            return Theme { ui, exts };
+        }
+
         match self.theme_config {
             Some(ref theme) => {
                 if let Some(mut ui) = theme.to_theme() {
