@@ -334,7 +334,7 @@ impl<'dir> File<'dir> {
     #[cfg(unix)]
     pub fn is_executable_file(&self) -> bool {
         let bit = modes::USER_EXECUTE;
-        if self.is_file() {
+        if !self.is_file() {
             return false;
         }
         let Ok(md) = self.metadata() else {
