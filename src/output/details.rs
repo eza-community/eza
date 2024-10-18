@@ -505,12 +505,6 @@ impl<'a> Iterator for TableIter<'a> {
                 cell.push(self.tree_style.paint(tree_part.ascii_art()), 4);
             }
 
-            // If any tree characters have been printed, then add an extra
-            // space, which makes the output look much better.
-            if !row.tree.is_at_root() {
-                cell.add_spaces(1);
-            }
-
             cell.append(row.name);
             cell
         })
@@ -532,12 +526,6 @@ impl Iterator for Iter {
 
             for tree_part in self.tree_trunk.new_row(row.tree) {
                 cell.push(self.tree_style.paint(tree_part.ascii_art()), 4);
-            }
-
-            // If any tree characters have been printed, then add an extra
-            // space, which makes the output look much better.
-            if !row.tree.is_at_root() {
-                cell.add_spaces(1);
             }
 
             cell.append(row.name);
