@@ -6,11 +6,21 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.4] - 2024-10-18
+
+### Bug Fixes
+
+- Filetype, coloring for executables and folder
+
 ## [0.20.3] - 2024-10-17
 
 ### Bug Fixes
 
 - Git cliff docs issue
+
+### Miscellaneous Tasks
+
+- Eza v0.20.3 changelogs, version bump
 
 ### Performance
 
