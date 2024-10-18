@@ -755,11 +755,11 @@ impl<'dir> File<'dir> {
     fn systemtime_to_naivedatetime(st: SystemTime) -> Option<NaiveDateTime> {
         let duration = st.duration_since(SystemTime::UNIX_EPOCH).ok()?;
 
-        // FIXME: NaiveDateTime::from_timestamp_opt is deprecated since chrono 0.4.35
-        NaiveDateTime::from_timestamp_opt(
+        DateTime::from_timestamp(
             duration.as_secs().try_into().ok()?,
             (duration.as_nanos() % 1_000_000_000).try_into().ok()?,
         )
+        .map(|dt| dt.naive_local())
     }
 
     /// This file’s last modified timestamp, if available on this platform.
@@ -786,10 +786,11 @@ impl<'dir> File<'dir> {
             };
         }
         let md = self.metadata();
-        NaiveDateTime::from_timestamp_opt(
+        DateTime::from_timestamp(
             md.map_or(0, MetadataExt::ctime),
             md.map_or(0, |md| md.ctime_nsec() as u32),
         )
+        .map(|dt| dt.naive_local())
     }
 
     #[cfg(windows)]
