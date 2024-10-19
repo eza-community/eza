@@ -92,7 +92,7 @@ percent-encoding = "2.3.1"
 phf = { version = "0.11.2", features = ["macros"] }
 plist = { version = "1.7.0", default-features = false }
 uutils_term_grid = "0.6.0"
-terminal_size = "0.3.0"
+terminal_size = "0.4.0"
 timeago = { version = "0.4.2", default-features = false }
 unicode-width = "0.2"
 zoneinfo_compiled = "0.5.1"
