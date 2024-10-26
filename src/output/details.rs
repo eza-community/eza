@@ -332,7 +332,7 @@ impl<'a> Render<'a> {
             let mut files = Vec::new();
             let errors = egg.errors;
 
-            if !(egg.file.path.is_dir() && self.filter.flags.contains(&OnlyFiles)) {
+            if !(egg.file.is_directory() && self.filter.flags.contains(&OnlyFiles)) {
                 if let (Some(ref mut t), Some(row)) = (table.as_mut(), egg.table_row.as_ref()) {
                     t.add_widths(row);
                 }
