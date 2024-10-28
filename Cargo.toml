@@ -97,7 +97,7 @@ timeago = { version = "0.4.2", default-features = false }
 unicode-width = "0.2"
 zoneinfo_compiled = "0.5.1"
 ansi-width = "0.1.0"
-serde = { version = "1.0.193", features = ["derive"] }
+serde = { version = "1.0.214", features = ["derive"] }
 dirs = "5.0.1"
 serde_norway = "0.9"
 backtrace = "0.3"
