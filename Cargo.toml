@@ -8,11 +8,22 @@ categories = ["command-line-utilities"]
 edition = "2021"
 rust-version = "1.70.0"
 exclude = [
-  "/devtools/*",
-  "/Justfile",
-  "/Vagrantfile",
-  "/screenshots.png",
-  "/tests",
+  "/docs/",
+  "/devtools/",
+  "/snap/",
+  "/tests/",
+  "/.config/",
+  "/.github/",
+  "/deb.asc",
+  "/deny.toml",
+  "/flake.*",
+  "/justfile",
+  "/powertest.yaml",
+  "/rust-toolchain.toml",
+  "/.envrc",
+  "/.gitignore",
+  "/.git-blame-ignore-revs",
+  "/.pre-commit-config-non-nix.yaml",
 ]
 readme = "README.md"
 homepage = "https://github.com/eza-community/eza"
