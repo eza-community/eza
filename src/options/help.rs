@@ -96,7 +96,7 @@ static GIT_VIEW_HELP: &str = "  \
   --no-git                   suppress Git status (always overrides --git,
                              --git-repos, --git-repos-no-status)
   --git-repos                list root of git-tree status
-  --get-repos-no-status      list each git-repos branch name (much faster)
+  --git-repos-no-status      list each git-repos branch name (much faster)
     ";
 static EXTENDED_HELP: &str = "  \
   -@, --extended             list each file's extended attributes and sizes";
