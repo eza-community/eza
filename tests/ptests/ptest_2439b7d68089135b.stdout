@@ -78,7 +78,7 @@ LONG VIEW OPTIONS
   --no-git                   suppress Git status (always overrides --git,
                              --git-repos, --git-repos-no-status)
   --git-repos                list root of git-tree status
-  --get-repos-no-status      list each git-repos branch name (much faster)
+  --git-repos-no-status      list each git-repos branch name (much faster)
     
   -@, --extended             list each file's extended attributes and sizes
   -Z, --context              list each file's security context
