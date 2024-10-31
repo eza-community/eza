@@ -6,16 +6,31 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.6] - 2024-10-31
+
+### Bug Fixes
+
+- Changelog spelling
+
+### Documentation
+
+- Fix typo `--get-repos-no-status` to `--git-repos-no-status`
+
+### Build
+
+- Bump serde from 1.0.210 to 1.0.214
+
 ## [0.20.5] - 2024-10-25
 
 ### Bug Fixes
 
 - Ensure nested tree parts align under item name
-- Remove deprecated `chrono` `from_timestamp_opt`
+- Remove depricated `chrono` `from_timestamp_opt`
 
 ### Miscellaneous Tasks
 
 - Update generated test files
+- Eza v0.20.5 changelogs, version bump
 
 ### Build
 
