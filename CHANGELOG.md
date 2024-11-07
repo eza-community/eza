@@ -6,6 +6,22 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.7] - 2024-11-07
+
+### Bug Fixes
+
+- Palette v0.7.6 -> v0.7.5
+
+### Miscellaneous Tasks
+
+- Update package.exclude list in Cargo.toml
+
+### Build
+
+- Bump DeterminateSystems/nix-installer-action from 14 to 15
+- Bump serde_norway from 0.9.38 to 0.9.39
+- Bump trycmd from 0.15.7 to 0.15.8
+
 ## [0.20.6] - 2024-10-31
 
 ### Bug Fixes
@@ -15,6 +31,10 @@ SPDX-License-Identifier: EUPL-1.2
 ### Documentation
 
 - Fix typo `--get-repos-no-status` to `--git-repos-no-status`
+
+### Miscellaneous Tasks
+
+- Eza v0.20.6 changelogs, version bump
 
 ### Build
 
