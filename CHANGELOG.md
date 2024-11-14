@@ -6,6 +6,18 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.8] - 2024-11-14
+
+### Bug Fixes
+
+- Cross-compiling by updating to libz-sys to 1.1.20
+
+### Build
+
+- Bump palette from 0.7.5 to 0.7.6
+- Bump libc from 0.2.161 to 0.2.162
+- Bump serde from 1.0.214 to 1.0.215
+
 ## [0.20.7] - 2024-11-07
 
 ### Bug Fixes
@@ -15,6 +27,7 @@ SPDX-License-Identifier: EUPL-1.2
 ### Miscellaneous Tasks
 
 - Update package.exclude list in Cargo.toml
+- Eza v0.20.7 changelogs, version bump
 
 ### Build
 
