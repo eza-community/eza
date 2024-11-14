@@ -6,6 +6,13 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.21.0] - unreleased
+
+### Miscellaneous Tasks
+
+- [**breaking**] MSRV 1.74
+- Bump all transitive dependencies
+
 ## [0.20.10] - 2024-11-28
 
 ### Bug Fixes
