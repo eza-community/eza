@@ -315,7 +315,6 @@ gen_test_dir:
     nix build -L ./#trycmd
 
 # Fully re-generates the integration tests using powertest
-
 [group('testing')]
 @regen:
     which powertest >&- 2>&- || (echo -e "Powertest not installed. Please Clone the repo and run:\n\tcargo install --path . --locked" && exit 1)
