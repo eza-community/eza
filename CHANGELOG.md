@@ -6,11 +6,31 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.9] - 2024-11-21
+
+### Bug Fixes
+
+- Remove newline after doc comment of `regen` recipe
+
+### Refactor
+
+- List all recipes by default
+- Group related recipes
+
+### Build
+
+- Bump libc from 0.2.162 to 0.2.164
+- Bump DeterminateSystems/nix-installer-action from 15 to 16
+
 ## [0.20.8] - 2024-11-14
 
 ### Bug Fixes
 
 - Cross-compiling by updating to libz-sys to 1.1.20
+
+### Miscellaneous Tasks
+
+- Eza v0.20.8 changelogs, version bump
 
 ### Build
 
