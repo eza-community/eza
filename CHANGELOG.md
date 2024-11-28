@@ -6,11 +6,25 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.10] - 2024-11-28
+
+### Bug Fixes
+
+- People dislike the phrasing "maintained" on hackernews
+
+### Build
+
+- Bump libc from 0.2.164 to 0.2.165
+
 ## [0.20.9] - 2024-11-21
 
 ### Bug Fixes
 
 - Remove newline after doc comment of `regen` recipe
+
+### Miscellaneous Tasks
+
+- Eza v0.20.9 changelogs, version bump
 
 ### Refactor
 
