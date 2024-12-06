@@ -61,11 +61,8 @@ impl TerminalWidth {
         // where the output goes.
 
         #[cfg(unix)]
-        let stdout_term_width = {
-            use std::os::fd::AsRawFd;
-            terminal_size::terminal_size_using_fd(std::io::stdout().as_raw_fd())
-                .map(|(w, _h)| w.0 as _)
-        };
+        let stdout_term_width =
+            { terminal_size::terminal_size_of(std::io::stdout()).map(|(w, _h)| w.0 as _) };
         #[cfg(windows)]
         let stdout_term_width = {
             use windows_sys::Win32::System::Console::{GetStdHandle, STD_OUTPUT_HANDLE};
