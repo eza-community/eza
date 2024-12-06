@@ -119,12 +119,6 @@ The default value is ‘`automatic`’.
 `-w`, `--width=COLS`
 : Set screen width in columns.
 
-Valid options are `none`, `absolute` or `relative`.
-The default value is `none`
-
-`absolute` mode highlights based on file modification time relative to the past year.
-`relative` mode highlights based on file modification time in relation to other files. `none` disables highlighting.
-
 FILTERING AND SORTING OPTIONS
 =============================
 
