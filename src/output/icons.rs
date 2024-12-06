@@ -64,6 +64,7 @@ impl Icons {
     const LANG_FENNEL: char     = '\u{e6af}';  // 
     const LANG_FORTRAN: char    = '\u{f121a}'; // 󱈚
     const LANG_FSHARP: char     = '\u{e7a7}';  // 
+    const LANG_GLEAM: char      = '\u{f09a5}'; // 󰦥
     const LANG_GO: char         = '\u{e65e}';  // 
     const LANG_GROOVY: char     = '\u{e775}';  // 
     const LANG_HASKELL: char    = '\u{e777}';  // 
@@ -487,6 +488,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "gform"          => '\u{f298}',              // 
     "gif"            => Icons::IMAGE,            // 
     "git"            => Icons::GIT,              // 
+    "gleam"          => Icons::LANG_GLEAM,       // 󰦥
     "go"             => Icons::LANG_GO,          // 
     "godot"          => Icons::GODOT,            // 
     "gpg"            => Icons::SHIELD_LOCK,      // 󰦝
