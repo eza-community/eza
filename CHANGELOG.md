@@ -6,11 +6,40 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.12] - 2024-12-11
+
+### Bug Fixes
+
+- Add unicode-3.0 license
+- Use safe terminal_size_of
+- Use terminal_size_of with borrowed raw handle
+
+### Features
+
+- Move MSRV to 1.74 and deep bump cargo deps
+- Add Gleam lang icon
+
+### Testing
+
+- Regen for 1.74
+
+### Build
+
+- Bump terminal_size from 0.3.0 to 0.4.1
+
+### Ci
+
+- Openbsd 7.4 -> 7.6
+
 ## [0.20.11] - 2024-12-05
 
 ### Bug Fixes
 
 - Bump libc from 0.2.165 to 0.2.167
+
+### Miscellaneous Tasks
+
+- Eza v0.20.11 changelogs, version bump
 
 ## [0.20.10] - 2024-11-28
 
