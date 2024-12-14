@@ -778,6 +778,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "txz"            => Icons::COMPRESSED,       // 
     "tz"             => Icons::COMPRESSED,       // 
     "tzo"            => Icons::COMPRESSED,       // 
+    "templ"          => '\u{f121}',              //   
     "unity"          => Icons::UNITY,            // 
     "unity3d"        => Icons::UNITY,            // 
     "v"              => Icons::LANG_V,           // 
