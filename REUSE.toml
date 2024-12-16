@@ -58,3 +58,23 @@ SPDX-License-Identifier = "EUPL-1.2"
 path = ".github/**.md"
 SPDX-FileCopyrightText = "2024 Christina Sørensen"
 SPDX-License-Identifier = "EUPL-1.2"
+
+# pre-commit-hooks.nix cause these to appear in commit check:(
+
+[[annotations]]
+path = ".cache/pre-commit/README"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Christina Sørensen"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = ".cache/pre-commit/db.db"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Christina Sørensen"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = ".gitconfig"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Christina Sørensen"
+SPDX-License-Identifier = "EUPL-1.2"
