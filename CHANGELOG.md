@@ -13,10 +13,18 @@ SPDX-License-Identifier: EUPL-1.2
 - Pre-commit-hooks.nix trying to be too clever
 - Remove stray description (originally from `--decay-mode`)
 
+### Miscellaneous Tasks
+
+- Eza v0.20.13 changelogs, version bump
+
 ### Build
 
 - Update crate deps Mon Dec 16
 - Update flake deps Mon Dec 16
+
+### Ci
+
+- Update to PRESENT DAY, PRESENT TIME
 
 ## [0.20.12] - 2024-12-11
 
