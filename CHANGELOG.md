@@ -6,6 +6,18 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.13] - 2024-12-18
+
+### Bug Fixes
+
+- Pre-commit-hooks.nix trying to be too clever
+- Remove stray description (originally from `--decay-mode`)
+
+### Build
+
+- Update crate deps Mon Dec 16
+- Update flake deps Mon Dec 16
+
 ## [0.20.12] - 2024-12-11
 
 ### Bug Fixes
@@ -18,6 +30,10 @@ SPDX-License-Identifier: EUPL-1.2
 
 - Move MSRV to 1.74 and deep bump cargo deps
 - Add Gleam lang icon
+
+### Miscellaneous Tasks
+
+- Eza v0.20.12 changelogs, version bump
 
 ### Testing
 
