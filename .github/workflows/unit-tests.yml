@@ -14,7 +14,23 @@ env:
   CARGO_TERM_COLOR: always
   RUSTFLAGS: --deny warnings
 jobs:
+  check_if_pr:
+    runs-on: ubuntu-latest
+    outputs:
+      is_pr: ${{ steps.check.outputs.is_pr }}
+    steps:
+      - name: Check if it's a PR
+        id: check
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "is_pr=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_pr=false" >> $GITHUB_OUTPUT
+          fi
+
   no-merge-commits:
+    needs: check_if_pr
+    if: needs.check_if_pr.outputs.is_pr == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -23,8 +39,9 @@ jobs:
         uses: NexusPHP/no-merge-commits@v2.1.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
   conventional:
-    needs: no-merge-commits
+    needs: [check_if_pr, no-merge-commits]
     name: Conventional Commits
     runs-on: ubuntu-latest
     steps:
