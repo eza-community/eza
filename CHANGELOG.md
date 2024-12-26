@@ -6,6 +6,41 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.14] - 2024-12-26
+
+### Bug Fixes
+
+- ...those pesky workflow targets
+- Remove separate bsd tests
+- Remove audit workflow
+
+### Features
+
+- Audit checks in main CI
+
+### Refactor
+
+- Move eza, trycmd packages
+- Move BSD unit tests to main flow
+
+### Styling
+
+- Format workflows
+- Ci checks formatted
+
+### Build
+
+- Cargo 2024-12-25
+
+### Ci
+
+- Simplify
+- Let's just always run em'
+- Only run big checks on PRs to main
+- Faster flake checks... maybe?
+- Flakes on latest ubuntu
+- Only do no-merge-commits on PR
+
 ## [0.20.13] - 2024-12-18
 
 ### Bug Fixes
