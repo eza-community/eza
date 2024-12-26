@@ -7,7 +7,6 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
   cancel-in-progress: true
@@ -24,7 +23,6 @@ jobs:
         uses: NexusPHP/no-merge-commits@v2.1.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-
   conventional:
     needs: no-merge-commits
     name: Conventional Commits
@@ -32,7 +30,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: webiny/action-conventional-commits@v1.3.0
-
   unit-tests:
     needs: conventional
     runs-on: ${{ matrix.os }}
@@ -59,7 +56,6 @@ jobs:
         run: cargo clippy -- -D warnings
       - name: Run unit tests
         run: cargo hack test
-
   flake-check:
     needs: conventional
     name: Check Nix Flake
@@ -76,7 +72,6 @@ jobs:
         uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Nix Flake Check
         run: nix build .#checks.${{ matrix.target }}.${{ matrix.checks }} -L
-
   flake-build:
     needs: conventional
     name: Build Nix package
