@@ -27,7 +27,6 @@ jobs:
           else
             echo "is_pr=false" >> $GITHUB_OUTPUT
           fi
-
   no-merge-commits:
     needs: check_if_pr
     if: needs.check_if_pr.outputs.is_pr == 'true'
@@ -39,7 +38,6 @@ jobs:
         uses: NexusPHP/no-merge-commits@v2.1.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-
   conventional:
     needs: [check_if_pr, no-merge-commits]
     name: Conventional Commits
