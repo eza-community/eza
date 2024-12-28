@@ -94,7 +94,7 @@ glob = "0.3"
 libc = "0.2"
 locale = "0.2"
 log = "0.4"
-natord = "1.0"
+natord-plus-plus = "2.0"
 path-clean = "1.0.1"
 number_prefix = "0.4"
 palette = { version = "0.7.6", default-features = false, features = ["std"] }
