@@ -445,7 +445,7 @@ dependencies = [
  "libc",
  "locale",
  "log",
- "natord",
+ "natord-plus-plus",
  "nu-ansi-term",
  "number_prefix",
  "once_cell",
@@ -884,10 +884,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "natord"
-version = "1.0.9"
+name = "natord-plus-plus"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "308d96db8debc727c3fd9744aac51751243420e46edf401010908da7f8d5e57c"
+checksum = "66f8ac0a79782d13e4ec2f955113676d786539965b3764e06fb4e107dcc3da64"
 
 [[package]]
 name = "normalize-line-endings"
