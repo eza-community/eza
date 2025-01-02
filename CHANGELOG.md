@@ -6,6 +6,21 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.15] - 2025-01-02
+
+### Features
+
+- Add icons from nerd fonts 3.3.0 release & more
+- Add new icons, extensive list
+
+### Build
+
+- We switch to our own fork of natord
+
+### Ci
+
+- Bump FreeBSD / NetBSD versions.
+
 ## [0.20.14] - 2024-12-26
 
 ### Bug Fixes
@@ -17,6 +32,10 @@ SPDX-License-Identifier: EUPL-1.2
 ### Features
 
 - Audit checks in main CI
+
+### Miscellaneous Tasks
+
+- Eza v0.20.14 changelogs, version bump
 
 ### Refactor
 
