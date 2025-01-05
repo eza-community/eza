@@ -843,6 +843,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "prql"           => Icons::DATABASE,         // 
     "ps"             => Icons::VECTOR,           // 󰕙
     "ps1"            => Icons::POWERSHELL,       // 
+    "psb"            => '\u{e7b8}',              // 
     "psd"            => '\u{e7b8}',              // 
     "psd1"           => Icons::POWERSHELL,       // 
     "psf"            => Icons::FONT,             // 
