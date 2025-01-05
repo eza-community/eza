@@ -478,7 +478,6 @@ impl<C: Colours> FileName<'_, '_, C> {
         return match self.file {
             f if f.is_mount_point()      => self.colours.mount_point(),
             f if f.is_directory()        => self.colours.directory(),
-            #[cfg(unix)]
             f if f.is_executable_file()  => self.colours.executable_file(),
             f if f.is_link()             => self.colours.symlink(),
             #[cfg(unix)]
