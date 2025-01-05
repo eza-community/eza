@@ -406,6 +406,7 @@ const FILENAME_ICONS: Map<&'static str, char> = phf_map! {
     "README"              => Icons::README,         // 󰂺
     "README.md"           => Icons::README,         // 󰂺
     "release.toml"        => Icons::LANG_RUST,      // 
+    "renovate.json"       => '\u{f027c}',           // 󰉼
     "requirements.txt"    => Icons::LANG_PYTHON,    // 
     "robots.txt"          => '\u{f06a9}',           // 󰚩
     "rubydoc"             => Icons::LANG_RUBYRAILS, // 
