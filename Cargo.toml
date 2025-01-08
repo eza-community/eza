@@ -114,7 +114,7 @@ serde_norway = "0.9"
 backtrace = "0.3"
 
 [dependencies.git2]
-version = "0.19"
+version = "0.20"
 optional = true
 default-features = false
 
