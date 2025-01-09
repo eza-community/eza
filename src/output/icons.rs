@@ -210,6 +210,7 @@ const FILENAME_ICONS: Map<&'static str, char> = phf_map! {
     ".DS_Store"           => Icons::OS_APPLE,       // 
     ".emacs"              => Icons::EMACS,          // 
     ".envrc"              => '\u{f462}',            // 
+    ".eslintignore"       => Icons::ESLINT,         // 
     ".eslintrc.cjs"       => Icons::ESLINT,         // 
     ".eslintrc.js"        => Icons::ESLINT,         // 
     ".eslintrc.json"      => Icons::ESLINT,         // 
