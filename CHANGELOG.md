@@ -6,12 +6,28 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.16] - 2025-01-09
+
+### Features
+
+- Add brew icon for brewfile and brewfile.lock.json
+
+### Build
+
+- Update flake inputs 2025-01-08
+- Update cargo inputs 2025-01-08
+- Bump git2 from 0.19.0 to 0.20.0
+
 ## [0.20.15] - 2025-01-02
 
 ### Features
 
 - Add icons from nerd fonts 3.3.0 release & more
 - Add new icons, extensive list
+
+### Miscellaneous Tasks
+
+- Eza v0.20.15 changelogs, version bump
 
 ### Build
 
