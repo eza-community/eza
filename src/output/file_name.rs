@@ -165,7 +165,7 @@ pub struct FileName<'a, 'dir, C> {
     mount_style: MountStyle,
 }
 
-impl<'a, 'dir, C> FileName<'a, 'dir, C> {
+impl<C> FileName<'_, '_, C> {
     /// Sets the flag on this file name to display link targets with an
     /// arrow followed by their path.
     pub fn with_link_paths(mut self) -> Self {
