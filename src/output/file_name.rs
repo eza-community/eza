@@ -187,7 +187,7 @@ impl<C> FileName<'_, '_, C> {
     }
 }
 
-impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
+impl<C: Colours> FileName<'_, '_, C> {
     /// Paints the name of the file using the colours, resulting in a vector
     /// of coloured cells that can be printed to the terminal.
     ///
