@@ -8,6 +8,7 @@ use crate::output::cell::TextCell;
 use crate::output::time::TimeFormat;
 
 use chrono::prelude::*;
+use chrono_tz::Etc::UTC;
 use nu_ansi_term::Style;
 
 pub trait Render {
@@ -17,7 +18,7 @@ pub trait Render {
 impl Render for Option<NaiveDateTime> {
     fn render(self, style: Style, time_format: TimeFormat) -> TextCell {
         let datestamp = if let Ok(timezone_str) = iana_time_zone::get_timezone() {
-            let timezone: chrono_tz::Tz = timezone_str.parse().unwrap();
+            let timezone: chrono_tz::Tz = timezone_str.parse().unwrap_or(UTC);
             if let Some(time) = self {
                 let time_offset = timezone.offset_from_utc_datetime(&time).fix();
                 time_format.format(&DateTime::<FixedOffset>::from_naive_utc_and_offset(
