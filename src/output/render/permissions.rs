@@ -55,7 +55,7 @@ impl PermissionsPlusRender for Option<f::PermissionsPlus> {
                 contents: chars.into(),
             }
         } else {
-             TextCell {
+            TextCell {
                 width: DisplayWidth::from(0),
                 contents: vec![].into(),
             }
