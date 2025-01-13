@@ -109,7 +109,7 @@ unicode-width = "0.2"
 zoneinfo_compiled = "0.5.1"
 ansi-width = "0.1.0"
 serde = { version = "1.0.215", features = ["derive"] }
-dirs = "5.0.1"
+dirs = "6.0.0"
 serde_norway = "0.9"
 backtrace = "0.3"
 
