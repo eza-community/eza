@@ -159,6 +159,7 @@
                 "yamlfmt"
                 "nixfmt"
                 "taplo"
+                "shellcheck" # this doesn't respect our excludes:w
               ];
               filterFn = n: _v: (!builtins.elem n toFilter);
               treefmtFormatters = pkgs.lib.mapAttrs (_n: v: { inherit (v) enable; }) (
