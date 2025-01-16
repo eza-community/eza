@@ -6,11 +6,26 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.17] - 2025-01-16
+
+### Features
+
+- Add editorconfig icon for .editorconfig
+
+### Build
+
+- Cargo bump 2025-01-16
+- Flake bump 2025-01-16
+
 ## [0.20.16] - 2025-01-09
 
 ### Features
 
 - Add brew icon for brewfile and brewfile.lock.json
+
+### Miscellaneous Tasks
+
+- Eza v0.20.16 changelogs, version bump
 
 ### Build
 
