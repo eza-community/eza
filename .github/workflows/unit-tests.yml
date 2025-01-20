@@ -92,11 +92,14 @@ jobs:
           release: '14.2'
           usesh: true
           prepare: |
-            pkg install -y rust git
+            pkg install -y curl git
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain 1.74 -y
+            . ~/.cargo/env
             cargo install cargo-hack
             git config --global --add safe.directory /home/runner/work/eza/eza
           run: |
             set -e
+            . ~/.cargo/env
             export CARGO_TERM_COLOR="always"
             export RUSTFLAGS="--deny warnings"
             cargo fmt --check
