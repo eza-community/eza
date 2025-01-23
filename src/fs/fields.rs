@@ -24,15 +24,18 @@
 pub type gid_t = u32;
 
 /// The type of a file’s inode.
+#[allow(unused)]
 pub type ino_t = u64;
 
 /// The type of a file’s number of links.
+#[allow(unused)]
 pub type nlink_t = u64;
 
 /// The type of a file’s timestamp (creation, modification, access, etc).
 pub type time_t = i64;
 
 /// The type of a file’s user ID.
+#[allow(unused)]
 pub type uid_t = u32;
 
 /// The type of user file flags
@@ -123,6 +126,7 @@ pub struct OctalPermissions {
 /// multiple directories. However, it’s rare (but occasionally useful!) for a
 /// regular file to have a link count greater than 1, so we highlight the
 /// block count specifically for this case.
+#[allow(unused)]
 #[derive(Copy, Clone)]
 pub struct Links {
     /// The actual link count.
@@ -135,6 +139,7 @@ pub struct Links {
 /// A file’s inode. Every directory entry on a Unix filesystem has an inode,
 /// including directories and links, so this is applicable to everything exa
 /// can deal with.
+#[allow(unused)]
 #[derive(Copy, Clone)]
 pub struct Inode(pub ino_t);
 
@@ -151,10 +156,12 @@ pub enum Blocksize {
 
 /// The ID of the user that owns a file. This will only ever be a number;
 /// looking up the username is done in the `display` module.
+#[allow(unused)]
 #[derive(Copy, Clone)]
 pub struct User(pub uid_t);
 
 /// The ID of the group that a file belongs to.
+#[allow(unused)]
 #[derive(Copy, Clone)]
 pub struct Group(pub gid_t);
 

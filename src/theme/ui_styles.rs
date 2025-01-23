@@ -250,6 +250,7 @@ field_accessors!(
 );
 
 #[rustfmt::skip]
+#[allow(unused)]
 #[derive(Clone, Copy, Debug, Eq, Default, PartialEq, Serialize, Deserialize)]
 pub struct Links {
     pub normal: Option<Style>,           // lc

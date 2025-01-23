@@ -26,6 +26,7 @@ impl f::Links {
     }
 }
 
+#[allow(unused)]
 pub trait Colours {
     fn normal(&self) -> Style;
     fn multi_link_file(&self) -> Style;

@@ -67,6 +67,7 @@ impl PermissionsPlusRender for Option<f::PermissionsPlus> {
     }
 }
 
+#[allow(unused)]
 pub trait RenderPermissions {
     fn render<C: Colours>(&self, colours: &C, is_regular_file: bool) -> Vec<ANSIString<'static>>;
 }
