@@ -6,11 +6,30 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.18] - 2025-01-23
+
+### Bug Fixes
+
+- Support additional yaml file extension, clippy
+
+### Build
+
+- Cargo bump 2025-01-23
+- Flake bump 2025-01-23
+
+### Ci
+
+- Use rust 1.74 instead of latest via rustup
+
 ## [0.20.17] - 2025-01-16
 
 ### Features
 
 - Add editorconfig icon for .editorconfig
+
+### Miscellaneous Tasks
+
+- Eza v0.20.17 changelogs, version bump
 
 ### Build
 
