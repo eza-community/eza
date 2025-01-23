@@ -46,6 +46,7 @@ pub use self::users::Colours as UserColours;
 pub use self::users::Render as UserRender;
 
 mod octal;
+#[cfg(unix)]
 pub use self::octal::Render as OctalPermissionsRender;
 // octal uses just one colour
 

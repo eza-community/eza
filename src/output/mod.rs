@@ -5,7 +5,7 @@
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
 #[cfg(target_os = "windows")]
-pub use self::cell::{DisplayWidth, TextCell, TextCellContents};
+pub use self::cell::TextCell;
 pub use self::escape::escape;
 
 pub mod color_scale;
