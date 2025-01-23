@@ -13,6 +13,7 @@ concurrency:
 env:
   CARGO_TERM_COLOR: always
   RUSTFLAGS: --deny warnings
+  msrv: 1.78
 jobs:
   security_audit:
     runs-on: ubuntu-latest
@@ -59,11 +60,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        rust: [1.70.0, stable, beta, nightly]
+        rust: [msrv, stable, beta, nightly]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - run: rustup toolchain install ${{ matrix.rust }} --profile minimal
+      - run: rustup toolchain install ${{ matrix.rust == 'msrv' && env.msrv || matrix.rust }} --profile minimal
       - uses: Swatinem/rust-cache@v2
       - name: Install cargo-hack
         uses: nick-fields/retry@v3
@@ -82,6 +83,10 @@ jobs:
     needs: conventional
     runs-on: ubuntu-22.04
     timeout-minutes: 20
+    continue-on-error: ${{ matrix.rust == 'nightly' }}
+    strategy:
+      matrix:
+        rust: [msrv, stable, beta, nightly]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -93,7 +98,7 @@ jobs:
           usesh: true
           prepare: |
             pkg install -y curl git
-            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain 1.74 -y
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain ${{ matrix.rust == 'msrv' && env.msrv || matrix.rust }} --profile minimal -y
             . ~/.cargo/env
             cargo install cargo-hack
             git config --global --add safe.directory /home/runner/work/eza/eza
@@ -109,6 +114,10 @@ jobs:
     needs: conventional
     runs-on: ubuntu-22.04
     timeout-minutes: 20
+    continue-on-error: ${{ matrix.rust == 'nightly' }}
+    strategy:
+      matrix:
+        rust: [msrv, stable, beta, nightly]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -122,12 +131,14 @@ jobs:
             PATH="/root/.cargo/bin:/usr/pkg/sbin:/usr/pkg/bin:$PATH"
             PKG_PATH="https://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/amd64/10.1/All/"
             export PATH PKG_PATH
-            /usr/sbin/pkg_add pkgin
-            pkgin -y install rust git
+            /usr/sbin/pkg_add curl git
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain ${{ matrix.rust == 'msrv' && env.msrv || matrix.rust }} --profile minimal -y
+            . ~/.cargo/env
             cargo install cargo-hack
             git config --global --add safe.directory /home/runner/work/eza/eza
           run: |
             set -e
+            . ~/.cargo/env
             export CARGO_TERM_COLOR="always"
             export RUSTFLAGS="--deny warnings"
             cargo fmt --check
