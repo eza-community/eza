@@ -6,7 +6,7 @@ description = "A modern replacement for ls"
 authors = ["Christina Sørensen <christina@cafkafk.com>"]
 categories = ["command-line-utilities"]
 edition = "2021"
-rust-version = "1.74.0"
+rust-version = "1.78.0"
 exclude = [
   "/docs/",
   "/devtools/",
