@@ -45,6 +45,7 @@ pub mod test {
     use nu_ansi_term::Color::*;
     use nu_ansi_term::Style;
 
+    #[allow(dead_code)]
     struct TestColours;
 
     impl Colours for TestColours {
