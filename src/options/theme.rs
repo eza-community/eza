@@ -35,26 +35,30 @@ impl Options {
 
 impl ThemeConfig {
     fn deduce<V: Vars>(vars: &V) -> Option<Self> {
-        let (base_path, is_default_location) = if let Some(path) = vars.get("EZA_CONFIG_DIR") {
-            (PathBuf::from(path), false)
-        } else if let Some(path) = dirs::config_dir() {
-            (path.join("eza"), true)
+        if let Some(path) = vars.get("EZA_CONFIG_DIR") {
+            let path = PathBuf::from(path);
+            let theme = path.join("theme.yml");
+            if theme.exists() {
+                return Some(ThemeConfig::from_path(theme));
+            }
+            let theme = path.join("theme.yaml");
+            if theme.exists() {
+                return Some(ThemeConfig::from_path(theme));
+            }
+            None
         } else {
-            return None;
-        };
-        let yml_path = base_path.join("theme.yml");
-        if yml_path.exists() {
-            return if is_default_location {
-                Some(ThemeConfig::from_path(&yml_path.to_string_lossy()))
-            } else {
-                Some(ThemeConfig::default())
-            };
+            let path = dirs::config_dir().unwrap_or_default();
+            let path = path.join("eza");
+            let theme = path.join("theme.yml");
+            if theme.exists() {
+                return Some(ThemeConfig::default());
+            }
+            let theme = path.join("theme.yaml");
+            if theme.exists() {
+                return Some(ThemeConfig::from_path(theme));
+            }
+            None
         }
-        let yaml_path = base_path.join("theme.yaml");
-        if yaml_path.exists() {
-            return Some(ThemeConfig::from_path(&yaml_path.to_string_lossy()));
-        }
-        None
     }
 }
 
