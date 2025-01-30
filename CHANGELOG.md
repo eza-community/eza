@@ -6,11 +6,44 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.19] - 2025-01-30
+
+### Bug Fixes
+
+- Update MSRV to 1.78 to solve rust malfunction
+- Rustc false dead code positives
+- Rustc false positives in tests
+- Regression in theme config location, simplify path
+- Wrong file name for Brewfile
+
+### Documentation
+
+- Add note regarding ci msrv update
+
+### Features
+
+- Add `.norg` icon
+
+### Build
+
+- Bump dirs from 5.0.1 to 6.0.0
+- Bump NexusPHP/no-merge-commits from 2.1.0 to 2.2.1
+- Bump flake
+- Bump cargo
+
+### Ci
+
+- Fix and unify msrv and add matrix to free/netbsd
+
 ## [0.20.18] - 2025-01-23
 
 ### Bug Fixes
 
 - Support additional yaml file extension, clippy
+
+### Miscellaneous Tasks
+
+- Eza v0.20.18 changelogs, version bump
 
 ### Build
 
