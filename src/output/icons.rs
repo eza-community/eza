@@ -309,6 +309,7 @@ const FILENAME_ICONS: Map<&'static str, char> = phf_map! {
     "COMMIT_EDITMSG"      => Icons::GIT,            // 
     "environment"         => Icons::CONFIG,         // 
     "favicon.ico"         => '\u{e623}',            // 
+    "flake.lock"          => '\u{f313}',            // 
     "fonts.conf"          => Icons::FONT,           // 
     "fp-info-cache"       => Icons::KICAD,          // 
     "fp-lib-table"        => Icons::KICAD,          // 
