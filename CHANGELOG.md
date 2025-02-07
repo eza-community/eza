@@ -6,6 +6,12 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.20] - 2025-02-07
+
+### Bug Fixes
+
+- Make `flake.lock` icon the nix logo
+
 ## [0.20.19] - 2025-01-30
 
 ### Bug Fixes
@@ -23,6 +29,10 @@ SPDX-License-Identifier: EUPL-1.2
 ### Features
 
 - Add `.norg` icon
+
+### Miscellaneous Tasks
+
+- Eza v0.20.19 changelogs, version bump
 
 ### Build
 
