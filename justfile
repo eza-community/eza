@@ -156,6 +156,9 @@ release:
 #    binaries    #
 #----------------#
 
+# TODO: make static/no_static DRY
+# TODO: add name prefix/suffix arguments
+
 [group('binaries')]
 tar BINARY TARGET:
     tar czvf ./target/"bin-$(convco version)"/{{BINARY}}_{{TARGET}}.tar.gz -C ./target/{{TARGET}}/release/ ./{{BINARY}}
@@ -171,6 +174,22 @@ tar_static BINARY TARGET:
 [group('binaries')]
 zip_static BINARY TARGET:
     zip -j ./target/"bin-$(convco version)"/{{BINARY}}_{{TARGET}}_static.zip ./target/{{TARGET}}/release/{{BINARY}}
+
+[group('binaries')]
+tar_no_libgit BINARY TARGET:
+    tar czvf ./target/"bin-$(convco version)"/{{BINARY}}_{{TARGET}}_no_libgit.tar.gz -C ./target/{{TARGET}}/release/ ./{{BINARY}}
+
+[group('binaries')]
+zip_no_libgit BINARY TARGET:
+    zip -j ./target/"bin-$(convco version)"/{{BINARY}}_{{TARGET}}_no_libgit.zip ./target/{{TARGET}}/release/{{BINARY}}
+
+[group('binaries')]
+tar_static_no_libgit BINARY TARGET:
+    tar czvf ./target/"bin-$(convco version)"/{{BINARY}}_{{TARGET}}_static_no_libgit.tar.gz -C ./target/{{TARGET}}/release/ ./{{BINARY}}
+
+[group('binaries')]
+zip_static_no_libgit BINARY TARGET:
+    zip -j ./target/"bin-$(convco version)"/{{BINARY}}_{{TARGET}}_static_no_libgit.zip ./target/{{TARGET}}/release/{{BINARY}}
 
 [group('binaries')]
 binary BINARY TARGET:
@@ -190,15 +209,15 @@ binary_static BINARY TARGET:
 binary_no_libgit BINARY TARGET:
     rustup target add {{TARGET}}
     cross build --no-default-features --release --target {{TARGET}}
-    just tar {{BINARY}} {{TARGET}}
-    just zip {{BINARY}} {{TARGET}}
+    just tar_no_libgit {{BINARY}} {{TARGET}}
+    just zip_no_libgit {{BINARY}} {{TARGET}}
 
 [group('binaries')]
 binary_static_no_libgit BINARY TARGET:
     rustup target add {{TARGET}}
     RUSTFLAGS='-C target-feature=+crt-static' cross build --no-default-features --release --target {{TARGET}}
-    just tar_static {{BINARY}} {{TARGET}}
-    just zip_static {{BINARY}} {{TARGET}}
+    just tar_static_no_libgit {{BINARY}} {{TARGET}}
+    just zip_static_no_libgit {{BINARY}} {{TARGET}}
 
 [group('binaries')]
 checksum:
@@ -237,10 +256,12 @@ alias c := cross
     # just binary_static eza x86_64-unknown-linux-musl
 
     ### aarch
+    just binary eza aarch64-unknown-linux-gnu
     just binary_no_libgit eza aarch64-unknown-linux-gnu
     # BUG: just binary_static eza aarch64-unknown-linux-gnu
 
     ### arm
+    just binary eza arm-unknown-linux-gnueabihf
     just binary_no_libgit eza arm-unknown-linux-gnueabihf
     # just binary_static eza arm-unknown-linux-gnueabihf
 
