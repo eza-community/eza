@@ -6,11 +6,25 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.21] - 2025-02-13
+
+### Bug Fixes
+
+- Start publishing libgit arm builds
+
+### Build
+
+- Add libgit alternative for arm builds
+
 ## [0.20.20] - 2025-02-07
 
 ### Bug Fixes
 
 - Make `flake.lock` icon the nix logo
+
+### Miscellaneous Tasks
+
+- Eza v0.20.20 changelogs, version bump
 
 ## [0.20.19] - 2025-01-30
 
