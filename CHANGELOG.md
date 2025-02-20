@@ -6,11 +6,30 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.22] - 2025-02-20
+
+### Features
+
+- Add prettier icon for *.prettierignore
+- Add icon for *.hrl
+- Add photoshop icon for *.psb
+- Add eslint icon for .eslintignore
+- Add renovate icon for renovate.json
+- Add elixir icon for *.eex, *.leex and mix.lock
+
+### Build
+
+- Bump once_cell from 1.20.2 to 1.20.3
+
 ## [0.20.21] - 2025-02-13
 
 ### Bug Fixes
 
 - Start publishing libgit arm builds
+
+### Miscellaneous Tasks
+
+- Eza v0.20.21 changelogs, version bump
 
 ### Build
 
