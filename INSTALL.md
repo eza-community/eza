@@ -158,6 +158,16 @@ sudo rm -f /usr/local/bin/exa
 sudo ln -s /usr/local/bin/eza /usr/local/bin/exa
 ```
 
+### Pixi (Linux, MacOS, and Windows)
+
+[![conda-forge package](https://img.shields.io/conda/vn/conda-forge/eza)](https://prefix.dev/channels/conda-forge/packages/eza)
+
+Eza is available in the conda-forge repository and can be installed using [Pixi](https://pixi.sh/latest/):
+
+```shell
+pixi global install eza
+```
+
 ### Brew (MacOS)
 
 [![Homebrew package](https://repology.org/badge/version-for-repo/homebrew/eza.svg)](https://repology.org/project/eza/versions)
