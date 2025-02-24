@@ -155,9 +155,10 @@ commands:
   ? - null
     - --git-ignore
   :
-  ? - -b # Long View Options
   ? - null
     - --ignore-submodule-contents
+  :
+  ? - -b # Long View Options
     - --binary
   :
   ? - -B
