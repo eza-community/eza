@@ -206,6 +206,7 @@ impl<'a> Render<'a> {
                     git_ignoring,
                     git,
                     git_repos,
+                    ignoring_submodule_contents,
                     ..
                 } = self;
 
@@ -220,6 +221,7 @@ impl<'a> Render<'a> {
                     git_ignoring,
                     git,
                     git_repos,
+                    ignoring_submodule_contents,
                 };
                 return r.render(w);
             }
