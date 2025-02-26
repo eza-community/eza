@@ -300,7 +300,7 @@ impl<'args> Exa<'args> {
 
         for file_path in expanded_input_paths {
             let f = File::from_args(
-                PathBuf::from(file_path),
+                PathBuf::from(file_path.clone()),
                 None,
                 None,
                 self.options.view.deref_links,
@@ -312,7 +312,7 @@ impl<'args> Exa<'args> {
             // the metadata to verify.
             if let Err(e) = f.metadata() {
                 exit_status = 2;
-                writeln!(io::stderr(), "{{&file_path:?}}: {e}")?;
+                writeln!(io::stderr(), "{file_path:?}: {e}")?;
                 continue;
             }
 
@@ -321,10 +321,10 @@ impl<'args> Exa<'args> {
                 match f.to_dir() {
                     Ok(d) => dirs.push(d),
                     Err(e) if e.kind() == ErrorKind::PermissionDenied => {
-                        eprintln!("{{&file_path:?}}: {e}");
+                        eprintln!("{file_path:?}: {e}");
                         exit(exits::PERMISSION_DENIED);
                     }
-                    Err(e) => writeln!(io::stderr(), "{{&file_path:?}}: {e}")?,
+                    Err(e) => writeln!(io::stderr(), "{file_path:?}: {e}")?,
                 }
             } else {
                 files.push(f);
