@@ -478,7 +478,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     /// if there’s nowhere else for that fact to be shown.)
     pub fn style(&self) -> Style {
         if let LinkStyle::JustFilenames = self.link_style {
-            if let Some(ref target) = self.target {
+            if let Some(target) = &self.target {
                 if target.is_broken() {
                     return self.colours.broken_symlink();
                 }

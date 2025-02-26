@@ -384,7 +384,7 @@ fn index_status(status: git2::Status) -> f::GitStatus {
 fn current_branch(repo: &git2::Repository) -> Option<String> {
     let head = match repo.head() {
         Ok(head) => Some(head),
-        Err(ref e)
+        Err(e)
             if e.code() == git2::ErrorCode::UnbornBranch
                 || e.code() == git2::ErrorCode::NotFound =>
         {
