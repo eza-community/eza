@@ -332,7 +332,7 @@ impl TimeFormat {
             w.to_os_string()
         } else {
             match vars.get(vars::TIME_STYLE) {
-                Some(ref t) if !t.is_empty() => t.clone(),
+                Some(t) if !t.is_empty() => t.clone(),
                 _ => return Ok(Self::DefaultFormat),
             }
         };

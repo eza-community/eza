@@ -43,6 +43,7 @@ use crate::options::{vars, Options, OptionsResult, Vars};
 use crate::output::{details, escape, file_name, grid, grid_details, lines, Mode, View};
 use crate::theme::Theme;
 use log::*;
+use wildmatch::WildMatch;
 
 mod fs;
 mod info;
@@ -216,15 +217,15 @@ fn get_files_in_dir(paths: &mut Vec<PathBuf>, path: PathBuf) {
 
 #[cfg(feature = "git")]
 fn git_repos(options: &Options, args: &[&OsStr]) -> bool {
-    let option_enabled = match options.view.mode {
+    let option_enabled = match &options.view.mode {
         Mode::Details(details::Options {
-            table: Some(ref table),
+            table: Some(table),
             ..
         })
         | Mode::GridDetails(grid_details::Options {
             details:
                 details::Options {
-                    table: Some(ref table),
+                    table: Some(table),
                     ..
                 },
             ..
@@ -259,7 +260,45 @@ impl<'args> Exa<'args> {
         let mut dirs = Vec::new();
         let mut exit_status = 0;
 
+        let mut expanded_input_paths :Vec<OsString > = vec![];
         for file_path in &self.input_paths {
+            
+
+            if ! file_path.to_string_lossy().contains("*") && ! file_path.to_string_lossy().contains("?")  {
+                expanded_input_paths.push(file_path.into());
+                continue;
+            }
+            
+            
+            let path_buf = PathBuf::from(file_path);
+
+            let pattern = path_buf.file_name().unwrap_or_default().to_string_lossy();
+            let matcher = WildMatch::new(&pattern);
+            if let Some(parent) = path_buf.parent() {
+
+                if let Ok(entries) = parent.read_dir() {
+                    for entry in entries {
+                        if let Ok(entry) = entry {
+                            let filename =entry.file_name();
+                            let filename_str = filename.to_string_lossy();
+                        
+                            if matcher.matches(&filename_str){
+                                expanded_input_paths.push(entry.path().into());
+                            }
+                            
+                        }
+                    }
+               }  
+            } else {
+                expanded_input_paths.push(file_path.into());
+            }
+
+            println!("{:?}",&expanded_input_paths);
+
+            
+        }
+
+        for file_path in expanded_input_paths {
             let f = File::from_args(
                 PathBuf::from(file_path),
                 None,
@@ -273,7 +312,7 @@ impl<'args> Exa<'args> {
             // the metadata to verify.
             if let Err(e) = f.metadata() {
                 exit_status = 2;
-                writeln!(io::stderr(), "{file_path:?}: {e}")?;
+                writeln!(io::stderr(), "{{&file_path:?}}: {e}")?;
                 continue;
             }
 
@@ -282,10 +321,10 @@ impl<'args> Exa<'args> {
                 match f.to_dir() {
                     Ok(d) => dirs.push(d),
                     Err(e) if e.kind() == ErrorKind::PermissionDenied => {
-                        eprintln!("{file_path:?}: {e}");
+                        eprintln!("{{&file_path:?}}: {e}");
                         exit(exits::PERMISSION_DENIED);
                     }
-                    Err(e) => writeln!(io::stderr(), "{file_path:?}: {e}")?,
+                    Err(e) => writeln!(io::stderr(), "{{&file_path:?}}: {e}")?,
                 }
             } else {
                 files.push(f);
@@ -415,7 +454,7 @@ impl<'args> Exa<'args> {
         } = self.options.view;
 
         match (mode, self.console_width) {
-            (Mode::Grid(ref opts), Some(console_width)) => {
+            (Mode::Grid(opts), Some(console_width)) => {
                 let filter = &self.options.filter;
                 let r = grid::Render {
                     files,
@@ -439,7 +478,7 @@ impl<'args> Exa<'args> {
                 r.render(&mut self.writer)
             }
 
-            (Mode::Details(ref opts), _) => {
+            (Mode::Details(opts), _) => {
                 let filter = &self.options.filter;
                 let recurse = self.options.dir_action.recurse_options();
 
@@ -461,7 +500,7 @@ impl<'args> Exa<'args> {
                 r.render(&mut self.writer)
             }
 
-            (Mode::GridDetails(ref opts), Some(console_width)) => {
+            (Mode::GridDetails(opts), Some(console_width)) => {
                 let details = &opts.details;
                 let row_threshold = opts.row_threshold;
 
@@ -486,7 +525,7 @@ impl<'args> Exa<'args> {
                 r.render(&mut self.writer)
             }
 
-            (Mode::GridDetails(ref opts), None) => {
+            (Mode::GridDetails(opts), None) => {
                 let opts = &opts.to_details_options();
                 let filter = &self.options.filter;
                 let recurse = self.options.dir_action.recurse_options();

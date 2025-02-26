@@ -26,7 +26,7 @@ impl f::Size {
         let size = match self {
             Self::Some(s) => s,
             Self::None => return TextCell::blank(colours.no_size()),
-            Self::DeviceIDs(ref ids) => return ids.render(colours),
+            Self::DeviceIDs(ids) => return ids.render(colours),
         };
 
         let is_gradient_mode =
