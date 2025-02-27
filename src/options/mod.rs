@@ -147,7 +147,7 @@ impl Options {
         #[rustfmt::skip]
         let strictness = match vars.get_with_fallback(vars::EZA_STRICT, vars::EXA_STRICT) {
             None                         => Strictness::UseLastArguments,
-            Some(ref t) if t.is_empty()  => Strictness::UseLastArguments,
+            Some(t) if t.is_empty()  => Strictness::UseLastArguments,
             Some(_)                      => Strictness::ComplainAboutRedundantArguments,
         };
 
@@ -178,20 +178,22 @@ impl Options {
             return true;
         }
 
-        match self.view.mode {
+        match &self.view.mode {
             Mode::Details(details::Options {
-                table: Some(ref table),
-                ..
-            })
-            | Mode::GridDetails(grid_details::Options {
-                details:
-                    details::Options {
-                        table: Some(ref table),
+                        table: Some(table),
                         ..
-                    },
-                ..
-            }) => table.columns.git,
+                    })
+                    | Mode::GridDetails(grid_details::Options {
+                        details:
+                            details::Options {
+                                table: Some(table),
+                                ..
+                            },
+                        ..
+                    }) => table.columns.git,
             _ => false,
+            Mode::Grid(options) => todo!(),
+            Mode::Lines => todo!(),
         }
     }
 

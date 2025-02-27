@@ -177,7 +177,7 @@ impl<'a> Render<'a> {
             self.recurse,
         );
 
-        if let Some(ref table) = self.opts.table {
+        if let Some(table) = &self.opts.table {
             match (self.git, self.dir) {
                 (Some(g), Some(d)) => {
                     if !g.has_anything_for(&d.path) {
@@ -192,7 +192,7 @@ impl<'a> Render<'a> {
                 (None, _) => { /* Keep Git how it is */ }
             }
 
-            let mut table = Table::new(table, self.git, self.theme, self.git_repos);
+            let mut table = Table::new(&table, self.git, self.theme, self.git_repos);
 
             if self.opts.header {
                 let header = table.header_row();
@@ -332,7 +332,7 @@ impl<'a> Render<'a> {
             let mut files = Vec::new();
             let errors = egg.errors;
 
-            if let (Some(ref mut t), Some(row)) = (table.as_mut(), egg.table_row.as_ref()) {
+            if let (Some(mut t), Some(row)) = (table.as_mut(), egg.table_row.as_ref()) {
                 t.add_widths(row);
             }
 
@@ -354,7 +354,7 @@ impl<'a> Render<'a> {
 
             rows.push(row);
 
-            if let Some(ref dir) = egg.dir {
+            if let Some(dir) = egg.dir {
                 for file_to_add in dir.files(
                     self.filter.dot_filter,
                     self.git,

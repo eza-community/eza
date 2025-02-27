@@ -86,8 +86,8 @@ impl Options {
             return Theme { ui, exts };
         }
 
-        match self.theme_config {
-            Some(ref theme) => {
+        match &self.theme_config {
+            Some(theme) => {
                 if let Some(mut ui) = theme.to_theme() {
                     let (exts, use_default_filetypes) = self.definitions.parse_color_vars(&mut ui);
                     let exts: Box<dyn FileStyle> =
@@ -420,13 +420,13 @@ impl FileNameColours for Theme {
     }
 
  fn style_override(&self, file: &File<'_>) -> Option<FileNameStyle> {
-        if let Some(ref name_overrides) = self.ui.filenames {
+        if let Some(name_overrides) = &self.ui.filenames {
             if let Some(file_override) = name_overrides.get(&file.name) {
                 return Some(*file_override);
             }
         }
 
-        if let Some(ref ext_overrides) = self.ui.extensions {
+        if let Some(ext_overrides) = &self.ui.extensions {
             if let Some(ext) = file.ext.clone() {
                 if let Some(file_override) = ext_overrides.get(&ext) {
                     return Some(*file_override);

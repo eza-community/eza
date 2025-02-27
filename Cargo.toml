@@ -5,8 +5,8 @@ name = "eza"
 description = "A modern replacement for ls"
 authors = ["Christina Sørensen <christina@cafkafk.com>"]
 categories = ["command-line-utilities"]
-edition = "2021"
-rust-version = "1.78.0"
+edition = "2024"
+rust-version = "1.85.0"
 exclude = [
   "/docs/",
   "/devtools/",
@@ -112,6 +112,7 @@ serde = { version = "1.0.218", features = ["derive"] }
 dirs = "6.0.0"
 serde_norway = "0.9"
 backtrace = "0.3"
+wildmatch = "2.4.0"
 
 [dependencies.git2]
 version = "0.20"
