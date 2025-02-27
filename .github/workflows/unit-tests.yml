@@ -180,8 +180,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v16
-      - name: Setup Nix cache
-        uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Nix Flake Check
         run: nix build .#checks.${{ matrix.target }}.${{ matrix.checks }} -L
   flake-build:
@@ -196,7 +194,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v16
-      - name: Setup Nix cache
-        uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Nix Build
         run: nix build .#packages.${{ matrix.target }}.default -L
