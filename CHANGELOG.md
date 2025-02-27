@@ -6,6 +6,23 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.23] - 2025-02-27
+
+### Bug Fixes
+
+- Add Pixi installation instructions
+
+### Build
+
+- Bump libc from 0.2.169 to 0.2.170
+- Bump serde from 1.0.217 to 1.0.218
+- Bump log from 0.4.25 to 0.4.26
+- Bump trycmd from 0.15.8 to 0.15.9
+
+### Ci
+
+- Remove magic nix cache
+
 ## [0.20.22] - 2025-02-20
 
 ### Features
@@ -16,6 +33,10 @@ SPDX-License-Identifier: EUPL-1.2
 - Add eslint icon for .eslintignore
 - Add renovate icon for renovate.json
 - Add elixir icon for *.eex, *.leex and mix.lock
+
+### Miscellaneous Tasks
+
+- Eza v0.20.22 changelogs, version bump
 
 ### Build
 
@@ -815,16 +836,6 @@ SPDX-License-Identifier: EUPL-1.2
 
 ## [0.18.13] - 2024-04-25
 
-### Features
-
-- Generate completion/manpage tarballs on release
-
-### Miscellaneous Tasks
-
-- Release eza v0.18.13
-
-## [0.18.12] - 2024-04-22
-
 ### Bug Fixes
 
 - Allow unused imports for freebsd
@@ -833,6 +844,11 @@ SPDX-License-Identifier: EUPL-1.2
 ### Features
 
 - Add scheme filetype and icons
+- Generate completion/manpage tarballs on release
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.13
 
 ## [0.18.11] - 2024-04-19
 
