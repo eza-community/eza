@@ -44,6 +44,7 @@ impl Icons {
     const FOLDER_HIDDEN: char   = '\u{f179e}'; // 󱞞
     const FOLDER_KEY: char      = '\u{f08ac}'; // 󰢬
     const FOLDER_NPM: char      = '\u{e5fa}';  // 
+    const FOLDER_OCAML: char    = '\u{e67a}';  // 
     const FOLDER_OPEN: char     = '\u{f115}';  // 
     const FONT: char            = '\u{f031}';  // 
     const FREECAD: char         = '\u{f336}';  // 
@@ -158,6 +159,7 @@ const DIRECTORY_ICONS: Map<&'static str, char> = phf_map! {
     ".git"                => Icons::FOLDER_GIT,     // 
     ".github"             => Icons::FOLDER_GITHUB,  // 
     ".npm"                => Icons::FOLDER_NPM,     // 
+    ".opam"               => Icons::FOLDER_OCAML,   // 
     ".ssh"                => Icons::FOLDER_KEY,     // 󰢬
     ".Trash"              => '\u{f1f8}',            // 
     "config"              => Icons::FOLDER_CONFIG,  // 
