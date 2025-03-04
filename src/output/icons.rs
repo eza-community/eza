@@ -238,6 +238,7 @@ const FILENAME_ICONS: Map<&'static str, char> = phf_map! {
     ".luaurc"             => Icons::CONFIG,         // 
     ".nanorc"             => '\u{e838}',            // 
     ".nuxtrc"             => '\u{f1106}',           // 󱄆
+    ".ocamlinit"          => Icons::LANG_OCAML,     // 
     ".mailmap"            => Icons::GIT,            // 
     ".node_repl_history"  => Icons::NODEJS,         // 
     ".npmignore"          => Icons::NPM,            // 
