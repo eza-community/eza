@@ -39,6 +39,7 @@ impl Icons {
     const FILE_OUTLINE: char    = '\u{f016}';  // 
     const FOLDER: char          = '\u{e5ff}';  // 
     const FOLDER_CONFIG: char   = '\u{e5fc}';  // 
+    const FOLDER_EXERCISM: char = '\u{ebe5}';  // 
     const FOLDER_GIT: char      = '\u{e5fb}';  // 
     const FOLDER_GITHUB: char   = '\u{e5fd}';  // 
     const FOLDER_HIDDEN: char   = '\u{f179e}'; // 󱞞
@@ -155,6 +156,7 @@ impl Icons {
 /// all the directories that have a custom icon.
 const DIRECTORY_ICONS: Map<&'static str, char> = phf_map! {
     ".config"             => Icons::FOLDER_CONFIG,  // 
+    ".exercism"           => Icons::FOLDER_EXERCISM,// 
     ".git"                => Icons::FOLDER_GIT,     // 
     ".github"             => Icons::FOLDER_GITHUB,  // 
     ".npm"                => Icons::FOLDER_NPM,     // 
