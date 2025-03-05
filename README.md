@@ -26,7 +26,7 @@ A modern replacement for ls.
 ---
 
 **eza** is a modern alternative for the venerable file-listing command-line program `ls` that ships with Unix and Linux operating systems, giving it more features and better defaults.
-It uses colours to distinguish file types and metadata.
+It uses colors to distinguish file types and metadata.
 It knows about symlinks, extended attributes, and Git.
 And it’s **small**, **fast**, and just **one single binary**.
 
@@ -43,7 +43,7 @@ By deliberately making some decisions differently, eza attempts to be a more fea
 - Git repo status output.
 - Human readable relative dates.
 - Several security fixes.
-- Support for `bright` terminal colours.
+- Support for `bright` terminal colors.
 - Many smaller bug fixes/changes!
 - Configuration `theme.yml` file for customization of colors and icons.
 
@@ -93,7 +93,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s. Quick overv
 - **-T**, **--tree**: recurse into directories as a tree
 - **-x**, **--across**: sort the grid across, rather than downwards
 - **-F**, **--classify=(when)**: display type indicator by file names (always, auto, never)
-- **--colo[u]r=(when)**: when to use terminal colours (always, auto, never)
+- **--colo[u]r=(when)**: when to use terminal colors (always, auto, never)
 - **--colo[u]r-scale=(field)**: highlight levels of `field` distinctly(all, age, size)
 - **--color-scale-mode=(mode)**: use gradient or fixed colors in --color-scale. valid options are `fixed` or `gradient`
 - **--icons=(when)**: when to display icons (always, auto, never)
