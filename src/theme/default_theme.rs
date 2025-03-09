@@ -116,7 +116,7 @@ impl Default for UiStyles {
                 crypto:     Some(Green.bold()),
                 document:   Some(Green.normal()),
                 compressed: Some(Red.normal()),
-                temp:       Some(White.normal()),
+                temp:       Some(Style::default().dimmed()),
                 compiled:   Some(Yellow.normal()),
                 build:      Some(Yellow.bold().underline()),
                 source:     Some(Yellow.bold()), // Need to discuss color
