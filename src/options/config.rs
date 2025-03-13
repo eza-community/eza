@@ -12,17 +12,21 @@ use serde_norway;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-#[derive(Debug, Default, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct ThemeConfig {
     // This is rather bare for now, will be expanded with config file
-    location: ConfigLoc,
+    location: PathBuf,
 }
 
-#[derive(Debug, Default, PartialEq, Eq)]
-pub enum ConfigLoc {
-    #[default]
-    Default, // $XDG_CONFIG_HOME/eza/config|theme.yml
-    Env(PathBuf), // $EZA_CONFIG_DIR
+impl Default for ThemeConfig {
+    fn default() -> Self {
+        ThemeConfig {
+            location: dirs::config_dir()
+                .unwrap_or_default()
+                .join("eza")
+                .join("theme.yml"),
+        }
+    }
 }
 
 trait FromOverride<T>: Sized {
@@ -600,23 +604,13 @@ impl FromOverride<UiStylesOverride> for UiStyles {
     }
 }
 impl ThemeConfig {
-    pub fn from_path(path: &str) -> Self {
-        let path = PathBuf::from(path);
-        ThemeConfig {
-            location: ConfigLoc::Env(path),
-        }
+    pub fn from_path(path: PathBuf) -> Self {
+        ThemeConfig { location: path }
     }
     pub fn to_theme(&self) -> Option<UiStyles> {
-        let ui_styles_override: Option<UiStylesOverride> = match &self.location {
-            ConfigLoc::Default => {
-                let path = dirs::config_dir()?.join("eza").join("theme.yml");
-                let file = std::fs::File::open(path).ok()?;
-                serde_norway::from_reader(&file).ok()
-            }
-            ConfigLoc::Env(path) => {
-                let file = std::fs::File::open(path).ok()?;
-                serde_norway::from_reader(&file).ok()
-            }
+        let ui_styles_override: Option<UiStylesOverride> = {
+            let file = std::fs::File::open(&self.location).ok()?;
+            serde_norway::from_reader(&file).ok()
         };
         FromOverride::from(ui_styles_override, Some(UiStyles::default()))
     }
@@ -628,43 +622,43 @@ mod tests {
 
     #[test]
     fn parse_none_color_from_string() {
-        ["", "none", "None"].iter().for_each(|case| {
+        for case in &["", "none", "None"] {
             assert_eq!(color_from_str(case), None);
-        });
+        }
     }
 
     #[test]
     fn parse_default_color_from_string() {
-        ["default", "Default"].iter().for_each(|case| {
+        for case in &["default", "Default"] {
             assert_eq!(color_from_str(case), Some(Color::Default));
-        });
+        }
     }
 
     #[test]
     fn parse_fixed_color_from_string() {
-        ["black", "Black"].iter().for_each(|case| {
+        for case in &["black", "Black"] {
             assert_eq!(color_from_str(case), Some(Color::Black));
-        });
+        }
     }
 
     #[test]
     fn parse_long_hex_color_from_string() {
-        ["#ff00ff", "#FF00FF"].iter().for_each(|case| {
+        for case in &["#ff00ff", "#FF00FF"] {
             assert_eq!(color_from_str(case), Some(Color::Rgb(255, 0, 255)));
-        });
+        }
     }
 
     #[test]
     fn parse_short_hex_color_from_string() {
-        ["#f0f", "#F0F"].iter().for_each(|case| {
+        for case in ["#f0f", "#F0F"].iter() {
             assert_eq!(color_from_str(case), Some(Color::Rgb(255, 0, 255)));
-        });
+        }
     }
 
     #[test]
     fn parse_color_code_from_string() {
-        [("10", 10), ("01", 1)].iter().for_each(|(s, c)| {
+        for (s, c) in &[("10", 10), ("01", 1)] {
             assert_eq!(color_from_str(s), Some(Color::Fixed(*c)));
-        });
+        }
     }
 }

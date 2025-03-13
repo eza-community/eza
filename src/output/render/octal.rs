@@ -9,6 +9,7 @@ use nu_ansi_term::Style;
 use crate::fs::fields as f;
 use crate::output::cell::TextCell;
 
+#[allow(unused)]
 pub trait Render {
     fn render(&self, style: Style) -> TextCell;
 }

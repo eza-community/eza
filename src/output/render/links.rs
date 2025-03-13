@@ -26,6 +26,7 @@ impl f::Links {
     }
 }
 
+#[allow(unused)]
 pub trait Colours {
     fn normal(&self) -> Style;
     fn multi_link_file(&self) -> Style;
@@ -44,6 +45,7 @@ pub mod test {
     use nu_ansi_term::Color::*;
     use nu_ansi_term::Style;
 
+    #[allow(dead_code)]
     struct TestColours;
 
     impl Colours for TestColours {

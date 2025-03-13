@@ -6,11 +6,175 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.24] - 2025-03-13
+
+### Bug Fixes
+
+- Make temp files visible on white background
+
+### Documentation
+
+- More precise temp files color description
+
+### Features
+
+- Add `.exercism` folder icon
+- Add `.ocamlinit` icon
+- Add `.opam` folder icon
+
+### Miscellaneous Tasks
+
+- Add gcloud icon for .gcloudignore
+- Add vim icon for .gvimrc, _vimrc and _gvimrc
+- Add fennel icon for ~/.fennelrc and ~/.config/fennel/fennelrc
+
+### Build
+
+- Bump once_cell from 1.20.3 to 1.21.0
+- Bump terminal_size from 0.4.1 to 0.4.2
+- Bump serde from 1.0.218 to 1.0.219
+- Bump chrono from 0.4.39 to 0.4.40
+
+## [0.20.23] - 2025-02-27
+
+### Bug Fixes
+
+- Add Pixi installation instructions
+
+### Miscellaneous Tasks
+
+- Eza v0.20.23 changelogs, version bump
+
+### Build
+
+- Bump libc from 0.2.169 to 0.2.170
+- Bump serde from 1.0.217 to 1.0.218
+- Bump log from 0.4.25 to 0.4.26
+- Bump trycmd from 0.15.8 to 0.15.9
+
+### Ci
+
+- Remove magic nix cache
+
+## [0.20.22] - 2025-02-20
+
+### Features
+
+- Add prettier icon for *.prettierignore
+- Add icon for *.hrl
+- Add photoshop icon for *.psb
+- Add eslint icon for .eslintignore
+- Add renovate icon for renovate.json
+- Add elixir icon for *.eex, *.leex and mix.lock
+
+### Miscellaneous Tasks
+
+- Eza v0.20.22 changelogs, version bump
+
+### Build
+
+- Bump once_cell from 1.20.2 to 1.20.3
+
+## [0.20.21] - 2025-02-13
+
+### Bug Fixes
+
+- Start publishing libgit arm builds
+
+### Miscellaneous Tasks
+
+- Eza v0.20.21 changelogs, version bump
+
+### Build
+
+- Add libgit alternative for arm builds
+
+## [0.20.20] - 2025-02-07
+
+### Bug Fixes
+
+- Make `flake.lock` icon the nix logo
+
+### Miscellaneous Tasks
+
+- Eza v0.20.20 changelogs, version bump
+
+## [0.20.19] - 2025-01-30
+
+### Bug Fixes
+
+- Update MSRV to 1.78 to solve rust malfunction
+- Rustc false dead code positives
+- Rustc false positives in tests
+- Regression in theme config location, simplify path
+- Wrong file name for Brewfile
+
+### Documentation
+
+- Add note regarding ci msrv update
+
+### Features
+
+- Add `.norg` icon
+
+### Miscellaneous Tasks
+
+- Eza v0.20.19 changelogs, version bump
+
+### Build
+
+- Bump dirs from 5.0.1 to 6.0.0
+- Bump NexusPHP/no-merge-commits from 2.1.0 to 2.2.1
+- Bump flake
+- Bump cargo
+
+### Ci
+
+- Fix and unify msrv and add matrix to free/netbsd
+
+## [0.20.18] - 2025-01-23
+
+### Bug Fixes
+
+- Support additional yaml file extension, clippy
+
+### Miscellaneous Tasks
+
+- Eza v0.20.18 changelogs, version bump
+
+### Build
+
+- Cargo bump 2025-01-23
+- Flake bump 2025-01-23
+
+### Ci
+
+- Use rust 1.74 instead of latest via rustup
+
+## [0.20.17] - 2025-01-16
+
+### Features
+
+- Add editorconfig icon for .editorconfig
+
+### Miscellaneous Tasks
+
+- Eza v0.20.17 changelogs, version bump
+
+### Build
+
+- Cargo bump 2025-01-16
+- Flake bump 2025-01-16
+
 ## [0.20.16] - 2025-01-09
 
 ### Features
 
 - Add brew icon for brewfile and brewfile.lock.json
+
+### Miscellaneous Tasks
+
+- Eza v0.20.16 changelogs, version bump
 
 ### Build
 
@@ -705,16 +869,6 @@ SPDX-License-Identifier: EUPL-1.2
 
 ## [0.18.13] - 2024-04-25
 
-### Features
-
-- Generate completion/manpage tarballs on release
-
-### Miscellaneous Tasks
-
-- Release eza v0.18.13
-
-## [0.18.12] - 2024-04-22
-
 ### Bug Fixes
 
 - Allow unused imports for freebsd
@@ -723,6 +877,11 @@ SPDX-License-Identifier: EUPL-1.2
 ### Features
 
 - Add scheme filetype and icons
+- Generate completion/manpage tarballs on release
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.13
 
 ## [0.18.11] - 2024-04-19
 

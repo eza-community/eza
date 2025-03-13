@@ -39,7 +39,7 @@ files; setting `EZA_COLORS="reset"` will highlight nothing.
 - Cryptographic files (asc, enc, p12) are bright green.
 - Documents (pdf, doc, dvi) are a fainter green.
 - Compressed files (zip, tgz, Z) are red.
-- Temporary files (tmp, swp, ~) are grey.
+- Temporary files (tmp, swp, ~) are dimmed default foreground color.
 - Compiled files (class, o, pyc) are yellow. A file is also counted as compiled if it uses a common extension and is
 in the same directory as one of its source files: styles.css will count as compiled when next to styles.less or styles.sass, and scripts.js when next to scripts.ts or scripts.coffee.
 - Source files (cpp, js, java) are bright yellow.
