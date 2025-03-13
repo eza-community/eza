@@ -6,11 +6,44 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.20.24] - 2025-03-13
+
+### Bug Fixes
+
+- Make temp files visible on white background
+
+### Documentation
+
+- More precise temp files color description
+
+### Features
+
+- Add `.exercism` folder icon
+- Add `.ocamlinit` icon
+- Add `.opam` folder icon
+
+### Miscellaneous Tasks
+
+- Add gcloud icon for .gcloudignore
+- Add vim icon for .gvimrc, _vimrc and _gvimrc
+- Add fennel icon for ~/.fennelrc and ~/.config/fennel/fennelrc
+
+### Build
+
+- Bump once_cell from 1.20.3 to 1.21.0
+- Bump terminal_size from 0.4.1 to 0.4.2
+- Bump serde from 1.0.218 to 1.0.219
+- Bump chrono from 0.4.39 to 0.4.40
+
 ## [0.20.23] - 2025-02-27
 
 ### Bug Fixes
 
 - Add Pixi installation instructions
+
+### Miscellaneous Tasks
+
+- Eza v0.20.23 changelogs, version bump
 
 ### Build
 
