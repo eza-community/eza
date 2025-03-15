@@ -317,7 +317,7 @@ impl<'dir> File<'dir> {
     /// the current file. It does not perform any validation to check if the
     /// file is actually a directory. To verify that, use `is_directory()`.
     pub fn to_dir(&self) -> Dir {
-        trace!("read_dir: initializating dir form path");
+        trace!("read_dir: initializating dir from path");
         Dir::new(self.path.clone())
     }
 
