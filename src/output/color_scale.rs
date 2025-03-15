@@ -167,7 +167,7 @@ fn update_information_recursively(
             && file.name != "."
             && file.name != ".."
         {
-            match file.to_dir() {
+            match file.read_dir() {
                 Ok(dir) => {
                     let files: Vec<File<'_>> = dir
                         .files(dot_filter, git, git_ignoring, false, false)

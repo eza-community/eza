@@ -31,6 +31,32 @@ pub struct Dir {
 }
 
 impl Dir {
+    /// Create a new, empty `Dir` object representing the directory at the given path.
+    ///
+    /// This function does not attempt to read the contents of the directory; it merely
+    /// initializes an instance of `Dir` with an empty `DirEntry` list and the specified path.
+    /// To populate the `Dir` object with actual directory contents, use the `read`.
+    pub fn new(path: PathBuf) -> Self {
+        Self {
+            contents: vec![],
+            path,
+        }
+    }
+
+    /// Reads the contents of the directory into DirEntry.
+    ///
+    /// It is recommended to use this method in conjunction with `new` in recursive
+    /// calls, rather than `read_dir`, to avoid holding multiple open file descriptors
+    /// simultaneously, which can lead to "too many open files" errors.
+    pub fn read(&mut self) -> io::Result<&Self> {
+        info!("Reading directory {:?}", &self.path);
+
+        self.contents = fs::read_dir(&self.path)?.collect::<Result<Vec<_>, _>>()?;
+
+        info!("Read directory success {:?}", &self.path);
+        Ok(self)
+    }
+
     /// Create a new Dir object filled with all the files in the directory
     /// pointed to by the given path. Fails if the directory can’t be read, or
     /// isn’t actually a directory, or if there’s an IO error that occurs at
