@@ -288,15 +288,8 @@ impl Exa<'_> {
             if f.points_to_directory()
                 && (self.default_input_path || !self.options.dir_action.treat_dirs_as_files())
             {
-                trace!("matching on to_dir");
-                match f.to_dir() {
-                    Ok(d) => dirs.push(d),
-                    Err(e) if e.kind() == ErrorKind::PermissionDenied => {
-                        eprintln!("{file_path:?}: {e}");
-                        exit(exits::PERMISSION_DENIED);
-                    }
-                    Err(e) => writeln!(io::stderr(), "{file_path:?}: {e}")?,
-                }
+                trace!("matching on new Dir");
+                dirs.push(f.to_dir());
             } else {
                 files.push(f);
             }
@@ -326,7 +319,18 @@ impl Exa<'_> {
             file_style: file_name::Options { quote_style, .. },
             ..
         } = self.options.view;
-        for dir in dir_files {
+        for mut dir in dir_files {
+            let dir = match dir.read() {
+                Ok(dir) => dir,
+                Err(e) => {
+                    if e.kind() == ErrorKind::PermissionDenied {
+                        exit(exits::PERMISSION_DENIED);
+                    };
+                    writeln!(io::stderr(), "{}: {}", dir.path.display(), e)?;
+                    continue;
+                }
+            };
+
             // Put a gap between directories, or between the list of files and
             // the first directory.
             if first {
@@ -373,21 +377,17 @@ impl Exa<'_> {
                     + 1;
                 let follow_links = self.options.view.follow_links;
                 if !recurse_opts.tree && !recurse_opts.is_too_deep(depth) {
-                    let mut child_dirs = Vec::new();
-                    for child_dir in children.iter().filter(|f| {
-                        (if follow_links {
-                            f.points_to_directory()
-                        } else {
-                            f.is_directory()
-                        }) && !f.is_all_all
-                    }) {
-                        match child_dir.to_dir() {
-                            Ok(d) => child_dirs.push(d),
-                            Err(e) => {
-                                writeln!(io::stderr(), "{}: {}", child_dir.path.display(), e)?;
-                            }
-                        }
-                    }
+                    let child_dirs = children
+                        .iter()
+                        .filter(|f| {
+                            (if follow_links {
+                                f.points_to_directory()
+                            } else {
+                                f.is_directory()
+                            }) && !f.is_all_all
+                        })
+                        .map(|f| f.to_dir())
+                        .collect::<Vec<Dir>>();
 
                     self.print_files(Some(&dir), children)?;
                     match self.print_dirs(child_dirs, false, false, exit_status) {

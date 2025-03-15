@@ -313,14 +313,22 @@ impl<'dir> File<'dir> {
         false
     }
 
+    /// Initializes a new `Dir` object using the `PathBuf` of
+    /// the current file. It does not perform any validation to check if the
+    /// file is actually a directory. To verify that, use `is_directory()`.
+    pub fn to_dir(&self) -> Dir {
+        trace!("read_dir: initializating dir form path");
+        Dir::new(self.path.clone())
+    }
+
     /// If this file is a directory on the filesystem, then clone its
     /// `PathBuf` for use in one of our own `Dir` values, and read a list of
     /// its contents.
     ///
     /// Returns an IO error upon failure, but this shouldn’t be used to check
     /// if a `File` is a directory or not! For that, just use `is_directory()`.
-    pub fn to_dir(&self) -> io::Result<Dir> {
-        trace!("to_dir: reading dir");
+    pub fn read_dir(&self) -> io::Result<Dir> {
+        trace!("read_dir: reading dir");
         Dir::read_dir(self.path.clone())
     }
 

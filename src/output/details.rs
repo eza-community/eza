@@ -303,8 +303,8 @@ impl<'a> Render<'a> {
                     }) && r.tree
                         && !r.is_too_deep(depth.0)
                     {
-                        trace!("matching on to_dir");
-                        match file.to_dir() {
+                        trace!("matching on read_dir");
+                        match file.read_dir() {
                             Ok(d) => {
                                 dir = Some(d);
                             }
