@@ -600,8 +600,8 @@ impl<'dir> File<'dir> {
             #[allow(clippy::unnecessary_cast, clippy::useless_conversion)]
             f::Size::DeviceIDs(f::DeviceIDs {
                 // SAFETY: Calling libc function to decompose the device_id
-                major: unsafe { libc::major(device_id.try_into().unwrap()) } as u32,
-                minor: unsafe { libc::minor(device_id.try_into().unwrap()) } as u32,
+                major: libc::major(device_id.try_into().unwrap()) as u32,
+                minor: libc::minor(device_id.try_into().unwrap()) as u32,
             })
         } else if self.is_file() {
             f::Size::Some(self.metadata().map_or(0, std::fs::Metadata::len))
