@@ -599,9 +599,16 @@ impl<'dir> File<'dir> {
             #[allow(trivial_numeric_casts)]
             #[allow(clippy::unnecessary_cast, clippy::useless_conversion)]
             f::Size::DeviceIDs(f::DeviceIDs {
-                // SAFETY: Calling libc function to decompose the device_id
-                major: libc::major(device_id.try_into().unwrap()) as u32,
-                minor: libc::minor(device_id.try_into().unwrap()) as u32,
+                major: libc::major(
+                    device_id
+                        .try_into()
+                        .expect("Malformed device major ID when getting filesize"),
+                ) as u32,
+                minor: libc::minor(
+                    device_id
+                        .try_into()
+                        .expect("Malformed device major ID when getting filesize"),
+                ) as u32,
             })
         } else if self.is_file() {
             f::Size::Some(self.metadata().map_or(0, std::fs::Metadata::len))
