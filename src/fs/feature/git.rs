@@ -13,6 +13,7 @@ use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
+use git2::StatusEntry;
 use log::*;
 
 use crate::fs::fields as f;
@@ -228,14 +229,10 @@ fn repo_to_statuses(repo: &git2::Repository, workdir: &Path) -> Git {
     match repo.statuses(None) {
         Ok(es) => {
             for e in es.iter() {
-                #[cfg(target_family = "unix")]
-                let path = workdir.join(Path::new(OsStr::from_bytes(e.path_bytes())));
-                // TODO: handle non Unix systems better:
-                // https://github.com/ogham/exa/issues/698
-                #[cfg(not(target_family = "unix"))]
-                let path = workdir.join(Path::new(e.path().unwrap()));
-                let elem = (path, e.status());
-                statuses.push(elem);
+                if let Some(p) = get_path_from_status_entry(&e) {
+                    let elem = (workdir.join(p), e.status());
+                    statuses.push(elem);
+                }
             }
             // We manually add the `.git` at the root of the repo as ignored, since it is in practice.
             // Also we want to avoid `eza --tree --all --git-ignore` to display files inside `.git`.
@@ -247,6 +244,19 @@ fn repo_to_statuses(repo: &git2::Repository, workdir: &Path) -> Git {
     }
 
     Git { statuses }
+}
+
+#[allow(clippy::unnecessary_wraps)]
+fn get_path_from_status_entry(e: &StatusEntry<'_>) -> Option<PathBuf> {
+    #[cfg(target_family = "unix")]
+    return Some(PathBuf::from(OsStr::from_bytes(e.path_bytes())));
+    #[cfg(not(target_family = "unix"))]
+    return if let Some(p) = e.path() {
+        Some(PathBuf::from(p))
+    } else {
+        info!("Git status ignored for non ASCII path {:?}", e.path_bytes());
+        None
+    };
 }
 
 // The `repo.statuses` call above takes a long time. exa debug output:
