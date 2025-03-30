@@ -106,11 +106,13 @@ pub struct Attributes {
 /// little more compressed.
 #[derive(Copy, Clone)]
 pub struct PermissionsPlus {
+    #[allow(unused)]
     pub file_type: Type,
     #[cfg(unix)]
     pub permissions: Permissions,
     #[cfg(windows)]
     pub attributes: Attributes,
+    #[allow(unused)]
     pub xattrs: bool,
 }
 
