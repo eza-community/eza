@@ -6,6 +6,23 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.21.0] - 2025-03-31
+
+### Bug Fixes
+
+- Flake bump 2025-03-20
+- Remove unnescesarry unsafe blocks for libc major/minor device id
+- Unwrap -> expect on libc deviceid calls
+- Formatting issue
+- Fix unused PermissionsPlus fields
+
+### Build
+
+- Cargo deps 2025-03-20
+- [**breaking**] Change MSRV 1.78.0 -> 1.81.0
+- Bump flake deps 2025-03-30
+- Bump cargo deps 2025-03-30
+
 ## [0.20.24] - 2025-03-13
 
 ### Bug Fixes
@@ -27,6 +44,7 @@ SPDX-License-Identifier: EUPL-1.2
 - Add gcloud icon for .gcloudignore
 - Add vim icon for .gvimrc, _vimrc and _gvimrc
 - Add fennel icon for ~/.fennelrc and ~/.config/fennel/fennelrc
+- Eza v0.20.24 changelogs, version bump
 
 ### Build
 
