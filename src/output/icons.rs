@@ -191,7 +191,6 @@ const DIRECTORY_ICONS: Map<&'static str, char> = phf_map! {
     "Videos"              => '\u{f03d}',            // 
     "xbps.d"              => Icons::FOLDER_CONFIG,  // 
     "xorg.conf.d"         => Icons::FOLDER_CONFIG,  // 
-    "hi"                  => Icons::BINARY,         // 
     "cabal"               => Icons::LANG_HASKELL,   // 
 };
 
@@ -671,6 +670,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "heif"           => Icons::IMAGE,            // 
     "hex"            => '\u{f12a7}',             // 󱊧
     "hh"             => Icons::LANG_CPP,         // 
+    "hi"             => Icons::BINARY,           // 
     "hpp"            => Icons::LANG_CPP,         // 
     "hrl"            => '\u{e7b1}',              // 
     "hs"             => Icons::LANG_HASKELL,     // 
