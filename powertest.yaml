@@ -94,7 +94,7 @@ commands:
     - --treat-dirs-as-files
   :
   ? - null
-    - --list-dirs
+    - --treat-dirs-as-files
   :
   ? - -L # Hidden alias
     - --level
