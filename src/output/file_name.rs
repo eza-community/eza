@@ -19,7 +19,7 @@ use crate::output::render::FiletypeColours;
 use crate::theme::FileNameStyle;
 
 /// Basically a file name factory.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Options {
     /// Whether to append file class characters to file names.
     pub classify: Classify,

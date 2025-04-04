@@ -71,7 +71,7 @@ jobs:
         with:
           timeout_minutes: 5
           max_attempts: 5
-          command: cargo install cargo-hack
+          command: cargo install cargo-hack --locked
       - name: Run rustfmt checks
         run: cargo fmt --check
       - name: Run clippy lints
