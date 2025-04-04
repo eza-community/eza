@@ -1,2 +1,2 @@
 bin.name = "eza"
-args = "tests/test_dir --list-dirs "
+args = "tests/test_dir --treat-dirs-as-files "
