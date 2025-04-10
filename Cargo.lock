@@ -449,7 +449,6 @@ dependencies = [
  "natord-plus-plus",
  "nu-ansi-term",
  "number_prefix",
- "once_cell",
  "palette",
  "path-clean",
  "percent-encoding",
