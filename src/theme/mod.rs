@@ -211,82 +211,50 @@ struct ExtensionMappings {
 }
 
 #[derive(PartialEq, Debug)]
+/// Using a hashmap here for "simple" patterns (plain extensions like '*.txt') improves performance
+/// drastically. It doesn't change highlighting behavior, as we still walk the
+/// [`ExtensionMappings`] in reverse order, and the hashmap will only consist of disjoint sets (it
+/// doesn't matter in which order we search *.txt or *.pdf).
+///
+/// In the event that a pattern shows up twice, we will use the later one (since .insert overrides
+/// any entry that exists), which is the correct behavior.
 enum GlobPattern {
     Complex(glob::Pattern, Style),
-
-    // TODO: the String here should probably be an inline string, since we're likely working with
-    // small strings (file extensions).
     Simple(HashMap<String, Style>),
 }
 
 impl ExtensionMappings {
-    // helper for test suite
-    #[cfg(all(test, unix))]
-    fn to_vec_pat_style(&self) -> Vec<(glob::Pattern, Style)> {
-        let mut out = Vec::new();
-        for map in &self.mappings {
-            match map {
-                GlobPattern::Complex(p, s) => {
-                    out.push((p.clone(), *s));
-                }
-                GlobPattern::Simple(h) => {
-                    let mut simple_pats = h
-                        .iter()
-                        .map(|(k, v)| (glob::Pattern::new(&format!("*.{}", k)).unwrap(), *v))
-                        .collect::<Vec<(glob::Pattern, Style)>>();
-
-                    simple_pats.sort_by_key(|x| x.0.clone());
-
-                    out.extend(simple_pats);
-                }
-            }
-        }
-        out
-    }
-
     fn is_non_empty(&self) -> bool {
         !self.mappings.is_empty()
     }
 
     fn add(&mut self, pattern: glob::Pattern, style: Style) {
-        match self.mappings.last_mut() {
-            None => match is_simple_pattern(pattern) {
-                Ok(s) => {
-                    self.mappings
-                        .push(GlobPattern::Simple(HashMap::from([(s, style)])));
-                }
-                Err(p) => {
-                    self.mappings.push(GlobPattern::Complex(p, style));
-                }
-            },
-            Some(gp) => match (gp, is_simple_pattern(pattern)) {
-                (GlobPattern::Simple(h), Ok(s)) => {
-                    h.insert(s, style);
-                }
-                (_, Ok(s)) => {
-                    self.mappings
-                        .push(GlobPattern::Simple(HashMap::from([(s, style)])));
-                }
-                (_, Err(p)) => {
-                    self.mappings.push(GlobPattern::Complex(p, style));
-                }
-            },
+        match (self.mappings.last_mut(), is_simple_pattern(pattern)) {
+            (Some(GlobPattern::Simple(h)), Ok(s)) => {
+                h.insert(s, style);
+            }
+            (_, Ok(s)) => {
+                self.mappings
+                    .push(GlobPattern::Simple(HashMap::from([(s, style)])));
+            }
+            (_, Err(p)) => {
+                self.mappings.push(GlobPattern::Complex(p, style));
+            }
         }
     }
 }
 
 fn is_simple_pattern(pattern: glob::Pattern) -> Result<String, glob::Pattern> {
-    if let Some(ext) = pattern.as_str().strip_prefix("*.") {
+    match pattern.as_str().strip_prefix("*.") {
         // Maybe too pessimistic here, some of these might be valid.
-        // For example, '*.[*]' is a simple pattern.
+        //
+        // For example, '*.[*]' is a simple pattern with ext '*'
+        // (the [*] is treated as a literal *, not as a glob).
+        //
         // Ideally we'd inspect pattern.tokens, but it's not public.
-        if ext.contains(['?', '*', '[', ']', '.']) {
-            Err(pattern)
-        } else {
-            Ok(ext.to_string())
-        }
-    } else {
-        Err(pattern)
+        None => Err(pattern),
+        Some(ext) if ext.contains(['?', '*', '[', ']', '.']) => Err(pattern),
+        Some(ext) => Ok(ext.to_string()),
     }
 }
 
@@ -570,6 +538,31 @@ mod customs_test {
     use super::*;
     use crate::theme::ui_styles::UiStyles;
     use nu_ansi_term::Color::*;
+
+    impl ExtensionMappings {
+        // helper for test suite
+        fn to_vec_pat_style(&self) -> Vec<(glob::Pattern, Style)> {
+            let mut out = Vec::new();
+            for map in &self.mappings {
+                match map {
+                    GlobPattern::Complex(p, s) => {
+                        out.push((p.clone(), *s));
+                    }
+                    GlobPattern::Simple(h) => {
+                        let mut simple_pats = h
+                            .iter()
+                            .map(|(k, v)| (glob::Pattern::new(&format!("*.{}", k)).unwrap(), *v))
+                            .collect::<Vec<(glob::Pattern, Style)>>();
+
+                        simple_pats.sort_by_key(|x| x.0.clone());
+
+                        out.extend(simple_pats);
+                    }
+                }
+            }
+            out
+        }
+    }
 
     macro_rules! test {
         ($name:ident:  ls $ls:expr, exa $exa:expr  =>  colours $expected:ident -> $process_expected:expr) => {
