@@ -288,23 +288,14 @@ impl SortField {
                 order            => order,
             },
 
-            Self::Extension(ABCabc) => {
+            Self::Extension(case) => {
                 // Ignore extensions for directories when sorting.
                 let left = if a.is_directory() { &None } else { &a.ext };
                 let right = if b.is_directory() { &None } else { &b.ext };
-                match left.cmp(right) {
-                    Ordering::Equal  => natord::compare(&a.name, &b.name),
-                    order            => order,
-                }
-            },
-
-            Self::Extension(AaBbCc) => {
-                // Ignore extensions for directories when sorting.
-                let left = if a.is_directory() { &None } else { &a.ext };
-                let right = if b.is_directory() { &None } else { &b.ext };
-                match left.cmp(right) {
-                    Ordering::Equal  => natord::compare_ignore_case(&a.name, &b.name),
-                    order            => order,
+                match (left.cmp(right), case) {
+                    (Ordering::Equal, ABCabc)  => natord::compare(&a.name, &b.name),
+                    (Ordering::Equal, AaBbCc)  => natord::compare_ignore_case(&a.name, &b.name),
+                    (order, _)                 => order,
                 }
             },
 
