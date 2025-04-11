@@ -6,6 +6,8 @@
 // SPDX-License-Identifier: MIT
 use nu_ansi_term::Style;
 
+use std::collections::HashMap;
+
 use crate::fs::File;
 use crate::info::filetype::FileType;
 use crate::options::config::ThemeConfig;
@@ -205,7 +207,20 @@ where
 
 #[derive(PartialEq, Debug, Default)]
 struct ExtensionMappings {
-    mappings: Vec<(glob::Pattern, Style)>,
+    mappings: Vec<GlobPattern>,
+}
+
+#[derive(PartialEq, Debug)]
+/// Using a hashmap here for "simple" patterns (plain extensions like '*.txt') improves performance
+/// drastically. It doesn't change highlighting behavior, as we still walk the
+/// [`ExtensionMappings`] in reverse order, and the hashmap will only consist of disjoint sets (it
+/// doesn't matter in which order we search *.txt or *.pdf).
+///
+/// In the event that a pattern shows up twice, we will use the later one (since .insert overrides
+/// any entry that exists), which is the correct behavior.
+enum GlobPattern {
+    Complex(glob::Pattern, Style),
+    Simple(HashMap<String, Style>),
 }
 
 impl ExtensionMappings {
@@ -214,7 +229,32 @@ impl ExtensionMappings {
     }
 
     fn add(&mut self, pattern: glob::Pattern, style: Style) {
-        self.mappings.push((pattern, style));
+        match (self.mappings.last_mut(), is_simple_pattern(pattern)) {
+            (Some(GlobPattern::Simple(h)), Ok(s)) => {
+                h.insert(s, style);
+            }
+            (_, Ok(s)) => {
+                self.mappings
+                    .push(GlobPattern::Simple(HashMap::from([(s, style)])));
+            }
+            (_, Err(p)) => {
+                self.mappings.push(GlobPattern::Complex(p, style));
+            }
+        }
+    }
+}
+
+fn is_simple_pattern(pattern: glob::Pattern) -> Result<String, glob::Pattern> {
+    match pattern.as_str().strip_prefix("*.") {
+        // Maybe too pessimistic here, some of these might be valid.
+        //
+        // For example, '*.[*]' is a simple pattern with ext '*'
+        // (the [*] is treated as a literal *, not as a glob).
+        //
+        // Ideally we'd inspect pattern.tokens, but it's not public.
+        None => Err(pattern),
+        Some(ext) if ext.contains(['?', '*', '[', ']', '.']) => Err(pattern),
+        Some(ext) => Ok(ext.to_string()),
     }
 }
 
@@ -223,11 +263,26 @@ impl ExtensionMappings {
 
 impl FileStyle for ExtensionMappings {
     fn get_style(&self, file: &File<'_>, _theme: &Theme) -> Option<Style> {
-        self.mappings
-            .iter()
-            .rev()
-            .find(|t| t.0.matches(&file.name))
-            .map(|t| t.1)
+        let maybe_ext = file.name.rsplit_once('.').map(|x| x.1);
+
+        for mapping in self.mappings.iter().rev() {
+            match mapping {
+                GlobPattern::Complex(pat, style) => {
+                    if pat.matches(&file.name) {
+                        return Some(*style);
+                    }
+                }
+                GlobPattern::Simple(map) => {
+                    if let Some(ext) = maybe_ext {
+                        if let Some(style) = map.get(ext) {
+                            return Some(*style);
+                        }
+                    }
+                }
+            }
+        }
+
+        None
     }
 }
 
@@ -484,6 +539,31 @@ mod customs_test {
     use crate::theme::ui_styles::UiStyles;
     use nu_ansi_term::Color::*;
 
+    impl ExtensionMappings {
+        // helper for test suite
+        fn to_vec_pat_style(&self) -> Vec<(glob::Pattern, Style)> {
+            let mut out = Vec::new();
+            for map in &self.mappings {
+                match map {
+                    GlobPattern::Complex(p, s) => {
+                        out.push((p.clone(), *s));
+                    }
+                    GlobPattern::Simple(h) => {
+                        let mut simple_pats = h
+                            .iter()
+                            .map(|(k, v)| (glob::Pattern::new(&format!("*.{}", k)).unwrap(), *v))
+                            .collect::<Vec<(glob::Pattern, Style)>>();
+
+                        simple_pats.sort_by_key(|x| x.0.clone());
+
+                        out.extend(simple_pats);
+                    }
+                }
+            }
+            out
+        }
+    }
+
     macro_rules! test {
         ($name:ident:  ls $ls:expr, exa $exa:expr  =>  colours $expected:ident -> $process_expected:expr) => {
             #[allow(non_snake_case)]
@@ -516,7 +596,7 @@ mod customs_test {
                 };
 
                 let (result, _) = definitions.parse_color_vars(&mut UiStyles::default());
-                assert_eq!(ExtensionMappings { mappings }, result);
+                assert_eq!(mappings, result.to_vec_pat_style());
             }
         };
         ($name:ident:  ls $ls:expr, exa $exa:expr  =>  colours $expected:ident -> $process_expected:expr, exts $mappings:expr) => {
@@ -537,7 +617,8 @@ mod customs_test {
 
                 let mut result = UiStyles::default();
                 let (exts, _) = definitions.parse_color_vars(&mut result);
-                assert_eq!(ExtensionMappings { mappings }, exts);
+
+                assert_eq!(mappings, exts.to_vec_pat_style());
                 assert_eq!($expected, result);
             }
         };
@@ -682,9 +763,9 @@ mod customs_test {
     // can’t be tested here, because they’ll both be added to the same vec
 
     // Values get separated by colons:
-    test!(ls_multi:     ls "*.txt=31:*.rtf=32", exa ""  => exts [ ("*.txt", Red.normal()),   ("*.rtf", Green.normal()) ]);
-    test!(exa_multi:    ls "", exa "*.tmp=37:*.log=37"  => exts [ ("*.tmp", White.normal()), ("*.log", White.normal()) ]);
-    test!(ls_exa_multi: ls "*.txt=31", exa "*.rtf=32"   => exts [ ("*.txt", Red.normal()),   ("*.rtf", Green.normal())]);
+    test!(ls_multi:     ls "*.txt=31:*.rtf=32", exa ""  => exts [ ("*.rtf", Green.normal()),   ("*.txt", Red.normal()) ]);
+    test!(exa_multi:    ls "", exa "*.tmp=37:*.log=37"  => exts [ ("*.log", White.normal()), ("*.tmp", White.normal()) ]);
+    test!(ls_exa_multi: ls "*.txt=31", exa "*.rtf=32"   => exts [ ("*.rtf", Green.normal()),   ("*.txt", Red.normal())]);
 
     test!(ls_five: ls "1*1=31:2*2=32:3*3=1;33:4*4=34;1:5*5=35;4", exa ""  =>  exts [
         ("1*1", Red.normal()), ("2*2", Green.normal()), ("3*3", Yellow.bold()), ("4*4", Blue.bold()), ("5*5", Purple.underline())
