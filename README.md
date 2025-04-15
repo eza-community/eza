@@ -4,8 +4,21 @@ SPDX-FileContributor: Christina Sørensen
 
 SPDX-License-Identifier: EUPL-1.2
 -->
-<div align="center">
 
+<div align="center">
+<div align="center" markdown="1">
+   <sup>Special thanks to:</sup>
+   <br>
+   <br>
+   <a href="https://www.warp.dev/eza">
+      <img alt="Warp sponsorship" width="400" src="https://github.com/user-attachments/assets/ab8dd143-b0fd-4904-bdc5-dd7ecac94eae">
+   </a>
+
+### [Warp, the AI terminal for developers](https://www.warp.dev/eza)
+[Available for MacOS, Linux, & Windows](https://www.warp.dev/eza)<br>
+
+</div>
+    
 # eza
 
 A modern replacement for ls.
