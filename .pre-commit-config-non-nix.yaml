@@ -12,6 +12,7 @@ repos:
       - id: rust-clippy
         name: Rust clippy
         description: Run clippy on included files
-        entry: cargo clippy --workspace --all-targets --all-features --
+        pass_filenames: false
+        entry: cargo clippy --workspace --all-targets --all-features
         types: [file, rust]
         language: system
