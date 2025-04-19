@@ -6,6 +6,32 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.21.1] - 2025-04-19
+
+### Bug Fixes
+
+- Don’t truncate branch name
+- Hi extension icon wasnt working as it was in the wrong aray
+
+### Documentation
+
+- Update README.md
+- Add crates.io link for README.md badge
+
+### Miscellaneous Tasks
+
+- Add MS DOS icon for *.com
+- Add ruby icon for config.ru, Gemfile, Gemfile.lock, procfile, rake, rakefile and change ruby icon
+- Add python icon for *.pxd and *.pyx
+- Add markdown icon for *.mdx
+- Add fsharp icon for *.f# and *.fsscript
+- Add clojure icon for *.cljc and *.edn
+
+### Build
+
+- Flake bump 2025-04-19
+- Cargo bump 2025-04-19
+
 ## [0.21.0] - 2025-03-31
 
 ### Bug Fixes
@@ -15,6 +41,10 @@ SPDX-License-Identifier: EUPL-1.2
 - Unwrap -> expect on libc deviceid calls
 - Formatting issue
 - Fix unused PermissionsPlus fields
+
+### Miscellaneous Tasks
+
+- Eza v0.21.0 changelogs, version bump
 
 ### Build
 
