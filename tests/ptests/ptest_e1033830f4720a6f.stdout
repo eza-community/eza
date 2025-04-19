@@ -1,4 +1,12 @@
 tests/test_dir
+├── dirs-ext
+│   ├── 01.city
+│   ├── 02.apple
+│   ├── a.txt
+│   ├── ab
+│   ├── abc
+│   ├── abc.mp3
+│   └── test
 ├── git
 │   ├── 001
 │   │   ├── file_000
