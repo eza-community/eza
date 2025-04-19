@@ -117,7 +117,16 @@ The preceding repository also contains the Bash, Fish, and Zsh completions.
 
 [![Fedora package](https://repology.org/badge/version-for-repo/fedora_39/rust:eza.svg)](https://repology.org/project/eza/versions)
 
-Eza is available as the [eza](https://packages.fedoraproject.org/pkgs/rust-eza/eza/) package in the official Fedora repository.
+> ⚠️ **Note:** As of **Fedora 42**, `eza` is **no longer available** in the official Fedora repositories due to the absence of an active maintainer.
+>
+> If you're using Fedora 42 or newer, consider one of these options:
+>
+> - **Use a pre-built binary** from the [Releases](https://github.com/eza-community/eza/releases) page
+> - **Build from source** by following the [Cargo (git)](#cargo-git) instructions above
+>
+> 💬 Interested in helping? [Become a Fedora package maintainer](https://docs.fedoraproject.org/en-US/package-maintainers/) or reach out via [Matrix](https://matrix.to/#/#eza-community:gitter.im).
+
+For Fedora versions **prior to 42**, `eza` is available in the official repository:
 
 ```bash
 sudo dnf install eza
