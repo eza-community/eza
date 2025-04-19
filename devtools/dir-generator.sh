@@ -133,6 +133,17 @@ touch icons/man.1 --date=@0
 touch icons/marked.md --date=@0
 # END test_icons
 
+# BEGIN test_dirs-ext
+mkdir -p dirs-ext
+mkdir dirs-ext/test
+mkdir dirs-ext/abc
+mkdir dirs-ext/01.city
+mkdir dirs-ext/02.apple
+touch dirs-ext/a.txt --date=@0
+touch dirs-ext/abc.mp3 --date=@0
+touch dirs-ext/ab --date=@0
+# END test_dirs_ext
+
 # BEGIN set date
 touch --date=@0 ./*;
 # END set date
