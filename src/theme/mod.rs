@@ -211,13 +211,16 @@ struct ExtensionMappings {
 }
 
 #[derive(PartialEq, Debug)]
-/// Using a hashmap here for "simple" patterns (plain extensions like '*.txt') improves performance
-/// drastically. It doesn't change highlighting behavior, as we still walk the
-/// [`ExtensionMappings`] in reverse order, and the hashmap will only consist of disjoint sets (it
-/// doesn't matter in which order we search *.txt or *.pdf).
+/// Using a hashmap here for "simple" patterns (plain extensions like '*.txt')
+/// improves performance drastically for complex `LS_COLORS` usage (see
+/// <https://github.com/eza-community/eza/pull/1421#issuecomment-2816666661>).
 ///
-/// In the event that a pattern shows up twice, we will use the later one (since .insert overrides
-/// any entry that exists), which is the correct behavior.
+/// It doesn't change highlighting behavior, as we still walk the
+/// [`ExtensionMappings`] in reverse order, and the hashmap will only consist of
+/// disjoint sets (it doesn't matter in which order we search *.txt or *.pdf).
+///
+/// In the event that a pattern shows up twice, we will use the later one (since
+/// .insert overrides any entry that exists), which is the correct behavior.
 enum GlobPattern {
     Complex(glob::Pattern, Style),
     Simple(HashMap<String, Style>),
