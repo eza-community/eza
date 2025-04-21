@@ -259,6 +259,7 @@ const FILENAME_ICONS: Map<&'static str, char> = phf_map! {
     ".rvm"                => Icons::LANG_RUBY,      // 
     ".rvmrc"              => Icons::LANG_RUBY,      // 
     ".SRCINFO"            => '\u{f303}',            // 
+    ".stowrc"             => '\u{eef1}',            // 
     ".tcshrc"             => Icons::SHELL,          // 󱆃
     ".viminfo"            => Icons::VIM,            // 
     ".vimrc"              => Icons::VIM,            // 
