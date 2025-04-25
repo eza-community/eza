@@ -6,6 +6,37 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.21.2] - 2025-04-25
+
+### Bug Fixes
+
+- Make clippy work again
+
+### Documentation
+
+- Update Fedora install instructions for Fedora 42
+- Specify perf improvements
+
+### Features
+
+- Remove dependency on once_cell
+
+### Miscellaneous Tasks
+
+- Add icon for '.stowrc' files
+
+### Performance
+
+- Use a hashmap when possible for file extension matching
+
+### Styling
+
+- Clean up glob matching code
+
+### Build
+
+- Bump uutils_term_grid from 0.6.0 to 0.7.0
+
 ## [0.21.1] - 2025-04-19
 
 ### Bug Fixes
@@ -26,6 +57,7 @@ SPDX-License-Identifier: EUPL-1.2
 - Add markdown icon for *.mdx
 - Add fsharp icon for *.f# and *.fsscript
 - Add clojure icon for *.cljc and *.edn
+- Eza v0.21.1 changelogs, version bump
 
 ### Build
 
