@@ -179,7 +179,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v16
+        uses: DeterminateSystems/nix-installer-action@v17
       - name: Nix Flake Check
         run: nix build .#checks.${{ matrix.target }}.${{ matrix.checks }} -L
   flake-build:
@@ -193,6 +193,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v16
+        uses: DeterminateSystems/nix-installer-action@v17
       - name: Nix Build
         run: nix build .#packages.${{ matrix.target }}.default -L
