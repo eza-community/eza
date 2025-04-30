@@ -112,6 +112,7 @@ impl Icons {
     const MARKDOWN: char        = '\u{f48a}';  // 
     const MUSTACHE: char        = '\u{e60f}';  // 
     const NODEJS: char          = '\u{e718}';  // 
+    const NOTEBOOK: char          = '\u{e678}';  // 
     const NPM: char             = '\u{e71e}';  // 
     const OS_ANDROID: char      = '\u{e70e}';  // 
     const OS_APPLE: char        = '\u{f179}';  // 
@@ -701,7 +702,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "info"           => Icons::INFO,             // 
     "ini"            => Icons::CONFIG,           // 
     "inl"            => Icons::LANG_C,           // 
-    "ipynb"          => '\u{e80f}',              // 
+    "ipynb"          => Icons::NOTEBOOK,              // 
     "ino"            => Icons::LANG_ARDUINO,     // 
     "ipt"            => Icons::CAD,              // 󰻫
     "iso"            => Icons::DISK_IMAGE,       // 
