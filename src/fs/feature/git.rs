@@ -388,7 +388,7 @@ fn current_branch(repo: &git2::Repository) -> Option<String> {
             if e.code() == git2::ErrorCode::UnbornBranch
                 || e.code() == git2::ErrorCode::NotFound =>
         {
-            return None
+            return None;
         }
         Err(e) => {
             error!("Error looking up Git branch: {:?}", e);
