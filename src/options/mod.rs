@@ -204,7 +204,7 @@ impl Options {
                 .is_some()
         {
             return Err(OptionsError::Unsupported(String::from(
-                "Options --git and --git-ignore can't be used because `git` feature was disabled in this build of exa"
+                "Options --git and --git-ignore can't be used because `git` feature was disabled in this build of exa",
             )));
         }
         let view = View::deduce(matches, vars)?;

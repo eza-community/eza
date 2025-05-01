@@ -45,7 +45,7 @@ impl f::Blocksize {
 
         let (prefix, n) = match result {
             NumberPrefix::Standalone(b) => {
-                return TextCell::paint(colours.blocksize(None), numerics.format_int(b))
+                return TextCell::paint(colours.blocksize(None), numerics.format_int(b));
             }
             NumberPrefix::Prefixed(p, n) => (p, n),
         };
