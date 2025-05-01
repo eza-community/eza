@@ -6,6 +6,22 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.21.3] - 2025-05-01
+
+### Features
+
+- Add support for .ipynb file icons
+
+### Styling
+
+- Unbreak formatting
+
+### Build
+
+- Bump DeterminateSystems/nix-installer-action from 16 to 17
+- Cargo bump 2025-05-01
+- Flake bump 2025-05-01
+
 ## [0.21.2] - 2025-04-25
 
 ### Bug Fixes
@@ -24,6 +40,7 @@ SPDX-License-Identifier: EUPL-1.2
 ### Miscellaneous Tasks
 
 - Add icon for '.stowrc' files
+- Eza v0.21.2 changelogs, version bump
 
 ### Performance
 
