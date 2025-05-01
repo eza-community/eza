@@ -319,14 +319,24 @@ impl Exa<'_> {
             file_style: file_name::Options { quote_style, .. },
             ..
         } = self.options.view;
+
+        let mut denied_dirs = vec![];
+
         for mut dir in dir_files {
             let dir = match dir.read() {
                 Ok(dir) => dir,
                 Err(e) => {
                     if e.kind() == ErrorKind::PermissionDenied {
-                        exit(exits::PERMISSION_DENIED);
+                        eprintln!(
+                            "Permission denied: {} - code: {}",
+                            dir.path.display(),
+                            exits::PERMISSION_DENIED
+                        );
+                        denied_dirs.push(dir.path);
+                        continue;
                     };
-                    writeln!(io::stderr(), "{}: {}", dir.path.display(), e)?;
+
+                    eprintln!("{}: {}", dir.path.display(), e);
                     continue;
                 }
             };
@@ -399,6 +409,16 @@ impl Exa<'_> {
             }
 
             self.print_files(Some(&dir), children)?;
+        }
+
+        if !denied_dirs.is_empty() {
+            eprintln!(
+                "\nSkipped {} directories due to permission denied",
+                denied_dirs.len()
+            );
+            for path in denied_dirs {
+                eprintln!("  - {}", path.display());
+            }
         }
 
         Ok(exit_status)
