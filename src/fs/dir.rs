@@ -43,7 +43,7 @@ impl Dir {
         }
     }
 
-    /// Reads the contents of the directory into DirEntry.
+    /// Reads the contents of the directory into `DirEntry`.
     ///
     /// It is recommended to use this method in conjunction with `new` in recursive
     /// calls, rather than `read_dir`, to avoid holding multiple open file descriptors
