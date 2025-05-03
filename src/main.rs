@@ -396,10 +396,10 @@ impl Exa<'_> {
                                 f.is_directory()
                             }) && !f.is_all_all
                         })
-                        .map(|f| f.to_dir())
+                        .map(fs::File::to_dir)
                         .collect::<Vec<Dir>>();
 
-                    self.print_files(Some(&dir), children)?;
+                    self.print_files(Some(dir), children)?;
                     match self.print_dirs(child_dirs, false, false, exit_status) {
                         Ok(_) => (),
                         Err(e) => return Err(e),
@@ -408,7 +408,7 @@ impl Exa<'_> {
                 }
             }
 
-            self.print_files(Some(&dir), children)?;
+            self.print_files(Some(dir), children)?;
         }
 
         if !denied_dirs.is_empty() {
