@@ -413,11 +413,11 @@ impl Exa<'_> {
 
         if !denied_dirs.is_empty() {
             eprintln!(
-                "\nSkipped {} directories due to permission denied",
+                "\nSkipped {} directories due to permission denied: ",
                 denied_dirs.len()
             );
             for path in denied_dirs {
-                eprintln!("  - {}", path.display());
+                eprintln!("  {}", path.display());
             }
         }
 
