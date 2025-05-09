@@ -35,7 +35,7 @@ impl Dir {
     ///
     /// This function does not attempt to read the contents of the directory; it merely
     /// initializes an instance of `Dir` with an empty `DirEntry` list and the specified path.
-    /// To populate the `Dir` object with actual directory contents, use the `read`.
+    /// To populate the `Dir` object with actual directory contents, use the `read` function.
     pub fn new(path: PathBuf) -> Self {
         Self {
             contents: vec![],
