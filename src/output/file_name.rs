@@ -408,11 +408,6 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         &self,
         style_override: Option<Style>,
     ) -> Vec<ANSIString<'unused>> {
-        use percent_encoding::{utf8_percent_encode, CONTROLS};
-
-        const HYPERLINK_START: &str = "\x1B]8;;";
-        const HYPERLINK_END: &str = "\x1B\x5C";
-
         let file_style = style_override.unwrap_or(self.style());
         let mut bits = Vec::new();
 
@@ -423,15 +418,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                 .absolute_path()
                 .and_then(|p| p.as_os_str().to_str())
             {
-                let abs_path = utf8_percent_encode(abs_path, CONTROLS).to_string();
-
-                // On Windows, `std::fs::canonicalize` adds the Win32 File prefix, which we need to remove
-                #[cfg(target_os = "windows")]
-                let abs_path = abs_path.strip_prefix("\\\\?\\").unwrap_or(&abs_path);
-
-                bits.push(ANSIString::from(format!(
-                    "{HYPERLINK_START}file://{abs_path}{HYPERLINK_END}"
-                )));
+                bits.push(ANSIString::from(escape::get_hyperlink_start_tag(abs_path)));
 
                 display_hyperlink = true;
             }
@@ -446,9 +433,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         );
 
         if display_hyperlink {
-            bits.push(ANSIString::from(format!(
-                "{HYPERLINK_START}{HYPERLINK_END}"
-            )));
+            bits.push(ANSIString::from(escape::HYPERLINK_CLOSING));
         }
 
         bits
