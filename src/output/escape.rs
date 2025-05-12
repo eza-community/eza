@@ -6,6 +6,7 @@
 // SPDX-License-Identifier: MIT
 use super::file_name::QuoteStyle;
 use nu_ansi_term::{AnsiString as ANSIString, Style};
+use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 
 pub fn escape(
     string: String,
@@ -41,5 +42,36 @@ pub fn escape(
     if quote_style != QuoteStyle::NoQuotes && needs_quotes {
         bits.insert(bits_starting_length, quote_bit.clone());
         bits.push(quote_bit);
+    }
+}
+
+const HYPERLINK_ESCAPE_CHARS: &AsciiSet = &CONTROLS.add(b' ');
+const HYPERLINK_OPENING_START: &str = "\x1B]8;;";
+const HYPERLINK_OPENING_END: &str = "\x1B\x5C";
+// Combination of both above tags
+pub const HYPERLINK_CLOSING: &str = "\x1B]8;;\x1B\x5C";
+
+pub fn get_hyperlink_start_tag(abs_path: &str) -> String {
+    let abs_path = utf8_percent_encode(abs_path, HYPERLINK_ESCAPE_CHARS).to_string();
+
+    // On Windows, `std::fs::canonicalize` adds the Win32 File prefix, which we need to remove
+    #[cfg(target_os = "windows")]
+    let abs_path = abs_path.strip_prefix("\\\\?\\").unwrap_or(&abs_path);
+
+    format!("{HYPERLINK_OPENING_START}file://{abs_path}{HYPERLINK_OPENING_END}")
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn hyperlink_start_tag_escape_spaces() {
+        assert_eq!(
+            get_hyperlink_start_tag("/folder name/file name").to_string(),
+            format!(
+                "{HYPERLINK_OPENING_START}file:///folder%20name/file%20name{HYPERLINK_OPENING_END}"
+            ),
+        );
     }
 }
