@@ -17,6 +17,7 @@ use std::os::windows::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 #[cfg(unix)]
 use std::str;
+use std::sync::LazyLock;
 #[cfg(unix)]
 use std::sync::Mutex;
 use std::sync::OnceLock;
@@ -25,8 +26,6 @@ use std::time::SystemTime;
 use chrono::prelude::*;
 
 use log::*;
-#[cfg(unix)]
-use std::sync::LazyLock;
 
 use crate::fs::dir::Dir;
 use crate::fs::feature::xattr;
@@ -340,6 +339,25 @@ impl<'dir> File<'dir> {
             return false;
         };
         (md.permissions().mode() & bit) == bit
+    }
+
+    #[cfg(windows)]
+    pub fn is_executable_file(&self) -> bool {
+        use std::collections::HashSet;
+        use std::env;
+
+        let Some(ext) = self.ext.as_ref() else {
+            return false;
+        };
+
+        static PATHEXT: LazyLock<HashSet<String>> = LazyLock::new(|| {
+            env::var("PATHEXT")
+                .unwrap_or_default()
+                .split(';')
+                .map(|s| s[1..].to_string())
+                .collect::<HashSet<String>>()
+        });
+        PATHEXT.contains(&ext.to_uppercase())
     }
 
     /// Whether this file is a symlink on the filesystem.
