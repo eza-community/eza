@@ -4,818 +4,330 @@
 // SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
-//! A general parser for command-line options.
-//!
-//! exa uses its own hand-rolled parser for command-line options. It supports
-//! the following syntax:
-//!
-//! - Long options: `--inode`, `--grid`
-//! - Long options with values: `--sort size`, `--level=4`
-//! - Short options: `-i`, `-G`
-//! - Short options with values: `-ssize`, `-L=4`
-//!
-//! These values can be mixed and matched: `exa -lssize --grid`. If you’ve used
-//! other command-line programs, then hopefully it’ll work much like them.
-//!
-//! Because exa already has its own files for the help text, shell completions,
-//! man page, and readme, so it can get away with having the options parser do
-//! very little: all it really needs to do is parse a slice of strings.
-//!
-//!
-//! ## UTF-8 and `OsStr`
-//!
-//! The parser uses `OsStr` as its string type. This is necessary for exa to
-//! list files that have invalid UTF-8 in their names: by treating file paths
-//! as bytes with no encoding, a file can be specified on the command-line and
-//! be looked up without having to be encoded into a `str` first.
-//!
-//! It also avoids the overhead of checking for invalid UTF-8 when parsing
-//! command-line options, as all the options and their values (such as
-//! `--sort size`) are guaranteed to just be 8-bit ASCII.
+use std::ffi::OsString;
 
-use std::ffi::{OsStr, OsString};
-use std::fmt;
+use clap::{arg, builder::PossibleValue, value_parser, Error, ValueEnum};
 
-use crate::options::error::{Choices, OptionsError};
+use crate::{
+    fs::filter::{SortCase, SortField},
+    output::{file_name::Absolute, time::TimeFormat},
+};
 
-/// A **short argument** is a single ASCII character.
-pub type ShortArg = u8;
+const SORT_FIELDS_HELP: &str = "[default: name] [possible values:
+  name, Name, .name, .Name, ext, ext, created,
+  date, age, accessed, changed,
+  size, inode, type, none]";
 
-/// A **long argument** is a string. This can be a UTF-8 string, even though
-/// the arguments will all be unchecked `OsString` values, because we don’t
-/// actually store the user’s input after it’s been matched to a flag, we just
-/// store which flag it was.
-pub type LongArg = &'static str;
+const TIME_FIELDS_HELP: &str = "[possible values:
+  mod|modified, acc|accessed, ch|changed, cr|created]";
 
-/// A **list of values** that an option can have, to be displayed when the
-/// user enters an invalid one or skips it.
-///
-/// This is literally just help text, and won’t be used to validate a value to
-/// see if it’s correct.
-pub type Values = &'static [&'static str];
+const FORMAT_STYLE_FIELDS_HELP: &str = "[possible values:
+  default, iso, long-iso, full-iso, relative, \"+<CUSTOM_FORMAT>\"]";
 
-/// A **flag** is either of the two argument types, because they have to
-/// be in the same array together.
-#[derive(PartialEq, Eq, Debug, Copy, Clone)]
-pub enum Flag {
-    Short(ShortArg),
-    Long(LongArg),
+pub fn get_command() -> clap::Command {
+    clap::Command::new(clap::crate_name!())
+        .author(clap::crate_authors!())
+        .about(clap::crate_description!())
+        .version(clap::crate_version!())
+        .disable_help_flag(true)
+        .disable_version_flag(true)
+        .args_override_self(true)
+
+        .arg(arg!([FILES]).value_parser(clap::value_parser!(OsString)).hide_short_help(true))
+
+        .next_help_heading("META OPTIONS")
+        .arg(arg!(--stdin "read file names from stdin"))
+        .arg(arg!(-'?' --help "Print help").action(clap::ArgAction::HelpShort))
+        .arg(arg!(-v --version "Print help").action(clap::ArgAction::Version))
+
+        .next_help_heading("LAYOUT OPTIONS")
+        .arg(arg!(-'1' --oneline "display one entry per line"))
+        .arg(arg!(-l --long "display extended file metadata as a table"))
+        .arg(arg!(-G --grid "display entries as a grid (default)"))
+        .arg(arg!(-x --across "sort the grid across, rather than downwards"))
+        .arg(arg!(-R --recurse "recurse into directories"))
+        .arg(arg!(-T --tree "recurse into directories as a tree"))
+        .arg(arg!(-L --level <DEPTH> "limit the depth of recursion")
+            .value_parser(value_parser!(usize)))
+        .arg(arg!(--"follow-symlinks" "drill down into symbolic links that point to directories"))
+        .arg(arg!(-w --width <COLS> "set screen width in columns")
+            .value_parser(value_parser!(usize)))
+
+        .next_help_heading("DISPLAY OPTIONS")
+        .arg(arg!(-F --classify <WHEN> "display type indicator by file names")
+            .num_args(0..=1)
+            .value_parser(value_parser!(ShowWhen))
+            .default_missing_value("auto"))
+        .arg(arg!(-X --dereference  "dereference symbolic links when displaying information"))
+        .arg(arg!(--absolute "display entries with their absolute path")
+            .num_args(0..=1)
+            .action(clap::ArgAction::Set)
+            .value_parser(value_parser!(Absolute))
+            .default_missing_value("on")
+            .default_value("off")
+            .hide_default_value(true))
+        .arg(arg!(--color <WHEN> "When to use colours.")
+            .alias("colour")
+            .num_args(0..=1)
+            .value_parser(value_parser!(ShowWhen))
+            .default_missing_value("auto")
+            .default_value("auto"))
+        .arg(arg!(--"color-scale" <FIELDS> "highlight value of FIELDS distinctly")
+            .num_args(0..)
+            .value_parser(value_parser!(ColorScaleArgs))
+            .default_missing_value("all")
+            .value_delimiter(','))
+        .arg(arg!(--"color-scale-mode" <MODE> "mode for --color-scale")
+            .num_args(1)
+            .value_parser(value_parser!(ColorScaleModeArgs))
+            .default_value("gradient"))
+        .arg(arg!(--icons <WHEN> "when to display icons")
+            .num_args(0..=1)
+            .value_parser(value_parser!(ShowWhen))
+            .default_missing_value("auto"))
+        .arg(arg!(--hyperlink "display entries as hyperlinks"))
+        .arg(arg!(--"no-quotes" "don't quote file names with spaces"))
+
+        .next_help_heading("FILTERING OPTIONS")
+        .arg(arg!(-a --all... "show hidden files. Use this twice to also show the '.' and '..' directories"))
+        .arg(arg!(-A --"almost-all" "equivalent to --all; included for compatibility with `ls -A`"))
+        .arg(arg!(-d --"list-dirs" "list directories as files; don't list their contents")
+            .conflicts_with_all(["recurse", "tree"]))
+        .arg(arg!(-D --"only-dirs" "list only directories"))
+        .arg(arg!(-f --"only-files" "list only files"))
+        .arg(arg!(--"show-symlinks" "explicitly show symbolic links (with --only-dirs and --only-files)"))
+        .arg(arg!(--"no-symlinks" "do not show symbolic links"))
+        .arg(arg!(-I --"ignore-glob" <GLOBS> "glob patterns (pipe-separated) of files to ignore"))
+        .arg(arg!(--"git-ignore" "ignore files mentioned in '.gitignore'"))
+
+        .next_help_heading("SORTING OPTIONS")
+        .arg(arg!(--"group-directories-first" "list directories before other files").id("dirs-first"))
+        .arg(arg!(--"group-directories-last" "list directories after other files").id("dirs-last"))
+        .arg(arg!(-s --sort <FIELD>)
+            .help(format!("which field to sort by {SORT_FIELDS_HELP}"))
+            .value_parser(value_parser!(SortField))
+            .default_value("name")
+            .hide_default_value(true)
+            .hide_possible_values(true))
+        .arg(arg!(-r --reverse "reverse the sort order"))
+
+        .next_help_heading("LONG VIEW OPTIONS")
+        .arg(arg!(-h --header "add a header row to each column"))
+        .arg(arg!(-i --inode "list each file's inode number"))
+        .arg(arg!(-o --"octal-permissions" "list each file's permission in octal format"))
+        .arg(arg!(-H --links "list each file's number of hard links"))
+        .arg(arg!(-b --binary "show file sizes with binary prefixes"))
+        .arg(arg!(-B --bytes "show file sizes in bytes, without any prefixes"))
+        .arg(arg!(--"total-size" "show the size of a directory as the one of its content (unix only)"))
+        .arg(arg!(-S --blocksize "list size of allocated file system blocks"))
+        .arg(arg!(-g --group "list each file's group"))
+        .arg(arg!(--"smart-group" "only show group if it has a different name from owner"))
+        .arg(arg!(-n --numeric "show user and group as their numeric IDs"))
+        .arg(arg!(-t --time <FIELD>).help(format!("which timestamp field to show {TIME_FIELDS_HELP}"))
+            .value_parser(value_parser!(TimeArgs))
+            .conflicts_with_all(["modified", "accessed", "changed", "created"])
+            .hide_possible_values(true))
+        .arg(arg!(-m --modified "show the modified timestamp field (replace default field, combinable)"))
+        .arg(arg!(-u --accessed "show the accessed timestamp field (replace default field, combinable)"))
+        .arg(arg!(--changed "show the changed timestamp field (replace default field, combinable)"))
+        .arg(arg!(-U --created "show the created timestamp field (replace default field, combinable)"))
+        .arg(arg!(--"time-style" <STYLE>)
+            .help(format!("how to format timestamps {FORMAT_STYLE_FIELDS_HELP}"))
+            .value_parser(TimeFormatParser)
+            .hide_possible_values(false))
+        .arg(arg!(-O --flags "list file flags (Mac, BSD, and Windows only)").id("file-flags"))
+        .arg(arg!(-Z --context "list each file's security context").id("security-context"))
+        .arg(arg!(--git "list each file's Git status, if tracked or ignored"))
+        .arg(arg!(--"git-repos" "list root of git-tree status"))
+        .arg(arg!(--"git-repos-no-status" "list each git-repos branch name (much faster)"))
+        .arg(arg!(-M --mounts "show mount details (Linux and macOS only)"))
+        .arg(arg!(-'@' --extended "list each file's extended attributes and sizes"))
+        .arg(arg!(--"no-permissions" "suppress the permissions field"))
+        .arg(arg!(--"no-filesize" "suppress the filesize field"))
+        .arg(arg!(--"no-user" "suppress the user field"))
+        .arg(arg!(--"no-time" "suppress the time field"))
+        .arg(arg!(--"no-git" "suppress Git fields (overrides --git, --git-repos, --git-repos-no-status)"))
 }
 
-impl Flag {
-    pub fn matches(&self, arg: &Arg) -> bool {
-        match self {
-            Self::Short(short) => arg.short == Some(*short),
-            Self::Long(long) => arg.long == *long,
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ShowWhen {
+    // icons, colors, quotes, headers ? eventually
+    Always,
+    Auto,
+    Never,
+}
+
+impl ValueEnum for ShowWhen {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[Self::Always, Self::Auto, Self::Never]
+    }
+
+    fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
+        Some(
+            match self {
+                Self::Always => "always",
+                Self::Auto => "auto",
+                Self::Never => "never",
+            }
+            .into(),
+        )
+    }
+
+    fn from_str(s: &str, _ignore_case: bool) -> Result<Self, String> {
+        match s.to_lowercase().as_str() {
+            "" | "auto" | "automatic" => Ok(Self::Auto),
+            "always" => Ok(Self::Always),
+            "never" => Ok(Self::Never),
+            e => Err(String::from(e)),
         }
     }
 }
 
-impl fmt::Display for Flag {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match self {
-            Self::Short(short) => write!(f, "-{}", *short as char),
-            Self::Long(long) => write!(f, "--{long}"),
-        }
+#[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
+pub enum ColorScaleArgs {
+    All,
+    Age,
+    Size,
+}
+
+#[derive(Clone, Debug, ValueEnum, PartialEq, Eq)]
+pub enum ColorScaleModeArgs {
+    Fixed,
+    Gradient,
+}
+
+impl ValueEnum for SortField {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[
+            Self::Name(SortCase::AaBbCc),
+            Self::Name(SortCase::ABCabc),
+            Self::NameMixHidden(SortCase::AaBbCc),
+            Self::NameMixHidden(SortCase::ABCabc),
+            Self::Size,
+            Self::Extension(SortCase::AaBbCc),
+            Self::Extension(SortCase::ABCabc),
+            Self::ModifiedDate,
+            Self::ModifiedAge,
+            Self::ChangedDate,
+            Self::AccessedDate,
+            Self::CreatedDate,
+            #[cfg(unix)]
+            Self::FileInode,
+            Self::FileType,
+            Self::Unsorted,
+        ]
     }
-}
 
-/// Whether redundant arguments should be considered a problem.
-#[derive(PartialEq, Eq, Debug, Copy, Clone)]
-pub enum Strictness {
-    /// Throw an error when an argument doesn’t do anything, either because
-    /// it requires another argument to be specified, or because two conflict.
-    ComplainAboutRedundantArguments,
-
-    /// Search the arguments list back-to-front, giving ones specified later
-    /// in the list priority over earlier ones.
-    UseLastArguments,
-}
-
-/// Whether a flag takes a value. This is applicable to both long and short
-/// arguments.
-#[derive(PartialEq, Eq, Debug, Copy, Clone)]
-pub enum TakesValue {
-    /// This flag has to be followed by a value.
-    /// If there’s a fixed set of possible values, they can be printed out
-    /// with the error text.
-    Necessary(Option<Values>),
-
-    /// This flag will throw an error if there’s a value after it.
-    Forbidden,
-
-    /// This flag may be followed by a value to override its defaults
-    Optional(Option<Values>, &'static str),
-}
-
-/// An **argument** can be matched by one of the user’s input strings.
-#[derive(PartialEq, Eq, Debug, Copy, Clone)]
-pub struct Arg {
-    /// The short argument that matches it, if any.
-    pub short: Option<ShortArg>,
-
-    /// The long argument that matches it. This is non-optional; all flags
-    /// should at least have a descriptive long name.
-    pub long: LongArg,
-
-    /// Whether this flag takes a value or not.
-    pub takes_value: TakesValue,
-}
-
-impl fmt::Display for Arg {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "--{}", self.long)?;
-
-        if let Some(short) = self.short {
-            write!(f, " (-{})", short as char)?;
-        }
-
-        Ok(())
-    }
-}
-
-/// Literally just several args.
-#[derive(PartialEq, Eq, Debug)]
-pub struct Args(pub &'static [&'static Arg]);
-
-impl Args {
-    /// Iterates over the given list of command-line arguments and parses
-    /// them into a list of matched flags and free strings.
-    pub fn parse<'args, I>(
-        &self,
-        inputs: I,
-        strictness: Strictness,
-    ) -> Result<Matches<'args>, ParseError>
-    where
-        I: IntoIterator<Item = &'args OsStr>,
-    {
-        let mut parsing = true;
-
-        // The results that get built up.
-        let mut result_flags = Vec::new();
-        let mut frees: Vec<&OsStr> = Vec::new();
-
-        // Iterate over the inputs with “while let” because we need to advance
-        // the iterator manually whenever an argument that takes a value
-        // doesn’t have one in its string so it needs the next one.
-        let mut inputs = inputs.into_iter().peekable();
-        while let Some(arg) = inputs.next() {
-            let bytes = os_str_to_bytes(arg);
-
-            // Stop parsing if one of the arguments is the literal string “--”.
-            // This allows a file named “--arg” to be specified by passing in
-            // the pair “-- --arg”, without it getting matched as a flag that
-            // doesn’t exist.
-            if !parsing {
-                frees.push(arg);
-            } else if arg == "--" {
-                parsing = false;
+    fn to_possible_value(&self) -> Option<PossibleValue> {
+        Some(match self {
+            Self::Name(SortCase::AaBbCc) => PossibleValue::new("name").alias("filename"),
+            Self::Name(SortCase::ABCabc) => PossibleValue::new("Name").alias("Filename"),
+            Self::NameMixHidden(SortCase::AaBbCc) => PossibleValue::new(".name").alias(".filename"),
+            Self::NameMixHidden(SortCase::ABCabc) => PossibleValue::new(".Name").alias(".Filename"),
+            Self::Size => PossibleValue::new("size"),
+            Self::Extension(SortCase::AaBbCc) => PossibleValue::new("ext").alias("extension"),
+            Self::Extension(SortCase::ABCabc) => PossibleValue::new("Ext").alias("Extension"),
+            // “new” sorts oldest at the top and newest at the bottom; “old” sorts newest at the
+            // top and oldest at the bottom. I think this is the right way round to do this:
+            // “size” puts the smallest at  the top and the largest at the bottom, doesn’t it?
+            Self::ModifiedDate => {
+                PossibleValue::new("date").aliases(vec!["time", "mod", "modified", "new", "newest"])
             }
-            // If the string starts with *two* dashes then it’s a long argument.
-            else if bytes.starts_with(b"--") {
-                let long_arg_name = bytes_to_os_str(&bytes[2..]);
-
-                // If there’s an equals in it, then the string before the
-                // equals will be the flag’s name, and the string after it
-                // will be its value.
-                if let Some((before, after)) = split_on_equals(long_arg_name) {
-                    let arg = self.lookup_long(before)?;
-                    let flag = Flag::Long(arg.long);
-                    match arg.takes_value {
-                        TakesValue::Necessary(_) | TakesValue::Optional(_, _) => {
-                            result_flags.push((flag, Some(after)));
-                        }
-                        TakesValue::Forbidden => return Err(ParseError::ForbiddenValue { flag }),
-                    }
-                }
-                // If there’s no equals, then the entire string (apart from
-                // the dashes) is the argument name.
-                else {
-                    let arg = self.lookup_long(long_arg_name)?;
-                    let flag = Flag::Long(arg.long);
-                    match arg.takes_value {
-                        TakesValue::Forbidden => {
-                            result_flags.push((flag, None));
-                        }
-                        TakesValue::Necessary(values) => {
-                            if let Some(next_arg) = inputs.next() {
-                                result_flags.push((flag, Some(next_arg)));
-                            } else {
-                                return Err(ParseError::NeedsValue { flag, values });
-                            }
-                        }
-                        TakesValue::Optional(values, default) => match inputs.peek() {
-                            Some(next_arg) if is_optional_arg(next_arg, values) => {
-                                result_flags.push((flag, Some(inputs.next().unwrap())));
-                            }
-                            _ => {
-                                result_flags
-                                    .push((flag, Some(bytes_to_os_str(default.as_bytes()))));
-                            }
-                        },
-                    }
-                }
-            }
-            // If the string starts with *one* dash then it’s one or more
-            // short arguments.
-            else if bytes.starts_with(b"-") && arg != "-" {
-                let short_arg = bytes_to_os_str(&bytes[1..]);
-
-                // If there’s an equals in it, then the argument immediately
-                // before the equals was the one that has the value, with the
-                // others (if any) as value-less short ones.
-                //
-                //   -x=abc         => ‘x=abc’
-                //   -abcdx=fgh     => ‘a’, ‘b’, ‘c’, ‘d’, ‘x=fgh’
-                //   -x=            =>  error
-                //   -abcdx=        =>  error
-                //
-                // There’s no way to give two values in a cluster like this:
-                // it’s an error if any of the first set of arguments actually
-                // takes a value.
-                if let Some((before, after)) = split_on_equals(short_arg) {
-                    let (arg_with_value, other_args) =
-                        os_str_to_bytes(before).split_last().unwrap();
-
-                    // Process the characters immediately following the dash...
-                    for byte in other_args {
-                        let arg = self.lookup_short(*byte)?;
-                        let flag = Flag::Short(*byte);
-                        match arg.takes_value {
-                            TakesValue::Forbidden => {
-                                result_flags.push((flag, None));
-                            }
-                            TakesValue::Optional(_, default) => {
-                                result_flags
-                                    .push((flag, Some(bytes_to_os_str(default.as_bytes()))));
-                            }
-                            TakesValue::Necessary(values) => {
-                                return Err(ParseError::NeedsValue { flag, values });
-                            }
-                        }
-                    }
-
-                    // ...then the last one and the value after the equals.
-                    let arg = self.lookup_short(*arg_with_value)?;
-                    let flag = Flag::Short(arg.short.unwrap());
-                    match arg.takes_value {
-                        TakesValue::Necessary(_) | TakesValue::Optional(_, _) => {
-                            result_flags.push((flag, Some(after)));
-                        }
-                        TakesValue::Forbidden => {
-                            return Err(ParseError::ForbiddenValue { flag });
-                        }
-                    }
-                }
-                // If there’s no equals, then every character is parsed as
-                // its own short argument. However, if any of the arguments
-                // takes a value, then the *rest* of the string is used as
-                // its value, and if there’s no rest of the string, then it
-                // uses the next one in the iterator.
-                //
-                //   -a        => ‘a’
-                //   -abc      => ‘a’, ‘b’, ‘c’
-                //   -abxdef   => ‘a’, ‘b’, ‘x=def’
-                //   -abx def  => ‘a’, ‘b’, ‘x=def’
-                //   -abx      =>  error
-                //
-                else {
-                    for (index, byte) in bytes.iter().enumerate().skip(1) {
-                        let arg = self.lookup_short(*byte)?;
-                        let flag = Flag::Short(*byte);
-                        match arg.takes_value {
-                            TakesValue::Forbidden => {
-                                result_flags.push((flag, None));
-                            }
-                            TakesValue::Necessary(values) => {
-                                if index < bytes.len() - 1 {
-                                    let remnants = &bytes[index + 1..];
-                                    result_flags.push((flag, Some(bytes_to_os_str(remnants))));
-                                    break;
-                                } else if let Some(next_arg) = inputs.next() {
-                                    result_flags.push((flag, Some(next_arg)));
-                                } else {
-                                    match arg.takes_value {
-                                        TakesValue::Forbidden | TakesValue::Optional(_, _) => {
-                                            unreachable!()
-                                        }
-                                        TakesValue::Necessary(_) => {
-                                            return Err(ParseError::NeedsValue { flag, values });
-                                        }
-                                    }
-                                }
-                            }
-                            TakesValue::Optional(values, default) => {
-                                if index < bytes.len() - 1 {
-                                    let remnants = bytes_to_os_str(&bytes[index + 1..]);
-                                    if is_optional_arg(remnants, values) {
-                                        result_flags.push((flag, Some(remnants)));
-                                    } else {
-                                        return Err(ParseError::ForbiddenValue { flag });
-                                    }
-                                    break;
-                                } else if let Some(next_arg) = inputs.peek() {
-                                    if is_optional_arg(next_arg, values) {
-                                        result_flags.push((flag, Some(inputs.next().unwrap())));
-                                    } else {
-                                        result_flags.push((flag, Some(OsStr::new(default))));
-                                    }
-                                } else {
-                                    match arg.takes_value {
-                                        TakesValue::Forbidden | TakesValue::Necessary(_) => {
-                                            unreachable!()
-                                        }
-                                        TakesValue::Optional(_, default) => {
-                                            result_flags.push((flag, Some(OsStr::new(default))));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            // Otherwise, it’s a free string, usually a file name.
-            else {
-                frees.push(arg);
-            }
-        }
-
-        Ok(Matches {
-            frees,
-            flags: MatchedFlags {
-                flags: result_flags,
-                strictness,
-            },
+            // Similarly, “age” means that files with the least age (the newest files) get sorted
+            //  at the top, and files with the most age (the oldest) at the bottom.
+            Self::ModifiedAge => PossibleValue::new("age").aliases(vec!["old", "oldest"]),
+            Self::ChangedDate => PossibleValue::new("changed").alias("ch"),
+            Self::AccessedDate => PossibleValue::new("accessed").alias("acc"),
+            Self::CreatedDate => PossibleValue::new("created").alias("cr"),
+            #[cfg(unix)]
+            Self::FileInode => PossibleValue::new("inode"),
+            Self::FileType => PossibleValue::new("type"),
+            Self::Unsorted => PossibleValue::new("none"),
         })
     }
+}
 
-    fn lookup_short(&self, short: ShortArg) -> Result<&Arg, ParseError> {
-        match self.0.iter().find(|arg| arg.short == Some(short)) {
-            Some(arg) => Ok(arg),
-            None => Err(ParseError::UnknownShortArgument { attempt: short }),
-        }
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum TimeArgs {
+    Modified,
+    Changed,
+    Accessed,
+    Created,
+}
+
+impl ValueEnum for TimeArgs {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[Self::Modified, Self::Changed, Self::Accessed, Self::Created]
     }
 
-    fn lookup_long(&self, long: &OsStr) -> Result<&Arg, ParseError> {
-        match self.0.iter().find(|arg| arg.long == long) {
-            Some(arg) => Ok(arg),
-            None => Err(ParseError::UnknownArgument {
-                attempt: long.to_os_string(),
-            }),
-        }
+    fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
+        Some(match self {
+            Self::Modified => PossibleValue::new("modified").alias("mod"),
+            Self::Changed => PossibleValue::new("changed").alias("ch"),
+            Self::Accessed => PossibleValue::new("accessed").alias("acc"),
+            Self::Created => PossibleValue::new("created").alias("cr"),
+        })
     }
 }
 
-fn is_optional_arg(value: &OsStr, values: Option<&[&str]>) -> bool {
-    match (values, value.to_str()) {
-        (Some(values), Some(value)) => values.contains(&value),
-        _ => false,
+#[allow(unused)]
+#[derive(Debug, Clone)]
+pub struct TimeFormatParser;
+
+impl clap::builder::ValueParserFactory for TimeFormat {
+    type Parser = TimeFormatParser;
+    fn value_parser() -> Self::Parser {
+        TimeFormatParser
     }
 }
 
-/// The **matches** are the result of parsing the user’s command-line strings.
-#[derive(PartialEq, Eq, Debug)]
-pub struct Matches<'args> {
-    /// The flags that were parsed from the user’s input.
-    pub flags: MatchedFlags<'args>,
+impl clap::builder::TypedValueParser for TimeFormatParser {
+    type Value = TimeFormat;
 
-    /// All the strings that weren’t matched as arguments, as well as anything
-    /// after the special “--” string.
-    pub frees: Vec<&'args OsStr>,
-}
-
-#[derive(PartialEq, Eq, Debug)]
-pub struct MatchedFlags<'args> {
-    /// The individual flags from the user’s input, in the order they were
-    /// originally given.
-    ///
-    /// Long and short arguments need to be kept in the same vector because
-    /// we usually want the one nearest the end to count, and to know this,
-    /// we need to know where they are in relation to one another.
-    flags: Vec<(Flag, Option<&'args OsStr>)>,
-
-    /// Whether to check for duplicate or redundant arguments.
-    strictness: Strictness,
-}
-
-impl<'a> MatchedFlags<'a> {
-    /// Whether the given argument was specified.
-    /// Returns `true` if it was, `false` if it wasn’t, and an error in
-    /// strict mode if it was specified more than once.
-    pub fn has(&self, arg: &'static Arg) -> Result<bool, OptionsError> {
-        self.has_where(|flag| flag.matches(arg))
-            .map(|flag| flag.is_some())
-    }
-
-    /// Returns the first found argument that satisfies the predicate, or
-    /// nothing if none is found, or an error in strict mode if multiple
-    /// argument satisfy the predicate.
-    ///
-    /// You’ll have to test the resulting flag to see which argument it was.
-    pub fn has_where<P>(&self, predicate: P) -> Result<Option<&Flag>, OptionsError>
-    where
-        P: Fn(&Flag) -> bool,
-    {
-        if self.is_strict() {
-            let all = self
-                .flags
-                .iter()
-                .filter(|tuple| tuple.1.is_none() && predicate(&tuple.0))
-                .collect::<Vec<_>>();
-
-            if all.len() < 2 {
-                Ok(all.first().map(|t| &t.0))
-            } else {
-                Err(OptionsError::Duplicate(all[0].0, all[1].0))
-            }
-        } else {
-            Ok(self.has_where_any(predicate))
-        }
-    }
-
-    /// Returns the first found argument that satisfies the predicate, or
-    /// nothing if none is found, with strict mode having no effect.
-    ///
-    /// You’ll have to test the resulting flag to see which argument it was.
-    pub fn has_where_any<P>(&self, predicate: P) -> Option<&Flag>
-    where
-        P: Fn(&Flag) -> bool,
-    {
-        self.flags
-            .iter()
-            .rev()
-            .find(|tuple| tuple.1.is_none() && predicate(&tuple.0))
-            .map(|tuple| &tuple.0)
-    }
-
-    // This code could probably be better.
-    // Both ‘has’ and ‘get’ immediately begin with a conditional, which makes
-    // me think the functionality could be moved to inside Strictness.
-
-    /// Returns the value of the given argument if it was specified, nothing
-    /// if it wasn’t, and an error in strict mode if it was specified more
-    /// than once.
-    pub fn get(&self, arg: &'static Arg) -> Result<Option<&OsStr>, OptionsError> {
-        self.get_where(|flag| flag.matches(arg))
-    }
-
-    /// Returns the value of the argument that matches the predicate if it
-    /// was specified, nothing if it wasn’t, and an error in strict mode if
-    /// multiple arguments matched the predicate.
-    ///
-    /// It’s not possible to tell which flag the value belonged to from this.
-    pub fn get_where<P>(&self, predicate: P) -> Result<Option<&OsStr>, OptionsError>
-    where
-        P: Fn(&Flag) -> bool,
-    {
-        if self.is_strict() {
-            let those = self
-                .flags
-                .iter()
-                .filter(|tuple| tuple.1.is_some() && predicate(&tuple.0))
-                .collect::<Vec<_>>();
-
-            if those.len() < 2 {
-                Ok(those.first().copied().map(|t| t.1.unwrap()))
-            } else {
-                Err(OptionsError::Duplicate(those[0].0, those[1].0))
-            }
-        } else {
-            let found = self
-                .flags
-                .iter()
-                .rev()
-                .find(|tuple| tuple.1.is_some() && predicate(&tuple.0))
-                .map(|tuple| tuple.1.unwrap());
-            Ok(found)
-        }
-    }
-
-    // It’s annoying that ‘has’ and ‘get’ won’t work when accidentally given
-    // flags that do/don’t take values, but this should be caught by tests.
-
-    /// Counts the number of occurrences of the given argument, even in
-    /// strict mode.
-    pub fn count(&self, arg: &Arg) -> usize {
-        self.flags
-            .iter()
-            .filter(|tuple| tuple.0.matches(arg))
-            .count()
-    }
-
-    /// Checks whether strict mode is on. This is usually done from within
-    /// ‘has’ and ‘get’, but it’s available in an emergency.
-    pub fn is_strict(&self) -> bool {
-        self.strictness == Strictness::ComplainAboutRedundantArguments
-    }
-}
-
-/// A problem with the user’s input that meant it couldn’t be parsed into a
-/// coherent list of arguments.
-#[derive(PartialEq, Eq, Debug)]
-pub enum ParseError {
-    /// A flag that has to take a value was not given one.
-    NeedsValue { flag: Flag, values: Option<Values> },
-
-    /// A flag that can’t take a value *was* given one.
-    ForbiddenValue { flag: Flag },
-
-    /// A short argument, either alone or in a cluster, was not
-    /// recognised by the program.
-    UnknownShortArgument { attempt: ShortArg },
-
-    /// A long argument was not recognised by the program.
-    /// We don’t have a known &str version of the flag, so
-    /// this may not be valid UTF-8.
-    UnknownArgument { attempt: OsString },
-}
-
-impl fmt::Display for ParseError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::NeedsValue { flag, values: None } => write!(f, "Flag {flag} needs a value"),
-            Self::NeedsValue {
-                flag,
-                values: Some(cs),
-            } => write!(f, "Flag {flag} needs a value ({})", Choices(cs)),
-            Self::ForbiddenValue { flag } => write!(f, "Flag {flag} cannot take a value"),
-            Self::UnknownShortArgument { attempt } => {
-                write!(f, "Unknown argument -{}", *attempt as char)
-            }
-            Self::UnknownArgument { attempt } => {
-                write!(f, "Unknown argument --{}", attempt.to_string_lossy())
-            }
+    fn parse_ref(
+        &self,
+        cmd: &clap::Command,
+        _arg: Option<&clap::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, Error> {
+        match TimeFormat::try_from_str(value.to_str().unwrap()) {
+            Err(s) => Err(Error::raw(clap::error::ErrorKind::InvalidValue, s).with_cmd(cmd)),
+            Ok(v) => Ok(v),
         }
     }
 }
 
-#[cfg(unix)]
-fn os_str_to_bytes(s: &OsStr) -> &[u8] {
-    use std::os::unix::ffi::OsStrExt;
-
-    return s.as_bytes();
-}
-
-#[cfg(unix)]
-fn bytes_to_os_str(b: &[u8]) -> &OsStr {
-    use std::os::unix::ffi::OsStrExt;
-
-    return OsStr::from_bytes(b);
-}
-
-#[cfg(windows)]
-fn os_str_to_bytes(s: &OsStr) -> &[u8] {
-    return s.to_str().unwrap().as_bytes();
-}
-
-#[cfg(windows)]
-fn bytes_to_os_str(b: &[u8]) -> &OsStr {
-    use std::str;
-
-    return OsStr::new(str::from_utf8(b).unwrap());
-}
-
-/// Splits a string on its `=` character, returning the two substrings on
-/// either side. Returns `None` if there’s no equals or a string is missing.
-fn split_on_equals(input: &OsStr) -> Option<(&OsStr, &OsStr)> {
-    if let Some(index) = os_str_to_bytes(input).iter().position(|elem| *elem == b'=') {
-        let (before, after) = os_str_to_bytes(input).split_at(index);
-
-        // The after string contains the = that we need to remove.
-        if !before.is_empty() && after.len() >= 2 {
-            return Some((bytes_to_os_str(before), bytes_to_os_str(&after[1..])));
-        }
+impl ValueEnum for Absolute {
+    fn value_variants<'a>() -> &'a [Self] {
+        &[Self::On, Self::Off, Self::Follow]
     }
 
-    None
+    fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
+        Some(match self {
+            Self::On => PossibleValue::new("on").alias("yes"),
+            Self::Off => PossibleValue::new("off").alias("no"),
+            Self::Follow => PossibleValue::new("follow"),
+        })
+    }
 }
 
 #[cfg(test)]
-mod split_test {
-    use super::split_on_equals;
-    use std::ffi::{OsStr, OsString};
-
-    macro_rules! test_split {
-        ($name:ident: $input:expr => None) => {
-            #[test]
-            fn $name() {
-                assert_eq!(split_on_equals(&OsString::from($input)), None);
-            }
-        };
-
-        ($name:ident: $input:expr => $before:expr, $after:expr) => {
-            #[test]
-            fn $name() {
-                assert_eq!(
-                    split_on_equals(&OsString::from($input)),
-                    Some((OsStr::new($before), OsStr::new($after)))
-                );
-            }
-        };
-    }
-
-    test_split!(empty:   ""   => None);
-    test_split!(letter:  "a"  => None);
-
-    test_split!(just:      "="    => None);
-    test_split!(intro:     "=bbb" => None);
-    test_split!(denou:  "aaa="    => None);
-    test_split!(equals: "aaa=bbb" => "aaa", "bbb");
-
-    test_split!(sort: "--sort=size"     => "--sort", "size");
-    test_split!(more: "this=that=other" => "this",   "that=other");
-}
-
-#[cfg(test)]
-mod parse_test {
+pub mod test {
     use super::*;
 
-    macro_rules! test {
-        ($name:ident: $inputs:expr => frees: $frees:expr, flags: $flags:expr) => {
-            #[test]
-            fn $name() {
-                let inputs: &[&'static str] = $inputs.as_ref();
-                let inputs = inputs.iter().map(OsStr::new);
-
-                let frees: &[&'static str] = $frees.as_ref();
-                let frees = frees.iter().map(OsStr::new).collect();
-
-                let flags = <[_]>::into_vec(Box::new($flags));
-
-                let strictness = Strictness::UseLastArguments; // this isn’t even used
-                let got = Args(TEST_ARGS).parse(inputs, strictness);
-                let flags = MatchedFlags { flags, strictness };
-
-                let expected = Ok(Matches { frees, flags });
-                assert_eq!(got, expected);
-            }
-        };
-
-        ($name:ident: $inputs:expr => error $error:expr) => {
-            #[test]
-            fn $name() {
-                use self::ParseError::*;
-
-                let inputs = $inputs.iter().map(OsStr::new);
-
-                let strictness = Strictness::UseLastArguments; // this isn’t even used
-                let got = Args(TEST_ARGS).parse(inputs, strictness);
-                assert_eq!(got, Err($error));
-            }
-        };
+    pub fn mock_cli<I, T>(itr: I) -> clap::ArgMatches
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
+    {
+        get_command().no_binary_name(true).get_matches_from(itr)
     }
 
-    const SUGGESTIONS: Values = &["example"];
-
-    #[rustfmt::skip]
-    static TEST_ARGS: &[&Arg] = &[
-        &Arg { short: Some(b'l'), long: "long",     takes_value: TakesValue::Forbidden },
-        &Arg { short: Some(b'v'), long: "verbose",  takes_value: TakesValue::Forbidden },
-        &Arg { short: Some(b'c'), long: "count",    takes_value: TakesValue::Necessary(None) },
-        &Arg { short: Some(b't'), long: "type",     takes_value: TakesValue::Necessary(Some(SUGGESTIONS))},
-        &Arg { short: Some(b'o'), long: "optional", takes_value: TakesValue::Optional(Some(&["all", "some", "none"]), "all")} 
-    ];
-
-    // Just filenames
-    test!(empty:       []       => frees: [],         flags: []);
-    test!(one_arg:     ["exa"]  => frees: [ "exa" ],  flags: []);
-
-    // Dashes and double dashes
-    test!(one_dash:    ["-"]             => frees: [ "-" ],       flags: []);
-    test!(two_dashes:  ["--"]            => frees: [],            flags: []);
-    test!(two_file:    ["--", "file"]    => frees: [ "file" ],    flags: []);
-    test!(two_arg_l:   ["--", "--long"]  => frees: [ "--long" ],  flags: []);
-    test!(two_arg_s:   ["--", "-l"]      => frees: [ "-l" ],      flags: []);
-
-    // Long args
-    test!(long:        ["--long"]               => frees: [],       flags: [ (Flag::Long("long"), None) ]);
-    test!(long_then:   ["--long", "4"]          => frees: [ "4" ],  flags: [ (Flag::Long("long"), None) ]);
-    test!(long_two:    ["--long", "--verbose"]  => frees: [],       flags: [ (Flag::Long("long"), None), (Flag::Long("verbose"), None) ]);
-
-    // Long args with values
-    test!(bad_equals:  ["--long=equals"]  => error ForbiddenValue { flag: Flag::Long("long") });
-    test!(no_arg:      ["--count"]        => error NeedsValue     { flag: Flag::Long("count"), values: None });
-    test!(arg_equals:  ["--count=4"]      => frees: [],  flags: [ (Flag::Long("count"), Some(OsStr::new("4"))) ]);
-    test!(arg_then:    ["--count", "4"]   => frees: [],  flags: [ (Flag::Long("count"), Some(OsStr::new("4"))) ]);
-
-    // Long args with values and suggestions
-    test!(no_arg_s:      ["--type"]         => error NeedsValue { flag: Flag::Long("type"), values: Some(SUGGESTIONS) });
-    test!(arg_equals_s:  ["--type=exa"]     => frees: [],  flags: [ (Flag::Long("type"), Some(OsStr::new("exa"))) ]);
-    test!(arg_then_s:    ["--type", "exa"]  => frees: [],  flags: [ (Flag::Long("type"), Some(OsStr::new("exa"))) ]);
-
-    // Short args
-    test!(short:       ["-l"]            => frees: [],       flags: [ (Flag::Short(b'l'), None) ]);
-    test!(short_then:  ["-l", "4"]       => frees: [ "4" ],  flags: [ (Flag::Short(b'l'), None) ]);
-    test!(short_two:   ["-lv"]           => frees: [],       flags: [ (Flag::Short(b'l'), None), (Flag::Short(b'v'), None) ]);
-    test!(mixed:       ["-v", "--long"]  => frees: [],       flags: [ (Flag::Short(b'v'), None), (Flag::Long("long"), None) ]);
-
-    // Short args with values
-    test!(bad_short:          ["-l=equals"]   => error ForbiddenValue { flag: Flag::Short(b'l') });
-    test!(short_none:         ["-c"]          => error NeedsValue     { flag: Flag::Short(b'c'), values: None });
-    test!(short_arg_eq:       ["-c=4"]        => frees: [],  flags: [(Flag::Short(b'c'), Some(OsStr::new("4"))) ]);
-    test!(short_arg_then:     ["-c", "4"]     => frees: [],  flags: [(Flag::Short(b'c'), Some(OsStr::new("4"))) ]);
-    test!(short_two_together: ["-lctwo"]      => frees: [],  flags: [(Flag::Short(b'l'), None), (Flag::Short(b'c'), Some(OsStr::new("two"))) ]);
-    test!(short_two_equals:   ["-lc=two"]     => frees: [],  flags: [(Flag::Short(b'l'), None), (Flag::Short(b'c'), Some(OsStr::new("two"))) ]);
-    test!(short_two_next:     ["-lc", "two"]  => frees: [],  flags: [(Flag::Short(b'l'), None), (Flag::Short(b'c'), Some(OsStr::new("two"))) ]);
-
-    // Short args with values and suggestions
-    test!(short_none_s:         ["-t"]         => error NeedsValue { flag: Flag::Short(b't'), values: Some(SUGGESTIONS) });
-    test!(short_two_together_s: ["-texa"]      => frees: [],  flags: [(Flag::Short(b't'), Some(OsStr::new("exa"))) ]);
-    test!(short_two_equals_s:   ["-t=exa"]     => frees: [],  flags: [(Flag::Short(b't'), Some(OsStr::new("exa"))) ]);
-    test!(short_two_next_s:     ["-t", "exa"]  => frees: [],  flags: [(Flag::Short(b't'), Some(OsStr::new("exa"))) ]);
-
-    // Unknown args
-    test!(unknown_long:          ["--quiet"]      => error UnknownArgument      { attempt: OsString::from("quiet") });
-    test!(unknown_long_eq:       ["--quiet=shhh"] => error UnknownArgument      { attempt: OsString::from("quiet") });
-    test!(unknown_short:         ["-q"]           => error UnknownShortArgument { attempt: b'q' });
-    test!(unknown_short_2nd:     ["-lq"]          => error UnknownShortArgument { attempt: b'q' });
-    test!(unknown_short_eq:      ["-q=shhh"]      => error UnknownShortArgument { attempt: b'q' });
-    test!(unknown_short_2nd_eq:  ["-lq=shhh"]     => error UnknownShortArgument { attempt: b'q' });
-
-    // Optional args
-    test!(optional:         ["--optional"]         => frees: [], flags: [(Flag::Long("optional"), Some(OsStr::new("all")))]);
-    test!(optional_2:       ["--optional", "-l"]   => frees: [], flags: [ (Flag::Long("optional"), Some(OsStr::new("all"))), (Flag::Short(b'l'), None)]);
-    test!(optional_3:       ["--optional", "path"] => frees: ["path"], flags: [(Flag::Long("optional"), Some(OsStr::new("all")))]);
-    test!(optional_with_eq: ["--optional=none"]    => frees: [], flags: [(Flag::Long("optional"), Some(OsStr::new("none")))]);
-    test!(optional_wo_eq:   ["--optional", "none"] => frees: [], flags: [(Flag::Long("optional"), Some(OsStr::new("none")))]);
-    test!(short_opt:        ["-o"]                 => frees: [], flags: [(Flag::Short(b'o'), Some(OsStr::new("all")))]);
-    test!(short_opt_value:  ["-onone"]             => frees: [], flags: [(Flag::Short(b'o'), Some(OsStr::new("none")))]);
-    test!(short_forbidden:  ["-opath"]             => error ForbiddenValue  { flag: Flag::Short(b'o') });
-    test!(short_allowed:    ["-o","path"]          => frees: ["path"], flags: [(Flag::Short(b'o'), Some(OsStr::new("all")))]);
-}
-
-#[cfg(test)]
-mod matches_test {
-    use super::*;
-
-    macro_rules! test {
-        ($name:ident: $input:expr, has $param:expr => $result:expr) => {
-            #[test]
-            fn $name() {
-                let flags = MatchedFlags {
-                    flags: $input.to_vec(),
-                    strictness: Strictness::UseLastArguments,
-                };
-
-                assert_eq!(flags.has(&$param), Ok($result));
-            }
-        };
-    }
-
-    static VERBOSE: Arg = Arg {
-        short: Some(b'v'),
-        long: "verbose",
-        takes_value: TakesValue::Forbidden,
-    };
-    static COUNT: Arg = Arg {
-        short: Some(b'c'),
-        long: "count",
-        takes_value: TakesValue::Necessary(None),
-    };
-
-    test!(short_never:  [],                                                              has VERBOSE => false);
-    test!(short_once:   [(Flag::Short(b'v'), None)],                                     has VERBOSE => true);
-    test!(short_twice:  [(Flag::Short(b'v'), None), (Flag::Short(b'v'), None)],          has VERBOSE => true);
-    test!(long_once:    [(Flag::Long("verbose"), None)],                                 has VERBOSE => true);
-    test!(long_twice:   [(Flag::Long("verbose"), None), (Flag::Long("verbose"), None)],  has VERBOSE => true);
-    test!(long_mixed:   [(Flag::Long("verbose"), None), (Flag::Short(b'v'), None)],      has VERBOSE => true);
-
-    #[test]
-    fn only_count() {
-        let everything = OsString::from("everything");
-
-        let flags = MatchedFlags {
-            flags: vec![(Flag::Short(b'c'), Some(&*everything))],
-            strictness: Strictness::UseLastArguments,
-        };
-
-        assert_eq!(flags.get(&COUNT), Ok(Some(&*everything)));
-    }
-
-    #[test]
-    fn rightmost_count() {
-        let everything = OsString::from("everything");
-        let nothing = OsString::from("nothing");
-
-        let flags = MatchedFlags {
-            flags: vec![
-                (Flag::Short(b'c'), Some(&*everything)),
-                (Flag::Short(b'c'), Some(&*nothing)),
-            ],
-            strictness: Strictness::UseLastArguments,
-        };
-
-        assert_eq!(flags.get(&COUNT), Ok(Some(&*nothing)));
-    }
-
-    #[test]
-    fn no_count() {
-        let flags = MatchedFlags {
-            flags: Vec::new(),
-            strictness: Strictness::UseLastArguments,
-        };
-
-        assert!(!flags.has(&COUNT).unwrap());
+    pub fn mock_cli_try<I, T>(itr: I) -> Result<clap::ArgMatches, clap::error::Error>
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
+    {
+        get_command().no_binary_name(true).try_get_matches_from(itr)
     }
 }

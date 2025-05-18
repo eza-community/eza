@@ -111,6 +111,7 @@ serde = { version = "1.0.219", features = ["derive"] }
 dirs = "6.0.0"
 serde_norway = "0.9"
 backtrace = "0.3"
+clap = { version = "4.5.38", features = ["cargo", "derive"] }
 
 [dependencies.git2]
 version = "0.20"

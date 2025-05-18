@@ -34,12 +34,13 @@ use std::path::{Component, PathBuf};
 use std::process::exit;
 
 use nu_ansi_term::{AnsiStrings as ANSIStrings, Style};
+use options::parser::get_command;
 
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::{FileFilterFlags::OnlyFiles, GitIgnore};
 use crate::fs::{Dir, File};
 use crate::options::stdin::FilesInput;
-use crate::options::{vars, Options, OptionsResult, Vars};
+use crate::options::{vars, Options, Vars};
 use crate::output::{details, escape, file_name, grid, grid_details, lines, Mode, View};
 use crate::theme::Theme;
 use log::*;
@@ -59,16 +60,17 @@ fn main() {
 
     logger::configure(env::var_os(vars::EZA_DEBUG).or_else(|| env::var_os(vars::EXA_DEBUG)));
 
+    let cli = get_command().get_matches();
+
     let stdout_istty = io::stdout().is_terminal();
-
     let mut input = String::new();
-    let args: Vec<_> = env::args_os().skip(1).collect();
-    match Options::parse(args.iter().map(std::convert::AsRef::as_ref), &LiveVars) {
-        OptionsResult::Ok(options, mut input_paths) => {
+    let mut input_paths: Vec<&OsStr> = match cli.get_many("FILES") {
+        Some(x) => x.map(OsString::as_os_str).collect(),
+        None => vec![],
+    };
+    match Options::deduce(&cli, &LiveVars) {
+        Ok(options) => {
             let mut default_input_path = false;
-
-            // List the current directory by default.
-            // (This has to be done here, otherwise git_options won’t see it.)
             if input_paths.is_empty() {
                 match &options.stdin {
                     FilesInput::Args => {
@@ -82,7 +84,7 @@ fn main() {
                         input_paths.extend(
                             input
                                 .split(&separator.clone().into_string().unwrap_or("\n".to_string()))
-                                .map(std::ffi::OsStr::new)
+                                .map(OsStr::new)
                                 .filter(|s| !s.is_empty())
                                 .collect::<Vec<_>>(),
                         );
@@ -126,22 +128,8 @@ fn main() {
                 }
             }
         }
-
-        OptionsResult::Help(help_text) => {
-            print!("{help_text}");
-        }
-
-        OptionsResult::Version(version_str) => {
-            print!("{version_str}");
-        }
-
-        OptionsResult::InvalidOptions(error) => {
+        Err(error) => {
             eprintln!("eza: {error}");
-
-            if let Some(s) = error.suggestion() {
-                eprintln!("{s}");
-            }
-
             exit(exits::OPTIONS_ERROR);
         }
     }
