@@ -1013,7 +1013,7 @@ pub enum FileTarget<'dir> {
     // error — we just display the error message and move on.
 }
 
-impl<'dir> FileTarget<'dir> {
+impl FileTarget<'_> {
     /// Whether this link doesn’t lead to a file, for whatever reason. This
     /// gets used to determine how to highlight the link in grid views.
     pub fn is_broken(&self) -> bool {
