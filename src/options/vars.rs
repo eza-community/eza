@@ -91,68 +91,88 @@ pub trait Vars {
     /// `Some(fallback)` else `None`.
     fn source(&self, name: &'static str, fallback: &'static str) -> Option<&'static str> {
         match self.get(name) {
-            Some(_) => Some(name),
-            None => self.get(fallback).and(Some(fallback)),
-        }
-    }
-}
-
-// Test impl that just returns the value it has.
-#[cfg(test)]
-impl Vars for Option<OsString> {
-    fn get(&self, _name: &'static str) -> Option<OsString> {
-        self.clone()
-    }
-}
-
-#[cfg(test)]
-#[allow(dead_code)]
-pub struct MockVars {
-    columns: OsString,
-    colors: OsString,
-    no_colors: OsString,
-    strict: OsString,
-    debug: OsString,
-    grid_rows: OsString,
-    icon_spacing: OsString,
-    luminance: OsString,
-    icons: OsString,
-}
-
-#[cfg(test)]
-#[allow(dead_code)]
-impl Vars for MockVars {
-    fn get(&self, name: &'static str) -> Option<OsString> {
-        match name {
-            "EXA_STRICT" | "EZA_STRICT" => Some(self.strict.clone()),
-            "EZA_COLORS" | "LS_COLORS" | "EXA_COLORS" => Some(self.colors.clone()),
-            "EXA_DEBUG" | "EZA_DEBUG" => Some(self.debug.clone()),
-            "EXA_GRID_ROWS" | "EZA_GRID_ROWS" => Some(self.grid_rows.clone()),
-            "EXA_ICON_SPACING" | "EZA_ICON_SPACING" => Some(self.icon_spacing.clone()),
-            "EXA_MIN_LUMINANCE" | "EZA_MIN_LUMINANCE" => Some(self.luminance.clone()),
-            "EZA_ICONS_AUTO" => Some(self.icons.clone()),
-            "COLUMNS" => Some(self.columns.clone()),
-            "NO_COLOR" => Some(self.no_colors.clone()),
-            _ => None,
+            Some(_) if !name.is_empty() => Some(name),
+            _ => self.get(fallback).and(Some(fallback)),
         }
     }
 }
 
 #[cfg(test)]
-#[allow(dead_code)]
-impl MockVars {
-    pub fn set(&mut self, var: &'static str, value: &OsString) {
-        match var {
-            "EXA_STRICT" | "EZA_STRICT" => self.strict = value.clone(),
-            "EZA_COLORS" | "LS_COLORS" | "EXA_COLORS" => self.colors = value.clone(),
-            "EXA_DEBUG" | "EZA_DEBUG" => self.debug = value.clone(),
-            "EXA_GRID_ROWS" | "EZA_GRID_ROWS" => self.grid_rows = value.clone(),
-            "EXA_ICON_SPACING" | "EZA_ICON_SPACING" => self.icon_spacing = value.clone(),
-            "EXA_MIN_LUMINANCE" | "EZA_MIN_LUMINANCE" => self.luminance = value.clone(),
-            "EZA_ICONS_AUTO" => self.icons = value.clone(),
-            "COLUMNS" => self.columns = value.clone(),
-            "NO_COLOR" => self.no_colors = value.clone(),
-            _ => (),
+pub mod test {
+    use super::*;
+
+    // Test impl that just returns the value it has.
+    impl Vars for Option<OsString> {
+        fn get(&self, _name: &'static str) -> Option<OsString> {
+            self.clone()
+        }
+    }
+
+    #[derive(Default)]
+    pub struct MockVars {
+        pub columns: OsString,
+        pub colors: OsString,
+        pub no_colors: OsString,
+        pub strict: OsString,
+        pub debug: OsString,
+        pub grid_rows: OsString,
+        pub icon_spacing: OsString,
+        pub luminance: OsString,
+        pub icons: OsString,
+        pub time: OsString,
+    }
+
+    impl Vars for MockVars {
+        fn get(&self, name: &'static str) -> Option<OsString> {
+            match name {
+                "EXA_STRICT" | "EZA_STRICT" if !self.strict.is_empty() => Some(self.strict.clone()),
+                "EZA_COLORS" | "LS_COLORS" | "EXA_COLORS" if !self.colors.is_empty() => {
+                    Some(self.colors.clone())
+                }
+                "EXA_DEBUG" | "EZA_DEBUG" if !self.debug.is_empty() => Some(self.debug.clone()),
+                "EXA_GRID_ROWS" | "EZA_GRID_ROWS" if !self.grid_rows.is_empty() => {
+                    Some(self.grid_rows.clone())
+                }
+                "EXA_ICON_SPACING" | "EZA_ICON_SPACING" if !self.icon_spacing.is_empty() => {
+                    Some(self.icon_spacing.clone())
+                }
+                "EXA_MIN_LUMINANCE" | "EZA_MIN_LUMINANCE" if !self.luminance.is_empty() => {
+                    Some(self.luminance.clone())
+                }
+                "EZA_ICONS_AUTO" if !self.icons.is_empty() => Some(self.icons.clone()),
+                "COLUMNS" if !self.columns.is_empty() => Some(self.columns.clone()),
+                "NO_COLOR" if !self.no_colors.is_empty() => Some(self.no_colors.clone()),
+                "TIME_STYLE" if !self.time.is_empty() => Some(self.time.clone()),
+                _ => None,
+            }
+        }
+    }
+
+    impl MockVars {
+        pub fn set(&mut self, var: &'static str, value: &OsString) {
+            match var {
+                "EXA_STRICT" | "EZA_STRICT" => self.strict = value.clone(),
+                "EZA_COLORS" | "LS_COLORS" | "EXA_COLORS" => self.colors = value.clone(),
+                "EXA_DEBUG" | "EZA_DEBUG" => self.debug = value.clone(),
+                "EXA_GRID_ROWS" | "EZA_GRID_ROWS" => self.grid_rows = value.clone(),
+                "EXA_ICON_SPACING" | "EZA_ICON_SPACING" => self.icon_spacing = value.clone(),
+                "EXA_MIN_LUMINANCE" | "EZA_MIN_LUMINANCE" => self.luminance = value.clone(),
+                "EZA_ICONS_AUTO" => self.icons = value.clone(),
+                "COLUMNS" => self.columns = value.clone(),
+                "NO_COLOR" => self.no_colors = value.clone(),
+                "TIME_STYLE" => self.time = value.clone(),
+                _ => (),
+            };
+        }
+    }
+
+    #[test]
+    fn set_test() {
+        let mut vars = MockVars {
+            ..MockVars::default()
         };
+
+        vars.set(TIME_STYLE, &OsString::from("iso"));
+        assert_eq!(vars.get(TIME_STYLE), Some(OsString::from("iso")));
     }
 }
