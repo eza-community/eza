@@ -74,7 +74,7 @@ filekinds:
 perms:
   user_read
   user_write
-  user_executable_file
+  user_execute_file
   user_execute_other
   group_read
   group_write
