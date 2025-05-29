@@ -5,7 +5,7 @@
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
 use crate::theme::lsc::Pair;
-use nu_ansi_term::{Color::*, Style};
+use nu_ansi_term::{Color::{Blue, Cyan, Green, Purple, Red, Yellow}, Style};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::default::Default;
@@ -59,7 +59,7 @@ macro_rules! field_accessors {
         impl $struct_name {
             $(
                 #[allow(clippy::wrong_self_convention, clippy::new_ret_no_self)]
-                pub fn $field_name(&self) -> $type {
+                #[must_use] pub fn $field_name(&self) -> $type {
                     self.$field_name.unwrap_or_default()
                 }
             )*
@@ -382,7 +382,7 @@ pub struct FileType {
 }
 
 impl UiStyles {
-    pub fn plain() -> Self {
+    #[must_use] pub fn plain() -> Self {
         Self {
             colourful: Some(false),
 

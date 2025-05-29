@@ -5,7 +5,7 @@
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
 use crate::theme::ThemeFileType as FileType;
-use crate::theme::*;
+use crate::theme::{FileKinds, FileNameStyle, Git, GitRepo, IconStyle, Links, Permissions, SELinuxContext, SecurityContext, Size, UiStyles, Users};
 use nu_ansi_term::{Color, Style};
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_norway;
@@ -49,7 +49,7 @@ where
 
 #[rustfmt::skip]
 fn color_from_str(s: &str) -> Option<Color> {
-    use Color::*;
+    use Color::{Black, Blue, Cyan, DarkGray, Default, Fixed, Green, LightBlue, LightCyan, LightGray, LightGreen, LightMagenta, LightPurple, LightRed, LightYellow, Magenta, Purple, Red, Rgb, White, Yellow};
     match s {
         // nothing
         "" | "none"    | "None"         => None,
@@ -604,10 +604,10 @@ impl FromOverride<UiStylesOverride> for UiStyles {
     }
 }
 impl ThemeConfig {
-    pub fn from_path(path: PathBuf) -> Self {
+    #[must_use] pub fn from_path(path: PathBuf) -> Self {
         ThemeConfig { location: path }
     }
-    pub fn to_theme(&self) -> Option<UiStyles> {
+    #[must_use] pub fn to_theme(&self) -> Option<UiStyles> {
         let ui_styles_override: Option<UiStylesOverride> = {
             let file = std::fs::File::open(&self.location).ok()?;
             serde_norway::from_reader(&file).ok()
@@ -650,7 +650,7 @@ mod tests {
 
     #[test]
     fn parse_short_hex_color_from_string() {
-        for case in ["#f0f", "#F0F"].iter() {
+        for case in &["#f0f", "#F0F"] {
             assert_eq!(color_from_str(case), Some(Color::Rgb(255, 0, 255)));
         }
     }
