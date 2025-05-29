@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 [toolchain]
 # NOTE: don't forget to update the unit-tests workflow when changing this
-channel = "1.81"
+channel = "1.82"
 components = [
   "rustfmt",
   "rustc",
