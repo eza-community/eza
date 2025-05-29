@@ -365,7 +365,8 @@ impl IgnorePatterns {
     }
 
     /// Create a new empty set of patterns that matches nothing.
-    #[must_use] pub fn empty() -> Self {
+    #[must_use]
+    pub fn empty() -> Self {
         Self {
             patterns: Vec::new(),
         }

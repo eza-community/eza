@@ -168,7 +168,8 @@ pub struct FileName<'a, 'dir, C> {
 impl<'a, 'dir, C> FileName<'a, 'dir, C> {
     /// Sets the flag on this file name to display link targets with an
     /// arrow followed by their path.
-    #[must_use] pub fn with_link_paths(mut self) -> Self {
+    #[must_use]
+    pub fn with_link_paths(mut self) -> Self {
         if !self.file.deref_links {
             self.link_style = LinkStyle::FullLinkPaths;
         }
@@ -177,7 +178,8 @@ impl<'a, 'dir, C> FileName<'a, 'dir, C> {
 
     /// Sets the flag on this file name to display mounted filesystem
     ///details.
-    #[must_use] pub fn with_mount_details(mut self, enable: bool) -> Self {
+    #[must_use]
+    pub fn with_mount_details(mut self, enable: bool) -> Self {
         self.mount_style = if enable {
             MountStyle::MountInfo
         } else {
@@ -194,7 +196,8 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     /// This method returns some `TextCellContents`, rather than a `TextCell`,
     /// because for the last cell in a table, it doesn’t need to have its
     /// width calculated.
-    #[must_use] pub fn paint(&self) -> TextCellContents {
+    #[must_use]
+    pub fn paint(&self) -> TextCellContents {
         let mut bits = Vec::new();
         let (icon_override, filename_style_override) = match self.colours.style_override(self.file)
         {
@@ -461,7 +464,8 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     /// depending on which “type” of file it appears to be — either from the
     /// class on the filesystem or from its name. (Or the broken link colour,
     /// if there’s nowhere else for that fact to be shown.)
-    #[must_use] pub fn style(&self) -> Style {
+    #[must_use]
+    pub fn style(&self) -> Style {
         if let LinkStyle::JustFilenames = self.link_style {
             if let Some(ref target) = self.target {
                 if target.is_broken() {
@@ -491,7 +495,8 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     }
 
     /// For grid's use, to cover the case of hyperlink escape sequences
-    #[must_use] pub fn bare_utf8_width(&self) -> usize {
+    #[must_use]
+    pub fn bare_utf8_width(&self) -> usize {
         UnicodeWidthStr::width(self.file.name.as_str())
     }
 }

@@ -29,7 +29,8 @@ pub struct Options {
 }
 
 impl Options {
-    #[must_use] pub fn to_details_options(&self) -> &DetailsOptions {
+    #[must_use]
+    pub fn to_details_options(&self) -> &DetailsOptions {
         &self.details
     }
 }

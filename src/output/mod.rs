@@ -55,7 +55,8 @@ pub enum TerminalWidth {
 }
 
 impl TerminalWidth {
-    #[must_use] pub fn actual_terminal_width(self) -> Option<usize> {
+    #[must_use]
+    pub fn actual_terminal_width(self) -> Option<usize> {
         // All of stdin, stdout, and stderr could not be connected to a
         // terminal, but we’re only interested in stdout because it’s
         // where the output goes.

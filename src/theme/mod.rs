@@ -67,7 +67,8 @@ pub struct Theme {
 }
 
 impl Options {
-    #[must_use] pub fn to_theme(&self, isatty: bool) -> Theme {
+    #[must_use]
+    pub fn to_theme(&self, isatty: bool) -> Theme {
         if self.use_colours == UseColours::Never
             || (self.use_colours == UseColours::Automatic && !isatty)
         {

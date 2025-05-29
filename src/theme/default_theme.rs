@@ -9,9 +9,13 @@ use nu_ansi_term::Style;
 use std::default::Default;
 
 use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};
-use crate::theme::ui_styles::{FileKinds, FileType, Git, GitRepo, Links, Permissions, SELinuxContext, SecurityContext, Size, UiStyles, Users};
+use crate::theme::ui_styles::{
+    FileKinds, FileType, Git, GitRepo, Links, Permissions, SELinuxContext, SecurityContext, Size,
+    UiStyles, Users,
+};
 impl UiStyles {
-    #[must_use] pub fn default_theme(scale: ColorScaleOptions) -> Self {
+    #[must_use]
+    pub fn default_theme(scale: ColorScaleOptions) -> Self {
         Self {
             size: Some(Size::colourful(scale)),
             ..Self::default()

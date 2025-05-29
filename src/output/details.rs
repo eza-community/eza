@@ -403,7 +403,8 @@ impl<'a> Render<'a> {
         }
     }
 
-    #[must_use] pub fn render_header(&self, header: TableRow) -> Row {
+    #[must_use]
+    pub fn render_header(&self, header: TableRow) -> Row {
         Row {
             tree: TreeParams::new(TreeDepth::root(), false),
             cells: Some(header),
@@ -442,7 +443,8 @@ impl<'a> Render<'a> {
         }
     }
 
-    #[must_use] pub fn iterate_with_table(&'a self, table: Table<'a>, rows: Vec<Row>) -> TableIter<'a> {
+    #[must_use]
+    pub fn iterate_with_table(&'a self, table: Table<'a>, rows: Vec<Row>) -> TableIter<'a> {
         TableIter {
             tree_trunk: TreeTrunk::default(),
             total_width: table.widths().total(),
@@ -452,7 +454,8 @@ impl<'a> Render<'a> {
         }
     }
 
-    #[must_use] pub fn iterate(&'a self, rows: Vec<Row>) -> Iter {
+    #[must_use]
+    pub fn iterate(&'a self, rows: Vec<Row>) -> Iter {
         Iter {
             tree_trunk: TreeTrunk::default(),
             inner: rows.into_iter(),
