@@ -5,7 +5,10 @@
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
 use crate::theme::lsc::Pair;
-use nu_ansi_term::{Color::{Blue, Cyan, Green, Purple, Red, Yellow}, Style};
+use nu_ansi_term::{
+    Color::{Blue, Cyan, Green, Purple, Red, Yellow},
+    Style,
+};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::default::Default;
@@ -382,7 +385,8 @@ pub struct FileType {
 }
 
 impl UiStyles {
-    #[must_use] pub fn plain() -> Self {
+    #[must_use]
+    pub fn plain() -> Self {
         Self {
             colourful: Some(false),
 

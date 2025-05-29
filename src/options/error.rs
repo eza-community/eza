@@ -109,7 +109,8 @@ impl fmt::Display for OptionsError {
 impl OptionsError {
     /// Try to second-guess what the user was trying to do, depending on what
     /// went wrong.
-    #[must_use] pub fn suggestion(&self) -> Option<&'static str> {
+    #[must_use]
+    pub fn suggestion(&self) -> Option<&'static str> {
         // ‘ls -lt’ and ‘ls -ltr’ are common combinations
         match self {
             Self::BadArgument(time, r) if *time == &flags::TIME && r == "r" => {

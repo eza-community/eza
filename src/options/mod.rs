@@ -173,7 +173,8 @@ impl Options {
     /// Whether the View specified in this set of options includes a Git
     /// status column. It’s only worth trying to discover a repository if the
     /// results will end up being displayed.
-    #[must_use] pub fn should_scan_for_git(&self) -> bool {
+    #[must_use]
+    pub fn should_scan_for_git(&self) -> bool {
         if self.filter.git_ignore == GitIgnore::CheckAndIgnore {
             return true;
         }

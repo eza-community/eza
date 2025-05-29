@@ -5,7 +5,10 @@
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
 use crate::theme::ThemeFileType as FileType;
-use crate::theme::{FileKinds, FileNameStyle, Git, GitRepo, IconStyle, Links, Permissions, SELinuxContext, SecurityContext, Size, UiStyles, Users};
+use crate::theme::{
+    FileKinds, FileNameStyle, Git, GitRepo, IconStyle, Links, Permissions, SELinuxContext,
+    SecurityContext, Size, UiStyles, Users,
+};
 use nu_ansi_term::{Color, Style};
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_norway;
@@ -604,10 +607,12 @@ impl FromOverride<UiStylesOverride> for UiStyles {
     }
 }
 impl ThemeConfig {
-    #[must_use] pub fn from_path(path: PathBuf) -> Self {
+    #[must_use]
+    pub fn from_path(path: PathBuf) -> Self {
         ThemeConfig { location: path }
     }
-    #[must_use] pub fn to_theme(&self) -> Option<UiStyles> {
+    #[must_use]
+    pub fn to_theme(&self) -> Option<UiStyles> {
         let ui_styles_override: Option<UiStylesOverride> = {
             let file = std::fs::File::open(&self.location).ok()?;
             serde_norway::from_reader(&file).ok()

@@ -67,7 +67,8 @@ pub struct Columns {
 }
 
 impl Columns {
-    #[must_use] pub fn collect(&self, actually_enable_git: bool, git_repos: bool) -> Vec<Column> {
+    #[must_use]
+    pub fn collect(&self, actually_enable_git: bool, git_repos: bool) -> Vec<Column> {
         let mut columns = Vec::with_capacity(4);
 
         if self.inode {
@@ -185,7 +186,8 @@ pub enum Alignment {
 impl Column {
     /// Get the alignment this column should use.
     #[cfg(unix)]
-    #[must_use] pub fn alignment(self) -> Alignment {
+    #[must_use]
+    pub fn alignment(self) -> Alignment {
         #[allow(clippy::wildcard_in_or_patterns)]
         match self {
             Self::FileSize | Self::HardLinks | Self::Inode | Self::Blocksize | Self::GitStatus => {
@@ -205,7 +207,8 @@ impl Column {
 
     /// Get the text that should be printed at the top, when the user elects
     /// to have a header row printed.
-    #[must_use] pub fn header(self) -> &'static str {
+    #[must_use]
+    pub fn header(self) -> &'static str {
         match self {
             #[cfg(unix)]
             Self::Permissions => "Permissions",
@@ -288,7 +291,8 @@ pub enum TimeType {
 
 impl TimeType {
     /// Returns the text to use for a column’s heading in the columns output.
-    #[must_use] pub fn header(self) -> &'static str {
+    #[must_use]
+    pub fn header(self) -> &'static str {
         match self {
             Self::Modified => "Date Modified",
             Self::Changed => "Date Changed",
@@ -421,7 +425,8 @@ pub struct Row {
 }
 
 impl<'a> Table<'a> {
-    #[must_use] pub fn new(
+    #[must_use]
+    pub fn new(
         options: &'a Options,
         git: Option<&'a GitCache>,
         theme: &'a Theme,
@@ -449,11 +454,13 @@ impl<'a> Table<'a> {
         }
     }
 
-    #[must_use] pub fn widths(&self) -> &TableWidths {
+    #[must_use]
+    pub fn widths(&self) -> &TableWidths {
         &self.widths
     }
 
-    #[must_use] pub fn header_row(&self) -> Row {
+    #[must_use]
+    pub fn header_row(&self) -> Row {
         let cells = self
             .columns
             .iter()
@@ -591,7 +598,8 @@ impl<'a> Table<'a> {
         f::SubdirGitRepo::default()
     }
 
-    #[must_use] pub fn render(&self, row: Row) -> TextCell {
+    #[must_use]
+    pub fn render(&self, row: Row) -> TextCell {
         let mut cell = TextCell::default();
 
         let iter = row.cells.into_iter().zip(self.widths.iter()).enumerate();
@@ -628,7 +636,8 @@ impl Deref for TableWidths {
 }
 
 impl TableWidths {
-    #[must_use] pub fn zero(count: usize) -> Self {
+    #[must_use]
+    pub fn zero(count: usize) -> Self {
         Self(vec![0; count])
     }
 
@@ -638,7 +647,8 @@ impl TableWidths {
         }
     }
 
-    #[must_use] pub fn total(&self) -> usize {
+    #[must_use]
+    pub fn total(&self) -> usize {
         self.0.len() + self.0.iter().sum::<usize>()
     }
 }
