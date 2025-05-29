@@ -4,14 +4,14 @@
 // SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
-use nu_ansi_term::Color::*;
+use nu_ansi_term::Color::{Blue, Cyan, DarkGray, Green, Purple, Red, Yellow};
 use nu_ansi_term::Style;
 use std::default::Default;
 
 use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};
-use crate::theme::ui_styles::*;
+use crate::theme::ui_styles::{FileKinds, FileType, Git, GitRepo, Links, Permissions, SELinuxContext, SecurityContext, Size, UiStyles, Users};
 impl UiStyles {
-    pub fn default_theme(scale: ColorScaleOptions) -> Self {
+    #[must_use] pub fn default_theme(scale: ColorScaleOptions) -> Self {
         Self {
             size: Some(Size::colourful(scale)),
             ..Self::default()

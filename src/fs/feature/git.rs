@@ -14,7 +14,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
 use git2::StatusEntry;
-use log::*;
+use log::{debug, error, info, warn};
 
 use crate::fs::fields as f;
 
@@ -31,11 +31,11 @@ pub struct GitCache {
 }
 
 impl GitCache {
-    pub fn has_anything_for(&self, index: &Path) -> bool {
+    #[must_use] pub fn has_anything_for(&self, index: &Path) -> bool {
         self.repos.iter().any(|e| e.has_path(index))
     }
 
-    pub fn get(&self, index: &Path, prefix_lookup: bool) -> f::Git {
+    #[must_use] pub fn get(&self, index: &Path, prefix_lookup: bool) -> f::Git {
         self.repos
             .iter()
             .find(|repo| repo.has_path(index))
@@ -410,7 +410,7 @@ fn current_branch(repo: &git2::Repository) -> Option<String> {
 }
 
 impl f::SubdirGitRepo {
-    pub fn from_path(dir: &Path, status: bool) -> Self {
+    #[must_use] pub fn from_path(dir: &Path, status: bool) -> Self {
         let path = &reorient(dir);
 
         if let Ok(repo) = git2::Repository::open(path) {

@@ -7,7 +7,7 @@
 use std::iter::Peekable;
 use std::ops::FnMut;
 
-use nu_ansi_term::Color::*;
+use nu_ansi_term::Color::{Black, Blue, Cyan, DarkGray, Fixed, Green, LightBlue, LightCyan, LightGray, LightGreen, LightPurple, LightRed, LightYellow, Purple, Red, Rgb, White, Yellow};
 use nu_ansi_term::{Color as Colour, Style};
 
 // Parsing the LS_COLORS environment variable into a map of names to Style values.

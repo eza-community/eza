@@ -24,7 +24,7 @@ use std::time::SystemTime;
 
 use chrono::prelude::*;
 
-use log::*;
+use log::{debug, error, trace};
 #[cfg(unix)]
 use std::sync::LazyLock;
 
@@ -209,18 +209,18 @@ impl<'dir> File<'dir> {
         file
     }
 
-    pub fn new_aa_current(parent_dir: &'dir Dir, total_size: bool) -> File<'dir> {
+    #[must_use] pub fn new_aa_current(parent_dir: &'dir Dir, total_size: bool) -> File<'dir> {
         File::new_aa(parent_dir.path.clone(), parent_dir, ".", total_size)
     }
 
-    pub fn new_aa_parent(path: PathBuf, parent_dir: &'dir Dir, total_size: bool) -> File<'dir> {
+    #[must_use] pub fn new_aa_parent(path: PathBuf, parent_dir: &'dir Dir, total_size: bool) -> File<'dir> {
         File::new_aa(path, parent_dir, "..", total_size)
     }
 
     /// A file’s name is derived from its string. This needs to handle directories
     /// such as `/` or `..`, which have no `file_name` component. So instead, just
     /// use the last component as the name.
-    pub fn filename(path: &Path) -> String {
+    #[must_use] pub fn filename(path: &Path) -> String {
         if let Some(back) = path.components().next_back() {
             back.as_os_str().to_string_lossy().to_string()
         } else {
@@ -1016,7 +1016,7 @@ pub enum FileTarget<'dir> {
 impl<'dir> FileTarget<'dir> {
     /// Whether this link doesn’t lead to a file, for whatever reason. This
     /// gets used to determine how to highlight the link in grid views.
-    pub fn is_broken(&self) -> bool {
+    #[must_use] pub fn is_broken(&self) -> bool {
         matches!(self, Self::Broken(_) | Self::Err(_))
     }
 }
