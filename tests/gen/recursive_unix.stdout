@@ -1,3 +1,4 @@
+dirs-ext
 git
 grid
 group
@@ -7,6 +8,23 @@ size
 specials
 symlinks
 time
+
+tests/test_dir/dirs-ext:
+01.city
+02.apple
+a.txt
+ab
+abc
+abc.mp3
+test
+
+tests/test_dir/dirs-ext/01.city:
+
+tests/test_dir/dirs-ext/02.apple:
+
+tests/test_dir/dirs-ext/abc:
+
+tests/test_dir/dirs-ext/test:
 
 tests/test_dir/git:
 001
