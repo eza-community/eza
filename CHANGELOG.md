@@ -6,11 +6,43 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
-## [0.21.3] - 2025-05-01
+## [0.21.4] - 2025-05-30
+
+### Bug Fixes
+
+- Escape spaces in file path to make them work correctly
+- List inside working dir with `--list-dirs` and no path passed
+- Ignore incorrect Unicode path instead of crashing on Windows
+
+### Miscellaneous Tasks
+
+- Add Visual Studio icon for *.suo
+- Add swift icon for *.xcplayground
+- Add dropbox icon
+
+### Refactor
+
+- Clippy lints
+
+### Styling
+
+- Update formatting
+
+### Build
+
+- Flake bump 2025-05-29
+- Cargo bump 2025-05-29
+- 1.81 -> 1.82
+
+## [0.21.3] - 2025-05-02
 
 ### Features
 
 - Add support for .ipynb file icons
+
+### Miscellaneous Tasks
+
+- Eza v0.21.3 changelogs, version bump
 
 ### Styling
 
