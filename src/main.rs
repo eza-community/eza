@@ -288,15 +288,8 @@ impl<'args> Exa<'args> {
             if f.points_to_directory()
                 && (self.default_input_path || !self.options.dir_action.treat_dirs_as_files())
             {
-                trace!("matching on to_dir");
-                match f.to_dir() {
-                    Ok(d) => dirs.push(d),
-                    Err(e) if e.kind() == ErrorKind::PermissionDenied => {
-                        eprintln!("{file_path:?}: {e}");
-                        exit(exits::PERMISSION_DENIED);
-                    }
-                    Err(e) => writeln!(io::stderr(), "{file_path:?}: {e}")?,
-                }
+                trace!("matching on new Dir");
+                dirs.push(f.to_dir());
             } else {
                 files.push(f);
             }
@@ -326,7 +319,28 @@ impl<'args> Exa<'args> {
             file_style: file_name::Options { quote_style, .. },
             ..
         } = self.options.view;
-        for dir in dir_files {
+
+        let mut denied_dirs = vec![];
+
+        for mut dir in dir_files {
+            let dir = match dir.read() {
+                Ok(dir) => dir,
+                Err(e) => {
+                    if e.kind() == ErrorKind::PermissionDenied {
+                        eprintln!(
+                            "Permission denied: {} - code: {}",
+                            dir.path.display(),
+                            exits::PERMISSION_DENIED
+                        );
+                        denied_dirs.push(dir.path);
+                        continue;
+                    };
+
+                    eprintln!("{}: {}", dir.path.display(), e);
+                    continue;
+                }
+            };
+
             // Put a gap between directories, or between the list of files and
             // the first directory.
             if first {
@@ -373,23 +387,19 @@ impl<'args> Exa<'args> {
                     + 1;
                 let follow_links = self.options.view.follow_links;
                 if !recurse_opts.tree && !recurse_opts.is_too_deep(depth) {
-                    let mut child_dirs = Vec::new();
-                    for child_dir in children.iter().filter(|f| {
-                        (if follow_links {
-                            f.points_to_directory()
-                        } else {
-                            f.is_directory()
-                        }) && !f.is_all_all
-                    }) {
-                        match child_dir.to_dir() {
-                            Ok(d) => child_dirs.push(d),
-                            Err(e) => {
-                                writeln!(io::stderr(), "{}: {}", child_dir.path.display(), e)?;
-                            }
-                        }
-                    }
+                    let child_dirs = children
+                        .iter()
+                        .filter(|f| {
+                            (if follow_links {
+                                f.points_to_directory()
+                            } else {
+                                f.is_directory()
+                            }) && !f.is_all_all
+                        })
+                        .map(fs::File::to_dir)
+                        .collect::<Vec<Dir>>();
 
-                    self.print_files(Some(&dir), children)?;
+                    self.print_files(Some(dir), children)?;
                     match self.print_dirs(child_dirs, false, false, exit_status) {
                         Ok(_) => (),
                         Err(e) => return Err(e),
@@ -398,7 +408,17 @@ impl<'args> Exa<'args> {
                 }
             }
 
-            self.print_files(Some(&dir), children)?;
+            self.print_files(Some(dir), children)?;
+        }
+
+        if !denied_dirs.is_empty() {
+            eprintln!(
+                "\nSkipped {} directories due to permission denied: ",
+                denied_dirs.len()
+            );
+            for path in denied_dirs {
+                eprintln!("  {}", path.display());
+            }
         }
 
         Ok(exit_status)
