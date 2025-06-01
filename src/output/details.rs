@@ -491,7 +491,7 @@ pub struct TableIter<'a> {
     tree_trunk:  TreeTrunk,
 }
 
-impl<'a> Iterator for TableIter<'a> {
+impl Iterator for TableIter<'_> {
     type Item = TextCell;
 
     fn next(&mut self) -> Option<Self::Item> {

@@ -46,20 +46,19 @@ impl PermissionsPlusRender for Option<f::PermissionsPlus> {
 
     #[cfg(windows)]
     fn render<C: Colours + FiletypeColours>(&self, colours: &C) -> TextCell {
-        match self {
-            Some(p) => {
-                let mut chars = vec![p.attributes.render_type(colours)];
-                chars.extend(p.attributes.render(colours));
+        if let Some(p) = self {
+            let mut chars = vec![p.attributes.render_type(colours)];
+            chars.extend(p.attributes.render(colours));
 
-                TextCell {
-                    width: DisplayWidth::from(chars.len()),
-                    contents: chars.into(),
-                }
+            TextCell {
+                width: DisplayWidth::from(chars.len()),
+                contents: chars.into(),
             }
-            None => TextCell {
+        } else {
+            TextCell {
                 width: DisplayWidth::from(0),
                 contents: vec![].into(),
-            },
+            }
         }
     }
 }
