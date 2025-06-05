@@ -1,6 +1,7 @@
 [CWD]/tests/itest/a
 [CWD]/tests/itest/b
 [CWD]/tests/itest/c
+[CWD]/tests/itest/complex_tar.tar
 [CWD]/tests/itest/d
 [CWD]/tests/itest/dir-symlink -> vagrant/debug
 [CWD]/tests/itest/e
@@ -16,7 +17,10 @@
 [CWD]/tests/itest/l
 [CWD]/tests/itest/m
 [CWD]/tests/itest/n
+[CWD]/tests/itest/not_a_tar.tar
 [CWD]/tests/itest/o
 [CWD]/tests/itest/p
 [CWD]/tests/itest/q
+[CWD]/tests/itest/recursive_tar.tar
+[CWD]/tests/itest/simple_tar.tar
 [CWD]/tests/itest/vagrant
