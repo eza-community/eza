@@ -82,6 +82,9 @@ commands:
       - 30
       - 200
   ? - null
+    - --inspect-archives
+  : prefix: --tree
+  ? - null
     - --smart-group
   :
   ? - -a # Filtering and Sorting Options

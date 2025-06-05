@@ -1,17 +1,142 @@
 tests/test_dir
 ├── archives
 │   └── archive.tar
+│       ├── icons
+│       │   ├── icons/c++.cpp
+│       │   ├── icons/c.c
+│       │   ├── icons/css.css
+│       │   ├── icons/file
+│       │   ├── icons/go.go
+│       │   ├── icons/html.html
+│       │   ├── icons/java.java
+│       │   ├── icons/javascript.js
+│       │   ├── icons/man.1
+│       │   ├── icons/marked.md
+│       │   ├── icons/php.php
+│       │   ├── icons/python.py
+│       │   ├── icons/ruby.rb
+│       │   ├── icons/rust.rs
+│       │   ├── icons/shell.sh
+│       │   └── icons/unknown.unknown
+│       └── symlinks
+│           ├── symlinks/dir
+│           ├── symlinks/file
+│           ├── symlinks/' lorem ipsum'
+│           ├── symlinks/symlink -> file
+│           ├── symlinks/symlink2 -> symlink
+│           ├── symlinks/symlink3 -> dir
+│           └── symlinks/symlink4 -> pipitek
 ├── git
 │   ├── 001
+│   │   ├── file_000
+│   │   ├── file_001
+│   │   ├── file_002
+│   │   ├── file_003
+│   │   ├── file_004
+│   │   ├── file_005
+│   │   ├── file_006
+│   │   ├── file_007
+│   │   ├── file_008
+│   │   └── file_009
 │   ├── 002
+│   │   ├── file_000
+│   │   ├── file_001
+│   │   ├── file_002
+│   │   ├── file_003
+│   │   ├── file_004
+│   │   ├── file_005
+│   │   ├── file_006
+│   │   ├── file_007
+│   │   ├── file_008
+│   │   └── file_009
 │   ├── 003
+│   │   ├── file_000
+│   │   ├── file_001
+│   │   ├── file_002
+│   │   ├── file_003
+│   │   ├── file_004
+│   │   ├── file_005
+│   │   ├── file_006
+│   │   ├── file_007
+│   │   ├── file_008
+│   │   └── file_009
 │   ├── 004
+│   │   ├── file_000
+│   │   ├── file_001
+│   │   ├── file_002
+│   │   ├── file_003
+│   │   ├── file_004
+│   │   ├── file_005
+│   │   ├── file_006
+│   │   ├── file_007
+│   │   ├── file_008
+│   │   └── file_009
 │   ├── 005
+│   │   ├── file_000
+│   │   ├── file_001
+│   │   ├── file_002
+│   │   ├── file_003
+│   │   ├── file_004
+│   │   ├── file_005
+│   │   ├── file_006
+│   │   ├── file_007
+│   │   ├── file_008
+│   │   └── file_009
 │   ├── 006
+│   │   ├── file_000
+│   │   ├── file_001
+│   │   ├── file_002
+│   │   ├── file_003
+│   │   ├── file_004
+│   │   ├── file_005
+│   │   ├── file_006
+│   │   ├── file_007
+│   │   ├── file_008
+│   │   └── file_009
 │   ├── 007
+│   │   ├── file_000
+│   │   ├── file_001
+│   │   ├── file_002
+│   │   ├── file_003
+│   │   ├── file_004
+│   │   ├── file_005
+│   │   ├── file_006
+│   │   ├── file_007
+│   │   ├── file_008
+│   │   └── file_009
 │   ├── 008
+│   │   ├── file_000
+│   │   ├── file_001
+│   │   ├── file_002
+│   │   ├── file_003
+│   │   ├── file_004
+│   │   ├── file_005
+│   │   ├── file_006
+│   │   ├── file_007
+│   │   ├── file_008
+│   │   └── file_009
 │   ├── 009
+│   │   ├── file_000
+│   │   ├── file_001
+│   │   ├── file_002
+│   │   ├── file_003
+│   │   ├── file_004
+│   │   ├── file_005
+│   │   ├── file_006
+│   │   ├── file_007
+│   │   ├── file_008
+│   │   └── file_009
 │   └── 010
+│       ├── file_000
+│       ├── file_001
+│       ├── file_002
+│       ├── file_003
+│       ├── file_004
+│       ├── file_005
+│       ├── file_006
+│       ├── file_007
+│       ├── file_008
+│       └── file_009
 ├── grid
 │   ├── 0001
 │   ├── 0002

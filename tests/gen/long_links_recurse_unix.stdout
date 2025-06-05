@@ -1,3 +1,4 @@
+   2 archives
   12 git
 1002 grid
    2 group
@@ -7,6 +8,9 @@
    2 specials
    3 symlinks
    2 time
+
+tests/test_dir/archives:
+1 archive.tar
 
 tests/test_dir/git:
 3 001
