@@ -1,3 +1,4 @@
+archives
 git
 grid
 group
@@ -7,6 +8,9 @@ size
 specials
 symlinks
 time
+
+tests/test_dir/archives:
+archive.tar
 
 tests/test_dir/git:
 001

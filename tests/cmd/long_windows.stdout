@@ -1,6 +1,7 @@
 -a--- a
 -a--- b
 -a--- c
+-a--- complex_tar.tar
 -a--- d
 l---- dir-symlink -> vagrant/debug
 -a--- e
@@ -16,7 +17,10 @@ d---- exa
 -a--- l
 -a--- m
 -a--- n
+-a--- not_a_tar.tar
 -a--- o
 -a--- p
 -a--- q
+-a--- recursive_tar.tar
+-a--- simple_tar.tar
 d---- vagrant

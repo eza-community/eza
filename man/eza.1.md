@@ -119,6 +119,13 @@ The default value is ‘`automatic`’.
 `-w`, `--width=COLS`
 : Set screen width in columns.
 
+`-q`, `--inspect-archives`
+: Display content of archives.
+
+Currently supported archive formats: tar
+
+The archive format is determined using the file extension.
+
 FILTERING AND SORTING OPTIONS
 =============================
 

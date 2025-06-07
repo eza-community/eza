@@ -8,11 +8,11 @@ use nu_ansi_term::Style;
 
 use std::collections::HashMap;
 
-use crate::fs::File;
+use crate::fs::{ArchiveEntry, File, Filelike};
 use crate::info::filetype::FileType;
 use crate::options::config::ThemeConfig;
 use crate::output::color_scale::ColorScaleOptions;
-use crate::output::file_name::Colours as FileNameColours;
+use crate::output::file_name::{Colours as FileNameColours, GetStyle};
 use crate::output::render;
 
 mod ui_styles;
@@ -179,6 +179,7 @@ pub trait FileStyle: Sync {
     /// Return the style to paint the filename text for `file` from the given
     /// `theme`.
     fn get_style(&self, file: &File<'_>, theme: &Theme) -> Option<Style>;
+    fn get_style_for_archive(&self, file: &ArchiveEntry, theme: &Theme) -> Option<Style>;
 }
 
 #[derive(PartialEq, Debug)]
@@ -186,6 +187,9 @@ struct NoFileStyle;
 
 impl FileStyle for NoFileStyle {
     fn get_style(&self, _file: &File<'_>, _theme: &Theme) -> Option<Style> {
+        None
+    }
+    fn get_style_for_archive(&self, _file: &ArchiveEntry, _theme: &Theme) -> Option<Style> {
         None
     }
 }
@@ -203,6 +207,11 @@ where
         self.0
             .get_style(file, theme)
             .or_else(|| self.1.get_style(file, theme))
+    }
+    fn get_style_for_archive(&self, file: &ArchiveEntry, theme: &Theme) -> Option<Style> {
+        self.0
+            .get_style_for_archive(file, theme)
+            .or_else(|| self.1.get_style_for_archive(file, theme))
     }
 }
 
@@ -262,17 +271,14 @@ fn is_simple_pattern(pattern: glob::Pattern) -> Result<String, glob::Pattern> {
     }
 }
 
-// Loop through backwards so that colours specified later in the list override
-// colours specified earlier, like we do with options and strict mode
-
-impl FileStyle for ExtensionMappings {
-    fn get_style(&self, file: &File<'_>, _theme: &Theme) -> Option<Style> {
-        let maybe_ext = file.name.rsplit_once('.').map(|x| x.1);
+impl ExtensionMappings {
+    fn get_style_filelike<F: Filelike>(&self, file: &F) -> Option<Style> {
+        let maybe_ext = file.name().rsplit_once('.').map(|x| x.1);
 
         for mapping in self.mappings.iter().rev() {
             match mapping {
                 GlobPattern::Complex(pat, style) => {
-                    if pat.matches(&file.name) {
+                    if pat.matches(file.name()) {
                         return Some(*style);
                     }
                 }
@@ -290,11 +296,23 @@ impl FileStyle for ExtensionMappings {
     }
 }
 
+// Loop through backwards so that colours specified later in the list override
+// colours specified earlier, like we do with options and strict mode
+
+impl FileStyle for ExtensionMappings {
+    fn get_style(&self, file: &File<'_>, _theme: &Theme) -> Option<Style> {
+        self.get_style_filelike(file)
+    }
+    fn get_style_for_archive(&self, file: &ArchiveEntry, _theme: &Theme) -> Option<Style> {
+        self.get_style_filelike(file)
+    }
+}
+
 #[derive(Debug)]
 struct FileTypes;
 
-impl FileStyle for FileTypes {
-    fn get_style(&self, file: &File<'_>, theme: &Theme) -> Option<Style> {
+impl FileTypes {
+    fn get_style_filelike<F: Filelike>(file: &F, theme: &Theme) -> Option<Style> {
         #[rustfmt::skip]
         return match FileType::get_file_type(file) {
             Some(FileType::Image)      => theme.ui.file_type.unwrap_or_default().image,
@@ -309,7 +327,16 @@ impl FileStyle for FileTypes {
             Some(FileType::Build)      => theme.ui.file_type.unwrap_or_default().build,
             Some(FileType::Source)     => theme.ui.file_type.unwrap_or_default().source,
             None                       => None
-    };
+        };
+    }
+}
+
+impl FileStyle for FileTypes {
+    fn get_style(&self, file: &File<'_>, theme: &Theme) -> Option<Style> {
+        FileTypes::get_style_filelike(file, theme)
+    }
+    fn get_style_for_archive(&self, file: &ArchiveEntry, theme: &Theme) -> Option<Style> {
+        FileTypes::get_style_filelike(file, theme)
     }
 }
 
@@ -472,21 +499,19 @@ impl FileNameColours for Theme {
     fn executable_file(&self)     -> Style { self.ui.filekinds.unwrap_or_default().executable() }
     fn mount_point(&self)         -> Style { self.ui.filekinds.unwrap_or_default().mount_point() }
 
-    fn colour_file(&self, file: &File<'_>) -> Style {
-        self.exts
-            .get_style(file, self)
-            .unwrap_or(self.ui.filekinds.unwrap_or_default().normal())
+    fn colour_file<F: Filelike + GetStyle>(&self, file: &F) -> Style {
+        file.get_style(self)
     }
 
- fn style_override(&self, file: &File<'_>) -> Option<FileNameStyle> {
+ fn style_override<F: Filelike + GetStyle>(&self, file: &F) -> Option<FileNameStyle> {
         if let Some(ref name_overrides) = self.ui.filenames {
-            if let Some(file_override) = name_overrides.get(&file.name) {
+            if let Some(file_override) = name_overrides.get(file.name()) {
                 return Some(*file_override);
             }
         }
 
         if let Some(ref ext_overrides) = self.ui.extensions {
-            if let Some(ext) = file.ext.clone() {
+            if let Some(ext) = file.extension() {
                 if let Some(file_override) = ext_overrides.get(&ext) {
                     return Some(*file_override);
                 }

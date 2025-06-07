@@ -34,8 +34,9 @@ DISPLAY OPTIONS
   --hyperlink                display entries as hyperlinks
   --absolute                 display entries with their absolute path (on, follow, off)
   --follow-symlinks          drill down into symbolic links that point to directories
-  -w, --width COLS           set screen width in columns
+  -w, --width COLS           set screen width in columns";
 
+static USAGE_PART2: &str = "
 
 FILTERING AND SORTING OPTIONS
   -a, --all                  show hidden and 'dot' files. Use this twice to also
@@ -56,7 +57,7 @@ FILTERING AND SORTING OPTIONS
 static GIT_FILTER_HELP: &str = "  \
   --git-ignore               ignore files mentioned in '.gitignore'";
 
-static USAGE_PART2: &str = "  \
+static USAGE_PART3: &str = "  \
   Valid sort fields:         name, Name, extension, Extension, size, type,
                              created, modified, accessed, changed, inode, and none.
                              date, time, old, and new all refer to modified.
@@ -98,6 +99,8 @@ static GIT_VIEW_HELP: &str = "  \
   --git-repos                list root of git-tree status
   --git-repos-no-status      list each git-repos branch name (much faster)
     ";
+static ARCHIVE_INSPECTION_HELP: &str = "  \
+  -q, --inspect-archives     list content of archives (supported formats: tar)";
 static EXTENDED_HELP: &str = "  \
   -@, --extended             list each file's extended attributes and sizes";
 static SECATTR_HELP: &str = "  \
@@ -131,12 +134,16 @@ impl fmt::Display for HelpString {
     /// text to be displayed to the user.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(f, "{USAGE_PART1}")?;
+        if cfg!(feature = "archive-inspection") {
+            write!(f, "\n{ARCHIVE_INSPECTION_HELP}")?;
+        }
+        write!(f, "{USAGE_PART2}")?;
 
         if cfg!(feature = "git") {
             write!(f, "\n{GIT_FILTER_HELP}")?;
         }
 
-        write!(f, "\n{USAGE_PART2}")?;
+        write!(f, "\n{USAGE_PART3}")?;
 
         if cfg!(feature = "git") {
             write!(f, "\n{GIT_VIEW_HELP}")?;

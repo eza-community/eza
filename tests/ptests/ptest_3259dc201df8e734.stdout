@@ -1,4 +1,6 @@
 tests/test_dir
+├── archives
+│   └── archive.tar
 ├── git
 │   ├── 001
 │   ├── 002

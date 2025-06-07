@@ -134,6 +134,7 @@
               pandoc
               convco
               zip
+              zlib
               reuse
 
               # For releases

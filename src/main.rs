@@ -37,7 +37,7 @@ use nu_ansi_term::{AnsiStrings as ANSIStrings, Style};
 
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::{FileFilterFlags::OnlyFiles, GitIgnore};
-use crate::fs::{Dir, File};
+use crate::fs::{Archive, ArchiveEntry, ArchiveInspection, Dir, File, Filelike};
 use crate::options::stdin::FilesInput;
 use crate::options::{vars, Options, OptionsResult, Vars};
 use crate::output::{details, escape, file_name, grid, grid_details, lines, Mode, View};
@@ -264,6 +264,7 @@ impl<'args> Exa<'args> {
         debug!("Running with options: {:#?}", self.options);
 
         let mut files = Vec::new();
+        let mut archives = Vec::new();
         let mut dirs = Vec::new();
         let mut exit_status = 0;
 
@@ -290,15 +291,29 @@ impl<'args> Exa<'args> {
             {
                 trace!("matching on to_dir");
                 match f.to_dir() {
-                    Ok(d) => dirs.push(d),
-                    Err(e) if e.kind() == ErrorKind::PermissionDenied => {
+                    Some(Ok(d)) => dirs.push(d),
+                    Some(Err(e)) if e.kind() == ErrorKind::PermissionDenied => {
                         eprintln!("{file_path:?}: {e}");
                         exit(exits::PERMISSION_DENIED);
                     }
-                    Err(e) => writeln!(io::stderr(), "{file_path:?}: {e}")?,
+                    // TODO: check for all path components if it is an archive? Then allow user to
+                    //       inspect only selected directories/files in archive?
+                    //       => probably separate PR for that feature
+                    Some(Err(e)) => writeln!(io::stderr(), "{file_path:?}: {e}")?,
+                    None => {}
                 }
             } else {
                 files.push(f);
+            }
+        }
+
+        if matches!(self.options.archive_inspection, ArchiveInspection::Always)
+            && !self.options.dir_action.treat_dirs_as_files()
+        {
+            for f in files.iter().filter(|f| f.is_archive()) {
+                if let Ok(archive) = f.to_archive() {
+                    archives.push(archive);
+                }
             }
         }
 
@@ -307,12 +322,16 @@ impl<'args> Exa<'args> {
         // files to print as well. (It’s a double negative)
 
         let no_files = files.is_empty();
-        let is_only_dir = dirs.len() == 1 && no_files;
+        let no_archives = archives.is_empty();
+        let is_only_dir = dirs.len() == 1 && no_files && no_archives;
 
         self.options.filter.filter_argument_files(&mut files);
         self.print_files(None, files)?;
 
-        self.print_dirs(dirs, no_files, is_only_dir, exit_status)
+        for archive in archives {
+            self.print_archive(&archive, &PathBuf::new())?;
+        }
+        self.print_dirs(dirs, is_only_dir, is_only_dir, exit_status)
     }
 
     fn print_dirs(
@@ -336,15 +355,7 @@ impl<'args> Exa<'args> {
             }
 
             if !is_only_dir {
-                let mut bits = Vec::new();
-                escape(
-                    dir.path.display().to_string(),
-                    &mut bits,
-                    Style::default(),
-                    Style::default(),
-                    quote_style,
-                );
-                writeln!(&mut self.writer, "{}:", ANSIStrings(&bits))?;
+                self.print_dir_marker(dir.path.display().to_string(), quote_style)?;
             }
 
             let mut children = Vec::new();
@@ -382,14 +393,28 @@ impl<'args> Exa<'args> {
                         }) && !f.is_all_all
                     }) {
                         match child_dir.to_dir() {
-                            Ok(d) => child_dirs.push(d),
-                            Err(e) => {
+                            Some(Ok(d)) => child_dirs.push(d),
+                            Some(Err(e)) => {
                                 writeln!(io::stderr(), "{}: {}", child_dir.path.display(), e)?;
+                            }
+                            None => {}
+                        }
+                    }
+                    let mut child_archives = Vec::new();
+                    if matches!(self.options.archive_inspection, ArchiveInspection::Always)
+                        && !self.options.dir_action.treat_dirs_as_files()
+                    {
+                        for child_archive in children.iter().filter(|f| f.is_archive()) {
+                            if let Ok(archive) = child_archive.to_archive() {
+                                child_archives.push(archive);
                             }
                         }
                     }
 
-                    self.print_files(Some(&dir), children)?;
+                    self.print_files(Some(&dir.path), children)?;
+                    for child_archive in child_archives {
+                        self.print_archive(&child_archive, &PathBuf::new())?;
+                    }
                     match self.print_dirs(child_dirs, false, false, exit_status) {
                         Ok(_) => (),
                         Err(e) => return Err(e),
@@ -398,14 +423,18 @@ impl<'args> Exa<'args> {
                 }
             }
 
-            self.print_files(Some(&dir), children)?;
+            self.print_files(Some(&dir.path), children)?;
         }
 
         Ok(exit_status)
     }
 
     /// Prints the list of files using whichever view is selected.
-    fn print_files(&mut self, dir: Option<&Dir>, mut files: Vec<File<'_>>) -> io::Result<()> {
+    fn print_files<F: Filelike + file_name::GetStyle + std::marker::Sync + AsRef<F>>(
+        &mut self,
+        dir_path: Option<&PathBuf>,
+        mut files: Vec<F>,
+    ) -> io::Result<()> {
         if files.is_empty() {
             return Ok(());
         }
@@ -456,8 +485,12 @@ impl<'args> Exa<'args> {
                 let git_ignoring = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
                 let git = self.git.as_ref();
                 let git_repos = self.git_repos;
+
+                let archive_inspection =
+                    matches!(self.options.archive_inspection, ArchiveInspection::Always);
+
                 let r = details::Render {
-                    dir,
+                    dir_path,
                     files,
                     theme,
                     file_style,
@@ -467,6 +500,7 @@ impl<'args> Exa<'args> {
                     git_ignoring,
                     git,
                     git_repos,
+                    archive_inspection,
                 };
                 r.render(&mut self.writer)
             }
@@ -480,8 +514,11 @@ impl<'args> Exa<'args> {
                 let git = self.git.as_ref();
                 let git_repos = self.git_repos;
 
+                let archive_inspection =
+                    matches!(self.options.archive_inspection, ArchiveInspection::Always);
+
                 let r = grid_details::Render {
-                    dir,
+                    dir_path,
                     files,
                     theme,
                     file_style,
@@ -492,6 +529,7 @@ impl<'args> Exa<'args> {
                     git,
                     console_width,
                     git_repos,
+                    archive_inspection,
                 };
                 r.render(&mut self.writer)
             }
@@ -504,8 +542,11 @@ impl<'args> Exa<'args> {
                 let git = self.git.as_ref();
                 let git_repos = self.git_repos;
 
+                let archive_inspection =
+                    matches!(self.options.archive_inspection, ArchiveInspection::Always);
+
                 let r = details::Render {
-                    dir,
+                    dir_path,
                     files,
                     theme,
                     file_style,
@@ -515,10 +556,77 @@ impl<'args> Exa<'args> {
                     git_ignoring,
                     git,
                     git_repos,
+                    archive_inspection,
                 };
                 r.render(&mut self.writer)
             }
         }
+    }
+
+    fn print_archive(&mut self, archive: &Archive, root: &PathBuf) -> io::Result<()> {
+        let View {
+            file_style: file_name::Options { quote_style, .. },
+            ..
+        } = self.options.view;
+
+        // Put a gap between directory listings and between the list of files and
+        // the first directory.
+        // Before an archive, there will always be a list of files.
+        writeln!(&mut self.writer)?;
+
+        let parent_path = archive.path.join(root).display().to_string();
+        self.print_dir_marker(
+            parent_path
+                .strip_suffix(std::path::is_separator)
+                .map(str::to_string)
+                .unwrap_or(parent_path),
+            quote_style,
+        )?;
+
+        let mut children = Vec::<ArchiveEntry>::new();
+        for entry in archive.files(root.clone()) {
+            match entry {
+                Ok(entry) => children.push(entry.clone()),
+                Err(error) => writeln!(io::stderr(), "[{error}]")?,
+            }
+        }
+
+        let recursing = self.options.dir_action.recurse_options().is_some();
+        self.options
+            .filter
+            .filter_child_files(recursing, &mut children);
+        self.options.filter.sort_files(&mut children);
+
+        if let Some(recurse_opts) = self.options.dir_action.recurse_options() {
+            let depth = root.components().count();
+
+            if !recurse_opts.tree && !recurse_opts.is_too_deep(depth) {
+                self.print_files(Some(root), children.clone())?;
+                for child_dir in children.iter().filter(|f| f.is_directory()) {
+                    self.print_archive(archive, child_dir.path())?;
+                }
+                return Ok(());
+            }
+        }
+
+        self.print_files(Some(root), children)
+    }
+
+    fn print_dir_marker(
+        &mut self,
+        dir_name: String,
+        quote_style: file_name::QuoteStyle,
+    ) -> Result<(), std::io::Error> {
+        let mut bits = Vec::new();
+        escape(
+            dir_name,
+            &mut bits,
+            Style::default(),
+            Style::default(),
+            quote_style,
+        );
+        writeln!(&mut self.writer, "{}:", ANSIStrings(&bits))?;
+        Ok(())
     }
 }
 

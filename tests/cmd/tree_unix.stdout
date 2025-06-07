@@ -2,6 +2,7 @@ tests/itest
 ├── a
 ├── b
 ├── c
+├── complex_tar.tar
 ├── d
 ├── dir-symlink -> vagrant/debug
 ├── e
@@ -20,9 +21,12 @@ tests/itest
 ├── l
 ├── m
 ├── n
+├── not_a_tar.tar
 ├── o
 ├── p
 ├── q
+├── recursive_tar.tar
+├── simple_tar.tar
 └── vagrant
     ├── debug
     │   ├── a

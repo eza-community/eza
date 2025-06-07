@@ -133,6 +133,11 @@ touch icons/man.1 --date=@0
 touch icons/marked.md --date=@0
 # END test_icons
 
+# BEGIN test_archives
+mkdir -p archives
+tar -cf archives/archive.tar symlinks icons
+# END test_archives
+
 # BEGIN set date
 touch --date=@0 ./*;
 # END set date

@@ -23,7 +23,7 @@ DISPLAY OPTIONS
   --absolute                 display entries with their absolute path (on, follow, off)
   --follow-symlinks          drill down into symbolic links that point to directories
   -w, --width COLS           set screen width in columns
-
+  -q, --inspect-archives     list content of archives (supported formats: tar)
 
 FILTERING AND SORTING OPTIONS
   -a, --all                  show hidden and 'dot' files. Use this twice to also
