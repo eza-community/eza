@@ -41,6 +41,10 @@ pub enum FileFilterFlags {
     /// Whether directories should be listed as the last items, after other
     /// types of file. Some users prefer it like this.
     ListDirsLast,
+
+    /// Whether files starting with a _ should be treated as hidden under windows
+    #[cfg(windows)]
+    ShowHiddenUnderscore
 }
 
 /// The **file filter** processes a list of files before displaying them to
@@ -90,6 +94,10 @@ pub struct FileFilter {
 
     /// Whether to explicitly show symlinks
     pub show_symlinks: bool,
+
+    /// Whether to treat files with an _prefix as hidden under windows
+    #[cfg(windows)]
+    pub show_hidden_underscore: bool,
 }
 
 impl FileFilter {
