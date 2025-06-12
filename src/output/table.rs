@@ -436,7 +436,7 @@ impl<'a> Table<'a> {
         let widths = TableWidths::zero(columns.len());
         let env = &*ENVIRONMENT;
 
-        debug!("Creating table with columns: {:?}", columns);
+        debug!("Creating table with columns: {columns:?}");
 
         Table {
             theme,

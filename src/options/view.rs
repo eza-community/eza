@@ -513,7 +513,7 @@ impl ColorScaleOptions {
                     &flags::COLOR_SCALE,
                     OsString::from(word),
                 ))?,
-            };
+            }
         }
 
         Ok(options)

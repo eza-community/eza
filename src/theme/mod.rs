@@ -75,7 +75,7 @@ impl Options {
             let ui = UiStyles::plain();
             let exts = Box::new(NoFileStyle);
             return Theme { ui, exts };
-        };
+        }
 
         #[cfg(windows)]
         if nu_ansi_term::enable_ansi_support().is_err() {
@@ -166,7 +166,7 @@ impl Definitions {
                             warn!("Couldn't parse glob pattern {:?}: {}", pair.key, e);
                         }
                     }
-                };
+                }
             });
         }
 

@@ -142,14 +142,14 @@ impl<'dir> File<'dir> {
             RecursiveSize::None
         };
 
-        debug!("deref_links {}", deref_links);
+        debug!("deref_links {deref_links}");
 
         let filetype = match filetype {
             Some(f) => OnceLock::from(Some(f)),
             None => OnceLock::new(),
         };
 
-        debug!("deref_links {}", deref_links);
+        debug!("deref_links {deref_links}");
 
         let mut file = File {
             name,
@@ -228,7 +228,7 @@ impl<'dir> File<'dir> {
             back.as_os_str().to_string_lossy().to_string()
         } else {
             // use the path as fallback
-            error!("Path {:?} has no last component", path);
+            error!("Path {path:?} has no last component");
             path.display().to_string()
         }
     }
@@ -294,7 +294,7 @@ impl<'dir> File<'dir> {
 
     /// Whether this file is a directory on the filesystem.
     pub fn is_directory(&self) -> bool {
-        self.filetype().map_or(false, std::fs::FileType::is_dir)
+        self.filetype().is_some_and(std::fs::FileType::is_dir)
     }
 
     /// Whether this file is a directory, or a symlink pointing to a directory.
@@ -327,7 +327,7 @@ impl<'dir> File<'dir> {
     /// Whether this file is a regular file on the filesystem — that is, not a
     /// directory, a link, or anything else treated specially.
     pub fn is_file(&self) -> bool {
-        self.filetype().map_or(false, std::fs::FileType::is_file)
+        self.filetype().is_some_and(std::fs::FileType::is_file)
     }
 
     /// Whether this file is both a regular file *and* executable for the
@@ -347,31 +347,31 @@ impl<'dir> File<'dir> {
 
     /// Whether this file is a symlink on the filesystem.
     pub fn is_link(&self) -> bool {
-        self.filetype().map_or(false, FileType::is_symlink)
+        self.filetype().is_some_and(FileType::is_symlink)
     }
 
     /// Whether this file is a named pipe on the filesystem.
     #[cfg(unix)]
     pub fn is_pipe(&self) -> bool {
-        self.filetype().map_or(false, FileTypeExt::is_fifo)
+        self.filetype().is_some_and(FileTypeExt::is_fifo)
     }
 
     /// Whether this file is a char device on the filesystem.
     #[cfg(unix)]
     pub fn is_char_device(&self) -> bool {
-        self.filetype().map_or(false, FileTypeExt::is_char_device)
+        self.filetype().is_some_and(FileTypeExt::is_char_device)
     }
 
     /// Whether this file is a block device on the filesystem.
     #[cfg(unix)]
     pub fn is_block_device(&self) -> bool {
-        self.filetype().map_or(false, FileTypeExt::is_block_device)
+        self.filetype().is_some_and(FileTypeExt::is_block_device)
     }
 
     /// Whether this file is a socket on the filesystem.
     #[cfg(unix)]
     pub fn is_socket(&self) -> bool {
-        self.filetype().map_or(false, FileTypeExt::is_socket)
+        self.filetype().is_some_and(FileTypeExt::is_socket)
     }
 
     /// Determine the full path resolving all symbolic links on demand.
@@ -1016,7 +1016,7 @@ pub enum FileTarget<'dir> {
     // error — we just display the error message and move on.
 }
 
-impl<'dir> FileTarget<'dir> {
+impl FileTarget<'_> {
     /// Whether this link doesn’t lead to a file, for whatever reason. This
     /// gets used to determine how to highlight the link in grid views.
     #[must_use]

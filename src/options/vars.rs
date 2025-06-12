@@ -153,6 +153,6 @@ impl MockVars {
             "COLUMNS" => self.columns = value.clone(),
             "NO_COLOR" => self.no_colors = value.clone(),
             _ => (),
-        };
+        }
     }
 }

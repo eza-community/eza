@@ -511,8 +511,8 @@ impl UiStyles {
     /// Sets a value on this set of colours using one of the keys understood
     /// by the `LS_COLORS` environment variable. Invalid keys set nothing, but
     /// return false.
+    #[rustfmt::skip]
     pub fn set_ls(&mut self, pair: &Pair<'_>) -> bool {
-        #[rustfmt::skip]
         match pair.key {
             "di" => self.filekinds().directory    = Some(pair.to_style()),  // DIR
             "ex" => self.filekinds().executable   = Some(pair.to_style()),  // EXEC
@@ -527,7 +527,7 @@ impl UiStyles {
              // Codes we don’t do anything with:
              // MULTIHARDLINK, DOOR, SETUID, SETGID, CAPABILITY,
              // STICKY_OTHER_WRITABLE, OTHER_WRITABLE, STICKY, MISSING
-        };
+        }
         true
     }
 
@@ -535,8 +535,8 @@ impl UiStyles {
     /// by the `EZA_COLORS` environment variable. Invalid keys set nothing,
     /// but return false. This doesn’t take the `LS_COLORS` keys into account,
     /// so `set_ls` should have been run first.
+    #[rustfmt::skip]
     pub fn set_exa(&mut self, pair: &Pair<'_>) -> bool {
-        #[rustfmt::skip]
         match pair.key {
             "ur" => self.perms().user_read                = Some(pair.to_style()),
             "uw" => self.perms().user_write               = Some(pair.to_style()),
@@ -622,7 +622,7 @@ impl UiStyles {
             "Sl" => self.security_context().selinux().range = Some(pair.to_style()),
 
              _   => return false,
-        };
+        }
 
         true
     }
