@@ -74,9 +74,9 @@ impl FromIterator<PathBuf> for GitCache {
 
         for path in iter {
             if git.misses.contains(&path) {
-                debug!("Skipping {:?} because it already came back Gitless", path);
+                debug!("Skipping {path:?} because it already came back Gitless");
             } else if git.repos.iter().any(|e| e.has_path(&path)) {
-                debug!("Skipping {:?} because we already queried it", path);
+                debug!("Skipping {path:?} because we already queried it");
             } else {
                 let flags = git2::RepositoryOpenFlags::FROM_ENV;
                 match GitRepo::discover(path, flags) {
@@ -181,7 +181,7 @@ impl GitRepo {
     /// the repository's "gitdir" (or a "gitlink" to the gitdir), or the
     /// path is the start of a rootwards search for the repository.
     fn discover(path: PathBuf, flags: git2::RepositoryOpenFlags) -> Result<Self, PathBuf> {
-        info!("Opening Git repository for {:?} ({:?})", path, flags);
+        info!("Opening Git repository for {path:?} ({flags:?})");
         let unused: [&OsStr; 0] = [];
         let repo = match git2::Repository::open_ext(&path, flags, unused) {
             Ok(r) => r,
@@ -227,7 +227,7 @@ impl GitContents {
 fn repo_to_statuses(repo: &git2::Repository, workdir: &Path) -> Git {
     let mut statuses = Vec::new();
 
-    info!("Getting Git statuses for repo with workdir {:?}", workdir);
+    info!("Getting Git statuses for repo with workdir {workdir:?}");
     match repo.statuses(None) {
         Ok(es) => {
             for e in es.iter() {
@@ -241,7 +241,7 @@ fn repo_to_statuses(repo: &git2::Repository, workdir: &Path) -> Git {
             statuses.push((workdir.join(".git"), git2::Status::IGNORED));
         }
         Err(e) => {
-            error!("Error looking up Git statuses: {:?}", e);
+            error!("Error looking up Git statuses: {e:?}");
         }
     }
 
@@ -403,7 +403,7 @@ fn current_branch(repo: &git2::Repository) -> Option<String> {
             return None;
         }
         Err(e) => {
-            error!("Error looking up Git branch: {:?}", e);
+            error!("Error looking up Git branch: {e:?}");
             return None;
         }
     };

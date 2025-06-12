@@ -313,7 +313,7 @@ impl<'a> Render<'a> {
                             }
                         }
                     }
-                };
+                }
 
                 Egg {
                     table_row,
@@ -344,7 +344,7 @@ impl<'a> Render<'a> {
                 .paint()
                 .promote();
 
-            debug!("file_name {:?}", file_name);
+            debug!("file_name {file_name:?}");
 
             let row = Row {
                 tree: tree_params,
@@ -491,7 +491,7 @@ pub struct TableIter<'a> {
     tree_trunk:  TreeTrunk,
 }
 
-impl<'a> Iterator for TableIter<'a> {
+impl Iterator for TableIter<'_> {
     type Item = TextCell;
 
     fn next(&mut self) -> Option<Self::Item> {
