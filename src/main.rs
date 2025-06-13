@@ -334,7 +334,7 @@ impl Exa<'_> {
                         );
                         denied_dirs.push(dir.path);
                         continue;
-                    };
+                    }
 
                     eprintln!("{}: {}", dir.path.display(), e);
                     continue;
