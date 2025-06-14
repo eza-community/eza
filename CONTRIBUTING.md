@@ -46,7 +46,7 @@ Some useful commands include:
 - `nix build`: build eza.
 - `nix build .#test`: runs eza's cargo tests
 - `nix build .#clippy`: runs clippy on eza
-- `nix fmt`: automatically formats your code as required by flake cheks and
+- `nix fmt`: automatically formats your code as required by flake checks and
   pre-commit-hooks.nix
 - `just itest`: runs integration tests
 
