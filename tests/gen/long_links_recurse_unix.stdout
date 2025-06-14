@@ -1,3 +1,4 @@
+   6 dirs-ext
   12 git
 1002 grid
    2 group
@@ -7,6 +8,23 @@
    2 specials
    3 symlinks
    2 time
+
+tests/test_dir/dirs-ext:
+2 01.city
+2 02.apple
+1 a.txt
+1 ab
+2 abc
+1 abc.mp3
+2 test
+
+tests/test_dir/dirs-ext/01.city:
+
+tests/test_dir/dirs-ext/02.apple:
+
+tests/test_dir/dirs-ext/abc:
+
+tests/test_dir/dirs-ext/test:
 
 tests/test_dir/git:
 3 001
