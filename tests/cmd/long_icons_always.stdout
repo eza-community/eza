@@ -3,7 +3,7 @@
 .rw-r--r--  0 nixbld  1 Jan  1970  c
 .rw-r--r--  0 nixbld  1 Jan  1970  d
 .rw-r--r--  0 nixbld  1 Jan  1970  e
-drwxr-xr-x  - nixbld  1 Jan  1970  exa
+drwxr-xr-x  - nixbld  1 Jan  1970  exa
 .rw-r--r--  0 nixbld  1 Jan  1970  f
 .rw-r--r--  0 nixbld  1 Jan  1970  g
 .rw-r--r--  0 nixbld  1 Jan  1970  h
@@ -18,4 +18,4 @@ drwxr-xr-x  - nixbld  1 Jan  1970  exa
 .rw-r--r--  0 nixbld  1 Jan  1970  o
 .rw-r--r--  0 nixbld  1 Jan  1970  p
 .rw-r--r--  0 nixbld  1 Jan  1970  q
-drwxr-xr-x  - nixbld  1 Jan  1970  vagrant
+drwxr-xr-x  - nixbld  1 Jan  1970  vagrant
