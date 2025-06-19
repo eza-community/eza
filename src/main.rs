@@ -65,15 +65,12 @@ fn main() {
     let args: Vec<_> = env::args_os().skip(1).collect();
     match Options::parse(args.iter().map(std::convert::AsRef::as_ref), &LiveVars) {
         OptionsResult::Ok(options, mut input_paths) => {
-            let mut default_input_path = false;
-
             // List the current directory by default.
             // (This has to be done here, otherwise git_options won’t see it.)
             if input_paths.is_empty() {
                 match &options.stdin {
                     FilesInput::Args => {
                         input_paths = vec![OsStr::new(".")];
-                        default_input_path = true;
                     }
                     FilesInput::Stdin(separator) => {
                         stdin()
@@ -100,7 +97,6 @@ fn main() {
                 options,
                 writer,
                 input_paths,
-                default_input_path,
                 theme,
                 console_width,
                 git,
@@ -158,10 +154,6 @@ pub struct Exa<'args> {
     /// List of the free command-line arguments that should correspond to file
     /// names (anything that isn’t an option).
     pub input_paths: Vec<&'args OsStr>,
-
-    /// If no path has been passed through with the command line, and the
-    /// `input_paths` field has been filled with "." by default
-    pub default_input_path: bool,
 
     /// The theme that has been configured from the command-line options and
     /// environment variables. If colours are disabled, this is a theme with
@@ -286,7 +278,7 @@ impl Exa<'_> {
             }
 
             if f.points_to_directory()
-                && (self.default_input_path || !self.options.dir_action.treat_dirs_as_files())
+                && (f.name == "." || !self.options.dir_action.treat_dirs_as_files())
             {
                 trace!("matching on new Dir");
                 dirs.push(f.to_dir());
