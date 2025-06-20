@@ -66,7 +66,7 @@ LONG VIEW OPTIONS
   -B, --bytes                list file sizes in bytes, without any prefixes
   -g, --group                list each file's group
   --smart-group              only show group if it has a different name from owner
-  -h, --header               add a header row to each column
+  -h, --header=WHEN          add a header row to each column
   -H, --links                list each file's number of hard links
   -i, --inode                list each file's inode number
   -M, --mounts               show mount details (Linux and Mac only)
@@ -88,7 +88,7 @@ LONG VIEW OPTIONS
   --no-filesize              suppress the filesize field
   --no-user                  suppress the user field
   --no-time                  suppress the time field
-  --stdin                    read file names from stdin, one per line or other separator 
+  --stdin                    read file names from stdin, one per line or other separator
                              specified in environment";
 
 static GIT_VIEW_HELP: &str = "  \
