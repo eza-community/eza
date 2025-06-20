@@ -6,6 +6,23 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.21.5] - 2025-06-20
+
+### Bug Fixes
+
+- Use OpenBSD 7.7 that has MSRV, instead of 7.6
+- Excessive open file descriptors
+- Typo
+- Impl desirable behaviour for unreadables
+- Unreadables format style
+- Clippy warnings
+- Missing word in comment
+
+### Styling
+
+- Fix various clippy warnings for rust 1.86
+- Remove unnecessary semicolon
+
 ## [0.21.4] - 2025-05-30
 
 ### Bug Fixes
@@ -19,6 +36,7 @@ SPDX-License-Identifier: EUPL-1.2
 - Add Visual Studio icon for *.suo
 - Add swift icon for *.xcplayground
 - Add dropbox icon
+- Eza v0.21.4 changelogs, version bump
 
 ### Refactor
 
