@@ -53,6 +53,16 @@ DISPLAY OPTIONS
 `-1`, `--oneline`
 : Display one entry per line.
 
+`--absolute=WHEN`
+: Display entries with their absolute path.
+
+Valid settings are '`on`', '`follow`', and '`off`'.
+When used without a value, defaults to '`on`'.
+
+'`on`': Show absolute paths for all entries.
+'`follow`': Show absolute paths and resolve symbolic links to their targets.
+'`off`': Show relative paths (default behavior).
+
 `-F`, `--classify=WHEN`
 : Display file kind indicators next to file names.
 
