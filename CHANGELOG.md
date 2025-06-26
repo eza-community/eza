@@ -6,6 +6,26 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.21.6] - 2025-06-26
+
+### Documentation
+
+- Add missing --absolute option to man page
+
+### Features
+
+- Add prettier icon for `.prettierrc.{json,json5,toml,yaml,yml}`
+
+### Miscellaneous Tasks
+
+- Upgrade FreeBSD to 14.3-RELEASE in unit tests workflow
+
+### Build
+
+- Bump libc from 0.2.172 to 0.2.174
+- Cargo bump 2025-06-26
+- Flake bump 2025-06-26
+
 ## [0.21.5] - 2025-06-20
 
 ### Bug Fixes
@@ -17,6 +37,10 @@ SPDX-License-Identifier: EUPL-1.2
 - Unreadables format style
 - Clippy warnings
 - Missing word in comment
+
+### Miscellaneous Tasks
+
+- Eza v0.21.5 changelogs, version bump
 
 ### Styling
 
