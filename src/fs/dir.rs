@@ -84,6 +84,7 @@ impl Dir {
         git_ignoring: bool,
         deref_links: bool,
         total_size: bool,
+        #[cfg(windows)] show_hidden_underscore: bool,
     ) -> Files<'dir, 'ig> {
         Files {
             inner: self.contents.iter(),
@@ -94,6 +95,8 @@ impl Dir {
             git_ignoring,
             deref_links,
             total_size,
+            #[cfg(windows)]
+            show_hidden_underscore,
         }
     }
 
@@ -135,6 +138,10 @@ pub struct Files<'dir, 'ig> {
 
     /// Whether to calculate the directory size recursively
     total_size: bool,
+
+    /// Whether to show files with underscore prefix on Windows
+    #[cfg(windows)]
+    show_hidden_underscore: bool,
 }
 
 impl<'dir> Files<'dir, '_> {
@@ -161,7 +168,7 @@ impl<'dir> Files<'dir, '_> {
                 // Also hide _prefix files on Windows because it's used by old applications
                 // as an alternative to dot-prefix files.
                 #[cfg(windows)]
-                if !self.dotfiles && filename.starts_with('_') {
+                if !self.dotfiles && !self.show_hidden_underscore && filename.starts_with('_') {
                     continue;
                 }
 

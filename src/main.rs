@@ -369,6 +369,8 @@ impl Exa<'_> {
                 git_ignore,
                 self.options.view.deref_links,
                 self.options.view.total_size,
+                #[cfg(windows)]
+                self.options.filter.show_hidden_underscore,
             ) {
                 children.push(file);
             }
