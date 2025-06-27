@@ -91,12 +91,16 @@ commands:
     - --almost-all
   :
   ? - -d
+    - --treat-dirs-as-files
+  :
+  ? - null
     - --list-dirs
   :
-  ? - -L
+  ? - -L # Hidden alias
     - --level
-  : prefix: --tree
+  : prefix: -T
     values:
+      - 0
       - 1
       - 2
       - 3
