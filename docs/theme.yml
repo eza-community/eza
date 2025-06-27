@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=./theme-schema.json
 filekinds:
   normal:
     foreground: Blue
