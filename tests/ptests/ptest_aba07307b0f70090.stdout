@@ -1,8 +1,5 @@
-git       time
-grid      
-group     
-icons     
-perms     
-size      
-specials  
-symlinks  
+git    size
+grid   specials
+group  symlinks
+icons  time
+perms

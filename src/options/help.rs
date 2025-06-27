@@ -41,7 +41,7 @@ FILTERING AND SORTING OPTIONS
   -a, --all                  show hidden and 'dot' files. Use this twice to also
                              show the '.' and '..' directories
   -A, --almost-all           equivalent to --all; included for compatibility with `ls -A`
-  -d, --list-dirs            list directories as files; don't list their contents
+  -d, --treat-dirs-as-files  list directories as files; don't list their contents
   -D, --only-dirs            list only directories
   -f, --only-files           list only files
   --show-symlinks            explicitly show symbolic links (for use with --only-dirs | --only-files)

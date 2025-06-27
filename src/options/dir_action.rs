@@ -18,7 +18,8 @@ impl DirAction {
     /// to both be present, but the `--list-dirs` flag is used separately.
     pub fn deduce(matches: &MatchedFlags<'_>, can_tree: bool) -> Result<Self, OptionsError> {
         let recurse = matches.has(&flags::RECURSE)?;
-        let as_file = matches.has(&flags::LIST_DIRS)?;
+        let as_file =
+            matches.has(&flags::TREAT_DIRS_AS_FILES)? || matches.has(&flags::LIST_DIRS)?;
         let tree = matches.has(&flags::TREE)?;
 
         if matches.is_strict() {
@@ -30,9 +31,15 @@ impl DirAction {
                     &flags::TREE,
                 ));
             } else if recurse && as_file {
-                return Err(OptionsError::Conflict(&flags::RECURSE, &flags::LIST_DIRS));
+                return Err(OptionsError::Conflict(
+                    &flags::RECURSE,
+                    &flags::TREAT_DIRS_AS_FILES,
+                ));
             } else if tree && as_file {
-                return Err(OptionsError::Conflict(&flags::TREE, &flags::LIST_DIRS));
+                return Err(OptionsError::Conflict(
+                    &flags::TREE,
+                    &flags::TREAT_DIRS_AS_FILES,
+                ));
             }
         }
 
@@ -93,7 +100,7 @@ mod test {
 
                 static TEST_ARGS: &[&Arg] = &[
                     &flags::RECURSE,
-                    &flags::LIST_DIRS,
+                    &flags::TREAT_DIRS_AS_FILES,
                     &flags::TREE,
                     &flags::LEVEL,
                 ];
@@ -110,8 +117,8 @@ mod test {
     test!(empty:           DirAction <- [];               Both => Ok(DirAction::List));
 
     // Listing files as directories
-    test!(dirs_short:      DirAction <- ["-d"];           Both => Ok(DirAction::AsFile));
-    test!(dirs_long:       DirAction <- ["--list-dirs"];  Both => Ok(DirAction::AsFile));
+    test!(dirs_short:      DirAction <- ["-d"];                     Both => Ok(DirAction::AsFile));
+    test!(dirs_long:       DirAction <- ["--treat-dirs-as-files"];  Both => Ok(DirAction::AsFile));
 
     // Recursing
     use self::DirAction::Recurse;
@@ -126,12 +133,12 @@ mod test {
     test!(rec_short_tree:  DirAction <- ["-TR"];                          Both => Ok(Recurse(RecurseOptions { tree: true,  max_depth: None })));
 
     // Overriding --list-dirs, --recurse, and --tree
-    test!(dirs_recurse:    DirAction <- ["--list-dirs", "--recurse"];     Last => Ok(Recurse(RecurseOptions { tree: false, max_depth: None })));
-    test!(dirs_tree:       DirAction <- ["--list-dirs", "--tree"];        Last => Ok(Recurse(RecurseOptions { tree: true,  max_depth: None })));
+    test!(dirs_recurse:    DirAction <- ["--treat-dirs-as-files", "--recurse"];     Last => Ok(Recurse(RecurseOptions { tree: false, max_depth: None })));
+    test!(dirs_tree:       DirAction <- ["--treat-dirs-as-files", "--tree"];        Last => Ok(Recurse(RecurseOptions { tree: true,  max_depth: None })));
     test!(just_level:      DirAction <- ["--level=4"];                    Last => Ok(DirAction::List));
 
-    test!(dirs_recurse_2:  DirAction <- ["--list-dirs", "--recurse"]; Complain => Err(OptionsError::Conflict(&flags::RECURSE, &flags::LIST_DIRS)));
-    test!(dirs_tree_2:     DirAction <- ["--list-dirs", "--tree"];    Complain => Err(OptionsError::Conflict(&flags::TREE,    &flags::LIST_DIRS)));
+    test!(dirs_recurse_2:  DirAction <- ["--treat-dirs-as-files", "--recurse"]; Complain => Err(OptionsError::Conflict(&flags::RECURSE, &flags::TREAT_DIRS_AS_FILES)));
+    test!(dirs_tree_2:     DirAction <- ["--treat-dirs-as-files", "--tree"];    Complain => Err(OptionsError::Conflict(&flags::TREE,    &flags::TREAT_DIRS_AS_FILES)));
     test!(just_level_2:    DirAction <- ["--level=4"];                Complain => Err(OptionsError::Useless2(&flags::LEVEL, &flags::RECURSE, &flags::TREE)));
 
     // Overriding levels

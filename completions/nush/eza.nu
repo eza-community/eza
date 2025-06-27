@@ -25,7 +25,7 @@ export extern "eza" [
     --git-ignore               # Ignore files mentioned in '.gitignore'
     --all(-a)                  # Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories
     --almost-all(-A)           # Equivalent to --all; included for compatibility with `ls -A`
-    --list-dirs(-d)            # List directories like regular files
+    --treat-dirs-as-files(-d)  # List directories like regular files
     --level(-L): string        # Limit the depth of recursion
     --width(-w)                # Limits column output of grid, 0 implies auto-width
     --reverse(-r)              # Reverse the sort order
