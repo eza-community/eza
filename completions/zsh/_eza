@@ -33,7 +33,7 @@ __eza() {
         --git-ignore"[Ignore files mentioned in '.gitignore']" \
         {-a,--all}"[Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories]" \
         {-A,--almost-all}"[Equivalent to --all; included for compatibility with \'ls -A\']" \
-        {-d,--list-dirs}"[List directories like regular files]" \
+        {-d,--treat-dirs-as-files}"[List directories like regular files]" \
         {-D,--only-dirs}"[List only directories]" \
         --no-symlinks"[Do not show symbolic links]" \
         --show-symlinks"[Explictly show symbolic links: for use with '--only-dirs'| '--only-files']" \

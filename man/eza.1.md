@@ -139,8 +139,14 @@ Use this twice to also show the ‘`.`’ and ‘`..`’ directories.
 `-A`, `--almost-all`
 : Equivalent to --all; included for compatibility with `ls -A`.
 
-`-d`, `--list-dirs`
-: List directories as regular files, rather than recursing and listing their contents.
+`-d`, `--treat-dirs-as-files`
+: This flag, inherited from `ls`, changes how `eza` handles directory arguments.
+
+: Instead of recursing into directories and listing their contents (the default behavior), it treats directories as regular files and lists information about the directory entry itself.
+
+: This is useful when you want to see metadata about the directory (e.g., permissions, size, modification time) rather than its contents.
+
+: For simply listing only directories and not files, consider using the `--only-dirs` (`-D`) option as an alternative.
 
 `-L`, `--level=DEPTH`
 : Limit the depth of recursion.

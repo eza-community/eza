@@ -277,9 +277,7 @@ impl Exa<'_> {
                 continue;
             }
 
-            if f.points_to_directory()
-                && (f.name == "." || !self.options.dir_action.treat_dirs_as_files())
-            {
+            if f.points_to_directory() && !self.options.dir_action.treat_dirs_as_files() {
                 trace!("matching on new Dir");
                 dirs.push(f.to_dir());
             } else {
