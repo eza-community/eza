@@ -606,20 +606,21 @@ impl<'dir> File<'dir> {
             // functions major and minor.  On Linux the try_into().unwrap() and
             // the "as u32" cast are not needed.  We turn off the warning to
             // allow it to compile cleanly on Linux.
-            #[allow(trivial_numeric_casts)]
+            //
+            // On illumos and Solaris, major and minor are extern "C" fns and
+            // therefore unsafe; on other platforms the functions are defined as
+            // macros and copied as const fns in the libc crate.
+            #[allow(trivial_numeric_casts, unused_unsafe)]
             #[allow(clippy::unnecessary_cast, clippy::useless_conversion)]
-            f::Size::DeviceIDs(f::DeviceIDs {
-                major: libc::major(
-                    device_id
-                        .try_into()
-                        .expect("Malformed device major ID when getting filesize"),
-                ) as u32,
-                minor: libc::minor(
-                    device_id
-                        .try_into()
-                        .expect("Malformed device major ID when getting filesize"),
-                ) as u32,
-            })
+            {
+                let device_id = device_id
+                    .try_into()
+                    .expect("Malformed device major ID when getting filesize");
+                f::Size::DeviceIDs(f::DeviceIDs {
+                    major: unsafe { libc::major(device_id) as u32 },
+                    minor: unsafe { libc::minor(device_id) as u32 },
+                })
+            }
         } else if self.is_file() {
             f::Size::Some(self.metadata().map_or(0, std::fs::Metadata::len))
         } else {
