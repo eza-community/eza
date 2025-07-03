@@ -105,7 +105,6 @@ uutils_term_grid = "0.7.0"
 terminal_size = "0.4.2"
 timeago = { version = "0.4.2", default-features = false }
 unicode-width = "0.2"
-zoneinfo_compiled = "0.5.1"
 ansi-width = "0.1.0"
 serde = { version = "1.0.219", features = ["derive"] }
 dirs = "6.0.0"
