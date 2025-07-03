@@ -143,6 +143,8 @@
               # For generating demo
               vhs
 
+              cargo-shear
+
               powertest.packages.${pkgs.system}.default
 
               cargo-hack
