@@ -6,6 +6,30 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.22.0] - 2025-07-03
+
+### Bug Fixes
+
+- Replace default_input_path check with "." check
+
+### Documentation
+
+- "cheks" should be "checks"
+
+### Features
+
+- [**breaking**] Define -d/--treat-dirs-as-files behavior, tests
+
+### Build
+
+- Bump phf from 0.11.3 to 0.12.1
+- Cargo bump 2025-07-03
+- Flake bump 2025-07-03
+
+### Ci
+
+- Automate dependency updates
+
 ## [0.21.6] - 2025-06-26
 
 ### Documentation
@@ -19,6 +43,7 @@ SPDX-License-Identifier: EUPL-1.2
 ### Miscellaneous Tasks
 
 - Upgrade FreeBSD to 14.3-RELEASE in unit tests workflow
+- Eza v0.21.6 changelogs, version bump
 
 ### Build
 
