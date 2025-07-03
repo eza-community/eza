@@ -179,6 +179,12 @@
                   entry = with pkgs; "${reuse}/bin/reuse lint";
                   pass_filenames = false;
                 };
+                "cargo-shear" = {
+                  enable = true;
+                  name = "Check for unused dependencies";
+                  entry = pkgs.lib.getExe pkgs.cargo-shear;
+                  pass_filenames = false;
+                };
               };
             };
           formatting = treefmtEval.config.build.check self;
