@@ -182,8 +182,15 @@
                 "cargo-shear" = {
                   enable = true;
                   name = "Check for unused dependencies";
-                  entry = pkgs.lib.getExe pkgs.cargo-shear;
-                  pass_filenames = false;
+                  extraPackages = [ toolchain ];
+                  files = "\\.(rs|toml)$";
+                  entry = pkgs.lib.getExe (
+                    pkgs.writeShellScriptBin "cargo-shear-hook" ''
+                         set -e
+                         export CARGO_NET_OFFLINE=true
+                         ${pkgs.lib.getExe pkgs.cargo-shear} "$@"
+                      . ''
+                  );
                 };
               };
             };
