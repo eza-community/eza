@@ -15,6 +15,17 @@ env:
   RUSTFLAGS: --deny warnings
   msrv: 1.78
 jobs:
+  cargo-shear:
+    name: Run cargo shear
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v17
+      - name: Enter DevShell
+        run: nix develop
+      - name: Nix Flake Check
+        run: cargo shear
   security_audit:
     runs-on: ubuntu-latest
     steps:
