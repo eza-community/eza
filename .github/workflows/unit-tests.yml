@@ -15,6 +15,18 @@ env:
   RUSTFLAGS: --deny warnings
   msrv: 1.78
 jobs:
+  cargo-shear:
+    name: Run cargo shear
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-shear
+        run: cargo install cargo-shear
+      - name: Run check for unused dependencies
+        run: cargo shear
   security_audit:
     runs-on: ubuntu-latest
     steps:
