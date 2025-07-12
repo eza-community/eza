@@ -6,7 +6,7 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
-## [0.22.0] - 2025-07-03
+## [0.22.1] - 2025-07-12
 
 ### Bug Fixes
 
@@ -19,12 +19,18 @@ SPDX-License-Identifier: EUPL-1.2
 ### Features
 
 - [**breaking**] Define -d/--treat-dirs-as-files behavior, tests
+- Refresh icon set with new glyphs and additions
+
+### Miscellaneous Tasks
+
+- Eza v0.22.0 changelogs, version bump
 
 ### Build
 
 - Bump phf from 0.11.3 to 0.12.1
 - Cargo bump 2025-07-03
 - Flake bump 2025-07-03
+- Bump windows-sys from 0.59.0 to 0.60.2
 
 ### Ci
 
