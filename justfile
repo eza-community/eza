@@ -119,7 +119,11 @@ genDemo:
 #    release    #
 #---------------#
 
-new_version := "$(convco version --bump)"
+# To override the version, pass it as an argument before the recipe:
+# e.g. just version=1.2.3 release
+# If version is not set, it will be determined by convco.
+version := ""
+new_version := if version == "" { "$(convco version --bump)" } else { version }
 
 # If you're not cafkafk and she isn't dead, don't run this!
 #
