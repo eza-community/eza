@@ -24,6 +24,7 @@ pub struct MountedFs {
     pub dest: PathBuf,
     pub fstype: String,
     pub source: String,
+    pub root: Option<String>,
 }
 
 #[derive(Debug)]

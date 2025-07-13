@@ -57,6 +57,7 @@ pub fn mounts() -> Result<Vec<MountedFs>, Error> {
             dest,
             fstype,
             source,
+            root: None,
         });
     }
 
