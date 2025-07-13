@@ -149,6 +149,7 @@ These options are available when running with `--long` (`-l`):
 - **-b**, **--binary**: list file sizes with binary prefixes
 - **-B**, **--bytes**: list file sizes in bytes, without any prefixes
 - **-g**, **--group**: list each file’s group
+- **--smart-group**: only show group if it has a different name from owner
 - **-h**, **--header**: add a header row to each column
 - **-H**, **--links**: list each file’s number of hard links
 - **-i**, **--inode**: list each file’s inode number
