@@ -111,7 +111,7 @@ pub struct Options {
     /// Whether to show a header line or not.
     pub header: bool,
 
-    /// Whether to show each file’s extended attributes.
+    /// Whether to show each file's extended attributes.
     pub xattr: bool,
 
     /// Whether to show each file's security attribute.
@@ -124,6 +124,9 @@ pub struct Options {
 
     /// Whether to drill down into symbolic links that point to directories
     pub follow_links: bool,
+
+    /// The spacing between columns in the table
+    pub spacing: usize,
 }
 
 pub struct Render<'a> {
@@ -192,7 +195,13 @@ impl<'a> Render<'a> {
                 (None, _) => { /* Keep Git how it is */ }
             }
 
-            let mut table = Table::new(table, self.git, self.theme, self.git_repos);
+            let mut table = Table::new(
+                table,
+                self.git,
+                self.theme,
+                self.opts.spacing,
+                self.git_repos,
+            );
 
             if self.opts.header {
                 let header = table.header_row();

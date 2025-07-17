@@ -1,0 +1,2 @@
+bin.name = "eza"
+args = "tests/itest --tree --spacing 5"
