@@ -1,0 +1,246 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://eza.rocks/schemas/theme-schema.json",
+    "title": "theme",
+    "$defs": {
+        "color": {
+            "oneOf": [{
+                "type": "null"
+            },
+            {
+                "type": ["string"],
+                "enum": [
+                    "",
+                    "default",
+                    "Default",
+                    "black",
+                    "Black",
+                    "darkgray",
+                    "DarkGray",
+                    "red",
+                    "Red",
+                    "lightred",
+                    "LightRed",
+                    "green",
+                    "Green",
+                    "lightgreen",
+                    "LightGreen",
+                    "yellow",
+                    "Yellow",
+                    "lightyellow",
+                    "LightYellow",
+                    "blue",
+                    "Blue", 
+                    "lightblue",
+                    "LightBlue",
+                    "purple",
+                    "Purple",   
+                    "lightpurple",
+                    "LightPurple",
+                    "magenta",
+                    "Magenta", 
+                    "lightmagenta",
+                    "LightMagenta",
+                    "cyan",
+                    "Cyan",
+                    "lightcyan",
+                    "LightCyan",
+                    "white",
+                    "White",   
+                    "lightgray",
+                    "LightGray"
+                ]
+            },
+            {
+                "type": ["string"],
+                "pattern": "^(#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})|[0-9]{2})$"
+            }]
+        },
+        "style": {
+            "type": "object",
+            "properties": {
+                "foreground":{ "$ref": "#/$defs/color" },
+                "background":{ "$ref": "#/$defs/color" },
+                "is_bold": { "type": "boolean" },
+                "is_dimmed": { "type": "boolean" },
+                "is_italic": { "type": "boolean" },
+                "is_underline": { "type": "boolean" },
+                "is_blink": { "type": "boolean" },
+                "is_reverse": { "type": "boolean" },
+                "is_hidden": { "type": "boolean" },
+                "is_strikethrough":{ "type": "boolean" },
+                "prefix_with_reset": { "type": "boolean" }
+            },
+            "additionalProperties": false
+        },
+        "icon": {
+            "properties": {
+                "glyph": {
+                    "type": "string",
+                    "pattern": "^.$"
+                },
+                "style": { "$ref": "#/$defs/style" }
+            },
+            "additionalProperties": false
+        }
+    },
+    "description": "Eza theme config file",
+    "type": "object",
+    "properties": {
+        "filekinds": {
+            "properties": {
+                "normal": { "$ref": "#/$defs/style" },
+                "directory": { "$ref": "#/$defs/style" },
+                "symlink": { "$ref": "#/$defs/style" },
+                "pipe": { "$ref": "#/$defs/style" },
+                "block_device": { "$ref": "#/$defs/style" },
+                "char_device": { "$ref": "#/$defs/style" },
+                "socket": { "$ref": "#/$defs/style" },
+                "special": { "$ref": "#/$defs/style" },
+                "executable": { "$ref": "#/$defs/style" },
+                "mount_point": { "$ref": "#/$defs/style" }
+            },
+            "additionalProperties": false
+        },
+        "perms": {
+            "properties": {
+                "user_read": { "$ref": "#/$defs/style" },
+                "user_write": { "$ref": "#/$defs/style" },
+                "user_execute_file": { "$ref": "#/$defs/style" },
+                "user_execute_other": { "$ref": "#/$defs/style" },
+                "group_read": { "$ref": "#/$defs/style" },
+                "group_write": { "$ref": "#/$defs/style" },
+                "group_execute": { "$ref": "#/$defs/style" },
+                "other_read": { "$ref": "#/$defs/style" },
+                "other_write": { "$ref": "#/$defs/style" },
+                "other_execute": { "$ref": "#/$defs/style" },
+                "special_user_file": { "$ref": "#/$defs/style" },
+                "special_other": { "$ref": "#/$defs/style" },
+                "attribute": { "$ref": "#/$defs/style" }
+            },
+            "additionalProperties": false
+        },
+        "size": {
+            "properties": {
+                "major": { "$ref": "#/$defs/style" },
+                "minor": { "$ref": "#/$defs/style" },
+                "number_byte": { "$ref": "#/$defs/style" },
+                "number_kilo": { "$ref": "#/$defs/style" },
+                "number_mega": { "$ref": "#/$defs/style" },
+                "number_giga": { "$ref": "#/$defs/style" },
+                "number_huge": { "$ref": "#/$defs/style" },
+                "unit_byte": { "$ref": "#/$defs/style" },
+                "unit_kilo": { "$ref": "#/$defs/style" },
+                "unit_mega": { "$ref": "#/$defs/style" },
+                "unit_giga": { "$ref": "#/$defs/style" },
+                "unit_huge": { "$ref": "#/$defs/style" }
+            },
+            "additionalProperties": false
+        },
+        "users": {
+            "properties": {
+                "user_you": { "$ref": "#/$defs/style" },
+                "user_root": { "$ref": "#/$defs/style" },
+                "user_other": { "$ref": "#/$defs/style" },
+                "group_yours": { "$ref": "#/$defs/style" },
+                "group_other": { "$ref": "#/$defs/style" },
+                "group_root": { "$ref": "#/$defs/style" }
+            },
+            "additionalProperties": false
+        },
+        "links": {
+            "properties": {
+                "normal": { "$ref": "#/$defs/style" },
+                "multi_link_file": { "$ref": "#/$defs/style" }
+            },
+            "additionalProperties": false
+        },
+        "git": {
+            "properties": {
+                "new": { "$ref": "#/$defs/style" },
+                "modified": { "$ref": "#/$defs/style" },
+                "deleted": { "$ref": "#/$defs/style" },
+                "renamed": { "$ref": "#/$defs/style" },
+                "ignored": { "$ref": "#/$defs/style" },
+                "conflicted": { "$ref": "#/$defs/style" }
+            },
+            "additionalProperties": false
+        },
+        "git_repo": {
+            "properties": {
+                "branch_main": { "$ref": "#/$defs/style" },
+                "branch_other": { "$ref": "#/$defs/style" },
+                "git_clean": { "$ref": "#/$defs/style" },
+                "git_dirty": { "$ref": "#/$defs/style" }
+            },
+            "additionalProperties": false
+        },
+        "security_context": {
+            "properties": {
+                "none": { "$ref": "#/$defs/style" },
+                "selinux": {
+                    "type":"object",
+                    "properties": {
+                        "colon": { "$ref": "#/$defs/style" },
+                        "user": { "$ref": "#/$defs/style" },
+                        "role": { "$ref": "#/$defs/style" },
+                        "typ": { "$ref": "#/$defs/style" },
+                        "range": { "$ref": "#/$defs/style" }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "file_type": {
+            "properties": {
+                "image": { "$ref": "#/$defs/style" },
+                "video": { "$ref": "#/$defs/style" },
+                "music": { "$ref": "#/$defs/style" },
+                "crypto": { "$ref": "#/$defs/style" },
+                "document": { "$ref": "#/$defs/style" },
+                "compressed": { "$ref": "#/$defs/style" },
+                "temp": { "$ref": "#/$defs/style" },
+                "compiled": { "$ref": "#/$defs/style" },
+                "build": { "$ref": "#/$defs/style" },
+                "source": { "$ref": "#/$defs/style" }
+            },
+            "additionalProperties": false
+        },
+        "punctuation": { "$ref": "#/$defs/style" },
+        "date": { "$ref": "#/$defs/style" },
+        "inode": { "$ref": "#/$defs/style" },
+        "blocks": { "$ref": "#/$defs/style" },
+        "header": { "$ref": "#/$defs/style" },
+        "octal": { "$ref": "#/$defs/style" },
+        "flags": { "$ref": "#/$defs/style" },
+        "control_char": { "$ref": "#/$defs/style" },
+        "broken_symlink": { "$ref": "#/$defs/style" },
+        "broken_path_overlay": { "$ref": "#/$defs/style" },
+        "filenames": {
+            "type": "object",
+            "patternProperties": {
+                "^.*$": {
+                    "type": "object",
+                    "properties": {
+                        "filename": { "$ref": "#/$defs/style" },
+                        "icon": { "$ref": "#/$defs/icon" }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "extensions": {
+            "type": "object",
+            "patternProperties": {
+                "^.*$": {
+                    "filename": { "$ref": "#/$defs/style" },
+                    "icon": { "$ref": "#/$defs/icon" }
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}
