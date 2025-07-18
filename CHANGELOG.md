@@ -6,6 +6,26 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.23.0] - 2025-07-18
+
+### Bug Fixes
+
+- [**breaking**] Make --grid work when not in TTY
+- [**breaking**] Stdin behavior
+
+### Documentation
+
+- Add `--smart-group` option to README
+
+### Features
+
+- Add icons for changelog and todo files
+- Use CHANGES icon for CHANGELOG as well
+
+### Miscellaneous Tasks
+
+- Remove unused dependency
+
 ## [0.22.1] - 2025-07-12
 
 ### Bug Fixes
@@ -24,6 +44,7 @@ SPDX-License-Identifier: EUPL-1.2
 ### Miscellaneous Tasks
 
 - Eza v0.22.0 changelogs, version bump
+- Eza v0.22.1 changelogs, version bump
 
 ### Build
 
