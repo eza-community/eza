@@ -256,7 +256,13 @@ impl<'a> Render<'a> {
             (None, _) => { /* Keep Git how it is */ }
         }
 
-        let mut table = Table::new(options, self.git, self.theme, self.git_repos);
+        let mut table = Table::new(
+            options,
+            self.git,
+            self.theme,
+            self.details.spacing,
+            self.git_repos,
+        );
 
         // The header row will be printed separately, but it should be
         // considered for the width calculations.

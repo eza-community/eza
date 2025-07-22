@@ -129,6 +129,9 @@ The default value is ‘`automatic`’.
 `-w`, `--width=COLS`
 : Set screen width in columns.
 
+`--space-between-columns=COLS`
+: Set the number of spaces between columns.
+
 FILTERING AND SORTING OPTIONS
 =============================
 
@@ -356,7 +359,7 @@ Specifies the minimum luminance to use when color-scale is active. It's value ca
 
 If set, automates the same behavior as using `--icons` or `--icons=auto`. Useful for if you always want to have icons enabled.
 
-Any explicit use of the `--icons=WHEN` flag overrides this behavior. 
+Any explicit use of the `--icons=WHEN` flag overrides this behavior.
 
 ## `EZA_STDIN_SEPARATOR`
 

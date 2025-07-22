@@ -28,6 +28,7 @@ export extern "eza" [
     --treat-dirs-as-files(-d)  # List directories like regular files
     --level(-L): string        # Limit the depth of recursion
     --width(-w)                # Limits column output of grid, 0 implies auto-width
+    --space-between-columns    # Space between columns in grid mode
     --reverse(-r)              # Reverse the sort order
     --sort(-s)                 # Which field to sort by
     --only-dirs(-D)            # List only directories

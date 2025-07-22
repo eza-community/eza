@@ -28,6 +28,7 @@ mod tree;
 pub struct View {
     pub mode: Mode,
     pub width: TerminalWidth,
+    pub space_between_columns: SpacingBetweenColumns,
     pub file_style: file_name::Options,
     pub deref_links: bool,
     pub follow_links: bool,
@@ -79,5 +80,22 @@ impl TerminalWidth {
             Self::Set(width)  => Some(width),
             Self::Automatic   => stdout_term_width,
         };
+    }
+}
+
+/// The spacing between columns requested by the user.
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+pub enum SpacingBetweenColumns {
+    /// The user requested this specific number of spaces.
+    Set(usize),
+}
+
+impl SpacingBetweenColumns {
+    /// Get the actual number of spaces to use between columns.
+    #[must_use]
+    pub fn spaces(self) -> usize {
+        match self {
+            Self::Set(spaces) => spaces,
+        }
     }
 }
