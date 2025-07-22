@@ -257,7 +257,7 @@ impl SpacingBetweenColumns {
                             &flags::SPACING,
                             arg_str.to_string(),
                         )),
-                        Ordering::Equal => Ok(Self::Set(1)),
+                        Ordering::Equal => Ok(Self::Set(0)),
                         Ordering::Greater => Ok(Self::Set(n as usize)),
                     }
                 }
@@ -893,13 +893,13 @@ mod test {
         use super::*;
 
         test!(default:       SpacingBetweenColumns <- [];                                         Both => like Ok(SpacingBetweenColumns::Set(1)));
-        test!(zero:          SpacingBetweenColumns <- ["--spacing", "0"];           Both => like Ok(SpacingBetweenColumns::Set(1)));
+        test!(zero:          SpacingBetweenColumns <- ["--spacing", "0"];           Both => like Ok(SpacingBetweenColumns::Set(0)));
         test!(one:           SpacingBetweenColumns <- ["--spacing", "1"];           Both => like Ok(SpacingBetweenColumns::Set(1)));
         test!(three:         SpacingBetweenColumns <- ["--spacing", "3"];           Both => like Ok(SpacingBetweenColumns::Set(3)));
         test!(five:          SpacingBetweenColumns <- ["--spacing", "5"];           Both => like Ok(SpacingBetweenColumns::Set(5)));
         test!(large:         SpacingBetweenColumns <- ["--spacing", "100"];         Both => like Ok(SpacingBetweenColumns::Set(100)));
         test!(negative:      SpacingBetweenColumns <- ["--spacing", "-1"];          Both => like Err(OptionsError::NegativeNumber(_, _)));
-        test!(negative_zero: SpacingBetweenColumns <- ["--spacing", "-0"];          Both => like Ok(SpacingBetweenColumns::Set(1)));
+        test!(negative_zero: SpacingBetweenColumns <- ["--spacing", "-0"];          Both => like Ok(SpacingBetweenColumns::Set(0)));
         test!(invalid:       SpacingBetweenColumns <- ["--spacing", "abc"];         Both => like Err(OptionsError::FailedParse(_, _, _)));
         test!(invalid_float: SpacingBetweenColumns <- ["--spacing", "1.5"];         Both => like Err(OptionsError::FailedParse(_, _, _)));
         test!(empty:         SpacingBetweenColumns <- ["--spacing", ""];            Both => like Err(OptionsError::FailedParse(_, _, _)));
