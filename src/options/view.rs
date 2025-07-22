@@ -16,7 +16,7 @@ use crate::output::table::{
     Columns, FlagsFormat, GroupFormat, Options as TableOptions, SizeFormat, TimeTypes, UserFormat,
 };
 use crate::output::time::TimeFormat;
-use crate::output::{details, grid, Mode, SpacingBetweenColumns, TerminalWidth, View};
+use crate::output::{details, grid, Mode, SpacingBetweenColumns, SpacingMode, TerminalWidth, View};
 
 impl View {
     pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
@@ -67,7 +67,7 @@ impl Mode {
 
             if is_tty {
                 let spacing = SpacingBetweenColumns::deduce(matches)?;
-                let grid = grid::Options::deduce(matches, spacing.spaces())?;
+                let grid = grid::Options::deduce(matches, spacing.spaces(SpacingMode::Grid))?;
                 return Ok(Self::Grid(grid));
             }
 
@@ -80,7 +80,8 @@ impl Mode {
         {
             let _ = matches.has(&flags::LONG)?;
             let spacing = SpacingBetweenColumns::deduce(matches)?;
-            let details = details::Options::deduce_long(matches, vars, spacing.spaces())?;
+            let details =
+                details::Options::deduce_long(matches, vars, spacing.spaces(SpacingMode::Details))?;
 
             let flag =
                 matches.has_where_any(|f| f.matches(&flags::GRID) || f.matches(&flags::TREE));
@@ -104,7 +105,8 @@ impl Mode {
         if flag.matches(&flags::TREE) {
             let _ = matches.has(&flags::TREE)?;
             let spacing = SpacingBetweenColumns::deduce(matches)?;
-            let details = details::Options::deduce_tree(matches, vars, spacing.spaces())?;
+            let details =
+                details::Options::deduce_tree(matches, vars, spacing.spaces(SpacingMode::Details))?;
             return Ok(Self::Details(details));
         }
 
@@ -114,7 +116,7 @@ impl Mode {
         }
 
         let spacing = SpacingBetweenColumns::deduce(matches)?;
-        let grid = grid::Options::deduce(matches, spacing.spaces())?;
+        let grid = grid::Options::deduce(matches, spacing.spaces(SpacingMode::Grid))?;
         Ok(Self::Grid(grid))
     }
 
@@ -267,7 +269,7 @@ impl SpacingBetweenColumns {
                 }
             }
         } else {
-            Ok(Self::Set(1))
+            Ok(Self::Default)
         }
     }
 }
@@ -892,7 +894,7 @@ mod test {
     mod spacing_between_columns {
         use super::*;
 
-        test!(default:       SpacingBetweenColumns <- [];                                         Both => like Ok(SpacingBetweenColumns::Set(1)));
+        test!(default:       SpacingBetweenColumns <- [];                           Both => like Ok(SpacingBetweenColumns::Default));
         test!(zero:          SpacingBetweenColumns <- ["--spacing", "0"];           Both => like Ok(SpacingBetweenColumns::Set(0)));
         test!(one:           SpacingBetweenColumns <- ["--spacing", "1"];           Both => like Ok(SpacingBetweenColumns::Set(1)));
         test!(three:         SpacingBetweenColumns <- ["--spacing", "3"];           Both => like Ok(SpacingBetweenColumns::Set(3)));
