@@ -129,7 +129,7 @@ The default value is ‘`automatic`’.
 `-w`, `--width=COLS`
 : Set screen width in columns.
 
-`--space-between-columns=COLS`
+`--spacing=COLS`
 : Set the number of spaces between columns.
 
 FILTERING AND SORTING OPTIONS

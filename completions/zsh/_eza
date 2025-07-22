@@ -40,7 +40,7 @@ __eza() {
         {-f,--only-files}"[List only files]" \
         {-L,--level}"+[Limit the depth of recursion]" \
         {-w,--width}"+[Limits column output of grid, 0 implies auto-width]" \
-        --space-between-columns"+[Set the space between columns]" \
+        --spacing"+[Set the space between columns]" \
         {-r,--reverse}"[Reverse the sort order]" \
         {-s,--sort}="[Which field to sort by]:(sort field):(accessed age changed created date extension Extension filename Filename inode modified oldest name Name newest none size time type)" \
         {-I,--ignore-glob}"[Ignore files that match these glob patterns]" \

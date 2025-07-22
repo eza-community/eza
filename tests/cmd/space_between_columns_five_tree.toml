@@ -1,2 +1,0 @@
-bin.name = "eza"
-args = "tests/itest --tree --space-between-columns 5"

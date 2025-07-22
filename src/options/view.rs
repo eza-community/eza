@@ -247,14 +247,14 @@ impl TerminalWidth {
 
 impl SpacingBetweenColumns {
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        if let Some(spacing) = matches.get(&flags::SPACE_BETWEEN)? {
+        if let Some(spacing) = matches.get(&flags::SPACING)? {
             let arg_str = spacing.to_string_lossy();
             match arg_str.parse::<i32>() {
                 Ok(n) => {
                     use std::cmp::Ordering;
                     match n.cmp(&0) {
                         Ordering::Less => Err(OptionsError::NegativeNumber(
-                            &flags::SPACE_BETWEEN,
+                            &flags::SPACING,
                             arg_str.to_string(),
                         )),
                         Ordering::Equal => Ok(Self::Set(1)),
@@ -262,7 +262,7 @@ impl SpacingBetweenColumns {
                     }
                 }
                 Err(e) => {
-                    let source = NumberSource::Arg(&flags::SPACE_BETWEEN);
+                    let source = NumberSource::Arg(&flags::SPACING);
                     Err(OptionsError::FailedParse(arg_str.to_string(), source, e))
                 }
             }
@@ -607,7 +607,7 @@ mod test {
         &flags::ONE_LINE,
         &flags::TREE,
         &flags::NUMERIC,
-        &flags::SPACE_BETWEEN,
+        &flags::SPACING,
     ];
 
     #[allow(unused_macro_rules)]
@@ -893,15 +893,15 @@ mod test {
         use super::*;
 
         test!(default:       SpacingBetweenColumns <- [];                                         Both => like Ok(SpacingBetweenColumns::Set(1)));
-        test!(zero:          SpacingBetweenColumns <- ["--space-between-columns", "0"];           Both => like Ok(SpacingBetweenColumns::Set(1)));
-        test!(one:           SpacingBetweenColumns <- ["--space-between-columns", "1"];           Both => like Ok(SpacingBetweenColumns::Set(1)));
-        test!(three:         SpacingBetweenColumns <- ["--space-between-columns", "3"];           Both => like Ok(SpacingBetweenColumns::Set(3)));
-        test!(five:          SpacingBetweenColumns <- ["--space-between-columns", "5"];           Both => like Ok(SpacingBetweenColumns::Set(5)));
-        test!(large:         SpacingBetweenColumns <- ["--space-between-columns", "100"];         Both => like Ok(SpacingBetweenColumns::Set(100)));
-        test!(negative:      SpacingBetweenColumns <- ["--space-between-columns", "-1"];          Both => like Err(OptionsError::NegativeNumber(_, _)));
-        test!(negative_zero: SpacingBetweenColumns <- ["--space-between-columns", "-0"];          Both => like Ok(SpacingBetweenColumns::Set(1)));
-        test!(invalid:       SpacingBetweenColumns <- ["--space-between-columns", "abc"];         Both => like Err(OptionsError::FailedParse(_, _, _)));
-        test!(invalid_float: SpacingBetweenColumns <- ["--space-between-columns", "1.5"];         Both => like Err(OptionsError::FailedParse(_, _, _)));
-        test!(empty:         SpacingBetweenColumns <- ["--space-between-columns", ""];            Both => like Err(OptionsError::FailedParse(_, _, _)));
+        test!(zero:          SpacingBetweenColumns <- ["--spacing", "0"];           Both => like Ok(SpacingBetweenColumns::Set(1)));
+        test!(one:           SpacingBetweenColumns <- ["--spacing", "1"];           Both => like Ok(SpacingBetweenColumns::Set(1)));
+        test!(three:         SpacingBetweenColumns <- ["--spacing", "3"];           Both => like Ok(SpacingBetweenColumns::Set(3)));
+        test!(five:          SpacingBetweenColumns <- ["--spacing", "5"];           Both => like Ok(SpacingBetweenColumns::Set(5)));
+        test!(large:         SpacingBetweenColumns <- ["--spacing", "100"];         Both => like Ok(SpacingBetweenColumns::Set(100)));
+        test!(negative:      SpacingBetweenColumns <- ["--spacing", "-1"];          Both => like Err(OptionsError::NegativeNumber(_, _)));
+        test!(negative_zero: SpacingBetweenColumns <- ["--spacing", "-0"];          Both => like Ok(SpacingBetweenColumns::Set(1)));
+        test!(invalid:       SpacingBetweenColumns <- ["--spacing", "abc"];         Both => like Err(OptionsError::FailedParse(_, _, _)));
+        test!(invalid_float: SpacingBetweenColumns <- ["--spacing", "1.5"];         Both => like Err(OptionsError::FailedParse(_, _, _)));
+        test!(empty:         SpacingBetweenColumns <- ["--spacing", ""];            Both => like Err(OptionsError::FailedParse(_, _, _)));
     }
 }

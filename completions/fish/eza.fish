@@ -55,7 +55,7 @@ complete -c eza -s A -l almost-all -d "Equivalent to --all; included for compati
 complete -c eza -s d -l treat-dirs-as-files -d "List directories like regular files"
 complete -c eza -s L -l level -d "Limit the depth of recursion" -x -a "1 2 3 4 5 6 7 8 9"
 complete -c eza -s w -l width -d "Limits column output of grid, 0 implies auto-width"
-complete -c eza -l space-between-columns -d "Set the space between columns"
+complete -c eza -l spacing -d "Set the space between columns"
 complete -c eza -s r -l reverse -d "Reverse the sort order"
 complete -c eza -s s -l sort -d "Which field to sort by" -x -a "
     accessed\t'Sort by file accessed time'

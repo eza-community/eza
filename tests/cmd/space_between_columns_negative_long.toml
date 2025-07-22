@@ -1,4 +1,0 @@
-bin.name = "eza"
-args = "tests/itest -l --space-between-columns -1"
-assert.code = 3
-status.code = 3

@@ -113,7 +113,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s. Quick overv
 - **--hyperlink**: display entries as hyperlinks
 - **--absolute=(mode)**: display entries with their absolute path (on, follow, off)
 - **-w**, **--width=(columns)**: set screen width in columns
-- **--space-between-columns=(columns)**: set the number of spaces between columns
+- **--spacing=(columns)**: set the number of spaces between columns
 
 </details>
 

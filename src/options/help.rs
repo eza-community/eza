@@ -35,7 +35,7 @@ DISPLAY OPTIONS
   --absolute                 display entries with their absolute path (on, follow, off)
   --follow-symlinks          drill down into symbolic links that point to directories
   -w, --width COLS           set screen width in columns
-  --space-between-columns    set the space between columns
+  --spacing                  set the space between columns
 
 
 FILTERING AND SORTING OPTIONS
