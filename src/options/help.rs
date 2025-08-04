@@ -27,7 +27,7 @@ DISPLAY OPTIONS
   -X, --dereference          dereference symbolic links when displaying information
   -F, --classify=WHEN        display type indicator by file names (always, auto, never)
   --colo[u]r=WHEN            when to use terminal colours (always, auto, never)
-  --colo[u]r-scale           highlight levels of 'field' distinctly(all, age, size)
+  --colo[u]r-scale           highlight levels of 'field' distinctly (all, age, size)
   --colo[u]r-scale-mode      use gradient or fixed colors in --color-scale (fixed, gradient)
   --icons=WHEN               when to display icons (always, auto, never)
   --no-quotes                don't quote file names with spaces
