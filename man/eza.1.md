@@ -67,7 +67,7 @@ When used without a value, defaults to '`on`'.
 : Display file kind indicators next to file names.
 
 Valid settings are ‘`always`’, ‘`automatic`’ (or ‘`auto`’ for short), and ‘`never`’.
-The default value is ‘`automatic`’.
+When used without a value, defaults to ‘`automatic`’.
 
 The default behavior (`automatic` or `auto`) will display file kind indicators only when the standard output is connected to a real terminal. If `eza` is ran while in a `tty`, or the output of `eza` is either redirected to a file or piped into another program, file kind indicators will not be used. Setting this option to ‘`always`’ causes `eza` to always display file kind indicators, while ‘`never`’ disables the use of file kind indicators.
 
@@ -96,7 +96,7 @@ The default behavior (`automatic` or `auto`) will display file kind indicators o
 : When to use terminal colours (using ANSI escape code to colorize the output).
 
 Valid settings are ‘`always`’, ‘`automatic`’ (or ‘`auto`’ for short), and ‘`never`’.
-The default value is ‘`automatic`’.
+When used without a value, defaults to ‘`automatic`’.
 
 The default behavior (‘`automatic`’ or ‘`auto`’) is to colorize the output only when the standard output is connected to a real terminal. If the output of `eza` is redirected to a file or piped into another program, terminal colors will not be used. Setting this option to ‘`always`’ causes `eza` to always output terminal color, while ‘`never`’ disables the use of terminal color.
 
@@ -106,17 +106,17 @@ Manually setting this option overrides `NO_COLOR` environment.
 : highlight levels of `field` distinctly.
 Use comma(,) separated list of all, age, size
 
-`--color-scale-mode`, `--colour-scale-mode`
+`--color-scale-mode=MODE`, `--colour-scale-mode=MODE`
 : Use gradient or fixed colors in `--color-scale`.
 
 Valid options are `fixed` or `gradient`.
-The default value is `gradient`.
+When used without a value, defaults to `gradient`.
 
 `--icons=WHEN`
 : Display icons next to file names.
 
 Valid settings are ‘`always`’, ‘`automatic`’ (‘`auto`’ for short), and ‘`never`’.
-The default value is ‘`automatic`’.
+When used without a value, defaults to ‘`automatic`’.
 
 `automatic` or `auto` will display icons only when the standard output is connected to a real terminal. If `eza` is ran while in a `tty`, or the output of `eza` is either redirected to a file or piped into another program, icons will not be used. Setting this option to ‘`always`’ causes `eza` to always display icons, while ‘`never`’ disables the use of icons.
 
@@ -356,7 +356,7 @@ Specifies the minimum luminance to use when color-scale is active. It's value ca
 
 If set, automates the same behavior as using `--icons` or `--icons=auto`. Useful for if you always want to have icons enabled.
 
-Any explicit use of the `--icons=WHEN` flag overrides this behavior. 
+Any explicit use of the `--icons=WHEN` flag overrides this behavior.
 
 ## `EZA_STDIN_SEPARATOR`
 
