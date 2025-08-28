@@ -33,7 +33,7 @@ version = "0.23.0"
 
 
 [package.metadata.deb]
-license-file = ["LICENCE", "4"]
+license-file = ["LICENSE.txt", "4"]
 depends = "$auto"
 extended-description = """
 eza is a modern, maintained replacement for ls
