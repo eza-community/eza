@@ -6,6 +6,22 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [0.23.1] - 2025-08-29
+
+### Bug Fixes
+
+- Restore unsafe blocks for libc major/minor device id
+
+### Features
+
+- Added completion
+- Decode com.apple.ResourceFork extended attributes
+
+### Build
+
+- Cargo bump 2025-07-19
+- Flake bump 2025-07-19
+
 ## [0.23.0] - 2025-07-18
 
 ### Bug Fixes
@@ -25,6 +41,7 @@ SPDX-License-Identifier: EUPL-1.2
 ### Miscellaneous Tasks
 
 - Remove unused dependency
+- Eza v0.23.0 changelogs, version bump
 
 ## [0.22.1] - 2025-07-12
 
