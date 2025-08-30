@@ -18,6 +18,7 @@ DISPLAY OPTIONS
   --colo[u]r-scale           highlight levels of 'field' distinctly(all, age, size)
   --colo[u]r-scale-mode      use gradient or fixed colors in --color-scale (fixed, gradient)
   --icons=WHEN               when to display icons (always, auto, never)
+  --mime-types               determine file MIME types to better inform styling decisions (unix only)
   --no-quotes                don't quote file names with spaces
   --hyperlink                display entries as hyperlinks
   --absolute                 display entries with their absolute path (on, follow, off)
