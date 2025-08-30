@@ -493,6 +493,14 @@ impl FileNameColours for Theme {
             }
         }
 
+        if let Some(ref mime_overrides) = self.ui.mimetypes {
+            if let Some(mimetype) = file.mimetype() {
+                if let Some(file_override) = mime_overrides.get(mimetype) {
+                    return Some(*file_override);
+                }
+            }
+        }
+
         None
     }
 }

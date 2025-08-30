@@ -568,6 +568,7 @@ pub struct UiStylesOverride {
 
     pub filenames: Option<HashMap<String, FileNameStyleOverride>>,
     pub extensions: Option<HashMap<String, FileNameStyleOverride>>,
+    pub mimetypes: Option<HashMap<String, FileNameStyleOverride>>,
 }
 
 impl FromOverride<UiStylesOverride> for UiStyles {
@@ -603,6 +604,7 @@ impl FromOverride<UiStylesOverride> for UiStyles {
 
             filenames: FromOverride::from(value.filenames, default.filenames),
             extensions: FromOverride::from(value.extensions, default.extensions),
+            mimetypes: FromOverride::from(value.mimetypes, default.mimetypes),
         }
     }
 }
