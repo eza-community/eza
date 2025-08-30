@@ -411,10 +411,175 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "zig"        => FileType::Source, // Zig
 };
 
+const MIME_TYPES: Map<&'static str, FileType> = phf_map! {
+    /* Image files */
+    "application/jpg"                                           => FileType::Image,
+    "application/tiff"                                          => FileType::Image,
+    "application/tif"                                           => FileType::Image,
+    "application/x-jpg"                                         => FileType::Image,
+    "application/x-tiff"                                        => FileType::Image,
+    "application/x-tif"                                         => FileType::Image,
+    /* Video files */
+    "application/mp4"                                           => FileType::Video,
+    "application/x-matroska"                                    => FileType::Video,
+    "application/x-troff-msvideo"                               => FileType::Video,
+    /* Lossless music, rather than any other kind of data... */
+    "audio/aiff"                                                => FileType::Lossless,
+    "audio/flac"                                                => FileType::Lossless,
+    "audio/vnd.wave"                                            => FileType::Lossless,
+    "audio/wave"                                                => FileType::Lossless,
+    "audio/wav"                                                 => FileType::Lossless,
+    "audio/x-aiff"                                              => FileType::Lossless,
+    "audio/x-ape"                                               => FileType::Lossless,
+    "audio/x-flac"                                              => FileType::Lossless,
+    "audio/x-midi"                                              => FileType::Lossless,
+    "audio/x-ogg-flac"                                          => FileType::Lossless,
+    "audio/x-oggflac"                                           => FileType::Lossless,
+    "audio/x-ogg-pcm"                                           => FileType::Lossless,
+    "audio/x-oggpcm"                                            => FileType::Lossless,
+    "audio/x-pn-aiff"                                           => FileType::Lossless,
+    "audio/x-pn-wav"                                            => FileType::Lossless,
+    "audio/x-wav"                                               => FileType::Lossless,
+    /* Cryptology files */
+    "application/pgp-encrypted"                                 => FileType::Crypto,
+    "application/pgp"                                           => FileType::Crypto,
+    "application/pgp-keys"                                      => FileType::Crypto,
+    "application/pgp-signature"                                 => FileType::Crypto,
+    "application/pkcs10"                                        => FileType::Crypto,
+    "application/pkcs12"                                        => FileType::Crypto,
+    "application/pkcs7-mime"                                    => FileType::Crypto,
+    "application/pkcs7-signature"                               => FileType::Crypto,
+    "application/pkcs8-encrypted"                               => FileType::Crypto,
+    "application/pkcs8"                                         => FileType::Crypto,
+    "application/pkix-cert"                                     => FileType::Crypto,
+    "application/pkix-crl"                                      => FileType::Crypto,
+    "application/pkix-pkipath"                                  => FileType::Crypto,
+    "application/x-pem-file"                                    => FileType::Crypto,
+    "application/x-pkcs12"                                      => FileType::Crypto,
+    "application/x-pkcs7-certificates"                          => FileType::Crypto,
+    "application/x-pkcs7-certreqresp"                           => FileType::Crypto,
+    "application/x-pkcs8"                                       => FileType::Crypto,
+    "application/x-x509-ca-cert"                                => FileType::Crypto,
+    "application/x-x509-server-cert"                            => FileType::Crypto,
+    "application/x-x509-user-cert"                              => FileType::Crypto,
+    "text/x-ssh-private-key"                                    => FileType::Crypto,
+    "text/x-ssh-public-key"                                     => FileType::Crypto,
+    /* Document files */
+    "application/csv"                                           => FileType::Document,
+    "application/msword"                                        => FileType::Document,
+    "application/pdf"                                           => FileType::Document,
+    "application/vnd.apple.keynote"                             => FileType::Document,
+    "application/vnd.apple.numbers"                             => FileType::Document,
+    "application/vnd.apple.pages"                               => FileType::Document,
+    "application/vnd.ms-excel"                                  => FileType::Document,
+    "application/vnd.ms-outlook"                                => FileType::Document,
+    "application/vnd.ms-powerpoint"                             => FileType::Document,
+    "application/vnd.ms-word"                                   => FileType::Document,
+    "application/vnd.oasis.opendocument.base"                   => FileType::Document,
+    "application/vnd.oasis.opendocument.database"               => FileType::Document,
+    "application/vnd.oasis.opendocument.presentation"           => FileType::Document,
+    "application/vnd.oasis.opendocument.spreadsheet"            => FileType::Document,
+    "application/vnd.oasis.opendocument.text"                   => FileType::Document,
+    "application/vnd.openxmlformats"                            => FileType::Document,
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation"   => FileType::Document,
+    "application/vnd.openxmlformats-officedocument.presentationml.slide"          => FileType::Document,
+    "application/vnd.openxmlformats-officedocument.presentationml.slideshow"      => FileType::Document,
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"           => FileType::Document,
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"     => FileType::Document,
+    "application/x-csv"                                         => FileType::Document,
+    "application/x-pdf"                                         => FileType::Document,
+    "image/vnd.djvu"                                            => FileType::Document,
+    "image/x-djvu"                                              => FileType::Document,
+    "message/news"                                              => FileType::Document,
+    "message/rfc822"                                            => FileType::Document,
+    "message/x-emlx"                                            => FileType::Document,
+    "text/acrobat"                                              => FileType::Document,
+    "text/comma-separated-values"                               => FileType::Document,
+    "text/csv"                                                  => FileType::Document,
+    "text/pdf"                                                  => FileType::Document,
+    "text/tab-separated-values"                                 => FileType::Document,
+    "text/x-comma-separated-values"                             => FileType::Document,
+    "text/x-csv"                                                => FileType::Document,
+    "text/x-pdf"                                                => FileType::Document,
+    "text/x-tab-separated-values"                               => FileType::Document,
+    /* Compressed/archive files */
+    "application/vnd.bzip3"                                     => FileType::Compressed,
+    "application/vnd.rar"                                       => FileType::Compressed,
+    "application/x-7z-compressed"                               => FileType::Compressed,
+    "application/x-7z"                                          => FileType::Compressed,
+    "application/x-archive"                                     => FileType::Compressed,
+    "application/x-br"                                          => FileType::Compressed,
+    "application/x-bzip2"                                       => FileType::Compressed,
+    "application/x-bzip3"                                       => FileType::Compressed,
+    "application/x-bzip"                                        => FileType::Compressed,
+    "application/x-lrzip"                                       => FileType::Compressed,
+    "application/x-lz4"                                         => FileType::Compressed,
+    "application/x-lz4+json"                                    => FileType::Compressed,
+    "application/x-lzh-compressed"                              => FileType::Compressed,
+    "application/x-lzip"                                        => FileType::Compressed,
+    "application/x-lzma"                                        => FileType::Compressed,
+    "application/x-rar-compressed"                              => FileType::Compressed,
+    "application/x-rar"                                         => FileType::Compressed,
+    "application/x-tar"                                         => FileType::Compressed,
+    "application/x-xar"                                         => FileType::Compressed,
+    "application/x-xz"                                          => FileType::Compressed,
+    "application/x-zip-compressed"                              => FileType::Compressed,
+    "application/zip"                                           => FileType::Compressed,
+    "application/zlib"                                          => FileType::Compressed,
+    "application/zstd"                                          => FileType::Compressed,
+    /* Source code files */
+    "application/x-perl"                                        => FileType::Source,
+    "application/x-php"                                         => FileType::Source,
+    "application/x-ruby"                                        => FileType::Source,
+    "text/javascript"                                           => FileType::Source,
+    "text/x-asm"                                                => FileType::Source,
+    "text/x-assembly"                                           => FileType::Source,
+    "text/x-awk"                                                => FileType::Source,
+    "text/x-c"                                                  => FileType::Source,
+    "text/x-c++hdr"                                             => FileType::Source,
+    "text/x-chdr"                                               => FileType::Source,
+    "text/x-clojure"                                            => FileType::Source,
+    "text/x-csharp"                                             => FileType::Source,
+    "text/x-c++src"                                             => FileType::Source,
+    "text/x-csrc"                                               => FileType::Source,
+    "text/x-d"                                                  => FileType::Source,
+    "text/x-fortran"                                            => FileType::Source,
+    "text/x-gdscript"                                           => FileType::Source,
+    "text/x-go"                                                 => FileType::Source,
+    "text/x-haskell"                                            => FileType::Source,
+    "text/x-java"                                               => FileType::Source,
+    "text/x-java-source"                                        => FileType::Source,
+    "text/x-kotlin"                                             => FileType::Source,
+    "text/x-lisp"                                               => FileType::Source,
+    "text/x-lua"                                                => FileType::Source,
+    "text/x-objective-c"                                        => FileType::Source,
+    "text/x-perl"                                               => FileType::Source,
+    "text/x-php"                                                => FileType::Source,
+    "text/x-python3"                                            => FileType::Source,
+    "text/x-python"                                             => FileType::Source,
+    "text/x-ruby"                                               => FileType::Source,
+    "text/x-rust"                                               => FileType::Source,
+    "text/x-scala"                                              => FileType::Source,
+    "text/x-script.python"                                      => FileType::Source,
+    "text/x-sql"                                                => FileType::Source,
+    "text/x-tex"                                                => FileType::Source,
+    "text/x-typescript"                                         => FileType::Source,
+    "text/x-typst"                                              => FileType::Source,
+    "text/x-verilog"                                            => FileType::Source,
+    "text/x-vhdl"                                               => FileType::Source,
+    "text/x-zig"                                                => FileType::Source,
+};
+
+const MIME_WILDCARD_TYPES: Map<&'static str, FileType> = phf_map! {
+    "image" => FileType::Image,
+    "video" => FileType::Video,
+    "audio" => FileType::Music,
+};
+
 impl FileType {
     /// Lookup the file type based on the file's name, by the file name
-    /// lowercase extension, or if the file could be compiled from related
-    /// source code.
+    /// lowercase extension, by the MIME type of the file, or if the file
+    /// could be compiled from related source code.
     pub(crate) fn get_file_type(file: &File<'_>) -> Option<FileType> {
         // Case-insensitive readme is checked first for backwards compatibility.
         if file.name.to_lowercase().starts_with("readme") {
@@ -425,6 +590,17 @@ impl FileType {
         }
         if let Some(file_type) = file.ext.as_ref().and_then(|ext| EXTENSION_TYPES.get(ext)) {
             return Some(file_type.clone());
+        }
+        if let Some(mimetype) = file.mimetype() {
+            if let Some(file_type) = MIME_TYPES.get(mimetype) {
+                return Some(file_type.clone());
+            }
+            if let Some(file_type) = mimetype
+                .split_once('/')
+                .and_then(|(mime, _)| MIME_WILDCARD_TYPES.get(mime))
+            {
+                return Some(file_type.clone());
+            }
         }
         if file.name.ends_with('~') || (file.name.starts_with('#') && file.name.ends_with('#')) {
             return Some(Self::Temp);

@@ -53,6 +53,8 @@ static DIRECTORY_SIZE_CACHE: LazyLock<Mutex<HashMap<(u64, u64), (u64, u64)>>> =
 /// once, have its file extension extracted at least once, and have its metadata
 /// information queried at least once, so it makes sense to do all this at the
 /// start and hold on to all the information.
+#[allow(clippy::struct_excessive_bools)]
+#[derive(Default)]
 pub struct File<'dir> {
     /// The filename portion of this file’s path, including the extension.
     ///
@@ -108,6 +110,16 @@ pub struct File<'dir> {
     /// instead.
     pub deref_links: bool,
 
+    /// Whether to read the file contents to determine MIME type.
+    pub mime_read_contents: bool,
+
+    /// The cached MIME type of the file.
+    ///
+    /// Value is in the form of `type/subtype` or `None` if the file is not
+    /// a regular file, could not be read or this functionality is otherwise
+    /// disabled, such as on non-Unix platforms.
+    mimetype: OnceLock<Option<&'static str>>,
+
     /// The recursive directory size when `total_size` is used.
     recursive_size: RecursiveSize,
 
@@ -125,6 +137,7 @@ impl<'dir> File<'dir> {
         filename: FN,
         deref_links: bool,
         total_size: bool,
+        mime_read_contents: bool,
         filetype: Option<std::fs::FileType>,
     ) -> File<'dir>
     where
@@ -155,14 +168,13 @@ impl<'dir> File<'dir> {
             name,
             ext,
             path,
+            filetype,
             parent_dir,
             is_all_all,
             deref_links,
+            mime_read_contents,
             recursive_size,
-            filetype,
-            metadata: OnceLock::new(),
-            extended_attributes: OnceLock::new(),
-            absolute_path: OnceLock::new(),
+            ..Default::default()
         };
 
         if total_size {
@@ -194,12 +206,8 @@ impl<'dir> File<'dir> {
             path,
             parent_dir,
             is_all_all,
-            deref_links: false,
             recursive_size,
-            metadata: OnceLock::new(),
-            absolute_path: OnceLock::new(),
-            extended_attributes: OnceLock::new(),
-            filetype: OnceLock::new(),
+            ..Default::default()
         };
 
         if total_size {
@@ -275,6 +283,34 @@ impl<'dir> File<'dir> {
         self.filetype
             .get_or_init(|| self.metadata().as_ref().ok().map(|md| md.file_type()))
             .as_ref()
+    }
+
+    /// The cached MIME type of the file.
+    ///
+    /// Value is in the form of `type/subtype` or `None` if the file is not
+    /// a regular file, could not be read or this functionality is otherwise
+    /// disabled, such as on non-Unix platforms.
+    #[cfg(unix)]
+    pub fn mimetype(&self) -> Option<&'static str> {
+        *self.mimetype.get_or_init(|| {
+            if let Some(filetype) = self.filetype() {
+                if filetype.is_file()
+                    && self.mime_read_contents
+                {
+                    debug!("Mimetype reading file {:?}", &self.path);
+                    return tree_magic_mini::from_filepath(&self.path)
+                        .inspect(|mimetype| {
+                            debug!("Mimetype {:?} file {:?}", mimetype, &self.path);
+                        });
+                }
+            }
+            None
+        })
+    }
+
+    #[cfg(not(unix))]
+    pub fn mimetype(&self) -> Option<&'static str> {
+        None
     }
 
     pub fn metadata(&self) -> Result<&std::fs::Metadata, &io::Error> {
@@ -473,10 +509,13 @@ impl<'dir> File<'dir> {
                     name,
                     is_all_all: false,
                     deref_links: self.deref_links,
+                    mime_read_contents: self.mime_read_contents,
                     extended_attributes,
                     absolute_path: absolute_path_cell,
                     recursive_size: RecursiveSize::None,
+                    ..Default::default()
                 };
+
                 FileTarget::Ok(Box::new(file))
             }
             Err(e) => {
@@ -658,7 +697,7 @@ impl<'dir> File<'dir> {
             Dir::read_dir(self.path.clone()).map_or(RecursiveSize::Unknown, |dir| {
                 let mut size = 0;
                 let mut blocks = 0;
-                for file in dir.files(super::DotFilter::Dotfiles, None, false, false, true) {
+                for file in dir.files(super::DotFilter::Dotfiles, None, false, false, true, false) {
                     match file.recursive_directory_size() {
                         RecursiveSize::Some(bytes, blks) => {
                             size += bytes;
@@ -759,7 +798,7 @@ impl<'dir> File<'dir> {
         match Dir::read_dir(self.path.clone()) {
             // . & .. are skipped, if the returned iterator has .next(), it's not empty
             Ok(has_files) => has_files
-                .files(super::DotFilter::Dotfiles, None, false, false, false)
+                .files(super::DotFilter::Dotfiles, None, false, false, false, false)
                 .next()
                 .is_none(),
             Err(_) => false,

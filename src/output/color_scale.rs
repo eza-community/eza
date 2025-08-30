@@ -170,7 +170,7 @@ fn update_information_recursively(
             match file.read_dir() {
                 Ok(dir) => {
                     let files: Vec<File<'_>> = dir
-                        .files(dot_filter, git, git_ignoring, false, false)
+                        .files(dot_filter, git, git_ignoring, false, false, false)
                         .collect();
 
                     update_information_recursively(

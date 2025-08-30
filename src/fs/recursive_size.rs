@@ -7,9 +7,10 @@
 /// Used to represent a the size of a recursive directory traversal.  `None`
 /// should be used when the file does not represent a directory or the recursive
 /// size should not be calculated.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Default)]
 pub enum RecursiveSize {
     /// Size should not be computed
+    #[default]
     None,
     /// Size should be computed but has not been computed yet
     Unknown,

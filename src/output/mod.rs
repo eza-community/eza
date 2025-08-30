@@ -24,6 +24,7 @@ mod escape;
 mod tree;
 
 /// The **view** contains all information about how to format output.
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Debug)]
 pub struct View {
     pub mode: Mode,
@@ -32,6 +33,7 @@ pub struct View {
     pub deref_links: bool,
     pub follow_links: bool,
     pub total_size: bool,
+    pub mime_read_contents: bool,
 }
 
 /// The **mode** is the “type” of output.

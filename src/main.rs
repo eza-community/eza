@@ -266,6 +266,7 @@ impl Exa<'_> {
                 None,
                 self.options.view.deref_links,
                 self.options.view.total_size,
+                self.options.view.mime_read_contents,
                 None,
             );
 
@@ -359,6 +360,7 @@ impl Exa<'_> {
                 git_ignore,
                 self.options.view.deref_links,
                 self.options.view.total_size,
+                self.options.view.mime_read_contents,
             ) {
                 children.push(file);
             }

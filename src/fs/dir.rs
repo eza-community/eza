@@ -76,6 +76,7 @@ impl Dir {
 
     /// Produce an iterator of IO results of trying to read all the files in
     /// this directory.
+    #[allow(clippy::fn_params_excessive_bools)]
     #[must_use]
     pub fn files<'dir, 'ig>(
         &'dir self,
@@ -84,6 +85,7 @@ impl Dir {
         git_ignoring: bool,
         deref_links: bool,
         total_size: bool,
+        mime_read_contents: bool,
     ) -> Files<'dir, 'ig> {
         Files {
             inner: self.contents.iter(),
@@ -94,6 +96,7 @@ impl Dir {
             git_ignoring,
             deref_links,
             total_size,
+            mime_read_contents,
         }
     }
 
@@ -135,6 +138,9 @@ pub struct Files<'dir, 'ig> {
 
     /// Whether to calculate the directory size recursively
     total_size: bool,
+
+    /// Whether to read the file contents to determine MIME type.
+    mime_read_contents: bool,
 }
 
 impl<'dir> Files<'dir, '_> {
@@ -178,6 +184,7 @@ impl<'dir> Files<'dir, '_> {
                     filename,
                     self.deref_links,
                     self.total_size,
+                    self.mime_read_contents,
                     entry.file_type().ok(),
                 );
 
