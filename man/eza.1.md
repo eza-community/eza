@@ -120,6 +120,13 @@ When used without a value, defaults to ‘`automatic`’.
 
 `automatic` or `auto` will display icons only when the standard output is connected to a real terminal. If `eza` is ran while in a `tty`, or the output of `eza` is either redirected to a file or piped into another program, icons will not be used. Setting this option to ‘`always`’ causes `eza` to always display icons, while ‘`never`’ disables the use of icons.
 
+`--mime-types`
+: Determine file MIME types to better inform styling decisions (unix only).
+
+File extensions and names take priority in deciding styling. If this option is enabled, it will only be used as a fallback if the type of file cannot be determined otherwise. Depending on context this could be an expensive operation, hence it is disabled by default.
+
+The required magic database is loaded dynamically at runtime. The searched paths include `$XDG_DATA_DIRS/mime` or `/usr/local/share/mime:/usr/share/mime` if the `XDG_DATA_DIRS` env variable is not set, and `$XDG_DATA_HOME/mime` or `$HOME/.local/share/mime` if the `XDG_DATA_HOME` env variable is not set. If the `TREE_MAGIC_DIR` env variable is set, only that path will be searched. If multiple magic databases are found, they will be automatically accumulated.
+
 `--no-quotes`
 : Don't quote file names with spaces.
 
@@ -357,6 +364,10 @@ Specifies the minimum luminance to use when color-scale is active. It's value ca
 If set, automates the same behavior as using `--icons` or `--icons=auto`. Useful for if you always want to have icons enabled.
 
 Any explicit use of the `--icons=WHEN` flag overrides this behavior.
+
+## `EZA_MIME_TYPES`
+
+If set, automates the same behavior as using `--mime-types`.
 
 ## `EZA_STDIN_SEPARATOR`
 
