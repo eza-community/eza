@@ -17,15 +17,13 @@ pub enum FilesInput {
 
 impl FilesInput {
     pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        Ok(
-            if matches.has(&flags::STDIN)? {
-                let separator = vars
-                    .get(EZA_STDIN_SEPARATOR)
-                    .unwrap_or(OsString::from("\n"));
-                FilesInput::Stdin(separator)
-            } else {
-                FilesInput::Args
-            },
-        )
+        Ok(if matches.has(&flags::STDIN)? {
+            let separator = vars
+                .get(EZA_STDIN_SEPARATOR)
+                .unwrap_or(OsString::from("\n"));
+            FilesInput::Stdin(separator)
+        } else {
+            FilesInput::Args
+        })
     }
 }
