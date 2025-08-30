@@ -294,14 +294,11 @@ impl<'dir> File<'dir> {
     pub fn mimetype(&self) -> Option<&'static str> {
         *self.mimetype.get_or_init(|| {
             if let Some(filetype) = self.filetype() {
-                if filetype.is_file()
-                    && self.mime_read_contents
-                {
+                if filetype.is_file() && self.mime_read_contents {
                     debug!("Mimetype reading file {:?}", &self.path);
-                    return tree_magic_mini::from_filepath(&self.path)
-                        .inspect(|mimetype| {
-                            debug!("Mimetype {:?} file {:?}", mimetype, &self.path);
-                        });
+                    return tree_magic_mini::from_filepath(&self.path).inspect(|mimetype| {
+                        debug!("Mimetype {:?} file {:?}", mimetype, &self.path);
+                    });
                 }
             }
             None

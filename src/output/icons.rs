@@ -1310,7 +1310,8 @@ pub fn icon_for_file(file: &File<'_>) -> char {
     if let Some(icon) = FILENAME_ICONS.get(file.name.as_str()) {
         return *icon;
     }
-    if let Some(icon) = file.ext
+    if let Some(icon) = file
+        .ext
         .as_ref()
         .and_then(|ext| EXTENSION_ICONS.get(ext.as_str()))
     {
@@ -1328,7 +1329,7 @@ pub fn icon_for_file(file: &File<'_>) -> char {
         }
     }
     if file.ext.is_some() {
-        return Icons::FILE // 
+        return Icons::FILE; // 
     }
 
     Icons::FILE_UNKNOW // 󰡯
