@@ -116,8 +116,8 @@ pub struct File<'dir> {
     /// The cached MIME type of the file.
     ///
     /// Value is in the form of `type/subtype` or `None` if the file is not
-    /// a regular file, could not be read or this functionality is otherwise
-    /// disabled, such as on non-Unix platforms.
+    /// a regular file, could not be read or this functionality is disabled.
+    #[cfg(unix)]
     mimetype: OnceLock<Option<&'static str>>,
 
     /// The recursive directory size when `total_size` is used.
@@ -476,6 +476,7 @@ impl<'dir> File<'dir> {
     /// For a broken symlink, returns where the file *would* be, if it
     /// existed. If this file cannot be read at all, returns the error that
     /// we got when we tried to read it.
+    #[allow(clippy::needless_update)]
     pub fn link_target(&self) -> FileTarget<'dir> {
         // We need to be careful to treat the path actually pointed to by
         // this file — which could be absolute or relative — to the path
