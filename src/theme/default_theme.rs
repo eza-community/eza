@@ -141,6 +141,7 @@ impl Default for UiStyles {
 
             filenames: None,
             extensions: None,
+            mimetypes: None,
         }
     }
 }

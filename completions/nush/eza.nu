@@ -16,6 +16,7 @@ export extern "eza" [
     --color-scale-mode         # Use gradient or fixed colors in --color-scale
     --colour-scale-mode        # Use gradient or fixed colors in --colour-scale
     --icons                    # When to display icons
+    --mime-types               # Determine file MIME types to better inform styling decisions
     --no-quotes                # Don't quote file names with spaces
     --hyperlink                # Display entries as hyperlinks
     --absolute                 # Display entries with their absolute path

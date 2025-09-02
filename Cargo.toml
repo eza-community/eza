@@ -121,6 +121,7 @@ proc-mounts = "0.3"
 
 [target.'cfg(unix)'.dependencies]
 uzers = "0.12.1"
+tree_magic_mini = "3.2.0"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 windows-sys = { version = "0.60.2", features = [

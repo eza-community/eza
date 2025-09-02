@@ -73,6 +73,7 @@ impl Icons {
     const LANG_ARDUINO: char    = '\u{f34b}';  // 
     const LANG_ASSEMBLY: char   = '\u{e637}';  // 
     const LANG_C: char          = '\u{e61e}';  // 
+    const LANG_CLOJURE: char    = '\u{e768}';  // 
     const LANG_CPP: char        = '\u{e61d}';  // 
     const LANG_CSHARP: char     = '\u{f031b}'; // 󰌛
     const LANG_D: char          = '\u{e7af}';  // 
@@ -89,6 +90,7 @@ impl Icons {
     const LANG_JAVA: char       = '\u{e256}';  // 
     const LANG_JAVASCRIPT: char = '\u{e74e}';  // 
     const LANG_KOTLIN: char     = '\u{e634}';  // 
+    const LANG_LISP: char       = '\u{e6b0}';  // 
     const LANG_LUA: char        = '\u{e620}';  // 
     const LANG_NIM: char        = '\u{e677}';  // 
     const LANG_OCAML: char      = '\u{e67a}';  // 
@@ -100,15 +102,18 @@ impl Icons {
     const LANG_RUBYRAILS: char  = '\u{e73b}';  // 
     const LANG_RUST: char       = '\u{e68b}';  // 
     const LANG_SASS: char       = '\u{e603}';  // 
+    const LANG_SCALA: char      = '\u{e737}';  // 
     const LANG_SCHEME: char     = '\u{e6b1}';  // 
     const LANG_STYLUS: char     = '\u{e600}';  // 
     const LANG_TEX: char        = '\u{e69b}';  // 
     const LANG_TYPESCRIPT: char = '\u{e628}';  // 
     const LANG_V: char          = '\u{e6ac}';  // 
+    const LANG_ZIG: char        = '\u{e6a9}';  // 
     const LIBRARY: char         = '\u{eb9c}';  // 
     const LICENSE: char         = '\u{f02d}';  // 
     const LOCK: char            = '\u{f023}';  // 
     const LOG: char             = '\u{f18d}';  // 
+    const MAIL: char            = '\u{f003}';  // 
     const MAKE: char            = '\u{e673}';  // 
     const MARKDOWN: char        = '\u{f48a}';  // 
     const MUSTACHE: char        = '\u{e60f}';  // 
@@ -121,6 +126,7 @@ impl Icons {
     const OS_LINUX: char        = '\u{f17c}';  // 
     const OS_WINDOWS: char      = '\u{f17a}';  // 
     const OS_WINDOWS_CMD: char  = '\u{ebc4}';  // 
+    const PDF: char             = '\u{f1c1}';  // 
     const PLAYLIST: char        = '\u{f0cb9}'; // 󰲹
     const POWERSHELL: char      = '\u{ebc7}';  // 
     const PRIVATE_KEY: char     = '\u{f0306}'; // 󰌆
@@ -547,8 +553,8 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "cfg"            => Icons::CONFIG,           // 󱁻
     "cjs"            => Icons::LANG_JAVASCRIPT,  // 
     "class"          => Icons::LANG_JAVA,        // 
-    "clj"            => '\u{e768}',              // 
-    "cljc"           => '\u{e768}',              // 
+    "clj"            => Icons::LANG_CLOJURE,     // 
+    "cljc"           => Icons::LANG_CLOJURE,     // 
     "cljs"           => '\u{e76a}',              // 
     "cls"            => Icons::LANG_TEX,         // 
     "cmake"          => '\u{e794}',              // 
@@ -613,7 +619,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "elc"            => Icons::EMACS,            // 
     "elf"            => Icons::BINARY,           // 
     "elm"            => '\u{e62c}',              // 
-    "eml"            => '\u{f003}',              // 
+    "eml"            => Icons::MAIL,             // 
     "env"            => '\u{f462}',              // 
     "eot"            => Icons::FONT,             // 
     "eps"            => Icons::VECTOR,           // 󰕙
@@ -786,7 +792,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "lhs"            => Icons::LANG_HASKELL,     // 
     "lib"            => Icons::LIBRARY,          // 
     "license"        => Icons::LICENSE,          // 
-    "lisp"           => '\u{f0172}',             // 󰅲
+    "lisp"           => Icons::LANG_LISP,        // 
     "localized"      => Icons::OS_APPLE,         // 
     "lock"           => Icons::LOCK,             // 
     "log"            => Icons::LOG,              // 
@@ -873,7 +879,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "pbm"            => Icons::IMAGE,            // 
     "pcbdoc"         => Icons::EDA_PCB,          // 
     "pcm"            => Icons::AUDIO,            // 
-    "pdf"            => '\u{f1c1}',              // 
+    "pdf"            => Icons::PDF,              // 
     "pem"            => Icons::KEY,              // 
     "pfx"            => Icons::KEY,              // 
     "pgm"            => Icons::IMAGE,            // 
@@ -958,7 +964,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "sass"           => Icons::LANG_SASS,        // 
     "sbt"            => Icons::SUBTITLE,         // 󰨖
     "scad"           => '\u{f34e}',              // 
-    "scala"          => '\u{e737}',              // 
+    "scala"          => Icons::LANG_SCALA,       // 
     "scm"            => Icons::LANG_SCHEME,      // 
     "sch"            => Icons::EDA_SCH,          // 󰭅
     "schdoc"         => Icons::EDA_SCH,          // 󰭅
@@ -1099,12 +1105,178 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "yaml"           => Icons::YAML,             // 
     "yml"            => Icons::YAML,             // 
     "z"              => Icons::COMPRESSED,       // 
-    "zig"            => '\u{e6a9}',              // 
+    "zig"            => Icons::LANG_ZIG,         // 
     "zip"            => Icons::COMPRESSED,       // 
     "zsh"            => Icons::SHELL_CMD,        // 
     "zsh-theme"      => Icons::SHELL,            // 󱆃
     "zst"            => Icons::COMPRESSED,       // 
     "z64"            => '\u{f1393}',             // 󱎓
+};
+
+const MIME_ICONS: Map<&'static str, char> = phf_map! {
+    "application/csv"                                           => Icons::SHEET,            // 
+    "application/java-archive"                                  => Icons::LANG_JAVA,        // 
+    "application/jpg"                                           => Icons::IMAGE,            // 
+    "application/json"                                          => Icons::JSON,             // 
+    "application/mp4"                                           => Icons::VIDEO,            // 
+    "application/msword"                                        => Icons::DOCUMENT,         // 
+    "application/octet-stream"                                  => Icons::BINARY,           // 
+    "application/pdf"                                           => Icons::PDF,              // 
+    "application/pgp-encrypted"                                 => Icons::GIST_SECRET,      // 
+    "application/pgp"                                           => Icons::GIST_SECRET,      // 
+    "application/pgp-keys"                                      => Icons::KEY,              // 
+    "application/pgp-signature"                                 => Icons::KEY,              // 
+    "application/pkcs10"                                        => Icons::KEY,              // 
+    "application/pkcs12"                                        => Icons::KEY,              // 
+    "application/pkcs7-mime"                                    => Icons::KEY,              // 
+    "application/pkcs7-signature"                               => Icons::KEY,              // 
+    "application/pkcs8-encrypted"                               => Icons::GIST_SECRET,      // 
+    "application/pkcs8"                                         => Icons::KEY,              // 
+    "application/pkix-cert"                                     => Icons::GIST_SECRET,      // 
+    "application/pkix-crl"                                      => Icons::KEY,              // 
+    "application/pkix-pkipath"                                  => Icons::KEY,              // 
+    "application/tiff"                                          => Icons::IMAGE,            // 
+    "application/tif"                                           => Icons::IMAGE,            // 
+    "application/vnd.apple.keynote"                             => Icons::SLIDE,            // 
+    "application/vnd.apple.numbers"                             => Icons::SHEET,            // 
+    "application/vnd.apple.pages"                               => Icons::DOCUMENT,         // 
+    "application/vnd.bzip3"                                     => Icons::COMPRESSED,       // 
+    "application/vnd.microsoft.portable-executable"             => Icons::BINARY,           // 
+    "application/vnd.ms-excel"                                  => Icons::SHEET,            // 
+    "application/vnd.ms-outlook"                                => Icons::MAIL,             // 
+    "application/vnd.ms-powerpoint"                             => Icons::SLIDE,            // 
+    "application/vnd.ms-word"                                   => Icons::DOCUMENT,         // 
+    "application/vnd.oasis.opendocument.base"                   => Icons::DATABASE,         // 
+    "application/vnd.oasis.opendocument.database"               => Icons::DATABASE,         // 
+    "application/vnd.oasis.opendocument.presentation"           => Icons::SLIDE,            // 
+    "application/vnd.oasis.opendocument.spreadsheet"            => Icons::SHEET,            // 
+    "application/vnd.oasis.opendocument.text"                   => Icons::DOCUMENT,         // 
+    "application/vnd.openxmlformats"                            => Icons::DOCUMENT,         // 
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation"   => Icons::SLIDE,      // 
+    "application/vnd.openxmlformats-officedocument.presentationml.slide"          => Icons::SLIDE,      // 
+    "application/vnd.openxmlformats-officedocument.presentationml.slideshow"      => Icons::SLIDE,      // 
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"           => Icons::SHEET,      // 
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"     => Icons::DOCUMENT,   // 
+    "application/vnd.rar"                                       => Icons::COMPRESSED,       // 
+    "application/x-7z-compressed"                               => Icons::COMPRESSED,       // 
+    "application/x-7z"                                          => Icons::COMPRESSED,       // 
+    "application/x-archive"                                     => Icons::COMPRESSED,       // 
+    "application/x-br"                                          => Icons::COMPRESSED,       // 
+    "application/x-bzip2"                                       => Icons::COMPRESSED,       // 
+    "application/x-bzip3"                                       => Icons::COMPRESSED,       // 
+    "application/x-bzip"                                        => Icons::COMPRESSED,       // 
+    "application/x-coff-executable"                             => Icons::BINARY,           // 
+    "application/x-coff"                                        => Icons::BINARY,           // 
+    "application/x-csh"                                         => Icons::SHELL_CMD,        // 
+    "application/x-csv"                                         => Icons::SHEET,            // 
+    "application/x-executable"                                  => Icons::BINARY,           // 
+    "application/x-java-jce-keystore"                           => Icons::KEY,              // 
+    "application/x-java-keystore"                               => Icons::KEY,              // 
+    "application/x-jpg"                                         => Icons::IMAGE,            // 
+    "application/x-lrzip"                                       => Icons::COMPRESSED,       // 
+    "application/x-lx-executable"                               => Icons::BINARY,           // 
+    "application/x-lz4"                                         => Icons::COMPRESSED,       // 
+    "application/x-lz4+json"                                    => Icons::COMPRESSED,       // 
+    "application/x-lzh-compressed"                              => Icons::COMPRESSED,       // 
+    "application/x-lzip"                                        => Icons::COMPRESSED,       // 
+    "application/x-lzma"                                        => Icons::COMPRESSED,       // 
+    "application/x-matroska"                                    => Icons::VIDEO,            // 
+    "application/xml"                                           => Icons::XML,              // 󰗀
+    "application/x-ms-ne-executable"                            => Icons::BINARY,           // 
+    "application/x-object"                                      => Icons::BINARY,           // 
+    "application/x-pdf"                                         => Icons::PDF,              // 
+    "application/x-pem-file"                                    => Icons::KEY,              // 
+    "application/x-perl"                                        => Icons::LANG_PERL,        // 
+    "application/x-php"                                         => Icons::LANG_PHP,         // 
+    "application/x-pie-executable"                              => Icons::BINARY,           // 
+    "application/x-pkcs12"                                      => Icons::KEY,              // 
+    "application/x-pkcs7-certificates"                          => Icons::GIST_SECRET,      // 
+    "application/x-pkcs7-certreqresp"                           => Icons::KEY,              // 
+    "application/x-pkcs8"                                       => Icons::KEY,              // 
+    "application/x-rar-compressed"                              => Icons::COMPRESSED,       // 
+    "application/x-rar"                                         => Icons::COMPRESSED,       // 
+    "application/x-ruby"                                        => Icons::LANG_RUBY,        // 
+    "application/x-sharedlib"                                   => Icons::BINARY,           // 
+    "application/x-shellscript"                                 => Icons::SHELL_CMD,        // 
+    "application/x-tar"                                         => Icons::COMPRESSED,       // 
+    "application/x-tiff"                                        => Icons::IMAGE,            // 
+    "application/x-tif"                                         => Icons::IMAGE,            // 
+    "application/x-troff-msvideo"                               => Icons::VIDEO,            // 
+    "application/x-x509-ca-cert"                                => Icons::GIST_SECRET,      // 
+    "application/x-x509-server-cert"                            => Icons::GIST_SECRET,      // 
+    "application/x-x509-user-cert"                              => Icons::GIST_SECRET,      // 
+    "application/x-xar"                                         => Icons::COMPRESSED,       // 
+    "application/x-xz"                                          => Icons::COMPRESSED,       // 
+    "application/x-zip-compressed"                              => Icons::COMPRESSED,       // 
+    "application/yaml"                                          => Icons::YAML,             // 
+    "application/zip"                                           => Icons::COMPRESSED,       // 
+    "application/zlib"                                          => Icons::COMPRESSED,       // 
+    "application/zstd"                                          => Icons::COMPRESSED,       // 
+    "image/vnd.djvu"                                            => Icons::DOCUMENT,         // 
+    "image/x-djvu"                                              => Icons::DOCUMENT,         // 
+    "message/news"                                              => Icons::MAIL,             // 
+    "message/rfc822"                                            => Icons::MAIL,             // 
+    "message/x-emlx"                                            => Icons::MAIL,             // 
+    "text/acrobat"                                              => Icons::PDF,              // 
+    "text/comma-separated-values"                               => Icons::SHEET,            // 
+    "text/csv"                                                  => Icons::SHEET,            // 
+    "text/javascript"                                           => Icons::LANG_JAVASCRIPT,  // 
+    "text/markdown"                                             => Icons::MARKDOWN,         // 
+    "text/pdf"                                                  => Icons::PDF,              // 
+    "text/tab-separated-values"                                 => Icons::SHEET,            // 
+    "text/x-asm"                                                => Icons::LANG_ASSEMBLY,    // 
+    "text/x-assembly"                                           => Icons::LANG_ASSEMBLY,    // 
+    "text/x-awk"                                                => Icons::SHELL_CMD,        // 
+    "text/x-chdr"                                               => Icons::LANG_C,           // 
+    "text/x-c++hdr"                                             => Icons::LANG_CPP,         // 
+    "text/x-c"                                                  => Icons::LANG_C,           // 
+    "text/x-clojure"                                            => Icons::LANG_CLOJURE,     // 
+    "text/x-comma-separated-values"                             => Icons::SHEET,            // 
+    "text/x-csharp"                                             => Icons::LANG_CSHARP,      // 󰌛
+    "text/x-csrc"                                               => Icons::LANG_C,           // 
+    "text/x-c++src"                                             => Icons::LANG_CPP,         // 
+    "text/x-csv"                                                => Icons::SHEET,            // 
+    "text/x-d"                                                  => Icons::LANG_D,           // 
+    "text/x-fortran"                                            => Icons::LANG_FORTRAN,     // 󱈚
+    "text/x-gdscript"                                           => Icons::GODOT,            // 
+    "text/x-go"                                                 => Icons::LANG_GO,          // 
+    "text/x-haskell"                                            => Icons::LANG_HASKELL,     // 
+    "text/x-java"                                               => Icons::LANG_JAVA,        // 
+    "text/x-java-source"                                        => Icons::LANG_JAVA,        // 
+    "text/x-kotlin"                                             => Icons::LANG_KOTLIN,      // 
+    "text/x-lisp"                                               => Icons::LANG_LISP,        // 
+    "text/x-lua"                                                => Icons::LANG_LUA,         // 
+    "text/x-markdown"                                           => Icons::MARKDOWN,         // 
+    "text/xml"                                                  => Icons::XML,              // 󰗀
+    "text/x-objective-c"                                        => Icons::LANG_C,           // 
+    "text/x-pdf"                                                => Icons::PDF,              // 
+    "text/x-perl"                                               => Icons::LANG_PERL,        // 
+    "text/x-php"                                                => Icons::LANG_PHP,         // 
+    "text/x-python3"                                            => Icons::LANG_PYTHON,      // 
+    "text/x-python"                                             => Icons::LANG_PYTHON,      // 
+    "text/x-ruby"                                               => Icons::LANG_RUBY,        // 
+    "text/x-rust"                                               => Icons::LANG_RUST,        // 
+    "text/x-scala"                                              => Icons::LANG_SCALA,       // 
+    "text/x-script.python"                                      => Icons::LANG_PYTHON,      // 
+    "text/x-shellscript"                                        => Icons::SHELL_CMD,        // 
+    "text/x-sql"                                                => Icons::DATABASE,         // 
+    "text/x-ssh-private-key"                                    => Icons::KEY,              // 
+    "text/x-ssh-public-key"                                     => Icons::KEY,              // 
+    "text/x-tab-separated-values"                               => Icons::SHEET,            // 
+    "text/x-tex"                                                => Icons::LANG_TEX,         // 
+    "text/x-typescript"                                         => Icons::LANG_TYPESCRIPT,  // 
+    "text/x-typst"                                              => Icons::TYPST,            // 
+    "text/x-verilog"                                            => Icons::LANG_HDL,         // 󰍛
+    "text/x-vhdl"                                               => Icons::LANG_HDL,         // 󰍛
+    "text/x-zig"                                                => Icons::LANG_ZIG,         // 
+};
+
+const MIME_WILDCARD_ICONS: Map<&'static str, char> = phf_map! {
+    "image"          => Icons::IMAGE,            // 
+    "video"          => Icons::VIDEO,            // 
+    "audio"          => Icons::AUDIO,            // 
+    "text"           => Icons::TEXT,             // 
+    "font"           => Icons::FONT,             // 
 };
 
 /// Converts the style used to paint a file name into the style that should be
@@ -1127,18 +1299,38 @@ pub fn iconify_style(style: Style) -> Style {
 /// directory, or by the lowercase file extension.
 pub fn icon_for_file(file: &File<'_>) -> char {
     if file.points_to_directory() {
-        *DIRECTORY_ICONS.get(file.name.as_str()).unwrap_or_else(|| {
+        return *DIRECTORY_ICONS.get(file.name.as_str()).unwrap_or_else(|| {
             if file.is_empty_dir() {
                 &Icons::FOLDER_OPEN // 
             } else {
                 &Icons::FOLDER // 
             }
-        })
-    } else if let Some(icon) = FILENAME_ICONS.get(file.name.as_str()) {
-        *icon
-    } else if let Some(ext) = file.ext.as_ref() {
-        *EXTENSION_ICONS.get(ext.as_str()).unwrap_or(&Icons::FILE) // 
-    } else {
-        Icons::FILE_UNKNOW // 󰡯
+        });
     }
+    if let Some(icon) = FILENAME_ICONS.get(file.name.as_str()) {
+        return *icon;
+    }
+    if let Some(icon) = file
+        .ext
+        .as_ref()
+        .and_then(|ext| EXTENSION_ICONS.get(ext.as_str()))
+    {
+        return *icon;
+    }
+    if let Some(mimetype) = file.mimetype() {
+        if let Some(icon) = MIME_ICONS.get(mimetype) {
+            return *icon;
+        }
+        if let Some(icon) = mimetype
+            .split_once('/')
+            .and_then(|(mime, _)| MIME_WILDCARD_ICONS.get(mime))
+        {
+            return *icon;
+        }
+    }
+    if file.ext.is_some() {
+        return Icons::FILE; // 
+    }
+
+    Icons::FILE_UNKNOW // 󰡯
 }

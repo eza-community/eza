@@ -26,6 +26,8 @@ impl View {
         let deref_links = matches.has(&flags::DEREF_LINKS)?;
         let follow_links = matches.has(&flags::FOLLOW_LINKS)?;
         let total_size = matches.has(&flags::TOTAL_SIZE)?;
+        let mime_read_contents =
+            matches.has(&flags::MIME_TYPES)? || vars.get(vars::EZA_MIME_TYPES).is_some();
         let file_style = FileStyle::deduce(matches, vars, is_tty)?;
         Ok(Self {
             mode,
@@ -34,6 +36,7 @@ impl View {
             deref_links,
             follow_links,
             total_size,
+            mime_read_contents,
         })
     }
 }

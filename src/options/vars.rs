@@ -77,6 +77,9 @@ pub static EZA_STDIN_SEPARATOR: &str = "EZA_STDIN_SEPARATOR";
 /// display a comma separated list of descriptions.
 pub static EZA_WINDOWS_ATTRIBUTES: &str = "EZA_WINDOWS_ATTRIBUTES";
 
+/// Environment variable used to automate the same behavior as `--mime-types` if set.
+pub static EZA_MIME_TYPES: &str = "EZA_MIME_TYPES";
+
 /// Mockable wrapper for `std::env::var_os`.
 pub trait Vars {
     fn get(&self, name: &'static str) -> Option<OsString>;
@@ -117,6 +120,7 @@ pub struct MockVars {
     icon_spacing: OsString,
     luminance: OsString,
     icons: OsString,
+    mimetypes: OsString,
 }
 
 #[cfg(test)]
@@ -131,6 +135,7 @@ impl Vars for MockVars {
             "EXA_ICON_SPACING" | "EZA_ICON_SPACING" => Some(self.icon_spacing.clone()),
             "EXA_MIN_LUMINANCE" | "EZA_MIN_LUMINANCE" => Some(self.luminance.clone()),
             "EZA_ICONS_AUTO" => Some(self.icons.clone()),
+            "EZA_MIME_TYPES" => Some(self.mimetypes.clone()),
             "COLUMNS" => Some(self.columns.clone()),
             "NO_COLOR" => Some(self.no_colors.clone()),
             _ => None,
@@ -150,6 +155,7 @@ impl MockVars {
             "EXA_ICON_SPACING" | "EZA_ICON_SPACING" => self.icon_spacing = value.clone(),
             "EXA_MIN_LUMINANCE" | "EZA_MIN_LUMINANCE" => self.luminance = value.clone(),
             "EZA_ICONS_AUTO" => self.icons = value.clone(),
+            "EZA_MIME_TYPES" => self.mimetypes = value.clone(),
             "COLUMNS" => self.columns = value.clone(),
             "NO_COLOR" => self.no_colors = value.clone(),
             _ => (),

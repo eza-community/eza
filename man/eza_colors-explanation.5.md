@@ -202,7 +202,7 @@ security_context:
       is_hidden: true
 ```
 
-Icons can now be customized as well in the `filenames` and `extensions` fields
+Icons can now be customized as well in the `filenames`, `extensions` and `mimetypes` fields
 
 ```yaml
 
@@ -213,6 +213,9 @@ filenames:
 
 extensions:
   rs: {  filename: {foreground: Red}, icon: {glyph: 🦀}}
+  
+mimetypes:
+  application/pdf: {icon: {glyph: 🖺}}
 
 ```
 

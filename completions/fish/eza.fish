@@ -36,6 +36,7 @@ complete -c eza -l icons -d "When to display icons" -x -a "
   automatic\t'Display icons if standard output is a terminal'
   never\t'Never display icons'
 "
+complete -c eza -l mime-types -d "Determine file MIME types to better inform styling decisions"
 complete -c eza -l no-quotes -d "Don't quote file names with spaces"
 complete -c eza -l hyperlink -d "Display entries as hyperlinks"
 complete -c eza -l follow-symlinks -d "Drill down into symbolic links that point to directories"
