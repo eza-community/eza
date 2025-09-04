@@ -119,7 +119,8 @@
             src = ./.;
             mode = "clippy";
           };
-        } // (import ./nix/trycmd.nix { inherit pkgs naersk' buildInputs; });
+        }
+        // (import ./nix/trycmd.nix { inherit pkgs naersk' buildInputs; });
 
         devShells.default = pkgs.mkShell {
           inherit (self.checks.${system}.pre-commit-check) shellHook;
