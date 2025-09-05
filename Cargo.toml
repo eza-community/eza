@@ -29,7 +29,7 @@ readme = "README.md"
 homepage = "https://github.com/eza-community/eza"
 license = "EUPL-1.2"
 repository = "https://github.com/eza-community/eza"
-version = "0.23.1"
+version = "0.23.2"
 
 
 [package.metadata.deb]
