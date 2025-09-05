@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2024 Christina Sørensen
 # SPDX-License-Identifier: EUPL-1.2
 name: eza
-base: core22
+base: core24
 version: 'latest'
 summary: Replacement for 'ls' written in Rust
 description: |
@@ -19,12 +19,20 @@ grade: stable
 confinement: classic
 apps:
   eza:
-    command: eza
+    command: bin/eza
 parts:
   eza:
     plugin: rust
     source: .
+    build-attributes:
+      - enable-patchelf
     stage-packages:
-      - libgit2-24
       - cmake
       - libz-dev
+platforms:
+  amd64:
+    build-on: [amd64, arm64]
+  arm64:
+    build-on: [amd64, arm64]
+  armhf:
+    build-on: [amd64, arm64]
