@@ -6,7 +6,7 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
-## [0.23.1] - 2025-08-29
+## [0.23.1] - 2025-08-31
 
 ### Bug Fixes
 
@@ -21,6 +21,10 @@ SPDX-License-Identifier: EUPL-1.2
 ### Features
 
 - Added completion
+
+### Miscellaneous Tasks
+
+- Eza v0.23.1 changelogs, version bump
 
 ### Build
 
