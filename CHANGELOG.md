@@ -6,7 +6,29 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
-## [0.23.2] - 2025-09-05
+## [0.23.3] - 2025-09-13
+
+### Documentation
+
+- Corrected "user_executable_file" option 
+
+### Features
+
+- Update flake inputs
+
+### Miscellaneous Tasks
+
+- Update snapcraft manifest for core24
+
+### Build
+
+- Update cargo deps
+
+## [0.23.2] - 2025-09-06
+
+### Miscellaneous Tasks
+
+- Eza v0.23.2 changelogs, version bump
 
 ### Styling
 
