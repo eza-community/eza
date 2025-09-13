@@ -155,7 +155,7 @@ impl Icons {
     const WRENCH: char          = '\u{f0ad}';  // 
     const XML: char             = '\u{f05c0}'; // 󰗀
     const XORG:char             = '\u{f369}';  // 
-    const YAML: char            = '\u{e6a8}';  // 
+    const YAML: char            = '\u{e8eb}';  // 
     const YARN: char            = '\u{e6a7}';  // 
 }
 
