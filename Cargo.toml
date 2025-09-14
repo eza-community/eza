@@ -99,7 +99,7 @@ path-clean = "1.0.1"
 number_prefix = "0.4"
 palette = { version = "0.7.6", default-features = false, features = ["std"] }
 percent-encoding = "2.3.1"
-phf = { version = "0.12.1", features = ["macros"] }
+phf = { version = "0.13.1", features = ["macros"] }
 plist = { version = "1.7.0", default-features = false }
 uutils_term_grid = "0.7.0"
 terminal_size = "0.4.2"
