@@ -16,6 +16,7 @@ use crate::theme::Theme;
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub struct Options {
     pub across: bool,
+    pub spacing: usize,
 }
 
 impl Options {
@@ -57,7 +58,7 @@ impl Render<'_> {
         let grid = Grid::new(
             cells,
             GridOptions {
-                filling: Filling::Spaces(2),
+                filling: Filling::Spaces(self.opts.spacing),
                 direction: self.opts.direction(),
                 width: self.console_width,
             },
