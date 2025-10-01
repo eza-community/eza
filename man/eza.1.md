@@ -148,6 +148,11 @@ Use this twice to also show the ‘`.`’ and ‘`..`’ directories.
 
 : For simply listing only directories and not files, consider using the `--only-dirs` (`-D`) option as an alternative.
 
+`--list-dirs`
+: List directories matched by the given pattern instead of recursing into them.
+
+: This is particularly useful when using globbing, as it will display only the directories that match the glob instead of their contents.
+
 `-L`, `--level=DEPTH`
 : Limit the depth of recursion.
 
