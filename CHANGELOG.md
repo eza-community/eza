@@ -6,7 +6,13 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
-## [0.23.3] - 2025-09-13
+## [0.23.4] - 2025-10-03
+
+### Bug Fixes
+
+- Update nixpkgs/cargo dependencies
+
+## [0.23.3] - 2025-09-14
 
 ### Documentation
 
@@ -19,6 +25,7 @@ SPDX-License-Identifier: EUPL-1.2
 ### Miscellaneous Tasks
 
 - Update snapcraft manifest for core24
+- Eza v0.23.3 changelogs, version bump
 
 ### Build
 
