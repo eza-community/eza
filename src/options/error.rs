@@ -45,6 +45,9 @@ pub enum OptionsError {
 
     /// A glob ignore was given that failed to be parsed as a pattern.
     FailedGlobPattern(String),
+
+    /// A numeric option was given that contained a negative number.
+    NegativeNumber(&'static Arg, String),
 }
 
 /// The source of a string that failed to be parsed as a number.
@@ -102,6 +105,7 @@ impl fmt::Display for OptionsError {
             Self::TreeAllAll                 => write!(f, "Option --tree is useless given --all --all"),
             Self::FailedParse(s, n, e)       => write!(f, "Value {s:?} not valid for {n}: {e}"),
             Self::FailedGlobPattern(ref e)   => write!(f, "Failed to parse glob pattern: {e}"),
+            Self::NegativeNumber(a, n)       => write!(f, "Value {n:?} not valid for {a}: Negative numbers are not allowed"),
         };
     }
 }
