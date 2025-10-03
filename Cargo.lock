@@ -441,7 +441,7 @@ dependencies = [
  "unicode-width 0.2.1",
  "uutils_term_grid",
  "uzers",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.1",
 ]
 
 [[package]]

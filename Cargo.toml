@@ -123,7 +123,7 @@ proc-mounts = "0.3"
 uzers = "0.12.1"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-windows-sys = { version = "0.60.2", features = [
+windows-sys = { version = "0.61.1", features = [
   "Win32_System_Console",
   "Win32_Foundation",
 ] }
