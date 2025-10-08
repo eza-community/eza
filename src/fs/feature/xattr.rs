@@ -8,6 +8,7 @@
 
 #![allow(trivial_casts)] // for ARM
 
+use crate::fs::fields::{Tag, TagColor};
 use std::fmt::{Display, Formatter};
 use std::io;
 use std::path::Path;
@@ -542,7 +543,7 @@ impl Display for Attribute {
             match &self.value {
                 None => f.write_str("<empty>"),
                 Some(value) => {
-                    if let Some(val) = custom_value_display(value) {
+                    if let Some(val) = custom_value_display(fix_trailing_zero(value)) {
                         f.write_fmt(format_args!("<{val}>"))
                     } else if let Ok(v) = str::from_utf8(value) {
                         f.write_fmt(format_args!("{:?}", v.trim_end_matches(char::from(0))))
@@ -711,4 +712,78 @@ fn plist_value_display(value: &[u8]) -> Option<String> {
         .and_then(|()| str::from_utf8(&buffer).ok())
         .map(|s| format!("<plist version=\"1.0\">{}</plist>", s.replace('\n', "")))
     })
+}
+
+/// Never happen on macOS, but happens on Linux with files and folders from macOS.
+#[cfg(target_os = "macos")]
+fn fix_trailing_zero(value: &[u8]) -> &[u8] {
+    value
+}
+
+#[cfg(not(target_os = "macos"))]
+fn fix_trailing_zero(value: &[u8]) -> &[u8] {
+    value.strip_suffix(&[0]).unwrap_or(value)
+}
+
+pub fn display_tags(attribute: &Attribute) -> Option<Vec<Tag>> {
+    check_tags_name(&attribute.name)
+        .then(|| {
+            attribute
+                .value
+                .as_ref()
+                .filter(|value| value.starts_with(b"bplist"))
+                .map(|value| plist_tags_display(value))
+        })
+        .flatten()
+}
+
+const TAGS_ATTRIBUTE_NAME: &str = "com.apple.metadata:_kMDItemUserTags";
+
+/// On macOS, the extended attribute name for tags is consistent with Finder.
+#[cfg(target_os = "macos")]
+fn check_tags_name(name: &str) -> bool {
+    name == TAGS_ATTRIBUTE_NAME
+}
+
+/// On other systems, the extended attribute name for macOS tags may vary
+/// depending on the copy method (e.g. Samba, rsync).
+/// Examples:
+/// - "user.DosStream.com.apple.metadata:_kMDItemUserTags:$DATA"
+/// - "user.com.apple.metadata:_kMDItemUserTags"
+#[cfg(not(target_os = "macos"))]
+fn check_tags_name(name: &str) -> bool {
+    name.contains(TAGS_ATTRIBUTE_NAME)
+}
+
+/// A tag is represented as a string containing:
+/// - A tag name (predefined or user-defined).
+/// - Optionally, a color code after a `\n`.
+///
+/// The numeric color code corresponds to the [`TagColor`] enum.
+/// See its [`FromStr`] implementation for supported mappings.
+///
+/// See <https://eclecticlight.co/2024/12/24/solving-finder-tag-problems/>
+fn plist_tags_display(value: &[u8]) -> Vec<Tag> {
+    let reader = io::Cursor::new(fix_trailing_zero(value));
+    plist::Value::from_reader(reader)
+        .ok()
+        .and_then(plist::Value::into_array)
+        .map(|arr| {
+            arr.into_iter()
+                .filter_map(|x| match x {
+                    plist::Value::String(str) => {
+                        let lines: Vec<&str> = str.lines().collect();
+                        let name = lines[0].to_string();
+                        let color = if lines.len() >= 2 {
+                            lines[1].parse::<TagColor>().ok()
+                        } else {
+                            None
+                        };
+                        Some(Tag { name, color })
+                    }
+                    _ => None,
+                })
+                .collect()
+        })
+        .unwrap_or_default()
 }

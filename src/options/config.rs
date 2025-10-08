@@ -4,11 +4,11 @@
 // SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
-use crate::theme::ThemeFileType as FileType;
 use crate::theme::{
     FileKinds, FileNameStyle, Git, GitRepo, IconStyle, Links, Permissions, SELinuxContext,
     SecurityContext, Size, UiStyles, Users,
 };
+use crate::theme::{Tags, ThemeFileType as FileType};
 use nu_ansi_term::{Color, Style};
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_norway;
@@ -539,6 +539,34 @@ impl FromOverride<FileTypeOverride> for FileType {
 }
 
 #[rustfmt::skip]
+#[derive(Clone, Eq, Copy, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TagsOverride {
+    pub none:   Option<StyleOverride>,      // Tn
+    pub grey:   Option<StyleOverride>,      // Tg
+    pub green:  Option<StyleOverride>,      // Te
+    pub purple: Option<StyleOverride>,      // Tp
+    pub blue:   Option<StyleOverride>,      // Tb
+    pub yellow: Option<StyleOverride>,      // Ty
+    pub red:    Option<StyleOverride>,      // Tr
+    pub orange: Option<StyleOverride>,      // To
+}
+
+impl FromOverride<TagsOverride> for Tags {
+    fn from(value: TagsOverride, default: Self) -> Self {
+        Tags {
+            none: FromOverride::from(value.none, default.none),
+            grey: FromOverride::from(value.grey, default.grey),
+            green: FromOverride::from(value.green, default.green),
+            purple: FromOverride::from(value.purple, default.purple),
+            blue: FromOverride::from(value.blue, default.blue),
+            yellow: FromOverride::from(value.yellow, default.yellow),
+            red: FromOverride::from(value.red, default.red),
+            orange: FromOverride::from(value.orange, default.orange),
+        }
+    }
+}
+
+#[rustfmt::skip]
 #[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub struct UiStylesOverride {
     pub colourful: Option<bool>,
@@ -552,6 +580,7 @@ pub struct UiStylesOverride {
     pub git_repo:         Option<GitRepoOverride>,
     pub security_context: Option<SecurityContextOverride>,
     pub file_type:        Option<FileTypeOverride>,
+    pub tags:             Option<TagsOverride>,
 
     pub punctuation:  Option<StyleOverride>,          // xx
     pub date:         Option<StyleOverride>,          // da
@@ -584,6 +613,7 @@ impl FromOverride<UiStylesOverride> for UiStyles {
             git_repo: FromOverride::from(value.git_repo, default.git_repo),
             security_context: FromOverride::from(value.security_context, default.security_context),
             file_type: FromOverride::from(value.file_type, default.file_type),
+            tags: FromOverride::from(value.tags, default.tags),
 
             punctuation: FromOverride::from(value.punctuation, default.punctuation),
             date: FromOverride::from(value.date, default.date),

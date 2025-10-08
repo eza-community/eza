@@ -42,3 +42,26 @@ extensions:
   rs: {filename: {foreground: Red}, icon: {glyph: 🦀}}
   # Change the icon glyph and color
   nix: {icon: {glyph: ❄, style: {foreground: White}}}
+tags:
+  # More natural tag colors for true-color terminals
+  grey:
+    foreground: Black
+    background: "#8E8E93"
+  green:
+    foreground: Black
+    background: "#5DBC5B"
+  purple:
+    foreground: Black
+    background: "#A838C2"
+  blue:
+    foreground: Black
+    background: "#3376E8"
+  yellow:
+    foreground: Black
+    background: "#EDC442"
+  red:
+    foreground: Black
+    background: "#E14444"
+  orange:
+    foreground: Black
+    background: "#E68C3F"

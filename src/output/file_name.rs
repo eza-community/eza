@@ -11,6 +11,8 @@ use nu_ansi_term::{AnsiString as ANSIString, Style};
 use path_clean;
 use unicode_width::UnicodeWidthStr;
 
+use crate::fs::feature::xattr::display_tags;
+use crate::fs::fields::TagColor;
 use crate::fs::{File, FileTarget};
 use crate::output::cell::TextCellContents;
 use crate::output::escape;
@@ -59,6 +61,7 @@ impl Options {
                 None
             },
             mount_style: MountStyle::JustDirectoryNames,
+            tags: Tags::Off,
         }
     }
 }
@@ -102,6 +105,13 @@ enum MountStyle {
     /// Display mount points as directories and include information about
     /// the filesystem that's mounted there.
     MountInfo,
+}
+
+/// Whether to show macOS tags.
+#[derive(PartialEq, Debug, Copy, Clone)]
+enum Tags {
+    Off,
+    On,
 }
 
 /// Whether and how to show icons.
@@ -163,6 +173,8 @@ pub struct FileName<'a, 'dir, C> {
 
     /// How to handle displaying a mounted filesystem.
     mount_style: MountStyle,
+
+    tags: Tags,
 }
 
 impl<C> FileName<'_, '_, C> {
@@ -185,6 +197,13 @@ impl<C> FileName<'_, '_, C> {
         } else {
             MountStyle::JustDirectoryNames
         };
+        self
+    }
+
+    /// Sets the flag on this file name to display macOS tags.
+    #[must_use]
+    pub fn with_tags(mut self, enable: bool) -> Self {
+        self.tags = if enable { Tags::On } else { Tags::Off };
         self
     }
 }
@@ -286,6 +305,7 @@ impl<C: Colours> FileName<'_, '_, C> {
                             link_style: LinkStyle::FullLinkPaths,
                             options: target_options,
                             mount_style: MountStyle::JustDirectoryNames,
+                            tags: Tags::Off,
                         };
 
                         for bit in target_name.escaped_file_name(filename_style_override) {
@@ -333,6 +353,18 @@ impl<C: Colours> FileName<'_, '_, C> {
                 bits.push(Style::default().paint(mount_details.fstype.clone()));
                 bits.push(Style::default().paint(")]"));
             }
+        }
+
+        if self.tags == Tags::On {
+            self.file.extended_attributes().iter().for_each(|attr| {
+                if let Some(tags) = display_tags(attr) {
+                    for tag in &tags {
+                        let color = tag.color.as_ref().unwrap_or(&TagColor::None);
+                        bits.push(Style::default().paint(" "));
+                        bits.push(self.colours.tag(color).paint(tag.name.clone()));
+                    }
+                }
+            });
         }
 
         bits.into()
