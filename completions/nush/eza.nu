@@ -60,6 +60,7 @@ export extern "eza" [
     --git-repos                # List each git-repos status and branch name
     --git-repos-no-status      # List each git-repos branch name (much faster)
     --extended(-@)             # List each file's extended attributes and sizes
+    --tags(-e)                 # List each file's color tags stored in extended attributes
     --context(-Z)              # List each file's security context
     --smart-group              # Only show group if it has a different name from owner
     --stdin                    # When piping to eza. Read file paths from stdin
