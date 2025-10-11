@@ -45,6 +45,7 @@ __eza() {
         {-I,--ignore-glob}"[Ignore files that match these glob patterns]" \
         {-b,--binary}"[List file sizes with binary prefixes]" \
         {-B,--bytes}"[List file sizes in bytes, without any prefixes]" \
+        --hex"[List file sizes in hexadecimal (0x<size>)]" \
         --changed"[Use the changed timestamp field]" \
         {-g,--group}"[List each file's group]" \
         {-h,--header}"[Add a header row to each column]" \

@@ -64,6 +64,7 @@ static USAGE_PART2: &str = "  \
 LONG VIEW OPTIONS
   -b, --binary               list file sizes with binary prefixes
   -B, --bytes                list file sizes in bytes, without any prefixes
+  --hex                      list file sizes in hexadecimal (0x<size>)
   -g, --group                list each file's group
   --smart-group              only show group if it has a different name from owner
   -h, --header               add a header row to each column

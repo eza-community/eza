@@ -198,6 +198,9 @@ These options are available when running with `--long` (`-l`):
 `-B`, `--bytes`
 : List file sizes in bytes, without any prefixes.
 
+`--hex`
+: List file sizes in hexadecimal (0x<size>).
+
 `--changed`
 : Use the changed timestamp field.
 
