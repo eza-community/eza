@@ -324,7 +324,9 @@ impl SizeFormat {
     /// involves the `--binary`, `--bytes`, or `--hex` flags, and these conflict with
     /// each other.
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let flag = matches.has_where(|f| f.matches(&flags::BINARY) || f.matches(&flags::BYTES) || f.matches(&flags::HEX))?;
+        let flag = matches.has_where(|f| {
+            f.matches(&flags::BINARY) || f.matches(&flags::BYTES) || f.matches(&flags::HEX)
+        })?;
 
         Ok(match flag {
             Some(f) if f.matches(&flags::BINARY) => Self::BinaryBytes,
