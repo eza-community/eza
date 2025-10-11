@@ -89,6 +89,7 @@ complete -c eza -l no-symlinks -d "Do not show symbolic links"
 # Long view options
 complete -c eza -s b -l binary -d "List file sizes with binary prefixes"
 complete -c eza -s B -l bytes -d "List file sizes in bytes, without any prefixes"
+complete -c eza -l hex -d "List file sizes in hexadecimal (0x<size>)"
 complete -c eza -s g -l group -d "List each file's group"
 complete -c eza -s h -l header -d "Add a header row to each column"
 complete -c eza -s H -l links -d "List each file's number of hard links"

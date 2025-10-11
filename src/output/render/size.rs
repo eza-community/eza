@@ -56,6 +56,26 @@ impl f::Size {
                     TextCell::paint(colours.size(prefix), string)
                 }
             }
+            SizeFormat::HexBytes => {
+                // Use the binary prefix to select a style.
+                let prefix = match NumberPrefix::binary(size as f64) {
+                    NumberPrefix::Standalone(_) => None,
+                    NumberPrefix::Prefixed(p, _) => Some(p),
+                };
+
+                // Format as hexadecimal with 0x prefix.
+                let string = format!("0x{size:x}");
+
+                return if is_gradient_mode {
+                    let csi = color_scale_info.unwrap();
+                    TextCell::paint(
+                        csi.adjust_style(colours.size(prefix), size as f32, csi.size),
+                        string,
+                    )
+                } else {
+                    TextCell::paint(colours.size(prefix), string)
+                }
+            }
         };
 
         #[rustfmt::skip]

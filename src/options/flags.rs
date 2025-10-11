@@ -61,6 +61,7 @@ const SORTS: Values = &[ "name", "Name", "size", "extension",
 // display options
 pub static BINARY:      Arg = Arg { short: Some(b'b'), long: "binary",      takes_value: TakesValue::Forbidden };
 pub static BYTES:       Arg = Arg { short: Some(b'B'), long: "bytes",       takes_value: TakesValue::Forbidden };
+pub static HEX:         Arg = Arg { short: None,       long: "hex",         takes_value: TakesValue::Forbidden };
 pub static GROUP:       Arg = Arg { short: Some(b'g'), long: "group",       takes_value: TakesValue::Forbidden };
 pub static NUMERIC:     Arg = Arg { short: Some(b'n'), long: "numeric",     takes_value: TakesValue::Forbidden };
 pub static HEADER:      Arg = Arg { short: Some(b'h'), long: "header",      takes_value: TakesValue::Forbidden };
@@ -108,7 +109,7 @@ pub static ALL_ARGS: Args = Args(&[
     &ALL, &ALMOST_ALL, &TREAT_DIRS_AS_FILES, &LIST_DIRS, &LEVEL, &REVERSE, &SORT, &DIRS_FIRST, &DIRS_LAST,
     &IGNORE_GLOB, &GIT_IGNORE, &ONLY_DIRS, &ONLY_FILES,
 
-    &BINARY, &BYTES, &GROUP, &NUMERIC, &HEADER, &ICONS, &INODE, &LINKS, &MODIFIED, &CHANGED,
+    &BINARY, &BYTES, &HEX, &GROUP, &NUMERIC, &HEADER, &ICONS, &INODE, &LINKS, &MODIFIED, &CHANGED,
     &BLOCKSIZE, &TOTAL_SIZE, &TIME, &ACCESSED, &CREATED, &TIME_STYLE, &HYPERLINK, &MOUNTS,
     &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &SMART_GROUP, &NO_SYMLINKS, &SHOW_SYMLINKS,
 
