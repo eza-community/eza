@@ -49,7 +49,7 @@ impl f::Blocksize {
                 };
 
                 // Format as hexadecimal with 0x prefix.
-                let string = format!("0x{:x}", size);
+                let string = format!("0x{size:x}");
 
                 return TextCell::paint(colours.blocksize(prefix), string);
             }

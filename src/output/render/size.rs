@@ -64,7 +64,7 @@ impl f::Size {
                 };
 
                 // Format as hexadecimal with 0x prefix.
-                let string = format!("0x{:x}", size);
+                let string = format!("0x{size:x}");
 
                 return if is_gradient_mode {
                     let csi = color_scale_info.unwrap();
