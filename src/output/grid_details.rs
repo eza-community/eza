@@ -25,6 +25,7 @@ use crate::theme::Theme;
 #[derive(PartialEq, Eq, Debug)]
 pub struct Options {
     pub details: DetailsOptions,
+    pub across: bool,
     pub row_threshold: RowThreshold,
 }
 
@@ -32,6 +33,15 @@ impl Options {
     #[must_use]
     pub fn to_details_options(&self) -> &DetailsOptions {
         &self.details
+    }
+
+    #[must_use]
+    pub fn direction(&self) -> Direction {
+        if self.across {
+            Direction::LeftToRight
+        } else {
+            Direction::TopToBottom
+        }
     }
 }
 
@@ -67,8 +77,8 @@ pub struct Render<'a> {
     /// How to format filenames.
     pub file_style: &'a FileStyle,
 
-    /// The details part of the grid-details view.
-    pub details: &'a DetailsOptions,
+    /// Details and Sorting Options
+    pub opts: &'a Options,
 
     /// How to filter files after listing a directory. The files in this
     /// render will already have been filtered and sorted, but any directories
@@ -104,7 +114,7 @@ impl<'a> Render<'a> {
             files:         Vec::new(),
             theme:         self.theme,
             file_style:    self.file_style,
-            opts:          self.details,
+            opts:          self.opts.to_details_options(),
             recurse:       None,
             filter:        self.filter,
             git_ignoring:  self.git_ignoring,
@@ -118,7 +128,8 @@ impl<'a> Render<'a> {
 
     pub fn render<W: Write>(mut self, w: &mut W) -> io::Result<()> {
         let options = self
-            .details
+            .opts
+            .to_details_options()
             .table
             .as_ref()
             .expect("Details table options not given!");
@@ -126,7 +137,7 @@ impl<'a> Render<'a> {
         let drender = self.details_for_column();
 
         let color_scale_info = ColorScaleInformation::from_color_scale(
-            self.details.color_scale,
+            self.opts.to_details_options().color_scale,
             &self.files,
             self.filter.dot_filter,
             self.git,
@@ -167,7 +178,7 @@ impl<'a> Render<'a> {
                 // Therefore we pad the filenames with some spaces. We have to
                 // use ansi_width here, because the filename might contain some
                 // styling.
-                let padding = " ".repeat(if self.details.header {
+                let padding = " ".repeat(if self.opts.to_details_options().header {
                     4usize.saturating_sub(ansi_width::ansi_width(&filename))
                 } else {
                     0
@@ -181,7 +192,7 @@ impl<'a> Render<'a> {
             cells,
             GridOptions {
                 filling: Filling::Spaces(4),
-                direction: Direction::TopToBottom,
+                direction: self.opts.direction(),
                 width: self.console_width,
             },
         );
@@ -197,7 +208,7 @@ impl<'a> Render<'a> {
                     files,
                     theme,
                     file_style,
-                    details: opts,
+                    opts,
                     filter,
                     git_ignoring,
                     git,
@@ -210,7 +221,7 @@ impl<'a> Render<'a> {
                     files,
                     theme,
                     file_style,
-                    opts,
+                    opts: opts.to_details_options(),
                     recurse: None,
                     filter,
                     git_ignoring,
@@ -221,7 +232,7 @@ impl<'a> Render<'a> {
             }
         }
 
-        if self.details.header {
+        if self.opts.to_details_options().header {
             let row = table.header_row();
             let name = TextCell::paint_str(self.theme.ui.header.unwrap_or_default(), "Name")
                 .strings()
@@ -260,7 +271,7 @@ impl<'a> Render<'a> {
 
         // The header row will be printed separately, but it should be
         // considered for the width calculations.
-        if self.details.header {
+        if self.opts.to_details_options().header {
             let row = table.header_row();
             table.add_widths(&row);
         }

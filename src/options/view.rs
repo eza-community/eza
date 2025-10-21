@@ -83,6 +83,7 @@ impl Mode {
                 let row_threshold = RowThreshold::deduce(vars)?;
                 let grid_details = grid_details::Options {
                     details,
+                    across: false,
                     row_threshold,
                 };
                 return Ok(Self::GridDetails(grid_details));
@@ -772,6 +773,7 @@ mod test {
         use super::*;
 
         use crate::output::grid::Options as GridOptions;
+        use crate::output::grid_details::Options as GridDetailsOptions;
 
         // Default
         test_mode!(empty: <- [], None;            Both => like Ok(Mode::Grid(_)));
@@ -800,8 +802,10 @@ mod test {
         test_mode!(ell:        <- ["-l"], None;        Both => like Ok(Mode::Details(_)));
 
         // Grid-details views
-        test_mode!(lid:        <- ["--long", "--grid"], None;  Both => like Ok(Mode::GridDetails(_)));
-        test_mode!(leg:        <- ["-lG"], None;               Both => like Ok(Mode::GridDetails(_)));
+        test_mode!(lid:        <- ["--long", "--grid"], None;  Both => like Ok(Mode::GridDetails(GridDetailsOptions { across: false, .. })));
+        test_mode!(leg:        <- ["-lG"], None;               Both => like Ok(Mode::GridDetails(GridDetailsOptions { across: false, .. })));
+
+        test_mode!(long_grid_across:  <- ["--long", "--grid", "--across"], None;  Both => like Ok(Mode::GridDetails(GridDetailsOptions { across: true, .. })));
 
         // Options that do nothing with --long
         test_mode!(long_across: <- ["--long", "--across"],   None;  Last => like Ok(Mode::Details(_)));
