@@ -80,10 +80,11 @@ impl Mode {
 
             if flag.is_some() && flag.unwrap().matches(&flags::GRID) {
                 let _ = matches.has(&flags::GRID)?;
+                let across = matches.has(&flags::ACROSS)?;
                 let row_threshold = RowThreshold::deduce(vars)?;
                 let grid_details = grid_details::Options {
                     details,
-                    across: false,
+                    across,
                     row_threshold,
                 };
                 return Ok(Self::GridDetails(grid_details));
