@@ -542,6 +542,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "catproduct"     => Icons::CAD,              // 󰻫
     "cbr"            => Icons::IMAGE,            // 
     "cbz"            => Icons::IMAGE,            // 
+    "cb7"            => Icons::IMAGE,            // 
     "cc"             => Icons::LANG_CPP,         // 
     "cert"           => Icons::GIST_SECRET,      // 
     "cfg"            => Icons::CONFIG,           // 󱁻
