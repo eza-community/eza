@@ -13,13 +13,13 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::default::Default;
 
-#[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub struct IconStyle {
-    pub glyph: Option<char>,
+    pub glyph: Option<String>,
     pub style: Option<Style>,
 }
 
-#[derive(Debug, Default, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Default, PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub struct FileNameStyle {
     pub icon: Option<IconStyle>,
     pub filename: Option<Style>,

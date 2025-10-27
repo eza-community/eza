@@ -205,14 +205,14 @@ impl FromOverride<StyleOverride> for Style {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub struct IconStyleOverride {
-    pub glyph: Option<char>,
+    pub glyph: Option<String>,
     pub style: Option<StyleOverride>,
 }
 
-impl FromOverride<char> for char {
-    fn from(value: char, _default: char) -> char {
+impl FromOverride<String> for String {
+    fn from(value: String, _default: String) -> String {
         value
     }
 }
@@ -226,7 +226,7 @@ impl FromOverride<IconStyleOverride> for IconStyle {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub struct FileNameStyleOverride {
     pub icon: Option<IconStyleOverride>,
     pub filename: Option<StyleOverride>,
@@ -614,8 +614,32 @@ impl ThemeConfig {
     #[must_use]
     pub fn to_theme(&self) -> Option<UiStyles> {
         let ui_styles_override: Option<UiStylesOverride> = {
-            let file = std::fs::File::open(&self.location).ok()?;
-            serde_norway::from_reader(&file).ok()
+            let file = match std::fs::File::open(&self.location) {
+                Ok(f) => f,
+                Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+                    return Some(UiStyles::default());
+                }
+                Err(e) => {
+                    eprintln!(
+                        "Warning: Failed to open theme file {:?}: {}",
+                        self.location, e
+                    );
+                    return Some(UiStyles::default());
+                }
+            };
+
+            match serde_norway::from_reader(&file) {
+                Ok(styles) => Some(styles),
+                Err(e) => {
+                    eprintln!(
+                        "Warning: Failed to parse theme file {:?}: {}",
+                        self.location, e
+                    );
+                    eprintln!("  Using default theme instead.");
+                    eprintln!("  Hint: Check your theme.yml for syntax errors or invalid emoji sequences.");
+                    None
+                }
+            }
         };
         FromOverride::from(ui_styles_override, Some(UiStyles::default()))
     }
@@ -665,5 +689,146 @@ mod tests {
         for (s, c) in &[("10", 10), ("01", 1)] {
             assert_eq!(color_from_str(s), Some(Color::Fixed(*c)));
         }
+    }
+
+    #[test]
+    fn test_single_codepoint_emoji_deserialize() {
+        let yaml = r"
+filenames:
+  data:
+    icon:
+      glyph: 💾
+";
+        let result: Result<UiStylesOverride, _> = serde_norway::from_str(yaml);
+        assert!(result.is_ok(), "Single codepoint emoji should deserialize");
+        let styles = result.unwrap();
+        let filename_styles = styles.filenames.as_ref().unwrap();
+        let data_style = filename_styles.get("data").unwrap();
+        assert!(data_style.icon.is_some());
+    }
+
+    #[test]
+    fn test_variation_selector_emoji_deserialize() {
+        // Emojis with variation selectors: 🖼️ (U+1F5BC + U+FE0F), 🖥️ (U+1F5A5 + U+FE0F)
+        let yaml = r"
+filenames:
+  Pictures:
+    icon:
+      glyph: 🖼️
+  Desktop:
+    icon:
+      glyph: 🖥️
+";
+        let result: Result<UiStylesOverride, _> = serde_norway::from_str(yaml);
+        assert!(
+            result.is_ok(),
+            "Emoji with variation selector should deserialize: {:?}",
+            result.err()
+        );
+
+        if let Ok(styles) = result {
+            let filename_styles = styles.filenames.as_ref().unwrap();
+            assert!(filename_styles.contains_key("Pictures"));
+            assert!(filename_styles.contains_key("Desktop"));
+            let pictures = filename_styles.get("Pictures").unwrap();
+            assert!(pictures.icon.is_some());
+        }
+    }
+
+    #[test]
+    fn test_multi_codepoint_emoji_deserialize() {
+        // ZWJ sequences: 👨‍💻 (U+1F468 + U+200D + U+1F4BB)
+        let yaml = r"
+filenames:
+  developer:
+    icon:
+      glyph: 👨‍💻
+";
+        let result: Result<UiStylesOverride, _> = serde_norway::from_str(yaml);
+        assert!(
+            result.is_ok(),
+            "Multi-codepoint emoji should deserialize: {:?}",
+            result.err()
+        );
+    }
+
+    #[test]
+    fn test_flag_emoji_deserialize() {
+        // Regional indicator sequences: 🇺🇸 (U+1F1FA + U+1F1F8)
+        let yaml = r"
+filenames:
+  usa:
+    icon:
+      glyph: 🇺🇸
+";
+        let result: Result<UiStylesOverride, _> = serde_norway::from_str(yaml);
+        assert!(
+            result.is_ok(),
+            "Flag emoji should deserialize: {:?}",
+            result.err()
+        );
+    }
+
+    #[test]
+    fn test_theme_yml_with_mixed_emojis() {
+        let yaml = r"
+filenames:
+  data: {icon: {glyph: 💾}}
+  Pictures: {icon: {glyph: 🖼️}}
+  Desktop: {icon: {glyph: 🖥️}}
+  README: {icon: {glyph: 📖}}
+extensions:
+  rs: {icon: {glyph: 🦀}}
+  py: {icon: {glyph: 🐍}}
+";
+        let result: Result<UiStylesOverride, _> = serde_norway::from_str(yaml);
+        assert!(
+            result.is_ok(),
+            "Mixed emoji theme should deserialize successfully: {:?}",
+            result.err()
+        );
+
+        if let Ok(styles) = result {
+            assert!(styles.filenames.is_some());
+            assert!(styles.extensions.is_some());
+
+            let filenames = styles.filenames.as_ref().unwrap();
+            assert_eq!(filenames.len(), 4, "Should have 4 filename entries");
+
+            let extensions = styles.extensions.as_ref().unwrap();
+            assert_eq!(extensions.len(), 2, "Should have 2 extension entries");
+        }
+    }
+
+    #[test]
+    fn test_empty_glyph_string() {
+        let yaml = r#"
+filenames:
+  empty:
+    icon:
+      glyph: ""
+"#;
+        let result: Result<UiStylesOverride, _> = serde_norway::from_str(yaml);
+        assert!(result.is_ok(), "Empty glyph string should deserialize");
+
+        if let Ok(styles) = result {
+            let filename_styles = styles.filenames.as_ref().unwrap();
+            let empty_style = filename_styles.get("empty").unwrap();
+            assert!(empty_style.icon.is_some());
+            assert_eq!(
+                empty_style.icon.as_ref().unwrap().glyph,
+                Some(String::new())
+            );
+        }
+    }
+
+    #[test]
+    fn test_error_handling_invalid_yaml() {
+        let yaml = r"
+filenames:
+  broken: {icon: {glyph:
+";
+        let result: Result<UiStylesOverride, _> = serde_norway::from_str(yaml);
+        assert!(result.is_err(), "Invalid YAML should produce an error");
     }
 }
