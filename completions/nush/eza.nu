@@ -36,6 +36,7 @@ export extern "eza" [
     --no-symlinks              # Do not show symbolic links
     --binary(-b)               # List file sizes with binary prefixes
     --bytes(-B)                # List file sizes in bytes, without any prefixes
+    --hex                      # List file sizes in hexadecimal (0x<size>)
     --group(-g)                # List each file's group
     --header(-h)               # Add a header row to each column
     --links(-H)                # List each file's number of hard links

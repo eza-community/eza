@@ -41,6 +41,18 @@ impl f::Blocksize {
 
                 return TextCell::paint(colours.blocksize(prefix), string);
             }
+            SizeFormat::HexBytes => {
+                // Use the binary prefix to select a style.
+                let prefix = match NumberPrefix::binary(size as f64) {
+                    NumberPrefix::Standalone(_) => None,
+                    NumberPrefix::Prefixed(p, _) => Some(p),
+                };
+
+                // Format as hexadecimal with 0x prefix.
+                let string = format!("0x{size:x}");
+
+                return TextCell::paint(colours.blocksize(prefix), string);
+            }
         };
 
         let (prefix, n) = match result {

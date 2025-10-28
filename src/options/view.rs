@@ -110,12 +110,13 @@ impl Mode {
     }
 
     fn strict_check_long_flags(matches: &MatchedFlags<'_>) -> Result<(), OptionsError> {
-        // If --long hasn’t been passed, then check if we need to warn the
-        // user about flags that won’t have any effect.
+        // If --long hasn't been passed, then check if we need to warn the
+        // user about flags that won't have any effect.
         if matches.is_strict() {
             for option in &[
                 &flags::BINARY,
                 &flags::BYTES,
+                &flags::HEX,
                 &flags::INODE,
                 &flags::LINKS,
                 &flags::HEADER,
@@ -315,19 +316,22 @@ impl Columns {
 
 impl SizeFormat {
     /// Determine which file size to use in the file size column based on
-    /// the user’s options.
+    /// the user's options.
     ///
     /// The default mode is to use the decimal prefixes, as they are the
-    /// most commonly-understood, and don’t involve trying to parse large
+    /// most commonly-understood, and don't involve trying to parse large
     /// strings of digits in your head. Changing the format to anything else
-    /// involves the `--binary` or `--bytes` flags, and these conflict with
+    /// involves the `--binary`, `--bytes`, or `--hex` flags, and these conflict with
     /// each other.
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let flag = matches.has_where(|f| f.matches(&flags::BINARY) || f.matches(&flags::BYTES))?;
+        let flag = matches.has_where(|f| {
+            f.matches(&flags::BINARY) || f.matches(&flags::BYTES) || f.matches(&flags::HEX)
+        })?;
 
         Ok(match flag {
             Some(f) if f.matches(&flags::BINARY) => Self::BinaryBytes,
             Some(f) if f.matches(&flags::BYTES) => Self::JustBytes,
+            Some(f) if f.matches(&flags::HEX) => Self::HexBytes,
             _ => Self::DecimalBytes,
         })
     }
@@ -541,6 +545,7 @@ mod test {
     static TEST_ARGS: &[&Arg] = &[
         &flags::BINARY,
         &flags::BYTES,
+        &flags::HEX,
         &flags::TIME_STYLE,
         &flags::TIME,
         &flags::MODIFIED,

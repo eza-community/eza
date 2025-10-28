@@ -241,17 +241,20 @@ impl Column {
 #[allow(clippy::enum_variant_names)]
 #[derive(PartialEq, Eq, Debug, Default, Copy, Clone)]
 pub enum SizeFormat {
-    /// Format the file size using **decimal** prefixes, such as “kilo”,
-    /// “mega”, or “giga”.
+    /// Format the file size using **decimal** prefixes, such as "kilo",
+    /// "mega", or "giga".
     #[default]
     DecimalBytes,
 
-    /// Format the file size using **binary** prefixes, such as “kibi”,
-    /// “mebi”, or “gibi”.
+    /// Format the file size using **binary** prefixes, such as "kibi",
+    /// "mebi", or "gibi".
     BinaryBytes,
 
     /// Do no formatting and just display the size as a number of bytes.
     JustBytes,
+
+    /// Display the size as a hexadecimal number (0x prefix).
+    HexBytes,
 }
 
 /// Formatting options for user and group.
