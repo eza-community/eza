@@ -128,6 +128,9 @@ windows-sys = { version = "0.60.2", features = [
   "Win32_Foundation",
 ] }
 
+[target.'cfg(target_os = "macos")'.dependencies]
+macbinary = { version = "0.2.1" }
+
 [build-dependencies]
 chrono = { version = "0.4.40", default-features = false, features = ["clock"] }
 
