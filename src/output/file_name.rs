@@ -227,13 +227,9 @@ impl<C: Colours> FileName<'_, '_, C> {
                     },
                     icon_override
                         .glyph
-                        .unwrap_or_else(|| icon_for_file(self.file))
-                        .to_string(),
+                        .unwrap_or_else(|| icon_for_file(self.file)),
                 ),
-                None => (
-                    iconify_style(self.style()),
-                    icon_for_file(self.file).to_string(),
-                ),
+                None => (iconify_style(self.style()), icon_for_file(self.file)),
             };
 
             bits.push(style.paint(icon));
