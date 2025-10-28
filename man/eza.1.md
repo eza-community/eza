@@ -275,6 +275,9 @@ Alternatively, `<FORMAT>` can be a two line string, the first line will be used 
 `-@`, `--extended`
 : List each file’s extended attributes and sizes.
 
+`-e`, `--tags`
+: list each file's color tags stored in extended attributes
+
 `-Z`, `--context`
 : List each file's security context.
 

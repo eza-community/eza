@@ -100,6 +100,8 @@ static GIT_VIEW_HELP: &str = "  \
     ";
 static EXTENDED_HELP: &str = "  \
   -@, --extended             list each file's extended attributes and sizes";
+static TAGS_HELP: &str = "  \
+  -e, --tags                 list each file's color tags stored in extended attributes";
 static SECATTR_HELP: &str = "  \
   -Z, --context              list each file's security context";
 
@@ -144,6 +146,7 @@ impl fmt::Display for HelpString {
 
         if xattr::ENABLED {
             write!(f, "\n{EXTENDED_HELP}")?;
+            write!(f, "\n{TAGS_HELP}")?;
             write!(f, "\n{SECATTR_HELP}")?;
         }
 
