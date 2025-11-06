@@ -115,12 +115,15 @@ impl QuoteStyle {
 
 impl EmbedHyperlinks {
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let flagged = matches.has(&flags::HYPERLINK)?;
-
-        if flagged {
-            Ok(Self::On)
+        if let Some(word) = matches.get(&flags::HYPERLINK)? {
+            match word.to_str() {
+                Some("always") => Ok(Self::Always),
+                Some("auto" | "automatic") => Ok(Self::Automatic),
+                Some("never") => Ok(Self::Never),
+                _ => Err(OptionsError::BadArgument(&flags::HYPERLINK, word.into()))?,
+            }
         } else {
-            Ok(Self::Off)
+            Ok(Self::Never)
         }
     }
 }
