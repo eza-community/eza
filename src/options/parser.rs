@@ -85,7 +85,10 @@ pub fn get_command() -> clap::Command {
             .num_args(0..=1)
             .value_parser(value_parser!(ShowWhen))
             .default_missing_value("auto"))
-        .arg(arg!(--hyperlink "display entries as hyperlinks"))
+        .arg(arg!(--hyperlink <WHEN> "when to display entries as hyperlinks")
+            .num_args(0..=1)
+            .value_parser(value_parser!(ShowWhen))
+            .default_missing_value("auto"))
         .arg(arg!(--"no-quotes" "don't quote file names with spaces"))
 
         .next_help_heading("FILTERING OPTIONS")
