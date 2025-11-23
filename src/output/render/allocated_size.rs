@@ -83,7 +83,7 @@ impl f::AllocatedSizeAvailability {
 pub trait Colours {
     fn blocks(&self) -> Style;
     fn allocated_size(&self, prefix: Option<Prefix>) -> Style;
-    fn unit(&self, prefix: Option<Prefix>)      -> Style;
+    fn unit(&self, prefix: Option<Prefix>)           -> Style;
     fn no_allocated_size(&self)                      -> Style;
 }
 
@@ -106,7 +106,7 @@ pub mod test {
     impl Colours for TestColours {
         fn blocks(&self) -> Style { Fixed(66).normal() }
         fn allocated_size(&self, _prefix: Option<Prefix>) -> Style { Fixed(66).normal() }
-        fn unit(&self, _prefix: Option<Prefix>)      -> Style { Fixed(77).bold() }
+        fn unit(&self, _prefix: Option<Prefix>)           -> Style { Fixed(77).bold() }
         fn no_allocated_size(&self)                       -> Style { Black.italic() }
     }
 
