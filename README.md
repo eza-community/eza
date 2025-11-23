@@ -155,7 +155,8 @@ These options are available when running with `--long` (`-l`):
 - **-i**, **--inode**: list each file’s inode number
 - **-m**, **--modified**: use the modified timestamp field
 - **-M**, **--mounts**: Show mount details (Linux and MacOS only).
-- **-S**, **--blocksize**: show size of allocated file system blocks
+- **-S**, **--blocksize**: list the allocated size of each file, in bytes
+- **--blocks**: list the allocated size of each file, in blocks
 - **-t**, **--time=(field)**: which timestamp field to use
 - **-u**, **--accessed**: use the accessed timestamp field
 - **-U**, **--created**: use the created timestamp field
