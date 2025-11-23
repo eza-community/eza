@@ -285,7 +285,7 @@ impl Columns {
             && !matches.has(&flags::NO_GIT)?
             && !no_git_env;
 
-        let blocksize = matches.has(&flags::BLOCKSIZE)? || matches.has(&flags::BLOCKS)?;
+        let allocated_size = matches.has(&flags::BLOCKSIZE)? || matches.has(&flags::BLOCKS)?;
         let group = matches.has(&flags::GROUP)?;
         let inode = matches.has(&flags::INODE)?;
         let links = matches.has(&flags::LINKS)?;
@@ -301,7 +301,7 @@ impl Columns {
             time_types,
             inode,
             links,
-            blocksize,
+            allocated_size,
             group,
             git,
             subdir_git_repos,

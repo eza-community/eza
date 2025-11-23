@@ -107,7 +107,7 @@ impl TextCell {
 // For examples, look at the `render_*` methods in the `Table` object in the
 // details view:
 //
-// - `render_blocks`, `inode`, and `links` will always return a
+// - `render_allocated_size`, `inode`, and `links` will always return a
 //   one-string-long TextCell;
 // - `render_size` will return one or two strings in a TextCell, depending on
 //   the size and whether one is present;

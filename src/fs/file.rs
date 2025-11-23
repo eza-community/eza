@@ -532,12 +532,12 @@ impl<'dir> File<'dir> {
 
     /// This actual size the file takes up on disk, in bytes.
     #[cfg(unix)]
-    pub fn blocksize(&self) -> f::AllocatedSizeAvailability {
+    pub fn allocated_size(&self) -> f::AllocatedSizeAvailability {
         let md = self.metadata();
 
         if self.deref_links && self.is_link() {
             match self.link_target() {
-                FileTarget::Ok(f) => f.blocksize(),
+                FileTarget::Ok(f) => f.allocated_size(),
                 _ => f::AllocatedSizeAvailability::None,
             }
         } else if self.is_directory() {

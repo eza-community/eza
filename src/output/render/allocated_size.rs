@@ -24,7 +24,7 @@ impl f::AllocatedSizeAvailability {
 
         let allocated_size = match self {
             Self::Some(s) => s,
-            Self::None => return TextCell::blank(colours.no_blocksize()),
+            Self::None => return TextCell::blank(colours.no_allocated_size()),
         };
 
         // Number of file system blocks instead of size
@@ -33,7 +33,7 @@ impl f::AllocatedSizeAvailability {
               // get the number of allocated blocks.
               let blocks: u64 = allocated_size.total_size.div_ceil(allocated_size.block_size);
               let string = numerics.format_int(blocks);
-              return TextCell::paint(colours.blocksize(None), string);
+              return TextCell::paint(colours.allocated_size(None), string);
         }
 
         let result = match size_format {
@@ -49,13 +49,13 @@ impl f::AllocatedSizeAvailability {
                 // But format the number directly using the locale.
                 let string = numerics.format_int(allocated_size.total_size);
 
-                return TextCell::paint(colours.blocksize(prefix), string);
+                return TextCell::paint(colours.allocated_size(prefix), string);
             }
         };
 
         let (prefix, n) = match result {
             NumberPrefix::Standalone(b) => {
-                return TextCell::paint(colours.blocksize(None), numerics.format_int(b));
+                return TextCell::paint(colours.allocated_size(None), numerics.format_int(b));
             }
             NumberPrefix::Prefixed(p, n) => (p, n),
         };
@@ -71,7 +71,7 @@ impl f::AllocatedSizeAvailability {
             // symbol is guaranteed to be ASCII since unit prefixes are hardcoded.
             width: DisplayWidth::from(&*number) + symbol.len(),
             contents: vec![
-                colours.blocksize(Some(prefix)).paint(number),
+                colours.allocated_size(Some(prefix)).paint(number),
                 colours.unit(Some(prefix)).paint(symbol),
             ]
             .into(),
@@ -81,9 +81,9 @@ impl f::AllocatedSizeAvailability {
 
 #[rustfmt::skip]
 pub trait Colours {
-    fn blocksize(&self, prefix: Option<Prefix>) -> Style;
+    fn allocated_size(&self, prefix: Option<Prefix>) -> Style;
     fn unit(&self, prefix: Option<Prefix>)      -> Style;
-    fn no_blocksize(&self)                      -> Style;
+    fn no_allocated_size(&self)                      -> Style;
 }
 
 #[cfg(test)]
@@ -103,9 +103,9 @@ pub mod test {
 
     #[rustfmt::skip]
     impl Colours for TestColours {
-        fn blocksize(&self, _prefix: Option<Prefix>) -> Style { Fixed(66).normal() }
+        fn allocated_size(&self, _prefix: Option<Prefix>) -> Style { Fixed(66).normal() }
         fn unit(&self, _prefix: Option<Prefix>)      -> Style { Fixed(77).bold() }
-        fn no_blocksize(&self)                       -> Style { Black.italic() }
+        fn no_allocated_size(&self)                       -> Style { Black.italic() }
     }
 
     #[test]

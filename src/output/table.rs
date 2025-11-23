@@ -52,7 +52,7 @@ pub struct Columns {
     // The rest are just on/off
     pub inode: bool,
     pub links: bool,
-    pub blocksize: bool,
+    pub allocated_size: bool,
     pub group: bool,
     pub git: bool,
     pub subdir_git_repos: bool,
@@ -95,9 +95,9 @@ impl Columns {
             columns.push(Column::FileSize);
         }
 
-        if self.blocksize {
+        if self.allocated_size {
             #[cfg(unix)]
-            columns.push(Column::Blocksize);
+            columns.push(Column::AllocatedSize);
         }
 
         if self.user {
@@ -158,7 +158,7 @@ pub enum Column {
     FileSize,
     Timestamp(TimeType),
     #[cfg(unix)]
-    Blocksize,
+    AllocatedSize,
     #[cfg(unix)]
     User,
     #[cfg(unix)]
@@ -191,7 +191,7 @@ impl Column {
     pub fn alignment(self) -> Alignment {
         #[allow(clippy::wildcard_in_or_patterns)]
         match self {
-            Self::FileSize | Self::HardLinks | Self::Inode | Self::Blocksize | Self::GitStatus => {
+            Self::FileSize | Self::HardLinks | Self::Inode | Self::AllocatedSize | Self::GitStatus => {
                 Alignment::Right
             }
             Self::Timestamp(_) | _ => Alignment::Left,
@@ -218,7 +218,7 @@ impl Column {
             Self::FileSize => "Size",
             Self::Timestamp(t) => t.header(),
             #[cfg(unix)]
-            Self::Blocksize => "Blocksize",
+            Self::AllocatedSize => "Blocksize",
             #[cfg(unix)]
             Self::User => "User",
             #[cfg(unix)]
@@ -552,8 +552,8 @@ impl<'a> Table<'a> {
             #[cfg(unix)]
             Column::Inode => file.inode().render(self.theme.ui.inode.unwrap_or_default()),
             #[cfg(unix)]
-            Column::Blocksize => {
-                file.blocksize()
+            Column::AllocatedSize => {
+                file.allocated_size()
                     .render(self.theme, self.allocated_size_mode, self.size_format, &self.env.numeric)
             }
             #[cfg(unix)]
