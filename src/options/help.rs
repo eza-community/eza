@@ -72,7 +72,8 @@ LONG VIEW OPTIONS
   -M, --mounts               show mount details (Linux and Mac only)
   -n, --numeric              list numeric user and group IDs
   -O, --flags                list file flags (Mac, BSD, and Windows only)
-  -S, --blocksize            show size of allocated file system blocks
+  -S, --blocksize            list the allocated size of each file, in bytes
+  --blocks                   list the allocated size of each file, in blocks
   -t, --time FIELD           which timestamp field to list (modified, accessed, created)
   -m, --modified             use the modified timestamp field
   -u, --accessed             use the accessed timestamp field

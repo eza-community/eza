@@ -70,6 +70,7 @@ pub static LINKS:       Arg = Arg { short: Some(b'H'), long: "links",       take
 pub static MODIFIED:    Arg = Arg { short: Some(b'm'), long: "modified",    takes_value: TakesValue::Forbidden };
 pub static CHANGED:     Arg = Arg { short: None,       long: "changed",     takes_value: TakesValue::Forbidden };
 pub static BLOCKSIZE:   Arg = Arg { short: Some(b'S'), long: "blocksize",   takes_value: TakesValue::Forbidden };
+pub static BLOCKS:      Arg = Arg { short: None,       long: "blocks",      takes_value: TakesValue::Forbidden };
 pub static TOTAL_SIZE:  Arg = Arg { short: None,       long: "total-size",  takes_value: TakesValue::Forbidden };
 pub static TIME:        Arg = Arg { short: Some(b't'), long: "time",        takes_value: TakesValue::Necessary(Some(TIMES)) };
 pub static ACCESSED:    Arg = Arg { short: Some(b'u'), long: "accessed",    takes_value: TakesValue::Forbidden };
@@ -109,8 +110,9 @@ pub static ALL_ARGS: Args = Args(&[
     &IGNORE_GLOB, &GIT_IGNORE, &ONLY_DIRS, &ONLY_FILES,
 
     &BINARY, &BYTES, &GROUP, &NUMERIC, &HEADER, &ICONS, &INODE, &LINKS, &MODIFIED, &CHANGED,
-    &BLOCKSIZE, &TOTAL_SIZE, &TIME, &ACCESSED, &CREATED, &TIME_STYLE, &HYPERLINK, &MOUNTS,
-    &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &SMART_GROUP, &NO_SYMLINKS, &SHOW_SYMLINKS,
+    &BLOCKSIZE, &BLOCKS, &TOTAL_SIZE, &TIME, &ACCESSED, &CREATED, &TIME_STYLE,
+    &HYPERLINK, &MOUNTS, &NO_PERMISSIONS, &NO_FILESIZE, &NO_USER, &NO_TIME, &SMART_GROUP,
+    &NO_SYMLINKS, &SHOW_SYMLINKS,
 
     &GIT, &NO_GIT, &GIT_REPOS, &GIT_REPOS_NO_STAT,
     &EXTENDED, &OCTAL, &SECURITY_CONTEXT, &STDIN, &FILE_FLAGS

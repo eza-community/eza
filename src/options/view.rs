@@ -13,7 +13,7 @@ use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};
 use crate::output::file_name::Options as FileStyle;
 use crate::output::grid_details::{self, RowThreshold};
 use crate::output::table::{
-    Columns, FlagsFormat, GroupFormat, Options as TableOptions, SizeFormat, TimeTypes, UserFormat,
+    Columns, FlagsFormat, GroupFormat, Options as TableOptions, SizeFormat, AllocatedSizeMode, TimeTypes, UserFormat,
 };
 use crate::output::time::TimeFormat;
 use crate::output::{details, grid, Mode, TerminalWidth, View};
@@ -120,6 +120,7 @@ impl Mode {
                 &flags::LINKS,
                 &flags::HEADER,
                 &flags::BLOCKSIZE,
+                &flags::BLOCKS,
                 &flags::TIME,
                 &flags::GROUP,
                 &flags::NUMERIC,
@@ -249,6 +250,7 @@ impl RowThreshold {
 
 impl TableOptions {
     fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
+        let allocated_size_mode = AllocatedSizeMode::deduce(matches)?;
         let time_format = TimeFormat::deduce(matches, vars)?;
         let size_format = SizeFormat::deduce(matches)?;
         let user_format = UserFormat::deduce(matches)?;
@@ -257,6 +259,7 @@ impl TableOptions {
         let columns = Columns::deduce(matches, vars)?;
         Ok(Self {
             size_format,
+            allocated_size_mode,
             time_format,
             user_format,
             group_format,
@@ -282,7 +285,7 @@ impl Columns {
             && !matches.has(&flags::NO_GIT)?
             && !no_git_env;
 
-        let blocksize = matches.has(&flags::BLOCKSIZE)?;
+        let blocksize = matches.has(&flags::BLOCKSIZE)? || matches.has(&flags::BLOCKS)?;
         let group = matches.has(&flags::GROUP)?;
         let inode = matches.has(&flags::INODE)?;
         let links = matches.has(&flags::LINKS)?;
@@ -329,6 +332,20 @@ impl SizeFormat {
             Some(f) if f.matches(&flags::BINARY) => Self::BinaryBytes,
             Some(f) if f.matches(&flags::BYTES) => Self::JustBytes,
             _ => Self::DecimalBytes,
+        })
+    }
+}
+
+impl AllocatedSizeMode {
+    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
+        let flag = matches.has_where(|f| {
+           f.matches(&flags::BLOCKSIZE)
+           || f.matches(&flags::BLOCKS)
+        })?;
+        Ok(match flag {
+            Some(f) if f.matches(&flags::BLOCKS) => Self::Blocks,
+            Some(f) if f.matches(&flags::BLOCKSIZE) => Self::Bytes,
+            _ => Self::Bytes,
         })
     }
 }
@@ -553,6 +570,7 @@ mod test {
         &flags::GIT,
         &flags::LINKS,
         &flags::BLOCKSIZE,
+        &flags::BLOCKS,
         &flags::LONG,
         &flags::LEVEL,
         &flags::GRID,
@@ -811,7 +829,8 @@ mod test {
         test_mode!(just_group:    <- ["--group"],     None;  Last => like Ok(Mode::Grid(_)));
         test_mode!(just_inode:    <- ["--inode"],     None;  Last => like Ok(Mode::Grid(_)));
         test_mode!(just_links:    <- ["--links"],     None;  Last => like Ok(Mode::Grid(_)));
-        test_mode!(just_blocks:   <- ["--blocksize"], None;  Last => like Ok(Mode::Grid(_)));
+        test_mode!(just_blocksize: <- ["--blocksize"], None;  Last => like Ok(Mode::Grid(_)));
+        test_mode!(just_blocks:   <- ["--blocks"],    None;  Last => like Ok(Mode::Grid(_)));
         test_mode!(just_binary:   <- ["--binary"],    None;  Last => like Ok(Mode::Grid(_)));
         test_mode!(just_bytes:    <- ["--bytes"],     None;  Last => like Ok(Mode::Grid(_)));
         test_mode!(just_numeric:  <- ["--numeric"],   None;  Last => like Ok(Mode::Grid(_)));
@@ -823,7 +842,8 @@ mod test {
         test_mode!(just_group_2:  <- ["--group"],     None;  Complain => err OptionsError::Useless(&flags::GROUP,   false, &flags::LONG));
         test_mode!(just_inode_2:  <- ["--inode"],     None;  Complain => err OptionsError::Useless(&flags::INODE,   false, &flags::LONG));
         test_mode!(just_links_2:  <- ["--links"],     None;  Complain => err OptionsError::Useless(&flags::LINKS,   false, &flags::LONG));
-        test_mode!(just_blocks_2: <- ["--blocksize"], None;  Complain => err OptionsError::Useless(&flags::BLOCKSIZE,  false, &flags::LONG));
+        test_mode!(just_blocksize_2: <- ["--blocksize"], None;  Complain => err OptionsError::Useless(&flags::BLOCKSIZE,  false, &flags::LONG));
+        test_mode!(just_blocks_2: <- ["--blocks"],    None;  Complain => err OptionsError::Useless(&flags::BLOCKSIZE,  false, &flags::LONG));
         test_mode!(just_binary_2: <- ["--binary"],    None;  Complain => err OptionsError::Useless(&flags::BINARY,  false, &flags::LONG));
         test_mode!(just_bytes_2:  <- ["--bytes"],     None;  Complain => err OptionsError::Useless(&flags::BYTES,   false, &flags::LONG));
         test_mode!(just_numeric2: <- ["--numeric"],   None;  Complain => err OptionsError::Useless(&flags::NUMERIC, false, &flags::LONG));

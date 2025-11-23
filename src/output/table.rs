@@ -33,6 +33,7 @@ use super::color_scale::ColorScaleMode;
 /// Options for displaying a table.
 #[derive(PartialEq, Eq, Debug)]
 pub struct Options {
+    pub allocated_size_mode: AllocatedSizeMode,
     pub size_format: SizeFormat,
     pub time_format: TimeFormat,
     pub user_format: UserFormat,
@@ -237,6 +238,18 @@ impl Column {
     }
 }
 
+/// Render mode for file allocated size.
+#[allow(clippy::enum_variant_names)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+pub enum AllocatedSizeMode {
+    /// Do no render the allocated size as number of file system blocks
+    /// and find matching SizeFormat further.
+    Bytes,
+
+    /// Render the allocated size as number of file system blocks.
+    Blocks,
+}
+
 /// Formatting options for file sizes.
 #[allow(clippy::enum_variant_names)]
 #[derive(PartialEq, Eq, Debug, Default, Copy, Clone)]
@@ -409,6 +422,8 @@ pub struct Table<'a> {
     theme: &'a Theme,
     env: &'a Environment,
     widths: TableWidths,
+    #[cfg(unix)]
+    allocated_size_mode: AllocatedSizeMode,
     time_format: TimeFormat,
     size_format: SizeFormat,
     #[cfg(unix)]
@@ -444,6 +459,8 @@ impl<'a> Table<'a> {
             columns,
             git,
             env,
+            #[cfg(unix)]
+            allocated_size_mode: options.allocated_size_mode,
             time_format: options.time_format.clone(),
             size_format: options.size_format,
             #[cfg(unix)]
@@ -537,7 +554,7 @@ impl<'a> Table<'a> {
             #[cfg(unix)]
             Column::Blocksize => {
                 file.blocksize()
-                    .render(self.theme, self.size_format, &self.env.numeric)
+                    .render(self.theme, self.allocated_size_mode, self.size_format, &self.env.numeric)
             }
             #[cfg(unix)]
             Column::User => {
