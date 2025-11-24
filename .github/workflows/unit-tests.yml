@@ -155,7 +155,7 @@ jobs:
       - name: Compile
         uses: vmactions/openbsd-vm@v1
         with:
-          release: '7.7'
+          release: '7.8'
           usesh: true
           prepare: |
             pkg_add rust rust-rustfmt rust-clippy git
