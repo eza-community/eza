@@ -191,9 +191,11 @@ impl Column {
     pub fn alignment(self) -> Alignment {
         #[allow(clippy::wildcard_in_or_patterns)]
         match self {
-            Self::FileSize | Self::HardLinks | Self::Inode | Self::AllocatedSize | Self::GitStatus => {
-                Alignment::Right
-            }
+            Self::FileSize
+            | Self::HardLinks
+            | Self::Inode
+            | Self::AllocatedSize
+            | Self::GitStatus => Alignment::Right,
             Self::Timestamp(_) | _ => Alignment::Left,
         }
     }
@@ -243,7 +245,7 @@ impl Column {
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum AllocatedSizeMode {
     /// Do no render the allocated size as number of file system blocks
-    /// and find matching SizeFormat further.
+    /// and find matching `SizeFormat` further.
     Bytes,
 
     /// Render the allocated size as number of file system blocks.
@@ -552,10 +554,12 @@ impl<'a> Table<'a> {
             #[cfg(unix)]
             Column::Inode => file.inode().render(self.theme.ui.inode.unwrap_or_default()),
             #[cfg(unix)]
-            Column::AllocatedSize => {
-                file.allocated_size()
-                    .render(self.theme, self.allocated_size_mode, self.size_format, &self.env.numeric)
-            }
+            Column::AllocatedSize => file.allocated_size().render(
+                self.theme,
+                self.allocated_size_mode,
+                self.size_format,
+                &self.env.numeric,
+            ),
             #[cfg(unix)]
             Column::User => {
                 file.user()

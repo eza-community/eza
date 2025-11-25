@@ -541,12 +541,13 @@ impl<'dir> File<'dir> {
                 _ => f::AllocatedSizeAvailability::None,
             }
         } else if self.is_directory() {
-            self.recursive_size.map_or(f::AllocatedSizeAvailability::None, |_, blocks| {
-                f::AllocatedSizeAvailability::Some(f::AllocatedSize {
-                    total_size: blocks * 512,
-                    block_size: md.map_or(0, MetadataExt::blksize),
+            self.recursive_size
+                .map_or(f::AllocatedSizeAvailability::None, |_, blocks| {
+                    f::AllocatedSizeAvailability::Some(f::AllocatedSize {
+                        total_size: blocks * 512,
+                        block_size: md.map_or(0, MetadataExt::blksize),
+                    })
                 })
-            })
         } else if self.is_file() {
             // Note that metadata.blocks returns the number of blocks
             // for 512 byte blocks according to the POSIX standard

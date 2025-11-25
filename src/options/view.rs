@@ -13,7 +13,8 @@ use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};
 use crate::output::file_name::Options as FileStyle;
 use crate::output::grid_details::{self, RowThreshold};
 use crate::output::table::{
-    Columns, FlagsFormat, GroupFormat, Options as TableOptions, SizeFormat, AllocatedSizeMode, TimeTypes, UserFormat,
+    AllocatedSizeMode, Columns, FlagsFormat, GroupFormat, Options as TableOptions, SizeFormat,
+    TimeTypes, UserFormat,
 };
 use crate::output::time::TimeFormat;
 use crate::output::{details, grid, Mode, TerminalWidth, View};
@@ -258,8 +259,8 @@ impl TableOptions {
         let flags_format = FlagsFormat::deduce(vars);
         let columns = Columns::deduce(matches, vars)?;
         Ok(Self {
-            size_format,
             allocated_size_mode,
+            size_format,
             time_format,
             user_format,
             group_format,
@@ -338,10 +339,8 @@ impl SizeFormat {
 
 impl AllocatedSizeMode {
     fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let flag = matches.has_where(|f| {
-           f.matches(&flags::BLOCKSIZE)
-           || f.matches(&flags::BLOCKS)
-        })?;
+        let flag =
+            matches.has_where(|f| f.matches(&flags::BLOCKSIZE) || f.matches(&flags::BLOCKS))?;
         Ok(match flag {
             Some(f) if f.matches(&flags::BLOCKS) => Self::Blocks,
             Some(f) if f.matches(&flags::BLOCKSIZE) => Self::Bytes,
