@@ -40,7 +40,8 @@ export extern "eza" [
     --header(-h)               # Add a header row to each column
     --links(-H)                # List each file's number of hard links
     --inode(-i)                # List each file's inode number
-    --blocksize(-S)            # List each file's size of allocated file system blocks
+    --blocksize(-S)            # List the allocated size of each file, in bytes
+    --blocks                   # List the allocated size of each file, in blocks
     --time(-t) -d              # Which timestamp field to list
     --modified(-m)             # Use the modified timestamp field
     --numeric(-n)              # List numeric user and group IDs.

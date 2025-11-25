@@ -229,7 +229,10 @@ These options are available when running with `--long` (`-l`):
 : List file flags on Mac and BSD systems and file attributes on Windows systems.  By default, Windows attributes are displayed in a long form.  To display in attributes as single character set the environment variable `EZA_WINDOWS_ATTRIBUTES=short`.  On BSD systems see chflags(1) for a list of file flags and their meanings.
 
 `-S`, `--blocksize`
-: List each file’s size of allocated file system blocks.
+: List the allocated size of each file, in bytes.
+
+`--blocks`
+: List the allocated size of each file, in blocks.
 
 `-t`, `--time=WORD`
 : Which timestamp field to list.

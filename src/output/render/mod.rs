@@ -5,9 +5,9 @@
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
 #[cfg(unix)]
-mod blocks;
+mod allocated_size;
 #[cfg(unix)]
-pub use self::blocks::Colours as BlocksColours;
+pub use self::allocated_size::Colours as AllocatedSizeColours;
 
 mod filetype;
 pub use self::filetype::Colours as FiletypeColours;

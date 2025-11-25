@@ -232,7 +232,7 @@ LIST OF CODES
 : a file’s inode number
 
 `bl`
-: a file’s number of blocks
+: a file’s allocated size, in blocks
 
 `hd`
 : the header row of a table

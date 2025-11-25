@@ -189,6 +189,9 @@ commands:
   ? - -S
     - --blocksize
   :
+  ? - null
+    - --blocks
+  :
   ? - -t
     - --time
   : prefix: -l

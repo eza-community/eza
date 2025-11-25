@@ -146,14 +146,25 @@ pub struct Links {
 #[derive(Copy, Clone)]
 pub struct Inode(pub ino_t);
 
-/// A file's size of allocated file system blocks.
+/// A file's allocated size in file system.
 #[derive(Copy, Clone)]
 #[cfg(unix)]
-pub enum Blocksize {
-    /// This file has the given number of blocks.
-    Some(u64),
+pub struct AllocatedSize {
+    /// The actual size of the file on disk, in bytes.
+    pub total_size: u64,
 
-    /// This file isn’t of a type that can take up blocks.
+    /// Size of one file system block, in bytes.
+    pub block_size: u64,
+}
+
+/// A file's allocated size metadata availability.
+#[derive(Copy, Clone)]
+#[cfg(unix)]
+pub enum AllocatedSizeAvailability {
+    /// This file has metadata about the allocated size.
+    Some(AllocatedSize),
+
+    /// This file isn’t of a type that provides allocated size metadata.
     None,
 }
 

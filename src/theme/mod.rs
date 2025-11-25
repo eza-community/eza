@@ -314,8 +314,12 @@ impl FileStyle for FileTypes {
 }
 
 #[cfg(unix)]
-impl render::BlocksColours for Theme {
-    fn blocksize(&self, prefix: Option<number_prefix::Prefix>) -> Style {
+impl render::AllocatedSizeColours for Theme {
+    fn blocks(&self) -> Style {
+        self.ui.blocks.unwrap_or_default()
+    }
+
+    fn allocated_size(&self, prefix: Option<number_prefix::Prefix>) -> Style {
         use number_prefix::Prefix::{Gibi, Giga, Kibi, Kilo, Mebi, Mega};
 
         #[rustfmt::skip]
@@ -343,7 +347,7 @@ impl render::BlocksColours for Theme {
         style.unwrap_or_default()
     }
 
-    fn no_blocksize(&self) -> Style {
+    fn no_allocated_size(&self) -> Style {
         self.ui.punctuation.unwrap_or_default()
     }
 }

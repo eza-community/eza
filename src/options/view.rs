@@ -13,7 +13,8 @@ use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};
 use crate::output::file_name::Options as FileStyle;
 use crate::output::grid_details::{self, RowThreshold};
 use crate::output::table::{
-    Columns, FlagsFormat, GroupFormat, Options as TableOptions, SizeFormat, TimeTypes, UserFormat,
+    AllocatedSizeMode, Columns, FlagsFormat, GroupFormat, Options as TableOptions, SizeFormat,
+    TimeTypes, UserFormat,
 };
 use crate::output::time::TimeFormat;
 use crate::output::{details, grid, Mode, TerminalWidth, View};
@@ -120,6 +121,7 @@ impl Mode {
                 &flags::LINKS,
                 &flags::HEADER,
                 &flags::BLOCKSIZE,
+                &flags::BLOCKS,
                 &flags::TIME,
                 &flags::GROUP,
                 &flags::NUMERIC,
@@ -249,6 +251,7 @@ impl RowThreshold {
 
 impl TableOptions {
     fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
+        let allocated_size_mode = AllocatedSizeMode::deduce(matches)?;
         let time_format = TimeFormat::deduce(matches, vars)?;
         let size_format = SizeFormat::deduce(matches)?;
         let user_format = UserFormat::deduce(matches)?;
@@ -256,6 +259,7 @@ impl TableOptions {
         let flags_format = FlagsFormat::deduce(vars);
         let columns = Columns::deduce(matches, vars)?;
         Ok(Self {
+            allocated_size_mode,
             size_format,
             time_format,
             user_format,
@@ -282,7 +286,7 @@ impl Columns {
             && !matches.has(&flags::NO_GIT)?
             && !no_git_env;
 
-        let blocksize = matches.has(&flags::BLOCKSIZE)?;
+        let allocated_size = matches.has(&flags::BLOCKSIZE)? || matches.has(&flags::BLOCKS)?;
         let group = matches.has(&flags::GROUP)?;
         let inode = matches.has(&flags::INODE)?;
         let links = matches.has(&flags::LINKS)?;
@@ -298,7 +302,7 @@ impl Columns {
             time_types,
             inode,
             links,
-            blocksize,
+            allocated_size,
             group,
             git,
             subdir_git_repos,
@@ -329,6 +333,18 @@ impl SizeFormat {
             Some(f) if f.matches(&flags::BINARY) => Self::BinaryBytes,
             Some(f) if f.matches(&flags::BYTES) => Self::JustBytes,
             _ => Self::DecimalBytes,
+        })
+    }
+}
+
+impl AllocatedSizeMode {
+    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
+        let flag =
+            matches.has_where(|f| f.matches(&flags::BLOCKSIZE) || f.matches(&flags::BLOCKS))?;
+        Ok(match flag {
+            Some(f) if f.matches(&flags::BLOCKS) => Self::Blocks,
+            Some(f) if f.matches(&flags::BLOCKSIZE) => Self::Bytes,
+            _ => Self::Bytes,
         })
     }
 }
@@ -553,6 +569,7 @@ mod test {
         &flags::GIT,
         &flags::LINKS,
         &flags::BLOCKSIZE,
+        &flags::BLOCKS,
         &flags::LONG,
         &flags::LEVEL,
         &flags::GRID,
@@ -786,58 +803,60 @@ mod test {
         }
 
         // Grid views
-        test_mode!(original_g: <- ["-G"], None;        Both => like Ok(Mode::Grid(GridOptions { across: false, .. })));
-        test_mode!(grid:       <- ["--grid"], None;    Both => like Ok(Mode::Grid(GridOptions { across: false, .. })));
-        test_mode!(across:     <- ["--across"], None;  Both => like Ok(Mode::Grid(GridOptions { across: true,  .. })));
-        test_mode!(gracross:   <- ["-xG"], None;       Both => like Ok(Mode::Grid(GridOptions { across: true,  .. })));
+        test_mode!(original_g:       <- ["-G"],       None; Both => like Ok(Mode::Grid(GridOptions { across: false, .. })));
+        test_mode!(grid:             <- ["--grid"],   None; Both => like Ok(Mode::Grid(GridOptions { across: false, .. })));
+        test_mode!(across:           <- ["--across"], None; Both => like Ok(Mode::Grid(GridOptions { across: true,  .. })));
+        test_mode!(gracross:         <- ["-xG"],      None; Both => like Ok(Mode::Grid(GridOptions { across: true,  .. })));
 
         // Lines views
-        test_mode!(lines:      <- ["--oneline"], None;     Both => like Ok(Mode::Lines));
-        test_mode!(prima:      <- ["-1"], None;            Both => like Ok(Mode::Lines));
+        test_mode!(lines:            <- ["--oneline"], None; Both => like Ok(Mode::Lines));
+        test_mode!(prima:            <- ["-1"],        None; Both => like Ok(Mode::Lines));
 
         // Details views
-        test_mode!(long:       <- ["--long"], None;    Both => like Ok(Mode::Details(_)));
-        test_mode!(ell:        <- ["-l"], None;        Both => like Ok(Mode::Details(_)));
+        test_mode!(long:             <- ["--long"], None; Both => like Ok(Mode::Details(_)));
+        test_mode!(ell:              <- ["-l"],     None; Both => like Ok(Mode::Details(_)));
 
         // Grid-details views
-        test_mode!(lid:        <- ["--long", "--grid"], None;  Both => like Ok(Mode::GridDetails(_)));
-        test_mode!(leg:        <- ["-lG"], None;               Both => like Ok(Mode::GridDetails(_)));
+        test_mode!(lid:              <- ["--long", "--grid"], None; Both => like Ok(Mode::GridDetails(_)));
+        test_mode!(leg:              <- ["-lG"],              None; Both => like Ok(Mode::GridDetails(_)));
 
         // Options that do nothing with --long
-        test_mode!(long_across: <- ["--long", "--across"],   None;  Last => like Ok(Mode::Details(_)));
+        test_mode!(long_across:      <- ["--long", "--across"], None; Last => like Ok(Mode::Details(_)));
 
         // Options that do nothing without --long
-        test_mode!(just_header:   <- ["--header"],    None;  Last => like Ok(Mode::Grid(_)));
-        test_mode!(just_group:    <- ["--group"],     None;  Last => like Ok(Mode::Grid(_)));
-        test_mode!(just_inode:    <- ["--inode"],     None;  Last => like Ok(Mode::Grid(_)));
-        test_mode!(just_links:    <- ["--links"],     None;  Last => like Ok(Mode::Grid(_)));
-        test_mode!(just_blocks:   <- ["--blocksize"], None;  Last => like Ok(Mode::Grid(_)));
-        test_mode!(just_binary:   <- ["--binary"],    None;  Last => like Ok(Mode::Grid(_)));
-        test_mode!(just_bytes:    <- ["--bytes"],     None;  Last => like Ok(Mode::Grid(_)));
-        test_mode!(just_numeric:  <- ["--numeric"],   None;  Last => like Ok(Mode::Grid(_)));
+        test_mode!(just_header:      <- ["--header"],    None; Last => like Ok(Mode::Grid(_)));
+        test_mode!(just_group:       <- ["--group"],     None; Last => like Ok(Mode::Grid(_)));
+        test_mode!(just_inode:       <- ["--inode"],     None; Last => like Ok(Mode::Grid(_)));
+        test_mode!(just_links:       <- ["--links"],     None; Last => like Ok(Mode::Grid(_)));
+        test_mode!(just_blocksize:   <- ["--blocksize"], None; Last => like Ok(Mode::Grid(_)));
+        test_mode!(just_blocks:      <- ["--blocks"],    None; Last => like Ok(Mode::Grid(_)));
+        test_mode!(just_binary:      <- ["--binary"],    None; Last => like Ok(Mode::Grid(_)));
+        test_mode!(just_bytes:       <- ["--bytes"],     None; Last => like Ok(Mode::Grid(_)));
+        test_mode!(just_numeric:     <- ["--numeric"],   None; Last => like Ok(Mode::Grid(_)));
 
         #[cfg(feature = "git")]
-        test_mode!(just_git:      <- ["--git"],       None;  Last => like Ok(Mode::Grid(_)));
+        test_mode!(just_git:         <- ["--git"],       None; Last => like Ok(Mode::Grid(_)));
 
-        test_mode!(just_header_2: <- ["--header"],    None;  Complain => err OptionsError::Useless(&flags::HEADER,  false, &flags::LONG));
-        test_mode!(just_group_2:  <- ["--group"],     None;  Complain => err OptionsError::Useless(&flags::GROUP,   false, &flags::LONG));
-        test_mode!(just_inode_2:  <- ["--inode"],     None;  Complain => err OptionsError::Useless(&flags::INODE,   false, &flags::LONG));
-        test_mode!(just_links_2:  <- ["--links"],     None;  Complain => err OptionsError::Useless(&flags::LINKS,   false, &flags::LONG));
-        test_mode!(just_blocks_2: <- ["--blocksize"], None;  Complain => err OptionsError::Useless(&flags::BLOCKSIZE,  false, &flags::LONG));
-        test_mode!(just_binary_2: <- ["--binary"],    None;  Complain => err OptionsError::Useless(&flags::BINARY,  false, &flags::LONG));
-        test_mode!(just_bytes_2:  <- ["--bytes"],     None;  Complain => err OptionsError::Useless(&flags::BYTES,   false, &flags::LONG));
-        test_mode!(just_numeric2: <- ["--numeric"],   None;  Complain => err OptionsError::Useless(&flags::NUMERIC, false, &flags::LONG));
+        test_mode!(just_header_2:    <- ["--header"],    None; Complain => err OptionsError::Useless(&flags::HEADER,    false, &flags::LONG));
+        test_mode!(just_group_2:     <- ["--group"],     None; Complain => err OptionsError::Useless(&flags::GROUP,     false, &flags::LONG));
+        test_mode!(just_inode_2:     <- ["--inode"],     None; Complain => err OptionsError::Useless(&flags::INODE,     false, &flags::LONG));
+        test_mode!(just_links_2:     <- ["--links"],     None; Complain => err OptionsError::Useless(&flags::LINKS,     false, &flags::LONG));
+        test_mode!(just_blocksize_2: <- ["--blocksize"], None; Complain => err OptionsError::Useless(&flags::BLOCKSIZE, false, &flags::LONG));
+        test_mode!(just_blocks_2:    <- ["--blocks"],    None; Complain => err OptionsError::Useless(&flags::BLOCKS,    false, &flags::LONG));
+        test_mode!(just_binary_2:    <- ["--binary"],    None; Complain => err OptionsError::Useless(&flags::BINARY,    false, &flags::LONG));
+        test_mode!(just_bytes_2:     <- ["--bytes"],     None; Complain => err OptionsError::Useless(&flags::BYTES,     false, &flags::LONG));
+        test_mode!(just_numeric2:    <- ["--numeric"],   None; Complain => err OptionsError::Useless(&flags::NUMERIC,   false, &flags::LONG));
 
         #[cfg(feature = "git")]
-        test_mode!(just_git_2:    <- ["--git"],    None;  Complain => err OptionsError::Useless(&flags::GIT,    false, &flags::LONG));
+        test_mode!(just_git_2:       <- ["--git"],       None; Complain => err OptionsError::Useless(&flags::GIT,       false, &flags::LONG));
 
         // Contradictions and combinations
-        test_mode!(lgo:           <- ["--long", "--grid", "--oneline"], None;  Both => like Ok(Mode::Lines));
-        test_mode!(lgt:           <- ["--long", "--grid", "--tree"],    None;  Both => like Ok(Mode::Details(_)));
-        test_mode!(tgl:           <- ["--tree", "--grid", "--long"],    None;  Both => like Ok(Mode::GridDetails(_)));
-        test_mode!(tlg:           <- ["--tree", "--long", "--grid"],    None;  Both => like Ok(Mode::GridDetails(_)));
-        test_mode!(ot:            <- ["--oneline", "--tree"],           None;  Both => like Ok(Mode::Details(_)));
-        test_mode!(og:            <- ["--oneline", "--grid"],           None;  Both => like Ok(Mode::Grid(_)));
-        test_mode!(tg:            <- ["--tree", "--grid"],              None;  Both => like Ok(Mode::Grid(_)));
+        test_mode!(lgo:              <- ["--long", "--grid", "--oneline"], None; Both => like Ok(Mode::Lines));
+        test_mode!(lgt:              <- ["--long", "--grid", "--tree"],    None; Both => like Ok(Mode::Details(_)));
+        test_mode!(tgl:              <- ["--tree", "--grid", "--long"],    None; Both => like Ok(Mode::GridDetails(_)));
+        test_mode!(tlg:              <- ["--tree", "--long", "--grid"],    None; Both => like Ok(Mode::GridDetails(_)));
+        test_mode!(ot:               <- ["--oneline", "--tree"],           None; Both => like Ok(Mode::Details(_)));
+        test_mode!(og:               <- ["--oneline", "--grid"],           None; Both => like Ok(Mode::Grid(_)));
+        test_mode!(tg:               <- ["--tree", "--grid"],              None; Both => like Ok(Mode::Grid(_)));
     }
 }
