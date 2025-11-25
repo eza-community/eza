@@ -842,7 +842,7 @@ mod test {
         test_mode!(just_inode_2:     <- ["--inode"],     None; Complain => err OptionsError::Useless(&flags::INODE,     false, &flags::LONG));
         test_mode!(just_links_2:     <- ["--links"],     None; Complain => err OptionsError::Useless(&flags::LINKS,     false, &flags::LONG));
         test_mode!(just_blocksize_2: <- ["--blocksize"], None; Complain => err OptionsError::Useless(&flags::BLOCKSIZE, false, &flags::LONG));
-        test_mode!(just_blocks_2:    <- ["--blocks"],    None; Complain => err OptionsError::Useless(&flags::BLOCKSIZE, false, &flags::LONG));
+        test_mode!(just_blocks_2:    <- ["--blocks"],    None; Complain => err OptionsError::Useless(&flags::BLOCKS,    false, &flags::LONG));
         test_mode!(just_binary_2:    <- ["--binary"],    None; Complain => err OptionsError::Useless(&flags::BINARY,    false, &flags::LONG));
         test_mode!(just_bytes_2:     <- ["--bytes"],     None; Complain => err OptionsError::Useless(&flags::BYTES,     false, &flags::LONG));
         test_mode!(just_numeric2:    <- ["--numeric"],   None; Complain => err OptionsError::Useless(&flags::NUMERIC,   false, &flags::LONG));
