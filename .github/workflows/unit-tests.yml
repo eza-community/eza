@@ -13,7 +13,7 @@ concurrency:
 env:
   CARGO_TERM_COLOR: always
   RUSTFLAGS: --deny warnings
-  msrv: 1.78
+  msrv: 1.82
 jobs:
   security_audit:
     runs-on: ubuntu-latest
