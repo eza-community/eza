@@ -4,27 +4,27 @@
 // SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
-use crate::options::parser::MatchedFlags;
+use crate::options::parser::ShowWhen;
 use crate::options::vars::{self, Vars};
-use crate::options::{flags, NumberSource, OptionsError};
+use crate::options::{NumberSource, OptionsError};
 
-use crate::output::file_name::{
-    Absolute, Classify, EmbedHyperlinks, Options, QuoteStyle, ShowIcons,
-};
+use crate::output::file_name::{Classify, EmbedHyperlinks, Options, QuoteStyle, ShowIcons};
+
+use clap::ArgMatches;
 
 impl Options {
     pub fn deduce<V: Vars>(
-        matches: &MatchedFlags<'_>,
+        matches: &ArgMatches,
         vars: &V,
         is_a_tty: bool,
     ) -> Result<Self, OptionsError> {
-        let classify = Classify::deduce(matches)?;
+        let classify = Classify::deduce(matches);
         let show_icons = ShowIcons::deduce(matches, vars)?;
 
-        let quote_style = QuoteStyle::deduce(matches)?;
-        let embed_hyperlinks = EmbedHyperlinks::deduce(matches)?;
+        let quote_style = QuoteStyle::deduce(matches);
+        let embed_hyperlinks = EmbedHyperlinks::deduce(matches);
 
-        let absolute = Absolute::deduce(matches)?;
+        let absolute = *matches.get_one("absolute").unwrap();
 
         Ok(Self {
             classify,
@@ -38,103 +38,226 @@ impl Options {
 }
 
 impl Classify {
-    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let mode_opt = matches.get(&flags::CLASSIFY)?;
-
-        match mode_opt {
-            Some(word) => match word.to_str() {
-                Some("always") => Ok(Self::AddFileIndicators),
-                Some("auto" | "automatic") => Ok(Self::AutomaticAddFileIndicators),
-                Some("never") => Ok(Self::JustFilenames),
-                _ => Err(OptionsError::BadArgument(&flags::CLASSIFY, word.into())),
-            },
-            // No flag given, default to just filenames
-            None => Ok(Self::JustFilenames),
+    fn deduce(matches: &ArgMatches) -> Self {
+        match matches.get_one("classify") {
+            Some(ShowWhen::Auto) => Self::AutomaticAddFileIndicators,
+            Some(ShowWhen::Always) => Self::AddFileIndicators,
+            None | Some(ShowWhen::Never) => Self::JustFilenames,
         }
     }
 }
 
 impl ShowIcons {
-    pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
-        enum AlwaysOrAuto {
-            Always,
-            Automatic,
-        }
-
+    pub fn deduce<V: Vars>(matches: &ArgMatches, vars: &V) -> Result<Self, OptionsError> {
         let force_icons = vars.get(vars::EZA_ICONS_AUTO).is_some();
-        let mode_opt = matches.get(&flags::ICONS)?;
-        if !force_icons && !matches.has(&flags::ICONS)? && mode_opt.is_none() {
+        let mode_opt = &matches.get_one("icons");
+        if !force_icons && mode_opt.is_none() {
             return Ok(Self::Never);
         }
 
-        let mode = match mode_opt {
-            Some(word) => match word.to_str() {
-                Some("always") => AlwaysOrAuto::Always,
-                Some("auto" | "automatic") => AlwaysOrAuto::Automatic,
-                Some("never") => return Ok(Self::Never),
-                None => AlwaysOrAuto::Automatic,
-                _ => return Err(OptionsError::BadArgument(&flags::ICONS, word.into())),
-            },
-            None => AlwaysOrAuto::Automatic,
-        };
+        match mode_opt {
+            Some(ShowWhen::Never) => Ok(Self::Never),
+            Some(ShowWhen::Always) => Ok(Self::Always(Self::get_width(vars)?)),
+            Some(ShowWhen::Auto) | None => Ok(Self::Automatic(Self::get_width(vars)?)),
+        }
+    }
 
-        let width = if let Some(columns) = vars
+    fn get_width<V: Vars>(vars: &V) -> Result<u32, OptionsError> {
+        if let Some(columns) = vars
             .get_with_fallback(vars::EXA_ICON_SPACING, vars::EZA_ICON_SPACING)
-            .and_then(|s| s.into_string().ok())
+            .map(|s| s.to_string_lossy().to_string())
         {
             match columns.parse() {
-                Ok(width) => width,
+                Ok(width) => Ok(width),
                 Err(e) => {
                     let source = NumberSource::Env(
                         vars.source(vars::EXA_ICON_SPACING, vars::EZA_ICON_SPACING)
-                            .unwrap(),
+                            .unwrap_or("1"),
                     );
-                    return Err(OptionsError::FailedParse(columns, source, e));
+                    Err(OptionsError::FailedParse(columns.to_string(), source, e))
                 }
             }
         } else {
-            1
-        };
-
-        match mode {
-            AlwaysOrAuto::Always => Ok(Self::Always(width)),
-            AlwaysOrAuto::Automatic => Ok(Self::Automatic(width)),
+            Ok(1)
         }
     }
 }
 
 impl QuoteStyle {
-    pub fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        if matches.has(&flags::NO_QUOTES)? {
-            Ok(Self::NoQuotes)
+    pub fn deduce(matches: &ArgMatches) -> Self {
+        if matches.get_flag("no-quotes") {
+            Self::NoQuotes
         } else {
-            Ok(Self::QuoteSpaces)
+            Self::QuoteSpaces
         }
     }
 }
 
 impl EmbedHyperlinks {
-    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        let flagged = matches.has(&flags::HYPERLINK)?;
-
-        if flagged {
-            Ok(Self::On)
+    fn deduce(matches: &ArgMatches) -> Self {
+        if matches.get_flag("hyperlink") {
+            Self::On
         } else {
-            Ok(Self::Off)
+            Self::Off
         }
     }
 }
 
-impl Absolute {
-    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
-        match matches.get(&flags::ABSOLUTE)? {
-            Some(word) => match word.to_str() {
-                Some("on" | "yes") => Ok(Self::On),
-                Some("follow") => Ok(Self::Follow),
-                Some("off" | "no") | None => Ok(Self::Off),
-                _ => Err(OptionsError::BadArgument(&flags::ABSOLUTE, word.into())),
-            },
-            None => Ok(Self::Off),
-        }
+#[cfg(test)]
+mod tests {
+    use std::ffi::OsString;
+    use std::num::ParseIntError;
+
+    use super::*;
+    use crate::options::parser::test::mock_cli;
+    use crate::options::parser::ShowWhen;
+    use crate::options::vars::test::MockVars;
+    use crate::output::file_name::Absolute;
+
+    use clap::ValueEnum;
+
+    #[test]
+    fn deduce_classify_file_indicators() {
+        assert_eq!(
+            Classify::deduce(&mock_cli(vec!["--classify"])),
+            Classify::AutomaticAddFileIndicators
+        );
+    }
+
+    #[test]
+    fn deduce_classify_just_filenames() {
+        assert_eq!(
+            Classify::deduce(&mock_cli(vec![""])),
+            Classify::JustFilenames
+        );
+    }
+
+    #[test]
+    fn deduce_quote_style_no_quotes() {
+        assert_eq!(
+            QuoteStyle::deduce(&mock_cli(vec!["--no-quotes"])),
+            QuoteStyle::NoQuotes
+        );
+    }
+
+    #[test]
+    fn deduce_quote_style_quote_spaces() {
+        assert_eq!(
+            QuoteStyle::deduce(&mock_cli(vec![""])),
+            QuoteStyle::QuoteSpaces
+        );
+    }
+
+    #[test]
+    fn deduce_embed_hyperlinks_on() {
+        assert_eq!(
+            EmbedHyperlinks::deduce(&mock_cli(vec!["--hyperlink"])),
+            EmbedHyperlinks::On
+        );
+    }
+
+    #[test]
+    fn deduce_embed_hyperlinks_off() {
+        assert_eq!(
+            EmbedHyperlinks::deduce(&mock_cli(vec![""])),
+            EmbedHyperlinks::Off
+        );
+    }
+
+    #[test]
+    fn deduce_show_icons_never_no_arg() {
+        assert_eq!(
+            ShowIcons::deduce(&mock_cli(vec![""]), &MockVars::default()),
+            Ok(ShowIcons::Never)
+        );
+    }
+
+    #[test]
+    fn deduce_show_icons_never_no_arg_env() {
+        let mut vars = MockVars::default();
+        vars.set(vars::EZA_ICONS_AUTO, &OsString::from("1"));
+        assert_eq!(
+            ShowIcons::deduce(&mock_cli(vec![""]), &vars),
+            Ok(ShowIcons::Automatic(1))
+        );
+    }
+
+    #[test]
+    fn deduce_show_icon_always() {
+        assert_eq!(
+            ShowIcons::deduce(&mock_cli(vec!["--icons", "always"]), &MockVars::default()),
+            Ok(ShowIcons::Always(1)),
+        );
+    }
+
+    #[test]
+    fn deduce_show_icons_never() {
+        assert_eq!(
+            ShowIcons::deduce(&mock_cli(vec!["--icons", "never"]), &MockVars::default()),
+            Ok(ShowIcons::Never)
+        );
+    }
+
+    #[test]
+    fn deduce_show_icons_auto() {
+        assert_eq!(
+            ShowIcons::deduce(&mock_cli(vec!["--icons", "auto"]), &MockVars::default()),
+            Ok(ShowIcons::Automatic(1))
+        );
+    }
+
+    #[test]
+    fn deduce_show_icons_error() {
+        assert_eq!(
+            ShowWhen::from_str("foo", false)
+                .map_err(|err| OptionsError::BadArgument("icons", err.into())),
+            Err(OptionsError::BadArgument("icons", OsString::from("foo")))
+        );
+    }
+
+    #[test]
+    fn deduce_show_icons_width() {
+        let mut vars = MockVars::default();
+        vars.set(vars::EZA_ICON_SPACING, &OsString::from("3"));
+        assert_eq!(
+            ShowIcons::deduce(&mock_cli(vec!["--icons"]), &vars),
+            Ok(ShowIcons::Automatic(3))
+        );
+    }
+
+    #[test]
+    fn deduce_show_icons_width_error() {
+        let mut vars = MockVars::default();
+        vars.set(vars::EZA_ICON_SPACING, &OsString::from("foo"));
+
+        let e: Result<i64, ParseIntError> = vars
+            .get(vars::EZA_ICON_SPACING)
+            .unwrap()
+            .to_string_lossy()
+            .parse();
+
+        assert_eq!(
+            ShowIcons::deduce(&mock_cli(vec!["--icons", "auto"]), &vars),
+            Err(OptionsError::FailedParse(
+                String::from("foo"),
+                NumberSource::Env(vars::EXA_ICON_SPACING),
+                e.unwrap_err()
+            ))
+        );
+    }
+
+    #[test]
+    fn deduce_options() {
+        assert_eq!(
+            Options::deduce(&mock_cli(vec![""]), &MockVars::default(), true),
+            Ok(Options {
+                classify: Classify::JustFilenames,
+                show_icons: ShowIcons::Never,
+                quote_style: QuoteStyle::QuoteSpaces,
+                embed_hyperlinks: EmbedHyperlinks::Off,
+                absolute: Absolute::Off,
+                is_a_tty: true,
+            })
+        );
     }
 }
