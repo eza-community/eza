@@ -168,7 +168,7 @@ pub struct User(pub uid_t);
 #[derive(Copy, Clone)]
 pub struct Group(pub gid_t);
 
-/// A file’s size, in bytes. This is usually formatted by the `number_prefix`
+/// A file’s size, in bytes. This is usually formatted by the `unit_prefix`
 /// crate into something human-readable.
 #[derive(Copy, Clone)]
 pub enum Size {

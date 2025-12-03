@@ -315,8 +315,8 @@ impl FileStyle for FileTypes {
 
 #[cfg(unix)]
 impl render::BlocksColours for Theme {
-    fn blocksize(&self, prefix: Option<number_prefix::Prefix>) -> Style {
-        use number_prefix::Prefix::{Gibi, Giga, Kibi, Kilo, Mebi, Mega};
+    fn blocksize(&self, prefix: Option<unit_prefix::Prefix>) -> Style {
+        use unit_prefix::Prefix::{Gibi, Giga, Kibi, Kilo, Mebi, Mega};
 
         #[rustfmt::skip]
         let style = match prefix {
@@ -329,8 +329,8 @@ impl render::BlocksColours for Theme {
         style.unwrap_or_default()
     }
 
-    fn unit(&self, prefix: Option<number_prefix::Prefix>) -> Style {
-        use number_prefix::Prefix::{Gibi, Giga, Kibi, Kilo, Mebi, Mega};
+    fn unit(&self, prefix: Option<unit_prefix::Prefix>) -> Style {
+        use unit_prefix::Prefix::{Gibi, Giga, Kibi, Kilo, Mebi, Mega};
 
         #[rustfmt::skip]
            let style = match prefix {
@@ -416,8 +416,8 @@ impl render::PermissionsColours for Theme {
 }
 
 impl render::SizeColours for Theme {
-    fn size(&self, prefix: Option<number_prefix::Prefix>) -> Style {
-        use number_prefix::Prefix::{Gibi, Giga, Kibi, Kilo, Mebi, Mega};
+    fn size(&self, prefix: Option<unit_prefix::Prefix>) -> Style {
+        use unit_prefix::Prefix::{Gibi, Giga, Kibi, Kilo, Mebi, Mega};
 
         #[rustfmt::skip]
         return match prefix {
@@ -429,8 +429,8 @@ impl render::SizeColours for Theme {
         };
     }
 
-    fn unit(&self, prefix: Option<number_prefix::Prefix>) -> Style {
-        use number_prefix::Prefix::{Gibi, Giga, Kibi, Kilo, Mebi, Mega};
+    fn unit(&self, prefix: Option<unit_prefix::Prefix>) -> Style {
+        use unit_prefix::Prefix::{Gibi, Giga, Kibi, Kilo, Mebi, Mega};
 
         #[rustfmt::skip]
         return match prefix {
