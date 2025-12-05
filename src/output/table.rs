@@ -409,6 +409,7 @@ pub struct Table<'a> {
     theme: &'a Theme,
     env: &'a Environment,
     widths: TableWidths,
+    spacing: usize,
     time_format: TimeFormat,
     size_format: SizeFormat,
     #[cfg(unix)]
@@ -430,6 +431,7 @@ impl<'a> Table<'a> {
         options: &'a Options,
         git: Option<&'a GitCache>,
         theme: &'a Theme,
+        spacing: usize,
         git_repos: bool,
     ) -> Table<'a> {
         let columns = options.columns.collect(git.is_some(), git_repos);
@@ -444,6 +446,7 @@ impl<'a> Table<'a> {
             columns,
             git,
             env,
+            spacing,
             time_format: options.time_format.clone(),
             size_format: options.size_format,
             #[cfg(unix)]
@@ -618,7 +621,7 @@ impl<'a> Table<'a> {
                 }
             }
 
-            cell.add_spaces(1);
+            cell.add_spaces(self.spacing);
         }
 
         cell

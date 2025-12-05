@@ -16,7 +16,7 @@ use crate::output::table::{
     Columns, FlagsFormat, GroupFormat, Options as TableOptions, SizeFormat, TimeTypes, UserFormat,
 };
 use crate::output::time::TimeFormat;
-use crate::output::{details, grid, Mode, TerminalWidth, View};
+use crate::output::{details, grid, Mode, SpacingBetweenColumns, SpacingMode, TerminalWidth, View};
 
 impl View {
     pub fn deduce<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
@@ -27,9 +27,12 @@ impl View {
         let follow_links = matches.has(&flags::FOLLOW_LINKS)?;
         let total_size = matches.has(&flags::TOTAL_SIZE)?;
         let file_style = FileStyle::deduce(matches, vars, is_tty)?;
+        let space_between_columns = SpacingBetweenColumns::deduce(matches)?;
+
         Ok(Self {
             mode,
             width,
+            space_between_columns,
             file_style,
             deref_links,
             follow_links,
@@ -61,10 +64,13 @@ impl Mode {
 
         let Some(flag) = flag else {
             Self::strict_check_long_flags(matches)?;
+
             if is_tty {
-                let grid = grid::Options::deduce(matches)?;
+                let spacing = SpacingBetweenColumns::deduce(matches)?;
+                let grid = grid::Options::deduce(matches, spacing.spaces(SpacingMode::Grid))?;
                 return Ok(Self::Grid(grid));
             }
+
             return Ok(Self::Lines);
         };
 
@@ -73,7 +79,9 @@ impl Mode {
             || (flag.matches(&flags::GRID) && matches.has(&flags::LONG)?)
         {
             let _ = matches.has(&flags::LONG)?;
-            let details = details::Options::deduce_long(matches, vars)?;
+            let spacing = SpacingBetweenColumns::deduce(matches)?;
+            let details =
+                details::Options::deduce_long(matches, vars, spacing.spaces(SpacingMode::Details))?;
 
             let flag =
                 matches.has_where_any(|f| f.matches(&flags::GRID) || f.matches(&flags::TREE));
@@ -96,7 +104,9 @@ impl Mode {
 
         if flag.matches(&flags::TREE) {
             let _ = matches.has(&flags::TREE)?;
-            let details = details::Options::deduce_tree(matches, vars)?;
+            let spacing = SpacingBetweenColumns::deduce(matches)?;
+            let details =
+                details::Options::deduce_tree(matches, vars, spacing.spaces(SpacingMode::Details))?;
             return Ok(Self::Details(details));
         }
 
@@ -105,7 +115,8 @@ impl Mode {
             return Ok(Self::Lines);
         }
 
-        let grid = grid::Options::deduce(matches)?;
+        let spacing = SpacingBetweenColumns::deduce(matches)?;
+        let grid = grid::Options::deduce(matches, spacing.spaces(SpacingMode::Grid))?;
         Ok(Self::Grid(grid))
     }
 
@@ -149,9 +160,10 @@ impl Mode {
 }
 
 impl grid::Options {
-    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
+    fn deduce(matches: &MatchedFlags<'_>, spacing: usize) -> Result<Self, OptionsError> {
         let grid = grid::Options {
             across: matches.has(&flags::ACROSS)?,
+            spacing,
         };
 
         Ok(grid)
@@ -159,7 +171,11 @@ impl grid::Options {
 }
 
 impl details::Options {
-    fn deduce_tree<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
+    fn deduce_tree<V: Vars>(
+        matches: &MatchedFlags<'_>,
+        vars: &V,
+        spacing: usize,
+    ) -> Result<Self, OptionsError> {
         let details = details::Options {
             table: None,
             header: false,
@@ -168,12 +184,17 @@ impl details::Options {
             mounts: matches.has(&flags::MOUNTS)?,
             color_scale: ColorScaleOptions::deduce(matches, vars)?,
             follow_links: matches.has(&flags::FOLLOW_LINKS)?,
+            spacing,
         };
 
         Ok(details)
     }
 
-    fn deduce_long<V: Vars>(matches: &MatchedFlags<'_>, vars: &V) -> Result<Self, OptionsError> {
+    fn deduce_long<V: Vars>(
+        matches: &MatchedFlags<'_>,
+        vars: &V,
+        spacing: usize,
+    ) -> Result<Self, OptionsError> {
         if matches.is_strict() {
             if matches.has(&flags::ACROSS)? && !matches.has(&flags::GRID)? {
                 return Err(OptionsError::Useless(&flags::ACROSS, true, &flags::LONG));
@@ -190,6 +211,7 @@ impl details::Options {
             mounts: matches.has(&flags::MOUNTS)?,
             color_scale: ColorScaleOptions::deduce(matches, vars)?,
             follow_links: matches.has(&flags::FOLLOW_LINKS)?,
+            spacing,
         })
     }
 }
@@ -221,6 +243,33 @@ impl TerminalWidth {
             }
         } else {
             Ok(Self::Automatic)
+        }
+    }
+}
+
+impl SpacingBetweenColumns {
+    fn deduce(matches: &MatchedFlags<'_>) -> Result<Self, OptionsError> {
+        if let Some(spacing) = matches.get(&flags::SPACING)? {
+            let arg_str = spacing.to_string_lossy();
+            match arg_str.parse::<i32>() {
+                Ok(n) => {
+                    use std::cmp::Ordering;
+                    match n.cmp(&0) {
+                        Ordering::Less => Err(OptionsError::NegativeNumber(
+                            &flags::SPACING,
+                            arg_str.to_string(),
+                        )),
+                        Ordering::Equal => Ok(Self::Set(0)),
+                        Ordering::Greater => Ok(Self::Set(n as usize)),
+                    }
+                }
+                Err(e) => {
+                    let source = NumberSource::Arg(&flags::SPACING);
+                    Err(OptionsError::FailedParse(arg_str.to_string(), source, e))
+                }
+            }
+        } else {
+            Ok(Self::Default)
         }
     }
 }
@@ -560,6 +609,7 @@ mod test {
         &flags::ONE_LINE,
         &flags::TREE,
         &flags::NUMERIC,
+        &flags::SPACING,
     ];
 
     #[allow(unused_macro_rules)]
@@ -839,5 +889,21 @@ mod test {
         test_mode!(ot:            <- ["--oneline", "--tree"],           None;  Both => like Ok(Mode::Details(_)));
         test_mode!(og:            <- ["--oneline", "--grid"],           None;  Both => like Ok(Mode::Grid(_)));
         test_mode!(tg:            <- ["--tree", "--grid"],              None;  Both => like Ok(Mode::Grid(_)));
+    }
+
+    mod spacing_between_columns {
+        use super::*;
+
+        test!(default:       SpacingBetweenColumns <- [];                           Both => like Ok(SpacingBetweenColumns::Default));
+        test!(zero:          SpacingBetweenColumns <- ["--spacing", "0"];           Both => like Ok(SpacingBetweenColumns::Set(0)));
+        test!(one:           SpacingBetweenColumns <- ["--spacing", "1"];           Both => like Ok(SpacingBetweenColumns::Set(1)));
+        test!(three:         SpacingBetweenColumns <- ["--spacing", "3"];           Both => like Ok(SpacingBetweenColumns::Set(3)));
+        test!(five:          SpacingBetweenColumns <- ["--spacing", "5"];           Both => like Ok(SpacingBetweenColumns::Set(5)));
+        test!(large:         SpacingBetweenColumns <- ["--spacing", "100"];         Both => like Ok(SpacingBetweenColumns::Set(100)));
+        test!(negative:      SpacingBetweenColumns <- ["--spacing", "-1"];          Both => like Err(OptionsError::NegativeNumber(_, _)));
+        test!(negative_zero: SpacingBetweenColumns <- ["--spacing", "-0"];          Both => like Ok(SpacingBetweenColumns::Set(0)));
+        test!(invalid:       SpacingBetweenColumns <- ["--spacing", "abc"];         Both => like Err(OptionsError::FailedParse(_, _, _)));
+        test!(invalid_float: SpacingBetweenColumns <- ["--spacing", "1.5"];         Both => like Err(OptionsError::FailedParse(_, _, _)));
+        test!(empty:         SpacingBetweenColumns <- ["--spacing", ""];            Both => like Err(OptionsError::FailedParse(_, _, _)));
     }
 }

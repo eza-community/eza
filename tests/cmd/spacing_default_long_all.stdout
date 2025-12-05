@@ -1,0 +1,22 @@
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 a
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 b
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 c
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 d
+lrwxr-xr-x@  - marcosmoura 17 Jul 14:19 dir-symlink -> vagrant/debug
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 e
+drwxr-xr-x@  - marcosmoura 17 Jul 14:19 exa
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 f
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 g
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 h
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 i
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 image.jpg.img.c.rs.log.png
+.rw-r--r--@ 19 marcosmoura 17 Jul 14:19 index.svg
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 j
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 k
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 l
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 m
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 n
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 o
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 p
+.rw-r--r--@  0 marcosmoura 17 Jul 14:19 q
+drwxr-xr-x@  - marcosmoura 17 Jul 14:19 vagrant
