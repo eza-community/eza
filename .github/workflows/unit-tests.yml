@@ -94,7 +94,7 @@ jobs:
       - name: Compile
         uses: vmactions/freebsd-vm@v1
         with:
-          release: '14.3'
+          release: '15.0'
           usesh: true
           prepare: |
             pkg install -y curl git
