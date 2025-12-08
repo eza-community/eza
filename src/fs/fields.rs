@@ -20,6 +20,8 @@
 #![allow(non_camel_case_types)]
 #![allow(clippy::struct_excessive_bools)]
 
+use std::str::FromStr;
+
 /// The type of a file’s group ID.
 pub type gid_t = u32;
 
@@ -298,3 +300,40 @@ impl Default for SubdirGitRepo {
 /// The user file flags on the file. This will only ever be a number;
 /// looking up the flags is done in the `display` module.
 pub struct Flags(pub flag_t);
+
+/// Tag colors in macOS.
+/// <https://eclecticlight.co/2024/12/24/solving-finder-tag-problems>
+#[derive(Clone)]
+pub enum TagColor {
+    None,
+    Grey,
+    Green,
+    Purple,
+    Blue,
+    Yellow,
+    Red,
+    Orange,
+}
+
+impl FromStr for TagColor {
+    type Err = TagColor;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.parse::<u8>() {
+            Ok(0) => Ok(TagColor::None),
+            Ok(1) => Ok(TagColor::Grey),
+            Ok(2) => Ok(TagColor::Green),
+            Ok(3) => Ok(TagColor::Purple),
+            Ok(4) => Ok(TagColor::Blue),
+            Ok(5) => Ok(TagColor::Yellow),
+            Ok(6) => Ok(TagColor::Red),
+            Ok(7) => Ok(TagColor::Orange),
+            _ => Err(TagColor::None),
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct Tag {
+    pub name: String,
+    pub color: Option<TagColor>,
+}

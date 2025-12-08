@@ -13,6 +13,7 @@ use crate::theme::ui_styles::{
     FileKinds, FileType, Git, GitRepo, Links, Permissions, SELinuxContext, SecurityContext, Size,
     UiStyles, Users,
 };
+use crate::theme::Tags;
 impl UiStyles {
     #[must_use]
     pub fn default_theme(scale: ColorScaleOptions) -> Self {
@@ -126,6 +127,7 @@ impl Default for UiStyles {
                 source:     Some(Yellow.bold()), // Need to discuss color
             }),
 
+            tags: Some(Tags::default()),
             punctuation: Some(DarkGray.bold()),
             date: Some(Blue.normal()),
             inode: Some(Purple.normal()),
