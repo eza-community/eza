@@ -28,7 +28,7 @@ pub fn get_command() -> clap::Command {
     clap::Command::new(clap::crate_name!())
         .author(clap::crate_authors!())
         .about(clap::crate_description!())
-        .version(clap::crate_version!())
+        .version(include_str!(concat!(env!("OUT_DIR"), "/version_string.txt")))
         .disable_help_flag(true)
         .disable_version_flag(true)
         .args_override_self(true)
