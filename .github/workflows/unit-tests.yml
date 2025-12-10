@@ -164,9 +164,12 @@ jobs:
           run: |
             set -e
             export CARGO_TERM_COLOR="always"
-            export RUSTFLAGS="--deny warnings"
+            # Do not treat warnings as failure, since OpenBSD lags behind "rustup" versions.
+            # https://github.com/rust-lang/rustup/issues/2377
+            # https://github.com/rust-lang/rustup/issues/2168
+            # export RUSTFLAGS="--deny warnings"
             cargo fmt --check
-            cargo clippy -- -D warnings
+            # cargo clippy -- -D warnings
             cargo hack test
   flake-check:
     needs: conventional
