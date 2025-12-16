@@ -4,10 +4,17 @@
 // SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
+use dirs;
 use nu_ansi_term::Style;
 use phf::{phf_map, Map};
 
+use std::collections::HashMap;
+use std::path::PathBuf;
+use std::sync::LazyLock;
+
 use crate::fs::File;
+
+static SPECIAL_DIRS: LazyLock<HashMap<PathBuf, char>> = LazyLock::new(load_special_dirs);
 
 #[non_exhaustive]
 struct Icons;
@@ -1136,17 +1143,65 @@ pub fn iconify_style(style: Style) -> Style {
         .unwrap_or_default()
 }
 
+fn load_special_dirs() -> HashMap<PathBuf, char> {
+    let mut map = HashMap::new();
+
+    if let Some(p) = dirs::config_dir() {
+        // NOTE: maybe we should not use this for Windows, since AppData\Roaming is not really
+        // a config directory (windows does not split the config and data directories like this)
+        map.insert(p, Icons::FOLDER_CONFIG);
+    }
+
+    if let Some(p) = dirs::desktop_dir() {
+        map.insert(p, Icons::FOLDER_DESKTOP);
+    }
+
+    if let Some(p) = dirs::document_dir() {
+        map.insert(p, Icons::FOLDER_DOCUMENTS);
+    }
+
+    if let Some(p) = dirs::download_dir() {
+        map.insert(p, Icons::FOLDER_DOWNLOADS);
+    }
+
+    if let Some(p) = dirs::home_dir() {
+        // NOTE: maybe we should make this a profile icon in Windows, instead of a home icon,
+        // since that is the common representation for Users\<User> in Windows
+        map.insert(p, Icons::FOLDER_HOME);
+    }
+
+    if let Some(p) = dirs::audio_dir() {
+        map.insert(p, Icons::FOLDER_MUSIC);
+    }
+
+    if let Some(p) = dirs::picture_dir() {
+        map.insert(p, Icons::FOLDER_PICTURES);
+    }
+
+    if let Some(p) = dirs::video_dir() {
+        map.insert(p, Icons::FOLDER_VIDEOS);
+    }
+
+    map
+}
+
 /// Lookup the icon for a file based on the file's name, if the entry is a
 /// directory, or by the lowercase file extension.
 pub fn icon_for_file(file: &File<'_>) -> char {
     if file.points_to_directory() {
-        *DIRECTORY_ICONS.get(file.name.as_str()).unwrap_or_else(|| {
-            if file.is_empty_dir() {
-                &Icons::FOLDER_OPEN // 
-            } else {
-                &Icons::FOLDER // 
-            }
-        })
+        if let Some(icon) = SPECIAL_DIRS.get(&file.path) {
+            // First check if the file is in an XDG folder.
+            *icon
+        } else {
+            // Base the icon on the directory name.
+            *DIRECTORY_ICONS.get(file.name.as_str()).unwrap_or_else(|| {
+                if file.is_empty_dir() {
+                    &Icons::FOLDER_OPEN // 
+                } else {
+                    &Icons::FOLDER // 
+                }
+            })
+        }
     } else if let Some(icon) = FILENAME_ICONS.get(file.name.as_str()) {
         *icon
     } else if let Some(ext) = file.ext.as_ref() {
