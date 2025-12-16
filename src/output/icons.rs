@@ -14,6 +14,9 @@ use std::sync::LazyLock;
 
 use crate::fs::File;
 
+/// Special directories are system/user directories that have a special icon. (Documents,
+/// Downloads, Videos, etc.)
+/// This caches the results per program execution, instead of recalculating for every file.
 static SPECIAL_DIRS: LazyLock<HashMap<PathBuf, char>> = LazyLock::new(load_special_dirs);
 
 #[non_exhaustive]
@@ -1143,6 +1146,8 @@ pub fn iconify_style(style: Style) -> Style {
         .unwrap_or_default()
 }
 
+/// Builds up the cache of special directories, mapping the directories it finds to the associated
+/// icons.
 fn load_special_dirs() -> HashMap<PathBuf, char> {
     let mut map = HashMap::new();
 
