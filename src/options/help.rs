@@ -51,7 +51,9 @@ FILTERING AND SORTING OPTIONS
   -s, --sort SORT_FIELD      which field to sort by
   --group-directories-first  list directories before other files
   --group-directories-last   list directories after other files
-  -I, --ignore-glob GLOBS    glob patterns (pipe-separated) of files to ignore";
+  -I, --ignore-glob GLOBS    glob patterns (pipe-separated) of files to ignore
+  --since DURATION           show only files modified/created within DURATION
+                             (e.g., '10m', '1h', '2d', '1w')";
 
 static GIT_FILTER_HELP: &str = "  \
   --git-ignore               ignore files mentioned in '.gitignore'";
