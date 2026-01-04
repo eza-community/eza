@@ -132,7 +132,7 @@ windows-sys = { version = "0.60.2", features = [
 chrono = { version = "0.4.40", default-features = false, features = ["clock"] }
 
 [dev-dependencies]
-criterion = { version = "0.5.1", features = ["html_reports"] }
+criterion = { version = "0.7.0", features = ["html_reports"] }
 trycmd = "0.15"
 
 [features]
