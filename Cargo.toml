@@ -6,7 +6,7 @@ description = "A modern replacement for ls"
 authors = ["Christina Sørensen <christina@cafkafk.com>"]
 categories = ["command-line-utilities"]
 edition = "2021"
-rust-version = "1.82.0"
+rust-version = "1.83.0"
 exclude = [
   "/docs/",
   "/devtools/",
@@ -96,7 +96,7 @@ locale = "0.2"
 log = "0.4"
 natord-plus-plus = "2.0"
 path-clean = "1.0.1"
-number_prefix = "0.4"
+unit-prefix = "0.5.2"
 palette = { version = "0.7.6", default-features = false, features = ["std"] }
 percent-encoding = "2.3.1"
 phf = { version = "0.12.1", features = ["macros"] }

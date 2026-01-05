@@ -13,12 +13,12 @@ concurrency:
 env:
   CARGO_TERM_COLOR: always
   RUSTFLAGS: --deny warnings
-  msrv: 1.78
+  msrv: 1.82
 jobs:
   security_audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: taiki-e/install-action@cargo-deny
       - name: Scan for vulnerabilities
         run: cargo deny check
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Run test
         uses: NexusPHP/no-merge-commits@v2.2.1
         with:
@@ -51,7 +51,7 @@ jobs:
     name: Conventional Commits
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: webiny/action-conventional-commits@v1.3.0
   unit-tests:
     needs: conventional
@@ -63,7 +63,7 @@ jobs:
         rust: [msrv, stable, beta, nightly]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - run: rustup toolchain install ${{ matrix.rust == 'msrv' && env.msrv || matrix.rust }} --profile minimal
       - uses: Swatinem/rust-cache@v2
       - name: Install cargo-hack
@@ -88,13 +88,13 @@ jobs:
       matrix:
         rust: [msrv, stable, beta, nightly]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Compile
         uses: vmactions/freebsd-vm@v1
         with:
-          release: '14.3'
+          release: '15.0'
           usesh: true
           prepare: |
             pkg install -y curl git
@@ -119,7 +119,7 @@ jobs:
       matrix:
         rust: [msrv, stable, beta, nightly]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Compile
@@ -131,7 +131,7 @@ jobs:
             PATH="/root/.cargo/bin:/usr/pkg/sbin:/usr/pkg/bin:$PATH"
             PKG_PATH="https://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/amd64/10.1/All/"
             export PATH PKG_PATH
-            /usr/sbin/pkg_add curl git
+            /usr/sbin/pkg_add -uu curl git
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain ${{ matrix.rust == 'msrv' && env.msrv || matrix.rust }} --profile minimal -y
             . ~/.cargo/env
             cargo install cargo-hack
@@ -149,13 +149,13 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Compile
         uses: vmactions/openbsd-vm@v1
         with:
-          release: '7.7'
+          release: '7.8'
           usesh: true
           prepare: |
             pkg_add rust rust-rustfmt rust-clippy git
@@ -164,9 +164,12 @@ jobs:
           run: |
             set -e
             export CARGO_TERM_COLOR="always"
-            export RUSTFLAGS="--deny warnings"
+            # Do not treat warnings as failure, since OpenBSD lags behind "rustup" versions.
+            # https://github.com/rust-lang/rustup/issues/2377
+            # https://github.com/rust-lang/rustup/issues/2168
+            # export RUSTFLAGS="--deny warnings"
             cargo fmt --check
-            cargo clippy -- -D warnings
+            # cargo clippy -- -D warnings
             cargo hack test
   flake-check:
     needs: conventional
@@ -177,7 +180,7 @@ jobs:
         checks: [build, formatting, lint, pre-commit-check, test, trycmd]
         target: [x86_64-linux]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v17
       - name: Nix Flake Check
@@ -191,7 +194,7 @@ jobs:
         target: [x86_64-linux]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v17
       - name: Nix Build
