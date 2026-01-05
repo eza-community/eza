@@ -36,7 +36,7 @@ impl PermissionsPlusRender for Option<f::PermissionsPlus> {
                 contents: chars.into(),
             }
         } else {
-            let chars: Vec<_> = iter::repeat_n(colours.dash().paint("-"), 10).collect();
+            let chars: Vec<_> = iter::repeat(colours.dash().paint("-")).take(10).collect();
             TextCell {
                 width: DisplayWidth::from(chars.len()),
                 contents: chars.into(),
@@ -46,20 +46,19 @@ impl PermissionsPlusRender for Option<f::PermissionsPlus> {
 
     #[cfg(windows)]
     fn render<C: Colours + FiletypeColours>(&self, colours: &C) -> TextCell {
-        match self {
-            Some(p) => {
-                let mut chars = vec![p.attributes.render_type(colours)];
-                chars.extend(p.attributes.render(colours));
+        if let Some(p) = self {
+            let mut chars = vec![p.attributes.render_type(colours)];
+            chars.extend(p.attributes.render(colours));
 
-                TextCell {
-                    width: DisplayWidth::from(chars.len()),
-                    contents: chars.into(),
-                }
+            TextCell {
+                width: DisplayWidth::from(chars.len()),
+                contents: chars.into(),
             }
-            None => TextCell {
+        } else {
+            TextCell {
                 width: DisplayWidth::from(0),
                 contents: vec![].into(),
-            },
+            }
         }
     }
 }
@@ -93,7 +92,7 @@ impl RenderPermissions for Option<f::Permissions> {
                     p.other_execute_bit(colours),
                 ]
             }
-            None => iter::repeat_n(colours.dash().paint("-"), 9).collect(),
+            None => iter::repeat(colours.dash().paint("-")).take(9).collect(),
         }
     }
 }
