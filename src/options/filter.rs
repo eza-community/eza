@@ -43,7 +43,24 @@ impl FileFilter {
             dot_filter:       DotFilter::deduce(matches)?,
             ignore_patterns:  IgnorePatterns::deduce(matches)?,
             git_ignore:       GitIgnore::deduce(matches)?,
+            since_duration:   Self::deduce_since_duration(matches)?,
         });
+    }
+
+    /// Parse the --since duration argument
+    fn deduce_since_duration(matches: &MatchedFlags<'_>) -> Result<Option<std::time::Duration>, OptionsError> {
+        let Some(duration_str) = matches.get(&flags::SINCE)? else {
+            return Ok(None);
+        };
+
+        let Some(duration_str) = duration_str.to_str() else {
+            return Err(OptionsError::BadArgument(&flags::SINCE, duration_str.into()));
+        };
+
+        match humantime::parse_duration(duration_str) {
+            Ok(duration) => Ok(Some(duration)),
+            Err(_) => Err(OptionsError::BadArgument(&flags::SINCE, duration_str.into())),
+        }
     }
 }
 

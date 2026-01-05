@@ -6,6 +6,12 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [Unreleased]
+
+### Features
+
+- Add `--since` flag to filter files by recency (modified or created time within a duration)
+
 ## [0.23.4] - 2025-10-03
 
 ### Bug Fixes

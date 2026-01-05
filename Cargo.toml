@@ -110,6 +110,7 @@ serde = { version = "1.0.219", features = ["derive"] }
 dirs = "6.0.0"
 serde_norway = "0.9"
 backtrace = "0.3"
+humantime = "2.1"
 
 [dependencies.git2]
 version = "0.20"
@@ -134,6 +135,8 @@ chrono = { version = "0.4.40", default-features = false, features = ["clock"] }
 [dev-dependencies]
 criterion = { version = "0.5.1", features = ["html_reports"] }
 trycmd = "0.15"
+tempfile = "3.13"
+filetime = "0.2"
 
 [features]
 default = ["git"]

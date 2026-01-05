@@ -53,6 +53,7 @@ pub static ONLY_DIRS:           Arg = Arg { short: Some(b'D'), long: "only-dirs"
 pub static ONLY_FILES:          Arg = Arg { short: Some(b'f'), long: "only-files", takes_value: TakesValue::Forbidden };
 pub static NO_SYMLINKS:         Arg = Arg { short: None,       long: "no-symlinks", takes_value: TakesValue::Forbidden };
 pub static SHOW_SYMLINKS:       Arg = Arg { short: None,     long: "show-symlinks", takes_value: TakesValue::Forbidden };
+pub static SINCE:               Arg = Arg { short: None,       long: "since", takes_value: TakesValue::Necessary(None) };
 
 const SORTS: Values = &[ "name", "Name", "size", "extension",
                          "Extension", "modified", "changed", "accessed",
@@ -106,7 +107,7 @@ pub static ALL_ARGS: Args = Args(&[
     &WIDTH, &NO_QUOTES, &ABSOLUTE,
 
     &ALL, &ALMOST_ALL, &TREAT_DIRS_AS_FILES, &LIST_DIRS, &LEVEL, &REVERSE, &SORT, &DIRS_FIRST, &DIRS_LAST,
-    &IGNORE_GLOB, &GIT_IGNORE, &ONLY_DIRS, &ONLY_FILES,
+    &IGNORE_GLOB, &GIT_IGNORE, &ONLY_DIRS, &ONLY_FILES, &SINCE,
 
     &BINARY, &BYTES, &GROUP, &NUMERIC, &HEADER, &ICONS, &INODE, &LINKS, &MODIFIED, &CHANGED,
     &BLOCKSIZE, &TOTAL_SIZE, &TIME, &ACCESSED, &CREATED, &TIME_STYLE, &HYPERLINK, &MOUNTS,

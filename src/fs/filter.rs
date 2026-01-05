@@ -90,6 +90,10 @@ pub struct FileFilter {
 
     /// Whether to explicitly show symlinks
     pub show_symlinks: bool,
+
+    /// Duration to filter files by recency (modified or created time).
+    /// Files older than (now - duration) are filtered out.
+    pub since_duration: Option<std::time::Duration>,
 }
 
 impl FileFilter {
@@ -117,6 +121,11 @@ impl FileFilter {
                 _ => true,
             }
         });
+        
+        // Apply since duration filter if specified
+        if let Some(duration) = self.since_duration {
+            files.retain(|f| self.is_recent_file(f, duration));
+        }
     }
 
     /// Remove every file in the given vector that does *not* pass the
@@ -130,6 +139,55 @@ impl FileFilter {
     /// from the glob, even though the globbing is done by the shell!
     pub fn filter_argument_files(&self, files: &mut Vec<File<'_>>) {
         files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
+        
+        // Apply since duration filter if specified
+        if let Some(duration) = self.since_duration {
+            files.retain(|f| self.is_recent_file(f, duration));
+        }
+    }
+
+    /// Check if a file is recent enough based on the `since_duration`.
+    /// A file is considered recent if its most recent timestamp (modified or created)
+    /// is within the duration window from now.
+    fn is_recent_file(&self, file: &File<'_>, duration: std::time::Duration) -> bool {
+        use std::time::SystemTime;
+        
+        let now = SystemTime::now();
+        let Some(cutoff) = now.checked_sub(duration) else {
+            return true; // If we can't calculate cutoff, include the file
+        };
+        
+        // Get the modified timestamp
+        let modified = Self::naive_datetime_to_systemtime(file.modified_time());
+        
+        // Get the created timestamp
+        let created = Self::naive_datetime_to_systemtime(file.created_time());
+        
+        // Use the maximum of modified and created timestamps.
+        // This ensures that a file qualifies if EITHER timestamp is recent enough,
+        // which is useful because:
+        // - A newly created file will have a recent created time
+        // - A recently modified file will have a recent modified time
+        // - Using max() captures both cases for the most intuitive behavior
+        let timestamp_to_check = match (modified, created) {
+            (Some(m), Some(c)) => Some(if m > c { m } else { c }),
+            (Some(m), None) => Some(m),
+            (None, Some(c)) => Some(c),
+            (None, None) => None,
+        };
+        
+        // If we have a timestamp, check if it's recent enough
+        // If no timestamp is available, conservatively exclude the file
+        timestamp_to_check.map_or(false, |timestamp| timestamp >= cutoff)
+    }
+
+    /// Convert a `NaiveDateTime` to `SystemTime` for comparison
+    fn naive_datetime_to_systemtime(dt: Option<chrono::NaiveDateTime>) -> Option<std::time::SystemTime> {
+        dt.and_then(|dt| {
+            dt.and_utc().timestamp().try_into().ok().and_then(|secs: u64| {
+                std::time::SystemTime::UNIX_EPOCH.checked_add(std::time::Duration::from_secs(secs))
+            })
+        })
     }
 
     /// Sort the files in the given vector based on the sort field option.
