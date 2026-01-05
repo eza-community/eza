@@ -162,6 +162,7 @@ These options are available when running with `--long` (`-l`):
 - **-X**, **--dereference**: dereference symlinks for file information
 - **-Z**, **--context**: list each file’s security context
 - **-@**, **--extended**: list each file’s extended attributes and sizes
+- **-e**, **--tags**: list each file's color tags stored in extended attributes
 - **--changed**: use the changed timestamp field
 - **--git**: list each file’s Git status, if tracked or ignored
 - **--git-repos**: list each directory’s Git status, if tracked

@@ -4,9 +4,9 @@
 // SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
-use nu_ansi_term::{AnsiString as ANSIString, Style};
-
 use crate::fs::fields as f;
+use crate::fs::fields::TagColor;
+use nu_ansi_term::{AnsiString as ANSIString, Style};
 
 impl f::Type {
     pub fn render<C: Colours>(self, colours: &C) -> ANSIString<'static> {
@@ -33,4 +33,5 @@ pub trait Colours {
     fn char_device(&self) -> Style;
     fn socket(&self) -> Style;
     fn special(&self) -> Style;
+    fn tag(&self, tag: &TagColor) -> Style;
 }

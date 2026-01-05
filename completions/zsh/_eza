@@ -68,6 +68,7 @@ __eza() {
         --git-repos"[List each git-repos status and branch name]" \
         --git-repos-no-status"[List each git-repos branch name (much faster)]" \
         {-@,--extended}"[List each file's extended attributes and sizes]" \
+        {-e,--tags}"[List each file's color tags stored in extended attributes]" \
         {-Z,--context}"[List each file's security context]" \
         {-M,--mounts}"[Show mount details (long mode only)]" \
         '*:filename:_files' \

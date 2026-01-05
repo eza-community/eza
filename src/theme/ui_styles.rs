@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: MIT
 use crate::theme::lsc::Pair;
 use nu_ansi_term::{
-    Color::{Blue, Cyan, Green, Purple, Red, Yellow},
+    Color::{Black, Blue, Cyan, Fixed, Green, Purple, Red, Yellow},
     Style,
 };
 use serde::{Deserialize, Serialize};
@@ -39,6 +39,7 @@ pub struct UiStyles {
     pub git_repo:         Option<GitRepo>,
     pub security_context: Option<SecurityContext>,
     pub file_type:        Option<FileType>,
+    pub tags:             Option<Tags>,
 
     pub punctuation:  Option<Style>,          // xx
     pub date:         Option<Style>,          // da
@@ -97,7 +98,8 @@ update_field_accessors!(
     users: Option<Users>,
     links: Option<Links>,
     git: Option<Git>,
-    git_repo: Option<GitRepo>
+    git_repo: Option<GitRepo>,
+    tags: Option<Tags>
 );
 
 field_accessors!(
@@ -384,6 +386,46 @@ pub struct FileType {
     pub source: Option<Style>,      // sc - source code
 }
 
+#[rustfmt::skip]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct Tags {
+    pub none: Option<Style>,
+    pub grey: Option<Style>,
+    pub green: Option<Style>,
+    pub purple: Option<Style>,
+    pub blue: Option<Style>,
+    pub yellow: Option<Style>,
+    pub red: Option<Style>,
+    pub orange: Option<Style>,
+}
+field_accessors!(
+    Tags,
+    none: Option<Style>,
+    grey: Option<Style>,
+    green: Option<Style>,
+    purple: Option<Style>,
+    blue: Option<Style>,
+    yellow: Option<Style>,
+    red: Option<Style>,
+    orange: Option<Style>
+);
+
+/// Look at `docs/theme.yml` for more natural tag colors example for true-color terminals
+impl Default for Tags {
+    fn default() -> Self {
+        Tags {
+            none: Some(Style::default()),
+            grey: Some(Style::from(Black).on(Fixed(248))),
+            green: Some(Style::from(Black).on(Fixed(114))),
+            purple: Some(Style::from(Black).on(Fixed(177))),
+            blue: Some(Style::from(Black).on(Fixed(75))),
+            yellow: Some(Style::from(Black).on(Fixed(227))),
+            red: Some(Style::from(Black).on(Fixed(9))),
+            orange: Some(Style::from(Black).on(Fixed(208))),
+        }
+    }
+}
+
 impl UiStyles {
     #[must_use]
     pub fn plain() -> Self {
@@ -486,6 +528,18 @@ impl UiStyles {
                 compiled:   Some(Style::default()),
                 build:      Some(Style::default()),
                 source:     Some(Style::default()), // Need to discuss color
+            }),
+
+            #[rustfmt::skip]
+            tags: Some(Tags {
+                none:   Some(Style::default()),
+                grey:   Some(Style::default()),
+                green:  Some(Style::default()),
+                purple: Some(Style::default()),
+                blue:   Some(Style::default()),
+                yellow: Some(Style::default()),
+                red:    Some(Style::default()),
+                orange: Some(Style::default()),
             }),
 
             punctuation: Some(Style::default()),
@@ -620,6 +674,15 @@ impl UiStyles {
             "Sr" => self.security_context().selinux().role  = Some(pair.to_style()),
             "St" => self.security_context().selinux().typ   = Some(pair.to_style()),
             "Sl" => self.security_context().selinux().range = Some(pair.to_style()),
+
+            "Tn" => self.tags().none                      = Some(pair.to_style()),
+            "Tg" => self.tags().grey                      = Some(pair.to_style()),
+            "Te" => self.tags().green                     = Some(pair.to_style()),
+            "Tp" => self.tags().purple                    = Some(pair.to_style()),
+            "Tb" => self.tags().blue                      = Some(pair.to_style()),
+            "Ty" => self.tags().yellow                    = Some(pair.to_style()),
+            "Tr" => self.tags().red                       = Some(pair.to_style()),
+            "To" => self.tags().orange                    = Some(pair.to_style()),
 
              _   => return false,
         }

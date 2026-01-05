@@ -306,6 +306,30 @@ LIST OF CODES
 `ff`
 : BSD file flags
 
+`Tn`
+: Color of the default tag
+
+`Tg`
+: Color of the `grey` tag
+
+`Te`
+: Color of the `green` tag
+
+`Tp`
+: Color of the `purple` tag
+
+`Tb`
+: Color of the `blue` tag
+
+`Ty`
+: Color of the `yellow` tag
+
+`Tr`
+: Color of the `red` tag
+
+`To`
+: Color of the `orange` tag
+
 Values in `EXA_COLORS` override those given in `LS_COLORS`, so you don’t need to re-write an existing `LS_COLORS` variable with proprietary extensions.
 
 

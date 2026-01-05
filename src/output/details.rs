@@ -114,6 +114,9 @@ pub struct Options {
     /// Whether to show each file’s extended attributes.
     pub xattr: bool,
 
+    /// Whether to show each file’s tags attributes.
+    pub tags: bool,
+
     /// Whether to show each file's security attribute.
     pub secattr: bool,
 
@@ -341,6 +344,7 @@ impl<'a> Render<'a> {
                 .for_file(egg.file, self.theme)
                 .with_link_paths()
                 .with_mount_details(self.opts.mounts)
+                .with_tags(self.opts.tags)
                 .paint()
                 .promote();
 

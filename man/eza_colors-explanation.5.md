@@ -147,6 +147,16 @@ file_type:
   build
   source
 
+tags:
+  none
+  grey
+  green
+  purple
+  blue
+  yellow
+  red
+  orange
+
 punctuation:
 
 date:
@@ -200,6 +210,10 @@ security_context:
   selinux:
     role:
       is_hidden: true
+
+tags:
+  none:
+    underline: true
 ```
 
 Icons can now be customized as well in the `filenames` and `extensions` fields
