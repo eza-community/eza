@@ -46,7 +46,7 @@ impl Icons {
     const ESLINT: char           = '\u{e655}';  // 
     const FILE: char             = '\u{f15b}';  // 
     const FILE_3D: char          = '\u{f01a7}'; // 󰆧
-    const FILE_UNKNOW: char      = '\u{f086f}'; // 󰡯
+    const FILE_UNKNOWN: char      = '\u{f086f}'; // 󰡯
     const FOLDER: char           = '\u{e5ff}';  // 
     const FOLDER_BUILD: char     = '\u{f19fc}'; // 󱧼
     const FOLDER_CONFIG: char    = '\u{e5fc}';  // 
@@ -1193,6 +1193,6 @@ pub fn icon_for_file(file: &File<'_>) -> char {
     } else if let Some(ext) = file.ext.as_ref() {
         *EXTENSION_ICONS.get(ext.as_str()).unwrap_or(&Icons::FILE) // 
     } else {
-        Icons::FILE_UNKNOW // 󰡯
+        Icons::FILE_UNKNOWN // 󰡯
     }
 }
