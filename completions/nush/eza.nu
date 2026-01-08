@@ -20,6 +20,7 @@ export extern "eza" [
     --hyperlink                # Display entries as hyperlinks
     --absolute                 # Display entries with their absolute path
     --follow-symlinks          # Drill down into symbolic links that point to directories
+    --summary                  # Show summary of files, directories, and symlinks
     --group-directories-first  # Sort directories before other files
     --group-directories-last   # Sort directories after other files
     --git-ignore               # Ignore files mentioned in '.gitignore'
