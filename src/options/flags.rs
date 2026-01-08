@@ -24,6 +24,7 @@ pub static WIDTH:        Arg = Arg { short: Some(b'w'), long: "width",          
 pub static NO_QUOTES:    Arg = Arg { short: None,       long: "no-quotes",       takes_value: TakesValue::Forbidden };
 pub static ABSOLUTE:     Arg = Arg { short: None,       long: "absolute",        takes_value: TakesValue::Optional(Some(ABSOLUTE_MODES), "on") };
 pub static FOLLOW_LINKS: Arg = Arg { short: None,       long: "follow-symlinks", takes_value: TakesValue::Forbidden };
+pub static SUMMARY:      Arg = Arg { short: None,       long: "summary",         takes_value: TakesValue::Forbidden };
 const ABSOLUTE_MODES: &[&str] = &["on", "follow", "off"];
 
 pub static COLOR:  Arg = Arg { short: None, long: "color",  takes_value: TakesValue::Optional(Some(WHEN), "auto") };
@@ -103,7 +104,7 @@ pub static ALL_ARGS: Args = Args(&[
 
     &ONE_LINE, &LONG, &GRID, &ACROSS, &RECURSE, &TREE, &CLASSIFY, &DEREF_LINKS, &FOLLOW_LINKS,
     &COLOR, &COLOUR, &COLOR_SCALE, &COLOUR_SCALE, &COLOR_SCALE_MODE, &COLOUR_SCALE_MODE,
-    &WIDTH, &NO_QUOTES, &ABSOLUTE,
+    &WIDTH, &NO_QUOTES, &ABSOLUTE, &SUMMARY,
 
     &ALL, &ALMOST_ALL, &TREAT_DIRS_AS_FILES, &LIST_DIRS, &LEVEL, &REVERSE, &SORT, &DIRS_FIRST, &DIRS_LAST,
     &IGNORE_GLOB, &GIT_IGNORE, &ONLY_DIRS, &ONLY_FILES,
