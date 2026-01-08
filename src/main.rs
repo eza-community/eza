@@ -636,14 +636,14 @@ impl Exa<'_> {
         
         if show_icons {
             // With icons
-            writeln!(&mut self.writer, "  \u{e5ff} Directories: {}", self.summary.directories)?;
-            writeln!(&mut self.writer, "  \u{f15b} Files: {}", self.summary.files)?;
-            writeln!(&mut self.writer, "  \u{f0338} Symlinks: {}", self.summary.symlinks)?;
+            writeln!(&mut self.writer, "\u{e5ff}  Directories: {}", self.summary.directories)?;
+            writeln!(&mut self.writer, "\u{f15b}  Files: {}", self.summary.files)?;
+            writeln!(&mut self.writer, "\u{f0338}  Symlinks: {}", self.summary.symlinks)?;
         } else {
             // Without icons
-            writeln!(&mut self.writer, "  Directories: {}", self.summary.directories)?;
-            writeln!(&mut self.writer, "  Files: {}", self.summary.files)?;
-            writeln!(&mut self.writer, "  Symlinks: {}", self.summary.symlinks)?;
+            writeln!(&mut self.writer, "Directories: {}", self.summary.directories)?;
+            writeln!(&mut self.writer, "Files: {}", self.summary.files)?;
+            writeln!(&mut self.writer, "Symlinks: {}", self.summary.symlinks)?;
         }
         
         writeln!(&mut self.writer, "Total: {}", self.summary.total())?;
