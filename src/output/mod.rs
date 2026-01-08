@@ -25,6 +25,7 @@ mod tree;
 
 /// The **view** contains all information about how to format output.
 #[derive(Debug)]
+#[allow(clippy::struct_excessive_bools)]
 pub struct View {
     pub mode: Mode,
     pub width: TerminalWidth,

@@ -324,12 +324,12 @@ impl Exa<'_> {
         self.print_files(None, files)?;
 
         let exit_code = self.print_dirs(dirs, no_files, is_only_dir, exit_status)?;
-        
+
         // Print summary if enabled
         if self.options.view.summary {
             self.print_summary()?;
         }
-        
+
         Ok(exit_code)
     }
 
@@ -452,38 +452,43 @@ impl Exa<'_> {
     /// Recursively count files in a directory for tree/recursive modes
     fn count_files_recursive(&mut self, file: &File<'_>) {
         self.summary.add_file(file);
-        
+
         if file.is_directory() {
             if let Ok(dir) = file.read_dir() {
                 let git_ignore = self.options.filter.git_ignore == GitIgnore::CheckAndIgnore;
                 // Collect files first to avoid borrow checker issues
-                let children: Vec<_> = dir.files(
-                    self.options.filter.dot_filter,
-                    self.git.as_ref(),
-                    git_ignore,
-                    self.options.view.deref_links,
-                    self.options.view.total_size,
-                ).collect();
-                
+                let children: Vec<_> = dir
+                    .files(
+                        self.options.filter.dot_filter,
+                        self.git.as_ref(),
+                        git_ignore,
+                        self.options.view.deref_links,
+                        self.options.view.total_size,
+                    )
+                    .collect();
+
                 for child in children {
                     self.count_files_recursive(&child);
                 }
             }
         }
     }
-    
+
     /// Prints the list of files using whichever view is selected.
     fn print_files(&mut self, dir: Option<&Dir>, mut files: Vec<File<'_>>) -> io::Result<()> {
         if files.is_empty() {
             return Ok(());
         }
-        
+
         // Count files for summary if enabled
         if self.options.view.summary {
-            let is_tree_mode = self.options.dir_action.recurse_options()
+            let is_tree_mode = self
+                .options
+                .dir_action
+                .recurse_options()
                 .map(|r| r.tree)
                 .unwrap_or(false);
-            
+
             if is_tree_mode {
                 // In tree mode, we need to recursively count all files
                 for file in &files {
@@ -496,7 +501,7 @@ impl Exa<'_> {
                 }
             }
         }
-        
+
         let recursing = self.options.dir_action.recurse_options().is_some();
         let only_files = self.options.filter.flags.contains(&OnlyFiles);
         if recursing && only_files {
@@ -625,29 +630,41 @@ impl Exa<'_> {
     /// Print the summary statistics.
     fn print_summary(&mut self) -> io::Result<()> {
         use crate::output::file_name::ShowIcons;
-        
+
         writeln!(&mut self.writer)?;
-        
+
         let show_icons = match self.options.view.file_style.show_icons {
             ShowIcons::Always(_) => true,
             ShowIcons::Automatic(_) => io::stdout().is_terminal(),
             ShowIcons::Never => false,
         };
-        
+
         if show_icons {
             // With icons
-            writeln!(&mut self.writer, "\u{e5ff}  Directories: {}", self.summary.directories)?;
+            writeln!(
+                &mut self.writer,
+                "\u{e5ff}  Directories: {}",
+                self.summary.directories
+            )?;
             writeln!(&mut self.writer, "\u{f15b}  Files: {}", self.summary.files)?;
-            writeln!(&mut self.writer, "\u{f0338}  Symlinks: {}", self.summary.symlinks)?;
+            writeln!(
+                &mut self.writer,
+                "\u{f0338}  Symlinks: {}",
+                self.summary.symlinks
+            )?;
         } else {
             // Without icons
-            writeln!(&mut self.writer, "Directories: {}", self.summary.directories)?;
+            writeln!(
+                &mut self.writer,
+                "Directories: {}",
+                self.summary.directories
+            )?;
             writeln!(&mut self.writer, "Files: {}", self.summary.files)?;
             writeln!(&mut self.writer, "Symlinks: {}", self.summary.symlinks)?;
         }
-        
+
         writeln!(&mut self.writer, "Total: {}", self.summary.total())?;
-        
+
         Ok(())
     }
 }
