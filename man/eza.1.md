@@ -109,7 +109,7 @@ Use comma(,) separated list of all, age, size
 `--color-scale-mode=MODE`, `--colour-scale-mode=MODE`
 : Use gradient or fixed colors in `--color-scale`.
 
-Valid options are `fixed` or `gradient`.
+Valid options are `fixed` to use a fixed color (disabling color scale), or `gradient` to use an automatic darker (old/small file) to lighter (recent/big file) gradient of colors.
 When used without a value, defaults to `gradient`.
 
 `--icons=WHEN`
