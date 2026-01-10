@@ -42,6 +42,7 @@ FILTERING AND SORTING OPTIONS
                              show the '.' and '..' directories
   -A, --almost-all           equivalent to --all; included for compatibility with `ls -A`
   -d, --treat-dirs-as-files  list directories as files; don't list their contents
+  --list-dirs                List directories matched by the given pattern instead of recursing into them.
   -D, --only-dirs            list only directories
   -f, --only-files           list only files
   --show-symlinks            explicitly show symbolic links (for use with --only-dirs | --only-files)
