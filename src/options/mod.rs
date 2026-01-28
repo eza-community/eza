@@ -4,9 +4,9 @@
 // SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
-//! Parsing command-line strings into exa options.
+//! Parsing command-line strings into eza options.
 //!
-//! This module imports exa’s configuration types, such as `View` (the details
+//! This module imports eza’s configuration types, such as `View` (the details
 //! of displaying multiple files) and `DirAction` (what to do when encountering
 //! a directory), and implements `deduce` methods on them so they can be
 //! configured using command-line options.
@@ -14,55 +14,55 @@
 //!
 //! ## Useless and overridden options
 //!
-//! Let’s say exa was invoked with just one argument: `exa --inode`. The
+//! Let’s say eza was invoked with just one argument: `eza --inode`. The
 //! `--inode` option is used in the details view, where it adds the inode
 //! column to the output. But because the details view is *only* activated with
 //! the `--long` argument, adding `--inode` without it would not have any
 //! effect.
 //!
-//! For a long time, exa’s philosophy was that the user should be warned
-//! whenever they could be mistaken like this. If you tell exa to display the
+//! For a long time, eza’s philosophy was that the user should be warned
+//! whenever they could be mistaken like this. If you tell eza to display the
 //! inode, and it *doesn’t* display the inode, isn’t that more annoying than
 //! having it throw an error back at you?
 //!
 //! However, this doesn’t take into account *configuration*. Say a user wants
-//! to configure exa so that it lists inodes in the details view, but otherwise
+//! to configure eza so that it lists inodes in the details view, but otherwise
 //! functions normally. A common way to do this for command-line programs is to
 //! define a shell alias that specifies the details they want to use every
 //! time. For the inode column, the alias would be:
 //!
-//! `alias exa="exa --inode"`
+//! `alias eza="eza --inode"`
 //!
 //! Using this alias means that although the inode column will be shown in the
 //! details view, you’re now *only* allowed to use the details view, as any
 //! other view type will result in an error. Oops!
 //!
-//! Another example is when an option is specified twice, such as `exa
+//! Another example is when an option is specified twice, such as `eza
 //! --sort=Name --sort=size`. Did the user change their mind about sorting, and
 //! accidentally specify the option twice?
 //!
-//! Again, exa rejected this case, throwing an error back to the user instead
+//! Again, eza rejected this case, throwing an error back to the user instead
 //! of trying to guess how they want their output sorted. And again, this
 //! doesn’t take into account aliases being used to set defaults. A user who
 //! wants their files to be sorted case-insensitively may configure their shell
 //! with the following:
 //!
-//! `alias exa="exa --sort=Name"`
+//! `alias eza="eza --sort=Name"`
 //!
 //! Just like the earlier example, the user now can’t use any other sort order,
-//! because exa refuses to guess which one they meant. It’s *more* annoying to
+//! because eza refuses to guess which one they meant. It’s *more* annoying to
 //! have to go back and edit the command than if there were no error.
 //!
 //! Fortunately, there’s a heuristic for telling which options came from an
 //! alias and which came from the actual command-line: aliased options are
 //! nearer the beginning of the options array, and command-line options are
-//! nearer the end. This means that after the options have been parsed, exa
+//! nearer the end. This means that after the options have been parsed, eza
 //! needs to traverse them *backwards* to find the last-most-specified one.
 //!
-//! For example, invoking exa with `exa --sort=size` when that alias is present
+//! For example, invoking eza with `eza --sort=size` when that alias is present
 //! would result in a full command-line of:
 //!
-//! `exa --sort=Name --sort=size`
+//! `eza --sort=Name --sort=size`
 //!
 //! `--sort=size` should override `--sort=Name` because it’s closer to the end
 //! of the arguments array. In fact, because there’s no way to tell where the
@@ -70,7 +70,7 @@
 //! if no aliases are being used!
 //!
 //! Finally, this isn’t just useful when options could override each other.
-//! Creating an alias `exal="exa --long --inode --header"` then invoking `exal
+//! Creating an alias `ezal="eza --long --inode --header"` then invoking `ezal
 //! --grid --long` shouldn’t complain about `--long` being given twice when
 //! it’s clear what the user wants.
 
@@ -155,11 +155,11 @@ impl Options {
         if cfg!(not(feature = "git")) && (matches.get_flag("git") || matches.get_flag("git-ignore"))
         {
             return Err(OptionsError::Unsupported(String::from(
-                "Options --git and --git-ignore can't be used because `git` feature was disabled in this build of exa",
+                "Options --git and --git-ignore can't be used because `git` feature was disabled in this build of eza",
             )));
         }
         let strict = vars
-            .get_with_fallback(vars::EXA_STRICT, vars::EZA_STRICT)
+            .get_with_fallback(vars::EZA_STRICT, vars::EXA_STRICT)
             .is_some();
 
         let view = View::deduce(matches, vars, strict)?;

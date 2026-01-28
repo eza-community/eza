@@ -124,9 +124,9 @@ impl FileFilter {
     ///
     /// The rules are different for these types of files than the other
     /// type because the ignore rules can be used with globbing. For
-    /// example, running `exa -I='*. tmp' .vimrc` shouldn’t filter out the
+    /// example, running `eza -I='*. tmp' .vimrc` shouldn’t filter out the
     /// dotfile, because it’s been directly specified. But running
-    /// `exa -I='*.ogg' music/*` should filter out the ogg files obtained
+    /// `eza -I='*.ogg' music/*` should filter out the ogg files obtained
     /// from the glob, even though the globbing is done by the shell!
     pub fn filter_argument_files(&self, files: &mut Vec<File<'_>>) {
         files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));

@@ -162,7 +162,7 @@ option just like the normal grid view.
 BREAKING CHANGE: The style codes for huge file and units where
 documented to be `nt` and `ut` but the code was using `nh` and `uh`.
 The code has been updated to match the documented style codes.
-EXA_COLORS using style codes `nh` and `uh` will need to be updated to
+EZA_COLORS using style codes `nh` and `uh` will need to be updated to
 use `nt` and `ut`.
 
 Resolves: #129

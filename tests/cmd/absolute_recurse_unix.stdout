@@ -4,7 +4,7 @@
 [CWD]/tests/itest/d
 [CWD]/tests/itest/dir-symlink -> vagrant/debug
 [CWD]/tests/itest/e
-[CWD]/tests/itest/exa
+[CWD]/tests/itest/eza
 [CWD]/tests/itest/f
 [CWD]/tests/itest/g
 [CWD]/tests/itest/h
@@ -21,12 +21,12 @@
 [CWD]/tests/itest/q
 [CWD]/tests/itest/vagrant
 
-tests/itest/exa:
-[CWD]/tests/itest/exa/file.c -> djihisudjuhfius
-[CWD]/tests/itest/exa/sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+tests/itest/eza:
+[CWD]/tests/itest/eza/file.c -> djihisudjuhfius
+[CWD]/tests/itest/eza/sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 
-tests/itest/exa/sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss:
-[CWD]/tests/itest/exa/sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss/Makefile
+tests/itest/eza/sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss:
+[CWD]/tests/itest/eza/sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss/Makefile
 
 tests/itest/vagrant:
 [CWD]/tests/itest/vagrant/debug

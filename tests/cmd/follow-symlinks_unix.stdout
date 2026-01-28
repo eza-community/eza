@@ -8,7 +8,7 @@ tests/itest
 │   ├── symlink -> a
 │   └── symlink-broken -> ./b
 ├── e
-├── exa
+├── eza
 │   ├── file.c -> djihisudjuhfius
 │   └── sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 │       └── Makefile

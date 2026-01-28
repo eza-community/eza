@@ -58,7 +58,10 @@ fn main() {
         libc::signal(libc::SIGPIPE, libc::SIG_DFL);
     }
 
-    logger::configure(env::var_os(vars::EZA_DEBUG).or_else(|| env::var_os(vars::EXA_DEBUG)));
+    logger::configure(
+        env::var_os(vars::EZA_DEBUG)
+            .or_else(|| env::var_os(vars::EZA_DEBUG).or_else(|| env::var_os(vars::EXA_DEBUG))),
+    );
 
     let cli = get_command().get_matches();
 
@@ -83,8 +86,7 @@ fn main() {
                             input
                                 .split(&separator.clone().into_string().unwrap_or("\n".to_string()))
                                 .map(OsStr::new)
-                                .filter(|s| !s.is_empty())
-                                .collect::<Vec<_>>(),
+                                .filter(|s| !s.is_empty()),
                         );
                     }
                 }
@@ -96,7 +98,7 @@ fn main() {
 
             let console_width = options.view.width.actual_terminal_width();
             let theme = options.theme.to_theme(stdout_istty);
-            let exa = Exa {
+            let eza = Eza {
                 options,
                 writer,
                 input_paths,
@@ -106,10 +108,10 @@ fn main() {
                 git_repos,
             };
 
-            info!("matching on exa.run");
-            match exa.run() {
+            info!("matching on eza.run");
+            match eza.run() {
                 Ok(exit_status) => {
-                    trace!("exa.run: exit Ok({exit_status})");
+                    trace!("eza.run: exit Ok({exit_status})");
                     exit(exit_status);
                 }
 
@@ -120,7 +122,7 @@ fn main() {
 
                 Err(e) => {
                     eprintln!("{e}");
-                    trace!("exa.run: exit RUNTIME_ERROR");
+                    trace!("eza.run: exit RUNTIME_ERROR");
                     exit(exits::RUNTIME_ERROR);
                 }
             }
@@ -133,7 +135,7 @@ fn main() {
 }
 
 /// The main program wrapper.
-pub struct Exa<'args> {
+pub struct Eza<'args> {
     /// List of command-line options, having been successfully parsed.
     pub options: Options,
 
@@ -237,7 +239,7 @@ fn git_repos(options: &Options, args: &[&OsStr]) -> bool {
     }
 }
 
-impl Exa<'_> {
+impl Eza<'_> {
     /// # Errors
     ///
     /// Will return `Err` if printing to stderr fails.
@@ -536,7 +538,7 @@ impl Exa<'_> {
 
 mod exits {
 
-    /// Exit code for when exa runs OK.
+    /// Exit code for when eza runs OK.
     pub const SUCCESS: i32 = 0;
 
     /// Exit code for when there was at least one I/O error during execution.

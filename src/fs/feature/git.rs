@@ -21,7 +21,7 @@ use crate::fs::fields as f;
 /// A **Git cache** is assembled based on the user’s input arguments.
 ///
 /// This uses vectors to avoid the overhead of hashing: it’s not worth it when the
-/// expected number of Git repositories per exa invocation is 0 or 1...
+/// expected number of Git repositories per eza invocation is 0 or 1...
 pub struct GitCache {
     /// A list of discovered Git repositories and their paths.
     repos: Vec<GitRepo>,
@@ -261,10 +261,10 @@ fn get_path_from_status_entry(e: &StatusEntry<'_>) -> Option<PathBuf> {
     };
 }
 
-// The `repo.statuses` call above takes a long time. exa debug output:
+// The `repo.statuses` call above takes a long time. eza debug output:
 //
-//   20.311276  INFO:exa::fs::feature::git: Getting Git statuses for repo with workdir "/vagrant/"
-//   20.799610  DEBUG:exa::output::table: Getting Git status for file "./Cargo.toml"
+//   20.311276  INFO:eza::fs::feature::git: Getting Git statuses for repo with workdir "/vagrant/"
+//   20.799610  DEBUG:eza::output::table: Getting Git status for file "./Cargo.toml"
 //
 // Even inserting another logging line immediately afterwards doesn’t make it
 // look any faster.

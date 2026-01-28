@@ -10,7 +10,7 @@
 ///
 /// This script generates the string from the environment variables that Cargo
 /// adds (<http://doc.crates.io/environment-variables.html>) and runs `git` to
-/// get the SHA1 hash. It then writes the string into a file, which exa then
+/// get the SHA1 hash. It then writes the string into a file, which eza then
 /// includes at build-time.
 ///
 /// - <https://stackoverflow.com/q/43753491/3484614>

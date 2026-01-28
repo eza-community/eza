@@ -60,13 +60,13 @@ impl FileFilter {
 // is worse than if you just take longer to find it.
 // (https://ux.stackexchange.com/a/79266)
 //
-// The argument for ignoring case is that it makes exa sort files differently
+// The argument for ignoring case is that it makes eza sort files differently
 // from shells. A user would expect a directory’s files to be in the same
-// order if they used “exa ~/directory” or “exa ~/directory/*”, but exa sorts
+// order if they used “eza ~/directory” or “eza ~/directory/*”, but eza sorts
 // them in the first case, and the shell in the second case, so they wouldn’t
-// be exactly the same if exa does something non-conventional.
+// be exactly the same if eza does something non-conventional.
 //
-// However, exa already sorts files differently: it uses natural sorting from
+// However, eza already sorts files differently: it uses natural sorting from
 // the natord crate, sorting the string “2” before “10” because the number’s
 // smaller, because that’s usually what the user expects to happen. Users will
 // name their files with numbers expecting them to be treated like numbers,
@@ -74,7 +74,7 @@ impl FileFilter {
 //
 // In the same way, users will name their files with letters expecting the
 // order of the letters to matter, rather than each letter’s character’s ASCII
-// value. So exa breaks from tradition and ignores case while sorting:
+// value. So eza breaks from tradition and ignores case while sorting:
 // “apps” first, then “Documents”.
 //
 // You can get the old behaviour back by sorting with `--sort=Name`.

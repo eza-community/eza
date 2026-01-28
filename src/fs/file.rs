@@ -80,7 +80,7 @@ pub struct File<'dir> {
     /// A cached `metadata` (`stat`) call for this file.
     ///
     /// This too is queried multiple times, and is *not* cached by the OS, as
-    /// it could easily change between invocations — but exa is so short-lived
+    /// it could easily change between invocations — but eza is so short-lived
     /// it’s better to just cache it.
     pub metadata: OnceLock<io::Result<std::fs::Metadata>>,
 
@@ -97,7 +97,7 @@ pub struct File<'dir> {
     /// Whether this is one of the two `--all all` directories, `.` and `..`.
     ///
     /// Unlike all other entries, these are not returned as part of the
-    /// directory’s children, and are in fact added specifically by exa; this
+    /// directory’s children, and are in fact added specifically by eza; this
     /// means that they should be skipped when recursing.
     pub is_all_all: bool,
 
@@ -420,7 +420,7 @@ impl<'dir> File<'dir> {
 
     /// Re-prefixes the path pointed to by this file, if it’s a symlink, to
     /// make it an absolute path that can be accessed from whichever
-    /// directory exa is being run from.
+    /// directory eza is being run from.
     fn reorient_target_path(&self, path: &Path) -> PathBuf {
         if path.is_absolute() {
             path.to_path_buf()
