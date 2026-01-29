@@ -24,14 +24,14 @@ pub enum OptionsError {
     Conflict(&'static str, &'static str),
 
     /// An option was given that does nothing when another one either is or
-    /// isn’t present.
+    /// isn't present.
     Useless(&'static str, bool, &'static str),
 
     /// An option was given that does nothing when either of two other options
     /// are not present.
     Useless2(&'static str, &'static str, &'static str),
 
-    /// A very specific edge case where --tree can’t be used with --all twice.
+    /// A very specific edge case where --tree can't be used with --all twice.
     TreeAllAll,
 
     /// A numeric option was given that failed to be parsed as a number.
@@ -82,15 +82,5 @@ impl fmt::Display for OptionsError {
             Self::FailedParse(s, n, e)       => write!(f, "Value {s:?} not valid for {n}: {e}"),
             Self::FailedGlobPattern(ref e)   => write!(f, "Failed to parse glob pattern: {e}"),
         };
-    }
-}
-
-/// A list of legal choices for an argument-taking option.
-#[derive(PartialEq, Eq, Debug)]
-pub struct Choices(pub &'static [&'static str]);
-
-impl fmt::Display for Choices {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "choices: {}", self.0.join(", "))
     }
 }

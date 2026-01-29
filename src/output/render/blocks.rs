@@ -41,6 +41,10 @@ impl f::Blocksize {
 
                 return TextCell::paint(colours.blocksize(prefix), string);
             }
+            SizeFormat::HexBytes => {
+                let string = format!("0x{size:X}");
+                return TextCell::paint(colours.blocksize(None), string);
+            }
         };
 
         let (prefix, n) = match result {

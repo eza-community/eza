@@ -31,10 +31,7 @@ pub type ino_t = u64;
 #[allow(unused)]
 pub type nlink_t = u64;
 
-/// The type of a file’s timestamp (creation, modification, access, etc).
-pub type time_t = i64;
-
-/// The type of a file’s user ID.
+/// The type of a file's user ID.
 #[allow(unused)]
 pub type uid_t = u32;
 
@@ -206,14 +203,7 @@ pub struct DeviceIDs {
     pub minor: u32,
 }
 
-/// One of a file’s timestamps (created, accessed, or modified).
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Time {
-    pub seconds: time_t,
-    pub nanoseconds: time_t,
-}
-
-/// A file’s status in a Git repository. Whether a file is in a repository or
+/// A file's status in a Git repository. Whether a file is in a repository or
 /// not is handled by the Git module, rather than having a “null” variant in
 /// this enum.
 #[derive(PartialEq, Eq, Copy, Clone)]

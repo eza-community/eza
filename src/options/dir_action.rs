@@ -28,7 +28,7 @@ impl DirAction {
         let tree = matches.get_flag("tree");
 
         if strict {
-            // Early check for --level when it wouldn’t do anything
+            // Early check for --level when it wouldn't do anything
             if !recurse && !tree && matches.get_one::<usize>("level").is_some() {
                 return Err(OptionsError::Useless2("level", "recurse", "tree"));
             } else if recurse && as_file {
@@ -54,9 +54,9 @@ impl DirAction {
 
 impl RecurseOptions {
     /// Determine which files should be recursed into, based on the `--level`
-    /// flag’s value, and whether the `--tree` flag was passed, which was
+    /// flag's value, and whether the `--tree` flag was passed, which was
     /// determined earlier. The maximum level should be a number, and this
-    /// will fail with an `Err` if it isn’t.
+    /// will fail with an `Err` if it isn't.
     pub fn deduce(matches: &ArgMatches, tree: bool) -> Self {
         Self {
             tree,

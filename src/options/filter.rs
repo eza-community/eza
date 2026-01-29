@@ -47,35 +47,35 @@ impl FileFilter {
     }
 }
 
-// I’ve gone back and forth between whether to sort case-sensitively or
+// I've gone back and forth between whether to sort case-sensitively or
 // insensitively by default. The default string sort in most programming
-// languages takes each character’s ASCII value into account, sorting
-// “Documents” before “apps”, but there’s usually an option to ignore
-// characters’ case, putting “apps” before “Documents”.
+// languages takes each character's ASCII value into account, sorting
+// "Documents" before "apps", but there's usually an option to ignore
+// characters' case, putting "apps" before "Documents".
 //
-// The argument for following case is that it’s easy to forget whether an item
+// The argument for following case is that it's easy to forget whether an item
 // begins with an uppercase or lowercase letter and end up having to scan both
 // the uppercase and lowercase sub-lists to find the item you want. If you
-// happen to pick the sublist it’s not in, it looks like it’s missing, which
+// happen to pick the sublist it's not in, it looks like it's missing, which
 // is worse than if you just take longer to find it.
 // (https://ux.stackexchange.com/a/79266)
 //
 // The argument for ignoring case is that it makes exa sort files differently
-// from shells. A user would expect a directory’s files to be in the same
-// order if they used “exa ~/directory” or “exa ~/directory/*”, but exa sorts
-// them in the first case, and the shell in the second case, so they wouldn’t
+// from shells. A user would expect a directory's files to be in the same
+// order if they used "exa ~/directory" or "exa ~/directory/*", but exa sorts
+// them in the first case, and the shell in the second case, so they wouldn't
 // be exactly the same if exa does something non-conventional.
 //
 // However, exa already sorts files differently: it uses natural sorting from
-// the natord crate, sorting the string “2” before “10” because the number’s
-// smaller, because that’s usually what the user expects to happen. Users will
+// the natord crate, sorting the string "2" before "10" because the number's
+// smaller, because that's usually what the user expects to happen. Users will
 // name their files with numbers expecting them to be treated like numbers,
 // rather than lists of numeric characters.
 //
 // In the same way, users will name their files with letters expecting the
-// order of the letters to matter, rather than each letter’s character’s ASCII
+// order of the letters to matter, rather than each letter's character's ASCII
 // value. So exa breaks from tradition and ignores case while sorting:
-// “apps” first, then “Documents”.
+// "apps" first, then "Documents".
 //
 // You can get the old behaviour back by sorting with `--sort=Name`.
 impl Default for SortField {
@@ -91,7 +91,7 @@ impl DotFilter {
     /// `ls -A`.
     ///
     /// It also checks for the `--tree` option, because of a special case
-    /// where `--tree --all --all` won’t work: listing the parent directory
+    /// where `--tree --all --all` won't work: listing the parent directory
     /// in tree mode would loop onto itself!
     ///
     /// `--almost-all` binds stronger than multiple `--all` as we currently do not take the order
@@ -121,10 +121,10 @@ impl DotFilter {
 
 impl IgnorePatterns {
     /// Determines the set of glob patterns to use based on the
-    /// `--ignore-glob` argument’s value. This is a list of strings
+    /// `--ignore-glob` argument's value. This is a list of strings
     /// separated by pipe (`|`) characters, given in any order.
     pub fn deduce(matches: &ArgMatches) -> Result<Self, OptionsError> {
-        // If there are no inputs, we return a set of patterns that doesn’t
+        // If there are no inputs, we return a set of patterns that doesn't
         // match anything, rather than, say, `None`.
         let Some(inputs) = matches.get_one::<String>("ignore-glob") else {
             return Ok(Self::empty());

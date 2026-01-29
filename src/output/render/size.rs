@@ -56,6 +56,18 @@ impl f::Size {
                     TextCell::paint(colours.size(prefix), string)
                 }
             }
+            SizeFormat::HexBytes      => {
+                let string = format!("0x{size:X}");
+                return if is_gradient_mode {
+                    let csi = color_scale_info.unwrap();
+                    TextCell::paint(
+                        csi.adjust_style(colours.size(None), size as f32, csi.size),
+                        string,
+                    )
+                } else {
+                    TextCell::paint(colours.size(None), string)
+                }
+            }
         };
 
         #[rustfmt::skip]

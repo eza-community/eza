@@ -141,7 +141,7 @@ pub struct Exa<'args> {
     pub writer: io::Stdout,
 
     /// List of the free command-line arguments that should correspond to file
-    /// names (anything that isn’t an option).
+    /// names (anything that isn't an option).
     pub input_paths: Vec<&'args OsStr>,
 
     /// The theme that has been configured from the command-line options and
@@ -161,7 +161,7 @@ pub struct Exa<'args> {
     pub git_repos: bool,
 }
 
-/// The “real” environment variables type.
+/// The "real" environment variables type.
 /// Instead of just calling `var_os` from within the options module,
 /// the method of looking up environment variables has to be passed in.
 struct LiveVars;
@@ -172,7 +172,7 @@ impl Vars for LiveVars {
 }
 
 /// Create a Git cache populated with the arguments that are going to be
-/// listed before they’re actually listed, if the options demand it.
+/// listed before they're actually listed, if the options demand it.
 fn git_options(options: &Options, args: &[&OsStr]) -> Option<GitCache> {
     if options.should_scan_for_git() {
         Some(args.iter().map(PathBuf::from).collect())
@@ -274,9 +274,9 @@ impl Exa<'_> {
             }
         }
 
-        // We want to print a directory’s name before we list it, *except* in
-        // the case where it’s the only directory, *except* if there are any
-        // files to print as well. (It’s a double negative)
+        // We want to print a directory's name before we list it, *except* in
+        // the case where it's the only directory, *except* if there are any
+        // files to print as well. (It's a double negative)
 
         let no_files = files.is_empty();
         let is_only_dir = dirs.len() == 1 && no_files;

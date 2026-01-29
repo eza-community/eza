@@ -252,6 +252,9 @@ pub enum SizeFormat {
 
     /// Do no formatting and just display the size as a number of bytes.
     JustBytes,
+
+    /// Format the file size as hexadecimal with `0x` prefix.
+    HexBytes,
 }
 
 /// Formatting options for user and group.

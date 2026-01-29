@@ -119,6 +119,7 @@ pub fn get_command() -> clap::Command {
         .arg(arg!(-H --links "list each file's number of hard links"))
         .arg(arg!(-b --binary "show file sizes with binary prefixes"))
         .arg(arg!(-B --bytes "show file sizes in bytes, without any prefixes"))
+        .arg(arg!(--hex "show file sizes in hexadecimal"))
         .arg(arg!(--"total-size" "show the size of a directory as the one of its content (unix only)"))
         .arg(arg!(-S --blocksize "list size of allocated file system blocks"))
         .arg(arg!(-g --group "list each file's group"))
@@ -228,13 +229,13 @@ impl ValueEnum for SortField {
             Self::Size => PossibleValue::new("size"),
             Self::Extension(SortCase::AaBbCc) => PossibleValue::new("ext").alias("extension"),
             Self::Extension(SortCase::ABCabc) => PossibleValue::new("Ext").alias("Extension"),
-            // “new” sorts oldest at the top and newest at the bottom; “old” sorts newest at the
+            // "new" sorts oldest at the top and newest at the bottom; "old" sorts newest at the
             // top and oldest at the bottom. I think this is the right way round to do this:
-            // “size” puts the smallest at  the top and the largest at the bottom, doesn’t it?
+            // "size" puts the smallest at  the top and the largest at the bottom, doesn't it?
             Self::ModifiedDate => {
                 PossibleValue::new("date").aliases(vec!["time", "mod", "modified", "new", "newest"])
             }
-            // Similarly, “age” means that files with the least age (the newest files) get sorted
+            // Similarly, "age" means that files with the least age (the newest files) get sorted
             //  at the top, and files with the most age (the oldest) at the bottom.
             Self::ModifiedAge => PossibleValue::new("age").aliases(vec!["old", "oldest"]),
             Self::ChangedDate => PossibleValue::new("changed").alias("ch"),

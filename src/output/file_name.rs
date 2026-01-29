@@ -19,7 +19,7 @@ use crate::output::render::FiletypeColours;
 use crate::theme::FileNameStyle;
 
 /// Basically a file name factory.
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Options {
     /// Whether to append file class characters to file names.
     pub classify: Classify,
@@ -105,7 +105,7 @@ enum MountStyle {
 }
 
 /// Whether and how to show icons.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum ShowIcons {
     /// Display icons next to file names, with the given number of spaces between
     /// the icon and the file name, even when output isn’t going to a terminal.
@@ -134,7 +134,7 @@ pub enum Absolute {
 }
 
 /// Whether or not to wrap file names with spaces in quotes.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum QuoteStyle {
     /// Don't ever quote file names.
     NoQuotes,

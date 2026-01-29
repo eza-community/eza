@@ -48,7 +48,7 @@ impl View {
 }
 
 impl Mode {
-    /// Determine which viewing mode to use based on the user’s options.
+    /// Determine which viewing mode to use based on the user's options.
     ///
     /// As with the other options, arguments are scanned right-to-left and the
     /// first flag found is matched, so `exa --oneline --long` will pick a
@@ -110,11 +110,12 @@ impl Mode {
 
     // TODO: handle that with Clap
     fn strict_check_long_flags(matches: &ArgMatches) -> Result<(), OptionsError> {
-        // If --long hasn’t been passed, then check if we need to warn the
-        // user about flags that won’t have any effect.
+        // If --long hasn't been passed, then check if we need to warn the
+        // user about flags that won't have any effect.
         for flag in &[
             "binary",
             "bytes",
+            "hex",
             "inode",
             "links",
             "header",
@@ -300,19 +301,21 @@ impl Columns {
 
 impl SizeFormat {
     /// Determine which file size to use in the file size column based on
-    /// the user’s options.
+    /// the user's options.
     ///
     /// The default mode is to use the decimal prefixes, as they are the
-    /// most commonly-understood, and don’t involve trying to parse large
+    /// most commonly-understood, and don't involve trying to parse large
     /// strings of digits in your head. Changing the format to anything else
-    /// involves the `--binary` or `--bytes` flags, and these conflict with
-    /// each other.
+    /// involves the `--binary`, `--bytes`, or `--hex` flags, and these conflict
+    /// with each other.
     fn deduce(matches: &ArgMatches) -> Self {
         use SizeFormat::*;
         if matches.get_flag("binary") {
             BinaryBytes
         } else if matches.get_flag("bytes") {
             JustBytes
+        } else if matches.get_flag("hex") {
+            HexBytes
         } else {
             DecimalBytes
         }
@@ -436,14 +439,14 @@ impl GroupFormat {
 }
 
 impl TimeTypes {
-    /// Determine which of a file’s time fields should be displayed for it
-    /// based on the user’s options.
+    /// Determine which of a file's time fields should be displayed for it
+    /// based on the user's options.
     ///
     /// There are two separate ways to pick which fields to show: with a
     /// flag (such as `--modified`) or with a parameter (such as
     /// `--time=modified`). An error is signaled if both ways are used.
     ///
-    /// It’s valid to show more than one column by passing in more than one
+    /// It's valid to show more than one column by passing in more than one
     /// option, but passing *no* options means that the user just wants to
     /// see the default set.
     fn deduce(matches: &ArgMatches) -> Result<Self, OptionsError> {
@@ -704,7 +707,7 @@ mod tests {
     }
 
     #[test]
-    fn deduce_user_format_bytes() {
+    fn deduce_size_format_bytes() {
         assert_eq!(
             SizeFormat::deduce(&mock_cli(vec!["--bytes"])),
             SizeFormat::JustBytes
@@ -712,10 +715,18 @@ mod tests {
     }
 
     #[test]
-    fn deduce_user_format_binary() {
+    fn deduce_size_format_binary() {
         assert_eq!(
             SizeFormat::deduce(&mock_cli(vec!["--binary"])),
             SizeFormat::BinaryBytes
+        );
+    }
+
+    #[test]
+    fn deduce_size_format_hex() {
+        assert_eq!(
+            SizeFormat::deduce(&mock_cli(vec!["--hex"])),
+            SizeFormat::HexBytes
         );
     }
 
