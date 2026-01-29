@@ -129,6 +129,9 @@ When used without a value, defaults to ‘`automatic`’.
 `-w`, `--width=COLS`
 : Set screen width in columns.
 
+`--spacing=COLS`
+: Set the number of spaces between columns.
+
 FILTERING AND SORTING OPTIONS
 =============================
 

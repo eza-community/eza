@@ -28,6 +28,7 @@ mod tree;
 pub struct View {
     pub mode: Mode,
     pub width: TerminalWidth,
+    pub space_between_columns: SpacingBetweenColumns,
     pub file_style: file_name::Options,
     pub deref_links: bool,
     pub follow_links: bool,
@@ -79,5 +80,46 @@ impl TerminalWidth {
             Self::Set(width)  => Some(width),
             Self::Automatic   => stdout_term_width,
         };
+    }
+}
+
+/// The default spacing mode for different view types.
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+pub enum SpacingMode {
+    /// Grid mode default (2 spaces)
+    Grid,
+    /// Details/tree mode default (1 space)
+    Details,
+}
+
+impl SpacingMode {
+    /// Get the default number of spaces for this mode.
+    #[must_use]
+    pub fn default_spaces(self) -> usize {
+        match self {
+            Self::Grid => 2,
+            Self::Details => 1,
+        }
+    }
+}
+
+/// The spacing between columns requested by the user.
+#[derive(PartialEq, Eq, Debug, Copy, Clone)]
+pub enum SpacingBetweenColumns {
+    /// The user requested this specific number of spaces.
+    Set(usize),
+    /// Use the default spacing based on the current mode.
+    Default,
+}
+
+impl SpacingBetweenColumns {
+    /// Get the actual number of spaces to use between columns.
+    /// Takes the spacing mode to determine the correct default.
+    #[must_use]
+    pub fn spaces(self, mode: SpacingMode) -> usize {
+        match self {
+            Self::Set(spaces) => spaces,
+            Self::Default => mode.default_spaces(),
+        }
     }
 }

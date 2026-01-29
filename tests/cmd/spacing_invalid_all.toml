@@ -1,0 +1,4 @@
+bin.name = "eza"
+args = "tests/itest --grid --spacing abc"
+assert.code = 3
+status.code = 3
