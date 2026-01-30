@@ -4,204 +4,227 @@
 // SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
+use dirs;
 use nu_ansi_term::Style;
 use phf::{phf_map, Map};
 
+use std::collections::HashMap;
+use std::path::PathBuf;
+use std::sync::LazyLock;
+
 use crate::fs::File;
+
+/// Special directories are system/user directories that have a special icon. (Documents,
+/// Downloads, Videos, etc.)
+/// This caches the results per program execution, instead of recalculating for every file.
+static SPECIAL_DIRS: LazyLock<HashMap<PathBuf, char>> = LazyLock::new(load_special_dirs);
 
 #[non_exhaustive]
 struct Icons;
 
 #[rustfmt::skip]
 impl Icons {
-    const AUDIO: char           = '\u{f001}';  // 
-    const BINARY: char          = '\u{eae8}';  // 
-    const BOOK: char            = '\u{e28b}';  // 
-    const CALENDAR: char        = '\u{eab0}';  // 
-    const CACHE: char           = '\u{f49b}';  // 
-    const CAD: char             = '\u{f0eeb}'; // 󰻫
-    const CLOCK: char           = '\u{f43a}';  // 
-    const COMPRESSED: char      = '\u{f410}';  // 
-    const CONFIG: char          = '\u{f107b}'; // 󱁻
-    const CSS3: char            = '\u{e749}';  // 
-    const DATABASE: char        = '\u{f1c0}';  // 
-    const DIFF: char            = '\u{f440}';  // 
-    const DISK_IMAGE: char      = '\u{e271}';  // 
-    const DOCKER: char          = '\u{e650}';  // 
-    const DOCUMENT: char        = '\u{f1c2}';  // 
-    const DOWNLOAD: char        = '\u{f01da}'; // 󰇚
-    const EDA_SCH: char         = '\u{f0b45}'; // 󰭅
-    const EDA_PCB: char         = '\u{eabe}';  // 
-    const EMACS: char           = '\u{e632}';  // 
-    const ESLINT: char          = '\u{e655}';  // 
-    const FILE: char            = '\u{f15b}';  // 
-    const FILE_3D: char         = '\u{f01a7}'; // 󰆧
-    const FOLDER: char          = '\u{e5ff}';  // 
-    const FOLDER_BUILD: char    = '\u{f19fc}'; // 󱧼
-    const FOLDER_CONFIG: char   = '\u{e5fc}';  // 
-    const FOLDER_EXERCISM: char = '\u{ebe5}';  // 
-    const FOLDER_GIT: char      = '\u{e5fb}';  // 
-    const FOLDER_GITHUB: char   = '\u{e5fd}';  // 
-    const FOLDER_HIDDEN: char   = '\u{f179e}'; // 󱞞
-    const FOLDER_KEY: char      = '\u{f08ac}'; // 󰢬
-    const FOLDER_NPM: char      = '\u{e5fa}';  // 
-    const FOLDER_OCAML: char    = '\u{e67a}';  // 
-    const FOLDER_OPEN: char     = '\u{f115}';  // 
-    const FILE_UNKNOW: char     = '\u{f086f}'; // 󰡯
-    const FONT: char            = '\u{f031}';  // 
-    const FREECAD: char         = '\u{f336}';  // 
-    const GIMP: char            = '\u{f338}';  // 
-    const GIST_SECRET: char     = '\u{eafa}';  // 
-    const GIT: char             = '\u{f02a2}'; // 󰊢
-    const GODOT: char           = '\u{e65f}';  // 
-    const GRADLE: char          = '\u{e660}';  // 
-    const GRAPH: char           = '\u{f1049}'; // 󱁉
-    const GRAPHQL: char         = '\u{e662}';  // 
-    const GRUNT: char           = '\u{e611}';  // 
-    const GTK: char             = '\u{f362}';  // 
-    const GULP: char            = '\u{e610}';  // 
-    const HTML5: char           = '\u{f13b}';  // 
-    const IMAGE: char           = '\u{f1c5}';  // 
-    const INFO: char            = '\u{f129}';  // 
-    const INTELLIJ: char        = '\u{e7b5}';  // 
-    const JSON: char            = '\u{e60b}';  // 
-    const KEY: char             = '\u{eb11}';  // 
-    const KDENLIVE: char        = '\u{f33c}';  // 
-    const KEYPASS: char         = '\u{f23e}';  // 
-    const KICAD: char           = '\u{f34c}';  // 
-    const KRITA: char           = '\u{f33d}';  // 
-    const LANG_ARDUINO: char    = '\u{f34b}';  // 
-    const LANG_ASSEMBLY: char   = '\u{e637}';  // 
-    const LANG_C: char          = '\u{e61e}';  // 
-    const LANG_CPP: char        = '\u{e61d}';  // 
-    const LANG_CSHARP: char     = '\u{f031b}'; // 󰌛
-    const LANG_D: char          = '\u{e7af}';  // 
-    const LANG_ELIXIR: char     = '\u{e62d}';  // 
-    const LANG_FENNEL: char     = '\u{e6af}';  // 
-    const LANG_FORTRAN: char    = '\u{f121a}'; // 󱈚
-    const LANG_FSHARP: char     = '\u{e7a7}';  // 
-    const LANG_GLEAM: char      = '\u{f09a5}'; // 󰦥
-    const LANG_GO: char         = '\u{e65e}';  // 
-    const LANG_GROOVY: char     = '\u{e775}';  // 
-    const LANG_HASKELL: char    = '\u{e777}';  // 
-    const LANG_HDL: char        = '\u{f035b}'; // 󰍛
-    const LANG_HOLYC: char      = '\u{f00a2}'; // 󰂢
-    const LANG_JAVA: char       = '\u{e256}';  // 
-    const LANG_JAVASCRIPT: char = '\u{e74e}';  // 
-    const LANG_KOTLIN: char     = '\u{e634}';  // 
-    const LANG_LUA: char        = '\u{e620}';  // 
-    const LANG_NIM: char        = '\u{e677}';  // 
-    const LANG_OCAML: char      = '\u{e67a}';  // 
-    const LANG_PERL: char       = '\u{e67e}';  // 
-    const LANG_PHP: char        = '\u{e73d}';  // 
-    const LANG_PYTHON: char     = '\u{e606}';  // 
-    const LANG_R: char          = '\u{e68a}';  // 
-    const LANG_RUBY: char       = '\u{e739}';  // 
-    const LANG_RUBYRAILS: char  = '\u{e73b}';  // 
-    const LANG_RUST: char       = '\u{e68b}';  // 
-    const LANG_SASS: char       = '\u{e603}';  // 
-    const LANG_SCHEME: char     = '\u{e6b1}';  // 
-    const LANG_STYLUS: char     = '\u{e600}';  // 
-    const LANG_TEX: char        = '\u{e69b}';  // 
-    const LANG_TYPESCRIPT: char = '\u{e628}';  // 
-    const LANG_V: char          = '\u{e6ac}';  // 
-    const LIBRARY: char         = '\u{eb9c}';  // 
-    const LICENSE: char         = '\u{f02d}';  // 
-    const LOCK: char            = '\u{f023}';  // 
-    const LOG: char             = '\u{f18d}';  // 
-    const MAKE: char            = '\u{e673}';  // 
-    const MARKDOWN: char        = '\u{f48a}';  // 
-    const MUSTACHE: char        = '\u{e60f}';  // 
-    const NEWS: char            = '\u{f1ea}';  // 
-    const NODEJS: char          = '\u{e718}';  // 
-    const NOTEBOOK: char          = '\u{e678}';  // 
-    const NPM: char             = '\u{e71e}';  // 
-    const OS_ANDROID: char      = '\u{e70e}';  // 
-    const OS_APPLE: char        = '\u{f179}';  // 
-    const OS_LINUX: char        = '\u{f17c}';  // 
-    const OS_WINDOWS: char      = '\u{f17a}';  // 
-    const OS_WINDOWS_CMD: char  = '\u{ebc4}';  // 
-    const PLAYLIST: char        = '\u{f0cb9}'; // 󰲹
-    const POWERSHELL: char      = '\u{ebc7}';  // 
-    const PRIVATE_KEY: char     = '\u{f0306}'; // 󰌆
-    const PUBLIC_KEY: char      = '\u{f0dd6}'; // 󰷖
-    const QT: char              = '\u{f375}';  // 
-    const RAZOR: char           = '\u{f1fa}';  // 
-    const REACT: char           = '\u{e7ba}';  // 
-    const README: char          = '\u{f00ba}'; // 󰂺
-    const SHEET: char           = '\u{f1c3}';  // 
-    const SHELL: char           = '\u{f1183}'; // 󱆃
-    const SHELL_CMD: char       = '\u{f489}';  // 
-    const SHIELD_CHECK: char    = '\u{f0565}'; // 󰕥
-    const SHIELD_KEY: char      = '\u{f0bc4}'; // 󰯄
-    const SHIELD_LOCK: char     = '\u{f099d}'; // 󰦝
-    const SIGNED_FILE: char     = '\u{f19c3}'; // 󱧃
-    const SLIDE: char           = '\u{f1c4}';  // 
-    const SQLITE: char          = '\u{e7c4}';  // 
-    const SUBLIME: char         = '\u{e7aa}';  // 
-    const SUBTITLE: char        = '\u{f0a16}'; // 󰨖
-    const TCL: char             = '\u{f06d3}'; // 󰛓
-    const TERRAFORM: char       = '\u{f1062}'; // 󱁢
-    const TEXT: char            = '\u{f15c}';  // 
-    const TODO: char            = '\u{f0ae}';  // 
-    const TYPST: char           = '\u{f37f}';  // 
-    const TMUX: char            = '\u{ebc8}';  // 
-    const TOML: char            = '\u{e6b2}';  // 
-    const TRANSLATION: char     = '\u{f05ca}'; // 󰗊
-    const UNITY: char           = '\u{e721}';  // 
-    const VECTOR: char          = '\u{f0559}'; // 󰕙
-    const VIDEO: char           = '\u{f03d}';  // 
-    const VIM: char             = '\u{e7c5}';  // 
-    const WRENCH: char          = '\u{f0ad}';  // 
-    const XML: char             = '\u{f05c0}'; // 󰗀
-    const XORG:char             = '\u{f369}';  // 
-    const YAML: char            = '\u{e6a8}';  // 
-    const YARN: char            = '\u{e6a7}';  // 
+    const AUDIO: char            = '\u{f001}';  // 
+    const BINARY: char           = '\u{eae8}';  // 
+    const BOOK: char             = '\u{e28b}';  // 
+    const CACHE: char            = '\u{f49b}';  // 
+    const CAD: char              = '\u{f0eeb}'; // 󰻫
+    const CALENDAR: char         = '\u{eab0}';  // 
+    const CLOCK: char            = '\u{f43a}';  // 
+    const COMPRESSED: char       = '\u{f410}';  // 
+    const CONFIG: char           = '\u{f107b}'; // 󱁻
+    const CSS3: char             = '\u{e749}';  // 
+    const DATABASE: char         = '\u{f1c0}';  // 
+    const DIFF: char             = '\u{f440}';  // 
+    const DISK_IMAGE: char       = '\u{e271}';  // 
+    const DOCKER: char           = '\u{e650}';  // 
+    const DOCUMENT: char         = '\u{f1c2}';  // 
+    const DOWNLOAD: char         = '\u{f01da}'; // 󰇚
+    const EDA_PCB: char          = '\u{eabe}';  // 
+    const EDA_SCH: char          = '\u{f0b45}'; // 󰭅
+    const EMACS: char            = '\u{e632}';  // 
+    const ESLINT: char           = '\u{e655}';  // 
+    const FILE: char             = '\u{f15b}';  // 
+    const FILE_3D: char          = '\u{f01a7}'; // 󰆧
+    const FILE_UNKNOWN: char      = '\u{f086f}'; // 󰡯
+    const FOLDER: char           = '\u{e5ff}';  // 
+    const FOLDER_BUILD: char     = '\u{f19fc}'; // 󱧼
+    const FOLDER_CONFIG: char    = '\u{e5fc}';  // 
+    const FOLDER_CONTACTS: char  = '\u{f024c}'; // 󰉌
+    const FOLDER_DESKTOP: char   = '\u{f108}';  // 
+    const FOLDER_DOCUMENTS: char = '\u{f0c82}'; // 󰲂
+    const FOLDER_DOWNLOADS: char = '\u{f024d}'; // 󰉍
+    const FOLDER_EXERCISM: char  = '\u{ebe5}';  // 
+    const FOLDER_FAVORITES: char = '\u{f069d}'; // 󰚝
+    const FOLDER_GIT: char       = '\u{e5fb}';  // 
+    const FOLDER_GITHUB: char    = '\u{e5fd}';  // 
+    const FOLDER_HIDDEN: char    = '\u{f179e}'; // 󱞞
+    const FOLDER_HOME: char      = '\u{f10b5}'; // 󱂵
+    const FOLDER_KEY: char       = '\u{f08ac}'; // 󰢬
+    const FOLDER_TRASH: char     = '\u{f1f8}';  // 
+    const FOLDER_MAIL: char      = '\u{f01f0}'; // 󰇰
+    const FOLDER_MOVIES: char    = '\u{f0fce}'; // 󰿎
+    const FOLDER_MUSIC: char     = '\u{f1359}'; // 󱍙
+    const FOLDER_NPM: char       = '\u{e5fa}';  // 
+    const FOLDER_OCAML: char     = '\u{e67a}';  // 
+    const FOLDER_OPEN: char      = '\u{f115}';  // 
+    const FOLDER_PICTURES: char  = '\u{f024f}'; // 󰉏
+    const FOLDER_SRC: char       = '\u{f08de}'; // 󰣞
+    const FOLDER_VIDEOS: char    = '\u{f03d}';  // 
+    const FONT: char             = '\u{f031}';  // 
+    const FREECAD: char          = '\u{f336}';  // 
+    const GIMP: char             = '\u{f338}';  // 
+    const GIST_SECRET: char      = '\u{eafa}';  // 
+    const GIT: char              = '\u{f02a2}'; // 󰊢
+    const GODOT: char            = '\u{e65f}';  // 
+    const GRADLE: char           = '\u{e660}';  // 
+    const GRAPH: char            = '\u{f1049}'; // 󱁉
+    const GRAPHQL: char          = '\u{e662}';  // 
+    const GRUNT: char            = '\u{e611}';  // 
+    const GTK: char              = '\u{f362}';  // 
+    const GULP: char             = '\u{e610}';  // 
+    const HTML5: char            = '\u{f13b}';  // 
+    const IMAGE: char            = '\u{f1c5}';  // 
+    const INFO: char             = '\u{f129}';  // 
+    const INTELLIJ: char         = '\u{e7b5}';  // 
+    const JSON: char             = '\u{e60b}';  // 
+    const KDENLIVE: char         = '\u{f33c}';  // 
+    const KEY: char              = '\u{eb11}';  // 
+    const KEYPASS: char          = '\u{f23e}';  // 
+    const KICAD: char            = '\u{f34c}';  // 
+    const KRITA: char            = '\u{f33d}';  // 
+    const LANG_ARDUINO: char     = '\u{f34b}';  // 
+    const LANG_ASSEMBLY: char    = '\u{e637}';  // 
+    const LANG_C: char           = '\u{e61e}';  // 
+    const LANG_CPP: char         = '\u{e61d}';  // 
+    const LANG_CSHARP: char      = '\u{f031b}'; // 󰌛
+    const LANG_D: char           = '\u{e7af}';  // 
+    const LANG_ELIXIR: char      = '\u{e62d}';  // 
+    const LANG_FENNEL: char      = '\u{e6af}';  // 
+    const LANG_FORTRAN: char     = '\u{f121a}'; // 󱈚
+    const LANG_FSHARP: char      = '\u{e7a7}';  // 
+    const LANG_GLEAM: char       = '\u{f09a5}'; // 󰦥
+    const LANG_GO: char          = '\u{e65e}';  // 
+    const LANG_GROOVY: char      = '\u{e775}';  // 
+    const LANG_HASKELL: char     = '\u{e777}';  // 
+    const LANG_HDL: char         = '\u{f035b}'; // 󰍛
+    const LANG_HOLYC: char       = '\u{f00a2}'; // 󰂢
+    const LANG_JAVA: char        = '\u{e256}';  // 
+    const LANG_JAVASCRIPT: char  = '\u{e74e}';  // 
+    const LANG_KOTLIN: char      = '\u{e634}';  // 
+    const LANG_LUA: char         = '\u{e620}';  // 
+    const LANG_NIM: char         = '\u{e677}';  // 
+    const LANG_OCAML: char       = '\u{e67a}';  // 
+    const LANG_PERL: char        = '\u{e67e}';  // 
+    const LANG_PHP: char         = '\u{e73d}';  // 
+    const LANG_PYTHON: char      = '\u{e606}';  // 
+    const LANG_R: char           = '\u{e68a}';  // 
+    const LANG_RUBY: char        = '\u{e739}';  // 
+    const LANG_RUBYRAILS: char   = '\u{e73b}';  // 
+    const LANG_RUST: char        = '\u{e68b}';  // 
+    const LANG_SASS: char        = '\u{e603}';  // 
+    const LANG_SCHEME: char      = '\u{e6b1}';  // 
+    const LANG_STYLUS: char      = '\u{e600}';  // 
+    const LANG_TEX: char         = '\u{e69b}';  // 
+    const LANG_TYPESCRIPT: char  = '\u{e628}';  // 
+    const LANG_V: char           = '\u{e6ac}';  // 
+    const LIBRARY: char          = '\u{eb9c}';  // 
+    const LICENSE: char          = '\u{f02d}';  // 
+    const LOCK: char             = '\u{f023}';  // 
+    const LOG: char              = '\u{f18d}';  // 
+    const MAKE: char             = '\u{e673}';  // 
+    const MARKDOWN: char         = '\u{f48a}';  // 
+    const MUSTACHE: char         = '\u{e60f}';  // 
+    const NEWS: char             = '\u{f1ea}';  // 
+    const NODEJS: char           = '\u{e718}';  // 
+    const NOTEBOOK: char         = '\u{e678}';  // 
+    const NPM: char              = '\u{e71e}';  // 
+    const OS_ANDROID: char       = '\u{e70e}';  // 
+    const OS_APPLE: char         = '\u{f179}';  // 
+    const OS_LINUX: char         = '\u{f17c}';  // 
+    const OS_WINDOWS: char       = '\u{f17a}';  // 
+    const OS_WINDOWS_CMD: char   = '\u{ebc4}';  // 
+    const PLAYLIST: char         = '\u{f0cb9}'; // 󰲹
+    const POWERSHELL: char       = '\u{ebc7}';  // 
+    const PRIVATE_KEY: char      = '\u{f0306}'; // 󰌆
+    const PUBLIC_KEY: char       = '\u{f0dd6}'; // 󰷖
+    const QT: char               = '\u{f375}';  // 
+    const RAZOR: char            = '\u{f1fa}';  // 
+    const REACT: char            = '\u{e7ba}';  // 
+    const README: char           = '\u{f00ba}'; // 󰂺
+    const SHEET: char            = '\u{f1c3}';  // 
+    const SHELL: char            = '\u{f1183}'; // 󱆃
+    const SHELL_CMD: char        = '\u{f489}';  // 
+    const SHIELD_CHECK: char     = '\u{f0565}'; // 󰕥
+    const SHIELD_KEY: char       = '\u{f0bc4}'; // 󰯄
+    const SHIELD_LOCK: char      = '\u{f099d}'; // 󰦝
+    const SIGNED_FILE: char      = '\u{f19c3}'; // 󱧃
+    const SLIDE: char            = '\u{f1c4}';  // 
+    const SQLITE: char           = '\u{e7c4}';  // 
+    const SUBLIME: char          = '\u{e7aa}';  // 
+    const SUBTITLE: char         = '\u{f0a16}'; // 󰨖
+    const TCL: char              = '\u{f06d3}'; // 󰛓
+    const TERRAFORM: char        = '\u{f1062}'; // 󱁢
+    const TEXT: char             = '\u{f15c}';  // 
+    const TMUX: char             = '\u{ebc8}';  // 
+    const TODO: char             = '\u{f0ae}';  // 
+    const TOML: char             = '\u{e6b2}';  // 
+    const TRANSLATION: char      = '\u{f05ca}'; // 󰗊
+    const TYPST: char            = '\u{f37f}';  // 
+    const UNITY: char            = '\u{e721}';  // 
+    const VECTOR: char           = '\u{f0559}'; // 󰕙
+    const VIDEO: char            = '\u{f03d}';  // 
+    const VIM: char              = '\u{e7c5}';  // 
+    const WRENCH: char           = '\u{f0ad}';  // 
+    const XML: char              = '\u{f05c0}'; // 󰗀
+    const XORG:char              = '\u{f369}';  // 
+    const YAML: char             = '\u{e6a8}';  // 
+    const YARN: char             = '\u{e6a7}';  // 
 }
 
 /// Mapping from full filenames to directory icon. This mapping should contain
 /// all the directories that have a custom icon.
 const DIRECTORY_ICONS: Map<&'static str, char> = phf_map! {
-    ".config"             => Icons::FOLDER_CONFIG,  // 
-    ".exercism"           => Icons::FOLDER_EXERCISM,// 
-    ".git"                => Icons::FOLDER_GIT,     // 
-    ".github"             => Icons::FOLDER_GITHUB,  // 
-    ".npm"                => Icons::FOLDER_NPM,     // 
-    ".opam"               => Icons::FOLDER_OCAML,   // 
-    ".ssh"                => Icons::FOLDER_KEY,     // 󰢬
-    ".Trash"              => '\u{f1f8}',            // 
-    "build"               => Icons::FOLDER_BUILD,   // 󱧼
-    "config"              => Icons::FOLDER_CONFIG,  // 
-    "Contacts"            => '\u{f024c}',           // 󰉌
-    "cron.d"              => Icons::FOLDER_CONFIG,  // 
-    "cron.daily"          => Icons::FOLDER_CONFIG,  // 
-    "cron.hourly"         => Icons::FOLDER_CONFIG,  // 
-    "cron.minutely"       => Icons::FOLDER_CONFIG,  // 
-    "cron.monthly"        => Icons::FOLDER_CONFIG,  // 
-    "cron.weekly"         => Icons::FOLDER_CONFIG,  // 
-    "Desktop"             => '\u{f108}',            // 
-    "Documents"           => '\u{f0c82}',           // 󰲂
-    "Downloads"           => '\u{f024d}',           // 󰉍
-    "etc"                 => Icons::FOLDER_CONFIG,  // 
-    "Favorites"           => '\u{f069d}',           // 󰚝
-    "hidden"              => Icons::FOLDER_HIDDEN,  // 󱞞
-    "home"                => '\u{f10b5}',           // 󱂵
-    "include"             => Icons::FOLDER_CONFIG,  // 
-    "Mail"                => '\u{f01f0}',           // 󰇰
-    "Movies"              => '\u{f0fce}',           // 󰿎
-    "Music"               => '\u{f1359}',           // 󱍙
-    "node_modules"        => Icons::FOLDER_NPM,     // 
-    "npm_cache"           => Icons::FOLDER_NPM,     // 
-    "pacman.d"            => Icons::FOLDER_CONFIG,  // 
-    "pam.d"               => Icons::FOLDER_KEY,     // 󰢬
-    "Pictures"            => '\u{f024f}',           // 󰉏
-    "src"                 => '\u{f08de}',           // 󰣞
-    "ssh"                 => Icons::FOLDER_KEY,     // 󰢬
-    "sudoers.d"           => Icons::FOLDER_KEY,     // 󰢬
-    "Videos"              => '\u{f03d}',            // 
-    "xbps.d"              => Icons::FOLDER_CONFIG,  // 
-    "xorg.conf.d"         => Icons::FOLDER_CONFIG,  // 
-    "cabal"               => Icons::LANG_HASKELL,   // 
+    ".config"             => Icons::FOLDER_CONFIG,    // 
+    ".exercism"           => Icons::FOLDER_EXERCISM,  // 
+    ".git"                => Icons::FOLDER_GIT,       // 
+    ".github"             => Icons::FOLDER_GITHUB,    // 
+    ".npm"                => Icons::FOLDER_NPM,       // 
+    ".opam"               => Icons::FOLDER_OCAML,     // 
+    ".ssh"                => Icons::FOLDER_KEY,       // 󰢬
+    ".Trash"              => Icons::FOLDER_TRASH,     // 
+    "build"               => Icons::FOLDER_BUILD,     // 󱧼
+    "config"              => Icons::FOLDER_CONFIG,    // 
+    "Contacts"            => Icons::FOLDER_CONTACTS,  // 󰉌
+    "cron.d"              => Icons::FOLDER_CONFIG,    // 
+    "cron.daily"          => Icons::FOLDER_CONFIG,    // 
+    "cron.hourly"         => Icons::FOLDER_CONFIG,    // 
+    "cron.minutely"       => Icons::FOLDER_CONFIG,    // 
+    "cron.monthly"        => Icons::FOLDER_CONFIG,    // 
+    "cron.weekly"         => Icons::FOLDER_CONFIG,    // 
+    "Desktop"             => Icons::FOLDER_DESKTOP,   // 
+    "Documents"           => Icons::FOLDER_DOCUMENTS, // 󰲂
+    "Downloads"           => Icons::FOLDER_DOWNLOADS, // 󰉍
+    "etc"                 => Icons::FOLDER_CONFIG,    // 
+    "Favorites"           => Icons::FOLDER_FAVORITES, // 󰚝
+    "hidden"              => Icons::FOLDER_HIDDEN,    // 󱞞
+    "home"                => Icons::FOLDER_HOME,      // 󱂵
+    "include"             => Icons::FOLDER_CONFIG,    // 
+    "Mail"                => Icons::FOLDER_MAIL,      // 󰇰
+    "Movies"              => Icons::FOLDER_MOVIES,    // 󰿎
+    "Music"               => Icons::FOLDER_MUSIC,     // 󱍙
+    "node_modules"        => Icons::FOLDER_NPM,       // 
+    "npm_cache"           => Icons::FOLDER_NPM,       // 
+    "pacman.d"            => Icons::FOLDER_CONFIG,    // 
+    "pam.d"               => Icons::FOLDER_KEY,       // 󰢬
+    "Pictures"            => Icons::FOLDER_PICTURES,  // 󰉏
+    "src"                 => Icons::FOLDER_SRC,       // 󰣞
+    "ssh"                 => Icons::FOLDER_KEY,       // 󰢬
+    "sudoers.d"           => Icons::FOLDER_KEY,       // 󰢬
+    "Videos"              => Icons::FOLDER_VIDEOS,    // 
+    "xbps.d"              => Icons::FOLDER_CONFIG,    // 
+    "xorg.conf.d"         => Icons::FOLDER_CONFIG,    // 
+    "cabal"               => Icons::LANG_HASKELL,     // 
 };
 
 /// Mapping from full filenames to file icon. This mapping should also contain
@@ -1123,22 +1146,53 @@ pub fn iconify_style(style: Style) -> Style {
         .unwrap_or_default()
 }
 
+/// Builds up the cache of special directories, mapping the directories it finds to the associated
+/// icons.
+fn load_special_dirs() -> HashMap<PathBuf, char> {
+    let mut map = HashMap::new();
+
+    // NOTE: maybe we should not use this for Windows, since AppData\Roaming is not really
+    // a config directory (Windows does not split the config and data directories like this)
+    dirs::config_dir().map(|p| map.insert(p, Icons::FOLDER_CONFIG));
+    dirs::desktop_dir().map(|p| map.insert(p, Icons::FOLDER_DESKTOP));
+    dirs::document_dir().map(|p| map.insert(p, Icons::FOLDER_DOCUMENTS));
+    dirs::download_dir().map(|p| map.insert(p, Icons::FOLDER_DOWNLOADS));
+    // NOTE: maybe we should make the home dir icon a profile/person icon like  (\uf415)
+    // in Windows, instead of a home icon, since that is a more common representation
+    // for Users\<User> in Windows
+    dirs::home_dir().map(|p| map.insert(p, Icons::FOLDER_HOME));
+    dirs::audio_dir().map(|p| map.insert(p, Icons::FOLDER_MUSIC));
+    dirs::picture_dir().map(|p| map.insert(p, Icons::FOLDER_PICTURES));
+    dirs::video_dir().map(|p| map.insert(p, Icons::FOLDER_VIDEOS));
+
+    map
+}
+
 /// Lookup the icon for a file based on the file's name, if the entry is a
 /// directory, or by the lowercase file extension.
 pub fn icon_for_file(file: &File<'_>) -> char {
+    // Directories
     if file.points_to_directory() {
-        *DIRECTORY_ICONS.get(file.name.as_str()).unwrap_or_else(|| {
-            if file.is_empty_dir() {
-                &Icons::FOLDER_OPEN // 
-            } else {
-                &Icons::FOLDER // 
-            }
-        })
+        if let Some(icon) = SPECIAL_DIRS.get(&file.path) {
+            // First check if the file is in an Special Directory.
+            *icon
+        } else {
+            // Base the icon on the directory name.
+            *DIRECTORY_ICONS.get(file.name.as_str()).unwrap_or_else(|| {
+                if file.is_empty_dir() {
+                    &Icons::FOLDER_OPEN // 
+                } else {
+                    &Icons::FOLDER // 
+                }
+            })
+        }
+
+    // Files
     } else if let Some(icon) = FILENAME_ICONS.get(file.name.as_str()) {
         *icon
     } else if let Some(ext) = file.ext.as_ref() {
         *EXTENSION_ICONS.get(ext.as_str()).unwrap_or(&Icons::FILE) // 
     } else {
-        Icons::FILE_UNKNOW // 󰡯
+        Icons::FILE_UNKNOWN // 󰡯
     }
 }
