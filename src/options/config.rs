@@ -91,7 +91,7 @@ fn color_from_str(s: &str) -> Option<Color> {
                 Some(Rgb(r, g, b))
             },
             // #rgb shorthand hex color
-            ['#', r, g, b]              => {
+            ['#', r, g, b] => {
                 let Ok(r) = u8::from_str_radix(&format!("{r}{r}"), 16)
                     else { return None };
                 let Ok(g) = u8::from_str_radix(&format!("{g}{g}"), 16)
@@ -100,9 +100,19 @@ fn color_from_str(s: &str) -> Option<Color> {
                     else { return None };
                 Some(Rgb(r, g, b))
             },
-            // 0-255 color code
+            // 0-255 color code (1-3 digits)
+            [c1] => {
+                let Ok(c) = str::parse::<u8>(&format!("{c1}"))
+                    else { return None };
+                Some(Fixed(c))
+            },
             [c1, c2] => {
                 let Ok(c) = str::parse::<u8>(&format!("{c1}{c2}"))
+                    else { return None };
+                Some(Fixed(c))
+            },
+            [c1, c2, c3] => {
+                let Ok(c) = str::parse::<u8>(&format!("{c1}{c2}{c3}"))
                     else { return None };
                 Some(Fixed(c))
             },
@@ -662,7 +672,7 @@ mod tests {
 
     #[test]
     fn parse_color_code_from_string() {
-        for (s, c) in &[("10", 10), ("01", 1)] {
+        for (s, c) in &[("118", 118), ("10", 10), ("01", 1), ("1", 1), ("001", 1)] {
             assert_eq!(color_from_str(s), Some(Color::Fixed(*c)));
         }
     }
