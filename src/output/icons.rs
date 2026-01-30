@@ -983,6 +983,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "sldprt"         => Icons::CAD,              // 󰻫
     "slim"           => Icons::LANG_RUBYRAILS,   // 
     "sln"            => '\u{e70c}',              // 
+    "slnx"           => '\u{e70c}',              // 
     "slvs"           => Icons::CAD,              // 󰻫
     "so"             => Icons::OS_LINUX,         // 
     "sql"            => Icons::DATABASE,         // 
