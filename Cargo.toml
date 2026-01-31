@@ -97,7 +97,7 @@ log = "0.4"
 natord-plus-plus = "2.0"
 path-clean = "1.0.1"
 unit-prefix = "0.5.2"
-palette = { version = "0.7.6", default-features = false, features = ["std"] }
+palette = { version = "0.7.5", default-features = false, features = ["std"] }
 percent-encoding = "2.3.1"
 phf = { version = "0.12.1", features = ["macros"] }
 plist = { version = "1.7.0", default-features = false }
