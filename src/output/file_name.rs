@@ -121,8 +121,14 @@ pub enum ShowIcons {
 /// Whether to embed hyperlinks.
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum EmbedHyperlinks {
-    Off,
-    On,
+    /// Never embed hyperlinks, even when output is going to a terminal.
+    Never,
+
+    /// Embed hyperlinks automatically, based on the output destination.
+    Automatic,
+
+    /// Always embed hyperlinks, even when the output isn't going to a terminal.
+    Always,
 }
 
 /// Whether to show absolute paths
@@ -274,7 +280,7 @@ impl<C: Colours> FileName<'_, '_, C> {
                             classify: Classify::JustFilenames,
                             quote_style: QuoteStyle::QuoteSpaces,
                             show_icons: ShowIcons::Never,
-                            embed_hyperlinks: EmbedHyperlinks::Off,
+                            embed_hyperlinks: EmbedHyperlinks::Never,
                             is_a_tty: self.options.is_a_tty,
                             absolute: Absolute::Off,
                         };
@@ -415,7 +421,12 @@ impl<C: Colours> FileName<'_, '_, C> {
         let mut bits = Vec::new();
 
         let mut display_hyperlink = false;
-        if self.options.embed_hyperlinks == EmbedHyperlinks::On {
+        let should_embed_hyperlinks = match self.options.embed_hyperlinks {
+            EmbedHyperlinks::Never => false,
+            EmbedHyperlinks::Automatic => self.options.is_a_tty,
+            EmbedHyperlinks::Always => true,
+        };
+        if should_embed_hyperlinks {
             if let Some(abs_path) = self
                 .file
                 .absolute_path()
