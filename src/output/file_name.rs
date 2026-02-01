@@ -477,6 +477,7 @@ impl<C: Colours> FileName<'_, '_, C> {
         #[rustfmt::skip]
         return match self.file {
             f if f.is_mount_point()      => self.colours.mount_point(),
+            f if f.is_btrfs_subvolume()  => self.colours.btrfs_subvol(),
             f if f.is_directory()        => self.colours.directory(),
             #[cfg(unix)]
             f if f.is_executable_file()  => self.colours.executable_file(),
@@ -530,6 +531,9 @@ pub trait Colours: FiletypeColours {
 
     /// The style to paint a directory that has a filesystem mounted on it.
     fn mount_point(&self) -> Style;
+
+    /// The style to paint a directory representing a Btrfs subvolume.
+    fn btrfs_subvol(&self) -> Style;
 
     fn colour_file(&self, file: &File<'_>) -> Style;
 
