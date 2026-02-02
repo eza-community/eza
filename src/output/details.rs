@@ -302,6 +302,7 @@ impl<'a> Render<'a> {
                         file.is_directory()
                     }) && r.tree
                         && !r.is_too_deep(depth.0)
+                        && !file.is_all_all
                     {
                         trace!("matching on read_dir");
                         match file.read_dir() {
