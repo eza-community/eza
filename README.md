@@ -113,6 +113,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s. Quick overv
 - **--hyperlink**: display entries as hyperlinks
 - **--absolute=(mode)**: display entries with their absolute path (on, follow, off)
 - **-w**, **--width=(columns)**: set screen width in columns
+- **--summary**: show summary of files, directories, and symlinks
 
 </details>
 
