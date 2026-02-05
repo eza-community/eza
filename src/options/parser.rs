@@ -87,6 +87,7 @@ pub fn get_command() -> clap::Command {
             .default_missing_value("auto"))
         .arg(arg!(--hyperlink "display entries as hyperlinks"))
         .arg(arg!(--"no-quotes" "don't quote file names with spaces"))
+        .arg(arg!(--summary "show summary of files, directories, and symlinks"))
 
         .next_help_heading("FILTERING OPTIONS")
         .arg(arg!(-a --all... "show hidden files. Use this twice to also show the '.' and '..' directories"))

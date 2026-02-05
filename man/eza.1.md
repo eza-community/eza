@@ -129,6 +129,11 @@ When used without a value, defaults to ‘`automatic`’.
 `-w`, `--width=COLS`
 : Set screen width in columns.
 
+`--summary`
+: Display a summary showing the count of directories, files, and symlinks at the end of the output.
+
+When used with `--recurse` or `--tree`, the summary includes counts of all items displayed recursively. If the `--icons` option is enabled, the summary will display with corresponding icons next to each category.
+
 FILTERING AND SORTING OPTIONS
 =============================
 
