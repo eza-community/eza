@@ -297,6 +297,13 @@ impl Default for Git {
     }
 }
 
+impl Git {
+    #[must_use]
+    pub fn untracked(&self) -> Style {
+        self.new()
+    }
+}
+
 #[rustfmt::skip]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct GitRepo {
