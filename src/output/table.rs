@@ -363,7 +363,7 @@ impl Default for TimeTypes {
 }
 
 /// The **environment** struct contains any data that could change between
-/// running instances of exa, depending on the user’s computer’s configuration.
+/// running instances of eza, depending on the user’s computer’s configuration.
 ///
 /// Any environment field should be able to be mocked up for test runs.
 pub struct Environment {

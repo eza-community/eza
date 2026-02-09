@@ -123,7 +123,7 @@ impl TextCell {
 // it can use anything of type `T: IntoIterator<Item=ANSIString<’static>>`.
 // This would allow us to still hold all the data, but allocate less.
 //
-// But exa still has bugs and I need to fix those first :(
+// But eza still has bugs and I need to fix those first :(
 
 /// The contents of a text cell, as a vector of ANSI-styled strings.
 ///

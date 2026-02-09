@@ -140,7 +140,7 @@ pub struct Links {
 }
 
 /// A file’s inode. Every directory entry on a Unix filesystem has an inode,
-/// including directories and links, so this is applicable to everything exa
+/// including directories and links, so this is applicable to everything eza
 /// can deal with.
 #[allow(unused)]
 #[derive(Copy, Clone)]

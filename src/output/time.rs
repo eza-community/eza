@@ -12,7 +12,7 @@ use std::sync::LazyLock;
 use std::time::Duration;
 use unicode_width::UnicodeWidthStr;
 
-/// Every timestamp in exa needs to be rendered by a **time format**.
+/// Every timestamp in eza needs to be rendered by a **time format**.
 /// Formatting times is tricky, because how a timestamp is rendered can
 /// depend on one or more of the following:
 ///

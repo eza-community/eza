@@ -536,7 +536,7 @@ impl UiStyles {
     /// but return false. This doesn’t take the `LS_COLORS` keys into account,
     /// so `set_ls` should have been run first.
     #[rustfmt::skip]
-    pub fn set_exa(&mut self, pair: &Pair<'_>) -> bool {
+    pub fn set_eza(&mut self, pair: &Pair<'_>) -> bool {
         match pair.key {
             "ur" => self.perms().user_read                = Some(pair.to_style()),
             "uw" => self.perms().user_write               = Some(pair.to_style()),

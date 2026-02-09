@@ -63,23 +63,18 @@ impl ShowIcons {
     }
 
     fn get_width<V: Vars>(vars: &V) -> Result<u32, OptionsError> {
-        if let Some(columns) = vars
-            .get_with_fallback(vars::EXA_ICON_SPACING, vars::EZA_ICON_SPACING)
+        vars.get_with_fallback(vars::EZA_ICON_SPACING, vars::EXA_ICON_SPACING)
             .map(|s| s.to_string_lossy().to_string())
-        {
-            match columns.parse() {
+            .map_or(Ok(1), |columns| match columns.parse() {
                 Ok(width) => Ok(width),
                 Err(e) => {
                     let source = NumberSource::Env(
-                        vars.source(vars::EXA_ICON_SPACING, vars::EZA_ICON_SPACING)
+                        vars.source(vars::EZA_ICON_SPACING, vars::EXA_ICON_SPACING)
                             .unwrap_or("1"),
                     );
                     Err(OptionsError::FailedParse(columns.to_string(), source, e))
                 }
-            }
-        } else {
-            Ok(1)
-        }
+            })
     }
 }
 
@@ -240,7 +235,7 @@ mod tests {
             ShowIcons::deduce(&mock_cli(vec!["--icons", "auto"]), &vars),
             Err(OptionsError::FailedParse(
                 String::from("foo"),
-                NumberSource::Env(vars::EXA_ICON_SPACING),
+                NumberSource::Env(vars::EZA_ICON_SPACING),
                 e.unwrap_err()
             ))
         );
