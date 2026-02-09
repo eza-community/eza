@@ -707,7 +707,7 @@ mod customs_test {
     test!(exa_lc:  ls "", exa "lc=38;5;121"  =>  colours c -> { c.links().normal                          = Some(Fixed(121).normal()); });
     test!(exa_lm:  ls "", exa "lm=38;5;122"  =>  colours c -> { c.links().multi_link_file                 = Some(Fixed(122).normal()); });
 
-    test!(exa_ga:  ls "", exa "ga=38;5;123"  =>  colours c -> { c.git().new                               = Some(Fixed(123).normal()); });
+    test!(exa_ga:  ls "", exa "ga=38;5;123"  =>  colours c -> { c.git().untracked                          = Some(Fixed(123).normal()); });
     test!(exa_gm:  ls "", exa "gm=38;5;124"  =>  colours c -> { c.git().modified                          = Some(Fixed(124).normal()); });
     test!(exa_gd:  ls "", exa "gd=38;5;125"  =>  colours c -> { c.git().deleted                           = Some(Fixed(125).normal()); });
     test!(exa_gv:  ls "", exa "gv=38;5;126"  =>  colours c -> { c.git().renamed                           = Some(Fixed(126).normal()); });
