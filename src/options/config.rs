@@ -434,7 +434,7 @@ impl FromOverride<LinksOverride> for Links {
 #[rustfmt::skip]
 #[derive(Clone, Copy, Debug,Eq, PartialEq, Serialize, Deserialize)]
 pub struct GitOverride {
-    pub new: Option<StyleOverride>,         // ga
+    pub untracked: Option<StyleOverride>,   // ga
     pub modified: Option<StyleOverride>,    // gm
     pub deleted: Option<StyleOverride>,     // gd
     pub renamed: Option<StyleOverride>,     // gv
@@ -446,7 +446,7 @@ pub struct GitOverride {
 impl FromOverride<GitOverride> for Git {
     fn from(value: GitOverride, default: Self) -> Self {
         Git {
-            new: FromOverride::from(value.new, default.new),
+            untracked: FromOverride::from(value.untracked, default.untracked),
             modified: FromOverride::from(value.modified, default.modified),
             deleted: FromOverride::from(value.deleted, default.deleted),
             renamed: FromOverride::from(value.renamed, default.renamed),

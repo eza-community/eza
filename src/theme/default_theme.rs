@@ -83,7 +83,7 @@ impl Default for UiStyles {
 
             #[rustfmt::skip]
             git: Some(Git {
-                new:         Some(Green.normal()),
+                untracked:   Some(Green.normal()),
                 modified:    Some(Blue.normal()),
                 deleted:     Some(Red.normal()),
                 renamed:     Some(Yellow.normal()),
