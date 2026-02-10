@@ -23,7 +23,7 @@ impl f::GitStatus {
         #[rustfmt::skip]
         return match self {
             Self::NotModified  => colours.not_modified().paint("-"),
-            Self::New          => colours.untracked().paint("N"),
+            Self::Untracked     => colours.untracked().paint("N"),
             Self::Modified     => colours.modified().paint("M"),
             Self::Deleted      => colours.deleted().paint("D"),
             Self::Renamed      => colours.renamed().paint("R"),
@@ -148,7 +148,7 @@ pub mod test {
     #[test]
     fn git_new_changed() {
         let stati = f::Git {
-            staged: f::GitStatus::New,
+            staged: f::GitStatus::Untracked,
             unstaged: f::GitStatus::Modified,
         };
 
