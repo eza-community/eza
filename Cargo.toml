@@ -119,6 +119,7 @@ default-features = false
 
 [target.'cfg(target_os = "linux")'.dependencies]
 proc-mounts = "0.3"
+capctl = "0.2.4"
 
 [target.'cfg(unix)'.dependencies]
 uzers = "0.12.1"

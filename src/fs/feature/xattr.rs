@@ -588,7 +588,13 @@ const ATTRIBUTE_DISPLAYS: &[AttributeDisplay] = &[
     },
 ];
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(target_os = "linux")]
+const ATTRIBUTE_DISPLAYS: &[AttributeDisplay] = &[AttributeDisplay {
+    attribute: "security.capability",
+    display: display_capability,
+}];
+
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
 const ATTRIBUTE_DISPLAYS: &[AttributeDisplay] = &[];
 
 // com.apple.lastuseddate is two 64-bit values representing the seconds and nano seconds
@@ -663,6 +669,17 @@ fn display_macl(attribute: &Attribute) -> Option<String> {
                 .join(", ");
             format!("[{macls}]")
         })
+}
+
+// "security.capability" attribute represents capabilities in a binary format.
+// See "capabilities(7)"
+#[cfg(target_os = "linux")]
+fn display_capability(attribute: &Attribute) -> Option<String> {
+    attribute
+        .value
+        .as_ref()
+        .and_then(|v| capctl::FileCaps::unpack_attrs(v).ok())
+        .map(|caps| format!("{caps}"))
 }
 
 // plist::XmlWriter takes the writer instead of borrowing it.  This is a
