@@ -6,7 +6,6 @@
 // SPDX-License-Identifier: MIT
 //! Files, and methods and fields to access their metadata.
 
-#[cfg(unix)]
 use std::collections::HashMap;
 use std::fs::FileType;
 use std::io;
@@ -17,7 +16,6 @@ use std::os::windows::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 #[cfg(unix)]
 use std::str;
-#[cfg(unix)]
 use std::sync::Mutex;
 use std::sync::OnceLock;
 use std::time::SystemTime;
@@ -25,7 +23,6 @@ use std::time::SystemTime;
 use chrono::prelude::*;
 
 use log::{debug, error, trace};
-#[cfg(unix)]
 use std::sync::LazyLock;
 
 use crate::fs::dir::Dir;
@@ -39,11 +36,11 @@ use super::mounts::all_mounts;
 use super::mounts::MountedFs;
 
 // Maps (device_id, inode) => (size_in_bytes, size_in_blocks)
+// For windows, size_in_blocks is always 0
 // Mutex::new is const but HashMap::new is not const requiring us to use lazy
 // initialization.
 #[allow(clippy::type_complexity)]
-#[cfg(unix)]
-static DIRECTORY_SIZE_CACHE: LazyLock<Mutex<HashMap<(u64, u64), (u64, u64)>>> =
+static DIRECTORY_SIZE_CACHE: LazyLock<Mutex<HashMap<Option<same_file::Handle>, (u64, u64)>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 
 /// A **File** is a wrapper around one of Rust’s `PathBuf` values, along with
@@ -589,17 +586,22 @@ impl<'dir> File<'dir> {
     ///
     /// Links will return the size of their target (recursively through other
     /// links) if dereferencing is enabled, otherwise None.
-    #[cfg(unix)]
     pub fn size(&self) -> f::Size {
         if self.deref_links && self.is_link() {
-            match self.link_target() {
+            return match self.link_target() {
                 FileTarget::Ok(f) => f.size(),
                 _ => f::Size::None,
-            }
-        } else if self.is_directory() {
-            self.recursive_size
-                .map_or(f::Size::None, |bytes, _| f::Size::Some(bytes))
-        } else if self.is_char_device() || self.is_block_device() {
+            };
+        }
+
+        if self.is_directory() {
+            return self
+                .recursive_size
+                .map_or(f::Size::None, |bytes, _| f::Size::Some(bytes));
+        }
+
+        #[cfg(unix)]
+        if self.is_char_device() || self.is_block_device() {
             let device_id = self.metadata().map_or(0, MetadataExt::rdev);
 
             // MacOS and Linux have different arguments and return types for the
@@ -616,43 +618,27 @@ impl<'dir> File<'dir> {
                 let device_id = device_id
                     .try_into()
                     .expect("Malformed device major ID when getting filesize");
-                f::Size::DeviceIDs(f::DeviceIDs {
+                return f::Size::DeviceIDs(f::DeviceIDs {
                     major: unsafe { libc::major(device_id) as u32 },
                     minor: unsafe { libc::minor(device_id) as u32 },
-                })
+                });
             }
-        } else if self.is_file() {
-            f::Size::Some(self.metadata().map_or(0, std::fs::Metadata::len))
-        } else {
-            // symlink
-            f::Size::None
         }
-    }
 
-    /// Returns the size of the file or indicates no size if it's a directory.
-    ///
-    /// For Windows platforms, the size of directories is not computed and will
-    /// return `Size::None`.
-    #[cfg(windows)]
-    pub fn size(&self) -> f::Size {
-        if self.is_directory() {
-            f::Size::None
-        } else {
-            f::Size::Some(self.metadata().map_or(0, std::fs::Metadata::len))
+        if self.is_file() {
+            return f::Size::Some(self.metadata().map_or(0, std::fs::Metadata::len));
         }
+
+        f::Size::None // symlink
     }
 
     /// Calculate the total directory size recursively.  If not a directory `None`
     /// will be returned.  The directory size is cached for recursive directory
     /// listing.
-    #[cfg(unix)]
     fn recursive_directory_size(&self) -> RecursiveSize {
         if self.is_directory() {
-            let key = (
-                self.metadata().map_or(0, MetadataExt::dev),
-                self.metadata().map_or(0, MetadataExt::ino),
-            );
-            if let Some(size) = DIRECTORY_SIZE_CACHE.lock().unwrap().get(&key) {
+            let handle = same_file::Handle::from_path(&self.path).ok();
+            if let Some(size) = DIRECTORY_SIZE_CACHE.lock().unwrap().get(&handle) {
                 return RecursiveSize::Some(size.0, size.1);
             }
             Dir::read_dir(self.path.clone()).map_or(RecursiveSize::Unknown, |dir| {
@@ -665,30 +651,27 @@ impl<'dir> File<'dir> {
                             blocks += blks;
                         }
                         RecursiveSize::Unknown => {}
+                        #[cfg(unix)]
                         RecursiveSize::None => {
                             size += file.metadata().map_or(0, MetadataExt::size);
                             blocks += file.metadata().map_or(0, MetadataExt::blocks);
+                        }
+                        #[cfg(windows)]
+                        RecursiveSize::None => {
+                            // Windows have no block size
+                            size += file.metadata().map_or(0, MetadataExt::file_size);
                         }
                     }
                 }
                 DIRECTORY_SIZE_CACHE
                     .lock()
                     .unwrap()
-                    .insert(key, (size, blocks));
+                    .insert(handle, (size, blocks));
                 RecursiveSize::Some(size, blocks)
             })
         } else {
             RecursiveSize::None
         }
-    }
-
-    /// Windows version always returns None.  The metadata for
-    /// `volume_serial_number` and `file_index` are marked unstable so we can
-    /// not cache the sizes.  Without caching we could end up walking the
-    /// directory structure several times.
-    #[cfg(windows)]
-    fn recursive_directory_size(&self) -> RecursiveSize {
-        RecursiveSize::None
     }
 
     /// Returns the same value as `self.metadata.len()` or the recursive size
