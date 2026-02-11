@@ -14,8 +14,7 @@ pub enum RecursiveSize {
     /// Size should be computed but has not been computed yet
     Unknown,
     /// Size has been computed.  First field is size in bytes and second field
-    /// is size in blocks
-    #[cfg_attr(target_family = "windows", allow(dead_code))]
+    /// is size in blocks.  Second field is always 0 for Windows.
     Some(u64, u64),
 }
 
