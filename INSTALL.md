@@ -167,6 +167,19 @@ sudo rm -f /usr/local/bin/exa
 sudo ln -s /usr/local/bin/eza /usr/local/bin/exa
 ```
 
+### RISC-V (Linux)
+
+For RISC-V 64-bit systems running glibc-based distributions:
+
+```shell
+wget -c https://github.com/eza-community/eza/releases/latest/download/eza_riscv64gc-unknown-linux-gnu.tar.gz -O - | tar xz
+sudo chmod +x eza
+sudo chown root:root eza
+sudo mv eza /usr/local/bin/eza
+```
+
+Note: The RISC-V build targets GNU libc (glibc). Musl-based distributions are not currently supported.
+
 ### Pixi (Linux, MacOS, and Windows)
 
 [![conda-forge package](https://img.shields.io/conda/vn/conda-forge/eza)](https://prefix.dev/channels/conda-forge/packages/eza)

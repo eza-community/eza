@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: 2024 Christina Sørensen
+# SPDX-License-Identifier: EUPL-1.2
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+permissions:
+  contents: write
+jobs:
+  release-riscv64-gnu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: riscv64gc-unknown-linux-gnu
+      - name: Install cross
+        run: cargo install cross --git https://github.com/cross-rs/cross
+      - name: Build for riscv64gc-unknown-linux-gnu
+        run: cross build --release --target riscv64gc-unknown-linux-gnu
+      - name: Prepare release artifacts
+        run: |
+          mkdir -p dist
+          cp target/riscv64gc-unknown-linux-gnu/release/eza dist/
+          cd dist
+          tar czf eza_riscv64gc-unknown-linux-gnu.tar.gz eza
+          zip eza_riscv64gc-unknown-linux-gnu.zip eza
+          sha256sum eza_riscv64gc-unknown-linux-gnu.tar.gz eza_riscv64gc-unknown-linux-gnu.zip > sha256sum.txt
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/eza_riscv64gc-unknown-linux-gnu.tar.gz
+            dist/eza_riscv64gc-unknown-linux-gnu.zip
+            dist/sha256sum.txt

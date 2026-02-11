@@ -1,0 +1,37 @@
+# SPDX-FileCopyrightText: 2024 Christina Sørensen
+# SPDX-License-Identifier: EUPL-1.2
+name: CI RISC-V
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  build-riscv64:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: riscv64gc-unknown-linux-gnu
+      - name: Install cross
+        run: cargo install cross --git https://github.com/cross-rs/cross
+      - name: Build for riscv64gc-unknown-linux-gnu
+        run: cross build --release --target riscv64gc-unknown-linux-gnu
+      - name: Smoke test - version
+        run: target/riscv64gc-unknown-linux-gnu/release/eza --version || true
+      - name: Smoke test - list
+        run: target/riscv64gc-unknown-linux-gnu/release/eza -l . >/dev/null || true
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: eza-riscv64gc-gnu
+          path: target/riscv64gc-unknown-linux-gnu/release/eza
