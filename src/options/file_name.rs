@@ -95,10 +95,10 @@ impl QuoteStyle {
 
 impl EmbedHyperlinks {
     fn deduce(matches: &ArgMatches) -> Self {
-        if matches.get_flag("hyperlink") {
-            Self::On
-        } else {
-            Self::Off
+        match matches.get_one("hyperlink") {
+            Some(ShowWhen::Never) | None => Self::Never,
+            Some(ShowWhen::Always) => Self::Always,
+            Some(ShowWhen::Auto) => Self::Automatic,
         }
     }
 }
@@ -149,18 +149,34 @@ mod tests {
     }
 
     #[test]
-    fn deduce_embed_hyperlinks_on() {
+    fn deduce_embed_hyperlinks_auto() {
         assert_eq!(
             EmbedHyperlinks::deduce(&mock_cli(vec!["--hyperlink"])),
-            EmbedHyperlinks::On
+            EmbedHyperlinks::Automatic
+        );
+        assert_eq!(
+            EmbedHyperlinks::deduce(&mock_cli(vec!["--hyperlink", "auto"])),
+            EmbedHyperlinks::Automatic
         );
     }
 
     #[test]
-    fn deduce_embed_hyperlinks_off() {
+    fn deduce_embed_hyperlinks_always() {
+        assert_eq!(
+            EmbedHyperlinks::deduce(&mock_cli(vec!["--hyperlink", "always"])),
+            EmbedHyperlinks::Always
+        );
+    }
+
+    #[test]
+    fn deduce_embed_hyperlinks_never() {
+        assert_eq!(
+            EmbedHyperlinks::deduce(&mock_cli(vec!["--hyperlink", "never"])),
+            EmbedHyperlinks::Never
+        );
         assert_eq!(
             EmbedHyperlinks::deduce(&mock_cli(vec![""])),
-            EmbedHyperlinks::Off
+            EmbedHyperlinks::Never
         );
     }
 
@@ -254,7 +270,7 @@ mod tests {
                 classify: Classify::JustFilenames,
                 show_icons: ShowIcons::Never,
                 quote_style: QuoteStyle::QuoteSpaces,
-                embed_hyperlinks: EmbedHyperlinks::Off,
+                embed_hyperlinks: EmbedHyperlinks::Never,
                 absolute: Absolute::Off,
                 is_a_tty: true,
             })
