@@ -601,7 +601,7 @@ impl<'dir> File<'dir> {
         }
 
         #[cfg(unix)]
-        if (self.is_char_device() || self.is_block_device()) {
+        if self.is_char_device() || self.is_block_device() {
             let device_id = self.metadata().map_or(0, MetadataExt::rdev);
 
             // MacOS and Linux have different arguments and return types for the
