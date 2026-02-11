@@ -35,6 +35,7 @@ impl View {
         let deref_links = matches.get_flag("dereference");
         let follow_links = matches.get_flag("follow-symlinks");
         let total_size = matches.get_flag("total-size");
+        let summary = matches.get_flag("summary");
         let file_style = FileStyle::deduce(matches, vars, is_tty)?;
         Ok(Self {
             mode,
@@ -43,6 +44,7 @@ impl View {
             deref_links,
             follow_links,
             total_size,
+            summary,
         })
     }
 }
