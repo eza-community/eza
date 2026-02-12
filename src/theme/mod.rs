@@ -313,6 +313,17 @@ impl FileStyle for FileTypes {
     }
 }
 
+#[derive(Debug)]
+struct FileDefaults;
+
+#[rustfmt::skip]
+impl FileDefaults {
+    const DIRECTORY: &'static str       = ".default_directory";
+    const DIRECTORY_EMPTY: &'static str = ".default_directory_empty";
+    const FILE: &'static str            = ".default_file";
+    const FILE_UNKNOWN: &'static str    = ".default_file_unknown";
+}
+
 #[cfg(unix)]
 impl render::BlocksColours for Theme {
     fn blocksize(&self, prefix: Option<unit_prefix::Prefix>) -> Style {
@@ -478,7 +489,7 @@ impl FileNameColours for Theme {
             .unwrap_or(self.ui.filekinds.unwrap_or_default().normal())
     }
 
- fn style_override(&self, file: &File<'_>) -> Option<FileNameStyle> {
+    fn style_override(&self, file: &File<'_>) -> Option<FileNameStyle> {
         if let Some(ref name_overrides) = self.ui.filenames {
             if let Some(file_override) = name_overrides.get(&file.name) {
                 return Some(*file_override);
@@ -490,6 +501,22 @@ impl FileNameColours for Theme {
                 if let Some(file_override) = ext_overrides.get(&ext) {
                     return Some(*file_override);
                 }
+            }
+            
+            if file.points_to_directory() {
+                if file.is_empty_dir() {
+                    if let Some(file_override) = ext_overrides.get(FileDefaults::DIRECTORY_EMPTY) {
+                        return Some(*file_override);
+                    }
+                } else if let Some(file_override) = ext_overrides.get(FileDefaults::DIRECTORY) {
+                    return Some(*file_override);
+                }
+            } else if file.ext.is_some() {
+                if let Some(file_override) = ext_overrides.get(FileDefaults::FILE) {
+                    return Some(*file_override);
+                }
+            } else if let Some(file_override) = ext_overrides.get(FileDefaults::FILE_UNKNOWN) {
+                return Some(*file_override);
             }
         }
 
