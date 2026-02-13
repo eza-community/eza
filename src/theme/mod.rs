@@ -363,8 +363,7 @@ impl render::FiletypeColours for Theme {
 #[rustfmt::skip]
 impl render::GitColours for Theme {
     fn not_modified(&self)  -> Style { self.ui.punctuation() }
-    #[allow(clippy::new_ret_no_self)]
-    fn new(&self)           -> Style { self.ui.git.unwrap_or_default().new() }
+    fn untracked(&self)     -> Style { self.ui.git.unwrap_or_default().untracked() }
     fn modified(&self)      -> Style { self.ui.git.unwrap_or_default().modified() }
     fn deleted(&self)       -> Style { self.ui.git.unwrap_or_default().deleted() }
     fn renamed(&self)       -> Style { self.ui.git.unwrap_or_default().renamed() }
@@ -708,7 +707,7 @@ mod customs_test {
     test!(exa_lc:  ls "", exa "lc=38;5;121"  =>  colours c -> { c.links().normal                          = Some(Fixed(121).normal()); });
     test!(exa_lm:  ls "", exa "lm=38;5;122"  =>  colours c -> { c.links().multi_link_file                 = Some(Fixed(122).normal()); });
 
-    test!(exa_ga:  ls "", exa "ga=38;5;123"  =>  colours c -> { c.git().new                               = Some(Fixed(123).normal()); });
+    test!(exa_ga:  ls "", exa "ga=38;5;123"  =>  colours c -> { c.git().untracked                          = Some(Fixed(123).normal()); });
     test!(exa_gm:  ls "", exa "gm=38;5;124"  =>  colours c -> { c.git().modified                          = Some(Fixed(124).normal()); });
     test!(exa_gd:  ls "", exa "gd=38;5;125"  =>  colours c -> { c.git().deleted                           = Some(Fixed(125).normal()); });
     test!(exa_gv:  ls "", exa "gv=38;5;126"  =>  colours c -> { c.git().renamed                           = Some(Fixed(126).normal()); });

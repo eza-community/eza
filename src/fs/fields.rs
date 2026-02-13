@@ -223,7 +223,7 @@ pub enum GitStatus {
 
     /// This file didn’t exist for the last commit, and is not specified in
     /// the ignored files list.
-    New,
+    Untracked,
 
     /// A file that’s been modified since the last commit.
     Modified,

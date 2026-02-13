@@ -23,7 +23,7 @@ impl f::GitStatus {
         #[rustfmt::skip]
         return match self {
             Self::NotModified  => colours.not_modified().paint("-"),
-            Self::New          => colours.new().paint("N"),
+            Self::Untracked     => colours.untracked().paint("N"),
             Self::Modified     => colours.modified().paint("M"),
             Self::Deleted      => colours.deleted().paint("D"),
             Self::Renamed      => colours.renamed().paint("R"),
@@ -36,10 +36,7 @@ impl f::GitStatus {
 
 pub trait Colours {
     fn not_modified(&self) -> Style;
-    // FIXME: this amount of allows needed to keep clippy happy should be enough
-    // of an argument that new needs to be renamed.
-    #[allow(clippy::new_ret_no_self, clippy::wrong_self_convention)]
-    fn new(&self) -> Style;
+    fn untracked(&self) -> Style;
     fn modified(&self) -> Style;
     fn deleted(&self) -> Style;
     fn renamed(&self) -> Style;
@@ -110,7 +107,7 @@ pub mod test {
         fn not_modified(&self) -> Style {
             Fixed(90).normal()
         }
-        fn new(&self) -> Style {
+        fn untracked(&self) -> Style {
             Fixed(91).normal()
         }
         fn modified(&self) -> Style {
@@ -151,7 +148,7 @@ pub mod test {
     #[test]
     fn git_new_changed() {
         let stati = f::Git {
-            staged: f::GitStatus::New,
+            staged: f::GitStatus::Untracked,
             unstaged: f::GitStatus::Modified,
         };
 
