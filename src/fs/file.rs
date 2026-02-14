@@ -454,6 +454,14 @@ impl<'dir> File<'dir> {
             Err(e) => return FileTarget::Err(e),
         };
 
+        // A symlink with an empty target is always broken. We must check
+        // this before calling reorient_target_path, because joining an
+        // empty path with the parent directory would resolve to the parent
+        // itself, incorrectly treating the broken symlink as a directory.
+        if path.as_os_str().is_empty() {
+            return FileTarget::Broken(path);
+        }
+
         let absolute_path = self.reorient_target_path(&path);
 
         // Use plain `metadata` instead of `symlink_metadata` - we *want* to
@@ -1115,5 +1123,95 @@ mod filename_test {
     #[cfg(unix)]
     fn topmost() {
         assert_eq!("/", File::filename(Path::new("/")));
+    }
+}
+
+#[cfg(test)]
+#[cfg(unix)]
+mod broken_symlink_test {
+    use super::*;
+    use std::os::unix::fs as unix_fs;
+
+    fn make_file(path: PathBuf) -> File<'static> {
+        File::from_args(path, None, None, false, false, None)
+    }
+
+    /// A symlink with an empty target should be treated as broken, not as
+    /// pointing to a directory. Regression test for
+    /// https://github.com/eza-community/eza/issues/1715
+    #[test]
+    fn empty_target_symlink_is_not_directory() {
+        let test_dir = std::env::temp_dir().join("eza_test_empty_symlink");
+        let _ = std::fs::remove_dir_all(&test_dir);
+        std::fs::create_dir_all(&test_dir).unwrap();
+
+        let link_path = test_dir.join("empty-link");
+        // Some environments (e.g. Nix sandbox) don't allow creating
+        // symlinks with empty targets, so skip if that's the case.
+        if unix_fs::symlink("", &link_path).is_err() {
+            let _ = std::fs::remove_dir_all(&test_dir);
+            return;
+        }
+
+        let file = make_file(link_path);
+
+        assert!(file.is_link(), "should be recognized as a symlink");
+        assert!(
+            !file.is_directory(),
+            "should not be recognized as a directory"
+        );
+        assert!(
+            !file.points_to_directory(),
+            "broken symlink with empty target should not point to a directory"
+        );
+
+        let target = file.link_target();
+        assert!(
+            target.is_broken(),
+            "symlink with empty target should be considered broken"
+        );
+
+        let _ = std::fs::remove_dir_all(&test_dir);
+    }
+
+    /// A symlink whose target has been deleted should not be treated as a
+    /// directory either.
+    #[test]
+    fn deleted_target_symlink_is_not_directory() {
+        let test_dir = std::env::temp_dir().join("eza_test_deleted_symlink");
+        let _ = std::fs::remove_dir_all(&test_dir);
+        std::fs::create_dir_all(&test_dir).unwrap();
+
+        let target_dir = test_dir.join("target_dir");
+        std::fs::create_dir(&target_dir).unwrap();
+
+        let link_path = test_dir.join("dir-link");
+        unix_fs::symlink("target_dir", &link_path).unwrap();
+
+        // Verify it initially points to a directory
+        let file = make_file(link_path.clone());
+        assert!(
+            file.points_to_directory(),
+            "should point to directory before deletion"
+        );
+
+        // Delete the target directory
+        std::fs::remove_dir(&target_dir).unwrap();
+
+        // Re-create File to clear cached state
+        let file = make_file(link_path);
+        assert!(file.is_link(), "should still be recognized as a symlink");
+        assert!(
+            !file.points_to_directory(),
+            "broken symlink (deleted target) should not point to a directory"
+        );
+
+        let target = file.link_target();
+        assert!(
+            target.is_broken(),
+            "symlink with deleted target should be considered broken"
+        );
+
+        let _ = std::fs::remove_dir_all(&test_dir);
     }
 }
