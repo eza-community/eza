@@ -1,0 +1,11 @@
+# reset should disable built-in long-view colors while still honoring LS_COLORS
+bin.name = "eza"
+args = "--color always --long --no-user --no-filesize --no-time index.svg"
+
+[fs]
+cwd = "../itest"
+
+[env.add]
+LS_COLORS = "fi=31"
+EZA_COLORS = "reset"
+EZA_CONFIG_DIR = "tests/itest"
