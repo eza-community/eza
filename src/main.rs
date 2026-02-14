@@ -30,7 +30,7 @@
 use std::env;
 use std::ffi::{OsStr, OsString};
 use std::io::{self, stdin, ErrorKind, IsTerminal, Read, Write};
-use std::path::{Component, PathBuf};
+use std::path::PathBuf;
 use std::process::exit;
 
 use nu_ansi_term::{AnsiStrings as ANSIStrings, Style};
@@ -284,7 +284,7 @@ impl Exa<'_> {
         self.options.filter.filter_argument_files(&mut files);
         self.print_files(None, files)?;
 
-        self.print_dirs(dirs, no_files, is_only_dir, exit_status)
+        self.print_dirs(dirs, no_files, is_only_dir, exit_status, 0)
     }
 
     fn print_dirs(
@@ -293,6 +293,7 @@ impl Exa<'_> {
         mut first: bool,
         is_only_dir: bool,
         exit_status: i32,
+        depth: usize,
     ) -> io::Result<i32> {
         let View {
             file_style: file_name::Options { quote_style, .. },
@@ -358,14 +359,9 @@ impl Exa<'_> {
             self.options.filter.sort_files(&mut children);
 
             if let Some(recurse_opts) = self.options.dir_action.recurse_options() {
-                let depth = dir
-                    .path
-                    .components()
-                    .filter(|&c| c != Component::CurDir)
-                    .count()
-                    + 1;
+                let child_depth = depth + 1;
                 let follow_links = self.options.view.follow_links;
-                if !recurse_opts.tree && !recurse_opts.is_too_deep(depth) {
+                if !recurse_opts.tree && !recurse_opts.is_too_deep(child_depth) {
                     let child_dirs = children
                         .iter()
                         .filter(|f| {
@@ -379,7 +375,7 @@ impl Exa<'_> {
                         .collect::<Vec<Dir>>();
 
                     self.print_files(Some(dir), children)?;
-                    match self.print_dirs(child_dirs, false, false, exit_status) {
+                    match self.print_dirs(child_dirs, false, false, exit_status, child_depth) {
                         Ok(_) => (),
                         Err(e) => return Err(e),
                     }
