@@ -1151,7 +1151,10 @@ mod broken_symlink_test {
         let file = make_file(link_path);
 
         assert!(file.is_link(), "should be recognized as a symlink");
-        assert!(!file.is_directory(), "should not be recognized as a directory");
+        assert!(
+            !file.is_directory(),
+            "should not be recognized as a directory"
+        );
         assert!(
             !file.points_to_directory(),
             "broken symlink with empty target should not point to a directory"
