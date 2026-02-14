@@ -1146,7 +1146,12 @@ mod broken_symlink_test {
         std::fs::create_dir_all(&test_dir).unwrap();
 
         let link_path = test_dir.join("empty-link");
-        unix_fs::symlink("", &link_path).unwrap();
+        // Some environments (e.g. Nix sandbox) don't allow creating
+        // symlinks with empty targets, so skip if that's the case.
+        if unix_fs::symlink("", &link_path).is_err() {
+            let _ = std::fs::remove_dir_all(&test_dir);
+            return;
+        }
 
         let file = make_file(link_path);
 
