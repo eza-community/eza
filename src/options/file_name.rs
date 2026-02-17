@@ -74,7 +74,7 @@ impl ShowIcons {
                         vars.source(vars::EXA_ICON_SPACING, vars::EZA_ICON_SPACING)
                             .unwrap_or("1"),
                     );
-                    Err(OptionsError::FailedParse(columns.to_string(), source, e))
+                    Err(OptionsError::FailedParse(columns.clone(), source, e))
                 }
             }
         } else {

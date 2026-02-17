@@ -77,7 +77,7 @@ impl Mode {
                 return Ok(Self::Grid(grid));
             }
             return Ok(Self::Lines);
-        };
+        }
 
         if long {
             let details = details::Options::deduce_long(matches, vars, strict)?;
