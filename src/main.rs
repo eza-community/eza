@@ -4,28 +4,10 @@
 // SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
-#![warn(deprecated_in_future)]
 #![warn(future_incompatible)]
-#![warn(nonstandard_style)]
-#![warn(rust_2018_compatibility)]
-#![warn(rust_2018_idioms)]
 #![warn(trivial_casts, trivial_numeric_casts)]
-#![warn(unused)]
-#![warn(clippy::all, clippy::pedantic)]
-#![allow(clippy::cast_precision_loss)]
-#![allow(clippy::cast_possible_truncation)]
-#![allow(clippy::cast_possible_wrap)]
-#![allow(clippy::cast_sign_loss)]
-#![allow(clippy::enum_glob_use)]
-#![allow(clippy::map_unwrap_or)]
-#![allow(clippy::match_same_arms)]
-#![allow(clippy::module_name_repetitions)]
+#![warn(clippy::all)]
 #![allow(clippy::non_ascii_literal)]
-#![allow(clippy::option_if_let_else)]
-#![allow(clippy::too_many_lines)]
-#![allow(clippy::unused_self)]
-#![allow(clippy::upper_case_acronyms)]
-#![allow(clippy::wildcard_imports)]
 
 use std::env;
 use std::ffi::{OsStr, OsString};
