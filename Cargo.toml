@@ -6,7 +6,7 @@ description = "A modern replacement for ls"
 authors = ["Christina Sørensen <christina@cafkafk.com>"]
 categories = ["command-line-utilities"]
 edition = "2021"
-rust-version = "1.83.0"
+rust-version = "1.90"
 exclude = [
   "/docs/",
   "/devtools/",
@@ -100,11 +100,11 @@ unit-prefix = "0.5.2"
 # palette 0.7.6 is broken: https://github.com/eza-community/eza/pull/1207
 palette = { version = "=0.7.5", default-features = false, features = ["std"] }
 percent-encoding = "2.3.1"
-phf = { version = "0.12.1", features = ["macros"] }
+phf = { version = "0.13.1", features = ["macros"] }
 plist = { version = "1.7.0", default-features = false }
 uutils_term_grid = "0.7.0"
 terminal_size = "0.4.2"
-timeago = { version = "0.4.2", default-features = false }
+timeago = { version = "0.6.0", default-features = false }
 unicode-width = "0.2"
 ansi-width = "0.1.0"
 serde = { version = "1.0.219", features = ["derive"] }
@@ -125,7 +125,7 @@ proc-mounts = "0.3"
 uzers = "0.12.1"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-windows-sys = { version = "0.60.2", features = [
+windows-sys = { version = "0.61.2", features = [
   "Win32_System_Console",
   "Win32_Foundation",
 ] }
@@ -134,8 +134,8 @@ windows-sys = { version = "0.60.2", features = [
 chrono = { version = "0.4.40", default-features = false, features = ["clock"] }
 
 [dev-dependencies]
-criterion = { version = "0.5.1", features = ["html_reports"] }
-trycmd = "0.15"
+criterion = { version = "0.8.2", features = ["html_reports"] }
+trycmd = "1.0"
 
 [features]
 default = ["git"]
