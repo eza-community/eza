@@ -21,7 +21,14 @@
       bash devtools/dir-generator.sh tests/test_dir && echo "Dir generated"
       bash devtools/generate-timestamp-test-dir.sh tests/timestamp_test_dir
     '';
-    cargoTestOptions = opts: opts ++ [ "--features nix" ];
+    cargoTestOptions =
+      opts:
+      opts
+      ++ [
+        "--features nix"
+        "--features nix-local"
+        "--features powertest"
+      ];
     inherit buildInputs;
     nativeBuildInputs = with pkgs; [ git ];
   };
