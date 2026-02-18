@@ -168,7 +168,7 @@ Register-ArgumentCompleter -Native -CommandName 'eza' -ScriptBlock {
         #   [CompletionResult]::new('-A'                         ,'filter'              , [CompletionResultType]::ParameterName, 'equivalent to --all; included for compatibility with `ls -A`')
         #   [CompletionResult]::new('--almost-all'               ,'filter'              , [CompletionResultType]::ParameterName, 'equivalent to --all; included for compatibility with `ls -A`')
         #   [CompletionResult]::new('-d'                         ,'filter'              , [CompletionResultType]::ParameterName, 'list directories as files; don''t list their contents')
-            [CompletionResult]::new('--list-dirs'                ,'filter'              , [CompletionResultType]::ParameterName, 'list directories as files; don''t list their contents')
+            [CompletionResult]::new('--treat-dirs-as-files'      ,'filter'              , [CompletionResultType]::ParameterName, 'list directories as files; don''t list their contents')
         #   [CompletionResult]::new('-D'                         ,'filter'              , [CompletionResultType]::ParameterName, 'list only directories')
             [CompletionResult]::new('--only-dirs'                ,'filter'              , [CompletionResultType]::ParameterName, 'list only directories')
         #   [CompletionResult]::new('-f'                         ,'filter'              , [CompletionResultType]::ParameterName, 'list only files')

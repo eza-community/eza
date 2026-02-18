@@ -122,7 +122,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s. Quick overv
 <summary>Click to expand</summary>
 
 - **-a**, **--all**: show hidden and 'dot' files
-- **-d**, **--list-dirs**: list directories like regular files
+- **-d**, **--treat-dirs-as-files**: list directories like regular files
 - **-L**, **--level=(depth)**: limit the depth of recursion
 - **-r**, **--reverse**: reverse the sort order
 - **-s**, **--sort=(field)**: which field to sort by

@@ -71,7 +71,7 @@ jobs:
         with:
           timeout_minutes: 5
           max_attempts: 5
-          command: cargo install cargo-hack
+          command: cargo install cargo-hack --locked
       - name: Run rustfmt checks
         run: cargo fmt --check
       - name: Run clippy lints
@@ -94,7 +94,7 @@ jobs:
       - name: Compile
         uses: vmactions/freebsd-vm@v1
         with:
-          release: '14.3'
+          release: '15.0'
           usesh: true
           prepare: |
             pkg install -y curl git
@@ -131,7 +131,7 @@ jobs:
             PATH="/root/.cargo/bin:/usr/pkg/sbin:/usr/pkg/bin:$PATH"
             PKG_PATH="https://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/amd64/10.1/All/"
             export PATH PKG_PATH
-            /usr/sbin/pkg_add curl git
+            /usr/sbin/pkg_add -uu curl git
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain ${{ matrix.rust == 'msrv' && env.msrv || matrix.rust }} --profile minimal -y
             . ~/.cargo/env
             cargo install cargo-hack
@@ -155,7 +155,7 @@ jobs:
       - name: Compile
         uses: vmactions/openbsd-vm@v1
         with:
-          release: '7.7'
+          release: '7.8'
           usesh: true
           prepare: |
             pkg_add rust rust-rustfmt rust-clippy git
@@ -164,9 +164,12 @@ jobs:
           run: |
             set -e
             export CARGO_TERM_COLOR="always"
-            export RUSTFLAGS="--deny warnings"
+            # Do not treat warnings as failure, since OpenBSD lags behind "rustup" versions.
+            # https://github.com/rust-lang/rustup/issues/2377
+            # https://github.com/rust-lang/rustup/issues/2168
+            # export RUSTFLAGS="--deny warnings"
             cargo fmt --check
-            cargo clippy -- -D warnings
+            # cargo clippy -- -D warnings
             cargo hack test
   flake-check:
     needs: conventional
