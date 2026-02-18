@@ -185,6 +185,8 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@v17
       - name: Nix Flake Check
         run: nix build .#checks.${{ matrix.target }}.${{ matrix.checks }} -L
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   flake-build:
     needs: conventional
     name: Build Nix package
@@ -199,3 +201,5 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@v17
       - name: Nix Build
         run: nix build .#packages.${{ matrix.target }}.default -L
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
