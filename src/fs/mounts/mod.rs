@@ -27,7 +27,7 @@ pub struct MountedFs {
 }
 
 #[derive(Debug)]
-#[non_exhaustive]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 pub enum Error {
     #[cfg(target_os = "macos")]
     GetFSStatError(i32),
@@ -35,18 +35,18 @@ pub enum Error {
     IOError(std::io::Error),
 }
 
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 impl std::error::Error for Error {}
 
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // Allow unreachable_patterns for windows build
-        #[allow(unreachable_patterns)]
         match self {
             #[cfg(target_os = "macos")]
             Error::GetFSStatError(err) => write!(f, "getfsstat failed: {err}"),
             #[cfg(target_os = "linux")]
             Error::IOError(err) => write!(f, "failed to read /proc/mounts: {err}"),
-            _ => write!(f, "Unknown error"),
         }
     }
 }
