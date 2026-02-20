@@ -433,8 +433,7 @@ mod extended_attrs {
     // Get a vector of all attribute names and values on `path`
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     pub fn attributes(path: &Path, follow_symlinks: bool) -> io::Result<Vec<Attribute>> {
-        let path = CString::new(path.as_os_str().as_bytes())
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+        let path = CString::new(path.as_os_str().as_bytes()).map_err(io::Error::other)?;
         let attr_names = list_attributes(&path, follow_symlinks, os::list_xattr)?;
 
         #[cfg(target_os = "linux")]
@@ -447,8 +446,7 @@ mod extended_attrs {
         let mut attrs = Vec::with_capacity(attr_names.len());
         for attr_name in attr_names {
             if let Some(name) = attr_name.to_str() {
-                let attr_name =
-                    CString::new(name).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                let attr_name = CString::new(name).map_err(io::Error::other)?;
                 let value = get_attribute(&path, &attr_name, follow_symlinks, os::get_xattr)?;
                 attrs.push(Attribute {
                     name: name.to_string(),
@@ -477,8 +475,7 @@ mod extended_attrs {
     ) -> io::Result<()> {
         for attr_name in attr_names {
             if let Some(name) = attr_name.to_str() {
-                let attr_name =
-                    CString::new(name).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                let attr_name = CString::new(name).map_err(io::Error::other)?;
                 let value = get_attribute(path, &attr_name, follow_symlinks, getter)?;
                 attrs.push(Attribute {
                     name: format!("{namespace}::{name}"),
@@ -493,8 +490,7 @@ mod extended_attrs {
     pub fn attributes(path: &Path, follow_symlinks: bool) -> io::Result<Vec<Attribute>> {
         use libc::EPERM;
 
-        let path = CString::new(path.as_os_str().as_bytes())
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+        let path = CString::new(path.as_os_str().as_bytes()).map_err(io::Error::other)?;
         let attr_names_system = list_attributes(&path, follow_symlinks, os::list_system_xattr)
             .or_else(|err| {
                 // Reading of attributes in the system namespace is only supported for root
