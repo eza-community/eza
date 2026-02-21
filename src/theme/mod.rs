@@ -481,14 +481,14 @@ impl FileNameColours for Theme {
  fn style_override(&self, file: &File<'_>) -> Option<FileNameStyle> {
         if let Some(ref name_overrides) = self.ui.filenames {
             if let Some(file_override) = name_overrides.get(&file.name) {
-                return Some(*file_override);
+                return Some(file_override.clone());
             }
         }
 
         if let Some(ref ext_overrides) = self.ui.extensions {
             if let Some(ext) = file.ext.clone() {
                 if let Some(file_override) = ext_overrides.get(&ext) {
-                    return Some(*file_override);
+                    return Some(file_override.clone());
                 }
             }
         }
