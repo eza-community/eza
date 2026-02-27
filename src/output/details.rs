@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 //! The **Details** output view displays each file as a row in a table.
 //!
 //! It’s used in the following situations:
@@ -66,7 +72,7 @@ use std::vec::IntoIter as VecIntoIter;
 use nu_ansi_term::Style;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
-use log::*;
+use log::{debug, trace};
 
 use crate::fs::dir_action::RecurseOptions;
 use crate::fs::feature::git::GitCache;
@@ -115,6 +121,9 @@ pub struct Options {
     pub mounts: bool,
 
     pub color_scale: ColorScaleOptions,
+
+    /// Whether to drill down into symbolic links that point to directories
+    pub follow_links: bool,
 }
 
 pub struct Render<'a> {
@@ -285,10 +294,17 @@ impl<'a> Render<'a> {
                     .map(|t| t.row_for_file(file, self.show_xattr_hint(file), color_scale_info));
 
                 let mut dir = None;
+                let follow_links = self.opts.follow_links;
                 if let Some(r) = self.recurse {
-                    if file.is_directory() && r.tree && !r.is_too_deep(depth.0) {
-                        trace!("matching on to_dir");
-                        match file.to_dir() {
+                    if (if follow_links {
+                        file.points_to_directory()
+                    } else {
+                        file.is_directory()
+                    }) && r.tree
+                        && !r.is_too_deep(depth.0)
+                    {
+                        trace!("matching on read_dir");
+                        match file.read_dir() {
                             Ok(d) => {
                                 dir = Some(d);
                             }
@@ -297,7 +313,7 @@ impl<'a> Render<'a> {
                             }
                         }
                     }
-                };
+                }
 
                 Egg {
                     table_row,
@@ -314,7 +330,7 @@ impl<'a> Render<'a> {
 
         for (tree_params, egg) in depth.iterate_over(file_eggs.into_iter()) {
             let mut files = Vec::new();
-            let mut errors = egg.errors;
+            let errors = egg.errors;
 
             if let (Some(ref mut t), Some(row)) = (table.as_mut(), egg.table_row.as_ref()) {
                 t.add_widths(row);
@@ -328,7 +344,7 @@ impl<'a> Render<'a> {
                 .paint()
                 .promote();
 
-            debug!("file_name {:?}", file_name);
+            debug!("file_name {file_name:?}");
 
             let row = Row {
                 tree: tree_params,
@@ -346,14 +362,7 @@ impl<'a> Render<'a> {
                     egg.file.deref_links,
                     egg.file.is_recursive_size(),
                 ) {
-                    match file_to_add {
-                        Ok(f) => {
-                            files.push(f);
-                        }
-                        Err((path, e)) => {
-                            errors.push((e, Some(path)));
-                        }
-                    }
+                    files.push(file_to_add);
                 }
 
                 self.filter
@@ -394,6 +403,7 @@ impl<'a> Render<'a> {
         }
     }
 
+    #[must_use]
     pub fn render_header(&self, header: TableRow) -> Row {
         Row {
             tree: TreeParams::new(TreeDepth::root(), false),
@@ -433,6 +443,7 @@ impl<'a> Render<'a> {
         }
     }
 
+    #[must_use]
     pub fn iterate_with_table(&'a self, table: Table<'a>, rows: Vec<Row>) -> TableIter<'a> {
         TableIter {
             tree_trunk: TreeTrunk::default(),
@@ -443,6 +454,7 @@ impl<'a> Render<'a> {
         }
     }
 
+    #[must_use]
     pub fn iterate(&'a self, rows: Vec<Row>) -> Iter {
         Iter {
             tree_trunk: TreeTrunk::default(),
@@ -479,7 +491,7 @@ pub struct TableIter<'a> {
     tree_trunk:  TreeTrunk,
 }
 
-impl<'a> Iterator for TableIter<'a> {
+impl Iterator for TableIter<'_> {
     type Item = TextCell;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -494,12 +506,6 @@ impl<'a> Iterator for TableIter<'a> {
 
             for tree_part in self.tree_trunk.new_row(row.tree) {
                 cell.push(self.tree_style.paint(tree_part.ascii_art()), 4);
-            }
-
-            // If any tree characters have been printed, then add an extra
-            // space, which makes the output look much better.
-            if !row.tree.is_at_root() {
-                cell.add_spaces(1);
             }
 
             cell.append(row.name);
@@ -523,12 +529,6 @@ impl Iterator for Iter {
 
             for tree_part in self.tree_trunk.new_row(row.tree) {
                 cell.push(self.tree_style.paint(tree_part.ascii_art()), 4);
-            }
-
-            // If any tree characters have been printed, then add an extra
-            // space, which makes the output look much better.
-            if !row.tree.is_at_root() {
-                cell.add_spaces(1);
             }
 
             cell.append(row.name);

@@ -1,6 +1,12 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 use locale::Numeric as NumericLocale;
 use nu_ansi_term::Style;
-use number_prefix::Prefix;
+use unit_prefix::Prefix;
 
 use crate::fs::fields as f;
 use crate::output::cell::{DisplayWidth, TextCell};
@@ -13,7 +19,7 @@ impl f::Blocksize {
         size_format: SizeFormat,
         numerics: &NumericLocale,
     ) -> TextCell {
-        use number_prefix::NumberPrefix;
+        use unit_prefix::NumberPrefix;
 
         let size = match self {
             Self::Some(s) => s,
@@ -39,7 +45,7 @@ impl f::Blocksize {
 
         let (prefix, n) = match result {
             NumberPrefix::Standalone(b) => {
-                return TextCell::paint(colours.blocksize(None), numerics.format_int(b))
+                return TextCell::paint(colours.blocksize(None), numerics.format_int(b));
             }
             NumberPrefix::Prefixed(p, n) => (p, n),
         };
@@ -81,7 +87,7 @@ pub mod test {
     use crate::output::table::SizeFormat;
 
     use locale::Numeric as NumericLocale;
-    use number_prefix::Prefix;
+    use unit_prefix::Prefix;
 
     struct TestColours;
 

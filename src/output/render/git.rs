@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 use nu_ansi_term::{AnsiString as ANSIString, Style};
 
 use crate::fs::fields as f;
@@ -45,13 +51,10 @@ pub trait Colours {
 impl f::SubdirGitRepo {
     pub fn render(self, colours: &dyn RepoColours) -> TextCell {
         let branch_name = match self.branch {
-            Some(name) => {
-                if name == "main" || name == "master" {
-                    colours.branch_main().paint(name)
-                } else {
-                    colours.branch_other().paint(name)
-                }
-            }
+            Some(name) => match name.as_ref() {
+                "main" | "master" => colours.branch_main().paint(name),
+                _ => colours.branch_other().paint(name),
+            },
             None => colours.no_repo().paint("-"),
         };
 

@@ -1,7 +1,16 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 use std::iter::Peekable;
 use std::ops::FnMut;
 
-use nu_ansi_term::Color::*;
+use nu_ansi_term::Color::{
+    Black, Blue, Cyan, DarkGray, Fixed, Green, LightBlue, LightCyan, LightGray, LightGreen,
+    LightPurple, LightRed, LightYellow, Purple, Red, Rgb, White, Yellow,
+};
 use nu_ansi_term::{Color as Colour, Style};
 
 // Parsing the LS_COLORS environment variable into a map of names to Style values.
@@ -91,7 +100,7 @@ pub struct Pair<'var> {
     pub value: &'var str,
 }
 
-impl<'var> Pair<'var> {
+impl Pair<'_> {
     pub fn to_style(&self) -> Style {
         let mut style = Style::default();
         let mut iter = self.value.split(';').peekable();

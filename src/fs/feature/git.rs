@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 //! Getting the Git status of files and directories.
 
 use std::env;
@@ -7,7 +13,8 @@ use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
-use log::*;
+use git2::StatusEntry;
+use log::{debug, error, info, warn};
 
 use crate::fs::fields as f;
 
@@ -24,10 +31,12 @@ pub struct GitCache {
 }
 
 impl GitCache {
+    #[must_use]
     pub fn has_anything_for(&self, index: &Path) -> bool {
         self.repos.iter().any(|e| e.has_path(index))
     }
 
+    #[must_use]
     pub fn get(&self, index: &Path, prefix_lookup: bool) -> f::Git {
         self.repos
             .iter()
@@ -65,9 +74,9 @@ impl FromIterator<PathBuf> for GitCache {
 
         for path in iter {
             if git.misses.contains(&path) {
-                debug!("Skipping {:?} because it already came back Gitless", path);
+                debug!("Skipping {path:?} because it already came back Gitless");
             } else if git.repos.iter().any(|e| e.has_path(&path)) {
-                debug!("Skipping {:?} because we already queried it", path);
+                debug!("Skipping {path:?} because we already queried it");
             } else {
                 let flags = git2::RepositoryOpenFlags::FROM_ENV;
                 match GitRepo::discover(path, flags) {
@@ -172,7 +181,7 @@ impl GitRepo {
     /// the repository's "gitdir" (or a "gitlink" to the gitdir), or the
     /// path is the start of a rootwards search for the repository.
     fn discover(path: PathBuf, flags: git2::RepositoryOpenFlags) -> Result<Self, PathBuf> {
-        info!("Opening Git repository for {:?} ({:?})", path, flags);
+        info!("Opening Git repository for {path:?} ({flags:?})");
         let unused: [&OsStr; 0] = [];
         let repo = match git2::Repository::open_ext(&path, flags, unused) {
             Ok(r) => r,
@@ -218,29 +227,38 @@ impl GitContents {
 fn repo_to_statuses(repo: &git2::Repository, workdir: &Path) -> Git {
     let mut statuses = Vec::new();
 
-    info!("Getting Git statuses for repo with workdir {:?}", workdir);
+    info!("Getting Git statuses for repo with workdir {workdir:?}");
     match repo.statuses(None) {
         Ok(es) => {
             for e in es.iter() {
-                #[cfg(target_family = "unix")]
-                let path = workdir.join(Path::new(OsStr::from_bytes(e.path_bytes())));
-                // TODO: handle non Unix systems better:
-                // https://github.com/ogham/exa/issues/698
-                #[cfg(not(target_family = "unix"))]
-                let path = workdir.join(Path::new(e.path().unwrap()));
-                let elem = (path, e.status());
-                statuses.push(elem);
+                if let Some(p) = get_path_from_status_entry(&e) {
+                    let elem = (workdir.join(p), e.status());
+                    statuses.push(elem);
+                }
             }
             // We manually add the `.git` at the root of the repo as ignored, since it is in practice.
             // Also we want to avoid `eza --tree --all --git-ignore` to display files inside `.git`.
             statuses.push((workdir.join(".git"), git2::Status::IGNORED));
         }
         Err(e) => {
-            error!("Error looking up Git statuses: {:?}", e);
+            error!("Error looking up Git statuses: {e:?}");
         }
     }
 
     Git { statuses }
+}
+
+#[allow(clippy::unnecessary_wraps)]
+fn get_path_from_status_entry(e: &StatusEntry<'_>) -> Option<PathBuf> {
+    #[cfg(target_family = "unix")]
+    return Some(PathBuf::from(OsStr::from_bytes(e.path_bytes())));
+    #[cfg(not(target_family = "unix"))]
+    return if let Some(p) = e.path() {
+        Some(PathBuf::from(p))
+    } else {
+        info!("Git status ignored for non ASCII path {:?}", e.path_bytes());
+        None
+    };
 }
 
 // The `repo.statuses` call above takes a long time. exa debug output:
@@ -382,27 +400,19 @@ fn current_branch(repo: &git2::Repository) -> Option<String> {
             if e.code() == git2::ErrorCode::UnbornBranch
                 || e.code() == git2::ErrorCode::NotFound =>
         {
-            return None
+            return None;
         }
         Err(e) => {
-            error!("Error looking up Git branch: {:?}", e);
+            error!("Error looking up Git branch: {e:?}");
             return None;
         }
     };
 
-    if let Some(h) = head {
-        if let Some(s) = h.shorthand() {
-            let branch_name = s.to_owned();
-            if branch_name.len() > 10 {
-                return Some(branch_name[..8].to_string() + "..");
-            }
-            return Some(branch_name);
-        }
-    }
-    None
+    head.and_then(|h| h.shorthand().map(std::string::ToString::to_string))
 }
 
 impl f::SubdirGitRepo {
+    #[must_use]
     pub fn from_path(dir: &Path, status: bool) -> Self {
         let path = &reorient(dir);
 

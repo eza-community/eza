@@ -1,5 +1,8 @@
+# SPDX-FileCopyrightText: 2024 Christina Sørensen
+# SPDX-License-Identifier: EUPL-1.2
 [toolchain]
-channel = "1.70"
+# NOTE: don't forget to update the unit-tests workflow when changing this
+channel = "1.83"
 components = [
   "rustfmt",
   "rustc",

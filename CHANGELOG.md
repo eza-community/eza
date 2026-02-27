@@ -1,4 +1,835 @@
+<!--
+SPDX-FileCopyrightText: 2024 Christina Sørensen
+SPDX-FileContributor: Christina Sørensen
+
+SPDX-License-Identifier: EUPL-1.2
+-->
 # Changelog
+
+## [0.23.4] - 2025-10-03
+
+### Bug Fixes
+
+- Update nixpkgs/cargo dependencies
+
+## [0.23.3] - 2025-09-14
+
+### Documentation
+
+- Corrected "user_executable_file" option 
+
+### Features
+
+- Update flake inputs
+
+### Miscellaneous Tasks
+
+- Update snapcraft manifest for core24
+- Eza v0.23.3 changelogs, version bump
+
+### Build
+
+- Update cargo deps
+
+## [0.23.2] - 2025-09-06
+
+### Miscellaneous Tasks
+
+- Eza v0.23.2 changelogs, version bump
+
+### Styling
+
+- Update nix style
+
+### Build
+
+- Update cargo
+- Update flake
+
+## [0.23.1] - 2025-08-31
+
+### Bug Fixes
+
+- Restore unsafe blocks for libc major/minor device id
+- `cargo deb` metadata to `LICENSE.txt`
+
+### Documentation
+
+- Improve man page description of flags with default values
+- "default behavior" means eza's default behavior, not an option's default value
+
+### Features
+
+- Added completion
+
+### Miscellaneous Tasks
+
+- Eza v0.23.1 changelogs, version bump
+
+### Build
+
+- Cargo bump 2025-07-19
+- Flake bump 2025-07-19
+
+## [0.23.0] - 2025-07-18
+
+### Bug Fixes
+
+- [**breaking**] Make --grid work when not in TTY
+- [**breaking**] Stdin behavior
+
+### Documentation
+
+- Add `--smart-group` option to README
+
+### Features
+
+- Add icons for changelog and todo files
+- Use CHANGES icon for CHANGELOG as well
+
+### Miscellaneous Tasks
+
+- Remove unused dependency
+- Eza v0.23.0 changelogs, version bump
+
+## [0.22.1] - 2025-07-12
+
+### Bug Fixes
+
+- Replace default_input_path check with "." check
+
+### Documentation
+
+- "cheks" should be "checks"
+
+### Features
+
+- [**breaking**] Define -d/--treat-dirs-as-files behavior, tests
+- Refresh icon set with new glyphs and additions
+
+### Miscellaneous Tasks
+
+- Eza v0.22.0 changelogs, version bump
+- Eza v0.22.1 changelogs, version bump
+
+### Build
+
+- Bump phf from 0.11.3 to 0.12.1
+- Cargo bump 2025-07-03
+- Flake bump 2025-07-03
+- Bump windows-sys from 0.59.0 to 0.60.2
+
+### Ci
+
+- Automate dependency updates
+
+## [0.21.6] - 2025-06-26
+
+### Documentation
+
+- Add missing --absolute option to man page
+
+### Features
+
+- Add prettier icon for `.prettierrc.{json,json5,toml,yaml,yml}`
+
+### Miscellaneous Tasks
+
+- Upgrade FreeBSD to 14.3-RELEASE in unit tests workflow
+- Eza v0.21.6 changelogs, version bump
+
+### Build
+
+- Bump libc from 0.2.172 to 0.2.174
+- Cargo bump 2025-06-26
+- Flake bump 2025-06-26
+
+## [0.21.5] - 2025-06-20
+
+### Bug Fixes
+
+- Use OpenBSD 7.7 that has MSRV, instead of 7.6
+- Excessive open file descriptors
+- Typo
+- Impl desirable behaviour for unreadables
+- Unreadables format style
+- Clippy warnings
+- Missing word in comment
+
+### Miscellaneous Tasks
+
+- Eza v0.21.5 changelogs, version bump
+
+### Styling
+
+- Fix various clippy warnings for rust 1.86
+- Remove unnecessary semicolon
+
+## [0.21.4] - 2025-05-30
+
+### Bug Fixes
+
+- Escape spaces in file path to make them work correctly
+- List inside working dir with `--list-dirs` and no path passed
+- Ignore incorrect Unicode path instead of crashing on Windows
+
+### Miscellaneous Tasks
+
+- Add Visual Studio icon for *.suo
+- Add swift icon for *.xcplayground
+- Add dropbox icon
+- Eza v0.21.4 changelogs, version bump
+
+### Refactor
+
+- Clippy lints
+
+### Styling
+
+- Update formatting
+
+### Build
+
+- Flake bump 2025-05-29
+- Cargo bump 2025-05-29
+- 1.81 -> 1.82
+
+## [0.21.3] - 2025-05-02
+
+### Features
+
+- Add support for .ipynb file icons
+
+### Miscellaneous Tasks
+
+- Eza v0.21.3 changelogs, version bump
+
+### Styling
+
+- Unbreak formatting
+
+### Build
+
+- Bump DeterminateSystems/nix-installer-action from 16 to 17
+- Cargo bump 2025-05-01
+- Flake bump 2025-05-01
+
+## [0.21.2] - 2025-04-25
+
+### Bug Fixes
+
+- Make clippy work again
+
+### Documentation
+
+- Update Fedora install instructions for Fedora 42
+- Specify perf improvements
+
+### Features
+
+- Remove dependency on once_cell
+
+### Miscellaneous Tasks
+
+- Add icon for '.stowrc' files
+- Eza v0.21.2 changelogs, version bump
+
+### Performance
+
+- Use a hashmap when possible for file extension matching
+
+### Styling
+
+- Clean up glob matching code
+
+### Build
+
+- Bump uutils_term_grid from 0.6.0 to 0.7.0
+
+## [0.21.1] - 2025-04-19
+
+### Bug Fixes
+
+- Don’t truncate branch name
+- Hi extension icon wasnt working as it was in the wrong aray
+
+### Documentation
+
+- Update README.md
+- Add crates.io link for README.md badge
+
+### Miscellaneous Tasks
+
+- Add MS DOS icon for *.com
+- Add ruby icon for config.ru, Gemfile, Gemfile.lock, procfile, rake, rakefile and change ruby icon
+- Add python icon for *.pxd and *.pyx
+- Add markdown icon for *.mdx
+- Add fsharp icon for *.f# and *.fsscript
+- Add clojure icon for *.cljc and *.edn
+- Eza v0.21.1 changelogs, version bump
+
+### Build
+
+- Flake bump 2025-04-19
+- Cargo bump 2025-04-19
+
+## [0.21.0] - 2025-03-31
+
+### Bug Fixes
+
+- Flake bump 2025-03-20
+- Remove unnescesarry unsafe blocks for libc major/minor device id
+- Unwrap -> expect on libc deviceid calls
+- Formatting issue
+- Fix unused PermissionsPlus fields
+
+### Miscellaneous Tasks
+
+- Eza v0.21.0 changelogs, version bump
+
+### Build
+
+- Cargo deps 2025-03-20
+- [**breaking**] Change MSRV 1.78.0 -> 1.81.0
+- Bump flake deps 2025-03-30
+- Bump cargo deps 2025-03-30
+
+## [0.20.24] - 2025-03-13
+
+### Bug Fixes
+
+- Make temp files visible on white background
+
+### Documentation
+
+- More precise temp files color description
+
+### Features
+
+- Add `.exercism` folder icon
+- Add `.ocamlinit` icon
+- Add `.opam` folder icon
+
+### Miscellaneous Tasks
+
+- Add gcloud icon for .gcloudignore
+- Add vim icon for .gvimrc, _vimrc and _gvimrc
+- Add fennel icon for ~/.fennelrc and ~/.config/fennel/fennelrc
+- Eza v0.20.24 changelogs, version bump
+
+### Build
+
+- Bump once_cell from 1.20.3 to 1.21.0
+- Bump terminal_size from 0.4.1 to 0.4.2
+- Bump serde from 1.0.218 to 1.0.219
+- Bump chrono from 0.4.39 to 0.4.40
+
+## [0.20.23] - 2025-02-27
+
+### Bug Fixes
+
+- Add Pixi installation instructions
+
+### Miscellaneous Tasks
+
+- Eza v0.20.23 changelogs, version bump
+
+### Build
+
+- Bump libc from 0.2.169 to 0.2.170
+- Bump serde from 1.0.217 to 1.0.218
+- Bump log from 0.4.25 to 0.4.26
+- Bump trycmd from 0.15.8 to 0.15.9
+
+### Ci
+
+- Remove magic nix cache
+
+## [0.20.22] - 2025-02-20
+
+### Features
+
+- Add prettier icon for *.prettierignore
+- Add icon for *.hrl
+- Add photoshop icon for *.psb
+- Add eslint icon for .eslintignore
+- Add renovate icon for renovate.json
+- Add elixir icon for *.eex, *.leex and mix.lock
+
+### Miscellaneous Tasks
+
+- Eza v0.20.22 changelogs, version bump
+
+### Build
+
+- Bump once_cell from 1.20.2 to 1.20.3
+
+## [0.20.21] - 2025-02-13
+
+### Bug Fixes
+
+- Start publishing libgit arm builds
+
+### Miscellaneous Tasks
+
+- Eza v0.20.21 changelogs, version bump
+
+### Build
+
+- Add libgit alternative for arm builds
+
+## [0.20.20] - 2025-02-07
+
+### Bug Fixes
+
+- Make `flake.lock` icon the nix logo
+
+### Miscellaneous Tasks
+
+- Eza v0.20.20 changelogs, version bump
+
+## [0.20.19] - 2025-01-30
+
+### Bug Fixes
+
+- Update MSRV to 1.78 to solve rust malfunction
+- Rustc false dead code positives
+- Rustc false positives in tests
+- Regression in theme config location, simplify path
+- Wrong file name for Brewfile
+
+### Documentation
+
+- Add note regarding ci msrv update
+
+### Features
+
+- Add `.norg` icon
+
+### Miscellaneous Tasks
+
+- Eza v0.20.19 changelogs, version bump
+
+### Build
+
+- Bump dirs from 5.0.1 to 6.0.0
+- Bump NexusPHP/no-merge-commits from 2.1.0 to 2.2.1
+- Bump flake
+- Bump cargo
+
+### Ci
+
+- Fix and unify msrv and add matrix to free/netbsd
+
+## [0.20.18] - 2025-01-23
+
+### Bug Fixes
+
+- Support additional yaml file extension, clippy
+
+### Miscellaneous Tasks
+
+- Eza v0.20.18 changelogs, version bump
+
+### Build
+
+- Cargo bump 2025-01-23
+- Flake bump 2025-01-23
+
+### Ci
+
+- Use rust 1.74 instead of latest via rustup
+
+## [0.20.17] - 2025-01-16
+
+### Features
+
+- Add editorconfig icon for .editorconfig
+
+### Miscellaneous Tasks
+
+- Eza v0.20.17 changelogs, version bump
+
+### Build
+
+- Cargo bump 2025-01-16
+- Flake bump 2025-01-16
+
+## [0.20.16] - 2025-01-09
+
+### Features
+
+- Add brew icon for brewfile and brewfile.lock.json
+
+### Miscellaneous Tasks
+
+- Eza v0.20.16 changelogs, version bump
+
+### Build
+
+- Update flake inputs 2025-01-08
+- Update cargo inputs 2025-01-08
+- Bump git2 from 0.19.0 to 0.20.0
+
+## [0.20.15] - 2025-01-02
+
+### Features
+
+- Add icons from nerd fonts 3.3.0 release & more
+- Add new icons, extensive list
+
+### Miscellaneous Tasks
+
+- Eza v0.20.15 changelogs, version bump
+
+### Build
+
+- We switch to our own fork of natord
+
+### Ci
+
+- Bump FreeBSD / NetBSD versions.
+
+## [0.20.14] - 2024-12-26
+
+### Bug Fixes
+
+- ...those pesky workflow targets
+- Remove separate bsd tests
+- Remove audit workflow
+
+### Features
+
+- Audit checks in main CI
+
+### Miscellaneous Tasks
+
+- Eza v0.20.14 changelogs, version bump
+
+### Refactor
+
+- Move eza, trycmd packages
+- Move BSD unit tests to main flow
+
+### Styling
+
+- Format workflows
+- Ci checks formatted
+
+### Build
+
+- Cargo 2024-12-25
+
+### Ci
+
+- Simplify
+- Let's just always run em'
+- Only run big checks on PRs to main
+- Faster flake checks... maybe?
+- Flakes on latest ubuntu
+- Only do no-merge-commits on PR
+
+## [0.20.13] - 2024-12-18
+
+### Bug Fixes
+
+- Pre-commit-hooks.nix trying to be too clever
+- Remove stray description (originally from `--decay-mode`)
+
+### Miscellaneous Tasks
+
+- Eza v0.20.13 changelogs, version bump
+
+### Build
+
+- Update crate deps Mon Dec 16
+- Update flake deps Mon Dec 16
+
+### Ci
+
+- Update to PRESENT DAY, PRESENT TIME
+
+## [0.20.12] - 2024-12-11
+
+### Bug Fixes
+
+- Add unicode-3.0 license
+- Use safe terminal_size_of
+- Use terminal_size_of with borrowed raw handle
+
+### Features
+
+- Move MSRV to 1.74 and deep bump cargo deps
+- Add Gleam lang icon
+
+### Miscellaneous Tasks
+
+- Eza v0.20.12 changelogs, version bump
+
+### Testing
+
+- Regen for 1.74
+
+### Build
+
+- Bump terminal_size from 0.3.0 to 0.4.1
+
+### Ci
+
+- Openbsd 7.4 -> 7.6
+
+## [0.20.11] - 2024-12-05
+
+### Bug Fixes
+
+- Bump libc from 0.2.165 to 0.2.167
+
+### Miscellaneous Tasks
+
+- Eza v0.20.11 changelogs, version bump
+
+## [0.20.10] - 2024-11-28
+
+### Bug Fixes
+
+- People dislike the phrasing "maintained" on hackernews
+
+### Miscellaneous Tasks
+
+- Eza v0.20.10 changelogs, version bump
+
+### Build
+
+- Bump libc from 0.2.164 to 0.2.165
+
+## [0.20.9] - 2024-11-21
+
+### Bug Fixes
+
+- Remove newline after doc comment of `regen` recipe
+
+### Miscellaneous Tasks
+
+- Eza v0.20.9 changelogs, version bump
+
+### Refactor
+
+- List all recipes by default
+- Group related recipes
+
+### Build
+
+- Bump libc from 0.2.162 to 0.2.164
+- Bump DeterminateSystems/nix-installer-action from 15 to 16
+
+## [0.20.8] - 2024-11-14
+
+### Bug Fixes
+
+- Cross-compiling by updating to libz-sys to 1.1.20
+
+### Miscellaneous Tasks
+
+- Eza v0.20.8 changelogs, version bump
+
+### Build
+
+- Bump palette from 0.7.5 to 0.7.6
+- Bump libc from 0.2.161 to 0.2.162
+- Bump serde from 1.0.214 to 1.0.215
+
+## [0.20.7] - 2024-11-07
+
+### Bug Fixes
+
+- Palette v0.7.6 -> v0.7.5
+
+### Miscellaneous Tasks
+
+- Update package.exclude list in Cargo.toml
+- Eza v0.20.7 changelogs, version bump
+
+### Build
+
+- Bump DeterminateSystems/nix-installer-action from 14 to 15
+- Bump serde_norway from 0.9.38 to 0.9.39
+- Bump trycmd from 0.15.7 to 0.15.8
+
+## [0.20.6] - 2024-10-31
+
+### Bug Fixes
+
+- Changelog spelling
+
+### Documentation
+
+- Fix typo `--get-repos-no-status` to `--git-repos-no-status`
+
+### Miscellaneous Tasks
+
+- Eza v0.20.6 changelogs, version bump
+
+### Build
+
+- Bump serde from 1.0.210 to 1.0.214
+
+## [0.20.5] - 2024-10-25
+
+### Bug Fixes
+
+- Ensure nested tree parts align under item name
+- Remove depricated `chrono` `from_timestamp_opt`
+
+### Miscellaneous Tasks
+
+- Update generated test files
+- Eza v0.20.5 changelogs, version bump
+
+### Build
+
+- Bump libc from 0.2.159 to 0.2.161
+- Chrono v0.4.34 -> v0.4.38
+
+## [0.20.4] - 2024-10-18
+
+### Bug Fixes
+
+- Filetype, coloring for executables and folder
+
+### Miscellaneous Tasks
+
+- Eza v0.20.4 changelogs, version bump
+
+## [0.20.3] - 2024-10-17
+
+### Bug Fixes
+
+- Git cliff docs issue
+
+### Miscellaneous Tasks
+
+- Eza v0.20.3 changelogs, version bump
+
+### Performance
+
+- Reuse filetype from DirEntry
+
+## [0.20.2] - 2024-10-09
+
+### Bug Fixes
+
+- Colors in old ms command prompt
+- Bring help text in line with available flags
+- Do not print parent filename with --absolute=on
+
+### Miscellaneous Tasks
+
+- Add fox installation option
+- Eza v0.20.2 changelogs, version bump
+
+### Build
+
+- Bump once_cell from 1.20.1 to 1.20.2
+
+## [0.20.1] - 2024-10-03
+
+### Bug Fixes
+
+- Release recipe
+- Support passing multiple options for generate-trycmd-test.sh
+- Move options into flags
+- Rustfmt errors
+
+### Documentation
+
+- Fix cross-references
+- Update file type colors
+- Document that exit 13 == permission denied
+
+### Features
+
+- Update just, add more formats
+- Recursively walk symlinks pointing at dirs
+- Add --follow-symlinks option
+- Add autocomplete for --follow-symlinks
+- Show directories last
+
+### Miscellaneous Tasks
+
+- Eza v0.20.1 changelogs, version bump
+
+### Testing
+
+- Add cases for -T and --follow-symlinks
+- Regenerate tests broken by line number changes
+
+### Build
+
+- Fix manual version
+- Bump once_cell from 1.19.0 to 1.20.1
+
+### Ci
+
+- Remove flakehub, flakestry publish
+
+## [0.20.0] - 2024-09-26
+
+### Bug Fixes
+
+- Flake trycmd bug
+- Pre-commit-hook taplo bug
+
+### Documentation
+
+- Add link to eza-themes repository in readme
+- Cargo install dir inaccurate
+- Add x-cmd method to install eza
+- Adding a testing infos file to guide everyone through tests
+
+### Features
+
+- Add `opml` file extension
+- Add a regen rule
+- [**breaking**] Relicensed to EUPL-1.2
+
+### Miscellaneous Tasks
+
+- Eza v0.20.0 changelogs, version bump
+
+### Refactor
+
+- Move some files to `.config`
+- Release scripts use `.config`
+- Relicense to EUPL-1.2
+
+### Styling
+
+- Switch to nixfmt rfc style, format tree
+- Remove blank line
+
+### Testing
+
+- Regenerate integration tests
+- Regenerate tests
+
+### Build
+
+- Darwin devShell resuse eza deps
+- Ensure flake inputs aren't duplicated'
+- Remove semnix deps
+- Bump flake lock 2024-09-26
+- Removed unused flake follows
+- Add cargo to devShell
+- Add clippy to devShell
+- Use toolchain in devShell
+- Bump libc from 0.2.158 to 0.2.159
+- Bump unicode-width from 0.1.13 to 0.2.0
+
+### Ci
+
+- Full nix3 command output in logs
+- Allow EUPL-1.2
+- Unblock windows
 
 ## [0.19.4] - 2024-09-18
 
@@ -9,6 +840,10 @@
 ### Features
 
 - Pass from serde_yaml to serde_norway
+
+### Miscellaneous Tasks
+
+- Eza v0.19.4 changelogs, version bump
 
 ## [0.19.3] - 2024-09-12
 
@@ -323,16 +1158,6 @@
 
 ## [0.18.13] - 2024-04-25
 
-### Features
-
-- Generate completion/manpage tarballs on release
-
-### Miscellaneous Tasks
-
-- Release eza v0.18.13
-
-## [0.18.12] - 2024-04-22
-
 ### Bug Fixes
 
 - Allow unused imports for freebsd
@@ -341,6 +1166,11 @@
 ### Features
 
 - Add scheme filetype and icons
+- Generate completion/manpage tarballs on release
+
+### Miscellaneous Tasks
+
+- Release eza v0.18.13
 
 ## [0.18.11] - 2024-04-19
 
@@ -1271,11 +2101,6 @@
 - Add gentoo
 - Fix gentoo install
 - Add MacPorts install info
-- Remove xtests section from readme
-- Add deprecation warning to xtests/readme
-- Add deprecation warning to just xtest commands
-- Add deprecation warning to vagrantfile
-- Add guidelines for commit messages
 - Add pthorpe92 gist
 - Add docs for --git-repos & --git-repos-no-status
 - Fix gpg armor flag for deb release in readme
@@ -1395,6 +2220,14 @@
 - 1.65 -> 1.70
 - Enforce conventional commits
 - Enforce conventional commits
+
+### Doc
+
+- Remove xtests section from readme
+- Add deprecation warning to xtests/readme
+- Add deprecation warning to just xtest commands
+- Add deprecation warning to vagrantfile
+- Add guidelines for commit messages
 
 ## [0.11.1] - 2023-09-11
 
@@ -1559,13 +2392,7 @@
 ### Documentation
 
 - Update issue templates
-- Add git-ignore style/color information to manpage
-- --blocksize, new description
-- --blocksize, new description
-- --blocksize, new description
 - Cafkafk -> eza-community
-- Add gpg public key for the deb repository
-- Add section about debian and ubuntu installation
 
 ### Features
 
@@ -1636,6 +2463,15 @@
 
 - Change users depedency to uzers
 
+### Doc
+
+- Add git-ignore style/color information to manpage
+- --blocksize, new description
+- --blocksize, new description
+- --blocksize, new description
+- Add gpg public key for the deb repository
+- Add section about debian and ubuntu installation
+
 ### Git
 
 - Add deb package to .gitignore
@@ -1647,11 +2483,6 @@
 - Respect GIT_CEILING_DIRECTORIES
 - MacOS flake support
 - Broken zsh completion syntax
-
-### Documentation
-
-- Create SECURITY.md
-- Create CONTRIBUTING.md
 
 ### Features
 
@@ -1724,6 +2555,11 @@
 - Add clippy check
 - Add dependabot updater
 
+### Doc
+
+- Create SECURITY.md
+- Create CONTRIBUTING.md
+
 ## [0.10.6] - 2023-08-07
 
 ### Bug Fixes
@@ -1734,7 +2570,6 @@
 ### Documentation
 
 - Adding --git-repos to help.
-- Add aur, nixpkgs installation
 
 ### Features
 
@@ -1744,6 +2579,10 @@
 ### Miscellaneous Tasks
 
 - Release 0.10.6
+
+### Doc
+
+- Add aur, nixpkgs installation
 
 ### Git
 
@@ -1823,30 +2662,6 @@
 - Added trailing commas
 - Update snapscraft.yaml
 - Remove accidentally commited test files
-
-### Documentation
-
-- Add hint how to install exa on Android / Termux
-- Add -X/--dereference flag
-- Change name in README.md
-- Add `nix run` to readme
-- Fix flow issue
-- Fix typos
-- Add mandatory snowflake emoji
-- Document nix flake development
-- Document nix flakew
-- Update README.md
-- Update README.md
-- Update README.md
-- Update README.md
-- Update README.md
-- Readme change screenshot to eza
-- Add CoC badge to readme
-- Add CODE_OF_CONDUCT.md
-- Add crates.io badge, license badge
-- Fix links
-- Update README.md
-- Update README.md
 
 ### Feat
 
@@ -1956,6 +2771,33 @@
 ### Details
 
 - `filter` is only used when recursing
+
+### Doc
+
+- Add -X/--dereference flag
+- Change name in README.md
+- Add `nix run` to readme
+- Fix flow issue
+- Fix typos
+- Add mandatory snowflake emoji
+- Document nix flake development
+- Document nix flakew
+- Update README.md
+- Update README.md
+- Update README.md
+- Update README.md
+- Update README.md
+- Readme change screenshot to eza
+- Add CoC badge to readme
+- Add CODE_OF_CONDUCT.md
+- Add crates.io badge, license badge
+- Fix links
+- Update README.md
+- Update README.md
+
+### Documentation
+
+- Add hint how to install exa on Android / Termux
 
 ### Git-feature
 

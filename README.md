@@ -1,5 +1,24 @@
-<div align="center">
+<!--
+SPDX-FileCopyrightText: 2023-2024 Christina Sørensen
+SPDX-FileContributor: Christina Sørensen
 
+SPDX-License-Identifier: EUPL-1.2
+-->
+
+<div align="center">
+<div align="center" markdown="1">
+   <sup>Special thanks to:</sup>
+   <br>
+   <br>
+   <a href="https://www.warp.dev/eza">
+      <img alt="Warp sponsorship" width="400" src="https://github.com/user-attachments/assets/ab8dd143-b0fd-4904-bdc5-dd7ecac94eae">
+   </a>
+
+### [Warp, the AI terminal for developers](https://www.warp.dev/eza)
+[Available for MacOS, Linux, & Windows](https://www.warp.dev/eza)<br>
+
+</div>
+    
 # eza
 
 A modern replacement for ls.
@@ -10,7 +29,7 @@ A modern replacement for ls.
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 [![Unit tests](https://github.com/eza-community/eza/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/eza-community/eza/actions/workflows/unit-tests.yml)
-![Crates.io](https://img.shields.io/crates/v/eza?link=https%3A%2F%2Fcrates.io%2Fcrates%2Feza)
+[![Crates.io](https://img.shields.io/crates/v/eza?link=https%3A%2F%2Fcrates.io%2Fcrates%2Feza)](https://crates.io/crates/eza)
 ![Crates.io](https://img.shields.io/crates/l/eza?link=https%3A%2F%2Fgithub.com%2Feza-community%2Feza%2Fblob%2Fmain%2FLICENCE)
 
 </div>
@@ -19,7 +38,7 @@ A modern replacement for ls.
 
 ---
 
-**eza** is a modern, maintained replacement for the venerable file-listing command-line program `ls` that ships with Unix and Linux operating systems, giving it more features and better defaults.
+**eza** is a modern alternative for the venerable file-listing command-line program `ls` that ships with Unix and Linux operating systems, giving it more features and better defaults.
 It uses colours to distinguish file types and metadata.
 It knows about symlinks, extended attributes, and Git.
 And it’s **small**, **fast**, and just **one single binary**.
@@ -103,11 +122,12 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s. Quick overv
 <summary>Click to expand</summary>
 
 - **-a**, **--all**: show hidden and 'dot' files
-- **-d**, **--list-dirs**: list directories like regular files
+- **-d**, **--treat-dirs-as-files**: list directories like regular files
 - **-L**, **--level=(depth)**: limit the depth of recursion
 - **-r**, **--reverse**: reverse the sort order
 - **-s**, **--sort=(field)**: which field to sort by
 - **--group-directories-first**: list directories before other files
+- **--group-directories-last**: list directories after other files
 - **-D**, **--only-dirs**: list only directories
 - **-f**, **--only-files**: list only files
 - **--no-symlinks**: don't show symbolic links
@@ -129,6 +149,7 @@ These options are available when running with `--long` (`-l`):
 - **-b**, **--binary**: list file sizes with binary prefixes
 - **-B**, **--bytes**: list file sizes in bytes, without any prefixes
 - **-g**, **--group**: list each file’s group
+- **--smart-group**: only show group if it has a different name from owner
 - **-h**, **--header**: add a header row to each column
 - **-H**, **--links**: list each file’s number of hard links
 - **-i**, **--inode**: list each file’s inode number

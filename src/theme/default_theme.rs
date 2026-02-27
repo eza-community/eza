@@ -1,10 +1,20 @@
-use nu_ansi_term::Color::*;
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
+use nu_ansi_term::Color::{Blue, Cyan, DarkGray, Green, Purple, Red, Yellow};
 use nu_ansi_term::Style;
 use std::default::Default;
 
 use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};
-use crate::theme::ui_styles::*;
+use crate::theme::ui_styles::{
+    FileKinds, FileType, Git, GitRepo, Links, Permissions, SELinuxContext, SecurityContext, Size,
+    UiStyles, Users,
+};
 impl UiStyles {
+    #[must_use]
     pub fn default_theme(scale: ColorScaleOptions) -> Self {
         Self {
             size: Some(Size::colourful(scale)),
@@ -110,7 +120,7 @@ impl Default for UiStyles {
                 crypto:     Some(Green.bold()),
                 document:   Some(Green.normal()),
                 compressed: Some(Red.normal()),
-                temp:       Some(White.normal()),
+                temp:       Some(Style::default().dimmed()),
                 compiled:   Some(Yellow.normal()),
                 build:      Some(Yellow.bold().underline()),
                 source:     Some(Yellow.bold()), // Need to discuss color

@@ -1,8 +1,14 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 use std::path::PathBuf;
 
 use crate::fs::File;
 
-impl<'a> File<'a> {
+impl File<'_> {
     /// For this file, return a vector of alternate file paths that, if any of
     /// them exist, mean that *this* file should be coloured as “compiled”.
     ///

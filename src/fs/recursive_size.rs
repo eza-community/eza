@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 /// Used to represent a the size of a recursive directory traversal.  `None`
 /// should be used when the file does not represent a directory or the recursive
 /// size should not be calculated.
@@ -31,6 +37,7 @@ impl RecursiveSize {
     /// assert_eq!(x.is_none(), false);
     /// ```
     #[inline]
+    #[must_use]
     pub const fn is_none(&self) -> bool {
         matches!(*self, Self::None)
     }
@@ -47,6 +54,7 @@ impl RecursiveSize {
     /// assert_eq!(RecursiveSize::Some(2, 3).unwrap_bytes_or(1), 2);
     /// ```
     #[inline]
+    #[must_use]
     pub const fn unwrap_bytes_or(self, default: u64) -> u64 {
         match self {
             Self::Some(bytes, _blocks) => bytes,

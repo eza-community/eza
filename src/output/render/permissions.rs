@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 use std::iter;
 
 use nu_ansi_term::{AnsiString as ANSIString, Style};
@@ -13,30 +19,27 @@ pub trait PermissionsPlusRender {
 impl PermissionsPlusRender for Option<f::PermissionsPlus> {
     #[cfg(unix)]
     fn render<C: Colours + FiletypeColours>(&self, colours: &C) -> TextCell {
-        match self {
-            Some(p) => {
-                let mut chars = vec![p.file_type.render(colours)];
-                let permissions = p.permissions;
-                chars.extend(Some(permissions).render(colours, p.file_type.is_regular_file()));
+        if let Some(p) = self {
+            let mut chars = vec![p.file_type.render(colours)];
+            let permissions = p.permissions;
+            chars.extend(Some(permissions).render(colours, p.file_type.is_regular_file()));
 
-                if p.xattrs {
-                    chars.push(colours.attribute().paint("@"));
-                }
-
-                // As these are all ASCII characters, we can guarantee that they’re
-                // all going to be one character wide, and don’t need to compute the
-                // cell’s display width.
-                TextCell {
-                    width: DisplayWidth::from(chars.len()),
-                    contents: chars.into(),
-                }
+            if p.xattrs {
+                chars.push(colours.attribute().paint("@"));
             }
-            None => {
-                let chars: Vec<_> = iter::repeat(colours.dash().paint("-")).take(10).collect();
-                TextCell {
-                    width: DisplayWidth::from(chars.len()),
-                    contents: chars.into(),
-                }
+
+            // As these are all ASCII characters, we can guarantee that they’re
+            // all going to be one character wide, and don’t need to compute the
+            // cell’s display width.
+            TextCell {
+                width: DisplayWidth::from(chars.len()),
+                contents: chars.into(),
+            }
+        } else {
+            let chars: Vec<_> = iter::repeat_n(colours.dash().paint("-"), 10).collect();
+            TextCell {
+                width: DisplayWidth::from(chars.len()),
+                contents: chars.into(),
             }
         }
     }
@@ -61,6 +64,7 @@ impl PermissionsPlusRender for Option<f::PermissionsPlus> {
     }
 }
 
+#[allow(unused)]
 pub trait RenderPermissions {
     fn render<C: Colours>(&self, colours: &C, is_regular_file: bool) -> Vec<ANSIString<'static>>;
 }
@@ -89,7 +93,7 @@ impl RenderPermissions for Option<f::Permissions> {
                     p.other_execute_bit(colours),
                 ]
             }
-            None => iter::repeat(colours.dash().paint("-")).take(9).collect(),
+            None => iter::repeat_n(colours.dash().paint("-"), 9).collect(),
         }
     }
 }

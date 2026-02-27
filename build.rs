@@ -1,14 +1,20 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 /// The version string isn’t the simplest: we want to show the version,
 /// current Git hash, and compilation date when building *debug* versions, but
 /// just the version for *release* versions so the builds are reproducible.
 ///
 /// This script generates the string from the environment variables that Cargo
-/// adds (http://doc.crates.io/environment-variables.html) and runs `git` to
+/// adds (<http://doc.crates.io/environment-variables.html>) and runs `git` to
 /// get the SHA1 hash. It then writes the string into a file, which exa then
 /// includes at build-time.
 ///
-/// - https://stackoverflow.com/q/43753491/3484614
-/// - https://crates.io/crates/vergen
+/// - <https://stackoverflow.com/q/43753491/3484614>
+/// - <https://crates.io/crates/vergen>
 use std::env;
 use std::fs::File;
 use std::io::{self, Write};
@@ -110,7 +116,7 @@ fn version_string() -> String {
 
 /// Finds whether a feature is enabled by examining the Cargo variable.
 fn feature_enabled(name: &str) -> bool {
-    env::var(format!("CARGO_FEATURE_{}", name))
+    env::var(format!("CARGO_FEATURE_{name}"))
         .map(|e| !e.is_empty())
         .unwrap_or(false)
 }

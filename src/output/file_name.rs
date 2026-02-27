@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 use std::fmt::Debug;
 use std::path::Path;
 
@@ -13,7 +19,7 @@ use crate::output::render::FiletypeColours;
 use crate::theme::FileNameStyle;
 
 /// Basically a file name factory.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Options {
     /// Whether to append file class characters to file names.
     pub classify: Classify,
@@ -159,9 +165,10 @@ pub struct FileName<'a, 'dir, C> {
     mount_style: MountStyle,
 }
 
-impl<'a, 'dir, C> FileName<'a, 'dir, C> {
+impl<C> FileName<'_, '_, C> {
     /// Sets the flag on this file name to display link targets with an
     /// arrow followed by their path.
+    #[must_use]
     pub fn with_link_paths(mut self) -> Self {
         if !self.file.deref_links {
             self.link_style = LinkStyle::FullLinkPaths;
@@ -171,6 +178,7 @@ impl<'a, 'dir, C> FileName<'a, 'dir, C> {
 
     /// Sets the flag on this file name to display mounted filesystem
     ///details.
+    #[must_use]
     pub fn with_mount_details(mut self, enable: bool) -> Self {
         self.mount_style = if enable {
             MountStyle::MountInfo
@@ -181,13 +189,14 @@ impl<'a, 'dir, C> FileName<'a, 'dir, C> {
     }
 }
 
-impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
+impl<C: Colours> FileName<'_, '_, C> {
     /// Paints the name of the file using the colours, resulting in a vector
     /// of coloured cells that can be printed to the terminal.
     ///
     /// This method returns some `TextCellContents`, rather than a `TextCell`,
     /// because for the last cell in a table, it doesn’t need to have its
     /// width calculated.
+    #[must_use]
     pub fn paint(&self) -> TextCellContents {
         let mut bits = Vec::new();
         let (icon_override, filename_style_override) = match self.colours.style_override(self.file)
@@ -231,7 +240,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
             bits.push(style.paint(" ".repeat(spaces_count as usize)));
         }
 
-        if self.file.parent_dir.is_none() {
+        if self.file.parent_dir.is_none() && self.options.absolute == Absolute::Off {
             if let Some(parent) = self.file.path.parent() {
                 self.add_parent_bits(&mut bits, parent);
             }
@@ -402,11 +411,6 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         &self,
         style_override: Option<Style>,
     ) -> Vec<ANSIString<'unused>> {
-        use percent_encoding::{utf8_percent_encode, CONTROLS};
-
-        const HYPERLINK_START: &str = "\x1B]8;;";
-        const HYPERLINK_END: &str = "\x1B\x5C";
-
         let file_style = style_override.unwrap_or(self.style());
         let mut bits = Vec::new();
 
@@ -417,15 +421,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
                 .absolute_path()
                 .and_then(|p| p.as_os_str().to_str())
             {
-                let abs_path = utf8_percent_encode(abs_path, CONTROLS).to_string();
-
-                // On Windows, `std::fs::canonicalize` adds the Win32 File prefix, which we need to remove
-                #[cfg(target_os = "windows")]
-                let abs_path = abs_path.strip_prefix("\\\\?\\").unwrap_or(&abs_path);
-
-                bits.push(ANSIString::from(format!(
-                    "{HYPERLINK_START}file://{abs_path}{HYPERLINK_END}"
-                )));
+                bits.push(ANSIString::from(escape::get_hyperlink_start_tag(abs_path)));
 
                 display_hyperlink = true;
             }
@@ -440,9 +436,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
         );
 
         if display_hyperlink {
-            bits.push(ANSIString::from(format!(
-                "{HYPERLINK_START}{HYPERLINK_END}"
-            )));
+            bits.push(ANSIString::from(escape::HYPERLINK_CLOSING));
         }
 
         bits
@@ -470,6 +464,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     /// depending on which “type” of file it appears to be — either from the
     /// class on the filesystem or from its name. (Or the broken link colour,
     /// if there’s nowhere else for that fact to be shown.)
+    #[must_use]
     pub fn style(&self) -> Style {
         if let LinkStyle::JustFilenames = self.link_style {
             if let Some(ref target) = self.target {
@@ -500,6 +495,7 @@ impl<'a, 'dir, C: Colours> FileName<'a, 'dir, C> {
     }
 
     /// For grid's use, to cover the case of hyperlink escape sequences
+    #[must_use]
     pub fn bare_utf8_width(&self) -> usize {
         UnicodeWidthStr::width(self.file.name.as_str())
     }

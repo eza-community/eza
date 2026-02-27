@@ -1,7 +1,14 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 //! Files, and methods and fields to access their metadata.
 
 #[cfg(unix)]
 use std::collections::HashMap;
+use std::fs::FileType;
 use std::io;
 #[cfg(unix)]
 use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
@@ -17,9 +24,9 @@ use std::time::SystemTime;
 
 use chrono::prelude::*;
 
-use log::*;
+use log::{debug, error, trace};
 #[cfg(unix)]
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 
 use crate::fs::dir::Dir;
 use crate::fs::feature::xattr;
@@ -34,11 +41,10 @@ use super::mounts::MountedFs;
 // Maps (device_id, inode) => (size_in_bytes, size_in_blocks)
 // Mutex::new is const but HashMap::new is not const requiring us to use lazy
 // initialization.
-// TODO: Replace with std::sync::LazyLock when it is stable.
 #[allow(clippy::type_complexity)]
 #[cfg(unix)]
-static DIRECTORY_SIZE_CACHE: Lazy<Mutex<HashMap<(u64, u64), (u64, u64)>>> =
-    Lazy::new(|| Mutex::new(HashMap::new()));
+static DIRECTORY_SIZE_CACHE: LazyLock<Mutex<HashMap<(u64, u64), (u64, u64)>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
 
 /// A **File** is a wrapper around one of Rust’s `PathBuf` values, along with
 /// associated data about the file.
@@ -68,12 +74,15 @@ pub struct File<'dir> {
     /// path (following a symlink).
     pub path: PathBuf,
 
+    /// The cached filetype for this file
+    pub filetype: OnceLock<Option<std::fs::FileType>>,
+
     /// A cached `metadata` (`stat`) call for this file.
     ///
     /// This too is queried multiple times, and is *not* cached by the OS, as
     /// it could easily change between invocations — but exa is so short-lived
     /// it’s better to just cache it.
-    pub metadata: std::fs::Metadata,
+    pub metadata: OnceLock<io::Result<std::fs::Metadata>>,
 
     /// A reference to the directory that contains this file, if any.
     ///
@@ -116,7 +125,8 @@ impl<'dir> File<'dir> {
         filename: FN,
         deref_links: bool,
         total_size: bool,
-    ) -> io::Result<File<'dir>>
+        filetype: Option<std::fs::FileType>,
+    ) -> File<'dir>
     where
         PD: Into<Option<&'dir Dir>>,
         FN: Into<Option<String>>,
@@ -125,37 +135,41 @@ impl<'dir> File<'dir> {
         let name = filename.into().unwrap_or_else(|| File::filename(&path));
         let ext = File::ext(&path);
 
-        debug!("Statting file {:?}", &path);
-        let metadata = std::fs::symlink_metadata(&path)?;
         let is_all_all = false;
-        let extended_attributes = OnceLock::new();
-        let absolute_path = OnceLock::new();
         let recursive_size = if total_size {
             RecursiveSize::Unknown
         } else {
             RecursiveSize::None
         };
 
-        debug!("deref_links {}", deref_links);
+        debug!("deref_links {deref_links}");
+
+        let filetype = match filetype {
+            Some(f) => OnceLock::from(Some(f)),
+            None => OnceLock::new(),
+        };
+
+        debug!("deref_links {deref_links}");
 
         let mut file = File {
             name,
             ext,
             path,
-            metadata,
             parent_dir,
             is_all_all,
             deref_links,
             recursive_size,
-            extended_attributes,
-            absolute_path,
+            filetype,
+            metadata: OnceLock::new(),
+            extended_attributes: OnceLock::new(),
+            absolute_path: OnceLock::new(),
         };
 
         if total_size {
             file.recursive_size = file.recursive_directory_size();
         }
 
-        Ok(file)
+        file
     }
 
     fn new_aa(
@@ -163,15 +177,11 @@ impl<'dir> File<'dir> {
         parent_dir: &'dir Dir,
         name: &'static str,
         total_size: bool,
-    ) -> io::Result<File<'dir>> {
+    ) -> File<'dir> {
         let ext = File::ext(&path);
 
-        debug!("Statting file {:?}", &path);
-        let metadata = std::fs::symlink_metadata(&path)?;
         let is_all_all = true;
         let parent_dir = Some(parent_dir);
-        let extended_attributes = OnceLock::new();
-        let absolute_path = OnceLock::new();
         let recursive_size = if total_size {
             RecursiveSize::Unknown
         } else {
@@ -182,43 +192,43 @@ impl<'dir> File<'dir> {
             name: name.into(),
             ext,
             path,
-            metadata,
             parent_dir,
             is_all_all,
             deref_links: false,
-            extended_attributes,
-            absolute_path,
             recursive_size,
+            metadata: OnceLock::new(),
+            absolute_path: OnceLock::new(),
+            extended_attributes: OnceLock::new(),
+            filetype: OnceLock::new(),
         };
 
         if total_size {
             file.recursive_size = file.recursive_directory_size();
         }
 
-        Ok(file)
+        file
     }
 
-    pub fn new_aa_current(parent_dir: &'dir Dir, total_size: bool) -> io::Result<File<'dir>> {
+    #[must_use]
+    pub fn new_aa_current(parent_dir: &'dir Dir, total_size: bool) -> File<'dir> {
         File::new_aa(parent_dir.path.clone(), parent_dir, ".", total_size)
     }
 
-    pub fn new_aa_parent(
-        path: PathBuf,
-        parent_dir: &'dir Dir,
-        total_size: bool,
-    ) -> io::Result<File<'dir>> {
+    #[must_use]
+    pub fn new_aa_parent(path: PathBuf, parent_dir: &'dir Dir, total_size: bool) -> File<'dir> {
         File::new_aa(path, parent_dir, "..", total_size)
     }
 
     /// A file’s name is derived from its string. This needs to handle directories
     /// such as `/` or `..`, which have no `file_name` component. So instead, just
     /// use the last component as the name.
+    #[must_use]
     pub fn filename(path: &Path) -> String {
         if let Some(back) = path.components().next_back() {
             back.as_os_str().to_string_lossy().to_string()
         } else {
             // use the path as fallback
-            error!("Path {:?} has no last component", path);
+            error!("Path {path:?} has no last component");
             path.display().to_string()
         }
     }
@@ -261,6 +271,21 @@ impl<'dir> File<'dir> {
         }
     }
 
+    fn filetype(&self) -> Option<&std::fs::FileType> {
+        self.filetype
+            .get_or_init(|| self.metadata().as_ref().ok().map(|md| md.file_type()))
+            .as_ref()
+    }
+
+    pub fn metadata(&self) -> Result<&std::fs::Metadata, &io::Error> {
+        self.metadata
+            .get_or_init(|| {
+                debug!("Statting file {:?}", &self.path);
+                std::fs::symlink_metadata(&self.path)
+            })
+            .as_ref()
+    }
+
     /// Get the extended attributes of a file path on demand.
     pub fn extended_attributes(&self) -> &Vec<Attribute> {
         self.extended_attributes
@@ -269,7 +294,7 @@ impl<'dir> File<'dir> {
 
     /// Whether this file is a directory on the filesystem.
     pub fn is_directory(&self) -> bool {
-        self.metadata.is_dir()
+        self.filetype().is_some_and(std::fs::FileType::is_dir)
     }
 
     /// Whether this file is a directory, or a symlink pointing to a directory.
@@ -288,21 +313,29 @@ impl<'dir> File<'dir> {
         false
     }
 
+    /// Initializes a new `Dir` object using the `PathBuf` of
+    /// the current file. It does not perform any validation to check if the
+    /// file is actually a directory. To verify that, use `is_directory()`.
+    pub fn to_dir(&self) -> Dir {
+        trace!("read_dir: initializating dir from path");
+        Dir::new(self.path.clone())
+    }
+
     /// If this file is a directory on the filesystem, then clone its
     /// `PathBuf` for use in one of our own `Dir` values, and read a list of
     /// its contents.
     ///
     /// Returns an IO error upon failure, but this shouldn’t be used to check
     /// if a `File` is a directory or not! For that, just use `is_directory()`.
-    pub fn to_dir(&self) -> io::Result<Dir> {
-        trace!("to_dir: reading dir");
+    pub fn read_dir(&self) -> io::Result<Dir> {
+        trace!("read_dir: reading dir");
         Dir::read_dir(self.path.clone())
     }
 
     /// Whether this file is a regular file on the filesystem — that is, not a
     /// directory, a link, or anything else treated specially.
     pub fn is_file(&self) -> bool {
-        self.metadata.is_file()
+        self.filetype().is_some_and(std::fs::FileType::is_file)
     }
 
     /// Whether this file is both a regular file *and* executable for the
@@ -311,36 +344,42 @@ impl<'dir> File<'dir> {
     #[cfg(unix)]
     pub fn is_executable_file(&self) -> bool {
         let bit = modes::USER_EXECUTE;
-        self.is_file() && (self.metadata.permissions().mode() & bit) == bit
+        if !self.is_file() {
+            return false;
+        }
+        let Ok(md) = self.metadata() else {
+            return false;
+        };
+        (md.permissions().mode() & bit) == bit
     }
 
     /// Whether this file is a symlink on the filesystem.
     pub fn is_link(&self) -> bool {
-        self.metadata.file_type().is_symlink()
+        self.filetype().is_some_and(FileType::is_symlink)
     }
 
     /// Whether this file is a named pipe on the filesystem.
     #[cfg(unix)]
     pub fn is_pipe(&self) -> bool {
-        self.metadata.file_type().is_fifo()
+        self.filetype().is_some_and(FileTypeExt::is_fifo)
     }
 
     /// Whether this file is a char device on the filesystem.
     #[cfg(unix)]
     pub fn is_char_device(&self) -> bool {
-        self.metadata.file_type().is_char_device()
+        self.filetype().is_some_and(FileTypeExt::is_char_device)
     }
 
     /// Whether this file is a block device on the filesystem.
     #[cfg(unix)]
     pub fn is_block_device(&self) -> bool {
-        self.metadata.file_type().is_block_device()
+        self.filetype().is_some_and(FileTypeExt::is_block_device)
     }
 
     /// Whether this file is a socket on the filesystem.
     #[cfg(unix)]
     pub fn is_socket(&self) -> bool {
-        self.metadata.file_type().is_socket()
+        self.filetype().is_some_and(FileTypeExt::is_socket)
     }
 
     /// Determine the full path resolving all symbolic links on demand.
@@ -429,7 +468,8 @@ impl<'dir> File<'dir> {
                     parent_dir: None,
                     path,
                     ext,
-                    metadata,
+                    filetype: OnceLock::from(Some(metadata.file_type())),
+                    metadata: OnceLock::from(Ok(metadata)),
                     name,
                     is_all_all: false,
                     deref_links: self.deref_links,
@@ -476,7 +516,7 @@ impl<'dir> File<'dir> {
     /// more attentively.
     #[cfg(unix)]
     pub fn links(&self) -> f::Links {
-        let count = self.metadata.nlink();
+        let count = self.metadata().map_or(0, MetadataExt::nlink);
 
         f::Links {
             count,
@@ -487,7 +527,7 @@ impl<'dir> File<'dir> {
     /// This file’s inode.
     #[cfg(unix)]
     pub fn inode(&self) -> f::Inode {
-        f::Inode(self.metadata.ino())
+        f::Inode(self.metadata().map_or(0, MetadataExt::ino))
     }
 
     /// This actual size the file takes up on disk, in bytes.
@@ -506,7 +546,7 @@ impl<'dir> File<'dir> {
             // Note that metadata.blocks returns the number of blocks
             // for 512 byte blocks according to the POSIX standard
             // even though the physical block size may be different.
-            f::Blocksize::Some(self.metadata.blocks() * 512)
+            f::Blocksize::Some(self.metadata().map_or(0, |md| md.blocks() * 512))
         } else {
             // directory or symlinks
             f::Blocksize::None
@@ -523,7 +563,7 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        Some(f::User(self.metadata.uid()))
+        Some(f::User(self.metadata().map_or(0, MetadataExt::uid)))
     }
 
     /// The ID of the group that owns this file.
@@ -535,7 +575,7 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        Some(f::Group(self.metadata.gid()))
+        Some(f::Group(self.metadata().map_or(0, MetadataExt::gid)))
     }
 
     /// This file’s size, if it’s a regular file.
@@ -560,21 +600,29 @@ impl<'dir> File<'dir> {
             self.recursive_size
                 .map_or(f::Size::None, |bytes, _| f::Size::Some(bytes))
         } else if self.is_char_device() || self.is_block_device() {
-            let device_id = self.metadata.rdev();
+            let device_id = self.metadata().map_or(0, MetadataExt::rdev);
 
             // MacOS and Linux have different arguments and return types for the
             // functions major and minor.  On Linux the try_into().unwrap() and
             // the "as u32" cast are not needed.  We turn off the warning to
             // allow it to compile cleanly on Linux.
-            #[allow(trivial_numeric_casts)]
+            //
+            // On illumos and Solaris, major and minor are extern "C" fns and
+            // therefore unsafe; on other platforms the functions are defined as
+            // macros and copied as const fns in the libc crate.
+            #[allow(trivial_numeric_casts, unused_unsafe)]
             #[allow(clippy::unnecessary_cast, clippy::useless_conversion)]
-            f::Size::DeviceIDs(f::DeviceIDs {
-                // SAFETY: Calling libc function to decompose the device_id
-                major: unsafe { libc::major(device_id.try_into().unwrap()) } as u32,
-                minor: unsafe { libc::minor(device_id.try_into().unwrap()) } as u32,
-            })
+            {
+                let device_id = device_id
+                    .try_into()
+                    .expect("Malformed device major ID when getting filesize");
+                f::Size::DeviceIDs(f::DeviceIDs {
+                    major: unsafe { libc::major(device_id) as u32 },
+                    minor: unsafe { libc::minor(device_id) as u32 },
+                })
+            }
         } else if self.is_file() {
-            f::Size::Some(self.metadata.len())
+            f::Size::Some(self.metadata().map_or(0, std::fs::Metadata::len))
         } else {
             // symlink
             f::Size::None
@@ -590,7 +638,7 @@ impl<'dir> File<'dir> {
         if self.is_directory() {
             f::Size::None
         } else {
-            f::Size::Some(self.metadata.len())
+            f::Size::Some(self.metadata().map_or(0, std::fs::Metadata::len))
         }
     }
 
@@ -600,17 +648,17 @@ impl<'dir> File<'dir> {
     #[cfg(unix)]
     fn recursive_directory_size(&self) -> RecursiveSize {
         if self.is_directory() {
-            let key = (self.metadata.dev(), self.metadata.ino());
+            let key = (
+                self.metadata().map_or(0, MetadataExt::dev),
+                self.metadata().map_or(0, MetadataExt::ino),
+            );
             if let Some(size) = DIRECTORY_SIZE_CACHE.lock().unwrap().get(&key) {
                 return RecursiveSize::Some(size.0, size.1);
             }
             Dir::read_dir(self.path.clone()).map_or(RecursiveSize::Unknown, |dir| {
                 let mut size = 0;
                 let mut blocks = 0;
-                for file in dir
-                    .files(super::DotFilter::Dotfiles, None, false, false, true)
-                    .flatten()
-                {
+                for file in dir.files(super::DotFilter::Dotfiles, None, false, false, true) {
                     match file.recursive_directory_size() {
                         RecursiveSize::Some(bytes, blks) => {
                             size += bytes;
@@ -618,8 +666,8 @@ impl<'dir> File<'dir> {
                         }
                         RecursiveSize::Unknown => {}
                         RecursiveSize::None => {
-                            size += file.metadata.size();
-                            blocks += file.metadata.blocks();
+                            size += file.metadata().map_or(0, MetadataExt::size);
+                            blocks += file.metadata().map_or(0, MetadataExt::blocks);
                         }
                     }
                 }
@@ -647,7 +695,8 @@ impl<'dir> File<'dir> {
     /// of a directory when `total_size` is used.
     #[inline]
     pub fn length(&self) -> u64 {
-        self.recursive_size.unwrap_bytes_or(self.metadata.len())
+        self.recursive_size
+            .unwrap_bytes_or(self.metadata().map_or(0, std::fs::Metadata::len))
     }
 
     /// Is the file is using recursive size calculation
@@ -668,7 +717,7 @@ impl<'dir> File<'dir> {
     #[cfg(unix)]
     pub fn is_empty_dir(&self) -> bool {
         if self.is_directory() {
-            if self.metadata.nlink() > 2 {
+            if self.metadata().map_or(0, MetadataExt::nlink) > 2 {
                 // Directories will have a link count of two if they do not have any subdirectories.
                 // The '.' entry is a link to itself and the '..' is a link to the parent directory.
                 // A subdirectory will have a link to its parent directory increasing the link count
@@ -724,11 +773,11 @@ impl<'dir> File<'dir> {
     fn systemtime_to_naivedatetime(st: SystemTime) -> Option<NaiveDateTime> {
         let duration = st.duration_since(SystemTime::UNIX_EPOCH).ok()?;
 
-        // FIXME: NaiveDateTime::from_timestamp_opt is deprecated since chrono 0.4.35
-        NaiveDateTime::from_timestamp_opt(
+        DateTime::from_timestamp(
             duration.as_secs().try_into().ok()?,
             (duration.as_nanos() % 1_000_000_000).try_into().ok()?,
         )
+        .map(|dt| dt.naive_local())
     }
 
     /// This file’s last modified timestamp, if available on this platform.
@@ -739,9 +788,9 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        self.metadata
-            .modified()
+        self.metadata()
             .ok()
+            .and_then(|md| md.modified().ok())
             .and_then(Self::systemtime_to_naivedatetime)
     }
 
@@ -754,7 +803,12 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        NaiveDateTime::from_timestamp_opt(self.metadata.ctime(), self.metadata.ctime_nsec() as u32)
+        let md = self.metadata();
+        DateTime::from_timestamp(
+            md.map_or(0, MetadataExt::ctime),
+            md.map_or(0, |md| md.ctime_nsec() as u32),
+        )
+        .map(|dt| dt.naive_local())
     }
 
     #[cfg(windows)]
@@ -770,9 +824,9 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        self.metadata
-            .accessed()
+        self.metadata()
             .ok()
+            .and_then(|md| md.accessed().ok())
             .and_then(Self::systemtime_to_naivedatetime)
     }
 
@@ -784,10 +838,8 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        self.metadata
-            .created()
-            .ok()
-            .and_then(Self::systemtime_to_naivedatetime)
+        let btime = self.metadata().ok()?.created().ok()?;
+        Self::systemtime_to_naivedatetime(btime)
     }
 
     /// This file’s ‘type’.
@@ -839,7 +891,7 @@ impl<'dir> File<'dir> {
                 _ => None,
             };
         }
-        let bits = self.metadata.mode();
+        let bits = self.metadata().map_or(0, MetadataExt::mode);
         let has_bit = |bit| bits & bit == bit;
 
         Some(f::Permissions {
@@ -862,19 +914,19 @@ impl<'dir> File<'dir> {
     }
 
     #[cfg(windows)]
-    pub fn attributes(&self) -> f::Attributes {
-        let bits = self.metadata.file_attributes();
+    pub fn attributes(&self) -> Option<f::Attributes> {
+        let bits = self.metadata().ok()?.file_attributes();
         let has_bit = |bit| bits & bit == bit;
 
         // https://docs.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants
-        f::Attributes {
+        Some(f::Attributes {
             directory: has_bit(0x10),
             archive: has_bit(0x20),
             readonly: has_bit(0x1),
             hidden: has_bit(0x2),
             system: has_bit(0x4),
             reparse_point: has_bit(0x400),
-        }
+        })
     }
 
     /// This file’s security context field.
@@ -924,12 +976,16 @@ impl<'dir> File<'dir> {
         use std::os::netbsd::fs::MetadataExt;
         #[cfg(target_os = "openbsd")]
         use std::os::openbsd::fs::MetadataExt;
-        f::Flags(self.metadata.st_flags())
+        f::Flags(
+            self.metadata()
+                .map(MetadataExt::st_flags)
+                .unwrap_or_default(),
+        )
     }
 
     #[cfg(windows)]
     pub fn flags(&self) -> f::Flags {
-        f::Flags(self.metadata.file_attributes())
+        f::Flags(self.metadata().map_or(0, |md| md.file_attributes()))
     }
 
     #[cfg(not(any(
@@ -969,9 +1025,10 @@ pub enum FileTarget<'dir> {
     // error — we just display the error message and move on.
 }
 
-impl<'dir> FileTarget<'dir> {
+impl FileTarget<'_> {
     /// Whether this link doesn’t lead to a file, for whatever reason. This
     /// gets used to determine how to highlight the link in grid views.
+    #[must_use]
     pub fn is_broken(&self) -> bool {
         matches!(self, Self::Broken(_) | Self::Err(_))
     }

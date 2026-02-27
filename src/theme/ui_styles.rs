@@ -1,5 +1,14 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 use crate::theme::lsc::Pair;
-use nu_ansi_term::{Color::*, Style};
+use nu_ansi_term::{
+    Color::{Blue, Cyan, Green, Purple, Red, Yellow},
+    Style,
+};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::default::Default;
@@ -53,7 +62,7 @@ macro_rules! field_accessors {
         impl $struct_name {
             $(
                 #[allow(clippy::wrong_self_convention, clippy::new_ret_no_self)]
-                pub fn $field_name(&self) -> $type {
+                #[must_use] pub fn $field_name(&self) -> $type {
                     self.$field_name.unwrap_or_default()
                 }
             )*
@@ -244,6 +253,7 @@ field_accessors!(
 );
 
 #[rustfmt::skip]
+#[allow(unused)]
 #[derive(Clone, Copy, Debug, Eq, Default, PartialEq, Serialize, Deserialize)]
 pub struct Links {
     pub normal: Option<Style>,           // lc
@@ -375,6 +385,7 @@ pub struct FileType {
 }
 
 impl UiStyles {
+    #[must_use]
     pub fn plain() -> Self {
         Self {
             colourful: Some(false),
@@ -500,8 +511,8 @@ impl UiStyles {
     /// Sets a value on this set of colours using one of the keys understood
     /// by the `LS_COLORS` environment variable. Invalid keys set nothing, but
     /// return false.
+    #[rustfmt::skip]
     pub fn set_ls(&mut self, pair: &Pair<'_>) -> bool {
-        #[rustfmt::skip]
         match pair.key {
             "di" => self.filekinds().directory    = Some(pair.to_style()),  // DIR
             "ex" => self.filekinds().executable   = Some(pair.to_style()),  // EXEC
@@ -516,7 +527,7 @@ impl UiStyles {
              // Codes we don’t do anything with:
              // MULTIHARDLINK, DOOR, SETUID, SETGID, CAPABILITY,
              // STICKY_OTHER_WRITABLE, OTHER_WRITABLE, STICKY, MISSING
-        };
+        }
         true
     }
 
@@ -524,8 +535,8 @@ impl UiStyles {
     /// by the `EZA_COLORS` environment variable. Invalid keys set nothing,
     /// but return false. This doesn’t take the `LS_COLORS` keys into account,
     /// so `set_ls` should have been run first.
+    #[rustfmt::skip]
     pub fn set_exa(&mut self, pair: &Pair<'_>) -> bool {
-        #[rustfmt::skip]
         match pair.key {
             "ur" => self.perms().user_read                = Some(pair.to_style()),
             "uw" => self.perms().user_write               = Some(pair.to_style()),
@@ -611,7 +622,7 @@ impl UiStyles {
             "Sl" => self.security_context().selinux().range = Some(pair.to_style()),
 
              _   => return false,
-        };
+        }
 
         true
     }

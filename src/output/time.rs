@@ -1,8 +1,14 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 //! Timestamp formatting.
 
 use chrono::prelude::*;
 use core::cmp::max;
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use std::time::Duration;
 use unicode_width::UnicodeWidthStr;
 
@@ -56,6 +62,7 @@ pub enum TimeFormat {
 }
 
 impl TimeFormat {
+    #[must_use]
     pub fn format(self, time: &DateTime<FixedOffset>) -> String {
         #[rustfmt::skip]
         return match self {
@@ -134,12 +141,12 @@ fn custom(time: &DateTime<FixedOffset>, non_recent_fmt: &str, recent_fmt: Option
     }
 }
 
-static CURRENT_YEAR: Lazy<i32> = Lazy::new(|| Local::now().year());
+static CURRENT_YEAR: LazyLock<i32> = LazyLock::new(|| Local::now().year());
 
-static LOCALE: Lazy<locale::Time> =
-    Lazy::new(|| locale::Time::load_user_locale().unwrap_or_else(|_| locale::Time::english()));
+static LOCALE: LazyLock<locale::Time> =
+    LazyLock::new(|| locale::Time::load_user_locale().unwrap_or_else(|_| locale::Time::english()));
 
-static MAX_MONTH_WIDTH: Lazy<usize> = Lazy::new(|| {
+static MAX_MONTH_WIDTH: LazyLock<usize> = LazyLock::new(|| {
     // Some locales use a three-character wide month name (Jan to Dec);
     // others vary between three to four (1月 to 12月, juil.). We check each month width
     // to detect the longest and set the output format accordingly.
@@ -158,36 +165,33 @@ mod test {
         let max_month_width = 4;
         let month = "1\u{2F49}"; // 1月
         let padding = short_month_padding(max_month_width, month);
-        let final_str = format!("{:<width$}", month, width = padding);
+        let final_str = format!("{month:<padding$}");
         assert_eq!(max_month_width, UnicodeWidthStr::width(final_str.as_str()));
     }
 
     #[test]
     fn short_month_width_hindi() {
         let max_month_width = 4;
-        assert_eq!(
-            true,
-            [
-                "\u{091C}\u{0928}\u{0970}",                         // जन॰
-                "\u{092B}\u{093C}\u{0930}\u{0970}",                 // फ़र॰
-                "\u{092E}\u{093E}\u{0930}\u{094D}\u{091A}",         // मार्च
-                "\u{0905}\u{092A}\u{094D}\u{0930}\u{0948}\u{0932}", // अप्रैल
-                "\u{092E}\u{0908}",                                 // मई
-                "\u{091C}\u{0942}\u{0928}",                         // जून
-                "\u{091C}\u{0941}\u{0932}\u{0970}",                 // जुल॰
-                "\u{0905}\u{0917}\u{0970}",                         // अग॰
-                "\u{0938}\u{093F}\u{0924}\u{0970}",                 // सित॰
-                "\u{0905}\u{0915}\u{094D}\u{0924}\u{0942}\u{0970}", // अक्तू॰
-                "\u{0928}\u{0935}\u{0970}",                         // नव॰
-                "\u{0926}\u{093F}\u{0938}\u{0970}",                 // दिस॰
-            ]
-            .iter()
-            .map(|month| format!(
-                "{:<width$}",
-                month,
-                width = short_month_padding(max_month_width, month)
-            ))
-            .all(|string| UnicodeWidthStr::width(string.as_str()) == max_month_width)
-        );
+        assert!([
+            "\u{091C}\u{0928}\u{0970}",                         // जन॰
+            "\u{092B}\u{093C}\u{0930}\u{0970}",                 // फ़र॰
+            "\u{092E}\u{093E}\u{0930}\u{094D}\u{091A}",         // मार्च
+            "\u{0905}\u{092A}\u{094D}\u{0930}\u{0948}\u{0932}", // अप्रैल
+            "\u{092E}\u{0908}",                                 // मई
+            "\u{091C}\u{0942}\u{0928}",                         // जून
+            "\u{091C}\u{0941}\u{0932}\u{0970}",                 // जुल॰
+            "\u{0905}\u{0917}\u{0970}",                         // अग॰
+            "\u{0938}\u{093F}\u{0924}\u{0970}",                 // सित॰
+            "\u{0905}\u{0915}\u{094D}\u{0924}\u{0942}\u{0970}", // अक्तू॰
+            "\u{0928}\u{0935}\u{0970}",                         // नव॰
+            "\u{0926}\u{093F}\u{0938}\u{0970}",                 // दिस॰
+        ]
+        .iter()
+        .map(|month| format!(
+            "{:<width$}",
+            month,
+            width = short_month_padding(max_month_width, month)
+        ))
+        .all(|string| UnicodeWidthStr::width(string.as_str()) == max_month_width));
     }
 }

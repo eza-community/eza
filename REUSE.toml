@@ -1,0 +1,80 @@
+# SPDX-FileCopyrightText: 2024 Christina Sørensen
+#
+# SPDX-License-Identifier: EUPL-1.2
+
+version = 1
+SPDX-PackageName = "eza"
+SPDX-PackageSupplier = "Christina Sørensen <christina@cafkafk.com>"
+
+[[annotations]]
+path = "flake.lock"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Christina Sørensen"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = "Cargo.lock"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Christina Sørensen"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = ".envrc"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Christina Sørensen"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = "tests/**"
+SPDX-FileCopyrightText = "2024 Christina Sørensen"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = "completions/**"
+SPDX-FileCopyrightText = "2024 Christina Sørensen"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = "man/**"
+SPDX-FileCopyrightText = "2024 Christina Sørensen"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = "deb.asc"
+SPDX-FileCopyrightText = "2024 Christina Sørensen"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = "devtools/**"
+SPDX-FileCopyrightText = "2024 Christina Sørensen"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = "docs/**"
+SPDX-FileCopyrightText = "2024 Christina Sørensen"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = ".github/**.md"
+SPDX-FileCopyrightText = "2024 Christina Sørensen"
+SPDX-License-Identifier = "EUPL-1.2"
+
+# pre-commit-hooks.nix cause these to appear in commit check:(
+
+[[annotations]]
+path = ".cache/pre-commit/README"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Christina Sørensen"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = ".cache/pre-commit/db.db"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Christina Sørensen"
+SPDX-License-Identifier = "EUPL-1.2"
+
+[[annotations]]
+path = ".gitconfig"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Christina Sørensen"
+SPDX-License-Identifier = "EUPL-1.2"

@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 #![warn(deprecated_in_future)]
 #![warn(future_incompatible)]
 #![warn(nonstandard_style)]
@@ -28,12 +34,13 @@ use std::path::{Component, PathBuf};
 use std::process::exit;
 
 use nu_ansi_term::{AnsiStrings as ANSIStrings, Style};
+use options::parser::get_command;
 
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::{FileFilterFlags::OnlyFiles, GitIgnore};
 use crate::fs::{Dir, File};
 use crate::options::stdin::FilesInput;
-use crate::options::{vars, Options, OptionsResult, Vars};
+use crate::options::{vars, Options, Vars};
 use crate::output::{details, escape, file_name, grid, grid_details, lines, Mode, View};
 use crate::theme::Theme;
 use log::*;
@@ -53,14 +60,16 @@ fn main() {
 
     logger::configure(env::var_os(vars::EZA_DEBUG).or_else(|| env::var_os(vars::EXA_DEBUG)));
 
-    let stdout_istty = io::stdout().is_terminal();
+    let cli = get_command().get_matches();
 
+    let stdout_istty = io::stdout().is_terminal();
     let mut input = String::new();
-    let args: Vec<_> = env::args_os().skip(1).collect();
-    match Options::parse(args.iter().map(std::convert::AsRef::as_ref), &LiveVars) {
-        OptionsResult::Ok(options, mut input_paths) => {
-            // List the current directory by default.
-            // (This has to be done here, otherwise git_options won’t see it.)
+    let mut input_paths: Vec<&OsStr> = match cli.get_many("FILE") {
+        Some(x) => x.map(OsString::as_os_str).collect(),
+        None => vec![],
+    };
+    match Options::deduce(&cli, &LiveVars) {
+        Ok(options) => {
             if input_paths.is_empty() {
                 match &options.stdin {
                     FilesInput::Args => {
@@ -73,7 +82,7 @@ fn main() {
                         input_paths.extend(
                             input
                                 .split(&separator.clone().into_string().unwrap_or("\n".to_string()))
-                                .map(std::ffi::OsStr::new)
+                                .map(OsStr::new)
                                 .filter(|s| !s.is_empty())
                                 .collect::<Vec<_>>(),
                         );
@@ -100,7 +109,7 @@ fn main() {
             info!("matching on exa.run");
             match exa.run() {
                 Ok(exit_status) => {
-                    trace!("exa.run: exit Ok(exit_status)");
+                    trace!("exa.run: exit Ok({exit_status})");
                     exit(exit_status);
                 }
 
@@ -116,22 +125,8 @@ fn main() {
                 }
             }
         }
-
-        OptionsResult::Help(help_text) => {
-            print!("{help_text}");
-        }
-
-        OptionsResult::Version(version_str) => {
-            print!("{version_str}");
-        }
-
-        OptionsResult::InvalidOptions(error) => {
+        Err(error) => {
             eprintln!("eza: {error}");
-
-            if let Some(s) = error.suggestion() {
-                eprintln!("{s}");
-            }
-
             exit(exits::OPTIONS_ERROR);
         }
     }
@@ -242,7 +237,7 @@ fn git_repos(options: &Options, args: &[&OsStr]) -> bool {
     }
 }
 
-impl<'args> Exa<'args> {
+impl Exa<'_> {
     /// # Errors
     ///
     /// Will return `Err` if printing to stderr fails.
@@ -254,33 +249,28 @@ impl<'args> Exa<'args> {
         let mut exit_status = 0;
 
         for file_path in &self.input_paths {
-            match File::from_args(
+            let f = File::from_args(
                 PathBuf::from(file_path),
                 None,
                 None,
                 self.options.view.deref_links,
                 self.options.view.total_size,
-            ) {
-                Err(e) => {
-                    exit_status = 2;
-                    writeln!(io::stderr(), "{file_path:?}: {e}")?;
-                }
+                None,
+            );
 
-                Ok(f) => {
-                    if f.points_to_directory() && !self.options.dir_action.treat_dirs_as_files() {
-                        trace!("matching on to_dir");
-                        match f.to_dir() {
-                            Ok(d) => dirs.push(d),
-                            Err(e) if e.kind() == ErrorKind::PermissionDenied => {
-                                eprintln!("{file_path:?}: {e}");
-                                exit(exits::PERMISSION_DENIED);
-                            }
-                            Err(e) => writeln!(io::stderr(), "{file_path:?}: {e}")?,
-                        }
-                    } else {
-                        files.push(f);
-                    }
-                }
+            // We don't know whether this file exists, so we have to try to get
+            // the metadata to verify.
+            if let Err(e) = f.metadata() {
+                exit_status = 2;
+                writeln!(io::stderr(), "{file_path:?}: {e}")?;
+                continue;
+            }
+
+            if f.points_to_directory() && !self.options.dir_action.treat_dirs_as_files() {
+                trace!("matching on new Dir");
+                dirs.push(f.to_dir());
+            } else {
+                files.push(f);
             }
         }
 
@@ -308,7 +298,28 @@ impl<'args> Exa<'args> {
             file_style: file_name::Options { quote_style, .. },
             ..
         } = self.options.view;
-        for dir in dir_files {
+
+        let mut denied_dirs = vec![];
+
+        for mut dir in dir_files {
+            let dir = match dir.read() {
+                Ok(dir) => dir,
+                Err(e) => {
+                    if e.kind() == ErrorKind::PermissionDenied {
+                        eprintln!(
+                            "Permission denied: {} - code: {}",
+                            dir.path.display(),
+                            exits::PERMISSION_DENIED
+                        );
+                        denied_dirs.push(dir.path);
+                        continue;
+                    }
+
+                    eprintln!("{}: {}", dir.path.display(), e);
+                    continue;
+                }
+            };
+
             // Put a gap between directories, or between the list of files and
             // the first directory.
             if first {
@@ -338,10 +349,7 @@ impl<'args> Exa<'args> {
                 self.options.view.deref_links,
                 self.options.view.total_size,
             ) {
-                match file {
-                    Ok(file) => children.push(file),
-                    Err((path, e)) => writeln!(io::stderr(), "[{}: {}]", path.display(), e)?,
-                }
+                children.push(file);
             }
             let recursing = self.options.dir_action.recurse_options().is_some();
             self.options
@@ -356,21 +364,21 @@ impl<'args> Exa<'args> {
                     .filter(|&c| c != Component::CurDir)
                     .count()
                     + 1;
+                let follow_links = self.options.view.follow_links;
                 if !recurse_opts.tree && !recurse_opts.is_too_deep(depth) {
-                    let mut child_dirs = Vec::new();
-                    for child_dir in children
+                    let child_dirs = children
                         .iter()
-                        .filter(|f| f.is_directory() && !f.is_all_all)
-                    {
-                        match child_dir.to_dir() {
-                            Ok(d) => child_dirs.push(d),
-                            Err(e) => {
-                                writeln!(io::stderr(), "{}: {}", child_dir.path.display(), e)?;
-                            }
-                        }
-                    }
+                        .filter(|f| {
+                            (if follow_links {
+                                f.points_to_directory()
+                            } else {
+                                f.is_directory()
+                            }) && !f.is_all_all
+                        })
+                        .map(fs::File::to_dir)
+                        .collect::<Vec<Dir>>();
 
-                    self.print_files(Some(&dir), children)?;
+                    self.print_files(Some(dir), children)?;
                     match self.print_dirs(child_dirs, false, false, exit_status) {
                         Ok(_) => (),
                         Err(e) => return Err(e),
@@ -379,7 +387,17 @@ impl<'args> Exa<'args> {
                 }
             }
 
-            self.print_files(Some(&dir), children)?;
+            self.print_files(Some(dir), children)?;
+        }
+
+        if !denied_dirs.is_empty() {
+            eprintln!(
+                "\nSkipped {} directories due to permission denied: ",
+                denied_dirs.len()
+            );
+            for path in denied_dirs {
+                eprintln!("  {}", path.display());
+            }
         }
 
         Ok(exit_status)
@@ -419,7 +437,20 @@ impl<'args> Exa<'args> {
                 r.render(&mut self.writer)
             }
 
-            (Mode::Grid(_), None) | (Mode::Lines, _) => {
+            (Mode::Grid(ref opts), None) => {
+                let filter = &self.options.filter;
+                let r = grid::Render {
+                    files,
+                    theme,
+                    file_style,
+                    opts,
+                    console_width: 80,
+                    filter,
+                };
+                r.render(&mut self.writer)
+            }
+
+            (Mode::Lines, _) => {
                 let filter = &self.options.filter;
                 let r = lines::Render {
                     files,

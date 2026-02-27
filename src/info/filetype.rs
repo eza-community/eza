@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 //! Tests for various types of file (video, image, compressed, etc).
 //!
 //! Currently this is dependent on the file’s name and extension, because
@@ -112,6 +118,8 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "jpg"        => FileType::Image,
     "jpx"        => FileType::Image,
     "jxl"        => FileType::Image,
+    "kra"        => FileType::Image,
+    "krz"        => FileType::Image,
     "nef"        => FileType::Image,
     "odg"        => FileType::Image,
     "orf"        => FileType::Image,
@@ -260,6 +268,8 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "bkp"        => FileType::Temp,
     "crdownload" => FileType::Temp,
     "download"   => FileType::Temp,
+    "fcbak"      => FileType::Temp,
+    "fcstd1"     => FileType::Temp,
     "fdmdownload"=> FileType::Temp,
     "part"       => FileType::Temp,
     "swn"        => FileType::Temp,
@@ -287,7 +297,7 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "pyo"        => FileType::Compiled, // Python optimized code
     "so"         => FileType::Compiled, // Unix shared library
     "zwc"        => FileType::Compiled, // zsh compiled file
-    /* Source code */
+    /* Source code files */
     "applescript"=> FileType::Source, // Apple script
     "as"         => FileType::Source, // Action script
     "asa"        => FileType::Source, // asp
@@ -321,6 +331,8 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "exs"        => FileType::Source, // Elixir
     "f"          => FileType::Source, // Fortran
     "f90"        => FileType::Source, // Fortran
+    "fcmacro"    => FileType::Source, // FreeCAD macro
+    "fcscript"   => FileType::Source, // FreeCAD script
     "fnl"        => FileType::Source, // Fennel
     "for"        => FileType::Source, // Fortran
     "fs"         => FileType::Source, // F#
@@ -336,11 +348,13 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "h++"        => FileType::Source, // C/C++ header
     "hh"         => FileType::Source, // C/C++ header
     "hpp"        => FileType::Source, // C/C++ header
+    "hc"         => FileType::Source, // HolyC
     "hs"         => FileType::Source, // Haskell
     "htc"        => FileType::Source, // JavaScript
     "hxx"        => FileType::Source, // C/C++ header
     "inc"        => FileType::Source,
     "inl"        => FileType::Source, // C/C++ Microsoft
+    "ino"        => FileType::Source, // Arduino
     "ipynb"      => FileType::Source, // Jupyter Notebook
     "ixx"        => FileType::Source, // C/C++ module
     "java"       => FileType::Source, // Java
@@ -382,6 +396,7 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "sass"       => FileType::Source, // Sass
     "scala"      => FileType::Source, // Scala
     "scm"        => FileType::Source, // Scheme
+    "scad"       => FileType::Source, // OpenSCAD
     "scss"       => FileType::Source, // Sass
     "sld"        => FileType::Source, // Scheme Library Definition
     "sql"        => FileType::Source, // SQL

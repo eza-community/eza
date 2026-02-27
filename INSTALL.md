@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023-2024 Christina Sørensen
+SPDX-FileContributor: Christina Sørensen
+
+SPDX-License-Identifier: EUPL-1.2
+-->
 # Installation
 
 eza is available for Windows, macOS and Linux.
@@ -111,7 +117,16 @@ The preceding repository also contains the Bash, Fish, and Zsh completions.
 
 [![Fedora package](https://repology.org/badge/version-for-repo/fedora_39/rust:eza.svg)](https://repology.org/project/eza/versions)
 
-Eza is available as the [eza](https://packages.fedoraproject.org/pkgs/rust-eza/eza/) package in the official Fedora repository.
+> ⚠️ **Note:** As of **Fedora 42**, `eza` is **no longer available** in the official Fedora repositories due to the absence of an active maintainer.
+>
+> If you're using Fedora 42 or newer, consider one of these options:
+>
+> - **Use a pre-built binary** from the [Releases](https://github.com/eza-community/eza/releases) page
+> - **Build from source** by following the [Cargo (git)](#cargo-git) instructions above
+>
+> 💬 Interested in helping? [Become a Fedora package maintainer](https://docs.fedoraproject.org/en-US/package-maintainers/) or reach out via [Matrix](https://matrix.to/#/#eza-community:gitter.im).
+
+For Fedora versions **prior to 42**, `eza` is available in the official repository:
 
 ```bash
 sudo dnf install eza
@@ -150,6 +165,16 @@ If `exa` was installed before, replace it with `eza`:
 ```shell
 sudo rm -f /usr/local/bin/exa
 sudo ln -s /usr/local/bin/eza /usr/local/bin/exa
+```
+
+### Pixi (Linux, MacOS, and Windows)
+
+[![conda-forge package](https://img.shields.io/conda/vn/conda-forge/eza)](https://prefix.dev/channels/conda-forge/packages/eza)
+
+Eza is available in the conda-forge repository and can be installed using [Pixi](https://pixi.sh/latest/):
+
+```shell
+pixi global install eza
 ```
 
 ### Brew (MacOS)
@@ -208,6 +233,28 @@ To install eza, run:
 
 ```shell
 flox install eza
+```
+
+### X-CMD (Linux, macOS, Windows WSL, Windows GitBash)
+
+Eza is available from [x-cmd](https://www.x-cmd.com).
+
+To install eza, run:
+
+```shell
+x env use eza
+# or
+x eza
+```
+
+### fox (Linux, macOS)
+
+Eza is available from [fox](https://www.getfox.sh/).
+
+To install eza, run:
+
+```shell
+fox install eza
 ```
 
 ### Completions

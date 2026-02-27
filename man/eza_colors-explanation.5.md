@@ -34,12 +34,12 @@ files; setting `EZA_COLORS="reset"` will highlight nothing.
 - Build (Makefile, Cargo.toml, package.json) are yellow and underlined.
 - Images (png, jpeg, gif) are purple.
 - Videos (mp4, ogv, m2ts) are a slightly purpler purple.
-- Music (mp3, m4a, ogg) is a deeper purple.
-- Lossless music (flac, alac, wav) is deeper than *that* purple. In general, most media files are some shade of purple.
-- Cryptographic files (asc, enc, p12) are a faint blue.
-- Documents (pdf, doc, dvi) are a less faint blue.
+- Music (mp3, m4a, ogg) is a faint blue.
+- Lossless music (flac, alac, wav) is a less faint blue.
+- Cryptographic files (asc, enc, p12) are bright green.
+- Documents (pdf, doc, dvi) are a fainter green.
 - Compressed files (zip, tgz, Z) are red.
-- Temporary files (tmp, swp, ~) are grey.
+- Temporary files (tmp, swp, ~) are dimmed default foreground color.
 - Compiled files (class, o, pyc) are yellow. A file is also counted as compiled if it uses a common extension and is
 in the same directory as one of its source files: styles.css will count as compiled when next to styles.less or styles.sass, and scripts.js when next to scripts.ts or scripts.coffee.
 - Source files (cpp, js, java) are bright yellow.
@@ -74,7 +74,7 @@ filekinds:
 perms:
   user_read
   user_write
-  user_executable_file
+  user_execute_file
   user_execute_other
   group_read
   group_write
@@ -228,5 +228,5 @@ You must name the file `theme.yml`, no matter the directory you specify.
 
 ## See also
 
-- [eza.1.md](eza.1.md)
-- [eza_colors.5.md](eza_colors.5.md)
+- [**eza**(1)](eza.1.md)
+- [**eza_colors**(5)](eza_colors.5.md)

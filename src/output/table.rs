@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 use std::cmp::max;
 use std::ops::Deref;
 #[cfg(unix)]
@@ -5,8 +11,8 @@ use std::sync::{Mutex, MutexGuard};
 
 use chrono::prelude::*;
 
-use log::*;
-use once_cell::sync::Lazy;
+use log::debug;
+use std::sync::LazyLock;
 #[cfg(unix)]
 use uzers::UsersCache;
 
@@ -61,6 +67,7 @@ pub struct Columns {
 }
 
 impl Columns {
+    #[must_use]
     pub fn collect(&self, actually_enable_git: bool, git_repos: bool) -> Vec<Column> {
         let mut columns = Vec::with_capacity(4);
 
@@ -179,6 +186,7 @@ pub enum Alignment {
 impl Column {
     /// Get the alignment this column should use.
     #[cfg(unix)]
+    #[must_use]
     pub fn alignment(self) -> Alignment {
         #[allow(clippy::wildcard_in_or_patterns)]
         match self {
@@ -199,6 +207,7 @@ impl Column {
 
     /// Get the text that should be printed at the top, when the user elects
     /// to have a header row printed.
+    #[must_use]
     pub fn header(self) -> &'static str {
         match self {
             #[cfg(unix)]
@@ -218,7 +227,7 @@ impl Column {
             #[cfg(unix)]
             Self::Inode => "inode",
             Self::GitStatus => "Git",
-            Self::SubdirGitRepo(_) => "Repo",
+            Self::SubdirGitRepo(_) => "Git Repo",
             #[cfg(unix)]
             Self::Octal => "Octal",
             #[cfg(unix)]
@@ -282,6 +291,7 @@ pub enum TimeType {
 
 impl TimeType {
     /// Returns the text to use for a column’s heading in the columns output.
+    #[must_use]
     pub fn header(self) -> &'static str {
         match self {
             Self::Modified => "Date Modified",
@@ -392,7 +402,7 @@ impl Environment {
     }
 }
 
-static ENVIRONMENT: Lazy<Environment> = Lazy::new(Environment::load_all);
+static ENVIRONMENT: LazyLock<Environment> = LazyLock::new(Environment::load_all);
 
 pub struct Table<'a> {
     columns: Vec<Column>,
@@ -415,6 +425,7 @@ pub struct Row {
 }
 
 impl<'a> Table<'a> {
+    #[must_use]
     pub fn new(
         options: &'a Options,
         git: Option<&'a GitCache>,
@@ -425,7 +436,7 @@ impl<'a> Table<'a> {
         let widths = TableWidths::zero(columns.len());
         let env = &*ENVIRONMENT;
 
-        debug!("Creating table with columns: {:?}", columns);
+        debug!("Creating table with columns: {columns:?}");
 
         Table {
             theme,
@@ -443,10 +454,12 @@ impl<'a> Table<'a> {
         }
     }
 
+    #[must_use]
     pub fn widths(&self) -> &TableWidths {
         &self.widths
     }
 
+    #[must_use]
     pub fn header_row(&self) -> Row {
         let cells = self
             .columns
@@ -491,7 +504,7 @@ impl<'a> Table<'a> {
         Some(f::PermissionsPlus {
             file_type: file.type_char(),
             #[cfg(windows)]
-            attributes: file.attributes(),
+            attributes: file.attributes()?,
             xattrs,
         })
     }
@@ -585,6 +598,7 @@ impl<'a> Table<'a> {
         f::SubdirGitRepo::default()
     }
 
+    #[must_use]
     pub fn render(&self, row: Row) -> TextCell {
         let mut cell = TextCell::default();
 
@@ -622,6 +636,7 @@ impl Deref for TableWidths {
 }
 
 impl TableWidths {
+    #[must_use]
     pub fn zero(count: usize) -> Self {
         Self(vec![0; count])
     }
@@ -632,6 +647,7 @@ impl TableWidths {
         }
     }
 
+    #[must_use]
     pub fn total(&self) -> usize {
         self.0.len() + self.0.iter().sum::<usize>()
     }

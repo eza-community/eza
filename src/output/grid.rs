@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 use std::io::{self, Write};
 
 use term_grid::{Direction, Filling, Grid, GridOptions};
@@ -13,6 +19,7 @@ pub struct Options {
 }
 
 impl Options {
+    #[must_use]
     pub fn direction(self) -> Direction {
         if self.across {
             Direction::LeftToRight
@@ -31,7 +38,7 @@ pub struct Render<'a> {
     pub filter: &'a FileFilter,
 }
 
-impl<'a> Render<'a> {
+impl Render<'_> {
     pub fn render<W: Write>(mut self, w: &mut W) -> io::Result<()> {
         self.filter.sort_files(&mut self.files);
 

@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 #[cfg(unix)]
 mod blocks;
 #[cfg(unix)]
@@ -40,6 +46,7 @@ pub use self::users::Colours as UserColours;
 pub use self::users::Render as UserRender;
 
 mod octal;
+#[cfg(unix)]
 pub use self::octal::Render as OctalPermissionsRender;
 // octal uses just one colour
 

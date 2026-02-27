@@ -1,22 +1,35 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 use crate::theme::ThemeFileType as FileType;
-use crate::theme::*;
+use crate::theme::{
+    FileKinds, FileNameStyle, Git, GitRepo, IconStyle, Links, Permissions, SELinuxContext,
+    SecurityContext, Size, UiStyles, Users,
+};
 use nu_ansi_term::{Color, Style};
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_norway;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-#[derive(Debug, Default, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct ThemeConfig {
     // This is rather bare for now, will be expanded with config file
-    location: ConfigLoc,
+    location: PathBuf,
 }
 
-#[derive(Debug, Default, PartialEq, Eq)]
-pub enum ConfigLoc {
-    #[default]
-    Default, // $XDG_CONFIG_HOME/eza/config|theme.yml
-    Env(PathBuf), // $EZA_CONFIG_DIR
+impl Default for ThemeConfig {
+    fn default() -> Self {
+        ThemeConfig {
+            location: dirs::config_dir()
+                .unwrap_or_default()
+                .join("eza")
+                .join("theme.yml"),
+        }
+    }
 }
 
 trait FromOverride<T>: Sized {
@@ -39,7 +52,7 @@ where
 
 #[rustfmt::skip]
 fn color_from_str(s: &str) -> Option<Color> {
-    use Color::*;
+    use Color::{Black, Blue, Cyan, DarkGray, Default, Fixed, Green, LightBlue, LightCyan, LightGray, LightGreen, LightMagenta, LightPurple, LightRed, LightYellow, Magenta, Purple, Red, Rgb, White, Yellow};
     match s {
         // nothing
         "" | "none"    | "None"         => None,
@@ -78,7 +91,7 @@ fn color_from_str(s: &str) -> Option<Color> {
                 Some(Rgb(r, g, b))
             },
             // #rgb shorthand hex color
-            ['#', r, g, b]              => {
+            ['#', r, g, b] => {
                 let Ok(r) = u8::from_str_radix(&format!("{r}{r}"), 16)
                     else { return None };
                 let Ok(g) = u8::from_str_radix(&format!("{g}{g}"), 16)
@@ -87,9 +100,19 @@ fn color_from_str(s: &str) -> Option<Color> {
                     else { return None };
                 Some(Rgb(r, g, b))
             },
-            // 0-255 color code
+            // 0-255 color code (1-3 digits)
+            [c1] => {
+                let Ok(c) = str::parse::<u8>(&format!("{c1}"))
+                    else { return None };
+                Some(Fixed(c))
+            },
             [c1, c2] => {
                 let Ok(c) = str::parse::<u8>(&format!("{c1}{c2}"))
+                    else { return None };
+                Some(Fixed(c))
+            },
+            [c1, c2, c3] => {
+                let Ok(c) = str::parse::<u8>(&format!("{c1}{c2}{c3}"))
                     else { return None };
                 Some(Fixed(c))
             },
@@ -594,23 +617,15 @@ impl FromOverride<UiStylesOverride> for UiStyles {
     }
 }
 impl ThemeConfig {
-    pub fn from_path(path: &str) -> Self {
-        let path = PathBuf::from(path);
-        ThemeConfig {
-            location: ConfigLoc::Env(path),
-        }
+    #[must_use]
+    pub fn from_path(path: PathBuf) -> Self {
+        ThemeConfig { location: path }
     }
+    #[must_use]
     pub fn to_theme(&self) -> Option<UiStyles> {
-        let ui_styles_override: Option<UiStylesOverride> = match &self.location {
-            ConfigLoc::Default => {
-                let path = dirs::config_dir()?.join("eza").join("theme.yml");
-                let file = std::fs::File::open(path).ok()?;
-                serde_norway::from_reader(&file).ok()
-            }
-            ConfigLoc::Env(path) => {
-                let file = std::fs::File::open(path).ok()?;
-                serde_norway::from_reader(&file).ok()
-            }
+        let ui_styles_override: Option<UiStylesOverride> = {
+            let file = std::fs::File::open(&self.location).ok()?;
+            serde_norway::from_reader(&file).ok()
         };
         FromOverride::from(ui_styles_override, Some(UiStyles::default()))
     }
@@ -622,43 +637,43 @@ mod tests {
 
     #[test]
     fn parse_none_color_from_string() {
-        ["", "none", "None"].iter().for_each(|case| {
+        for case in &["", "none", "None"] {
             assert_eq!(color_from_str(case), None);
-        });
+        }
     }
 
     #[test]
     fn parse_default_color_from_string() {
-        ["default", "Default"].iter().for_each(|case| {
+        for case in &["default", "Default"] {
             assert_eq!(color_from_str(case), Some(Color::Default));
-        });
+        }
     }
 
     #[test]
     fn parse_fixed_color_from_string() {
-        ["black", "Black"].iter().for_each(|case| {
+        for case in &["black", "Black"] {
             assert_eq!(color_from_str(case), Some(Color::Black));
-        });
+        }
     }
 
     #[test]
     fn parse_long_hex_color_from_string() {
-        ["#ff00ff", "#FF00FF"].iter().for_each(|case| {
+        for case in &["#ff00ff", "#FF00FF"] {
             assert_eq!(color_from_str(case), Some(Color::Rgb(255, 0, 255)));
-        });
+        }
     }
 
     #[test]
     fn parse_short_hex_color_from_string() {
-        ["#f0f", "#F0F"].iter().for_each(|case| {
+        for case in &["#f0f", "#F0F"] {
             assert_eq!(color_from_str(case), Some(Color::Rgb(255, 0, 255)));
-        });
+        }
     }
 
     #[test]
     fn parse_color_code_from_string() {
-        [("10", 10), ("01", 1)].iter().for_each(|(s, c)| {
+        for (s, c) in &[("118", 118), ("10", 10), ("01", 1), ("1", 1), ("001", 1)] {
             assert_eq!(color_from_str(s), Some(Color::Fixed(*c)));
-        });
+        }
     }
 }

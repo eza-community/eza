@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 use log::trace;
 use nu_ansi_term::{Color as Colour, Style};
 use palette::{FromColor, LinSrgb, Oklab, Srgb};
@@ -79,6 +85,7 @@ impl ColorScaleInformation {
         }
     }
 
+    #[must_use]
     pub fn adjust_style(&self, mut style: Style, value: f32, range: Option<Extremes>) -> Style {
         if let (Some(fg), Some(range)) = (style.foreground, range) {
             let mut ratio = ((value - range.min) / (range.max - range.min)).clamp(0.0, 1.0);
@@ -160,11 +167,10 @@ fn update_information_recursively(
             && file.name != "."
             && file.name != ".."
         {
-            match file.to_dir() {
+            match file.read_dir() {
                 Ok(dir) => {
                     let files: Vec<File<'_>> = dir
                         .files(dot_filter, git, git_ignoring, false, false)
-                        .flatten()
                         .collect();
 
                     update_information_recursively(
@@ -179,7 +185,7 @@ fn update_information_recursively(
                 }
                 Err(e) => trace!("Unable to access directory {}: {}", file.name, e),
             }
-        };
+        }
     }
 }
 
@@ -197,7 +203,7 @@ impl Extremes {
                     range.max = value;
                 } else if value < range.min {
                     range.min = value;
-                };
+                }
             }
             (Some(value), rel) => {
                 let _ = rel.insert({
@@ -208,7 +214,7 @@ impl Extremes {
                 });
             }
             _ => (),
-        };
+        }
     }
 }
 

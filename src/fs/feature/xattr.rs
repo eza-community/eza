@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2024 Christina Sørensen
+// SPDX-License-Identifier: EUPL-1.2
+//
+// SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
+// SPDX-FileCopyrightText: 2014 Benjamin Sago
+// SPDX-License-Identifier: MIT
 //! Extended attribute support for `NetBSD`, `Darwin`, and `Linux` systems.
 
 #![allow(trivial_casts)] // for ARM
@@ -666,7 +672,7 @@ struct BorrowedWriter<'a> {
     pub buffer: &'a mut Vec<u8>,
 }
 
-impl<'a> io::Write for BorrowedWriter<'a> {
+impl io::Write for BorrowedWriter<'_> {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         self.buffer.write(buf)
     }

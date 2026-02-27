@@ -53,13 +53,23 @@ DISPLAY OPTIONS
 `-1`, `--oneline`
 : Display one entry per line.
 
+`--absolute=WHEN`
+: Display entries with their absolute path.
+
+Valid settings are '`on`', '`follow`', and '`off`'.
+When used without a value, defaults to '`on`'.
+
+'`on`': Show absolute paths for all entries.
+'`follow`': Show absolute paths and resolve symbolic links to their targets.
+'`off`': Show relative paths (default behavior).
+
 `-F`, `--classify=WHEN`
 : Display file kind indicators next to file names.
 
 Valid settings are ‘`always`’, ‘`automatic`’ (or ‘`auto`’ for short), and ‘`never`’.
-The default value is ‘`automatic`’.
+When used without a value, defaults to ‘`automatic`’.
 
-The default behavior (`automatic` or `auto`) will display file kind indicators only when the standard output is connected to a real terminal. If `eza` is ran while in a `tty`, or the output of `eza` is either redirected to a file or piped into another program, file kind indicators will not be used. Setting this option to ‘`always`’ causes `eza` to always display file kind indicators, while ‘`never`’ disables the use of file kind indicators.
+`automatic` or `auto` will display file kind indicators only when the standard output is connected to a real terminal. If `eza` is ran while in a `tty`, or the output of `eza` is either redirected to a file or piped into another program, file kind indicators will not be used. Setting this option to ‘`always`’ causes `eza` to always display file kind indicators, while ‘`never`’ disables the use of file kind indicators.
 
 `-G`, `--grid`
 : Display entries as a grid (default).
@@ -73,6 +83,9 @@ The default behavior (`automatic` or `auto`) will display file kind indicators o
 `-T`, `--tree`
 : Recurse into directories as a tree.
 
+`--follow-symlinks`
+: Drill down into symbolic links that point to directories.
+
 `-X`, `--dereference`
 : Dereference symbolic links when displaying information.
 
@@ -83,7 +96,7 @@ The default behavior (`automatic` or `auto`) will display file kind indicators o
 : When to use terminal colours (using ANSI escape code to colorize the output).
 
 Valid settings are ‘`always`’, ‘`automatic`’ (or ‘`auto`’ for short), and ‘`never`’.
-The default value is ‘`automatic`’.
+When used without a value, defaults to ‘`automatic`’.
 
 The default behavior (‘`automatic`’ or ‘`auto`’) is to colorize the output only when the standard output is connected to a real terminal. If the output of `eza` is redirected to a file or piped into another program, terminal colors will not be used. Setting this option to ‘`always`’ causes `eza` to always output terminal color, while ‘`never`’ disables the use of terminal color.
 
@@ -93,17 +106,17 @@ Manually setting this option overrides `NO_COLOR` environment.
 : highlight levels of `field` distinctly.
 Use comma(,) separated list of all, age, size
 
-`--color-scale-mode`, `--colour-scale-mode`
+`--color-scale-mode=MODE`, `--colour-scale-mode=MODE`
 : Use gradient or fixed colors in `--color-scale`.
 
 Valid options are `fixed` or `gradient`.
-The default value is `gradient`.
+When used without a value, defaults to `gradient`.
 
 `--icons=WHEN`
 : Display icons next to file names.
 
 Valid settings are ‘`always`’, ‘`automatic`’ (‘`auto`’ for short), and ‘`never`’.
-The default value is ‘`automatic`’.
+When used without a value, defaults to ‘`automatic`’.
 
 `automatic` or `auto` will display icons only when the standard output is connected to a real terminal. If `eza` is ran while in a `tty`, or the output of `eza` is either redirected to a file or piped into another program, icons will not be used. Setting this option to ‘`always`’ causes `eza` to always display icons, while ‘`never`’ disables the use of icons.
 
@@ -116,12 +129,6 @@ The default value is ‘`automatic`’.
 `-w`, `--width=COLS`
 : Set screen width in columns.
 
-Valid options are `none`, `absolute` or `relative`.
-The default value is `none`
-
-`absolute` mode highlights based on file modification time relative to the past year.
-`relative` mode highlights based on file modification time in relation to other files. `none` disables highlighting.
-
 FILTERING AND SORTING OPTIONS
 =============================
 
@@ -132,8 +139,14 @@ Use this twice to also show the ‘`.`’ and ‘`..`’ directories.
 `-A`, `--almost-all`
 : Equivalent to --all; included for compatibility with `ls -A`.
 
-`-d`, `--list-dirs`
-: List directories as regular files, rather than recursing and listing their contents.
+`-d`, `--treat-dirs-as-files`
+: This flag, inherited from `ls`, changes how `eza` handles directory arguments.
+
+: Instead of recursing into directories and listing their contents (the default behavior), it treats directories as regular files and lists information about the directory entry itself.
+
+: This is useful when you want to see metadata about the directory (e.g., permissions, size, modification time) rather than its contents.
+
+: For simply listing only directories and not files, consider using the `--only-dirs` (`-D`) option as an alternative.
 
 `-L`, `--level=DEPTH`
 : Limit the depth of recursion.
@@ -158,6 +171,9 @@ Sort fields starting with a capital letter will sort uppercase before lowercase:
 
 `--group-directories-first`
 : List directories before other files.
+
+`--group-directories-last`
+: List directories after other files.
 
 `-D`, `--only-dirs`
 : List only directories, not files.
@@ -340,7 +356,7 @@ Specifies the minimum luminance to use when color-scale is active. It's value ca
 
 If set, automates the same behavior as using `--icons` or `--icons=auto`. Useful for if you always want to have icons enabled.
 
-Any explicit use of the `--icons=WHEN` flag overrides this behavior. 
+Any explicit use of the `--icons=WHEN` flag overrides this behavior.
 
 ## `EZA_STDIN_SEPARATOR`
 
@@ -362,6 +378,9 @@ EXIT STATUSES
 3
 : If there was a problem with the command-line arguments.
 
+13
+: If permission is denied to access a path.
+
 
 AUTHOR
 ======
@@ -376,5 +395,5 @@ Our infinite thanks to Benjamin ‘ogham’ Sago and all the other contributors 
 SEE ALSO
 ========
 
-- [eza_colors.5.md](eza_colors.5.md)
-- [eza_colors-explanation.5.md](eza_colors-explanation.5.md)
+- [**eza_colors**(5)](eza_colors.5.md)
+- [**eza_colors-explanation**(5)](eza_colors-explanation.5.md)
