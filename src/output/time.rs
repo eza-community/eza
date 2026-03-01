@@ -193,7 +193,7 @@ impl TimezoneHandler {
                     return String::new();
                 }
 
-                let idx = if tm.tm_isdst > 0 { 1 } else { 0 };
+                let idx = usize::from(tm.tm_isdst > 0);
                 let ptr = tzname[idx];
                 if ptr.is_null() {
                     return String::new();
