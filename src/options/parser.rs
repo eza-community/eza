@@ -132,6 +132,7 @@ pub fn get_command() -> clap::Command {
         .arg(arg!(-u --accessed "show the accessed timestamp field (replace default field, combinable)"))
         .arg(arg!(--changed "show the changed timestamp field (replace default field, combinable)"))
         .arg(arg!(-U --created "show the created timestamp field (replace default field, combinable)"))
+        .arg(arg!(--utc "show the time in the UTC timezone"))
         .arg(arg!(--"time-style" <STYLE>)
             .help(format!("how to format timestamps {FORMAT_STYLE_FIELDS_HELP}"))
             .value_parser(TimeFormatParser)

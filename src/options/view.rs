@@ -240,6 +240,7 @@ impl TableOptions {
         let user_format = UserFormat::deduce(matches);
         let group_format = GroupFormat::deduce(matches);
         let columns = Columns::deduce(matches, vars)?;
+        let use_utc = matches.get_flag("utc");
         Ok(Self {
             size_format,
             time_format,
@@ -247,6 +248,7 @@ impl TableOptions {
             group_format,
             flags_format,
             columns,
+            use_utc,
         })
     }
 }
