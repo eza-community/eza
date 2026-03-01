@@ -63,16 +63,16 @@ pub enum TimeFormat {
 
 impl TimeFormat {
     #[must_use]
-    pub fn format(self, time: &DateTime<FixedOffset>) -> String {
+    pub fn format(self, time: &DateTime<FixedOffset>, use_utc: bool) -> String {
         #[rustfmt::skip]
         return match self {
             Self::DefaultFormat                 => default(time),
             Self::ISOFormat                     => iso(time),
             Self::LongISO                       => long(time),
-            Self::FullISO                       => full(time),
+            Self::FullISO                       => full(time, use_utc),
             Self::Relative                      => relative(time),
             Self::Custom { non_recent, recent } => custom(
-                time, non_recent.as_str(), recent.as_deref()
+                time, non_recent.as_str(), recent.as_deref(), use_utc
             ),
         };
     }
@@ -125,21 +125,91 @@ fn relative(time: &DateTime<FixedOffset>) -> String {
         ))
 }
 
-fn full(time: &DateTime<FixedOffset>) -> String {
-    time.format("%Y-%m-%d %H:%M:%S.%f %z").to_string()
+fn full(time: &DateTime<FixedOffset>, use_utc: bool) -> String {
+    format_with_tz(time, "%Y-%m-%d %H:%M:%S.%f %z", use_utc)
 }
 
-fn custom(time: &DateTime<FixedOffset>, non_recent_fmt: &str, recent_fmt: Option<&str>) -> String {
-    if let Some(recent_fmt) = recent_fmt {
+fn custom(
+    time: &DateTime<FixedOffset>,
+    non_recent_fmt: &str,
+    recent_fmt: Option<&str>,
+    use_utc: bool,
+) -> String {
+    let format = if let Some(recent_fmt) = recent_fmt {
         if time.year() == *CURRENT_YEAR {
-            time.format(recent_fmt).to_string()
+            recent_fmt
         } else {
-            time.format(non_recent_fmt).to_string()
+            non_recent_fmt
         }
     } else {
-        time.format(non_recent_fmt).to_string()
+        non_recent_fmt
+    };
+
+    format_with_tz(time, format, use_utc)
+}
+
+fn format_with_tz(time: &DateTime<FixedOffset>, format: &str, use_utc: bool) -> String {
+    if !format.contains("%Z") {
+        return time.format(format).to_string();
+    }
+
+    let tz_name = if use_utc {
+        String::from("UTC")
+    } else {
+        TZ_HANDLER.get_abbreviation(time.timestamp())
+    };
+    let mut result = String::new();
+    let mut last_end = 0;
+    for (start, part) in format.match_indices("%Z") {
+        result.push_str(&time.format(&format[last_end..start]).to_string());
+        result.push_str(&tz_name);
+        last_end = start + part.len();
+    }
+    result.push_str(&time.format(&format[last_end..]).to_string());
+    result
+}
+
+struct TimezoneHandler;
+
+impl TimezoneHandler {
+    fn get_abbreviation(&self, timestamp: i64) -> String {
+        #[cfg(unix)]
+        {
+            unsafe {
+                extern "C" {
+                    fn tzset();
+                    fn localtime_r(
+                        timep: *const libc::time_t,
+                        result: *mut libc::tm,
+                    ) -> *mut libc::tm;
+                    static tzname: [*const libc::c_char; 2];
+                }
+
+                tzset();
+                let mut tm: libc::tm = std::mem::zeroed();
+                #[allow(trivial_numeric_casts)]
+                let t = timestamp as libc::time_t;
+                if localtime_r(&t, &mut tm).is_null() {
+                    return String::new();
+                }
+
+                let idx = usize::from(tm.tm_isdst > 0);
+                let ptr = tzname[idx];
+                if ptr.is_null() {
+                    return String::new();
+                }
+
+                std::ffi::CStr::from_ptr(ptr).to_string_lossy().into_owned()
+            }
+        }
+        #[cfg(not(unix))]
+        {
+            String::new()
+        }
     }
 }
+
+static TZ_HANDLER: LazyLock<TimezoneHandler> = LazyLock::new(|| TimezoneHandler);
 
 static CURRENT_YEAR: LazyLock<i32> = LazyLock::new(|| Local::now().year());
 
