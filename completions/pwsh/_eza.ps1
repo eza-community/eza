@@ -10,7 +10,7 @@ Register-ArgumentCompleter -Native -CommandName 'eza' -ScriptBlock {
     $ArrayColorScale     = @('all', 'age', 'size')
     $ArrayAbsolute       = @('on', 'follow', 'off')
     $ArrayTime           = @('modified', 'accessed', 'created')
-    $ArrayTimeStyle      = @('default', 'iso', 'long-iso', 'full-iso', 'relative', '+%Y-%m-%d %H:%M', '+%Y.%m.%d %H:$M:$s')
+    $ArrayTimeStyle      = @('default', 'iso', 'long-iso', 'full-iso', 'relative', 'relative-recent', '+%Y-%m-%d %H:%M', '+%Y.%m.%d %H:$M:$s')
 
     $commandElements = $commandAst.CommandElements
     $command = @(
@@ -33,47 +33,47 @@ Register-ArgumentCompleter -Native -CommandName 'eza' -ScriptBlock {
             break
         }
         '*;--absolute' {
-            $ArrayAbsolute | 
+            $ArrayAbsolute |
             ForEach-Object {[System.Management.Automation.CompletionResult]::new($_, $_, "ParameterValue", $_)}
             break
         }
         '*;--sort' {
-            $ArraySort | 
+            $ArraySort |
             ForEach-Object {[System.Management.Automation.CompletionResult]::new($_, $_, "ParameterValue", $_)}
             break
         }
         '*;--color-scale' {
-            $ArrayColorScale | 
+            $ArrayColorScale |
             ForEach-Object {[System.Management.Automation.CompletionResult]::new($_, $_, "ParameterValue", $_)}
             break
         }
         '*;--color-scale-mode' {
-            $ArrayColorScaleMode | 
+            $ArrayColorScaleMode |
             ForEach-Object {[System.Management.Automation.CompletionResult]::new($_, $_, "ParameterValue", $_)}
             break
         }
         '*--long;*--time-style' {
-            $ArrayTimeStyle | 
+            $ArrayTimeStyle |
             ForEach-Object {[System.Management.Automation.CompletionResult]::new($_, $_, "ParameterValue", $_)}
             break
         }
         '*--long;*--time' {
-            $ArrayTime | 
+            $ArrayTime |
             ForEach-Object {[System.Management.Automation.CompletionResult]::new($_, $_, "ParameterValue", $_)}
             break
         }
         '*;--classify' {
-            $ArrayWhen | 
+            $ArrayWhen |
             ForEach-Object {[System.Management.Automation.CompletionResult]::new($_, $_, "ParameterValue", $_)}
             break
         }
         '*;--color' {
-            $ArrayWhen | 
+            $ArrayWhen |
             ForEach-Object {[System.Management.Automation.CompletionResult]::new($_, $_, "ParameterValue", $_)}
             break
         }
         '*;--icons' {
-            $ArrayWhen | 
+            $ArrayWhen |
             ForEach-Object {[System.Management.Automation.CompletionResult]::new($_, $_, "ParameterValue", $_)}
             break
         }
@@ -86,37 +86,37 @@ Register-ArgumentCompleter -Native -CommandName 'eza' -ScriptBlock {
         #   [CompletionResult]::new('-b'                         ,'binary'              , [CompletionResultType]::ParameterName, 'list file sizes with binary prefixes')
             [CompletionResult]::new('--binary'                   ,'binary'              , [CompletionResultType]::ParameterName, 'list file sizes with binary prefixes')
         #   [CompletionResult]::new('-B'                         ,'bytes'               , [CompletionResultType]::ParameterName, 'list file sizes in bytes, without any prefixes')
-            [CompletionResult]::new('--bytes'                    ,'bytes'               , [CompletionResultType]::ParameterName, 'list file sizes in bytes, without any prefixes') 
+            [CompletionResult]::new('--bytes'                    ,'bytes'               , [CompletionResultType]::ParameterName, 'list file sizes in bytes, without any prefixes')
         #   [CompletionResult]::new('-g'                         ,'group'               , [CompletionResultType]::ParameterName, 'list each file''s group')
-            [CompletionResult]::new('--smart-group'              ,'smart-group'         , [CompletionResultType]::ParameterName, 'only show group if it has a different name from owner') 
+            [CompletionResult]::new('--smart-group'              ,'smart-group'         , [CompletionResultType]::ParameterName, 'only show group if it has a different name from owner')
             [CompletionResult]::new('--group'                    ,'group'               , [CompletionResultType]::ParameterName, 'list each file''s group')
         #   [CompletionResult]::new('-h'                         ,'header'              , [CompletionResultType]::ParameterName, 'add a header row to each column')
-            [CompletionResult]::new('--header'                   ,'header'              , [CompletionResultType]::ParameterName, 'add a header row to each column') 
+            [CompletionResult]::new('--header'                   ,'header'              , [CompletionResultType]::ParameterName, 'add a header row to each column')
         #   [CompletionResult]::new('-H'                         ,'links'               , [CompletionResultType]::ParameterName, 'list each file''s number of hard links')
-            [CompletionResult]::new('--links'                    ,'links'               , [CompletionResultType]::ParameterName, 'list each file''s number of hard links') 
+            [CompletionResult]::new('--links'                    ,'links'               , [CompletionResultType]::ParameterName, 'list each file''s number of hard links')
         #   [CompletionResult]::new('-i'                         ,'inode'               , [CompletionResultType]::ParameterName, 'list each file''s inode number')
-            [CompletionResult]::new('--inode'                    ,'inode'               , [CompletionResultType]::ParameterName, 'list each file''s inode number') 
+            [CompletionResult]::new('--inode'                    ,'inode'               , [CompletionResultType]::ParameterName, 'list each file''s inode number')
         #   [CompletionResult]::new('-M'                         ,'mounts'              , [CompletionResultType]::ParameterName, 'show mount details (Linux and Mac only)')
-        #   [CompletionResult]::new('--mounts'                   ,'mounts'              , [CompletionResultType]::ParameterName, 'show mount details (Linux and Mac only)') 
+        #   [CompletionResult]::new('--mounts'                   ,'mounts'              , [CompletionResultType]::ParameterName, 'show mount details (Linux and Mac only)')
         #   [CompletionResult]::new('-n'                         ,'numeric'             , [CompletionResultType]::ParameterName, 'list numeric user and group IDs')
-            [CompletionResult]::new('--numeric'                  ,'numeric'             , [CompletionResultType]::ParameterName, 'list numeric user and group IDs') 
+            [CompletionResult]::new('--numeric'                  ,'numeric'             , [CompletionResultType]::ParameterName, 'list numeric user and group IDs')
         #   [CompletionResult]::new('-O'                         ,'flags'               , [CompletionResultType]::ParameterName, 'list file flags (Mac, BSD, and Windows only)')
-            [CompletionResult]::new('--flags'                    ,'flags'               , [CompletionResultType]::ParameterName, 'list file flags (Mac, BSD, and Windows only)') 
+            [CompletionResult]::new('--flags'                    ,'flags'               , [CompletionResultType]::ParameterName, 'list file flags (Mac, BSD, and Windows only)')
         #   [CompletionResult]::new('-S'                         ,'blocksize'           , [CompletionResultType]::ParameterName, 'show size of allocated file system blocks')
-            [CompletionResult]::new('--blocksize'                ,'blocksize'           , [CompletionResultType]::ParameterName, 'show size of allocated file system blocks') 
+            [CompletionResult]::new('--blocksize'                ,'blocksize'           , [CompletionResultType]::ParameterName, 'show size of allocated file system blocks')
         #   [CompletionResult]::new('-t'                         ,'time'                , [CompletionResultType]::ParameterName, 'which timestamp field to list (modified, accessed, created)')
-            [CompletionResult]::new('--time'                     ,'time'                , [CompletionResultType]::ParameterName, 'which timestamp field to list (modified, accessed, created)') 
+            [CompletionResult]::new('--time'                     ,'time'                , [CompletionResultType]::ParameterName, 'which timestamp field to list (modified, accessed, created)')
         #   [CompletionResult]::new('-m'                         ,'modified'            , [CompletionResultType]::ParameterName, 'use the modified timestamp field')
-            [CompletionResult]::new('--modified'                 ,'modified'            , [CompletionResultType]::ParameterName, 'use the modified timestamp field') 
+            [CompletionResult]::new('--modified'                 ,'modified'            , [CompletionResultType]::ParameterName, 'use the modified timestamp field')
         #   [CompletionResult]::new('-u'                         ,'accessed'            , [CompletionResultType]::ParameterName, 'use the accessed timestamp field')
-            [CompletionResult]::new('--accessed'                 ,'accessed'            , [CompletionResultType]::ParameterName, 'use the accessed timestamp field') 
+            [CompletionResult]::new('--accessed'                 ,'accessed'            , [CompletionResultType]::ParameterName, 'use the accessed timestamp field')
         #   [CompletionResult]::new('-U'                         ,'created'             , [CompletionResultType]::ParameterName, 'use the created timestamp field')
-            [CompletionResult]::new('--changed'                  ,'changed'             , [CompletionResultType]::ParameterName, 'use the changed timestamp field') 
+            [CompletionResult]::new('--changed'                  ,'changed'             , [CompletionResultType]::ParameterName, 'use the changed timestamp field')
             [CompletionResult]::new('--created'                  ,'created'             , [CompletionResultType]::ParameterName, 'use the created timestamp field')
-            [CompletionResult]::new('--time-style'               ,'time-style'          , [CompletionResultType]::ParameterName, 'how to format timestamps (default, iso, long-iso,full-iso, relative, or a custom style ''+<FORMAT>'' like ''+%Y-%m-%d %H:%M'')')
+            [CompletionResult]::new('--time-style'               ,'time-style'          , [CompletionResultType]::ParameterName, 'how to format timestamps (default, iso, long-iso, full-iso, relative, relative-recent, or a custom style ''+<FORMAT>'' like ''+%Y-%m-%d %H:%M'')')
         #   [CompletionResult]::new('--total-size'               ,'total-size'          , [CompletionResultType]::ParameterName, 'show the size of a directory as the size of all files and directories inside (unix only)')
         #   [CompletionResult]::new('-o'                         ,'octal-permissions'   , [CompletionResultType]::ParameterName, 'list each file''s permission in octal format')
-            [CompletionResult]::new('--no-permissions'           ,'no-permissions'      , [CompletionResultType]::ParameterName, 'suppress the permissions field') 
+            [CompletionResult]::new('--no-permissions'           ,'no-permissions'      , [CompletionResultType]::ParameterName, 'suppress the permissions field')
             [CompletionResult]::new('--octal-permissions'        ,'octal-permissions'   , [CompletionResultType]::ParameterName, 'list each file''s permission in octal format')
             [CompletionResult]::new('--no-filesize'              ,'no-filesize'         , [CompletionResultType]::ParameterName, 'suppress the filesize field')
             [CompletionResult]::new('--no-user'                  ,'no-user'             , [CompletionResultType]::ParameterName, 'suppress the user field')
@@ -152,7 +152,7 @@ Register-ArgumentCompleter -Native -CommandName 'eza' -ScriptBlock {
             [CompletionResult]::new('--classify'                 ,'classify'            , [CompletionResultType]::ParameterName, 'display type indicator by file names (always, auto, never)')
             [CompletionResult]::new('--color'                    ,'color'               , [CompletionResultType]::ParameterName, 'when to use terminal colours (always, auto, never)')
         #   [CompletionResult]::new('--colour'                   ,'color'               , [CompletionResultType]::ParameterName, 'when to use terminal colours (always, auto, never)')
-            [CompletionResult]::new('--color-scale'              ,'colorscale'          , [CompletionResultType]::ParameterName, 'highlight levels of ''field'' distinctly(all, age, size)')
+            [CompletionResult]::new('--color-scale'              ,'colorscale'          , [CompletionResultType]::ParameterName, 'highlight levels of ''field'' distinctly (all, age, size)')
         #   [CompletionResult]::new('--colour-scale'             ,'colorscale'          , [CompletionResultType]::ParameterName, 'highlight levels of ''field'' distinctly(all, age, size)')
             [CompletionResult]::new('--color-scale-mode'         ,'colorscalemode'      , [CompletionResultType]::ParameterName, 'use gradient or fixed colors in --color-scale (fixed, gradient)')
         #   [CompletionResult]::new('--colour-scale-mode'        ,'colorscalemode'      , [CompletionResultType]::ParameterName, 'use gradient or fixed colors in --color-scale (fixed, gradient)')
@@ -186,7 +186,7 @@ Register-ArgumentCompleter -Native -CommandName 'eza' -ScriptBlock {
             [CompletionResult]::new('--git-ignore'               ,'git-ignore'          , [CompletionResultType]::ParameterName, 'ignore files mentioned in ''.gitignore''')
             break
         }
-        
+
     })
         $completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
         Sort-Object -Property completionText

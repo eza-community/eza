@@ -52,6 +52,10 @@ pub enum TimeFormat {
     /// Use a relative but fixed width representation.
     Relative,
 
+    /// Use a relative but fixed width representation for recent timestamps,
+    /// and use the default representation for all others.
+    RelativeRecent { recent_window_days: Option<u32> },
+
     /// Use custom formats, optionally a different custom format can be
     /// specified for recent times, otherwise the same custom format will be
     /// used for both recent and non-recent times.
@@ -66,12 +70,13 @@ impl TimeFormat {
     pub fn format(self, time: &DateTime<FixedOffset>) -> String {
         #[rustfmt::skip]
         return match self {
-            Self::DefaultFormat                 => default(time),
-            Self::ISOFormat                     => iso(time),
-            Self::LongISO                       => long(time),
-            Self::FullISO                       => full(time),
-            Self::Relative                      => relative(time),
-            Self::Custom { non_recent, recent } => custom(
+            Self::DefaultFormat                         => default(time),
+            Self::ISOFormat                             => iso(time),
+            Self::LongISO                               => long(time),
+            Self::FullISO                               => full(time),
+            Self::Relative                              => relative(time),
+            Self::RelativeRecent { recent_window_days } => relative_recent(time, recent_window_days),
+            Self::Custom { non_recent, recent }         => custom(
                 time, non_recent.as_str(), recent.as_deref()
             ),
         };
@@ -123,6 +128,18 @@ fn relative(time: &DateTime<FixedOffset>) -> String {
                 .try_into()
                 .unwrap(),
         ))
+}
+
+const DEFAULT_RECENT_WINDOW_DAYS: u32 = 7;
+fn relative_recent(time: &DateTime<FixedOffset>, recent_window_days: Option<u32>) -> String {
+    let window = i64::from(recent_window_days.unwrap_or(DEFAULT_RECENT_WINDOW_DAYS)) * 24 * 60 * 60;
+    let delta = Local::now().timestamp() - time.timestamp();
+
+    if delta.is_positive() && delta < window {
+        relative(time)
+    } else {
+        default(time)
+    }
 }
 
 fn full(time: &DateTime<FixedOffset>) -> String {
