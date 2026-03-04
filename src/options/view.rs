@@ -573,6 +573,17 @@ mod tests {
     }
 
     #[test]
+    fn deduce_time_types_no_word() {
+        assert_eq!(
+            TimeTypes::deduce(&mock_cli(vec!["-t"])),
+            Ok(TimeTypes {
+                modified: true,
+                ..TimeTypes::default()
+            })
+        );
+    }
+
+    #[test]
     fn deduce_time_types_modified_word() {
         assert_eq!(
             TimeTypes::deduce(&mock_cli(vec!["--time", "modified"])),
