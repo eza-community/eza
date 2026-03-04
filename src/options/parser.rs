@@ -14,9 +14,8 @@ use crate::{
 };
 
 const SORT_FIELDS_HELP: &str = "[default: name] [possible values:
-  name, Name, .name, .Name, ext, ext, created,
-  date, age, accessed, changed,
-  size, inode, type, none]";
+  name, Name, .name, .Name, ext, ext, created, date, age,
+  accessed, changed, size, inode, type, none]";
 
 const TIME_FIELDS_HELP: &str = "[default: modified] [possible values:
   mod|modified, acc|accessed, ch|changed, cr|created]";
