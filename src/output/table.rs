@@ -17,9 +17,9 @@ use std::sync::LazyLock;
 use uzers::UsersCache;
 
 use crate::fs::feature::git::GitCache;
-use crate::fs::{fields as f, File};
-use crate::options::vars::EZA_WINDOWS_ATTRIBUTES;
+use crate::fs::{File, fields as f};
 use crate::options::Vars;
+use crate::options::vars::EZA_WINDOWS_ATTRIBUTES;
 use crate::output::cell::TextCell;
 use crate::output::color_scale::ColorScaleInformation;
 #[cfg(unix)]

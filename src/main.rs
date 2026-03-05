@@ -11,7 +11,7 @@
 
 use std::env;
 use std::ffi::{OsStr, OsString};
-use std::io::{self, stdin, ErrorKind, IsTerminal, Read, Write};
+use std::io::{self, ErrorKind, IsTerminal, Read, Write, stdin};
 use std::path::{Component, PathBuf};
 use std::process::exit;
 
@@ -22,8 +22,8 @@ use crate::fs::feature::git::GitCache;
 use crate::fs::filter::{FileFilterFlags::OnlyFiles, GitIgnore};
 use crate::fs::{Dir, File};
 use crate::options::stdin::FilesInput;
-use crate::options::{vars, Options, Vars};
-use crate::output::{details, escape, file_name, grid, grid_details, lines, Mode, View};
+use crate::options::{Options, Vars, vars};
+use crate::output::{Mode, View, details, escape, file_name, grid, grid_details, lines};
 use crate::theme::Theme;
 use log::*;
 
@@ -406,7 +406,7 @@ impl Exa<'_> {
         } = self.options.view;
 
         match (mode, self.console_width) {
-            (Mode::Grid(ref opts), Some(console_width)) => {
+            (Mode::Grid(opts), Some(console_width)) => {
                 let filter = &self.options.filter;
                 let r = grid::Render {
                     files,
@@ -419,7 +419,7 @@ impl Exa<'_> {
                 r.render(&mut self.writer)
             }
 
-            (Mode::Grid(ref opts), None) => {
+            (Mode::Grid(opts), None) => {
                 let filter = &self.options.filter;
                 let r = grid::Render {
                     files,
@@ -443,7 +443,7 @@ impl Exa<'_> {
                 r.render(&mut self.writer)
             }
 
-            (Mode::Details(ref opts), _) => {
+            (Mode::Details(opts), _) => {
                 let filter = &self.options.filter;
                 let recurse = self.options.dir_action.recurse_options();
 
@@ -465,7 +465,7 @@ impl Exa<'_> {
                 r.render(&mut self.writer)
             }
 
-            (Mode::GridDetails(ref opts), Some(console_width)) => {
+            (Mode::GridDetails(opts), Some(console_width)) => {
                 let details = &opts.details;
                 let row_threshold = opts.row_threshold;
 
@@ -490,7 +490,7 @@ impl Exa<'_> {
                 r.render(&mut self.writer)
             }
 
-            (Mode::GridDetails(ref opts), None) => {
+            (Mode::GridDetails(opts), None) => {
                 let opts = &opts.to_details_options();
                 let filter = &self.options.filter;
                 let recurse = self.options.dir_action.recurse_options();

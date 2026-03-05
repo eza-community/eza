@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: MIT
 use super::file_name::QuoteStyle;
 use nu_ansi_term::{AnsiString as ANSIString, Style};
-use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
+use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 
 pub fn escape(
     string: String,

@@ -8,10 +8,10 @@
 
 use clap::ArgMatches;
 
+use crate::fs::DotFilter;
 use crate::fs::filter::{
     FileFilter, FileFilterFlags, GitIgnore, IgnorePatterns, SortCase, SortField,
 };
-use crate::fs::DotFilter;
 
 use crate::options::OptionsError;
 

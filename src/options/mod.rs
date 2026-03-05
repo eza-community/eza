@@ -79,7 +79,7 @@ use clap::ArgMatches;
 use crate::fs::dir_action::DirAction;
 use crate::fs::filter::{FileFilter, GitIgnore};
 use crate::options::stdin::FilesInput;
-use crate::output::{details, grid_details, Mode, View};
+use crate::output::{Mode, View, details, grid_details};
 use crate::theme::Options as ThemeOptions;
 
 mod dir_action;

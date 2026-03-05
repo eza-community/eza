@@ -35,8 +35,8 @@ use crate::fs::fields as f;
 use crate::fs::fields::SecurityContextType;
 use crate::fs::recursive_size::RecursiveSize;
 
-use super::mounts::all_mounts;
 use super::mounts::MountedFs;
+use super::mounts::all_mounts;
 
 // Maps (device_id, inode) => (size_in_bytes, size_in_blocks)
 // Mutex::new is const but HashMap::new is not const requiring us to use lazy
