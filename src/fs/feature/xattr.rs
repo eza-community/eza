@@ -71,7 +71,7 @@ impl FileAttributes for Path {
 ))]
 mod extended_attrs {
     use super::Attribute;
-    use libc::{c_char, c_void, size_t, ssize_t, ERANGE};
+    use libc::{ERANGE, c_char, c_void, size_t, ssize_t};
     use std::ffi::{CStr, CString, OsStr, OsString};
     use std::io;
     use std::os::unix::ffi::OsStrExt;
@@ -81,8 +81,8 @@ mod extended_attrs {
     #[cfg(target_os = "macos")]
     mod os {
         use libc::{
-            c_char, c_int, c_void, getxattr, listxattr, size_t, ssize_t, XATTR_NOFOLLOW,
-            XATTR_SHOWCOMPRESSION,
+            XATTR_NOFOLLOW, XATTR_SHOWCOMPRESSION, c_char, c_int, c_void, getxattr, listxattr,
+            size_t, ssize_t,
         };
 
         // Options to use for MacOS versions of getxattr and listxattr
@@ -161,8 +161,9 @@ mod extended_attrs {
     #[cfg(any(target_os = "netbsd", target_os = "freebsd"))]
     mod os {
         use libc::{
-            c_char, c_int, c_void, extattr_get_file, extattr_get_link, extattr_list_file,
-            extattr_list_link, size_t, ssize_t, EXTATTR_NAMESPACE_SYSTEM, EXTATTR_NAMESPACE_USER,
+            EXTATTR_NAMESPACE_SYSTEM, EXTATTR_NAMESPACE_USER, c_char, c_int, c_void,
+            extattr_get_file, extattr_get_link, extattr_list_file, extattr_list_link, size_t,
+            ssize_t,
         };
 
         // Wrapper around listxattr that handles symbolic links

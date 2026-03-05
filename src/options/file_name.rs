@@ -109,8 +109,8 @@ mod tests {
     use std::num::ParseIntError;
 
     use super::*;
-    use crate::options::parser::test::mock_cli;
     use crate::options::parser::ShowWhen;
+    use crate::options::parser::test::mock_cli;
     use crate::options::vars::test::MockVars;
     use crate::output::file_name::Absolute;
 

@@ -8,8 +8,8 @@ use std::io::{self, Write};
 
 use nu_ansi_term::AnsiStrings as ANSIStrings;
 
-use crate::fs::filter::FileFilter;
 use crate::fs::File;
+use crate::fs::filter::FileFilter;
 use crate::output::cell::TextCellContents;
 use crate::output::file_name::Options as FileStyle;
 use crate::theme::Theme;

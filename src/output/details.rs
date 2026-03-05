@@ -295,22 +295,22 @@ impl<'a> Render<'a> {
 
                 let mut dir = None;
                 let follow_links = self.opts.follow_links;
-                if let Some(r) = self.recurse {
-                    if (if follow_links {
+                if let Some(r) = self.recurse
+                    && (if follow_links {
                         file.points_to_directory()
                     } else {
                         file.is_directory()
-                    }) && r.tree
-                        && !r.is_too_deep(depth.0)
-                    {
-                        trace!("matching on read_dir");
-                        match file.read_dir() {
-                            Ok(d) => {
-                                dir = Some(d);
-                            }
-                            Err(e) => {
-                                errors.push((e, None));
-                            }
+                    })
+                    && r.tree
+                    && !r.is_too_deep(depth.0)
+                {
+                    trace!("matching on read_dir");
+                    match file.read_dir() {
+                        Ok(d) => {
+                            dir = Some(d);
+                        }
+                        Err(e) => {
+                            errors.push((e, None));
                         }
                     }
                 }

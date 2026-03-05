@@ -57,10 +57,10 @@ where
     match iter.peek() {
         Some(&"5") => {
             let _ = iter.next();
-            if let Some(byte) = iter.next() {
-                if let Ok(num) = byte.parse() {
-                    return Some(Fixed(num));
-                }
+            if let Some(byte) = iter.next()
+                && let Ok(num) = byte.parse()
+            {
+                return Some(Fixed(num));
             }
         }
 

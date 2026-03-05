@@ -8,8 +8,8 @@ use std::io::{self, Write};
 
 use term_grid::{Direction, Filling, Grid, GridOptions};
 
-use crate::fs::filter::FileFilter;
 use crate::fs::File;
+use crate::fs::filter::FileFilter;
 use crate::output::file_name::Options as FileStyle;
 use crate::theme::Theme;
 

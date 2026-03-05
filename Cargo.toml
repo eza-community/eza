@@ -5,7 +5,7 @@ name = "eza"
 description = "A modern replacement for ls"
 authors = ["Christina Sørensen <christina@cafkafk.com>"]
 categories = ["command-line-utilities"]
-edition = "2021"
+edition = "2024"
 rust-version = "1.90"
 exclude = [
   "/docs/",

@@ -5,7 +5,7 @@
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
 use crate::fs::mounts::{Error, MountedFs};
-use libc::{__error, getfsstat, statfs, MNT_NOWAIT};
+use libc::{__error, MNT_NOWAIT, getfsstat, statfs};
 use std::ffi::{CStr, OsStr};
 use std::os::raw::{c_char, c_int};
 use std::os::unix::ffi::OsStrExt;
