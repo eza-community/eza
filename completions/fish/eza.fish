@@ -45,6 +45,7 @@ complete -c eza -l absolute -d "Display entries with their absolute path" -x -a 
   off\t'Do not show the absolute path'
 "
 complete -c eza -l smart-group -d "Only show group if it has a different name from owner"
+complete -c eza -l summary -d "Show summary of files, directories, and symlinks"
 
 # Filtering and sorting options
 complete -c eza -l group-directories-first -d "Sort directories before other files"
