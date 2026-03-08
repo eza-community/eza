@@ -114,27 +114,27 @@ commands:
   : short: -s
     long: time-style
     prefix: -l
-    values:
-      #- accessed
-      - age
-      #- changed
-      #- created
-      - date
+    values: # non-deterministic results with our setup (tests/test_dir) are commented out 
+      # - accessed
+      # - age
+      # - changed
+      # - created
+      # - date
       - Ext
       - ext
       - Extension
       - extension
       - Filename
       - filename
-      - inode
-      - modified
+      # - inode
+      # - modified
       - Name
       - name
-      - newest
-      #- none seems non-deterministic
-      - oldest
-      - size
-      - time
+      # - newest
+      # - none
+      # - oldest
+      # - size
+      # - time
       - type
   ? - null
     - --group-directories-first

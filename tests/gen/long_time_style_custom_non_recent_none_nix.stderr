@@ -1,0 +1,6 @@
+error: invalid value '+' for '--time-style <STYLE>'
+  [possible values: default, iso, long-iso, full-iso, relative, +<CUSTOM_FORMAT>]
+
+Custom timestamp format is empty, please supply a chrono format string after the +.
+
+For more information, try '--help'.
