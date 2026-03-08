@@ -15,12 +15,12 @@ genDemo:
 # building #
 #----------#
 
-# compile the exa binary
+# compile the eza binary
 [group('building')]
 @build:
     cargo build
 
-# compile the exa binary (in release mode)
+# compile the eza binary (in release mode)
 [group('building')]
 @build-release:
     cargo build --release --verbose
@@ -31,7 +31,7 @@ genDemo:
     cargo +nightly clean
     cargo +nightly build -Z timings
 
-# check that the exa binary can compile
+# check that the eza binary can compile
 [group('building')]
 @check:
     cargo check
