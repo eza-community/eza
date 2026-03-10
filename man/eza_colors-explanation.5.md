@@ -13,10 +13,8 @@ eza_colors-explanation — more details on customizing eza colors
 eza provides its own built\-in set of file extension mappings that cover a large range of common file extensions, including documents, archives, media, and temporary files. 
 Any mappings in the environment variables will override this default set: running eza with `LS_COLORS="*.zip=32"` will turn zip files green but leave the colours of other compressed files alone.
 
-You can also disable this built\-in set entirely by including a
-`reset` entry at the beginning of `EZA_COLORS`.
-So setting `EZA_COLORS="reset:*.txt=31"` will highlight only text
-files; setting `EZA_COLORS="reset"` will highlight nothing.
+You can also disable eza's built\-in mappings entirely by including a `reset` entry at the beginning of `EZA_COLORS`.
+So setting `EZA_COLORS="reset:*.txt=31"` will highlight only text files in addition to any styles in `LS_COLORS`; setting `EZA_COLORS="reset"` disables eza's built\-ins completely.
 
 ## Examples
 
