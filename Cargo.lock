@@ -462,6 +462,7 @@ dependencies = [
  "plist",
  "proc-mounts",
  "rayon",
+ "same-file",
  "serde",
  "serde_norway",
  "terminal_size",
