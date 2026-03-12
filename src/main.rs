@@ -12,7 +12,7 @@
 use std::env;
 use std::ffi::{OsStr, OsString};
 use std::io::{self, ErrorKind, IsTerminal, Read, Write, stdin};
-use std::path::{Component, PathBuf};
+use std::path::PathBuf;
 use std::process::exit;
 
 use nu_ansi_term::{AnsiStrings as ANSIStrings, Style};
