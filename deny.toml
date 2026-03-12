@@ -72,7 +72,11 @@ yanked = "warn"
 # A list of advisory IDs to ignore. Note that ignored advisories will still
 # output a note when they are encountered.
 ignore = [
-  #"RUSTSEC-0000-0000",
+  # time v0.3.44 stack overflow in format description parsing (via plist).
+  # Cannot upgrade to >=0.3.47 because it requires Rust 1.88 (edition 2024),
+  # which is above the current MSRV (1.83). Low risk for eza since time
+  # parsing input is not user-controlled. Will be resolved when MSRV is bumped.
+  "RUSTSEC-2026-0009",
 ]
 # Threshold for security vulnerabilities, any vulnerability with a CVSS score
 # lower than the range specified will be ignored. Note that ignored advisories
