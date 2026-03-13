@@ -264,7 +264,7 @@ field_accessors!(Links, normal: Option<Style>, multi_link_file: Option<Style>);
 #[rustfmt::skip]
 #[derive(Clone, Copy, Debug,Eq, PartialEq, Serialize, Deserialize)]
 pub struct Git {
-    pub new: Option<Style>,         // ga
+    pub untracked: Option<Style>,   // ga
     pub modified: Option<Style>,    // gm
     pub deleted: Option<Style>,     // gd
     pub renamed: Option<Style>,     // gv
@@ -275,7 +275,7 @@ pub struct Git {
 
 field_accessors!(
     Git,
-    new: Option<Style>,
+    untracked: Option<Style>,
     modified: Option<Style>,
     deleted: Option<Style>,
     renamed: Option<Style>,
@@ -286,7 +286,7 @@ field_accessors!(
 impl Default for Git {
     fn default() -> Self {
         Git {
-            new: Some(Green.normal()),
+            untracked: Some(Green.normal()),
             modified: Some(Blue.normal()),
             deleted: Some(Red.normal()),
             renamed: Some(Yellow.normal()),
@@ -445,7 +445,7 @@ impl UiStyles {
 
             #[rustfmt::skip]
             git: Some(Git {
-                new:         Some(Style::default()),
+                untracked:   Some(Style::default()),
                 modified:    Some(Style::default()),
                 deleted:     Some(Style::default()),
                 renamed:     Some(Style::default()),
@@ -577,7 +577,7 @@ impl UiStyles {
             "lc" => self.links().normal                   = Some(pair.to_style()),
             "lm" => self.links().multi_link_file          = Some(pair.to_style()),
 
-            "ga" => self.git().new                        = Some(pair.to_style()),
+            "ga" => self.git().untracked                   = Some(pair.to_style()),
             "gm" => self.git().modified                   = Some(pair.to_style()),
             "gd" => self.git().deleted                    = Some(pair.to_style()),
             "gv" => self.git().renamed                    = Some(pair.to_style()),
