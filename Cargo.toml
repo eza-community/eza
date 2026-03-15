@@ -114,7 +114,7 @@ backtrace = "0.3"
 clap = { version = "4.5.38", features = ["cargo", "derive"] }
 
 [dependencies.git2]
-version = "0.20"
+version = "0.20.4"
 optional = true
 default-features = false
 
