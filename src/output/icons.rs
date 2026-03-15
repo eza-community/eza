@@ -5,7 +5,7 @@
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
 use nu_ansi_term::Style;
-use phf::{phf_map, Map};
+use phf::{Map, phf_map};
 
 use crate::fs::File;
 

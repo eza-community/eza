@@ -9,7 +9,7 @@ use nu_ansi_term::{Color as Colour, Style};
 use palette::{FromColor, LinSrgb, Oklab, Srgb};
 
 use crate::{
-    fs::{dir_action::RecurseOptions, feature::git::GitCache, fields::Size, DotFilter, File},
+    fs::{DotFilter, File, dir_action::RecurseOptions, feature::git::GitCache, fields::Size},
     output::{table::TimeType, tree::TreeDepth},
 };
 

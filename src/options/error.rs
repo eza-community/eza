@@ -80,17 +80,7 @@ impl fmt::Display for OptionsError {
             Self::Useless2(a, b1, b2)        => write!(f, "Option {a} is useless without options {b1} or {b2}"),
             Self::TreeAllAll                 => write!(f, "Option --tree is useless given --all --all"),
             Self::FailedParse(s, n, e)       => write!(f, "Value {s:?} not valid for {n}: {e}"),
-            Self::FailedGlobPattern(ref e)   => write!(f, "Failed to parse glob pattern: {e}"),
+            Self::FailedGlobPattern(e)       => write!(f, "Failed to parse glob pattern: {e}"),
         };
-    }
-}
-
-/// A list of legal choices for an argument-taking option.
-#[derive(PartialEq, Eq, Debug)]
-pub struct Choices(pub &'static [&'static str]);
-
-impl fmt::Display for Choices {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "choices: {}", self.0.join(", "))
     }
 }

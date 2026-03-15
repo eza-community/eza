@@ -5,8 +5,8 @@
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
 use crate::fs::fields as f;
-use crate::output::table::FlagsFormat;
 use crate::output::TextCell;
+use crate::output::table::FlagsFormat;
 use nu_ansi_term::Style;
 
 // See https://learn.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants

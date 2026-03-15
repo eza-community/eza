@@ -15,12 +15,12 @@ use crate::output::cell::TextCell;
 use crate::output::table::FlagsFormat;
 
 #[cfg(not(target_os = "netbsd"))]
-extern "C" {
+unsafe extern "C" {
     fn fflagstostr(flags: libc::c_ulong) -> *const libc::c_char;
 }
 
 #[cfg(target_os = "netbsd")]
-extern "C" {
+unsafe extern "C" {
     fn flags_to_string(flags: libc::c_ulong, def: *const libc::c_char) -> *const libc::c_char;
 }
 

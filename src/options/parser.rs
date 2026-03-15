@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: MIT
 use std::ffi::OsString;
 
-use clap::{arg, builder::PossibleValue, value_parser, Error, ValueEnum};
+use clap::{Error, ValueEnum, arg, builder::PossibleValue, value_parser};
 
 use crate::{
     fs::filter::{SortCase, SortField},

@@ -10,7 +10,8 @@ use crate::output::TerminalWidth::Automatic;
 
 use crate::fs::feature::xattr;
 use crate::options::parser::ColorScaleModeArgs;
-use crate::options::{vars, NumberSource, OptionsError, Vars};
+use crate::options::{NumberSource, OptionsError, Vars, vars};
+use crate::output::TerminalWidth::Set;
 use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};
 use crate::output::file_name::Options as FileStyle;
 use crate::output::grid_details::{self, RowThreshold};
@@ -18,8 +19,7 @@ use crate::output::table::{
     Columns, FlagsFormat, GroupFormat, Options as TableOptions, SizeFormat, TimeTypes, UserFormat,
 };
 use crate::output::time::TimeFormat;
-use crate::output::TerminalWidth::Set;
-use crate::output::{details, grid, Mode, TerminalWidth, View};
+use crate::output::{Mode, TerminalWidth, View, details, grid};
 
 use super::parser::{ColorScaleArgs, TimeArgs};
 
@@ -77,7 +77,7 @@ impl Mode {
                 return Ok(Self::Grid(grid));
             }
             return Ok(Self::Lines);
-        };
+        }
 
         if long {
             let details = details::Options::deduce_long(matches, vars, strict)?;
@@ -353,8 +353,8 @@ impl TimeFormat {
             "full-iso" => return Ok(TimeFormat::FullISO),
             "relative" => return Ok(TimeFormat::Relative),
             s if !s.starts_with('+') => {
-                let error_middle =
-                    format!("{}{}",
+                let error_middle = format!(
+                    "{}{}",
                     "Please start the format with a plus sign (+) to indicate a custom format.\n",
                     "For example: \"+%Y-%m-%d %H:%M:%S\"",
                 );

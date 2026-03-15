@@ -74,7 +74,7 @@ impl ShowIcons {
                         vars.source(vars::EXA_ICON_SPACING, vars::EZA_ICON_SPACING)
                             .unwrap_or("1"),
                     );
-                    Err(OptionsError::FailedParse(columns.to_string(), source, e))
+                    Err(OptionsError::FailedParse(columns.clone(), source, e))
                 }
             }
         } else {
@@ -109,8 +109,8 @@ mod tests {
     use std::num::ParseIntError;
 
     use super::*;
-    use crate::options::parser::test::mock_cli;
     use crate::options::parser::ShowWhen;
+    use crate::options::parser::test::mock_cli;
     use crate::options::vars::test::MockVars;
     use crate::output::file_name::Absolute;
 

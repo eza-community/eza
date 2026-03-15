@@ -4,32 +4,14 @@
 // SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
-#![warn(deprecated_in_future)]
 #![warn(future_incompatible)]
-#![warn(nonstandard_style)]
-#![warn(rust_2018_compatibility)]
-#![warn(rust_2018_idioms)]
 #![warn(trivial_casts, trivial_numeric_casts)]
-#![warn(unused)]
-#![warn(clippy::all, clippy::pedantic)]
-#![allow(clippy::cast_precision_loss)]
-#![allow(clippy::cast_possible_truncation)]
-#![allow(clippy::cast_possible_wrap)]
-#![allow(clippy::cast_sign_loss)]
-#![allow(clippy::enum_glob_use)]
-#![allow(clippy::map_unwrap_or)]
-#![allow(clippy::match_same_arms)]
-#![allow(clippy::module_name_repetitions)]
+#![warn(clippy::all)]
 #![allow(clippy::non_ascii_literal)]
-#![allow(clippy::option_if_let_else)]
-#![allow(clippy::too_many_lines)]
-#![allow(clippy::unused_self)]
-#![allow(clippy::upper_case_acronyms)]
-#![allow(clippy::wildcard_imports)]
 
 use std::env;
 use std::ffi::{OsStr, OsString};
-use std::io::{self, stdin, ErrorKind, IsTerminal, Read, Write};
+use std::io::{self, ErrorKind, IsTerminal, Read, Write, stdin};
 use std::path::{Component, PathBuf};
 use std::process::exit;
 
@@ -40,8 +22,8 @@ use crate::fs::feature::git::GitCache;
 use crate::fs::filter::{FileFilterFlags::OnlyFiles, GitIgnore};
 use crate::fs::{Dir, File};
 use crate::options::stdin::FilesInput;
-use crate::options::{vars, Options, Vars};
-use crate::output::{details, escape, file_name, grid, grid_details, lines, Mode, View};
+use crate::options::{Options, Vars, vars};
+use crate::output::{Mode, View, details, escape, file_name, grid, grid_details, lines};
 use crate::theme::Theme;
 use log::*;
 
@@ -424,7 +406,7 @@ impl Exa<'_> {
         } = self.options.view;
 
         match (mode, self.console_width) {
-            (Mode::Grid(ref opts), Some(console_width)) => {
+            (Mode::Grid(opts), Some(console_width)) => {
                 let filter = &self.options.filter;
                 let r = grid::Render {
                     files,
@@ -437,7 +419,7 @@ impl Exa<'_> {
                 r.render(&mut self.writer)
             }
 
-            (Mode::Grid(ref opts), None) => {
+            (Mode::Grid(opts), None) => {
                 let filter = &self.options.filter;
                 let r = grid::Render {
                     files,
@@ -461,7 +443,7 @@ impl Exa<'_> {
                 r.render(&mut self.writer)
             }
 
-            (Mode::Details(ref opts), _) => {
+            (Mode::Details(opts), _) => {
                 let filter = &self.options.filter;
                 let recurse = self.options.dir_action.recurse_options();
 
@@ -483,7 +465,7 @@ impl Exa<'_> {
                 r.render(&mut self.writer)
             }
 
-            (Mode::GridDetails(ref opts), Some(console_width)) => {
+            (Mode::GridDetails(opts), Some(console_width)) => {
                 let details = &opts.details;
                 let row_threshold = opts.row_threshold;
 
@@ -508,7 +490,7 @@ impl Exa<'_> {
                 r.render(&mut self.writer)
             }
 
-            (Mode::GridDetails(ref opts), None) => {
+            (Mode::GridDetails(opts), None) => {
                 let opts = &opts.to_details_options();
                 let filter = &self.options.filter;
                 let recurse = self.options.dir_action.recurse_options();

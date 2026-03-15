@@ -13,7 +13,7 @@
 //! # Contributors
 //! Please keep these lists sorted. If you're using vim, :sort i
 
-use phf::{phf_map, Map};
+use phf::{Map, phf_map};
 
 use crate::fs::File;
 
@@ -429,14 +429,13 @@ impl FileType {
         if file.name.ends_with('~') || (file.name.starts_with('#') && file.name.ends_with('#')) {
             return Some(Self::Temp);
         }
-        if let Some(dir) = file.parent_dir {
-            if file
+        if let Some(dir) = file.parent_dir
+            && file
                 .get_source_files()
                 .iter()
                 .any(|path| dir.contains(path))
-            {
-                return Some(Self::Compiled);
-            }
+        {
+            return Some(Self::Compiled);
         }
         None
     }

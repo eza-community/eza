@@ -6,8 +6,8 @@
 // SPDX-License-Identifier: MIT
 use clap::ArgMatches;
 
-use crate::options::vars::EZA_STDIN_SEPARATOR;
 use crate::options::Vars;
+use crate::options::vars::EZA_STDIN_SEPARATOR;
 use std::ffi::OsString;
 use std::io;
 use std::io::IsTerminal;

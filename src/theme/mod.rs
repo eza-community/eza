@@ -277,10 +277,10 @@ impl FileStyle for ExtensionMappings {
                     }
                 }
                 GlobPattern::Simple(map) => {
-                    if let Some(ext) = maybe_ext {
-                        if let Some(style) = map.get(ext) {
-                            return Some(*style);
-                        }
+                    if let Some(ext) = maybe_ext
+                        && let Some(style) = map.get(ext)
+                    {
+                        return Some(*style);
                     }
                 }
             }
@@ -479,19 +479,16 @@ impl FileNameColours for Theme {
     }
 
  fn style_override(&self, file: &File<'_>) -> Option<FileNameStyle> {
-        if let Some(ref name_overrides) = self.ui.filenames {
-            if let Some(file_override) = name_overrides.get(&file.name) {
+        if let Some(ref name_overrides) = self.ui.filenames
+            && let Some(file_override) = name_overrides.get(&file.name) {
                 return Some(*file_override);
             }
-        }
 
-        if let Some(ref ext_overrides) = self.ui.extensions {
-            if let Some(ext) = file.ext.clone() {
-                if let Some(file_override) = ext_overrides.get(&ext) {
+        if let Some(ref ext_overrides) = self.ui.extensions
+            && let Some(ext) = file.ext.clone()
+                && let Some(file_override) = ext_overrides.get(&ext) {
                     return Some(*file_override);
                 }
-            }
-        }
 
         None
     }

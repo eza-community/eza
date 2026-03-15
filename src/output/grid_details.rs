@@ -190,35 +190,35 @@ impl<'a> Render<'a> {
         // via the `EZA_GRID_ROWS` environment variable
         // and the grid is going to get rendered with fewer rows,
         // then render a details list view instead.
-        if let RowThreshold::MinimumRows(minimum_rows) = self.row_threshold {
-            if grid.row_count() < minimum_rows {
-                let Self {
-                    dir,
-                    files,
-                    theme,
-                    file_style,
-                    details: opts,
-                    filter,
-                    git_ignoring,
-                    git,
-                    git_repos,
-                    ..
-                } = self;
+        if let RowThreshold::MinimumRows(minimum_rows) = self.row_threshold
+            && grid.row_count() < minimum_rows
+        {
+            let Self {
+                dir,
+                files,
+                theme,
+                file_style,
+                details: opts,
+                filter,
+                git_ignoring,
+                git,
+                git_repos,
+                ..
+            } = self;
 
-                let r = DetailsRender {
-                    dir,
-                    files,
-                    theme,
-                    file_style,
-                    opts,
-                    recurse: None,
-                    filter,
-                    git_ignoring,
-                    git,
-                    git_repos,
-                };
-                return r.render(w);
-            }
+            let r = DetailsRender {
+                dir,
+                files,
+                theme,
+                file_style,
+                opts,
+                recurse: None,
+                filter,
+                git_ignoring,
+                git,
+                git_repos,
+            };
+            return r.render(w);
         }
 
         if self.details.header {
