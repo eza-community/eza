@@ -72,6 +72,9 @@ pub struct RecurseOptions {
     /// The maximum number of times that recursion should descend to, if one
     /// is specified.
     pub max_depth: Option<usize>,
+
+    /// Whether to squash single-child directory chains into one line in tree view.
+    pub squash: bool,
 }
 
 impl RecurseOptions {

@@ -61,6 +61,7 @@ impl RecurseOptions {
         Self {
             tree,
             max_depth: matches.get_one("level").copied(),
+            squash: matches.get_flag("squash"),
         }
     }
 }
@@ -85,6 +86,7 @@ mod tests {
             RecurseOptions {
                 tree: false,
                 max_depth: Some(3),
+                squash: false,
             }
         );
     }
@@ -96,6 +98,7 @@ mod tests {
             Ok(DirAction::Recurse(RecurseOptions {
                 tree: false,
                 max_depth: None,
+                squash: false,
             }))
         );
     }
@@ -115,6 +118,7 @@ mod tests {
             Ok(DirAction::Recurse(RecurseOptions {
                 tree: false,
                 max_depth: None,
+                squash: false,
             }))
         );
     }
@@ -126,6 +130,7 @@ mod tests {
             Ok(DirAction::Recurse(RecurseOptions {
                 tree: true,
                 max_depth: None,
+                squash: false,
             }))
         );
     }
@@ -137,6 +142,7 @@ mod tests {
             Ok(DirAction::Recurse(RecurseOptions {
                 tree: true,
                 max_depth: Some(3),
+                squash: false,
             }))
         );
     }
@@ -157,5 +163,17 @@ mod tests {
     #[test]
     fn deduce_dir_action_tree_as_file_conflict() {
         assert!(mock_cli_try(vec!["--tree", "--treat-dirs-as-files"]).is_err());
+    }
+
+    #[test]
+    fn deduce_dir_action_tree_squash() {
+        assert_eq!(
+            DirAction::deduce(&mock_cli(vec!["--tree", "--squash"]), true, false),
+            Ok(DirAction::Recurse(RecurseOptions {
+                tree: true,
+                max_depth: None,
+                squash: true,
+            }))
+        );
     }
 }

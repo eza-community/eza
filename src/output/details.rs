@@ -346,15 +346,92 @@ impl<'a> Render<'a> {
 
             debug!("file_name {file_name:?}");
 
+            // Squash single-child directory chains: if --squash is active and
+            // this directory has exactly one child that is also a directory
+            // (with no xattrs/errors), collapse the chain into a single row
+            // with a name like "parent/child/grandchild".
+            let (final_name, final_dir) =
+                if let Some(r) = self.recurse
+                    && r.squash
+                    && r.tree
+                    && egg.dir.is_some()
+                    && egg.xattrs.is_empty()
+                    && errors.is_empty()
+                {
+                    let mut name = file_name;
+                    let mut current_dir = egg.dir;
+                    let mut current_depth = depth.deeper();
+
+                    loop {
+                        let Some(ref dir) = current_dir else { break };
+
+                        let mut children: Vec<_> = dir
+                            .files(
+                                self.filter.dot_filter,
+                                self.git,
+                                self.git_ignoring,
+                                egg.file.deref_links,
+                                egg.file.is_recursive_size(),
+                            )
+                            .collect();
+                        self.filter.filter_child_files(true, &mut children);
+
+                        // Only squash when there is exactly one child and it is
+                        // a directory (following symlinks if requested).
+                        let follow = self.opts.follow_links;
+                        let is_only_child_dir = children.len() == 1
+                            && (if follow {
+                                children[0].points_to_directory()
+                            } else {
+                                children[0].is_directory()
+                            });
+
+                        if !is_only_child_dir {
+                            break;
+                        }
+
+                        let child = &children[0];
+
+                        // Stop squashing if we would exceed the max depth.
+                        if r.is_too_deep(current_depth.0) {
+                            break;
+                        }
+
+                        let child_name = self
+                            .file_style
+                            .for_file(child, self.theme)
+                            .with_link_paths()
+                            .with_mount_details(self.opts.mounts)
+                            .paint()
+                            .promote();
+
+                        let slash_style = self.theme.ui.punctuation.unwrap_or_default();
+                        name.push(slash_style.paint("/"), 1);
+                        name.append(child_name);
+
+                        current_dir = child.read_dir().ok();
+                        current_depth = current_depth.deeper();
+                    }
+
+                    (name, current_dir)
+                } else {
+                    (file_name, egg.dir)
+                };
+
+            // Children of the squashed entry are always shown one level below
+            // the squashed row itself (depth.deeper()), regardless of how many
+            // directories were folded into the name.
+            let child_depth = depth.deeper();
+
             let row = Row {
                 tree: tree_params,
                 cells: egg.table_row,
-                name: file_name,
+                name: final_name,
             };
 
             rows.push(row);
 
-            if let Some(ref dir) = egg.dir {
+            if let Some(ref dir) = final_dir {
                 for file_to_add in dir.files(
                     self.filter.dot_filter,
                     self.git,
@@ -370,18 +447,18 @@ impl<'a> Render<'a> {
 
                 if !files.is_empty() {
                     for xattr in egg.xattrs {
-                        rows.push(self.render_xattr(xattr, TreeParams::new(depth.deeper(), false)));
+                        rows.push(self.render_xattr(xattr, TreeParams::new(child_depth, false)));
                     }
 
                     for (error, path) in errors {
                         rows.push(self.render_error(
                             &error,
-                            TreeParams::new(depth.deeper(), false),
+                            TreeParams::new(child_depth, false),
                             path,
                         ));
                     }
 
-                    self.add_files_to_table(table, rows, &files, depth.deeper(), color_scale_info);
+                    self.add_files_to_table(table, rows, &files, child_depth, color_scale_info);
                     continue;
                 }
             }
@@ -389,14 +466,14 @@ impl<'a> Render<'a> {
             let count = egg.xattrs.len();
             for (index, xattr) in egg.xattrs.iter().enumerate() {
                 let params =
-                    TreeParams::new(depth.deeper(), errors.is_empty() && index == count - 1);
+                    TreeParams::new(child_depth, errors.is_empty() && index == count - 1);
                 let r = self.render_xattr(xattr, params);
                 rows.push(r);
             }
 
             let count = errors.len();
             for (index, (error, path)) in errors.into_iter().enumerate() {
-                let params = TreeParams::new(depth.deeper(), index == count - 1);
+                let params = TreeParams::new(child_depth, index == count - 1);
                 let r = self.render_error(&error, params, path);
                 rows.push(r);
             }
