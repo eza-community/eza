@@ -36,6 +36,19 @@ impl DirAction {
             }
         }
 
+        if matches.get_flag("filesgrid") {
+            if !tree {
+                return Err(OptionsError::Useless("filesgrid", false, "tree"));
+            }
+            if !matches.get_flag("dirs-first") && !matches.get_flag("dirs-last") {
+                return Err(OptionsError::Useless2(
+                    "filesgrid",
+                    "group-directories-first",
+                    "group-directories-last",
+                ));
+            }
+        }
+
         if strict {
             // Early check for --level when it wouldn’t do anything
             if !recurse && !tree && matches.get_one::<usize>("level").is_some() {
@@ -72,6 +85,7 @@ impl RecurseOptions {
             max_depth: matches.get_one("level").copied(),
             squash: matches.get_flag("squash"),
             leafgrid: matches.get_flag("leafgrid"),
+            filesgrid: matches.get_flag("filesgrid"),
         }
     }
 }
@@ -98,6 +112,7 @@ mod tests {
                 max_depth: Some(3),
                 squash: false,
                 leafgrid: false,
+                filesgrid: false,
             }
         );
     }
@@ -111,6 +126,7 @@ mod tests {
                 max_depth: None,
                 squash: false,
                 leafgrid: false,
+                filesgrid: false,
             }))
         );
     }
@@ -132,6 +148,7 @@ mod tests {
                 max_depth: None,
                 squash: false,
                 leafgrid: false,
+                filesgrid: false,
             }))
         );
     }
@@ -145,6 +162,7 @@ mod tests {
                 max_depth: None,
                 squash: false,
                 leafgrid: false,
+                filesgrid: false,
             }))
         );
     }
@@ -158,6 +176,7 @@ mod tests {
                 max_depth: Some(3),
                 squash: false,
                 leafgrid: false,
+                filesgrid: false,
             }))
         );
     }
@@ -189,6 +208,7 @@ mod tests {
                 max_depth: None,
                 squash: true,
                 leafgrid: false,
+                filesgrid: false,
             }))
         );
     }
@@ -202,6 +222,7 @@ mod tests {
                 max_depth: Some(2),
                 squash: false,
                 leafgrid: true,
+                filesgrid: false,
             }))
         );
     }
@@ -219,6 +240,48 @@ mod tests {
         assert_eq!(
             DirAction::deduce(&mock_cli(vec!["--level", "2", "--leafgrid"]), false, false),
             Err(OptionsError::Useless("leafgrid", false, "tree"))
+        );
+    }
+
+    #[test]
+    fn deduce_dir_action_tree_filesgrid() {
+        assert_eq!(
+            DirAction::deduce(
+                &mock_cli(vec!["--tree", "--group-directories-first", "--filesgrid"]),
+                true,
+                false
+            ),
+            Ok(DirAction::Recurse(RecurseOptions {
+                tree: true,
+                max_depth: None,
+                squash: false,
+                leafgrid: false,
+                filesgrid: true,
+            }))
+        );
+    }
+
+    #[test]
+    fn deduce_filesgrid_without_tree() {
+        assert_eq!(
+            DirAction::deduce(
+                &mock_cli(vec!["--group-directories-first", "--filesgrid"]),
+                false,
+                false
+            ),
+            Err(OptionsError::Useless("filesgrid", false, "tree"))
+        );
+    }
+
+    #[test]
+    fn deduce_filesgrid_without_grouping() {
+        assert_eq!(
+            DirAction::deduce(&mock_cli(vec!["--tree", "--filesgrid"]), true, false),
+            Err(OptionsError::Useless2(
+                "filesgrid",
+                "group-directories-first",
+                "group-directories-last",
+            ))
         );
     }
 }

@@ -78,6 +78,10 @@ pub struct RecurseOptions {
 
     /// Whether to display leaf-level entries as a grid instead of one-per-line.
     pub leafgrid: bool,
+
+    /// Whether to display non-directory entries as a grid at every tree node
+    /// (requires dirs-first or dirs-last grouping).
+    pub filesgrid: bool,
 }
 
 impl RecurseOptions {
