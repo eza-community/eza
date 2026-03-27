@@ -4,6 +4,11 @@ SPDX-FileContributor: Christina Sørensen
 
 SPDX-License-Identifier: EUPL-1.2
 -->
+# Eza Compact
+fork of eza with several tree compactions strategies for compacter and easier to read output
+# Fork features
+- squash mode: use `eza --tree --squash` to suqash all one children directories into one line when using --tree mode.
+- leafgrid mode: use `eza --tree --level 2 --leafgrid` to output the last level in grid mode instead of usual vertical tree.
 
 <div align="center">
 <div align="center" markdown="1">
