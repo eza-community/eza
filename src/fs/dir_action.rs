@@ -75,6 +75,9 @@ pub struct RecurseOptions {
 
     /// Whether to squash single-child directory chains into one line in tree view.
     pub squash: bool,
+
+    /// Whether to display leaf-level entries as a grid instead of one-per-line.
+    pub leafgrid: bool,
 }
 
 impl RecurseOptions {
@@ -84,6 +87,16 @@ impl RecurseOptions {
         match self.max_depth {
             None => false,
             Some(d) => d <= depth,
+        }
+    }
+
+    /// Returns whether the given depth is at the leaf level (i.e. max_depth is set
+    /// and depth has reached it, so children will not be recursed into).
+    #[must_use]
+    pub fn is_leaf_level(self, depth: usize) -> bool {
+        match self.max_depth {
+            Some(d) => depth >= d,
+            None => false,
         }
     }
 }

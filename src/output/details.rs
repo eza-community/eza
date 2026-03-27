@@ -147,6 +147,9 @@ pub struct Render<'a> {
     pub git: Option<&'a GitCache>,
 
     pub git_repos: bool,
+
+    /// Terminal width used for leafgrid rendering at the leaf level.
+    pub console_width: usize,
 }
 
 #[rustfmt::skip]
@@ -327,6 +330,15 @@ impl<'a> Render<'a> {
 
         // this is safe because all entries have been initialized above
         self.filter.sort_files(&mut file_eggs);
+
+        // Leafgrid: when at the leaf level, render all files as a single grid block.
+        if let Some(r) = self.recurse
+            && r.leafgrid
+            && r.is_leaf_level(depth.0)
+        {
+            self.render_leaf_grid(rows, &file_eggs, depth);
+            return;
+        }
 
         for (tree_params, egg) in depth.iterate_over(file_eggs.into_iter()) {
             let mut files = Vec::new();
@@ -518,6 +530,58 @@ impl<'a> Render<'a> {
             name,
             tree,
         }
+    }
+
+    fn render_leaf_grid<'dir>(&self, rows: &mut Vec<Row>, eggs: &[Egg<'dir>], depth: TreeDepth) {
+        use term_grid::{Direction, Filling, Grid, GridOptions};
+
+        let cells: Vec<String> = eggs
+            .iter()
+            .map(|egg| {
+                self.file_style
+                    .for_file(egg.file, self.theme)
+                    .paint()
+                    .strings()
+                    .to_string()
+            })
+            .collect();
+
+        if cells.is_empty() {
+            return;
+        }
+
+        // Available width after subtracting tree indentation (4 chars per level).
+        let indent_width = depth.0 * 4;
+        let available_width = self.console_width.saturating_sub(indent_width).max(1);
+
+        let grid = Grid::new(
+            cells,
+            GridOptions {
+                filling: Filling::Spaces(2),
+                direction: Direction::TopToBottom,
+                width: available_width,
+            },
+        );
+
+        let grid_string = grid.to_string();
+        let mut lines = grid_string.lines();
+
+        let Some(first_line) = lines.next() else {
+            return;
+        };
+
+        // Continuation lines are embedded in the same TextCell with \n + indent so that
+        // the single writeln! in the render loop handles them naturally.
+        let indent = " ".repeat(indent_width);
+        let rest: String = lines.map(|l| format!("\n{indent}{l}")).collect();
+
+        let name = TextCell::paint(Style::default(), format!("{first_line}{rest}"));
+
+        rows.push(Row {
+            tree: TreeParams::new(depth, true),
+            cells: None,
+            name,
+        });
     }
 
     #[must_use]

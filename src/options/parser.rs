@@ -48,6 +48,7 @@ pub fn get_command() -> clap::Command {
         .arg(arg!(-R --recurse "recurse into directories"))
         .arg(arg!(-T --tree "recurse into directories as a tree"))
         .arg(arg!(--squash "squash single-child directories in tree view"))
+        .arg(arg!(--leafgrid "display leaf-level entries as a grid in tree view (requires --level)"))
         .arg(arg!(-L --level <DEPTH> "limit the depth of recursion")
             .value_parser(value_parser!(usize)))
         .arg(arg!(--"follow-symlinks" "drill down into symbolic links that point to directories"))

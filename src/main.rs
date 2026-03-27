@@ -461,6 +461,7 @@ impl Exa<'_> {
                     git_ignoring,
                     git,
                     git_repos,
+                    console_width: self.console_width.unwrap_or(80),
                 };
                 r.render(&mut self.writer)
             }
@@ -509,6 +510,7 @@ impl Exa<'_> {
                     git_ignoring,
                     git,
                     git_repos,
+                    console_width: 80,
                 };
                 r.render(&mut self.writer)
             }

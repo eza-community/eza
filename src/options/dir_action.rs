@@ -27,6 +27,15 @@ impl DirAction {
         let as_file = matches.get_flag("treat-dirs-as-files");
         let tree = matches.get_flag("tree");
 
+        if matches.get_flag("leafgrid") {
+            if !tree {
+                return Err(OptionsError::Useless("leafgrid", false, "tree"));
+            }
+            if matches.get_one::<usize>("level").is_none() {
+                return Err(OptionsError::Useless("leafgrid", false, "level"));
+            }
+        }
+
         if strict {
             // Early check for --level when it wouldn’t do anything
             if !recurse && !tree && matches.get_one::<usize>("level").is_some() {
@@ -62,6 +71,7 @@ impl RecurseOptions {
             tree,
             max_depth: matches.get_one("level").copied(),
             squash: matches.get_flag("squash"),
+            leafgrid: matches.get_flag("leafgrid"),
         }
     }
 }
@@ -87,6 +97,7 @@ mod tests {
                 tree: false,
                 max_depth: Some(3),
                 squash: false,
+                leafgrid: false,
             }
         );
     }
@@ -99,6 +110,7 @@ mod tests {
                 tree: false,
                 max_depth: None,
                 squash: false,
+                leafgrid: false,
             }))
         );
     }
@@ -119,6 +131,7 @@ mod tests {
                 tree: false,
                 max_depth: None,
                 squash: false,
+                leafgrid: false,
             }))
         );
     }
@@ -131,6 +144,7 @@ mod tests {
                 tree: true,
                 max_depth: None,
                 squash: false,
+                leafgrid: false,
             }))
         );
     }
@@ -143,6 +157,7 @@ mod tests {
                 tree: true,
                 max_depth: Some(3),
                 squash: false,
+                leafgrid: false,
             }))
         );
     }
@@ -173,7 +188,37 @@ mod tests {
                 tree: true,
                 max_depth: None,
                 squash: true,
+                leafgrid: false,
             }))
+        );
+    }
+
+    #[test]
+    fn deduce_dir_action_tree_level_leafgrid() {
+        assert_eq!(
+            DirAction::deduce(&mock_cli(vec!["--tree", "--level", "2", "--leafgrid"]), true, false),
+            Ok(DirAction::Recurse(RecurseOptions {
+                tree: true,
+                max_depth: Some(2),
+                squash: false,
+                leafgrid: true,
+            }))
+        );
+    }
+
+    #[test]
+    fn deduce_leafgrid_without_level() {
+        assert_eq!(
+            DirAction::deduce(&mock_cli(vec!["--tree", "--leafgrid"]), true, false),
+            Err(OptionsError::Useless("leafgrid", false, "level"))
+        );
+    }
+
+    #[test]
+    fn deduce_leafgrid_without_tree() {
+        assert_eq!(
+            DirAction::deduce(&mock_cli(vec!["--level", "2", "--leafgrid"]), false, false),
+            Err(OptionsError::Useless("leafgrid", false, "tree"))
         );
     }
 }

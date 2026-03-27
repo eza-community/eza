@@ -110,6 +110,7 @@ impl<'a> Render<'a> {
             git_ignoring:  self.git_ignoring,
             git:           self.git,
             git_repos:     self.git_repos,
+            console_width: self.console_width,
         };
     }
 
@@ -217,6 +218,7 @@ impl<'a> Render<'a> {
                 git_ignoring,
                 git,
                 git_repos,
+                console_width: self.console_width,
             };
             return r.render(w);
         }
