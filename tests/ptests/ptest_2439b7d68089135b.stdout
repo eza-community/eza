@@ -26,7 +26,7 @@ DISPLAY OPTIONS:
       --color-scale [<FIELDS>...]  highlight value of FIELDS distinctly [possible values: all, age, size]
       --color-scale-mode <MODE>    mode for --color-scale [default: gradient] [possible values: fixed, gradient]
       --icons [<WHEN>]             when to display icons [possible values: always, auto, never]
-      --hyperlink                  display entries as hyperlinks
+      --hyperlink [<WHEN>]         when to display entries as hyperlinks [possible values: always, auto, never]
       --no-quotes                  don't quote file names with spaces
 
 FILTERING OPTIONS:
