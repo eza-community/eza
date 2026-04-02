@@ -15,7 +15,7 @@ SPDX-License-Identifier: EUPL-1.2
    </a>
 
 ### [Warp, the AI terminal for developers](https://www.warp.dev/eza)
-[Available for MacOS, Linux, & Windows](https://www.warp.dev/eza)<br>
+[Available for macOS, Linux, & Windows](https://www.warp.dev/eza)<br>
 
 </div>
     
@@ -154,7 +154,7 @@ These options are available when running with `--long` (`-l`):
 - **-H**, **--links**: list each file’s number of hard links
 - **-i**, **--inode**: list each file’s inode number
 - **-m**, **--modified**: use the modified timestamp field
-- **-M**, **--mounts**: Show mount details (Linux and MacOS only).
+- **-M**, **--mounts**: Show mount details (Linux and macOS only).
 - **-S**, **--blocksize**: show size of allocated file system blocks
 - **-t**, **--time=(field)**: which timestamp field to use
 - **-u**, **--accessed**: use the accessed timestamp field
