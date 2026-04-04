@@ -34,7 +34,8 @@ A modern replacement for ls.
 
 </div>
 
-https://github.com/user-attachments/assets/fe2c62ad-bd66-4aeb-a53d-0ddca561860f
+
+https://github.com/user-attachments/assets/a0d81cca-1826-4091-b4a1-87a2297b7f3c
 
 
 
