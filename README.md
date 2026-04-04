@@ -36,6 +36,8 @@ A modern replacement for ls.
 
 ![eza demo gif](docs/images/screenshots.png)
 
+[![eza demo video](https://img.shields.io/badge/▶_Watch_Demo-blue?style=for-the-badge&logo=youtube)](https://streamable.com/8lawft)
+
 ---
 
 **eza** is a modern alternative for the venerable file-listing command-line program `ls` that ships with Unix and Linux operating systems, giving it more features and better defaults.
