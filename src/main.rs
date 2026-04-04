@@ -86,6 +86,7 @@ fn main() {
                 console_width,
                 git,
                 git_repos,
+                is_a_tty: stdout_istty,
             };
 
             info!("matching on exa.run");
@@ -141,6 +142,8 @@ pub struct Exa<'args> {
     pub git: Option<GitCache>,
 
     pub git_repos: bool,
+
+    pub is_a_tty: bool,
 }
 
 /// The “real” environment variables type.
@@ -461,6 +464,7 @@ impl Exa<'_> {
                     git_ignoring,
                     git,
                     git_repos,
+                    is_a_tty: self.is_a_tty,
                 };
                 r.render(&mut self.writer)
             }
@@ -486,6 +490,7 @@ impl Exa<'_> {
                     git,
                     console_width,
                     git_repos,
+                    is_a_tty: self.is_a_tty,
                 };
                 r.render(&mut self.writer)
             }
@@ -509,6 +514,7 @@ impl Exa<'_> {
                     git_ignoring,
                     git,
                     git_repos,
+                    is_a_tty: self.is_a_tty,
                 };
                 r.render(&mut self.writer)
             }

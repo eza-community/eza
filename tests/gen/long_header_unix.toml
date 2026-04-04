@@ -1,2 +1,2 @@
 bin.name = "eza"
-args = "tests/test_dir --long --no-user --no-time --header --no-permissions"
+args = "tests/test_dir --long --no-user --no-time --header=always --no-permissions"

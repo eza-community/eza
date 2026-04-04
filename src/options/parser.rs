@@ -116,7 +116,10 @@ pub fn get_command() -> clap::Command {
         .arg(arg!(-r --reverse "reverse the sort order"))
 
         .next_help_heading("LONG VIEW OPTIONS")
-        .arg(arg!(-h --header "add a header row to each column"))
+        .arg(arg!(-h --header <WHEN> "when to show the header row in long view")
+            .num_args(0..=1)
+            .value_parser(value_parser!(ShowWhen))
+            .default_missing_value("auto"))
         .arg(arg!(-i --inode "list each file's inode number"))
         .arg(arg!(-o --"octal-permissions" "list each file's permission in octal format"))
         .arg(arg!(-H --links "list each file's number of hard links"))

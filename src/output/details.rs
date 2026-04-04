@@ -109,7 +109,7 @@ pub struct Options {
     pub table: Option<TableOptions>,
 
     /// Whether to show a header line or not.
-    pub header: bool,
+    pub header: ShowHeader,
 
     /// Whether to show each file’s extended attributes.
     pub xattr: bool,
@@ -124,6 +124,23 @@ pub struct Options {
 
     /// Whether to drill down into symbolic links that point to directories
     pub follow_links: bool,
+}
+
+#[derive(PartialEq, Eq, Debug)]
+pub enum ShowHeader {
+    Always,
+    Never,
+    Auto,
+}
+
+impl ShowHeader {
+    pub fn check(&self, is_a_tty: bool) -> bool {
+        match self {
+            ShowHeader::Always => true,
+            ShowHeader::Never => false,
+            ShowHeader::Auto => is_a_tty,
+        }
+    }
 }
 
 pub struct Render<'a> {
@@ -147,6 +164,8 @@ pub struct Render<'a> {
     pub git: Option<&'a GitCache>,
 
     pub git_repos: bool,
+
+    pub is_a_tty: bool,
 }
 
 #[rustfmt::skip]
@@ -194,7 +213,7 @@ impl<'a> Render<'a> {
 
             let mut table = Table::new(table, self.git, self.theme, self.git_repos);
 
-            if self.opts.header {
+            if self.opts.header.check(self.is_a_tty) {
                 let header = table.header_row();
                 table.add_widths(&header);
                 rows.push(self.render_header(header));

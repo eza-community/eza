@@ -18,7 +18,7 @@ SPDX-License-Identifier: EUPL-1.2
 [Available for MacOS, Linux, & Windows](https://www.warp.dev/eza)<br>
 
 </div>
-    
+
 # eza
 
 A modern replacement for ls.
@@ -150,7 +150,7 @@ These options are available when running with `--long` (`-l`):
 - **-B**, **--bytes**: list file sizes in bytes, without any prefixes
 - **-g**, **--group**: list each file’s group
 - **--smart-group**: only show group if it has a different name from owner
-- **-h**, **--header**: add a header row to each column
+- **-h**, **--header=(when)**: when to display a header row to each column
 - **-H**, **--links**: list each file’s number of hard links
 - **-i**, **--inode**: list each file’s inode number
 - **-m**, **--modified**: use the modified timestamp field
@@ -203,7 +203,7 @@ precedence for backwards compatibility.
 #### **New** Pre-made themes
 Check out the themes available in the official [eza-themes](https://github.com/eza-community/eza-themes) repository, or contribute your own.
 
-An example theme file is available in `docs/theme.yml`, and needs to either be placed in a directory specified by the 
+An example theme file is available in `docs/theme.yml`, and needs to either be placed in a directory specified by the
 environment variable `EZA_CONFIG_DIR`, or will looked for by default in `$XDG_CONFIG_HOME/eza`.
 
 Full details are available on the [man page](https://github.com/eza-community/eza/tree/main/man/eza_colors-explanation.5.md) and an example theme file is included [here](https://github.com/eza-community/eza/tree/main/docs/theme.yml)
@@ -213,10 +213,10 @@ Full details are available on the [man page](https://github.com/eza-community/ez
 
 # Hacking on eza
 
-If you wanna contribute to eza, firstly, you're expected to follow our 
-[code of conduct](https://github.com/eza-community/eza/blob/main/CODE_OF_CONDUCT.md). 
+If you wanna contribute to eza, firstly, you're expected to follow our
+[code of conduct](https://github.com/eza-community/eza/blob/main/CODE_OF_CONDUCT.md).
 After having understood the code of conduct, you can have a look at our
-[CONTRIBUTING.md](https://github.com/eza-community/eza/blob/main/CONTRIBUTING.md) 
+[CONTRIBUTING.md](https://github.com/eza-community/eza/blob/main/CONTRIBUTING.md)
 for more info about actual hacking.
 
 [![Star History Chart](https://api.star-history.com/svg?repos=eza-community/eza&type=Date)](https://star-history.com/#eza-community/eza&Date)

@@ -120,7 +120,7 @@ commands:
   : short: -s
     long: time-style
     prefix: -l
-    values: # non-deterministic results with our setup (tests/test_dir) are commented out 
+    values: # non-deterministic results with our setup (tests/test_dir) are commented out
       # - accessed
       # - age
       # - changed
@@ -176,7 +176,10 @@ commands:
   :
   ? - -h
     - --header
-  :
+  : values:
+      - auto
+      - always
+      - never
   ? - -H
     - --links
   :
