@@ -50,7 +50,7 @@ SORTING OPTIONS:
   -r, --reverse                  reverse the sort order
 
 LONG VIEW OPTIONS:
-  -h, --header               add a header row to each column
+  -h, --header [<WHEN>]      when to show the header row in long view [possible values: always, auto, never]
   -i, --inode                list each file's inode number
   -o, --octal-permissions    list each file's permission in octal format
   -H, --links                list each file's number of hard links

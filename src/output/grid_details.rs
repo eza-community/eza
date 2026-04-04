@@ -88,6 +88,8 @@ pub struct Render<'a> {
     pub console_width: usize,
 
     pub git_repos: bool,
+
+    pub is_a_tty: bool,
 }
 
 impl<'a> Render<'a> {
@@ -110,6 +112,7 @@ impl<'a> Render<'a> {
             git_ignoring:  self.git_ignoring,
             git:           self.git,
             git_repos:     self.git_repos,
+            is_a_tty:     self.is_a_tty,
         };
     }
 
@@ -167,7 +170,7 @@ impl<'a> Render<'a> {
                 // Therefore we pad the filenames with some spaces. We have to
                 // use ansi_width here, because the filename might contain some
                 // styling.
-                let padding = " ".repeat(if self.details.header {
+                let padding = " ".repeat(if self.details.header.check(self.is_a_tty) {
                     4usize.saturating_sub(ansi_width::ansi_width(&filename))
                 } else {
                     0
@@ -203,6 +206,7 @@ impl<'a> Render<'a> {
                 git_ignoring,
                 git,
                 git_repos,
+                is_a_tty,
                 ..
             } = self;
 
@@ -217,11 +221,12 @@ impl<'a> Render<'a> {
                 git_ignoring,
                 git,
                 git_repos,
+                is_a_tty,
             };
             return r.render(w);
         }
 
-        if self.details.header {
+        if self.details.header.check(self.is_a_tty) {
             let row = table.header_row();
             let name = TextCell::paint_str(self.theme.ui.header.unwrap_or_default(), "Name")
                 .strings()
@@ -260,7 +265,7 @@ impl<'a> Render<'a> {
 
         // The header row will be printed separately, but it should be
         // considered for the width calculations.
-        if self.details.header {
+        if self.details.header.check(self.is_a_tty) {
             let row = table.header_row();
             table.add_widths(&row);
         }

@@ -9,7 +9,7 @@ use clap::{ArgMatches, ValueEnum};
 use crate::output::TerminalWidth::Automatic;
 
 use crate::fs::feature::xattr;
-use crate::options::parser::ColorScaleModeArgs;
+use crate::options::parser::{ColorScaleModeArgs, ShowWhen};
 use crate::options::{NumberSource, OptionsError, Vars, vars};
 use crate::output::TerminalWidth::Set;
 use crate::output::color_scale::{ColorScaleMode, ColorScaleOptions};
@@ -150,11 +150,21 @@ impl grid::Options {
     }
 }
 
+impl details::ShowHeader {
+    fn deduce(matches: &ArgMatches) -> Self {
+        match matches.get_one("header") {
+            Some(ShowWhen::Always) => Self::Always,
+            Some(ShowWhen::Never) | None => Self::Never,
+            Some(ShowWhen::Auto) => Self::Auto,
+        }
+    }
+}
+
 impl details::Options {
     fn deduce_tree<V: Vars>(matches: &ArgMatches, vars: &V) -> Self {
         details::Options {
             table: None,
-            header: false,
+            header: details::ShowHeader::Never,
             xattr: xattr::ENABLED && matches.get_flag("extended"),
             secattr: xattr::ENABLED && matches.get_flag("security-context"),
             mounts: matches.get_flag("mounts"),
@@ -178,7 +188,7 @@ impl details::Options {
 
         Ok(details::Options {
             table: Some(TableOptions::deduce(matches, vars)?),
-            header: matches.get_flag("header"),
+            header: details::ShowHeader::deduce(matches),
             xattr: xattr::ENABLED && matches.get_flag("extended"),
             secattr: xattr::ENABLED && matches.get_flag("security-context"),
             mounts: matches.get_flag("mounts"),
@@ -948,7 +958,7 @@ mod tests {
             details::Options::deduce_tree(&cli, &MockVars::default()),
             details::Options {
                 table: None,
-                header: false,
+                header: details::ShowHeader::Never,
                 xattr: false,
                 secattr: false,
                 mounts: false,
@@ -965,7 +975,7 @@ mod tests {
             details::Options::deduce_tree(&cli, &MockVars::default()),
             details::Options {
                 table: None,
-                header: false,
+                header: details::ShowHeader::Never,
                 xattr: false,
                 secattr: false,
                 mounts: true,
@@ -982,7 +992,7 @@ mod tests {
             details::Options::deduce_tree(&cli, &MockVars::default()),
             details::Options {
                 table: None,
-                header: false,
+                header: details::ShowHeader::Never,
                 xattr: xattr::ENABLED,
                 secattr: false,
                 mounts: false,
@@ -999,7 +1009,7 @@ mod tests {
             details::Options::deduce_tree(&cli, &MockVars::default()),
             details::Options {
                 table: None,
-                header: false,
+                header: details::ShowHeader::Never,
                 xattr: false,
                 secattr: xattr::ENABLED,
                 mounts: false,
