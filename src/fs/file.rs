@@ -403,11 +403,24 @@ impl<'dir> File<'dir> {
 
     /// Whether this file is a mount point
     pub fn is_mount_point(&self) -> bool {
-        cfg!(any(target_os = "linux", target_os = "macos"))
-            && self.is_directory()
-            && self
+        if cfg!(not(any(target_os = "linux", target_os = "macos"))) || !self.is_directory() {
+            return false;
+        }
+        let all_mounts = all_mounts();
+        if !all_mounts.is_empty() {
+            return self
                 .absolute_path()
-                .is_some_and(|p| all_mounts().contains_key(p))
+                .is_some_and(|p| all_mounts.contains_key(p));
+        }
+        #[cfg(unix)]
+        if let Ok(x) = std::fs::metadata(&self.path)
+            && let Ok(y) = std::fs::metadata(self.path.join(".."))
+        {
+            // .dev() is the traditional fallback used by mountpoint(1). Misses bind mounts.
+            // .ino() detects the root directory, which parents itself and is always a mount
+            return x.dev() != y.dev() || x.ino() == y.ino();
+        }
+        false
     }
 
     /// The filesystem device and type for a mount point
