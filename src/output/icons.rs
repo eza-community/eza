@@ -605,6 +605,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "dylib"          => Icons::OS_APPLE,         // 
     "ebook"          => Icons::BOOK,             // 
     "ebuild"         => '\u{f30d}',              // 
+    "eclass"         => '\u{f30d}',              // 
     "edn"            => '\u{e76a}',              // 
     "editorconfig"   => '\u{e652}',              // 
     "eex"            => Icons::LANG_ELIXIR,      // 
