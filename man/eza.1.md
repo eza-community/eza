@@ -348,7 +348,7 @@ See `https://no-color.org/` for details.
 
 Specifies the colour scheme used to highlight files based on their name and kind, as well as highlighting metadata and parts of the UI.
 
-For more information on the format of these environment variables, see the [eza_colors.5.md](eza_colors.5.md) manual page.
+For more information on the format of these environment variables, see the [eza_colors.5.md](eza_colors.5) manual page.
 
 ## `EZA_OVERRIDE_GIT`
 
@@ -400,5 +400,5 @@ Our infinite thanks to Benjamin ‘ogham’ Sago and all the other contributors 
 SEE ALSO
 ========
 
-- [**eza_colors**(5)](eza_colors.5.md)
-- [**eza_colors-explanation**(5)](eza_colors-explanation.5.md)
+- [**eza_colors**(5)](eza_colors.5)
+- [**eza_colors-explanation**(5)](eza_colors-explanation.5)
