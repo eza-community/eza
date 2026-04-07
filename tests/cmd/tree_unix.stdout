@@ -5,7 +5,7 @@ tests/itest
 ├── d
 ├── dir-symlink -> vagrant/debug
 ├── e
-├── exa
+├── eza
 │   ├── file.c -> djihisudjuhfius
 │   └── sssssssssssssssssssssssssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 │       └── Makefile

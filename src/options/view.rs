@@ -51,8 +51,8 @@ impl Mode {
     /// Determine which viewing mode to use based on the user’s options.
     ///
     /// As with the other options, arguments are scanned right-to-left and the
-    /// first flag found is matched, so `exa --oneline --long` will pick a
-    /// details view, and `exa --long --oneline` will pick the lines view.
+    /// first flag found is matched, so `eza --oneline --long` will pick a
+    /// details view, and `eza --long --oneline` will pick the lines view.
     ///
     /// This is complicated a little by the fact that `--grid` and `--tree`
     /// can also combine with `--long`, so care has to be taken to use the
@@ -212,11 +212,9 @@ impl TerminalWidth {
 
 impl RowThreshold {
     fn deduce<V: Vars>(vars: &V) -> Result<Self, OptionsError> {
-        if let Some(columns) = vars
-            .get_with_fallback(vars::EZA_GRID_ROWS, vars::EXA_GRID_ROWS)
+        vars.get_with_fallback(vars::EZA_GRID_ROWS, vars::EXA_GRID_ROWS)
             .and_then(|s| s.into_string().ok())
-        {
-            match columns.parse() {
+            .map_or(Ok(Self::AlwaysGrid), |columns| match columns.parse() {
                 Ok(rows) => Ok(Self::MinimumRows(rows)),
                 Err(e) => {
                     let source = NumberSource::Env(
@@ -225,10 +223,7 @@ impl RowThreshold {
                     );
                     Err(OptionsError::FailedParse(columns, source, e))
                 }
-            }
-        } else {
-            Ok(Self::AlwaysGrid)
-        }
+            })
     }
 }
 
@@ -256,7 +251,7 @@ impl Columns {
         let time_types = TimeTypes::deduce(matches)?;
 
         let no_git_env = vars
-            .get_with_fallback(vars::EXA_OVERRIDE_GIT, vars::EZA_OVERRIDE_GIT)
+            .get_with_fallback(vars::EZA_OVERRIDE_GIT, vars::EXA_OVERRIDE_GIT)
             .is_some();
 
         let git = matches.get_flag("git") && !matches.get_flag("no-git") && !no_git_env;
@@ -500,14 +495,12 @@ impl TimeTypes {
 
 impl ColorScaleOptions {
     pub fn deduce<V: Vars>(matches: &ArgMatches, vars: &V) -> Self {
-        let min_luminance =
-            match vars.get_with_fallback(vars::EZA_MIN_LUMINANCE, vars::EXA_MIN_LUMINANCE) {
-                Some(var) => match var.to_string_lossy().parse() {
-                    Ok(luminance) if (-100..=100).contains(&luminance) => luminance,
-                    _ => 40,
-                },
-                None => 40,
-            };
+        let min_luminance = vars
+            .get_with_fallback(vars::EZA_MIN_LUMINANCE, vars::EXA_MIN_LUMINANCE)
+            .map_or(40, |var| match var.to_string_lossy().parse() {
+                Ok(luminance) if (-100..=100).contains(&luminance) => luminance,
+                _ => 40,
+            });
 
         let mode = match matches.get_one("color-scale-mode").unwrap() {
             ColorScaleModeArgs::Fixed => ColorScaleMode::Fixed,

@@ -9,19 +9,19 @@
 /// The action to take when trying to list a file that turns out to be a
 /// directory.
 ///
-/// By default, exa will display the information about files passed in as
+/// By default, eza will display the information about files passed in as
 /// command-line arguments, with one file per entry. However, if a directory
-/// is passed in, exa assumes that the user wants to see its contents, rather
+/// is passed in, eza assumes that the user wants to see its contents, rather
 /// than the directory itself.
 ///
-/// This can get annoying sometimes: if a user does `exa ~/Downloads/img-*`
+/// This can get annoying sometimes: if a user does `eza ~/Downloads/img-*`
 /// to see the details of every file starting with `img-`, any directories
 /// that happen to start with the same will be listed after the files at
 /// the end in a separate block. By listing directories as files, their
 /// directory status will be ignored, and both will be listed side-by-side.
 ///
 /// These two modes have recursive analogues in the “recurse” and “tree”
-/// modes. Here, instead of just listing the directories, exa will descend
+/// modes. Here, instead of just listing the directories, eza will descend
 /// into them and print out their contents. The recurse mode does this by
 /// having extra output blocks at the end, while the tree mode will show
 /// directories inline, with their contents immediately underneath.

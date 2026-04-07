@@ -264,7 +264,7 @@ impl<'a> Render<'a> {
                 // There are three “levels” of extended attribute support:
                 //
                 // 1. If we’re compiling without that feature, then
-                //    exa pretends all files have no attributes.
+                //    eza pretends all files have no attributes.
                 // 2. If the feature is enabled and the --extended flag
                 //    has been specified, then display an @ in the
                 //    permissions column for files with attributes, the
@@ -273,9 +273,9 @@ impl<'a> Render<'a> {
                 // 3. If the --extended flag *hasn’t* been specified, then
                 //    display the @, but don’t display anything else.
                 //
-                // For a while, exa took a stricter approach to (3):
+                // For a while, eza took a stricter approach to (3):
                 // if an error occurred while checking a file’s xattrs to
-                // see if it should display the @, exa would display that
+                // see if it should display the @, eza would display that
                 // error even though the attributes weren’t actually being
                 // shown! This was confusing, as users were being shown
                 // errors for something they didn’t explicitly ask for,
