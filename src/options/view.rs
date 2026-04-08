@@ -319,12 +319,13 @@ impl SizeFormat {
     }
 }
 
-const FORMAT_STYLE_FIELDS: [&str; 6] = [
+const FORMAT_STYLE_FIELDS: [&str; 7] = [
     "default",
     "iso",
     "long-iso",
     "full-iso",
     "relative",
+    "relative-recent",
     "+<CUSTOM_FORMAT>",
 ];
 
@@ -352,6 +353,28 @@ impl TimeFormat {
             "long-iso" => return Ok(TimeFormat::LongISO),
             "full-iso" => return Ok(TimeFormat::FullISO),
             "relative" => return Ok(TimeFormat::Relative),
+            "relative-recent" => {
+                return Ok(TimeFormat::RelativeRecent {
+                    recent_window_days: None,
+                })
+            }
+            s if s.starts_with("relative-recent:") => {
+                if let Some(days) = s
+                    .split_once(':')
+                    .and_then(|(_, rhs)| rhs.parse::<u32>().ok())
+                {
+                    return Ok(TimeFormat::RelativeRecent {
+                        recent_window_days: Some(days),
+                    });
+                };
+
+                let error_middle = format!(
+                    "{}{}",
+                    "DAYS in \"relative-recent[:DAYS]\" must be a positive integer value.\n",
+                    "For example: \"relative-recent:30\"",
+                );
+                return Err(format!("{error_header}{error_middle}{error_footer}"));
+            }
             s if !s.starts_with('+') => {
                 let error_middle = format!(
                     "{}{}",
@@ -800,6 +823,52 @@ mod tests {
         assert_eq!(
             TimeFormat::deduce(&mock_cli(vec!["--time-style", "relative"]), &vars),
             TimeFormat::Relative
+        );
+    }
+
+    #[test]
+    fn deduce_time_style_relative_recent_env() {
+        let mut vars = MockVars::default();
+        vars.set(vars::TIME_STYLE, &OsString::from("relative-recent"));
+        assert_eq!(
+            TimeFormat::deduce(&mock_cli(vec![""]), &vars),
+            TimeFormat::RelativeRecent {
+                recent_window_days: None
+            }
+        );
+    }
+
+    #[test]
+    fn deduce_time_style_relative_recent_env_14_days() {
+        let mut vars = MockVars::default();
+        vars.set(vars::TIME_STYLE, &OsString::from("relative-recent:14"));
+        assert_eq!(
+            TimeFormat::deduce(&mock_cli(vec![""]), &vars),
+            TimeFormat::RelativeRecent {
+                recent_window_days: Some(14)
+            }
+        );
+    }
+
+    #[test]
+    fn deduce_time_style_relative_recent_arg() {
+        let vars = MockVars::default();
+        assert_eq!(
+            TimeFormat::deduce(&mock_cli(vec!["--time-style", "relative-recent"]), &vars),
+            TimeFormat::RelativeRecent {
+                recent_window_days: None
+            }
+        );
+    }
+
+    #[test]
+    fn deduce_time_style_relative_recent_arg_14_days() {
+        let vars = MockVars::default();
+        assert_eq!(
+            TimeFormat::deduce(&mock_cli(vec!["--time-style", "relative-recent:14"]), &vars),
+            TimeFormat::RelativeRecent {
+                recent_window_days: Some(14)
+            }
         );
     }
 

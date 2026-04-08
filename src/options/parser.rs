@@ -22,7 +22,7 @@ const TIME_FIELDS_HELP: &str = "[possible values:
   mod|modified, acc|accessed, ch|changed, cr|created]";
 
 const FORMAT_STYLE_FIELDS_HELP: &str = "[possible values:
-  default, iso, long-iso, full-iso, relative, \"+<CUSTOM_FORMAT>\"]";
+  default, iso, long-iso, full-iso, relative, relative-recent[:DAYS], +<CUSTOM_FORMAT>]";
 
 pub fn get_command() -> clap::Command {
     clap::Command::new(clap::crate_name!())

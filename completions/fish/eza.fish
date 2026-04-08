@@ -116,6 +116,7 @@ complete -c eza -l time-style -d "How to format timestamps" -x -a "
     long-iso\t'Display longer ISO timestamps, up to the minute'
     full-iso\t'Display full ISO timestamps, up to the nanosecond'
     relative\t'Display relative timestamps'
+    relative-recent\t'Display relative timestamps for recent files'
     +FORMAT\t'Use custom time style'
 "
 complete -c eza -l total-size -d "Show recursive directory size (unix only)"
