@@ -91,6 +91,7 @@ const FILENAME_TYPES: Map<&'static str, FileType> = phf_map! {
 /// extension is added also update the extension icon map.
 const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     /* Immediate file - kick off the build of a project */
+    "gpr"        => FileType::Build,
     "ninja"      => FileType::Build,
     /* Image files */
     "arw"        => FileType::Image,
@@ -298,6 +299,8 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "so"         => FileType::Compiled, // Unix shared library
     "zwc"        => FileType::Compiled, // zsh compiled file
     /* Source code files */
+    "adb"        => FileType::Source, // Ada body
+    "ads"        => FileType::Source, // Ada specification
     "applescript"=> FileType::Source, // Apple script
     "as"         => FileType::Source, // Action script
     "asa"        => FileType::Source, // asp
