@@ -261,77 +261,48 @@ fn get_path_from_status_entry(e: &StatusEntry<'_>) -> Option<PathBuf> {
     };
 }
 
-// The `repo.statuses` call above takes a long time. exa debug output:
-//
-//   20.311276  INFO:exa::fs::feature::git: Getting Git statuses for repo with workdir "/vagrant/"
-//   20.799610  DEBUG:exa::output::table: Getting Git status for file "./Cargo.toml"
-//
-// Even inserting another logging line immediately afterwards doesn’t make it
-// look any faster.
-
 /// Container of Git statuses for all the files in this folder’s Git repository.
 struct Git {
     statuses: Vec<(PathBuf, git2::Status)>,
 }
 
 impl Git {
-    /// Get either the file or directory status for the given path.
-    /// “Prefix lookup” means that it should report an aggregate status of all
-    /// paths starting with the given prefix (in other words, a directory).
-    fn status(&self, index: &Path, prefix_lookup: bool) -> f::Git {
-        if prefix_lookup {
-            self.dir_status(index)
+    /// Get the status for the given path.
+    ///
+    /// Both dirs and files are considered ignored if any parent dir is ignored by Git.
+    ///
+    /// Otherwise, for dirs, statuses are aggregating (for example, a dir is considered
+    /// modified if any file under it has the status modified).
+    fn status(&self, index: &Path, is_dir: bool) -> f::Git {
+        let path = reorient(index);
+
+        let statuses_iter = self.statuses.iter();
+        let final_status: git2::Status = if is_dir {
+            statuses_iter
+                .filter(|&&(ref s_path, s)| {
+                    if s == git2::Status::IGNORED {
+                        path.starts_with(s_path)
+                    } else {
+                        s_path.starts_with(&path)
+                    }
+                })
+                .fold(git2::Status::empty(), |a, b| a | b.1)
         } else {
-            self.file_status(index)
+            statuses_iter
+                .filter(|&&(ref s_path, s)| {
+                    if s == git2::Status::IGNORED {
+                        path.starts_with(&s_path)
+                    } else {
+                        *s_path == path
+                    }
+                })
+                .fold(git2::Status::empty(), |a, b| a | b.1)
+        };
+
+        f::Git {
+            staged: index_status(final_status),
+            unstaged: working_tree_status(final_status),
         }
-    }
-
-    /// Get the user-facing status of a file.
-    /// We check the statuses directly applying to a file, and for the ignored
-    /// status we check if any of its parents directories is ignored by git.
-    fn file_status(&self, file: &Path) -> f::Git {
-        let path = reorient(file);
-
-        let s = self
-            .statuses
-            .iter()
-            .filter(|p| {
-                if p.1 == git2::Status::IGNORED {
-                    path.starts_with(&p.0)
-                } else {
-                    p.0 == path
-                }
-            })
-            .fold(git2::Status::empty(), |a, b| a | b.1);
-
-        let staged = index_status(s);
-        let unstaged = working_tree_status(s);
-        f::Git { staged, unstaged }
-    }
-
-    /// Get the combined, user-facing status of a directory.
-    /// Statuses are aggregating (for example, a directory is considered
-    /// modified if any file under it has the status modified), except for
-    /// ignored status which applies to files under (for example, a directory
-    /// is considered ignored if one of its parent directories is ignored).
-    fn dir_status(&self, dir: &Path) -> f::Git {
-        let path = reorient(dir);
-
-        let s = self
-            .statuses
-            .iter()
-            .filter(|p| {
-                if p.1 == git2::Status::IGNORED {
-                    path.starts_with(&p.0)
-                } else {
-                    p.0.starts_with(&path)
-                }
-            })
-            .fold(git2::Status::empty(), |a, b| a | b.1);
-
-        let staged = index_status(s);
-        let unstaged = working_tree_status(s);
-        f::Git { staged, unstaged }
     }
 }
 
