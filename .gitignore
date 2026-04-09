@@ -36,8 +36,8 @@ stage
 out.gif
 tests/tmp
 
-## Dynamically generated
-tests/test_dir
+## Dynamically generated test data
+tests/data
 
 # Miscenallous
 .idea

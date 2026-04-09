@@ -1,0 +1,13 @@
+bin.name = "eza"
+args = ["--sort=extension", "tests/data/any/sort"]
+status.code = 0
+stdout = """
+01.city
+02.apple
+ab
+abc
+test
+abc.mp3
+a.txt
+"""
+stderr = ""

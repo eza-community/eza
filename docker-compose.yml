@@ -1,0 +1,14 @@
+services:
+  tests:
+    image: eza-test-env:local
+    pull_policy: never
+    build:
+      context: ./devtools
+      dockerfile: Dockerfile.tests
+    volumes:
+      - ./:/workspace
+      - build_cache:/workspace/target
+      - test_data:/workspace/tests/data
+volumes:
+  build_cache:
+  test_data:

@@ -44,6 +44,13 @@ genDemo:
 # run unit tests
 [group('testing')]
 @test:
+    docker compose  run --build --rm tests just docker-tests
+
+# run unit tests
+[group('testing')]
+@docker-tests:
+    ./devtools/dir-generator.sh tests/data/test_dir
+    ./devtools/generate-timestamp-test-dir.sh tests/data/timestamp_test_dir
     cargo test --workspace -- --quiet
 
 # run unit tests (in release mode)
@@ -351,4 +358,3 @@ gen_test_dir:
     powertest
     nix build -L ./#trydump
     find result/dump -type f \( -name "*.stdout" -o -name "*.stderr" \) -exec sh -c 'base=$(basename {}); if [ -e "tests/ptests/${base%.*}.toml" ]; then cp {} tests/ptests/; fi' \;
-
