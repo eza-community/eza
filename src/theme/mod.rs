@@ -109,7 +109,11 @@ impl Options {
     }
 
     fn default_theme(&self) -> Theme {
-        let mut ui = UiStyles::default_theme(self.colour_scale);
+        let mut ui = if self.definitions.should_reset_styles() {
+            UiStyles::plain()
+        } else {
+            UiStyles::default_theme(self.colour_scale)
+        };
         let (exts, use_default_filetypes) = self.definitions.parse_color_vars(&mut ui);
         let exts: Box<dyn FileStyle> = match (exts.is_non_empty(), use_default_filetypes) {
             (false, false) => Box::new(NoFileStyle),
@@ -122,6 +126,10 @@ impl Options {
 }
 
 impl Definitions {
+    fn should_reset_styles(&self) -> bool {
+        matches!(&self.exa, Some(exa) if exa == "reset" || exa.starts_with("reset:"))
+    }
+
     /// Parse the environment variables into `LS_COLORS` pairs, putting file glob
     /// colours into the `ExtensionMappings` that gets returned, and using the
     /// two-character UI codes to modify the mutable `Colours`.
@@ -151,8 +159,7 @@ impl Definitions {
         let mut use_default_filetypes = true;
 
         if let Some(exa) = &self.exa {
-            // Is this hacky? Yes.
-            if exa == "reset" || exa.starts_with("reset:") {
+            if self.should_reset_styles() {
                 use_default_filetypes = false;
             }
 

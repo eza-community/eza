@@ -1,0 +1,14 @@
+# With reset, only explicitly defined keys should be colored.
+# We use `xx` so permission punctuation is colored across Unix and Windows.
+bin.name = "eza"
+args = "--color always --long --no-user --no-filesize --no-time index.svg"
+
+[fs]
+cwd = "../itest"
+
+[env]
+remove = ["LS_COLORS"]
+
+[env.add]
+EZA_COLORS = "reset:xx=31"
+EZA_CONFIG_DIR = "tests/itest"
