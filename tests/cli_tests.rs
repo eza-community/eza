@@ -11,6 +11,7 @@ impl TransientDirectory {
     fn create(platform: &str, group: &str) -> Self {
         let path_str = format!("tests/data/{platform}/{group}");
         let path = PathBuf::from(&path_str);
+        let _ = fs::remove_dir_all(&path_str);
         fs::create_dir_all(&path).unwrap();
         TransientDirectory { path }
     }
