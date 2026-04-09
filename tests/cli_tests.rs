@@ -1,3 +1,6 @@
+#[allow(unused)]
+use std::path::Path;
+
 #[test]
 fn cli_all_tests() {
     trycmd::TestCases::new().case("tests/cmd/*_all.toml");
@@ -7,6 +10,15 @@ fn cli_all_tests() {
 #[cfg(unix)]
 fn cli_unix_tests() {
     trycmd::TestCases::new().case("tests/cmd/*_unix.toml");
+}
+
+#[test]
+#[cfg(target_os = "linux")]
+fn cli_linux_tests() {
+    if !Path::new("/sys").is_dir() {
+        return; // Nix
+    }
+    trycmd::TestCases::new().case("tests/cmd/*_linux.toml");
 }
 
 #[test]
