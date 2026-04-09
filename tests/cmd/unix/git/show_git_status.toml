@@ -1,0 +1,21 @@
+bin.name = "eza"
+args = ["--git", "-l", "--no-time", "tests/data/unix/git"]
+stdout = """
+drwxr-xr-x - ubuntu -- dir-empty
+drwxr-xr-x - ubuntu -I dir-ignored
+drwxr-xr-x - ubuntu -- dir-ignored-with-file-unmodified
+drwxr-xr-x - ubuntu -M dir-modified
+drwxr-xr-x - ubuntu M- dir-modified-staged
+drwxr-xr-x - ubuntu -N dir-new
+drwxr-xr-x - ubuntu -- dir-new-staged
+drwxr-xr-x - ubuntu NN dir-new-staged-new
+.rw-r--r-- 0 ubuntu -I file-ignored
+.rw-r--r-- 1 ubuntu -M file-modified
+.rw-r--r-- 1 ubuntu M- file-modified-staged
+.rw-r--r-- 2 ubuntu MM file-modified-staged-modified
+.rw-r--r-- 0 ubuntu -N file-new
+.rw-r--r-- 0 ubuntu N- file-new-staged
+.rw-r--r-- 1 ubuntu NM file-new-staged-modified
+lrwxrwxrwx - ubuntu -M symlink-new -> file-modified
+"""
+stderr = ""

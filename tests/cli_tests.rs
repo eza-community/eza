@@ -1,8 +1,7 @@
 use std::fs::{self, File, FileTimes};
-use std::time::Duration;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
-use std::thread;
+use std::process::Command;
 
 struct TransientDirectory {
     path: PathBuf
@@ -16,7 +15,8 @@ impl TransientDirectory {
         TransientDirectory { path }
     }
 
-    fn create_file<P: AsRef<Path>>(&self, file_name: P) -> File {
+    fn create_file<P: AsRef<Path> + std::fmt::Debug>(&self, file_name: P) -> File {
+
         let file =  File::create(self.path.join(file_name)).unwrap();
 
         let times = FileTimes::new()
@@ -37,6 +37,17 @@ impl TransientDirectory {
         for dir_name in dirs {
             fs::create_dir(self.path.join(dir_name)).unwrap();
         }
+    }
+
+    fn run(&self, command: &str, args: &[&str]) {
+        Command::new(command).args(args).current_dir(&self.path).output().unwrap();
+    }
+
+    #[cfg(unix)]
+    fn symlink<P: AsRef<Path>, Q: AsRef<Path>>(&self, source: P, target: Q) {
+        use std::os::unix::fs;
+
+        fs::symlink(source, self.path.join(target)).unwrap();
     }
 }
 
@@ -90,14 +101,84 @@ fn cli_tests_any_sort() {
 }
 
 #[test]
+#[cfg(unix)]
 #[cfg(feature = "git")]
 fn cli_tests_any_git() {
-    use std::process::Command;
+    use std::io::Write;
 
-    let test_dir = TransientDirectory::create("any", "git");
-    Command::new("git").args(["init", test_dir.to_str().unwrap()]).output().unwrap();
+    let test_dir = TransientDirectory::create("unix", "git");
+    test_dir.run("git", &["init", "."]);
+    test_dir.create_dirs(&[
+        "dir-empty",
+        "dir-ignored",
+        "dir-ignored-with-file-unmodified",
+        "dir-modified",
+        "dir-modified-staged",
+        "dir-new",
+        "dir-new-staged",
+        "dir-new-staged-new",
+    ]);
 
-    trycmd::TestCases::new().case("tests/cmd/any/git/*.toml");
+    test_dir.create_files(&[
+        "dir-ignored/file_new",
+        "dir-ignored-with-file-unmodified/file-unmodified",
+        "dir-new-staged-new/file-new-staged",
+        "dir-new/file-ignored",
+        "dir-new/file-new",
+        "file-ignored",
+        "file-new",
+        "file-new-staged"
+    ]);
+    let mut dir_modified = test_dir.create_file("dir-modified/file-modified");
+    let mut dir_modified_staged = test_dir.create_file("dir-modified-staged/file-modified-staged");
+    let mut modified = test_dir.create_file("file-modified");
+    let mut modified_staged = test_dir.create_file("file-modified-staged");
+    let mut modified_staged_modified = test_dir.create_file("file-modified-staged-modified");
+    let mut new_staged_modified = test_dir.create_file("file-new-staged-modified");
+
+    test_dir.symlink("file-modified", "symlink-new");
+
+    let mut gitignore = test_dir.create_file(".gitignore");
+    gitignore.write_all(b"dir-ignored*\nfile-ignored*").unwrap();
+
+    test_dir.run("git", &["config", "user.name", "Eza"]);
+    test_dir.run("git", &["config", "user.email", "eza@eza.test"]);
+
+    test_dir.run("git", &[
+        "add",
+        "dir-modified",
+        "dir-modified-staged",
+        "file-modified",
+        "file-modified-staged",
+        "file-modified-staged-modified",
+    ]);
+    test_dir.run("git", &["add", "-f", "dir-ignored-with-file-unmodified/file-unmodified"]);
+    test_dir.run("git", &["commit", "-m", "initial commit"]);
+
+    modified.write_all(b"a").unwrap();
+    modified_staged.write_all(b"a").unwrap();
+    modified_staged_modified.write_all(b"a").unwrap();
+    dir_modified.write_all(b"a").unwrap();
+    dir_modified_staged.write_all(b"a").unwrap();
+
+    test_dir.run("git", &[
+        "add",
+        "dir-modified-staged",
+        "dir-new-staged",
+        "dir-new-staged-new",
+        "file-modified-staged",
+        "file-modified-staged-modified",
+        "file-new-staged",
+        "file-new-staged-modified",
+        "dir-new-staged-new/file-new-staged",
+    ]);
+
+    test_dir.create_file("dir-new-staged-new/file-new");
+
+    new_staged_modified.write_all(b"a").unwrap();
+    modified_staged_modified.write_all(b"a").unwrap();
+
+    trycmd::TestCases::new().case("tests/cmd/unix/git/*.toml");
 }
 
 #[test]
@@ -115,6 +196,9 @@ fn cli_tests_any_no_git() {
 #[cfg(feature = "docker-tests")]
 fn cli_tests_any_date() {
     use chrono::{TimeZone, Local};
+    use std::thread;
+    use std::time::Duration;
+
     let test_dir = TransientDirectory::create("any", "dates");
 
     let old_date: SystemTime = Local.with_ymd_and_hms(2003, 3, 3, 0, 0, 0).unwrap().into();
