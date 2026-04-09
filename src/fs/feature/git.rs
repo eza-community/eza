@@ -349,7 +349,16 @@ fn reorient(path: &Path) -> PathBuf {
         Ok(dir) => dir.join(path),
     };
 
-    path.canonicalize().unwrap_or(path)
+    // Canonicalize the path of the parent but not the whole path,
+    // so that we evaluate the status of a symlink rather than its target.
+    if let Some(parent_path) = path.parent()
+        && let Some(file_name) = path.file_name()
+        && let Ok(canon_parent_path) = parent_path.canonicalize()
+    {
+        canon_parent_path.join(file_name)
+    } else {
+        path
+    }
 }
 
 #[cfg(windows)]
