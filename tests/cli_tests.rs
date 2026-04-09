@@ -1,23 +1,35 @@
-use std::fs;
-use std::path;
+use std::fs::{self, File, FileTimes};
+use std::time::Duration;
+use std::path::{Path, PathBuf};
 use std::time::SystemTime;
+use std::thread;
 
 struct TransientDirectory {
-    path: path::PathBuf
+    path: PathBuf
 }
 
 impl TransientDirectory {
     fn create(platform: &str, group: &str) -> Self {
         let path_str = format!("tests/data/{platform}/{group}");
-        let path = path::PathBuf::from(&path_str);
+        let path = PathBuf::from(&path_str);
         fs::create_dir_all(&path).unwrap();
         TransientDirectory { path }
     }
 
+    fn create_file<P: AsRef<Path>>(&self, file_name: P) -> File {
+        let file =  File::create(self.path.join(file_name)).unwrap();
+
+        let times = FileTimes::new()
+            .set_accessed(SystemTime::UNIX_EPOCH)
+            .set_modified(SystemTime::UNIX_EPOCH);
+
+        file.set_times(times).unwrap();
+        file
+    }
+
     fn create_files(&self, files: &[&str]) {
         for file_name in files {
-            let file =  fs::File::create(self.path.join(file_name)).unwrap();
-            file.set_modified(SystemTime::UNIX_EPOCH).unwrap();
+            self.create_file(file_name);
         }
     }
 
@@ -34,16 +46,16 @@ impl Drop for TransientDirectory {
     }
 }
 
-impl AsRef<path::Path> for TransientDirectory {
-    fn as_ref(&self) -> &path::Path {
+impl AsRef<Path> for TransientDirectory {
+    fn as_ref(&self) -> &Path {
         &self.path
     }
 }
 
 impl std::ops::Deref for TransientDirectory {
-    type Target = path::PathBuf;
+    type Target = PathBuf;
 
-    fn deref(&self) -> &path::PathBuf {
+    fn deref(&self) -> &PathBuf {
         &self.path
     }
 }
@@ -97,4 +109,38 @@ fn cli_tests_any_no_git() {
     Command::new("git").args(["init", test_dir.to_str().unwrap()]).output().unwrap();
 
     trycmd::TestCases::new().case("tests/cmd/any/no-git/*.toml");
+}
+
+#[test]
+#[cfg(feature = "docker-tests")]
+fn cli_tests_any_date() {
+    use chrono::{TimeZone, Local};
+    let test_dir = TransientDirectory::create("any", "dates");
+
+    let old_date: SystemTime = Local.with_ymd_and_hms(2003, 3, 3, 0, 0, 0).unwrap().into();
+    let med_date: SystemTime = Local.with_ymd_and_hms(2006, 6, 15, 23, 14, 29).unwrap().into();
+    let new_date: SystemTime = Local.with_ymd_and_hms(2009, 12, 22, 10, 38, 53).unwrap().into();
+
+    // Sleep between each create as we can not modified the created time
+    let peach = test_dir.create_file("peach");
+    thread::sleep(Duration::from_millis(100));
+    let peach_times = FileTimes::new()
+        .set_modified(med_date)
+        .set_accessed(new_date);
+    peach.set_times(peach_times).unwrap();
+
+    let plum = test_dir.create_file("plum");
+    thread::sleep(Duration::from_millis(100));
+    let plum_times = FileTimes::new()
+        .set_modified(new_date)
+        .set_accessed(old_date);
+    plum.set_times(plum_times).unwrap();
+
+    let pear = test_dir.create_file("pear");
+    let pear_times = FileTimes::new()
+        .set_modified(old_date)
+        .set_accessed(med_date);
+    pear.set_times(pear_times).unwrap();
+
+    trycmd::TestCases::new().case("tests/cmd/any/dates/*.toml");
 }
