@@ -11,10 +11,12 @@ RUN sed -i '/fr_FR.UTF-8/s/^# //g' /etc/locale.gen && \
     sed -i '/ja_JP.UTF-8/s/^# //g' /etc/locale.gen && \
     locale-gen
 
-# Create working directories
+# Create working directories and volumes moint points
 RUN mkdir -p /workspace/target && \
     mkdir -p /workspace/tests/data && \
-    chown -R ubuntu: /workspace
+    mkdir -p /home/ubuntu/.cargo/registry && \
+    chown -R ubuntu: /workspace && \
+    chown -R ubuntu: /home/ubuntu
 
 USER ubuntu
 

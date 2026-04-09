@@ -8,7 +8,11 @@ services:
     volumes:
       - ./:/workspace
       - build_cache:/workspace/target
+      - rustup_cache:/home/ubuntu/.rustup
+      - cargo_cache:/home/ubuntu/.cargo/registry
       - test_data:/workspace/tests/data
 volumes:
   build_cache:
+  rustup_cache:
+  cargo_cache:
   test_data:

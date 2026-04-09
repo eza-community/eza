@@ -44,14 +44,16 @@ genDemo:
 # run unit tests
 [group('testing')]
 @test:
-    docker compose  run --build --rm tests just docker-tests
+    cargo test --workspace -- --quiet
 
-# run unit tests
 [group('testing')]
 @docker-tests:
-    ./devtools/dir-generator.sh tests/data/test_dir
-    ./devtools/generate-timestamp-test-dir.sh tests/data/timestamp_test_dir
-    cargo test --workspace -- --quiet
+    docker compose run --rm tests cargo test --features=docker-tests -- --test cli_tests
+
+[group('testing')]
+@regen-tests-output:
+    docker compose run --rm -e TRYCMD=overwrite tests cargo test --features=docker-tests -- --test cli_tests
+
 
 # run unit tests (in release mode)
 [group('testing')]
