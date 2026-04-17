@@ -68,6 +68,10 @@ fn main() {
                                 .filter(|s| !s.is_empty())
                                 .collect::<Vec<_>>(),
                         );
+
+                        if input.is_empty() && !cli.get_flag("stdin") {
+                            input_paths = vec![OsStr::new(".")];
+                        }
                     }
                 }
             }
