@@ -110,7 +110,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s. Quick overv
 - **--colo[u]r-scale=(field)**: highlight levels of `field` distinctly(all, age, size)
 - **--color-scale-mode=(mode)**: use gradient or fixed colors in --color-scale. valid options are `fixed` or `gradient`
 - **--icons=(when)**: when to display icons (always, auto, never)
-- **--hyperlink**: display entries as hyperlinks
+- **--hyperlink=(when)**: when to display entries as hyperlinks (always, auto, never)
 - **--absolute=(mode)**: display entries with their absolute path (on, follow, off)
 - **-w**, **--width=(columns)**: set screen width in columns
 
@@ -122,7 +122,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s. Quick overv
 <summary>Click to expand</summary>
 
 - **-a**, **--all**: show hidden and 'dot' files
-- **-d**, **--list-dirs**: list directories like regular files
+- **-d**, **--treat-dirs-as-files**: list directories like regular files
 - **-L**, **--level=(depth)**: limit the depth of recursion
 - **-r**, **--reverse**: reverse the sort order
 - **-s**, **--sort=(field)**: which field to sort by

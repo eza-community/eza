@@ -1,9 +1,2 @@
-git
-grid
-group
-icons
-perms
-size
-specials
-symlinks
-time
+dirs-ext  grid   icons  size      symlinks
+git       group  perms  specials  time

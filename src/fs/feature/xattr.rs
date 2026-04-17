@@ -71,7 +71,7 @@ impl FileAttributes for Path {
 ))]
 mod extended_attrs {
     use super::Attribute;
-    use libc::{c_char, c_void, size_t, ssize_t, ERANGE};
+    use libc::{ERANGE, c_char, c_void, size_t, ssize_t};
     use std::ffi::{CStr, CString, OsStr, OsString};
     use std::io;
     use std::os::unix::ffi::OsStrExt;
@@ -81,8 +81,8 @@ mod extended_attrs {
     #[cfg(target_os = "macos")]
     mod os {
         use libc::{
-            c_char, c_int, c_void, getxattr, listxattr, size_t, ssize_t, XATTR_NOFOLLOW,
-            XATTR_SHOWCOMPRESSION,
+            XATTR_NOFOLLOW, XATTR_SHOWCOMPRESSION, c_char, c_int, c_void, getxattr, listxattr,
+            size_t, ssize_t,
         };
 
         // Options to use for MacOS versions of getxattr and listxattr
@@ -161,8 +161,9 @@ mod extended_attrs {
     #[cfg(any(target_os = "netbsd", target_os = "freebsd"))]
     mod os {
         use libc::{
-            c_char, c_int, c_void, extattr_get_file, extattr_get_link, extattr_list_file,
-            extattr_list_link, size_t, ssize_t, EXTATTR_NAMESPACE_SYSTEM, EXTATTR_NAMESPACE_USER,
+            EXTATTR_NAMESPACE_SYSTEM, EXTATTR_NAMESPACE_USER, c_char, c_int, c_void,
+            extattr_get_file, extattr_get_link, extattr_list_file, extattr_list_link, size_t,
+            ssize_t,
         };
 
         // Wrapper around listxattr that handles symbolic links
@@ -433,8 +434,7 @@ mod extended_attrs {
     // Get a vector of all attribute names and values on `path`
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     pub fn attributes(path: &Path, follow_symlinks: bool) -> io::Result<Vec<Attribute>> {
-        let path = CString::new(path.as_os_str().as_bytes())
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+        let path = CString::new(path.as_os_str().as_bytes()).map_err(io::Error::other)?;
         let attr_names = list_attributes(&path, follow_symlinks, os::list_xattr)?;
 
         #[cfg(target_os = "linux")]
@@ -447,8 +447,7 @@ mod extended_attrs {
         let mut attrs = Vec::with_capacity(attr_names.len());
         for attr_name in attr_names {
             if let Some(name) = attr_name.to_str() {
-                let attr_name =
-                    CString::new(name).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                let attr_name = CString::new(name).map_err(io::Error::other)?;
                 let value = get_attribute(&path, &attr_name, follow_symlinks, os::get_xattr)?;
                 attrs.push(Attribute {
                     name: name.to_string(),
@@ -477,8 +476,7 @@ mod extended_attrs {
     ) -> io::Result<()> {
         for attr_name in attr_names {
             if let Some(name) = attr_name.to_str() {
-                let attr_name =
-                    CString::new(name).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+                let attr_name = CString::new(name).map_err(io::Error::other)?;
                 let value = get_attribute(path, &attr_name, follow_symlinks, getter)?;
                 attrs.push(Attribute {
                     name: format!("{namespace}::{name}"),
@@ -493,8 +491,7 @@ mod extended_attrs {
     pub fn attributes(path: &Path, follow_symlinks: bool) -> io::Result<Vec<Attribute>> {
         use libc::EPERM;
 
-        let path = CString::new(path.as_os_str().as_bytes())
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+        let path = CString::new(path.as_os_str().as_bytes()).map_err(io::Error::other)?;
         let attr_names_system = list_attributes(&path, follow_symlinks, os::list_system_xattr)
             .or_else(|err| {
                 // Reading of attributes in the system namespace is only supported for root

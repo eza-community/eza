@@ -57,8 +57,8 @@ pub mod test {
 
     use nu_ansi_term::Color::*;
     use nu_ansi_term::Style;
-    use uzers::mock::MockUsers;
     use uzers::User;
+    use uzers::mock::MockUsers;
 
     struct TestColours;
 

@@ -4,43 +4,26 @@
 // SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
-#![warn(deprecated_in_future)]
 #![warn(future_incompatible)]
-#![warn(nonstandard_style)]
-#![warn(rust_2018_compatibility)]
-#![warn(rust_2018_idioms)]
 #![warn(trivial_casts, trivial_numeric_casts)]
-#![warn(unused)]
-#![warn(clippy::all, clippy::pedantic)]
-#![allow(clippy::cast_precision_loss)]
-#![allow(clippy::cast_possible_truncation)]
-#![allow(clippy::cast_possible_wrap)]
-#![allow(clippy::cast_sign_loss)]
-#![allow(clippy::enum_glob_use)]
-#![allow(clippy::map_unwrap_or)]
-#![allow(clippy::match_same_arms)]
-#![allow(clippy::module_name_repetitions)]
+#![warn(clippy::all)]
 #![allow(clippy::non_ascii_literal)]
-#![allow(clippy::option_if_let_else)]
-#![allow(clippy::too_many_lines)]
-#![allow(clippy::unused_self)]
-#![allow(clippy::upper_case_acronyms)]
-#![allow(clippy::wildcard_imports)]
 
 use std::env;
 use std::ffi::{OsStr, OsString};
-use std::io::{self, stdin, ErrorKind, IsTerminal, Read, Write};
+use std::io::{self, ErrorKind, IsTerminal, Read, Write, stdin};
 use std::path::{Component, PathBuf};
 use std::process::exit;
 
 use nu_ansi_term::{AnsiStrings as ANSIStrings, Style};
+use options::parser::get_command;
 
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::{FileFilterFlags::OnlyFiles, GitIgnore};
 use crate::fs::{Dir, File};
 use crate::options::stdin::FilesInput;
-use crate::options::{vars, Options, OptionsResult, Vars};
-use crate::output::{details, escape, file_name, grid, grid_details, lines, Mode, View};
+use crate::options::{Options, Vars, vars};
+use crate::output::{Mode, View, details, escape, file_name, grid, grid_details, lines};
 use crate::theme::Theme;
 use log::*;
 
@@ -59,14 +42,16 @@ fn main() {
 
     logger::configure(env::var_os(vars::EZA_DEBUG).or_else(|| env::var_os(vars::EXA_DEBUG)));
 
-    let stdout_istty = io::stdout().is_terminal();
+    let cli = get_command().get_matches();
 
+    let stdout_istty = io::stdout().is_terminal();
     let mut input = String::new();
-    let args: Vec<_> = env::args_os().skip(1).collect();
-    match Options::parse(args.iter().map(std::convert::AsRef::as_ref), &LiveVars) {
-        OptionsResult::Ok(options, mut input_paths) => {
-            // List the current directory by default.
-            // (This has to be done here, otherwise git_options won’t see it.)
+    let mut input_paths: Vec<&OsStr> = match cli.get_many("FILE") {
+        Some(x) => x.map(OsString::as_os_str).collect(),
+        None => vec![],
+    };
+    match Options::deduce(&cli, &LiveVars) {
+        Ok(options) => {
             if input_paths.is_empty() {
                 match &options.stdin {
                     FilesInput::Args => {
@@ -79,7 +64,7 @@ fn main() {
                         input_paths.extend(
                             input
                                 .split(&separator.clone().into_string().unwrap_or("\n".to_string()))
-                                .map(std::ffi::OsStr::new)
+                                .map(OsStr::new)
                                 .filter(|s| !s.is_empty())
                                 .collect::<Vec<_>>(),
                         );
@@ -122,22 +107,8 @@ fn main() {
                 }
             }
         }
-
-        OptionsResult::Help(help_text) => {
-            print!("{help_text}");
-        }
-
-        OptionsResult::Version(version_str) => {
-            print!("{version_str}");
-        }
-
-        OptionsResult::InvalidOptions(error) => {
+        Err(error) => {
             eprintln!("eza: {error}");
-
-            if let Some(s) = error.suggestion() {
-                eprintln!("{s}");
-            }
-
             exit(exits::OPTIONS_ERROR);
         }
     }
@@ -435,7 +406,7 @@ impl Exa<'_> {
         } = self.options.view;
 
         match (mode, self.console_width) {
-            (Mode::Grid(ref opts), Some(console_width)) => {
+            (Mode::Grid(opts), Some(console_width)) => {
                 let filter = &self.options.filter;
                 let r = grid::Render {
                     files,
@@ -448,7 +419,7 @@ impl Exa<'_> {
                 r.render(&mut self.writer)
             }
 
-            (Mode::Grid(ref opts), None) => {
+            (Mode::Grid(opts), None) => {
                 let filter = &self.options.filter;
                 let r = grid::Render {
                     files,
@@ -472,7 +443,7 @@ impl Exa<'_> {
                 r.render(&mut self.writer)
             }
 
-            (Mode::Details(ref opts), _) => {
+            (Mode::Details(opts), _) => {
                 let filter = &self.options.filter;
                 let recurse = self.options.dir_action.recurse_options();
 
@@ -494,7 +465,7 @@ impl Exa<'_> {
                 r.render(&mut self.writer)
             }
 
-            (Mode::GridDetails(ref opts), Some(console_width)) => {
+            (Mode::GridDetails(opts), Some(console_width)) => {
                 let details = &opts.details;
                 let row_threshold = opts.row_threshold;
 
@@ -519,7 +490,7 @@ impl Exa<'_> {
                 r.render(&mut self.writer)
             }
 
-            (Mode::GridDetails(ref opts), None) => {
+            (Mode::GridDetails(opts), None) => {
                 let opts = &opts.to_details_options();
                 let filter = &self.options.filter;
                 let recurse = self.options.dir_action.recurse_options();

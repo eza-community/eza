@@ -1,5 +1,10 @@
-git    size
-grid   specials
-group  symlinks
-icons  time
+dirs-ext
+git
+grid
+group
+icons
 perms
+size
+specials
+symlinks
+time

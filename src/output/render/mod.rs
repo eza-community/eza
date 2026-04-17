@@ -30,6 +30,10 @@ pub use self::links::Colours as LinksColours;
 
 mod permissions;
 pub use self::permissions::{Colours as PermissionsColours, PermissionsPlusRender};
+#[cfg(unix)]
+mod permissions_unix;
+#[cfg(windows)]
+mod permissions_windows;
 
 mod size;
 pub use self::size::Colours as SizeColours;
@@ -45,6 +49,7 @@ pub use self::users::Colours as UserColours;
 #[cfg(unix)]
 pub use self::users::Render as UserRender;
 
+#[cfg(unix)]
 mod octal;
 #[cfg(unix)]
 pub use self::octal::Render as OctalPermissionsRender;

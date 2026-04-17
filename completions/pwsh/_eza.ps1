@@ -77,6 +77,11 @@ Register-ArgumentCompleter -Native -CommandName 'eza' -ScriptBlock {
             ForEach-Object {[System.Management.Automation.CompletionResult]::new($_, $_, "ParameterValue", $_)}
             break
         }
+        '*;--hyperlink' {
+            $ArrayWhen | 
+            ForEach-Object {[System.Management.Automation.CompletionResult]::new($_, $_, "ParameterValue", $_)}
+            break
+        }
         '*;--all' {
             [CompletionResult]::new('--show-symlinks'            ,'listfilessyl'        , [CompletionResultType]::ParameterName, 'explicitly show symbolic links (for use with --only-dirs | --only-files)')
             [CompletionResult]::new('--no-symlinks'              ,'listfilessyl'        , [CompletionResultType]::ParameterName, 'do not show symbolic links')
@@ -158,7 +163,7 @@ Register-ArgumentCompleter -Native -CommandName 'eza' -ScriptBlock {
         #   [CompletionResult]::new('--colour-scale-mode'        ,'colorscalemode'      , [CompletionResultType]::ParameterName, 'use gradient or fixed colors in --color-scale (fixed, gradient)')
             [CompletionResult]::new('--icons'                    ,'icons'               , [CompletionResultType]::ParameterName, 'when to display icons (always, auto, never)')
             [CompletionResult]::new('--no-quotes'                ,'noquotes'            , [CompletionResultType]::ParameterName, 'don''t quote file names with spaces')
-            [CompletionResult]::new('--hyperlink'                ,'hyperlink'           , [CompletionResultType]::ParameterName, 'display entries as hyperlinks')
+            [CompletionResult]::new('--hyperlink'                ,'hyperlink'           , [CompletionResultType]::ParameterName, 'when to display entries as hyperlinks (always, auto, never)')
             [CompletionResult]::new('--absolute'                 ,'absolute'            , [CompletionResultType]::ParameterName, 'display entries with their absolute path (on, follow, off)')
             [CompletionResult]::new('--follow-symlinks'          ,'followsymlinks'      , [CompletionResultType]::ParameterName, 'drill down into symbolic links that point to directories')
         #   [CompletionResult]::new('-w'                         ,'widths'              , [CompletionResultType]::ParameterName, 'set screen width in columns')
@@ -168,7 +173,7 @@ Register-ArgumentCompleter -Native -CommandName 'eza' -ScriptBlock {
         #   [CompletionResult]::new('-A'                         ,'filter'              , [CompletionResultType]::ParameterName, 'equivalent to --all; included for compatibility with `ls -A`')
         #   [CompletionResult]::new('--almost-all'               ,'filter'              , [CompletionResultType]::ParameterName, 'equivalent to --all; included for compatibility with `ls -A`')
         #   [CompletionResult]::new('-d'                         ,'filter'              , [CompletionResultType]::ParameterName, 'list directories as files; don''t list their contents')
-            [CompletionResult]::new('--list-dirs'                ,'filter'              , [CompletionResultType]::ParameterName, 'list directories as files; don''t list their contents')
+            [CompletionResult]::new('--treat-dirs-as-files'      ,'filter'              , [CompletionResultType]::ParameterName, 'list directories as files; don''t list their contents')
         #   [CompletionResult]::new('-D'                         ,'filter'              , [CompletionResultType]::ParameterName, 'list only directories')
             [CompletionResult]::new('--only-dirs'                ,'filter'              , [CompletionResultType]::ParameterName, 'list only directories')
         #   [CompletionResult]::new('-f'                         ,'filter'              , [CompletionResultType]::ParameterName, 'list only files')

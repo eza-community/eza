@@ -45,12 +45,11 @@ impl Render for Option<f::Group> {
         };
 
         let current_uid = users.get_current_uid();
-        if let Some(current_user) = users.get_user_by_uid(current_uid) {
-            if current_user.primary_group_id() == group.gid()
-                || group.members().iter().any(|u| u == current_user.name())
-            {
-                style = colours.yours();
-            }
+        if let Some(current_user) = users.get_user_by_uid(current_uid)
+            && (current_user.primary_group_id() == group.gid()
+                || group.members().iter().any(|u| u == current_user.name()))
+        {
+            style = colours.yours();
         }
 
         if group.gid() == 0 && style != colours.yours() {
@@ -62,14 +61,12 @@ impl Render for Option<f::Group> {
             UserFormat::Numeric => group.gid().to_string(),
         };
 
-        if let GroupFormat::Smart = group_format {
-            if let Some(file_uid) = file_user {
-                if let Some(file_user) = users.get_user_by_uid(file_uid.0) {
-                    if file_user.name().to_string_lossy() == group.name().to_string_lossy() {
-                        group_name = ":".to_string();
-                    }
-                }
-            }
+        if let GroupFormat::Smart = group_format
+            && let Some(file_uid) = file_user
+            && let Some(file_user) = users.get_user_by_uid(file_uid.0)
+            && file_user.name().to_string_lossy() == group.name().to_string_lossy()
+        {
+            group_name = ":".to_string();
         }
 
         TextCell::paint(style, group_name)

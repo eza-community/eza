@@ -19,7 +19,7 @@ use crate::output::render::FiletypeColours;
 use crate::theme::FileNameStyle;
 
 /// Basically a file name factory.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Options {
     /// Whether to append file class characters to file names.
     pub classify: Classify,
@@ -121,8 +121,14 @@ pub enum ShowIcons {
 /// Whether to embed hyperlinks.
 #[derive(PartialEq, Eq, Debug, Copy, Clone)]
 pub enum EmbedHyperlinks {
-    Off,
-    On,
+    /// Never embed hyperlinks, even when output is going to a terminal.
+    Never,
+
+    /// Embed hyperlinks automatically, based on the output destination.
+    Automatic,
+
+    /// Always embed hyperlinks, even when the output isn't going to a terminal.
+    Always,
 }
 
 /// Whether to show absolute paths
@@ -240,10 +246,11 @@ impl<C: Colours> FileName<'_, '_, C> {
             bits.push(style.paint(" ".repeat(spaces_count as usize)));
         }
 
-        if self.file.parent_dir.is_none() && self.options.absolute == Absolute::Off {
-            if let Some(parent) = self.file.path.parent() {
-                self.add_parent_bits(&mut bits, parent);
-            }
+        if self.file.parent_dir.is_none()
+            && self.options.absolute == Absolute::Off
+            && let Some(parent) = self.file.path.parent()
+        {
+            self.add_parent_bits(&mut bits, parent);
         }
 
         if !self.file.name.is_empty() {
@@ -274,7 +281,7 @@ impl<C: Colours> FileName<'_, '_, C> {
                             classify: Classify::JustFilenames,
                             quote_style: QuoteStyle::QuoteSpaces,
                             show_icons: ShowIcons::Never,
-                            embed_hyperlinks: EmbedHyperlinks::Off,
+                            embed_hyperlinks: EmbedHyperlinks::Never,
                             is_a_tty: self.options.is_a_tty,
                             absolute: Absolute::Off,
                         };
@@ -292,10 +299,9 @@ impl<C: Colours> FileName<'_, '_, C> {
                             bits.push(bit);
                         }
 
-                        if should_add_classify_char {
-                            if let Some(class) = self.classify_char(target) {
-                                bits.push(Style::default().paint(class));
-                            }
+                        if should_add_classify_char && let Some(class) = self.classify_char(target)
+                        {
+                            bits.push(Style::default().paint(class));
                         }
                     }
                 }
@@ -318,21 +324,19 @@ impl<C: Colours> FileName<'_, '_, C> {
                     // Do nothing — the error gets displayed on the next line
                 }
             }
-        } else if should_add_classify_char {
-            if let Some(class) = self.classify_char(self.file) {
-                bits.push(Style::default().paint(class));
-            }
+        } else if should_add_classify_char && let Some(class) = self.classify_char(self.file) {
+            bits.push(Style::default().paint(class));
         }
 
-        if self.mount_style == MountStyle::MountInfo {
-            if let Some(mount_details) = self.file.mount_point_info() {
-                // This is a filesystem mounted on the directory, output its details
-                bits.push(Style::default().paint(" ["));
-                bits.push(Style::default().paint(mount_details.source.clone()));
-                bits.push(Style::default().paint(" ("));
-                bits.push(Style::default().paint(mount_details.fstype.clone()));
-                bits.push(Style::default().paint(")]"));
-            }
+        if self.mount_style == MountStyle::MountInfo
+            && let Some(mount_details) = self.file.mount_point_info()
+        {
+            // This is a filesystem mounted on the directory, output its details
+            bits.push(Style::default().paint(" ["));
+            bits.push(Style::default().paint(mount_details.source.clone()));
+            bits.push(Style::default().paint(" ("));
+            bits.push(Style::default().paint(mount_details.fstype.clone()));
+            bits.push(Style::default().paint(")]"));
         }
 
         bits.into()
@@ -415,16 +419,20 @@ impl<C: Colours> FileName<'_, '_, C> {
         let mut bits = Vec::new();
 
         let mut display_hyperlink = false;
-        if self.options.embed_hyperlinks == EmbedHyperlinks::On {
-            if let Some(abs_path) = self
+        let should_embed_hyperlinks = match self.options.embed_hyperlinks {
+            EmbedHyperlinks::Never => false,
+            EmbedHyperlinks::Automatic => self.options.is_a_tty,
+            EmbedHyperlinks::Always => true,
+        };
+        if should_embed_hyperlinks
+            && let Some(abs_path) = self
                 .file
                 .absolute_path()
                 .and_then(|p| p.as_os_str().to_str())
-            {
-                bits.push(ANSIString::from(escape::get_hyperlink_start_tag(abs_path)));
+        {
+            bits.push(ANSIString::from(escape::get_hyperlink_start_tag(abs_path)));
 
-                display_hyperlink = true;
-            }
+            display_hyperlink = true;
         }
 
         escape(
@@ -466,12 +474,11 @@ impl<C: Colours> FileName<'_, '_, C> {
     /// if there’s nowhere else for that fact to be shown.)
     #[must_use]
     pub fn style(&self) -> Style {
-        if let LinkStyle::JustFilenames = self.link_style {
-            if let Some(ref target) = self.target {
-                if target.is_broken() {
-                    return self.colours.broken_symlink();
-                }
-            }
+        if let LinkStyle::JustFilenames = self.link_style
+            && let Some(ref target) = self.target
+            && target.is_broken()
+        {
+            return self.colours.broken_symlink();
         }
 
         #[rustfmt::skip]
