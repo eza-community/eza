@@ -6,6 +6,12 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [Unreleased]
+
+### Bug Fixes
+
+- Validate `--time` / `-t` field value and error on invalid input instead of silently consuming positional arguments
+
 ## [0.23.4] - 2025-10-03
 
 ### Bug Fixes
