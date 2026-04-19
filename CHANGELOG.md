@@ -11,6 +11,7 @@ SPDX-License-Identifier: EUPL-1.2
 ### Bug Fixes
 
 - Validate `--time` / `-t` field value and error on invalid input instead of silently consuming positional arguments
+- Fix silent empty output when stdin is `/dev/null` (sandboxed environments, Docker, bubblewrap)
 
 ## [0.23.4] - 2025-10-03
 
