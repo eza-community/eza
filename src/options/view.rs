@@ -448,6 +448,21 @@ impl TimeTypes {
     /// see the default set.
     fn deduce(matches: &ArgMatches) -> Result<Self, OptionsError> {
         let possible_word = matches.get_one::<TimeArgs>("time");
+
+        // clap's value_parser for a manually-implemented ValueEnum may not enforce
+        // validation, causing invalid values (e.g. filenames from glob expansion) to
+        // be silently accepted and discarded, resulting in missing output files.
+        if possible_word.is_none() {
+            if let Some(mut raw) = matches.get_raw("time") {
+                if let Some(val) = raw.next() {
+                    return Err(OptionsError::Unsupported(format!(
+                        "Invalid argument for --time: '{}', expected one of: modified, accessed, created, changed",
+                        val.to_string_lossy()
+                    )));
+                }
+            }
+        }
+
         let modified = matches.get_flag("modified");
         let changed = matches.get_flag("changed");
         let accessed = matches.get_flag("accessed");
