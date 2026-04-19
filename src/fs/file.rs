@@ -777,7 +777,7 @@ impl<'dir> File<'dir> {
             duration.as_secs().try_into().ok()?,
             (duration.as_nanos() % 1_000_000_000).try_into().ok()?,
         )
-        .map(|dt| dt.naive_local())
+        .map(|dt| dt.naive_utc())
     }
 
     /// This file’s last modified timestamp, if available on this platform.
