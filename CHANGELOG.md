@@ -16,7 +16,7 @@ SPDX-License-Identifier: EUPL-1.2
 
 ### Documentation
 
-- Corrected "user_executable_file" option 
+- Corrected "user_executable_file" option
 
 ### Features
 
@@ -2682,7 +2682,7 @@ SPDX-License-Identifier: EUPL-1.2
 - Add selinux contexts support
 - Add -o shorcut to --octal-permissions
 - Hyperlink flag
-- Update Cargo.toml to optimise binaries for size 
+- Update Cargo.toml to optimise binaries for size
 - Add git-status-.* completions
 - Zsh add git-status-.* completions
 - Add git-status-.* completions
@@ -2818,5 +2818,3 @@ SPDX-License-Identifier: EUPL-1.2
 ### Vagrant
 
 - Update apt before installing
-
-
