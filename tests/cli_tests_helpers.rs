@@ -39,6 +39,7 @@ impl TransientDirectory {
         }
     }
 
+    #[allow(dead_code)]
     pub fn run(&self, command: &str, args: &[&str]) {
         Command::new(command)
             .args(args)
