@@ -12,7 +12,7 @@ fn cli_tests_unix_date() {
 
     use chrono::{Local, TimeZone};
 
-    let test_dir = TestDirectory::create("any", "dates");
+    let test_dir = TestDirectory::create("unix", "date");
 
     let old_date: SystemTime = Local.with_ymd_and_hms(2003, 3, 3, 0, 0, 0).unwrap().into();
     let med_date: SystemTime = Local

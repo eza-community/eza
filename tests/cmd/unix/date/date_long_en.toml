@@ -1,6 +1,5 @@
 bin.name = "eza"
-args = ["-l", "tests/data/unix/dates"]
-status.code = 0
+args = ["-l", "tests/data/unix/date"]
 stdout = """
 .rw-r--r-- 0 ubuntu 15 Jun  2006 peach
 .rw-r--r-- 0 ubuntu  3 Mar  2003 pear
