@@ -25,6 +25,7 @@ jobs:
       - uses: taiki-e/install-action@cargo-deny
       - name: Scan for vulnerabilities
         run: cargo deny check
+
   check_if_pr:
     runs-on: ubuntu-latest
     outputs:
@@ -38,6 +39,7 @@ jobs:
           else
             echo "is_pr=false" >> $GITHUB_OUTPUT
           fi
+
   no-merge-commits:
     needs: check_if_pr
     if: needs.check_if_pr.outputs.is_pr == 'true'
@@ -59,7 +61,6 @@ jobs:
       - uses: webiny/action-conventional-commits@v1.3.0
 
   unit-tests:
-    needs: conventional
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.rust == 'nightly' }}
     strategy:
@@ -86,7 +87,6 @@ jobs:
         run: cargo hack test -- --skip cli_tests
 
   unit-tests-freebsd:
-    needs: conventional
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     continue-on-error: ${{ matrix.rust == 'nightly' }}
@@ -118,7 +118,6 @@ jobs:
             cargo hack test -- --skip cli_tests
 
   unit-tests-netbsd:
-    needs: conventional
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     continue-on-error: ${{ matrix.rust == 'nightly' }}
@@ -153,7 +152,6 @@ jobs:
             cargo hack test -- --skip cli_tests
 
   unit-tests-openbsd:
-    needs: conventional
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     steps:
@@ -181,7 +179,6 @@ jobs:
             cargo hack test -- --skip cli_tests
 
   integration-tests-unix:
-    needs: conventional
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     steps:
