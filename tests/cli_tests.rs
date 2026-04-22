@@ -36,8 +36,6 @@ fn cli_tests_any_dotfiles() {
 #[cfg(not(feature = "git"))]
 fn cli_tests_any_no_git() {
     let test_dir = TestDirectory::create("any", "no-git");
-    test_dir.run("git", &["init", "."]);
-
     test_dir.run_tests();
 }
 
@@ -46,7 +44,6 @@ fn cli_tests_any_sort() {
     let test_dir = TestDirectory::create("any", "sort");
 
     test_dir.create_files(&["a.txt", "abc.mp3", "ab"]);
-
     test_dir.create_dirs(&["test", "abc", "01.city", "02.apple"]);
 
     test_dir.run_tests();

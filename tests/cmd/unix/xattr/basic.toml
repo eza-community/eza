@@ -1,0 +1,11 @@
+bin.name = "eza"
+args = ["-l", "--extended", "--no-time", "tests/data/unix/xattr"]
+stdout = """
+drwxr-xr-x@ - ubuntu dir_attributes
+                     └── user.xdg.tags: "foo,bar,baz"
+drwxr-xr-x  - ubuntu dir_no_attributes
+.rw-r--r--@ 0 ubuntu file_attributes
+                     └── user.xdg.tags: "foo,bar,baz"
+.rw-r--r--  0 ubuntu file_no_attributes
+"""
+stderr = ""

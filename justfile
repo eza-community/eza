@@ -53,11 +53,11 @@ genDemo:
 
 [group('testing')]
 @integration-tests:
-    docker compose run --rm tests cargo test -- --test cli_tests --test-threads 1
+    docker compose run --build --rm tests cargo test -- --test cli_tests --test-threads 1
 
 [group('testing')]
 @integration-tests-regen:
-    docker compose run --rm -e TRYCMD=overwrite tests cargo test -- --test cli_tests --test-threads 1
+    docker compose run --build --rm -e TRYCMD=overwrite tests cargo test -- --test cli_tests --test-threads 1
 
 # run unit tests (in release mode)
 [group('testing')]

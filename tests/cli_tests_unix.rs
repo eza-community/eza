@@ -142,3 +142,33 @@ fn cli_tests_unix_git() {
 
     test_dir.run_tests();
 }
+
+#[test]
+#[cfg(unix)]
+fn cli_tests_unix_xattr() {
+    let test_dir = TestDirectory::create("unix", "xattr");
+
+    test_dir.create_files(&["file_no_attributes", "file_attributes"]);
+    test_dir.create_dirs(&["dir_no_attributes", "dir_attributes"]);
+
+    // command from package `attr`
+    test_dir.run(
+        "setfattr",
+        &[
+            "--name=user.xdg.tags",
+            "--value=foo,bar,baz",
+            "file_attributes",
+        ],
+    );
+
+    test_dir.run(
+        "setfattr",
+        &[
+            "--name=user.xdg.tags",
+            "--value=foo,bar,baz",
+            "dir_attributes",
+        ],
+    );
+
+    test_dir.run_tests();
+}
