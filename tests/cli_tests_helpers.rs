@@ -3,17 +3,26 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::SystemTime;
 
-pub struct TransientDirectory {
+pub struct TestDirectory {
     path: PathBuf,
+    platform: String,
+    group: String,
 }
 
-impl TransientDirectory {
+const TEST_DATA_DIR: &str = "tests/data";
+const TEST_SPEC_DIR: &str = "tests/cmd";
+
+impl TestDirectory {
     pub fn create(platform: &str, group: &str) -> Self {
-        let path_str = format!("tests/data/{platform}/{group}");
+        let path_str = format!("{TEST_DATA_DIR}/{platform}/{group}");
         let path = PathBuf::from(&path_str);
         let _ = fs::remove_dir_all(&path_str);
         fs::create_dir_all(&path).unwrap();
-        TransientDirectory { path }
+        TestDirectory {
+            path,
+            platform: platform.to_string(),
+            group: group.to_string(),
+        }
     }
 
     pub fn create_file<P: AsRef<Path> + std::fmt::Debug>(&self, file_name: P) -> File {
@@ -39,6 +48,7 @@ impl TransientDirectory {
         }
     }
 
+    // Not currently used on Windows
     #[allow(dead_code)]
     pub fn run(&self, command: &str, args: &[&str]) {
         Command::new(command)
@@ -54,21 +64,27 @@ impl TransientDirectory {
 
         fs::symlink(source, self.path.join(target)).unwrap();
     }
+
+    pub fn run_tests(&self) {
+        let TestDirectory { platform, group, .. } = self;
+
+        trycmd::TestCases::new().case(format!("{TEST_SPEC_DIR}/{platform}/{group}/*.toml"));
+    }
 }
 
-impl Drop for TransientDirectory {
+impl Drop for TestDirectory {
     fn drop(&mut self) {
         fs::remove_dir_all(&self.path).unwrap();
     }
 }
 
-impl AsRef<Path> for TransientDirectory {
+impl AsRef<Path> for TestDirectory {
     fn as_ref(&self) -> &Path {
         &self.path
     }
 }
 
-impl std::ops::Deref for TransientDirectory {
+impl std::ops::Deref for TestDirectory {
     type Target = PathBuf;
 
     fn deref(&self) -> &PathBuf {

@@ -1,25 +1,25 @@
 mod cli_tests_helpers;
 
-use cli_tests_helpers::TransientDirectory;
+use cli_tests_helpers::TestDirectory;
 
 #[test]
 fn cli_tests_any_basic() {
-    let test_dir = TransientDirectory::create("any", "basic");
+    let test_dir = TestDirectory::create("any", "basic");
     test_dir.create_files(&["file.txt"]);
     test_dir.create_dirs(&["dir"]);
 
-    trycmd::TestCases::new().case("tests/cmd/any/basic/*.toml");
+    test_dir.run_tests();
 }
 
 #[test]
 fn cli_tests_any_sort() {
-    let test_dir = TransientDirectory::create("any", "sort");
+    let test_dir = TestDirectory::create("any", "sort");
 
     test_dir.create_files(&["a.txt", "abc.mp3", "ab"]);
 
     test_dir.create_dirs(&["test", "abc", "01.city", "02.apple"]);
 
-    trycmd::TestCases::new().case("tests/cmd/any/sort/*.toml");
+    test_dir.run_tests();
 }
 
 #[test]
@@ -38,7 +38,7 @@ fn cli_tests_any_dotfiles() {
 fn cli_tests_any_git() {
     use std::io::Write;
 
-    let test_dir = TransientDirectory::create("unix", "git");
+    let test_dir = TestDirectory::create("unix", "git");
     test_dir.run("git", &["init", "."]);
     test_dir.create_dirs(&[
         "dir-empty",
@@ -124,16 +124,16 @@ fn cli_tests_any_git() {
     new_staged_modified.write_all(b"a").unwrap();
     modified_staged_modified.write_all(b"a").unwrap();
 
-    trycmd::TestCases::new().case("tests/cmd/unix/git/*.toml");
+    test_dir.run_tests();
 }
 
 #[test]
 #[cfg(not(feature = "git"))]
 fn cli_tests_any_no_git() {
-    let test_dir = TransientDirectory::create("any", "no-git");
+    let test_dir = TestDirectory::create("any", "no-git");
     test_dir.run("git", &["init", "."]);
 
-    trycmd::TestCases::new().case("tests/cmd/any/no-git/*.toml");
+    test_dir.run_tests();
 }
 
 #[test]
@@ -145,7 +145,7 @@ fn cli_tests_any_date() {
 
     use chrono::{Local, TimeZone};
 
-    let test_dir = TransientDirectory::create("any", "dates");
+    let test_dir = TestDirectory::create("any", "dates");
 
     let old_date: SystemTime = Local.with_ymd_and_hms(2003, 3, 3, 0, 0, 0).unwrap().into();
     let med_date: SystemTime = Local
@@ -178,5 +178,5 @@ fn cli_tests_any_date() {
         .set_accessed(med_date);
     pear.set_times(pear_times).unwrap();
 
-    trycmd::TestCases::new().case("tests/cmd/any/dates/*.toml");
+    test_dir.run_tests();
 }
