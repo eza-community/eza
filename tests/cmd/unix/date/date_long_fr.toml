@@ -1,4 +1,3 @@
-bin.name = "eza"
 args = ["-l", "tests/data/unix/date"]
 stdout = """
 .rw-r--r-- 0 ubuntu 15 juin   2006 peach

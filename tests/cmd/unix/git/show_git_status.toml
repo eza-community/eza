@@ -1,4 +1,3 @@
-bin.name = "eza"
 args = ["--git", "-l", "--no-time", "--no-user", "."]
 stdout = """
 drwxr-xr-x - -- dir-empty

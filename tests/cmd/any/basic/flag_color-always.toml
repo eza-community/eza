@@ -1,4 +1,3 @@
-bin.name = "eza"
 args = ["--color=always", "tests/data/any/basic"]
 status.code = 0
 stdout = """

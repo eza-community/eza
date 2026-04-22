@@ -1,4 +1,3 @@
-bin.name = "eza"
 args = ["--sort=extension", "."]
 status.code = 0
 stdout = """

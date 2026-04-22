@@ -1,4 +1,3 @@
-bin.name = "eza"
 args = ["-l", "--extended", "--follow-symlinks", "--no-time", "tests/data/unix/xattr"]
 stdout = """
 drwxr-xr-x@ - ubuntu dir_attributes

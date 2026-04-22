@@ -1,4 +1,3 @@
-bin.name = "eza"
 args = ["-aa", "."]
 status.code = 0
 stdout = """

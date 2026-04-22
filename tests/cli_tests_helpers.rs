@@ -80,6 +80,7 @@ impl TestDirectory {
         env::set_current_dir(&self.data_path).unwrap();
         trycmd::TestCases::new()
             .case(format!("{spec_path}/*.toml"))
+            .default_bin_name("eza")
             .run();
     }
 }

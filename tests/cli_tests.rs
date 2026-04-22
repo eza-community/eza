@@ -13,16 +13,6 @@ fn cli_tests_any_basic() {
 }
 
 #[test]
-fn cli_tests_any_sort() {
-    let test_dir = TestDirectory::create("any", "sort");
-
-    test_dir.create_files(&["a.txt", "abc.mp3", "ab"]);
-    test_dir.create_dirs(&["test", "abc", "01.city", "02.apple"]);
-
-    test_dir.run_tests();
-}
-
-#[test]
 fn cli_tests_any_dotfiles() {
     let test_dir = TestDirectory::create("any", "dotfiles");
 

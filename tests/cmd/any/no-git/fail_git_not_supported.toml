@@ -1,4 +1,3 @@
-bin.name = "eza"
 args = ["--git", "."]
 status.code = 3
 stdout = ""
