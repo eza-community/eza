@@ -2,7 +2,9 @@ FROM ubuntu:latest
 
 # Install dependencies
 RUN apt-get update && \
-    apt-get -y install curl git sudo gcc locales
+    apt-get -y install curl sudo gcc \
+    # We need these tools for specific tests
+    attr git locales
 
 COPY --from=ghcr.io/casey/just:latest /just /usr/local/bin/
 
