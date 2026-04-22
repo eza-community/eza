@@ -217,13 +217,8 @@ fn cli_tests_any_git() {
 #[test]
 #[cfg(not(feature = "git"))]
 fn cli_tests_any_no_git() {
-    use std::process::Command;
-
     let test_dir = TransientDirectory::create("any", "no-git");
-    Command::new("git")
-        .args(["init", test_dir.to_str().unwrap()])
-        .output()
-        .unwrap();
+    test_dir.run("git", &["init", "."]);
 
     trycmd::TestCases::new().case("tests/cmd/any/no-git/*.toml");
 }
