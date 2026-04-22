@@ -23,6 +23,16 @@ fn cli_tests_any_sort() {
 }
 
 #[test]
+fn cli_tests_any_dotfiles() {
+    let test_dir = TransientDirectory::create("any", "dotfiles");
+
+    test_dir.create_files(&[".file"]);
+    test_dir.create_dirs(&[".dir"]);
+
+    trycmd::TestCases::new().case("tests/cmd/any/dotfiles/*.toml");
+}
+
+#[test]
 #[cfg(unix)]
 #[cfg(feature = "git")]
 fn cli_tests_any_git() {

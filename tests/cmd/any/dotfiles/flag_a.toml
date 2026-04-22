@@ -1,0 +1,8 @@
+bin.name = "eza"
+args = ["-a", "tests/data/any/dotfiles"]
+status.code = 0
+stdout = """
+.dir
+.file
+"""
+stderr = ""
