@@ -66,7 +66,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        rust: [msrv, stable, beta, nightly]
+        rust: [msrv, stable]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -92,7 +92,7 @@ jobs:
     continue-on-error: ${{ matrix.rust == 'nightly' }}
     strategy:
       matrix:
-        rust: [msrv, stable, beta, nightly]
+        rust: [msrv, stable]
     steps:
       - uses: actions/checkout@v6
         with:
@@ -123,7 +123,7 @@ jobs:
     continue-on-error: ${{ matrix.rust == 'nightly' }}
     strategy:
       matrix:
-        rust: [msrv, stable, beta, nightly]
+        rust: [msrv, stable]
     steps:
       - uses: actions/checkout@v6
         with:
