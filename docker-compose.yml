@@ -11,6 +11,17 @@ services:
       - rustup_cache:/home/ubuntu/.rustup
       - cargo_cache:/home/ubuntu/.cargo/registry
       - test_data:/workspace/tests/data
+
+  tests-ci:
+    image: eza-test-env:local
+    pull_policy: never
+    build:
+      context: ./devtools
+      dockerfile: Dockerfile.tests
+    volumes:
+      - ./:/workspace
+      - ${HOME}/.cargo:/home/ubuntu/.cargo
+
 volumes:
   build_cache:
   rustup_cache:
