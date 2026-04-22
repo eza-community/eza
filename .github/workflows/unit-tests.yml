@@ -184,6 +184,5 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-      - uses: Swatinem/rust-cache@v2
       - name: Run integration tests
         run: docker compose run --build --rm tests-ci cargo test -- --test cli_tests
