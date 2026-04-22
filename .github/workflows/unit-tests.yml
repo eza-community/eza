@@ -185,4 +185,4 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
       - name: Run integration tests
-        run: docker compose run --build --rm tests-ci cargo test -- --test cli_tests
+        run: docker compose run --build --rm tests cargo test -- --test cli_tests
