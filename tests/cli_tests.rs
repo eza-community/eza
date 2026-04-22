@@ -204,6 +204,7 @@ fn cli_tests_any_no_git() {
 }
 
 #[test]
+// Run in docker because it needs specific locales.
 #[cfg(feature = "docker-tests")]
 fn cli_tests_any_date() {
     use chrono::{Local, TimeZone};
