@@ -1,10 +1,10 @@
 use std::fs::{self, File, FileTimes};
 use std::path::{Path, PathBuf};
-use std::time::SystemTime;
 use std::process::Command;
+use std::time::SystemTime;
 
 struct TransientDirectory {
-    path: PathBuf
+    path: PathBuf,
 }
 
 impl TransientDirectory {
@@ -17,8 +17,7 @@ impl TransientDirectory {
     }
 
     fn create_file<P: AsRef<Path> + std::fmt::Debug>(&self, file_name: P) -> File {
-
-        let file =  File::create(self.path.join(file_name)).unwrap();
+        let file = File::create(self.path.join(file_name)).unwrap();
 
         let times = FileTimes::new()
             .set_accessed(SystemTime::UNIX_EPOCH)
@@ -41,7 +40,11 @@ impl TransientDirectory {
     }
 
     fn run(&self, command: &str, args: &[&str]) {
-        Command::new(command).args(args).current_dir(&self.path).output().unwrap();
+        Command::new(command)
+            .args(args)
+            .current_dir(&self.path)
+            .output()
+            .unwrap();
     }
 
     #[cfg(unix)]
@@ -85,18 +88,9 @@ fn cli_tests_any_basic() {
 fn cli_tests_any_sort() {
     let test_dir = TransientDirectory::create("any", "sort");
 
-    test_dir.create_files(&[
-        "a.txt",
-        "abc.mp3",
-        "ab"
-    ]);
+    test_dir.create_files(&["a.txt", "abc.mp3", "ab"]);
 
-    test_dir.create_dirs(&[
-        "test",
-        "abc",
-        "01.city",
-        "02.apple",
-    ]);
+    test_dir.create_dirs(&["test", "abc", "01.city", "02.apple"]);
 
     trycmd::TestCases::new().case("tests/cmd/any/sort/*.toml");
 }
@@ -128,7 +122,7 @@ fn cli_tests_any_git() {
         "dir-new/file-new",
         "file-ignored",
         "file-new",
-        "file-new-staged"
+        "file-new-staged",
     ]);
     let mut dir_modified = test_dir.create_file("dir-modified/file-modified");
     let mut dir_modified_staged = test_dir.create_file("dir-modified-staged/file-modified-staged");
@@ -145,15 +139,25 @@ fn cli_tests_any_git() {
     test_dir.run("git", &["config", "user.name", "Eza"]);
     test_dir.run("git", &["config", "user.email", "eza@eza.test"]);
 
-    test_dir.run("git", &[
-        "add",
-        "dir-modified",
-        "dir-modified-staged",
-        "file-modified",
-        "file-modified-staged",
-        "file-modified-staged-modified",
-    ]);
-    test_dir.run("git", &["add", "-f", "dir-ignored-with-file-unmodified/file-unmodified"]);
+    test_dir.run(
+        "git",
+        &[
+            "add",
+            "dir-modified",
+            "dir-modified-staged",
+            "file-modified",
+            "file-modified-staged",
+            "file-modified-staged-modified",
+        ],
+    );
+    test_dir.run(
+        "git",
+        &[
+            "add",
+            "-f",
+            "dir-ignored-with-file-unmodified/file-unmodified",
+        ],
+    );
     test_dir.run("git", &["commit", "-m", "initial commit"]);
 
     modified.write_all(b"a").unwrap();
@@ -162,17 +166,20 @@ fn cli_tests_any_git() {
     dir_modified.write_all(b"a").unwrap();
     dir_modified_staged.write_all(b"a").unwrap();
 
-    test_dir.run("git", &[
-        "add",
-        "dir-modified-staged",
-        "dir-new-staged",
-        "dir-new-staged-new",
-        "file-modified-staged",
-        "file-modified-staged-modified",
-        "file-new-staged",
-        "file-new-staged-modified",
-        "dir-new-staged-new/file-new-staged",
-    ]);
+    test_dir.run(
+        "git",
+        &[
+            "add",
+            "dir-modified-staged",
+            "dir-new-staged",
+            "dir-new-staged-new",
+            "file-modified-staged",
+            "file-modified-staged-modified",
+            "file-new-staged",
+            "file-new-staged-modified",
+            "dir-new-staged-new/file-new-staged",
+        ],
+    );
 
     test_dir.create_file("dir-new-staged-new/file-new");
 
@@ -188,7 +195,10 @@ fn cli_tests_any_no_git() {
     use std::process::Command;
 
     let test_dir = TransientDirectory::create("any", "no-git");
-    Command::new("git").args(["init", test_dir.to_str().unwrap()]).output().unwrap();
+    Command::new("git")
+        .args(["init", test_dir.to_str().unwrap()])
+        .output()
+        .unwrap();
 
     trycmd::TestCases::new().case("tests/cmd/any/no-git/*.toml");
 }
@@ -196,15 +206,21 @@ fn cli_tests_any_no_git() {
 #[test]
 #[cfg(feature = "docker-tests")]
 fn cli_tests_any_date() {
-    use chrono::{TimeZone, Local};
+    use chrono::{Local, TimeZone};
     use std::thread;
     use std::time::Duration;
 
     let test_dir = TransientDirectory::create("any", "dates");
 
     let old_date: SystemTime = Local.with_ymd_and_hms(2003, 3, 3, 0, 0, 0).unwrap().into();
-    let med_date: SystemTime = Local.with_ymd_and_hms(2006, 6, 15, 23, 14, 29).unwrap().into();
-    let new_date: SystemTime = Local.with_ymd_and_hms(2009, 12, 22, 10, 38, 53).unwrap().into();
+    let med_date: SystemTime = Local
+        .with_ymd_and_hms(2006, 6, 15, 23, 14, 29)
+        .unwrap()
+        .into();
+    let new_date: SystemTime = Local
+        .with_ymd_and_hms(2009, 12, 22, 10, 38, 53)
+        .unwrap()
+        .into();
 
     // Sleep between each create as we can not modified the created time
     let peach = test_dir.create_file("peach");
