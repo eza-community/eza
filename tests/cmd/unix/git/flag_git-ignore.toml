@@ -1,0 +1,19 @@
+args = ["--git-ignore", "tests/data/unix/git"]
+stdout = """
+dir-empty
+dir-ignored-with-file-unmodified
+dir-modified
+dir-modified-staged
+dir-new
+dir-new-staged
+dir-new-staged-new
+file-modified
+file-modified-staged
+file-modified-staged-modified
+file-new
+file-new-staged
+file-new-staged-modified
+symlink-broken -> file-non-existing
+symlink-new -> file-modified
+"""
+stderr = ""
