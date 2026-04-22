@@ -59,6 +59,7 @@ fn cli_tests_any_git() {
     let mut new_staged_modified = test_dir.create_file("file-new-staged-modified");
 
     test_dir.symlink("file-modified", "symlink-new");
+    test_dir.symlink("file-non-existing", "symlink-broken");
 
     let mut gitignore = test_dir.create_file(".gitignore");
     gitignore.write_all(b"dir-ignored*\nfile-ignored*").unwrap();
@@ -126,8 +127,7 @@ fn cli_tests_any_no_git() {
 }
 
 #[test]
-// Run in docker because it needs specific locales.
-#[cfg(feature = "docker-tests")]
+// This test needs locales en_US, fr_FR and ja_JP.
 fn cli_tests_any_date() {
     use std::fs::FileTimes;
     use std::thread;

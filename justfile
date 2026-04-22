@@ -44,16 +44,20 @@ genDemo:
 # run unit tests
 [group('testing')]
 @test:
-    cargo test --workspace -- --quiet
+    just unit-tests
+    just integration-tests
 
 [group('testing')]
-@docker-tests:
-    docker compose run --rm tests cargo test --features=docker-tests -- --test cli_tests
+@unit-tests:
+    cargo test --workspace -- --skip cli_tests --quiet
 
 [group('testing')]
-@regen-tests-output:
-    docker compose run --rm -e TRYCMD=overwrite tests cargo test --features=docker-tests -- --test cli_tests
+@integration-tests:
+    docker compose run --rm tests cargo test -- --test cli_tests
 
+[group('testing')]
+@integration-tests-regen:
+    docker compose run --rm -e TRYCMD=overwrite tests cargo test -- --test cli_tests
 
 # run unit tests (in release mode)
 [group('testing')]
