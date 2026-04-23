@@ -10,7 +10,6 @@ use crate::options::Vars;
 use crate::options::vars::EZA_STDIN_SEPARATOR;
 use std::ffi::OsString;
 use std::io;
-use std::io::IsTerminal;
 
 #[derive(Debug, PartialEq)]
 pub enum FilesInput {
@@ -34,6 +33,8 @@ fn stdin_is_pipe() -> bool {
 
 #[cfg(not(unix))]
 fn stdin_is_pipe() -> bool {
+    use std::io::IsTerminal;
+
     !io::stdin().is_terminal()
 }
 
