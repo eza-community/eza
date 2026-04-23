@@ -1,12 +1,9 @@
-bin.name = "eza"
 args = ["-l", "."]
-status.code = 0
 stdout = """
 .rw-r--r-- 0 ubuntu 15  6月  2006 peach
 .rw-r--r-- 0 ubuntu  3  3月  2003 pear
 .rw-r--r-- 0 ubuntu 22 12月  2009 plum
 """
-stderr = ""
 
 [env.add]
 LC_TIME = "ja_JP.UTF-8"

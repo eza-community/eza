@@ -53,11 +53,13 @@ genDemo:
 
 [group('testing')]
 @integration-tests:
-    docker compose run --build --rm tests cargo test -- --test cli_tests --test-threads 1
+    docker compose run --build --rm tests \
+        cargo hack test --feature-powerset --skip vendored-openssl,vendored-libgit2 -- --test cli_tests --test-threads 1
 
 [group('testing')]
 @integration-tests-regen:
     docker compose run --build --rm -e TRYCMD=overwrite tests cargo test -- --test cli_tests --test-threads 1
+    docker compose run --build --rm -e TRYCMD=overwrite tests cargo test --no-default-features -- --test cli_tests_any_no_git --test-threads 1
 
 # run unit tests (in release mode)
 [group('testing')]

@@ -1,4 +1,3 @@
 args = ["."]
-status.code = 0
 stdout = ""
 stderr = ""

@@ -1,5 +1,4 @@
 args = ["-a", "."]
-status.code = 0
 stdout = """
 .dir
 .file

@@ -1,5 +1,4 @@
 args = ["--sort=extension", "."]
-status.code = 0
 stdout = """
 01.city
 02.apple

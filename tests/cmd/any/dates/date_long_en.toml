@@ -1,6 +1,4 @@
-bin.name = "eza"
 args = ["-l", "."]
-status.code = 0
 stdout = """
 .rw-r--r-- 0 ubuntu 15 Jun  2006 peach
 .rw-r--r-- 0 ubuntu  3 Mar  2003 pear
