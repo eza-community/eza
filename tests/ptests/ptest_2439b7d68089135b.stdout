@@ -32,6 +32,7 @@ DISPLAY OPTIONS:
 FILTERING OPTIONS:
   -a, --all...               show hidden files. Use this twice to also show the '.' and '..' directories
   -A, --almost-all           equivalent to --all; included for compatibility with `ls -A`
+      --show-dotfiles        show dot-prefixed files without showing other hidden files
   -d, --treat-dirs-as-files  treat directories as files; don't list their contents
   -D, --only-dirs            list only directories
   -f, --only-files           list only files

@@ -94,6 +94,7 @@ pub fn get_command() -> clap::Command {
         .next_help_heading("FILTERING OPTIONS")
         .arg(arg!(-a --all... "show hidden files. Use this twice to also show the '.' and '..' directories"))
         .arg(arg!(-A --"almost-all" "equivalent to --all; included for compatibility with `ls -A`"))
+        .arg(arg!(--"show-dotfiles" "show dot-prefixed files without showing other hidden files"))
         .arg(arg!(-d --"treat-dirs-as-files" "treat directories as files; don't list their contents")
             .alias("list-dirs") // TODO: compat alias to remove (above flag published in v0.23.4 / 2025-10-03)
             .conflicts_with_all(["recurse", "tree"]))

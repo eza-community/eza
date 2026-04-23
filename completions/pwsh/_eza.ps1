@@ -172,6 +172,7 @@ Register-ArgumentCompleter -Native -CommandName 'eza' -ScriptBlock {
             [CompletionResult]::new('--all'                      ,'filter'              , [CompletionResultType]::ParameterName, 'show hidden and ''dot'' files. Use this twice to also show the ''.'' and ''..'' directories')
         #   [CompletionResult]::new('-A'                         ,'filter'              , [CompletionResultType]::ParameterName, 'equivalent to --all; included for compatibility with `ls -A`')
         #   [CompletionResult]::new('--almost-all'               ,'filter'              , [CompletionResultType]::ParameterName, 'equivalent to --all; included for compatibility with `ls -A`')
+            [CompletionResult]::new('--show-dotfiles'            ,'filter'              , [CompletionResultType]::ParameterName, 'show dot-prefixed files without showing other hidden files')
         #   [CompletionResult]::new('-d'                         ,'filter'              , [CompletionResultType]::ParameterName, 'list directories as files; don''t list their contents')
             [CompletionResult]::new('--treat-dirs-as-files'      ,'filter'              , [CompletionResultType]::ParameterName, 'list directories as files; don''t list their contents')
         #   [CompletionResult]::new('-D'                         ,'filter'              , [CompletionResultType]::ParameterName, 'list only directories')

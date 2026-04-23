@@ -144,6 +144,9 @@ Use this twice to also show the ‘`.`’ and ‘`..`’ directories.
 `-A`, `--almost-all`
 : Equivalent to --all; included for compatibility with `ls -A`.
 
+`--show-dotfiles`
+: Show dot-prefixed files without showing other hidden files.
+
 `-d`, `--treat-dirs-as-files`
 : This flag, inherited from `ls`, changes how `eza` handles directory arguments.
 
