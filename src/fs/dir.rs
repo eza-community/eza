@@ -316,7 +316,10 @@ mod tests {
         unsafe {
             let attrs = GetFileAttributesW(wide.as_ptr());
             assert_ne!(attrs, u32::MAX);
-            assert_ne!(SetFileAttributesW(wide.as_ptr(), attrs | FILE_ATTRIBUTE_HIDDEN), 0);
+            assert_ne!(
+                SetFileAttributesW(wide.as_ptr(), attrs | FILE_ATTRIBUTE_HIDDEN),
+                0
+            );
         }
     }
 
