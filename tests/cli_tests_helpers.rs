@@ -2,6 +2,7 @@
 
 use std::env;
 use std::fs::{self, File, FileTimes};
+use std::io::Write;
 use std::path::{self, Path, PathBuf};
 use std::process::Command;
 use std::time::SystemTime;
@@ -104,5 +105,17 @@ impl std::ops::Deref for TestDirectory {
 
     fn deref(&self) -> &PathBuf {
         &self.data_path
+    }
+}
+
+pub trait AllocateFileSize {
+    fn write_sized(&mut self, size: usize);
+}
+
+impl AllocateFileSize for File {
+    fn write_sized(&mut self, size: usize) {
+        // Naive implementation, works fine for small files
+        let buf = vec![0; size];
+        self.write(buf.as_slice()).unwrap();
     }
 }
