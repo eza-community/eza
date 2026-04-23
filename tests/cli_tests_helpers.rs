@@ -74,6 +74,9 @@ impl TestDirectory {
     pub fn run_tests(&self) {
         let spec_path = self.spec_path.to_str().unwrap();
 
+        // This is not thread safe!!!
+        // This will change the CWD of the whole process,
+        // so the tests must be run in single thread mode.
         env::set_current_dir(&self.data_path).unwrap();
         trycmd::TestCases::new()
             .case(format!("{spec_path}/*.toml"))
