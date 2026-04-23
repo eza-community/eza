@@ -1,5 +1,5 @@
 bin.name = "eza"
-args = ["tests/data/any/basic"]
+args = ["."]
 status.code = 0
 stdout = """
 dir

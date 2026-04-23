@@ -1,5 +1,5 @@
 bin.name = "eza"
-args = ["--sort=extension", "tests/data/any/sort"]
+args = ["--sort=extension", "."]
 status.code = 0
 stdout = """
 01.city

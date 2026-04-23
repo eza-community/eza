@@ -1,5 +1,5 @@
 bin.name = "eza"
-args = ["tests/data/any/dotfiles"]
+args = ["."]
 status.code = 0
 stdout = ""
 stderr = ""

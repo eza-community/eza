@@ -1,5 +1,5 @@
 bin.name = "eza"
-args = ["--git", "-l", "--no-time", "--no-user", "tests/data/unix/git"]
+args = ["--git", "-l", "--no-time", "--no-user", "."]
 stdout = """
 drwxr-xr-x - -- dir-empty
 drwxr-xr-x - -I dir-ignored
