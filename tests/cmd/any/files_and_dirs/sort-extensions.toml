@@ -1,3 +1,4 @@
+# Sorting by extension should ignore dirs
 args = ["--sort=extension", "."]
 stdout = """
 01.city

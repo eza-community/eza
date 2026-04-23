@@ -23,9 +23,55 @@ fn cli_tests_any_dotfiles() {
 }
 
 #[test]
+fn cli_tests_any_file_exts() {
+    let test_dir = TestDirectory::new("any", "file_exts");
+
+    test_dir.create_files(&[
+        "Makefile",
+        "IMAGE.PNG",
+        "image.svg",
+        "VIDEO.AVI",
+        "video.wmv",
+        "music.mp3",
+        "MUSIC.OGG",
+        "lossless.flac",
+        "lossless.wav",
+        "crypto.asc",
+        "crypto.signature",
+        "document.pdf",
+        "DOCUMENT.XLSX",
+        "COMPRESSED.ZIP",
+        "compressed.tar.gz",
+        "compressed.tgz",
+        "compressed.tar.xz",
+        "compressed.txz",
+        "compressed.deb",
+        "backup~",
+        "#SAVEFILE#",
+        "file.tmp",
+        "compiled.class",
+        "compiled.o",
+        "compiled.js",
+        "compiled.coffee",
+    ]);
+
+    test_dir.run_tests();
+}
+
+#[test]
+fn cli_tests_any_files_and_dirs() {
+    let test_dir = TestDirectory::new("any", "files_and_dirs");
+
+    test_dir.create_files(&["a.txt", "abc.mp3", "ab"]);
+    test_dir.create_dirs(&["test", "abc", "01.city", "02.apple"]);
+
+    test_dir.run_tests();
+}
+
+#[test]
 #[cfg(not(feature = "git"))]
 fn cli_tests_any_no_git() {
-    let test_dir = TestDirectory::new("any", "no-git");
+    let test_dir = TestDirectory::new("any", "no_git");
     test_dir.run_tests();
 }
 
@@ -41,16 +87,6 @@ fn cli_tests_any_size() {
         let mut f = test_dir.create_file(format!("{}_MiB", i));
         f.write_sized(i * 1024 * 1024);
     }
-
-    test_dir.run_tests();
-}
-
-#[test]
-fn cli_tests_any_sort() {
-    let test_dir = TestDirectory::new("any", "sort");
-
-    test_dir.create_files(&["a.txt", "abc.mp3", "ab"]);
-    test_dir.create_dirs(&["test", "abc", "01.city", "02.apple"]);
 
     test_dir.run_tests();
 }
