@@ -285,3 +285,60 @@ impl DotFilter {
         }
     }
 }
+
+#[cfg(all(test, windows))]
+mod tests {
+    use super::*;
+    use std::fs;
+    use std::os::windows::ffi::OsStrExt;
+    use std::path::Path;
+    use std::time::{SystemTime, UNIX_EPOCH};
+    use windows_sys::Win32::Storage::FileSystem::{
+        FILE_ATTRIBUTE_HIDDEN, GetFileAttributesW, SetFileAttributesW,
+    };
+
+    fn unique_temp_dir() -> std::path::PathBuf {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("time went backwards")
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!("eza-show-dotfiles-{nanos}"));
+        fs::create_dir_all(&path).expect("failed to create temp dir");
+        path
+    }
+
+    fn set_hidden(path: &Path) {
+        let wide = path
+            .as_os_str()
+            .encode_wide()
+            .chain(std::iter::once(0))
+            .collect::<Vec<_>>();
+        unsafe {
+            let attrs = GetFileAttributesW(wide.as_ptr());
+            assert_ne!(attrs, u32::MAX);
+            assert_ne!(SetFileAttributesW(wide.as_ptr(), attrs | FILE_ATTRIBUTE_HIDDEN), 0);
+        }
+    }
+
+    #[test]
+    fn show_dotfiles_does_not_show_windows_hidden_attributes() {
+        let path = unique_temp_dir();
+        fs::write(path.join(".dotfile"), "").unwrap();
+        fs::write(path.join("_underscore"), "").unwrap();
+        fs::write(path.join("hidden.txt"), "").unwrap();
+        set_hidden(&path.join("hidden.txt"));
+
+        let dir = Dir::read_dir(path.clone()).unwrap();
+
+        let names: Vec<_> = dir
+            .files(DotFilter::DotfilesByName, None, false, false, false)
+            .map(|file| file.name)
+            .collect();
+
+        assert!(names.contains(&".dotfile".to_string()));
+        assert!(names.contains(&"_underscore".to_string()));
+        assert!(!names.contains(&"hidden.txt".to_string()));
+
+        let _ = fs::remove_dir_all(path);
+    }
+}
