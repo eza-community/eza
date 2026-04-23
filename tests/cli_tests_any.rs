@@ -4,7 +4,7 @@ use cli_tests_helpers::TestDirectory;
 
 #[test]
 fn cli_tests_any_basic() {
-    let test_dir = TestDirectory::create("any", "basic");
+    let test_dir = TestDirectory::new("any", "basic");
 
     test_dir.create_files(&["file.txt"]);
     test_dir.create_dirs(&["dir"]);
@@ -14,7 +14,7 @@ fn cli_tests_any_basic() {
 
 #[test]
 fn cli_tests_any_dotfiles() {
-    let test_dir = TestDirectory::create("any", "dotfiles");
+    let test_dir = TestDirectory::new("any", "dotfiles");
 
     test_dir.create_files(&[".file"]);
     test_dir.create_dirs(&[".dir"]);
@@ -25,13 +25,13 @@ fn cli_tests_any_dotfiles() {
 #[test]
 #[cfg(not(feature = "git"))]
 fn cli_tests_any_no_git() {
-    let test_dir = TestDirectory::create("any", "no-git");
+    let test_dir = TestDirectory::new("any", "no-git");
     test_dir.run_tests();
 }
 
 #[test]
 fn cli_tests_any_sort() {
-    let test_dir = TestDirectory::create("any", "sort");
+    let test_dir = TestDirectory::new("any", "sort");
 
     test_dir.create_files(&["a.txt", "abc.mp3", "ab"]);
     test_dir.create_dirs(&["test", "abc", "01.city", "02.apple"]);

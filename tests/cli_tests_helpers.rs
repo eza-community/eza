@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::env;
 use std::fs::{self, File, FileTimes};
 use std::path::{self, Path, PathBuf};
@@ -14,7 +16,7 @@ const TEST_DATA_DIR: &str = "tests/data";
 const TEST_SPEC_DIR: &str = "tests/cmd";
 
 impl TestDirectory {
-    pub fn create(platform: &str, group: &str) -> Self {
+    pub fn new(platform: &str, group: &str) -> Self {
         let data_path_str = format!("{TEST_DATA_DIR}/{platform}/{group}");
         let spec_path_str = format!("{TEST_SPEC_DIR}/{platform}/{group}");
 
@@ -55,7 +57,6 @@ impl TestDirectory {
     }
 
     // Not currently used on Windows
-    #[allow(dead_code)]
     pub fn run(&self, command: &str, args: &[&str]) {
         Command::new(command)
             .args(args)

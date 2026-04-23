@@ -11,7 +11,7 @@ fn cli_tests_linux_date_current_year() {
 
     use chrono::{Datelike, Local, TimeZone};
 
-    let test_dir = TestDirectory::create("linux", "date_current_year");
+    let test_dir = TestDirectory::new("linux", "date_current_year");
 
     let current_year = Local::now().year();
 
@@ -54,7 +54,7 @@ fn cli_tests_linux_date_locale() {
 
     use chrono::{Local, TimeZone};
 
-    let test_dir = TestDirectory::create("linux", "date_locale");
+    let test_dir = TestDirectory::new("linux", "date_locale");
 
     let old_date: SystemTime = Local.with_ymd_and_hms(2003, 3, 3, 0, 0, 0).unwrap().into();
     let med_date: SystemTime = Local
@@ -93,7 +93,7 @@ fn cli_tests_linux_date_locale() {
 #[test]
 #[cfg(target_os = "linux")]
 fn cli_tests_linux_xattr() {
-    let test_dir = TestDirectory::create("linux", "xattr");
+    let test_dir = TestDirectory::new("linux", "xattr");
 
     test_dir.create_files(&["file_no_attributes", "file_attributes"]);
     test_dir.create_dirs(&["dir_no_attributes", "dir_attributes"]);

@@ -1,14 +1,15 @@
+#![cfg(unix)]
+
 mod cli_tests_helpers;
 
 use cli_tests_helpers::TestDirectory;
 
 #[test]
-#[cfg(unix)]
 #[cfg(feature = "git")]
-fn cli_tests_unix_git() {
+fn cli_tests_unix_git_status() {
     use std::io::Write;
 
-    let test_dir = TestDirectory::create("unix", "git");
+    let test_dir = TestDirectory::new("unix", "git_status");
     test_dir.run("git", &["init", "."]);
     test_dir.create_dirs(&[
         "dir-empty",
@@ -93,6 +94,17 @@ fn cli_tests_unix_git() {
 
     new_staged_modified.write_all(b"a").unwrap();
     modified_staged_modified.write_all(b"a").unwrap();
+
+    test_dir.run_tests();
+}
+
+#[test]
+#[cfg(feature = "git")]
+fn cli_tests_unix_git_repos() {
+    let test_dir = TestDirectory::new("unix", "git_repos");
+    test_dir.create_dirs(&["dir-git-repo"]);
+
+    test_dir.run("git", &["init", "dir-git-repo"]);
 
     test_dir.run_tests();
 }

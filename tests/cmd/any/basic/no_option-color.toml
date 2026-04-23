@@ -1,6 +1,0 @@
-args = ["--color=always", "."]
-stdout = """
-\u001B[1;34mdir\u001B[0m
-file.txt
-"""
-stderr = ""

@@ -1,0 +1,5 @@
+args = ["-l", "--git-repos-no-status", "--no-time", "."]
+stdout = """
+drwxr-xr-x - ubuntu - dir-git-repo
+"""
+stderr = ""
