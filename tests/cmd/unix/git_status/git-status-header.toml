@@ -1,0 +1,22 @@
+args = ["--git", "-l", "--no-time", "--no-user", "--header", "."]
+stdout = """
+Permissions Size Git Name
+drwxr-xr-x     -  -- dir-empty
+drwxr-xr-x     -  -I dir-ignored
+drwxr-xr-x     -  -- dir-ignored-with-file-unmodified
+drwxr-xr-x     -  -M dir-modified
+drwxr-xr-x     -  M- dir-modified-staged
+drwxr-xr-x     -  -N dir-new
+drwxr-xr-x     -  -- dir-new-staged
+drwxr-xr-x     -  NN dir-new-staged-new
+.rw-r--r--     0  -I file-ignored
+.rw-r--r--     1  -M file-modified
+.rw-r--r--     1  M- file-modified-staged
+.rw-r--r--     2  MM file-modified-staged-modified
+.rw-r--r--     0  -N file-new
+.rw-r--r--     0  N- file-new-staged
+.rw-r--r--     1  NM file-new-staged-modified
+lrwxrwxrwx     -  -N symlink-broken -> file-non-existing
+lrwxrwxrwx     -  -M symlink-new -> file-modified
+"""
+stderr = ""

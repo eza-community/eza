@@ -1,11 +1,11 @@
 #![cfg(unix)]
+#![cfg(feature = "git")]
 
 mod cli_tests_helpers;
 
 use cli_tests_helpers::TestDirectory;
 
 #[test]
-#[cfg(feature = "git")]
 fn cli_tests_unix_git_status() {
     use std::io::Write;
 

@@ -1,0 +1,6 @@
+args = ["-l", "--git-repos", "--no-time", "--header", "."]
+stdout = """
+Permissions Size User   Git Repo Name
+drwxr-xr-x     - ubuntu | -      dir-git-repo
+"""
+stderr = ""
