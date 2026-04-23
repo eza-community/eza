@@ -190,7 +190,7 @@ impl<'dir> Files<'dir, '_> {
                 // Windows has its own concept of hidden files, when dotfiles are
                 // hidden Windows hidden files should also be filtered out
                 #[cfg(windows)]
-                if !self.windows_hidden && file.attributes().map_or(false, |a| a.hidden) {
+                if !self.windows_hidden && file.attributes().is_some_and(|a| a.hidden) {
                     continue;
                 }
 
