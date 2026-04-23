@@ -107,7 +107,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s. Quick overv
 - **-x**, **--across**: sort the grid across, rather than downwards
 - **-F**, **--classify=(when)**: display type indicator by file names (always, auto, never)
 - **--colo[u]r=(when)**: when to use terminal colours (always, auto, never)
-- **--colo[u]r-scale=(field)**: highlight levels of `field` distinctly(all, age, size)
+- **--colo[u]r-scale=(field)**: highlight levels of `field` distinctly (all, age, size)
 - **--color-scale-mode=(mode)**: use gradient or fixed colors in --color-scale. valid options are `fixed` or `gradient`
 - **--icons=(when)**: when to display icons (always, auto, never)
 - **--hyperlink=(when)**: when to display entries as hyperlinks (always, auto, never)
