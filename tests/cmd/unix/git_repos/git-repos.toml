@@ -1,5 +1,7 @@
 args = ["-l", "--git-repos", "--no-time", "."]
 stdout = """
-drwxr-xr-x - ubuntu | - dir-git-repo
+drwxr-xr-x - ubuntu | -        dir-git-repo1
+drwxr-xr-x - ubuntu | main     dir-git-repo2
+drwxr-xr-x - ubuntu | add-bépo dir-git-repo3
 """
 stderr = ""

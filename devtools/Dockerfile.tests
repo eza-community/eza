@@ -26,6 +26,9 @@ USER ubuntu
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     curl --proto '=https' --tlsv1.2 -fsSL https://github.com/taiki-e/cargo-hack/releases/latest/download/cargo-hack-x86_64-unknown-linux-gnu.tar.gz | tar xzf - -C /home/ubuntu/.cargo/bin
 
+RUN git config --global user.email "eza@eza.test" && \
+    git config --global user.name "eza"
+
 ENV PATH=/home/ubuntu/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 WORKDIR /workspace

@@ -6,6 +6,50 @@ mod cli_tests_helpers;
 use cli_tests_helpers::TestDirectory;
 
 #[test]
+#[cfg(feature = "git")]
+fn cli_tests_unix_git_repos() {
+    let test_dir = TestDirectory::new("unix", "git_repos");
+    test_dir.create_dirs(&["dir-git-repo1", "dir-git-repo2", "dir-git-repo3"]);
+
+    // dir-git-repo1
+    test_dir.run("git", &["init", "dir-git-repo1"]);
+
+    // dir-git-repo2
+    test_dir.run(
+        "git",
+        &["init", "dir-git-repo2", "--initial-branch", "main"],
+    );
+    test_dir.run(
+        "git",
+        &[
+            "-C",
+            "dir-git-repo2",
+            "commit",
+            "--message=\"initial commit\"",
+            "--allow-empty",
+        ],
+    );
+
+    // dir-git-repo3
+    test_dir.run(
+        "git",
+        &["init", "dir-git-repo3", "--initial-branch", "add-bépo"],
+    );
+    test_dir.run(
+        "git",
+        &[
+            "-C",
+            "dir-git-repo3",
+            "commit",
+            "--message=\"initial commit\"",
+            "--allow-empty",
+        ],
+    );
+
+    test_dir.run_tests();
+}
+
+#[test]
 fn cli_tests_unix_git_status() {
     use std::io::Write;
 
@@ -44,9 +88,6 @@ fn cli_tests_unix_git_status() {
 
     let mut gitignore = test_dir.create_file(".gitignore");
     gitignore.write_all(b"dir-ignored*\nfile-ignored*").unwrap();
-
-    test_dir.run("git", &["config", "user.name", "Eza"]);
-    test_dir.run("git", &["config", "user.email", "eza@eza.test"]);
 
     test_dir.run(
         "git",
@@ -94,17 +135,6 @@ fn cli_tests_unix_git_status() {
 
     new_staged_modified.write_all(b"a").unwrap();
     modified_staged_modified.write_all(b"a").unwrap();
-
-    test_dir.run_tests();
-}
-
-#[test]
-#[cfg(feature = "git")]
-fn cli_tests_unix_git_repos() {
-    let test_dir = TestDirectory::new("unix", "git_repos");
-    test_dir.create_dirs(&["dir-git-repo"]);
-
-    test_dir.run("git", &["init", "dir-git-repo"]);
 
     test_dir.run_tests();
 }

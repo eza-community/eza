@@ -1,5 +1,7 @@
 args = ["-l", "--git-repos", "--no-time", "--color=always", "."]
 stdout = """
-\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m \u001B[1;90m-\u001B[0m \u001B[1;33mubuntu\u001B[0m \u001B[32m|\u001B[0m \u001B[1;90m-\u001B[0m \u001B[1;34mdir-git-repo\u001B[0m
+\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m \u001B[1;90m-\u001B[0m \u001B[1;33mubuntu\u001B[0m \u001B[32m|\u001B[0m \u001B[1;90m-\u001B[0m        \u001B[1;34mdir-git-repo1\u001B[0m
+\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m \u001B[1;90m-\u001B[0m \u001B[1;33mubuntu\u001B[0m \u001B[32m|\u001B[0m \u001B[32mmain\u001B[0m     \u001B[1;34mdir-git-repo2\u001B[0m
+\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m \u001B[1;90m-\u001B[0m \u001B[1;33mubuntu\u001B[0m \u001B[32m|\u001B[0m \u001B[33madd-bépo\u001B[0m \u001B[1;34mdir-git-repo3\u001B[0m
 """
 stderr = ""
