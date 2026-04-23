@@ -35,13 +35,8 @@ impl TestDirectory {
     }
 
     pub fn create_file<P: AsRef<Path> + std::fmt::Debug>(&self, file_name: P) -> File {
-        let file = File::create(self.data_path.join(file_name)).unwrap();
-
-        let times = FileTimes::new()
-            .set_accessed(SystemTime::UNIX_EPOCH)
-            .set_modified(SystemTime::UNIX_EPOCH);
-
-        file.set_times(times).unwrap();
+        let mut file = File::create(self.data_path.join(file_name)).unwrap();
+        Self::set_time_to_epoch(&mut file);
         file
     }
 
@@ -54,7 +49,16 @@ impl TestDirectory {
     pub fn create_dirs(&self, dirs: &[&str]) {
         for dir_name in dirs {
             fs::create_dir(self.data_path.join(dir_name)).unwrap();
+            let mut dir = File::open(self.data_path.join(dir_name)).unwrap();
+            Self::set_time_to_epoch(&mut dir);
         }
+    }
+
+    fn set_time_to_epoch(f: &mut File) {
+        let times = FileTimes::new()
+            .set_accessed(SystemTime::UNIX_EPOCH)
+            .set_modified(SystemTime::UNIX_EPOCH);
+        f.set_times(times).unwrap();
     }
 
     // Not currently used on Windows
