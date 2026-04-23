@@ -34,19 +34,19 @@ impl TestDirectory {
         }
     }
 
-    pub fn create_file<P: AsRef<Path> + std::fmt::Debug>(&self, file_name: P) -> File {
+    pub fn create_file<P: AsRef<Path>>(&self, file_name: P) -> File {
         let mut file = File::create(self.data_path.join(file_name)).unwrap();
         Self::set_time_to_epoch(&mut file);
         file
     }
 
-    pub fn create_files(&self, files: &[&str]) {
+    pub fn create_files<P: AsRef<Path>>(&self, files: &[P]) {
         for file_name in files {
             self.create_file(file_name);
         }
     }
 
-    pub fn create_dirs(&self, dirs: &[&str]) {
+    pub fn create_dirs<P: AsRef<Path>>(&self, dirs: &[P]) {
         for dir_name in dirs {
             fs::create_dir(self.data_path.join(dir_name)).unwrap();
             let mut dir = File::open(self.data_path.join(dir_name)).unwrap();
@@ -94,7 +94,6 @@ impl TestDirectory {
 impl Drop for TestDirectory {
     fn drop(&mut self) {
         env::set_current_dir(&self.initial_dir_path).unwrap();
-        fs::remove_dir_all(&self.data_path).unwrap();
     }
 }
 

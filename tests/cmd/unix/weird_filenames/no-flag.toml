@@ -1,0 +1,23 @@
+args = ["."]
+stdout = """
+'ansi: blue'
+'ascii: hello'
+'backspace: /u{8}'
+'bell: /u{7}'
+'broken-target: [/n]-symlink' -> 'broken-target: [/n]'
+'carriage return: /r'
+'emoji: [🆒]'
+'escape: /u{1b}'
+'form-feed: /u{c}'
+'invalid-utf8-1: �'
+'invalid-utf8-2: �('
+'invalid-utf8-3: �('
+'invalid-utf8-4: �(�('
+'new-line-dir: [/n]'
+'new-line: [/n]'
+'new-line: [/n]-symlink' -> 'new-line: [/n]'
+'tab: /t'
+'utf-8: pâté'
+'vertical tab: /u{b}'
+"""
+stderr = ""
