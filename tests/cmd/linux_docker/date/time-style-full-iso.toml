@@ -1,0 +1,7 @@
+args = ["-l", "--time-style=full-iso", "--no-permissions", "--no-filesize", "--no-user", "."]
+stdout = """
+2006-06-15 23:14:29.000000000 +0000 peach
+2003-03-03 00:00:00.000000000 +0000 pear
+2009-12-22 10:38:53.000000000 +0000 plum
+"""
+stderr = ""

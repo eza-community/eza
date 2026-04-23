@@ -1,0 +1,6 @@
+args = ["."]
+stdout = """
+dir
+file.txt
+"""
+stderr = ""

@@ -1,0 +1,24 @@
+name: eza-tests
+
+services:
+  tests:
+    image: eza-test-env:local
+    pull_policy: never
+    build:
+      context: .
+      dockerfile: Dockerfile.tests
+    volumes:
+      - ..:/home/eza_test/workspace:ro
+      - ../tests/cmd:/home/eza_test/workspace/tests/cmd
+      - test_data:/home/eza_test/workspace/tests/data
+      - build_cache:/home/eza_test/.cache/eza/build
+      - rustup_cache:/home/eza_test/.rustup
+      - cargo_cache:/home/eza_test/.cargo/registry
+    cap_add:
+      - CAP_SYS_ADMIN  # to be able to set security attributes (setfattr)
+
+volumes:
+  build_cache:
+  rustup_cache:
+  cargo_cache:
+  test_data:

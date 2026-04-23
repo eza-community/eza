@@ -1,0 +1,7 @@
+args = ["-l", "--header", "--no-permissions", "--color=always", "--no-user", "."]
+stdout = """
+\u001B[4mSize\u001B[0m \u001B[4mDate Modified\u001B[0m \u001B[4mName\u001B[0m
+   \u001B[1;90m-\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m  \u001B[1;34mdir\u001B[0m
+   \u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m  file.txt
+"""
+stderr = ""

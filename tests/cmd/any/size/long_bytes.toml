@@ -1,0 +1,18 @@
+args = ["-l", "--bytes", "--no-permissions", "--no-user", "--no-time", "."]
+stdout = """
+         9 9bytes
+     9,000 9Kb
+     9,216 9Kib
+ 9,000,000 9MB
+ 9,437,184 9MiB
+        10 10bytes
+    10,000 10Kb
+    10,240 10Kib
+10,000,000 10MB
+10,485,760 10MiB
+"""
+stderr = ""
+
+[env.add]
+# to make the test pass in Ubuntu runner on GitHub CI
+LANG = "en_US.UTF-8"

@@ -1,0 +1,7 @@
+args = ["-l", "--group", "--numeric", "--no-time", "."]
+stdout = """
+.rw-r--r-- 0 1234 5678 eza_group
+.rw-r--r-- 0 1234 5679 eza_group2
+.rw-r--r-- 0 1234 5677 eza_test
+"""
+stderr = ""

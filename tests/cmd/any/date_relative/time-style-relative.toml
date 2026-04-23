@@ -1,0 +1,7 @@
+args = ["-l", "--time-style=relative", "--no-permissions", "--no-filesize", "--no-user", "."]
+stdout = """
+1 month peach
+1 hour  pear
+1 year  plum
+"""
+stderr = ""

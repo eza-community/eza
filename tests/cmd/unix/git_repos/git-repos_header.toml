@@ -1,0 +1,8 @@
+args = ["-l", "--git-repos", "--no-permissions", "--no-user", "--no-time", "--header", "."]
+stdout = """
+Size Git Repo   Name
+   - | -        dir-git-repo1
+   - | main     dir-git-repo2
+   - | add-bépo dir-git-repo3
+"""
+stderr = ""

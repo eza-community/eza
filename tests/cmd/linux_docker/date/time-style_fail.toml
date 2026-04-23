@@ -1,0 +1,12 @@
+args = ["-l", "--time-style=nonsense", "--no-permissions", "--no-filesize", "--no-user", "."]
+status.code = 2
+stdout = ""
+stderr = """
+error: invalid value 'nonsense' for '--time-style <STYLE>'
+  [possible values: default, iso, long-iso, full-iso, relative, +<CUSTOM_FORMAT>]
+
+Please start the format with a plus sign (+) to indicate a custom format.
+For example: "+%Y-%m-%d %H:%M:%S"
+
+For more information, try '--help'.
+"""
