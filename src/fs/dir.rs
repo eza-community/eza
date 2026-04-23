@@ -89,6 +89,8 @@ impl Dir {
             inner: self.contents.iter(),
             dir: self,
             dotfiles: dots.shows_dotfiles(),
+            #[cfg(windows)]
+            windows_hidden: dots.shows_windows_hidden(),
             dots: dots.dots(),
             git,
             git_ignoring,
@@ -121,6 +123,10 @@ pub struct Files<'dir, 'ig> {
 
     /// Whether to include dotfiles in the list.
     dotfiles: bool,
+
+    #[cfg(windows)]
+    /// Whether Windows hidden-attribute entries should be visible.
+    windows_hidden: bool,
 
     /// Whether the `.` or `..` directories should be produced first, before
     /// any files have been listed.
@@ -184,7 +190,7 @@ impl<'dir> Files<'dir, '_> {
                 // Windows has its own concept of hidden files, when dotfiles are
                 // hidden Windows hidden files should also be filtered out
                 #[cfg(windows)]
-                if !self.dotfiles && file.attributes().map_or(false, |a| a.hidden) {
+                if !self.windows_hidden && file.attributes().map_or(false, |a| a.hidden) {
                     continue;
                 }
 
@@ -244,6 +250,9 @@ pub enum DotFilter {
     /// Show files and dotfiles, but hide `.` and `..`.
     Dotfiles,
 
+    /// Show dotfiles by name only, but keep platform hidden-attribute files hidden.
+    DotfilesByName,
+
     /// Just show files, hiding anything beginning with a dot.
     #[default]
     JustFiles,
@@ -255,8 +264,15 @@ impl DotFilter {
         match self {
             Self::JustFiles => false,
             Self::Dotfiles => true,
+            Self::DotfilesByName => true,
             Self::DotfilesAndDots => true,
         }
+    }
+
+    #[cfg(windows)]
+    /// Whether this filter should reveal Windows hidden-attribute entries.
+    fn shows_windows_hidden(self) -> bool {
+        cfg!(windows) && matches!(self, Self::Dotfiles | Self::DotfilesAndDots)
     }
 
     /// Whether this filter should add dot directories to a listing.
@@ -264,6 +280,7 @@ impl DotFilter {
         match self {
             Self::JustFiles => DotsNext::Files,
             Self::Dotfiles => DotsNext::Files,
+            Self::DotfilesByName => DotsNext::Files,
             Self::DotfilesAndDots => DotsNext::Dot,
         }
     }
