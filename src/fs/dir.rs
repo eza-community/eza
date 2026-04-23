@@ -269,15 +269,7 @@ impl DotFilter {
 
     /// Whether this filter should reveal Windows hidden-attribute entries.
     fn shows_windows_hidden(self) -> bool {
-        #[cfg(windows)]
-        {
-            matches!(self, Self::Dotfiles | Self::DotfilesAndDots)
-        }
-
-        #[cfg(not(windows))]
-        {
-            false
-        }
+        cfg!(windows) && matches!(self, Self::Dotfiles | Self::DotfilesAndDots)
     }
 
     /// Whether this filter should add dot directories to a listing.
