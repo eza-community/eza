@@ -87,7 +87,7 @@ jobs:
         run: cargo hack test -- --skip cli_tests
 
   unit-tests-freebsd:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     continue-on-error: ${{ matrix.rust == 'nightly' }}
     strategy:
@@ -118,7 +118,7 @@ jobs:
             cargo hack test -- --skip cli_tests
 
   unit-tests-netbsd:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     continue-on-error: ${{ matrix.rust == 'nightly' }}
     strategy:
@@ -152,7 +152,7 @@ jobs:
             cargo hack test -- --skip cli_tests
 
   unit-tests-openbsd:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
@@ -179,10 +179,14 @@ jobs:
             cargo hack test -- --skip cli_tests
 
   integration-tests-unix:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Install test dependencies
+        run: sudo apt-get install -y just
+
       - name: Run integration tests
-        run: docker compose run --build --rm tests cargo test -- --test cli_tests --test-threads 1
+        run: just integration-tests
