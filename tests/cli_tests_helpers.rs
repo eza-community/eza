@@ -75,7 +75,9 @@ impl TestDirectory {
         let spec_path = self.spec_path.to_str().unwrap();
 
         env::set_current_dir(&self.data_path).unwrap();
-        trycmd::TestCases::new().case(format!("{spec_path}/*.toml")).run();
+        trycmd::TestCases::new()
+            .case(format!("{spec_path}/*.toml"))
+            .run();
     }
 }
 
