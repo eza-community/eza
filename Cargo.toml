@@ -6,7 +6,7 @@ description = "A modern replacement for ls"
 authors = ["Christina Sørensen <christina@cafkafk.com>"]
 categories = ["command-line-utilities"]
 edition = "2024"
-rust-version = "1.90"
+rust-version = "1.90"  # NOTE: don't forget to also update Cargo.toml
 exclude = [
   "/docs/",
   "/devtools/",
@@ -16,14 +16,11 @@ exclude = [
   "/.github/",
   "/deb.asc",
   "/deny.toml",
-  "/flake.*",
   "/justfile",
-  "/powertest.yaml",
   "/rust-toolchain.toml",
-  "/.envrc",
   "/.gitignore",
   "/.git-blame-ignore-revs",
-  "/.pre-commit-config-non-nix.yaml",
+  "/.pre-commit-config.yaml",
 ]
 readme = "README.md"
 homepage = "https://github.com/eza-community/eza"
@@ -110,7 +107,6 @@ ansi-width = "0.1.0"
 serde = { version = "1.0.219", features = ["derive"] }
 dirs = "6.0.0"
 serde_norway = "0.9"
-backtrace = "0.3"
 clap = { version = "4.5.38", features = ["cargo", "derive"] }
 
 [dependencies.git2]
@@ -134,22 +130,13 @@ windows-sys = { version = "0.61.2", features = [
 chrono = { version = "0.4.40", default-features = false, features = ["clock"] }
 
 [dev-dependencies]
-criterion = { version = "0.8.2", features = ["html_reports"] }
-trycmd = "1.0"
+trycmd = { version = "1.2.0" }
 
 [features]
 default = ["git"]
 git = ["git2"]
 vendored-openssl = ["git2/vendored-openssl"]
 vendored-libgit2 = ["git2/vendored-libgit2"]
-# Should only be used inside of flake.nix
-nix = []
-# Should only be used inside of flake.nix locally (not on CI)
-nix-local = []
-# Should only be used inside of flake.nix
-# Shouldn't ever be used in CI (slow!)
-powertest = []
-nix-generated = []
 
 # use LTO for smaller binaries (that take longer to build)
 [profile.release]
@@ -158,7 +145,3 @@ strip = true
 opt-level = 3
 codegen-units = 1
 panic = 'abort'
-
-[[bench]]
-name = "my_benchmark"
-harness = false

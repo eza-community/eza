@@ -1,0 +1,12 @@
+args = ["-l", "--links", "--color=always", "--no-user", "--no-time", "."]
+stdout = """
+\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m  \u001B[1;31m2\u001B[0m \u001B[1;90m-\u001B[0m \u001B[1;34mdir\u001B[0m
+\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m \u001B[1;31m11\u001B[0m \u001B[1;90m-\u001B[0m \u001B[1;34mdir_with_subdirs\u001B[0m
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m  \u001B[1;31m1\u001B[0m \u001B[32m0\u001B[0m file1
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m  \u001B[43;31m2\u001B[0m \u001B[32m0\u001B[0m file2
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m  \u001B[43;31m2\u001B[0m \u001B[32m0\u001B[0m file2-link
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m  \u001B[43;31m3\u001B[0m \u001B[32m0\u001B[0m file3
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m  \u001B[43;31m3\u001B[0m \u001B[32m0\u001B[0m file3-link1
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m  \u001B[43;31m3\u001B[0m \u001B[32m0\u001B[0m file3-link2
+"""
+stderr = ""

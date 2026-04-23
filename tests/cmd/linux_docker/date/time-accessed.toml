@@ -1,0 +1,7 @@
+args = ["-l", "--time=accessed", "."]
+stdout = """
+.rw-r--r-- 0 eza_test 22 Dec  2009 peach
+.rw-r--r-- 0 eza_test 15 Jun  2006 pear
+.rw-r--r-- 0 eza_test  3 Mar  2003 plum
+"""
+stderr = ""

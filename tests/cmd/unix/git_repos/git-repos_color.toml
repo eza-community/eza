@@ -1,0 +1,7 @@
+args = ["-l", "--git-repos", "--no-permissions", "--no-user", "--no-time", "--color=always", "."]
+stdout = """
+\u001B[1;90m-\u001B[0m \u001B[32m|\u001B[0m \u001B[1;90m-\u001B[0m        \u001B[1;34mdir-git-repo1\u001B[0m
+\u001B[1;90m-\u001B[0m \u001B[32m|\u001B[0m \u001B[32mmain\u001B[0m     \u001B[1;34mdir-git-repo2\u001B[0m
+\u001B[1;90m-\u001B[0m \u001B[32m|\u001B[0m \u001B[33madd-bépo\u001B[0m \u001B[1;34mdir-git-repo3\u001B[0m
+"""
+stderr = ""

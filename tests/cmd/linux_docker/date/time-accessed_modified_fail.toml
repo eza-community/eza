@@ -1,0 +1,10 @@
+args = ["-l", "--time=accessed", "--modified", "."]
+stdout = ""
+stderr = """
+error: the argument '--time <FIELD>' cannot be used with '--modified'
+
+Usage: eza --long --time <FIELD> <FILE>...
+
+For more information, try '--help'.
+"""
+status.code = 2

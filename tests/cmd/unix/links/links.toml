@@ -1,0 +1,12 @@
+args = ["-l", "--links", "--no-user", "--no-time", "."]
+stdout = """
+drwxr-xr-x  2 - dir
+drwxr-xr-x 11 - dir_with_subdirs
+.rw-r--r--  1 0 file1
+.rw-r--r--  2 0 file2
+.rw-r--r--  2 0 file2-link
+.rw-r--r--  3 0 file3
+.rw-r--r--  3 0 file3-link1
+.rw-r--r--  3 0 file3-link2
+"""
+stderr = ""

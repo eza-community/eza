@@ -1,0 +1,6 @@
+args = ["-l", "--total-size", "--no-permissions", "--no-user", "--no-time", "."]
+stdout = """
+39k dir1
+19k dir2
+"""
+stderr = ""

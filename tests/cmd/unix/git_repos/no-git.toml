@@ -1,0 +1,7 @@
+args = ["-l", "--git-repos", "--no-permissions", "--no-user", "--no-git", "--no-time", "."]
+stdout = """
+- dir-git-repo1
+- dir-git-repo2
+- dir-git-repo3
+"""
+stderr = ""

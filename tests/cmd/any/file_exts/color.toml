@@ -1,0 +1,30 @@
+args = ["--color=always", "."]
+stdout = """
+\u001B[2m#SAVEFILE#\u001B[0m
+\u001B[2mbackup~\u001B[0m
+\u001B[33mcompiled.class\u001B[0m
+compiled.coffee
+\u001B[1;33mcompiled.js\u001B[0m
+\u001B[33mcompiled.o\u001B[0m
+\u001B[31mcompressed.deb\u001B[0m
+\u001B[31mcompressed.tar.gz\u001B[0m
+\u001B[31mcompressed.tar.xz\u001B[0m
+\u001B[31mcompressed.tgz\u001B[0m
+\u001B[31mcompressed.txz\u001B[0m
+\u001B[31mCOMPRESSED.ZIP\u001B[0m
+\u001B[1;32mcrypto.asc\u001B[0m
+\u001B[1;32mcrypto.signature\u001B[0m
+\u001B[32mdocument.pdf\u001B[0m
+\u001B[32mDOCUMENT.XLSX\u001B[0m
+\u001B[2mfile.tmp\u001B[0m
+\u001B[35mIMAGE.PNG\u001B[0m
+\u001B[35mimage.svg\u001B[0m
+\u001B[1;36mlossless.flac\u001B[0m
+\u001B[1;36mlossless.wav\u001B[0m
+\u001B[1;4;33mMakefile\u001B[0m
+\u001B[36mmusic.mp3\u001B[0m
+\u001B[36mMUSIC.OGG\u001B[0m
+\u001B[1;35mVIDEO.AVI\u001B[0m
+\u001B[1;35mvideo.wmv\u001B[0m
+"""
+stderr = ""
