@@ -186,7 +186,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Install test dependencies
-        run: sudo apt-get install -y just
+        uses: extractions/setup-just@v4
 
       - name: Run integration tests
         run: just integration-tests
