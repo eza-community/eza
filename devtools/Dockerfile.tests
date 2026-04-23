@@ -13,22 +13,25 @@ RUN sed -i '/fr_FR.UTF-8/s/^# //g' /etc/locale.gen && \
     sed -i '/ja_JP.UTF-8/s/^# //g' /etc/locale.gen && \
     locale-gen
 
+RUN groupadd -g 5678 test_group && \
+    useradd -G sudo -g test_group -m -u 1234 eza_test && \
+    sed -i 's/^%sudo.*$/%sudo ALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers
+
 # Create working directories and volumes moint points
 RUN mkdir -p /workspace/target && \
     mkdir -p /workspace/tests/data && \
-    mkdir -p /home/ubuntu/.cargo/registry && \
-    chown -R ubuntu: /workspace && \
-    chown -R ubuntu: /home/ubuntu
+    mkdir -p /home/eza_test/.cargo/registry && \
+    chown -R eza_test: /workspace && \
+    chown -R eza_test: /home/eza_test
 
-USER ubuntu
+USER eza_test
 
 # Install Rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
-    curl --proto '=https' --tlsv1.2 -fsSL https://github.com/taiki-e/cargo-hack/releases/latest/download/cargo-hack-x86_64-unknown-linux-gnu.tar.gz | tar xzf - -C /home/ubuntu/.cargo/bin
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 RUN git config --global user.email "eza@eza.test" && \
     git config --global user.name "eza"
 
-ENV PATH=/home/ubuntu/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV PATH=/home/eza_test/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 WORKDIR /workspace
