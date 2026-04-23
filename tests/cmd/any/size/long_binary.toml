@@ -1,0 +1,40 @@
+args = ["-l", "--binary", "--no-time", "."]
+stdout = """
+.rw-r--r--     1 ubuntu 1_bytes
+.rw-r--r-- 1.0Ki ubuntu 1_Kib
+.rw-r--r-- 1.0Mi ubuntu 1_MiB
+.rw-r--r--     2 ubuntu 2_bytes
+.rw-r--r-- 2.0Ki ubuntu 2_Kib
+.rw-r--r-- 2.0Mi ubuntu 2_MiB
+.rw-r--r--     3 ubuntu 3_bytes
+.rw-r--r-- 3.0Ki ubuntu 3_Kib
+.rw-r--r-- 3.0Mi ubuntu 3_MiB
+.rw-r--r--     4 ubuntu 4_bytes
+.rw-r--r-- 4.0Ki ubuntu 4_Kib
+.rw-r--r-- 4.0Mi ubuntu 4_MiB
+.rw-r--r--     5 ubuntu 5_bytes
+.rw-r--r-- 5.0Ki ubuntu 5_Kib
+.rw-r--r-- 5.0Mi ubuntu 5_MiB
+.rw-r--r--     6 ubuntu 6_bytes
+.rw-r--r-- 6.0Ki ubuntu 6_Kib
+.rw-r--r-- 6.0Mi ubuntu 6_MiB
+.rw-r--r--     7 ubuntu 7_bytes
+.rw-r--r-- 7.0Ki ubuntu 7_Kib
+.rw-r--r-- 7.0Mi ubuntu 7_MiB
+.rw-r--r--     8 ubuntu 8_bytes
+.rw-r--r-- 8.0Ki ubuntu 8_Kib
+.rw-r--r-- 8.0Mi ubuntu 8_MiB
+.rw-r--r--     9 ubuntu 9_bytes
+.rw-r--r-- 9.0Ki ubuntu 9_Kib
+.rw-r--r-- 9.0Mi ubuntu 9_MiB
+.rw-r--r--    10 ubuntu 10_bytes
+.rw-r--r--  10Ki ubuntu 10_Kib
+.rw-r--r--  10Mi ubuntu 10_MiB
+.rw-r--r--    11 ubuntu 11_bytes
+.rw-r--r--  11Ki ubuntu 11_Kib
+.rw-r--r--  11Mi ubuntu 11_MiB
+.rw-r--r--    12 ubuntu 12_bytes
+.rw-r--r--  12Ki ubuntu 12_Kib
+.rw-r--r--  12Mi ubuntu 12_MiB
+"""
+stderr = ""

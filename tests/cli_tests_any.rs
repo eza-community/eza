@@ -1,6 +1,6 @@
 mod cli_tests_helpers;
 
-use cli_tests_helpers::TestDirectory;
+use cli_tests_helpers::{AllocateFileSize, TestDirectory};
 
 #[test]
 fn cli_tests_any_basic() {
@@ -26,6 +26,22 @@ fn cli_tests_any_dotfiles() {
 #[cfg(not(feature = "git"))]
 fn cli_tests_any_no_git() {
     let test_dir = TestDirectory::new("any", "no-git");
+    test_dir.run_tests();
+}
+
+#[test]
+fn cli_tests_any_size() {
+    let test_dir = TestDirectory::new("any", "size");
+
+    for i in 1..13 {
+        let mut f = test_dir.create_file(format!("{}_bytes", i));
+        f.write_sized(i);
+        let mut f = test_dir.create_file(format!("{}_Kib", i));
+        f.write_sized(i * 1024);
+        let mut f = test_dir.create_file(format!("{}_MiB", i));
+        f.write_sized(i * 1024 * 1024);
+    }
+
     test_dir.run_tests();
 }
 
