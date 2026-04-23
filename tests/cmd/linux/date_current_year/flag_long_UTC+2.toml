@@ -1,0 +1,10 @@
+args = ["-l", "tests/data/linux/date_current_year"]
+stdout = """
+.rw-r--r-- 0 ubuntu 16 Jun 01:14 peach
+.rw-r--r-- 0 ubuntu  3 Mar 02:00 pear
+.rw-r--r-- 0 ubuntu 22 Dec 12:38 plum
+"""
+stderr = ""
+
+[env.add]
+TZ = "Europe/Paris"

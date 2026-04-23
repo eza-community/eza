@@ -5,14 +5,56 @@ use cli_tests_helpers::TestDirectory;
 #[test]
 #[cfg(target_os = "linux")]
 // This test needs locales en_US, fr_FR and ja_JP.
-fn cli_tests_linux_date() {
+fn cli_tests_linux_date_current_year() {
+    use std::fs::FileTimes;
+    use std::time::SystemTime;
+
+    use chrono::{Datelike, Local, TimeZone};
+
+    let test_dir = TestDirectory::create("linux", "date_current_year");
+
+    let current_year = Local::now().year();
+
+    let old_date: SystemTime = Local
+        .with_ymd_and_hms(current_year, 3, 3, 0, 0, 0)
+        .unwrap()
+        .into();
+    let med_date: SystemTime = Local
+        .with_ymd_and_hms(current_year, 6, 15, 23, 14, 29)
+        .unwrap()
+        .into();
+    let new_date: SystemTime = Local
+        .with_ymd_and_hms(current_year, 12, 22, 10, 38, 53)
+        .unwrap()
+        .into();
+
+    // Sleep between each create as we can not modified the created time
+    let peach = test_dir.create_file("peach");
+    let peach_times = FileTimes::new().set_modified(med_date);
+    peach.set_times(peach_times).unwrap();
+
+    let plum = test_dir.create_file("plum");
+    let plum_times = FileTimes::new().set_modified(new_date);
+    plum.set_times(plum_times).unwrap();
+
+    let pear = test_dir.create_file("pear");
+    let pear_times = FileTimes::new().set_modified(old_date);
+    pear.set_times(pear_times).unwrap();
+
+    test_dir.run_tests();
+}
+
+#[test]
+#[cfg(target_os = "linux")]
+// This test needs locales en_US, fr_FR and ja_JP.
+fn cli_tests_linux_date_locale() {
     use std::fs::FileTimes;
     use std::thread;
     use std::time::{Duration, SystemTime};
 
     use chrono::{Local, TimeZone};
 
-    let test_dir = TestDirectory::create("linux", "date");
+    let test_dir = TestDirectory::create("linux", "date_locale");
 
     let old_date: SystemTime = Local.with_ymd_and_hms(2003, 3, 3, 0, 0, 0).unwrap().into();
     let med_date: SystemTime = Local

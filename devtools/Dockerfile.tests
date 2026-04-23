@@ -4,7 +4,7 @@ FROM ubuntu:latest
 RUN apt-get update && \
     apt-get -y install curl sudo gcc \
     # We need these tools for specific tests
-    attr git locales
+    attr git locales tzdata
 
 COPY --from=ghcr.io/casey/just:latest /just /usr/local/bin/
 
