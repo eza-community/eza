@@ -1,4 +1,4 @@
-args = ["-l", "tests/data/linux/date_current_year"]
+args = ["-l", "."]
 stdout = """
 .rw-r--r-- 0 ubuntu 16 Jun 01:14 peach
 .rw-r--r-- 0 ubuntu  3 Mar 02:00 pear

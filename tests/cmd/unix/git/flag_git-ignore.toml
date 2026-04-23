@@ -1,4 +1,4 @@
-args = ["--git-ignore", "tests/data/unix/git"]
+args = ["--git-ignore", "."]
 stdout = """
 dir-empty
 dir-ignored-with-file-unmodified

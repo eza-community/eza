@@ -1,4 +1,4 @@
-args = ["-l", "tests/data/linux/date_locale"]
+args = ["-l", "."]
 stdout = """
 .rw-r--r-- 0 ubuntu 15 juin   2006 peach
 .rw-r--r-- 0 ubuntu  3 mars   2003 pear

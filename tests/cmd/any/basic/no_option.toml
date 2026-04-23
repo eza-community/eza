@@ -1,6 +1,4 @@
-bin.name = "eza"
 args = ["."]
-status.code = 0
 stdout = """
 dir
 file.txt

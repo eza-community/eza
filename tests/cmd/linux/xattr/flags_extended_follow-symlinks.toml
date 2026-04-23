@@ -1,4 +1,4 @@
-args = ["-l", "--extended", "--follow-symlinks", "--no-time", "tests/data/linux/xattr"]
+args = ["-l", "--extended", "--follow-symlinks", "--no-time", "."]
 stdout = """
 drwxr-xr-x@ - ubuntu dir_attributes
                      └── user.xdg.tags: "foo,bar,baz"

@@ -1,5 +1,4 @@
-args = ["--color=always", "tests/data/any/basic"]
-status.code = 0
+args = ["--color=always", "."]
 stdout = """
 \u001B[1;34mdir\u001B[0m
 file.txt

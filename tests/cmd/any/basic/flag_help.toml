@@ -1,5 +1,4 @@
 args = ["--help"]
-status.code = 0
 stdout = """
 A modern replacement for ls
 
