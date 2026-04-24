@@ -110,7 +110,6 @@ ansi-width = "0.1.0"
 serde = { version = "1.0.219", features = ["derive"] }
 dirs = "6.0.0"
 serde_norway = "0.9"
-backtrace = "0.3"
 clap = { version = "4.5.38", features = ["cargo", "derive"] }
 
 [dependencies.git2]
@@ -134,7 +133,6 @@ windows-sys = { version = "0.61.2", features = [
 chrono = { version = "0.4.40", default-features = false, features = ["clock"] }
 
 [dev-dependencies]
-criterion = { version = "0.8.2", features = ["html_reports"] }
 trycmd = { version = "1.2.0" }
 
 [features]
@@ -150,7 +148,3 @@ strip = true
 opt-level = 3
 codegen-units = 1
 panic = 'abort'
-
-[[bench]]
-name = "my_benchmark"
-harness = false
