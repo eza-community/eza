@@ -1,30 +1,30 @@
 args = ["-l", "--icons=always", "."]
 stdout = """
-.rw-r--r-- 0 ubuntu  1 Jan  1970 󰡯 #SAVEFILE#
-.rw-r--r-- 0 ubuntu  1 Jan  1970 󰡯 backup~
-.rw-r--r-- 0 ubuntu  1 Jan  1970  compiled.class
-.rw-r--r-- 0 ubuntu  1 Jan  1970  compiled.coffee
-.rw-r--r-- 0 ubuntu  1 Jan  1970  compiled.js
-.rw-r--r-- 0 ubuntu  1 Jan  1970  compiled.o
-.rw-r--r-- 0 ubuntu  1 Jan  1970  compressed.deb
-.rw-r--r-- 0 ubuntu  1 Jan  1970  compressed.tar.gz
-.rw-r--r-- 0 ubuntu  1 Jan  1970  compressed.tar.xz
-.rw-r--r-- 0 ubuntu  1 Jan  1970  compressed.tgz
-.rw-r--r-- 0 ubuntu  1 Jan  1970  compressed.txz
-.rw-r--r-- 0 ubuntu  1 Jan  1970  COMPRESSED.ZIP
-.rw-r--r-- 0 ubuntu  1 Jan  1970 󰦝 crypto.asc
-.rw-r--r-- 0 ubuntu  1 Jan  1970 󱧃 crypto.signature
-.rw-r--r-- 0 ubuntu  1 Jan  1970  document.pdf
-.rw-r--r-- 0 ubuntu  1 Jan  1970  DOCUMENT.XLSX
-.rw-r--r-- 0 ubuntu  1 Jan  1970  file.tmp
-.rw-r--r-- 0 ubuntu  1 Jan  1970  IMAGE.PNG
-.rw-r--r-- 0 ubuntu  1 Jan  1970 󰕙 image.svg
-.rw-r--r-- 0 ubuntu  1 Jan  1970  lossless.flac
-.rw-r--r-- 0 ubuntu  1 Jan  1970  lossless.wav
-.rw-r--r-- 0 ubuntu  1 Jan  1970  Makefile
-.rw-r--r-- 0 ubuntu  1 Jan  1970  music.mp3
-.rw-r--r-- 0 ubuntu  1 Jan  1970  MUSIC.OGG
-.rw-r--r-- 0 ubuntu  1 Jan  1970  VIDEO.AVI
-.rw-r--r-- 0 ubuntu  1 Jan  1970  video.wmv
+.rw-r--r-- 0 eza_test  1 Jan  1970 󰡯 #SAVEFILE#
+.rw-r--r-- 0 eza_test  1 Jan  1970 󰡯 backup~
+.rw-r--r-- 0 eza_test  1 Jan  1970  compiled.class
+.rw-r--r-- 0 eza_test  1 Jan  1970  compiled.coffee
+.rw-r--r-- 0 eza_test  1 Jan  1970  compiled.js
+.rw-r--r-- 0 eza_test  1 Jan  1970  compiled.o
+.rw-r--r-- 0 eza_test  1 Jan  1970  compressed.deb
+.rw-r--r-- 0 eza_test  1 Jan  1970  compressed.tar.gz
+.rw-r--r-- 0 eza_test  1 Jan  1970  compressed.tar.xz
+.rw-r--r-- 0 eza_test  1 Jan  1970  compressed.tgz
+.rw-r--r-- 0 eza_test  1 Jan  1970  compressed.txz
+.rw-r--r-- 0 eza_test  1 Jan  1970  COMPRESSED.ZIP
+.rw-r--r-- 0 eza_test  1 Jan  1970 󰦝 crypto.asc
+.rw-r--r-- 0 eza_test  1 Jan  1970 󱧃 crypto.signature
+.rw-r--r-- 0 eza_test  1 Jan  1970  document.pdf
+.rw-r--r-- 0 eza_test  1 Jan  1970  DOCUMENT.XLSX
+.rw-r--r-- 0 eza_test  1 Jan  1970  file.tmp
+.rw-r--r-- 0 eza_test  1 Jan  1970  IMAGE.PNG
+.rw-r--r-- 0 eza_test  1 Jan  1970 󰕙 image.svg
+.rw-r--r-- 0 eza_test  1 Jan  1970  lossless.flac
+.rw-r--r-- 0 eza_test  1 Jan  1970  lossless.wav
+.rw-r--r-- 0 eza_test  1 Jan  1970  Makefile
+.rw-r--r-- 0 eza_test  1 Jan  1970  music.mp3
+.rw-r--r-- 0 eza_test  1 Jan  1970  MUSIC.OGG
+.rw-r--r-- 0 eza_test  1 Jan  1970  VIDEO.AVI
+.rw-r--r-- 0 eza_test  1 Jan  1970  video.wmv
 """
 stderr = ""
