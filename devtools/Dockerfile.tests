@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:24.04
 
 # Install dependencies
 RUN apt-get update && \
@@ -13,8 +13,11 @@ RUN sed -i '/fr_FR.UTF-8/s/^# //g' /etc/locale.gen && \
     sed -i '/ja_JP.UTF-8/s/^# //g' /etc/locale.gen && \
     locale-gen
 
-RUN groupadd -g 5678 test_group && \
-    useradd -G sudo -g test_group -m -u 1234 eza_test && \
+# Configure test user
+RUN groupadd -g 5677 eza_test && \
+    groupadd -g 5678 eza_group && \
+    groupadd -g 5679 eza_group2 && \
+    useradd -G sudo,eza_test,eza_group2 -g eza_group -m -u 1234 eza_test && \
     sed -i 's/^%sudo.*$/%sudo ALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers
 
 # Create working directories and volumes moint points
@@ -29,6 +32,7 @@ USER eza_test
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
+# Configure git
 RUN git config --global user.email "eza@eza.test" && \
     git config --global user.name "eza"
 
