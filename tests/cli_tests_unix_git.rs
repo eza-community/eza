@@ -6,7 +6,6 @@ mod cli_tests_helpers;
 use cli_tests_helpers::TestDirectory;
 
 #[test]
-#[cfg(feature = "git")]
 fn cli_tests_unix_git_repos() {
     let test_dir = TestDirectory::new("unix", "git_repos");
     test_dir.create_dirs(&["dir-git-repo1", "dir-git-repo2", "dir-git-repo3"]);

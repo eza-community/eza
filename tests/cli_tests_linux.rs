@@ -1,9 +1,10 @@
+#![cfg(target_os = "linux")]
+
 mod cli_tests_helpers;
 
 use cli_tests_helpers::TestDirectory;
 
 #[test]
-#[cfg(target_os = "linux")]
 // This test needs locales en_US, fr_FR and ja_JP.
 fn cli_tests_linux_date_current_year() {
     use std::fs::FileTimes;
