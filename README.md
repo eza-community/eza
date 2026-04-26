@@ -204,7 +204,7 @@ precedence for backwards compatibility.
 Check out the themes available in the official [eza-themes](https://github.com/eza-community/eza-themes) repository, or contribute your own.
 
 An example theme file is available in `docs/theme.yml`, and needs to either be placed in a directory specified by the 
-environment variable `EZA_CONFIG_DIR`, or will looked for by default in `$XDG_CONFIG_HOME/eza`.
+environment variable `EZA_CONFIG_DIR`, or will be looked for by default in `$XDG_CONFIG_HOME/eza`.
 
 Full details are available on the [man page](https://github.com/eza-community/eza/tree/main/man/eza_colors-explanation.5.md) and an example theme file is included [here](https://github.com/eza-community/eza/tree/main/docs/theme.yml)
 
