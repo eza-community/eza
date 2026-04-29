@@ -44,7 +44,23 @@ genDemo:
 # run unit tests
 [group('testing')]
 @test:
-    cargo test --workspace -- --quiet
+    just unit-tests
+    just integration-tests
+
+[group('testing')]
+@unit-tests:
+    cargo --locked test --workspace -- --skip cli_tests --quiet
+
+[group('testing')]
+@integration-tests:
+    docker compose run --build --rm tests sh -c \
+        "cargo --locked test -- --test cli_tests --test-threads 1; \
+        cargo --locked test --no-default-features -- --test cli_tests --test-threads 1"
+
+[group('testing')]
+integration-tests-regen:
+    docker compose run --build --rm tests bash devtools/regen.sh
+
 
 # run unit tests (in release mode)
 [group('testing')]
@@ -351,4 +367,3 @@ gen_test_dir:
     powertest
     nix build -L ./#trydump
     find result/dump -type f \( -name "*.stdout" -o -name "*.stderr" \) -exec sh -c 'base=$(basename {}); if [ -e "tests/ptests/${base%.*}.toml" ]; then cp {} tests/ptests/; fi' \;
-

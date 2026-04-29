@@ -1,0 +1,11 @@
+args = ["-l", "."]
+stdout = """
+.rw-r--r-- 0 ubuntu 15 juin   2006 peach
+.rw-r--r-- 0 ubuntu  3 mars   2003 pear
+.rw-r--r-- 0 ubuntu 22 déc.   2009 plum
+"""
+stderr = ""
+
+[env.add]
+LC_TIME = "fr_FR.UTF-8"
+LANG = "fr_FR.UTF-8"

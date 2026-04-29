@@ -1,0 +1,8 @@
+args = ["-l", "--git-repos", "--no-time", "--header", "."]
+stdout = """
+Permissions Size User     Git Repo   Name
+drwxr-xr-x     - eza_test | -        dir-git-repo1
+drwxr-xr-x     - eza_test | main     dir-git-repo2
+drwxr-xr-x     - eza_test | add-bépo dir-git-repo3
+"""
+stderr = ""

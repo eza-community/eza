@@ -1,0 +1,7 @@
+args = ["-l", "--header", "."]
+stdout = """
+Permissions Size User     Date Modified Name
+drwxr-xr-x     - eza_test  1 Jan  1970  dir
+.rw-r--r--     0 eza_test  1 Jan  1970  file.txt
+"""
+stderr = ""

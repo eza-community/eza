@@ -1,0 +1,7 @@
+args = ["-l", "--header", "--color=always", "."]
+stdout = """
+\u001B[4mPermissions\u001B[0m \u001B[4mSize\u001B[0m \u001B[4mUser\u001B[0m     \u001B[4mDate Modified\u001B[0m \u001B[4mName\u001B[0m
+\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m     \u001B[1;90m-\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m  \u001B[1;34mdir\u001B[0m
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m     \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m  file.txt
+"""
+stderr = ""

@@ -1,0 +1,40 @@
+args = ["-l", "--binary", "--no-time", "."]
+stdout = """
+.rw-r--r--     1 eza_test 1_bytes
+.rw-r--r-- 1.0Ki eza_test 1_Kib
+.rw-r--r-- 1.0Mi eza_test 1_MiB
+.rw-r--r--     2 eza_test 2_bytes
+.rw-r--r-- 2.0Ki eza_test 2_Kib
+.rw-r--r-- 2.0Mi eza_test 2_MiB
+.rw-r--r--     3 eza_test 3_bytes
+.rw-r--r-- 3.0Ki eza_test 3_Kib
+.rw-r--r-- 3.0Mi eza_test 3_MiB
+.rw-r--r--     4 eza_test 4_bytes
+.rw-r--r-- 4.0Ki eza_test 4_Kib
+.rw-r--r-- 4.0Mi eza_test 4_MiB
+.rw-r--r--     5 eza_test 5_bytes
+.rw-r--r-- 5.0Ki eza_test 5_Kib
+.rw-r--r-- 5.0Mi eza_test 5_MiB
+.rw-r--r--     6 eza_test 6_bytes
+.rw-r--r-- 6.0Ki eza_test 6_Kib
+.rw-r--r-- 6.0Mi eza_test 6_MiB
+.rw-r--r--     7 eza_test 7_bytes
+.rw-r--r-- 7.0Ki eza_test 7_Kib
+.rw-r--r-- 7.0Mi eza_test 7_MiB
+.rw-r--r--     8 eza_test 8_bytes
+.rw-r--r-- 8.0Ki eza_test 8_Kib
+.rw-r--r-- 8.0Mi eza_test 8_MiB
+.rw-r--r--     9 eza_test 9_bytes
+.rw-r--r-- 9.0Ki eza_test 9_Kib
+.rw-r--r-- 9.0Mi eza_test 9_MiB
+.rw-r--r--    10 eza_test 10_bytes
+.rw-r--r--  10Ki eza_test 10_Kib
+.rw-r--r--  10Mi eza_test 10_MiB
+.rw-r--r--    11 eza_test 11_bytes
+.rw-r--r--  11Ki eza_test 11_Kib
+.rw-r--r--  11Mi eza_test 11_MiB
+.rw-r--r--    12 eza_test 12_bytes
+.rw-r--r--  12Ki eza_test 12_Kib
+.rw-r--r--  12Mi eza_test 12_MiB
+"""
+stderr = ""

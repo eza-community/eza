@@ -1,0 +1,21 @@
+args = ["--git", "-l", "--no-time", "--no-user", "--color=always", "."]
+stdout = """
+\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m \u001B[1;90m-\u001B[0m \u001B[1;90m--\u001B[0m \u001B[1;34mdir-empty\u001B[0m
+\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m \u001B[1;90m-\u001B[0m \u001B[1;90m-\u001B[0m\u001B[2mI\u001B[0m \u001B[1;34mdir-ignored\u001B[0m
+\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m \u001B[1;90m-\u001B[0m \u001B[1;90m--\u001B[0m \u001B[1;34mdir-ignored-with-file-unmodified\u001B[0m
+\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m \u001B[1;90m-\u001B[0m \u001B[1;90m-\u001B[0m\u001B[34mM\u001B[0m \u001B[1;34mdir-modified\u001B[0m
+\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m \u001B[1;90m-\u001B[0m \u001B[34mM\u001B[1;90m-\u001B[0m \u001B[1;34mdir-modified-staged\u001B[0m
+\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m \u001B[1;90m-\u001B[0m \u001B[1;90m-\u001B[0m\u001B[32mN\u001B[0m \u001B[1;34mdir-new\u001B[0m
+\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m \u001B[1;90m-\u001B[0m \u001B[1;90m--\u001B[0m \u001B[1;34mdir-new-staged\u001B[0m
+\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m \u001B[1;90m-\u001B[0m \u001B[32mNN\u001B[0m \u001B[1;34mdir-new-staged-new\u001B[0m
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;90m-\u001B[0m\u001B[2mI\u001B[0m file-ignored
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m1\u001B[0m \u001B[1;90m-\u001B[0m\u001B[34mM\u001B[0m file-modified
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m1\u001B[0m \u001B[34mM\u001B[1;90m-\u001B[0m file-modified-staged
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m2\u001B[0m \u001B[34mMM\u001B[0m file-modified-staged-modified
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;90m-\u001B[0m\u001B[32mN\u001B[0m file-new
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[32mN\u001B[1;90m-\u001B[0m file-new-staged
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m1\u001B[0m \u001B[32mN\u001B[34mM\u001B[0m file-new-staged-modified
+\u001B[36ml\u001B[1;33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[31mw\u001B[32mx\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m \u001B[1;90m-\u001B[0m \u001B[1;90m-\u001B[0m\u001B[32mN\u001B[0m \u001B[36msymlink-broken\u001B[0m \u001B[31m->\u001B[0m \u001B[4;31mfile-non-existing\u001B[0m
+\u001B[36ml\u001B[1;33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[31mw\u001B[32mx\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m \u001B[1;90m-\u001B[0m \u001B[1;90m-\u001B[0m\u001B[34mM\u001B[0m \u001B[36msymlink-new\u001B[0m \u001B[1;90m->\u001B[0m file-modified
+"""
+stderr = ""

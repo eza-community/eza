@@ -1,0 +1,10 @@
+args = ["-l", "--extended", "--no-time", "."]
+stdout = """
+drwxr-xr-x@ - eza_test dir_attributes
+                       └── user.xdg.tags: "foo,bar,baz"
+drwxr-xr-x  - eza_test dir_no_attributes
+.rw-r--r--@ 0 eza_test file_attributes
+                       └── user.xdg.tags: "foo,bar,baz"
+.rw-r--r--  0 eza_test file_no_attributes
+"""
+stderr = ""
