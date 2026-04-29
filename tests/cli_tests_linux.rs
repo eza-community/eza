@@ -92,7 +92,19 @@ fn cli_tests_linux_date_locale() {
 }
 
 #[test]
-#[cfg(target_os = "linux")]
+fn cli_tests_linux_groups() {
+    let test_dir = TestDirectory::new("linux", "groups");
+
+    test_dir.create_files(&["eza_test", "eza_group", "eza_group2"]);
+
+    test_dir.chown("eza_test", None, Some(5677));
+    test_dir.chown("eza_group", None, Some(5678));
+    test_dir.chown("eza_group2", None, Some(5679));
+
+    test_dir.run_tests();
+}
+
+#[test]
 fn cli_tests_linux_xattr() {
     let test_dir = TestDirectory::new("linux", "xattr");
 

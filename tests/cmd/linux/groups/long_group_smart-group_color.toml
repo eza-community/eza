@@ -1,0 +1,7 @@
+args = ["-l", "--group", "--smart-group", "--color=always", "--no-time", "."]
+stdout = """
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[1;33meza_group\u001B[0m  eza_group
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[1;33meza_group2\u001B[0m eza_group2
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[1;33m:\u001B[0m          eza_test
+"""
+stderr = ""

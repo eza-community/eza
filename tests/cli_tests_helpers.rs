@@ -3,6 +3,8 @@
 use std::env;
 use std::fs::{self, File, FileTimes};
 use std::io::Write;
+#[cfg(unix)]
+use std::os::unix::fs as unix_fs;
 use std::path::{self, Path, PathBuf};
 use std::process::Command;
 use std::time::SystemTime;
@@ -72,9 +74,12 @@ impl TestDirectory {
 
     #[cfg(unix)]
     pub fn symlink<P: AsRef<Path>, Q: AsRef<Path>>(&self, source: P, target: Q) {
-        use std::os::unix::fs;
+        unix_fs::symlink(source, self.data_path.join(target)).unwrap();
+    }
 
-        fs::symlink(source, self.data_path.join(target)).unwrap();
+    #[cfg(unix)]
+    pub fn chown<P: AsRef<Path>>(&self, dir: P, uid: Option<u32>, gid: Option<u32>) {
+        unix_fs::chown(self.data_path.join(dir), uid, gid).unwrap();
     }
 
     pub fn run_tests(&self) {
