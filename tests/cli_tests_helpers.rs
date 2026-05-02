@@ -73,8 +73,8 @@ impl TestDirectory {
     }
 
     #[cfg(unix)]
-    pub fn symlink<P: AsRef<Path>, Q: AsRef<Path>>(&self, source: P, target: Q) {
-        unix_fs::symlink(source, self.data_path.join(target)).unwrap();
+    pub fn symlink<P: AsRef<Path>, Q: AsRef<Path>>(&self, original: P, link: Q) {
+        unix_fs::symlink(original, self.data_path.join(link)).unwrap();
     }
 
     #[cfg(unix)]
