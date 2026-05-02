@@ -7,12 +7,12 @@ use cli_tests_helpers::TestDirectory;
 #[test]
 // This test needs locales en_US, fr_FR and ja_JP.
 fn cli_tests_linux_date_current_year() {
+    let test_dir = TestDirectory::new("linux", "date_current_year");
+
     use std::fs::FileTimes;
     use std::time::SystemTime;
 
     use chrono::{Datelike, Local, TimeZone};
-
-    let test_dir = TestDirectory::new("linux", "date_current_year");
 
     let current_year = Local::now().year();
 
@@ -49,13 +49,13 @@ fn cli_tests_linux_date_current_year() {
 #[cfg(target_os = "linux")]
 // This test needs locales en_US, fr_FR and ja_JP.
 fn cli_tests_linux_date_locale() {
+    let test_dir = TestDirectory::new("linux", "date_locale");
+
     use std::fs::FileTimes;
     use std::thread;
     use std::time::{Duration, SystemTime};
 
     use chrono::{Local, TimeZone};
-
-    let test_dir = TestDirectory::new("linux", "date_locale");
 
     let old_date: SystemTime = Local.with_ymd_and_hms(2003, 3, 3, 0, 0, 0).unwrap().into();
     let med_date: SystemTime = Local
