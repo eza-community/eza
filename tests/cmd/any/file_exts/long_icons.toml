@@ -1,30 +1,30 @@
-args = ["-l", "--icons=always", "."]
+args = ["-l", "--icons=always", "--no-permissions", "--no-user", "."]
 stdout = """
-.rw-r--r-- 0 eza_test  1 Jan  1970 󰡯 #SAVEFILE#
-.rw-r--r-- 0 eza_test  1 Jan  1970 󰡯 backup~
-.rw-r--r-- 0 eza_test  1 Jan  1970  compiled.class
-.rw-r--r-- 0 eza_test  1 Jan  1970  compiled.coffee
-.rw-r--r-- 0 eza_test  1 Jan  1970  compiled.js
-.rw-r--r-- 0 eza_test  1 Jan  1970  compiled.o
-.rw-r--r-- 0 eza_test  1 Jan  1970  compressed.deb
-.rw-r--r-- 0 eza_test  1 Jan  1970  compressed.tar.gz
-.rw-r--r-- 0 eza_test  1 Jan  1970  compressed.tar.xz
-.rw-r--r-- 0 eza_test  1 Jan  1970  compressed.tgz
-.rw-r--r-- 0 eza_test  1 Jan  1970  compressed.txz
-.rw-r--r-- 0 eza_test  1 Jan  1970  COMPRESSED.ZIP
-.rw-r--r-- 0 eza_test  1 Jan  1970 󰦝 crypto.asc
-.rw-r--r-- 0 eza_test  1 Jan  1970 󱧃 crypto.signature
-.rw-r--r-- 0 eza_test  1 Jan  1970  document.pdf
-.rw-r--r-- 0 eza_test  1 Jan  1970  DOCUMENT.XLSX
-.rw-r--r-- 0 eza_test  1 Jan  1970  file.tmp
-.rw-r--r-- 0 eza_test  1 Jan  1970  IMAGE.PNG
-.rw-r--r-- 0 eza_test  1 Jan  1970 󰕙 image.svg
-.rw-r--r-- 0 eza_test  1 Jan  1970  lossless.flac
-.rw-r--r-- 0 eza_test  1 Jan  1970  lossless.wav
-.rw-r--r-- 0 eza_test  1 Jan  1970  Makefile
-.rw-r--r-- 0 eza_test  1 Jan  1970  music.mp3
-.rw-r--r-- 0 eza_test  1 Jan  1970  MUSIC.OGG
-.rw-r--r-- 0 eza_test  1 Jan  1970  VIDEO.AVI
-.rw-r--r-- 0 eza_test  1 Jan  1970  video.wmv
+0  1 Jan  1970 󰡯 #SAVEFILE#
+0  1 Jan  1970 󰡯 backup~
+0  1 Jan  1970  compiled.class
+0  1 Jan  1970  compiled.coffee
+0  1 Jan  1970  compiled.js
+0  1 Jan  1970  compiled.o
+0  1 Jan  1970  compressed.deb
+0  1 Jan  1970  compressed.tar.gz
+0  1 Jan  1970  compressed.tar.xz
+0  1 Jan  1970  compressed.tgz
+0  1 Jan  1970  compressed.txz
+0  1 Jan  1970  COMPRESSED.ZIP
+0  1 Jan  1970 󰦝 crypto.asc
+0  1 Jan  1970 󱧃 crypto.signature
+0  1 Jan  1970  document.pdf
+0  1 Jan  1970  DOCUMENT.XLSX
+0  1 Jan  1970  file.tmp
+0  1 Jan  1970  IMAGE.PNG
+0  1 Jan  1970 󰕙 image.svg
+0  1 Jan  1970  lossless.flac
+0  1 Jan  1970  lossless.wav
+0  1 Jan  1970  Makefile
+0  1 Jan  1970  music.mp3
+0  1 Jan  1970  MUSIC.OGG
+0  1 Jan  1970  VIDEO.AVI
+0  1 Jan  1970  video.wmv
 """
 stderr = ""

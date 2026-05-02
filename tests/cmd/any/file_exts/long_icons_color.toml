@@ -1,30 +1,30 @@
-args = ["-l", "--icons=always", "--color=always", "."]
+args = ["-l", "--icons=always", "--color=always", "--no-permissions", "--no-user", "."]
 stdout = """
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m 󰡯 \u001B[2m#SAVEFILE#\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m 󰡯 \u001B[2mbackup~\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[33m compiled.class\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m  compiled.coffee
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[33m \u001B[1mcompiled.js\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[33m compiled.o\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[31m compressed.deb\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[31m compressed.tar.gz\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[31m compressed.tar.xz\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[31m compressed.tgz\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[31m compressed.txz\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[31m COMPRESSED.ZIP\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[32m󰦝 \u001B[1mcrypto.asc\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[32m󱧃 \u001B[1mcrypto.signature\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[32m document.pdf\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[32m DOCUMENT.XLSX\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m  \u001B[2mfile.tmp\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[35m IMAGE.PNG\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[35m󰕙 image.svg\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[36m \u001B[1mlossless.flac\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[36m \u001B[1mlossless.wav\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[33m \u001B[1;4mMakefile\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[36m music.mp3\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[36m MUSIC.OGG\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[35m \u001B[1mVIDEO.AVI\u001B[0m
-.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[35m \u001B[1mvideo.wmv\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m 󰡯 \u001B[2m#SAVEFILE#\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m 󰡯 \u001B[2mbackup~\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[33m compiled.class\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m  compiled.coffee
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[33m \u001B[1mcompiled.js\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[33m compiled.o\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[31m compressed.deb\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[31m compressed.tar.gz\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[31m compressed.tar.xz\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[31m compressed.tgz\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[31m compressed.txz\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[31m COMPRESSED.ZIP\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[32m󰦝 \u001B[1mcrypto.asc\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[32m󱧃 \u001B[1mcrypto.signature\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[32m document.pdf\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[32m DOCUMENT.XLSX\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m  \u001B[2mfile.tmp\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[35m IMAGE.PNG\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[35m󰕙 image.svg\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[36m \u001B[1mlossless.flac\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[36m \u001B[1mlossless.wav\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[33m \u001B[1;4mMakefile\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[36m music.mp3\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[36m MUSIC.OGG\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[35m \u001B[1mVIDEO.AVI\u001B[0m
+\u001B[32m0\u001B[0m \u001B[34m 1 Jan  1970\u001B[0m \u001B[35m \u001B[1mvideo.wmv\u001B[0m
 """
 stderr = ""

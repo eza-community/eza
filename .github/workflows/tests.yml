@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2024 Christina Sørensen
 # SPDX-License-Identifier: EUPL-1.2
-name: Unit tests
+name: Tests
 on:
   push:
     branches: [main]
@@ -15,7 +15,6 @@ concurrency:
 env:
   CARGO_TERM_COLOR: always
   RUSTFLAGS: --deny warnings
-  msrv: '1.90'
 
 jobs:
   security_audit:
@@ -48,7 +47,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Run test
-        uses: NexusPHP/no-merge-commits@v2.2.1
+        uses: NexusPHP/no-merge-commits@v2.4.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -58,11 +57,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: webiny/action-conventional-commits@v1.3.0
+      - uses: webiny/action-conventional-commits@v1.4.2
 
-  unit-tests:
+  rustfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - uses: Swatinem/rust-cache@v2
+      - name: Run rustfmt checks
+        run: cargo fmt --check
+
+  tests:
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.rust == 'nightly' }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -70,29 +77,19 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-      - run: rustup toolchain install ${{ matrix.rust == 'msrv' && env.msrv || matrix.rust }} --profile minimal
+      - run: rustup toolchain install ${{ matrix.rust == 'msrv' && ' ' || matrix.rust }}
       - uses: Swatinem/rust-cache@v2
-      - name: Install cargo-hack
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 5
-          max_attempts: 5
-          command: cargo install cargo-hack --locked
-      - name: Run rustfmt checks
-        run: cargo fmt --check
       - name: Run clippy lints
         if: ${{ matrix.os != 'windows-latest' }}
         run: cargo clippy -- -D warnings
       - name: Run unit tests
-        run: cargo hack test -- --skip cli_tests
+        run: cargo test -- --skip cli_tests
+      - name: Run integration test
+        run: cargo test -- cli_tests --skip cli_tests_linux --test-threads 1
 
-  unit-tests-freebsd:
-    runs-on: ubuntu-24.04
+  tests-freebsd:
+    runs-on: ubuntu-latest
     timeout-minutes: 20
-    continue-on-error: ${{ matrix.rust == 'nightly' }}
-    strategy:
-      matrix:
-        rust: [msrv, stable]
     steps:
       - uses: actions/checkout@v6
         with:
@@ -104,26 +101,21 @@ jobs:
           usesh: true
           prepare: |
             pkg install -y curl git
-            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain ${{ matrix.rust == 'msrv' && env.msrv || matrix.rust }} --profile minimal -y
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
             . ~/.cargo/env
-            cargo install cargo-hack
             git config --global --add safe.directory /home/runner/work/eza/eza
           run: |
             set -e
             . ~/.cargo/env
             export CARGO_TERM_COLOR="always"
             export RUSTFLAGS="--deny warnings"
-            cargo fmt --check
             cargo clippy -- -D warnings
-            cargo hack test -- --skip cli_tests
+            cargo test -- --skip cli_tests
+            cargo test -- cli_tests --test-threads 1
 
-  unit-tests-netbsd:
-    runs-on: ubuntu-24.04
+  tests-netbsd:
+    runs-on: ubuntu-latest
     timeout-minutes: 20
-    continue-on-error: ${{ matrix.rust == 'nightly' }}
-    strategy:
-      matrix:
-        rust: [msrv, stable]
     steps:
       - uses: actions/checkout@v6
         with:
@@ -138,21 +130,20 @@ jobs:
             PKG_PATH="https://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/amd64/10.1/All/"
             export PATH PKG_PATH
             /usr/sbin/pkg_add -uu curl git
-            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain ${{ matrix.rust == 'msrv' && env.msrv || matrix.rust }} --profile minimal -y
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
             . ~/.cargo/env
-            cargo install cargo-hack
             git config --global --add safe.directory /home/runner/work/eza/eza
           run: |
             set -e
             . ~/.cargo/env
             export CARGO_TERM_COLOR="always"
             export RUSTFLAGS="--deny warnings"
-            cargo fmt --check
             cargo clippy -- -D warnings
-            cargo hack test -- --skip cli_tests
+            cargo test -- --skip cli_tests
+            cargo test -- cli_tests --test-threads 1
 
-  unit-tests-openbsd:
-    runs-on: ubuntu-24.04
+  tests-openbsd:
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
@@ -165,7 +156,6 @@ jobs:
           usesh: true
           prepare: |
             pkg_add rust rust-rustfmt rust-clippy git
-            cargo install cargo-hack
             git config --global --add safe.directory /home/runner/work/eza/eza
           run: |
             set -e
@@ -174,12 +164,12 @@ jobs:
             # https://github.com/rust-lang/rustup/issues/2377
             # https://github.com/rust-lang/rustup/issues/2168
             # export RUSTFLAGS="--deny warnings"
-            cargo fmt --check
             # cargo clippy -- -D warnings
-            cargo hack test -- --skip cli_tests
+            cargo test -- --skip cli_tests
+            cargo test -- cli_tests --test-threads 1
 
-  integration-tests-unix:
-    runs-on: ubuntu-22.04
+  tests-linux-docker:
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - name: Checkout repository
