@@ -26,6 +26,13 @@ impl TestDirectory {
         let data_path = path::absolute(&data_path_str).unwrap();
         let spec_path = path::absolute(&spec_path_str).unwrap();
 
+        // This code is just here to prevent missing tests because of an incorrect path
+        let spec_path_str = spec_path.to_str().unwrap();
+        let mut test_case_files = glob::glob(&format!("{spec_path_str}/*.toml")).unwrap();
+        if test_case_files.next().is_none() {
+            panic!("No test cases (TOML file) in {spec_path_str}.")
+        }
+
         let _ = fs::remove_dir_all(&data_path_str);
         fs::create_dir_all(&data_path).unwrap();
 
