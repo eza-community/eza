@@ -1,0 +1,5 @@
+args = ["--treat-dirs-as-files", "./dir2"]
+stdout = """
+./dir2
+"""
+stderr = ""
