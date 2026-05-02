@@ -1,12 +1,14 @@
+name: eza-tests
+
 services:
   tests:
     image: eza-test-env:local
     pull_policy: never
     build:
-      context: ./devtools
+      context: .
       dockerfile: Dockerfile.tests
     volumes:
-      - ./:/workspace
+      - ../:/workspace
       - build_cache:/workspace/target
       - rustup_cache:/home/eza_test/.rustup
       - cargo_cache:/home/eza_test/.cargo/registry
