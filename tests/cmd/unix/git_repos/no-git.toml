@@ -1,0 +1,7 @@
+args = ["-l", "--git-repos", "--no-git", "--no-time", "."]
+stdout = """
+drwxr-xr-x - eza_test dir-git-repo1
+drwxr-xr-x - eza_test dir-git-repo2
+drwxr-xr-x - eza_test dir-git-repo3
+"""
+stderr = ""

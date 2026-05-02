@@ -1,0 +1,19 @@
+args = ["-l", "--git", "--git-ignore", "--no-git", "--no-time", "--no-user", "."]
+stdout = """
+drwxr-xr-x - dir-empty
+drwxr-xr-x - dir-ignored-with-file-unmodified
+drwxr-xr-x - dir-modified
+drwxr-xr-x - dir-modified-staged
+drwxr-xr-x - dir-new
+drwxr-xr-x - dir-new-staged
+drwxr-xr-x - dir-new-staged-new
+.rw-r--r-- 1 file-modified
+.rw-r--r-- 1 file-modified-staged
+.rw-r--r-- 2 file-modified-staged-modified
+.rw-r--r-- 0 file-new
+.rw-r--r-- 0 file-new-staged
+.rw-r--r-- 1 file-new-staged-modified
+lrwxrwxrwx - symlink-broken -> file-non-existing
+lrwxrwxrwx - symlink-new -> file-modified
+"""
+stderr = ""

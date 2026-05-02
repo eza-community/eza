@@ -1,4 +1,4 @@
-args = ["--git", "-l", "--no-time", "--no-user", "."]
+args = ["-l", "--git", "--no-time", "--no-user", "."]
 stdout = """
 drwxr-xr-x - -- dir-empty
 drwxr-xr-x - -I dir-ignored

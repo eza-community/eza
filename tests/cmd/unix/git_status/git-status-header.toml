@@ -1,4 +1,4 @@
-args = ["--git", "-l", "--no-time", "--no-user", "--header", "."]
+args = ["-l", "--git", "--no-time", "--no-user", "--header", "."]
 stdout = """
 Permissions Size Git Name
 drwxr-xr-x     -  -- dir-empty
