@@ -1,7 +1,7 @@
-args = ["-l", "--git-repos", "--no-git", "--no-time", "."]
+args = ["-l", "--git-repos", "--no-permissions", "--no-user", "--no-git", "--no-time", "."]
 stdout = """
-drwxr-xr-x - eza_test dir-git-repo1
-drwxr-xr-x - eza_test dir-git-repo2
-drwxr-xr-x - eza_test dir-git-repo3
+- dir-git-repo1
+- dir-git-repo2
+- dir-git-repo3
 """
 stderr = ""

@@ -79,6 +79,11 @@ impl TestDirectory {
             .unwrap();
     }
 
+    pub fn configure_git(&self, dir: &str) {
+        self.run("git", &["-C", dir, "config", "user.email", "eza@eza.test"]);
+        self.run("git", &["-C", dir, "config", "user.name", "eza"]);
+    }
+
     #[cfg(unix)]
     pub fn symlink<P: AsRef<Path>, Q: AsRef<Path>>(&self, original: P, link: Q) {
         unix_fs::symlink(original, self.data_path.join(link)).unwrap();

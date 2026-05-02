@@ -32,10 +32,6 @@ USER eza_test
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
-# Configure git
-RUN git config --global user.email "eza@eza.test" && \
-    git config --global user.name "eza"
-
 ENV PATH=/home/eza_test/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 WORKDIR /workspace

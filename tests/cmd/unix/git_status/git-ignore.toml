@@ -1,4 +1,4 @@
-args = ["--git-ignore", "."]
+args = ["--git-ignore", "--no-user", "."]
 stdout = """
 dir-empty
 dir-ignored-with-file-unmodified

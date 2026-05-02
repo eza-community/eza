@@ -81,7 +81,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Run clippy lints
         if: ${{ matrix.os != 'windows-latest' }}
-        run: cargo clippy -- -D warnings
+        run: cargo clippy -- --no-deps -D warnings
       - name: Run unit tests
         run: cargo test -- --skip cli_tests
       - name: Run integration test
@@ -109,7 +109,7 @@ jobs:
             . ~/.cargo/env
             export CARGO_TERM_COLOR="always"
             export RUSTFLAGS="--deny warnings"
-            cargo clippy -- -D warnings
+            cargo clippy -- --no-deps -D warnings
             cargo test -- --skip cli_tests
             cargo test -- cli_tests --test-threads 1
 
@@ -138,7 +138,7 @@ jobs:
             . ~/.cargo/env
             export CARGO_TERM_COLOR="always"
             export RUSTFLAGS="--deny warnings"
-            cargo clippy -- -D warnings
+            cargo clippy -- --no-deps -D warnings
             cargo test -- --skip cli_tests
             cargo test -- cli_tests --test-threads 1
 
@@ -164,7 +164,7 @@ jobs:
             # https://github.com/rust-lang/rustup/issues/2377
             # https://github.com/rust-lang/rustup/issues/2168
             # export RUSTFLAGS="--deny warnings"
-            # cargo clippy -- -D warnings
+            # cargo clippy -- --no-deps -D warnings
             cargo test -- --skip cli_tests
             cargo test -- cli_tests --test-threads 1
 

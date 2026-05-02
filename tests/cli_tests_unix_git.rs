@@ -8,21 +8,22 @@ use cli_tests_helpers::TestDirectory;
 #[test]
 fn cli_tests_unix_git_repos() {
     let test_dir = TestDirectory::new("unix", "git_repos");
-    test_dir.create_dirs(&["dir-git-repo1", "dir-git-repo2", "dir-git-repo3"]);
+
+    let (repo1, repo2, repo3) = ("dir-git-repo1", "dir-git-repo2", "dir-git-repo3");
+    test_dir.create_dirs(&[repo1, repo2, repo3]);
 
     // dir-git-repo1
-    test_dir.run("git", &["init", "dir-git-repo1"]);
+    test_dir.run("git", &["init", repo1]);
+    test_dir.configure_git(repo1);
 
     // dir-git-repo2
-    test_dir.run(
-        "git",
-        &["init", "dir-git-repo2", "--initial-branch", "main"],
-    );
+    test_dir.run("git", &["init", repo2, "--initial-branch", "main"]);
+    test_dir.configure_git(repo2);
     test_dir.run(
         "git",
         &[
             "-C",
-            "dir-git-repo2",
+            repo2,
             "commit",
             "--message=\"initial commit\"",
             "--allow-empty",
@@ -30,15 +31,13 @@ fn cli_tests_unix_git_repos() {
     );
 
     // dir-git-repo3
-    test_dir.run(
-        "git",
-        &["init", "dir-git-repo3", "--initial-branch", "add-bépo"],
-    );
+    test_dir.run("git", &["init", repo3, "--initial-branch", "add-bépo"]);
+    test_dir.configure_git(repo3);
     test_dir.run(
         "git",
         &[
             "-C",
-            "dir-git-repo3",
+            repo3,
             "commit",
             "--message=\"initial commit\"",
             "--allow-empty",
@@ -50,10 +49,12 @@ fn cli_tests_unix_git_repos() {
 
 #[test]
 fn cli_tests_unix_git_status() {
+    let test_dir = TestDirectory::new("unix", "git_status");
+
     use std::io::Write;
 
-    let test_dir = TestDirectory::new("unix", "git_status");
     test_dir.run("git", &["init", "."]);
+    test_dir.configure_git(".");
     test_dir.create_dirs(&[
         "dir-empty",
         "dir-ignored",
