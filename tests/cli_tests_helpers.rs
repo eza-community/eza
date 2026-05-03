@@ -96,20 +96,24 @@ impl TestDirectory {
     }
 
     #[cfg(windows)]
-    pub fn set_attributes<P: AsRef<Path>>(&self, file_name: P) {
+    pub fn set_attributes<P: AsRef<Path>>(&self, file_name: P, attributes: u32) {
         use std::ffi::c_void;
+        use std::fs::OpenOptions;
         use std::os::windows::io::AsRawHandle;
         use windows_sys::Win32::Foundation::GetLastError;
         use windows_sys::Win32::Storage::FileSystem::{
-            FileBasicInfo, SetFileInformationByHandle, FILE_ATTRIBUTE_HIDDEN, FILE_BASIC_INFO,
+            FileBasicInfo, SetFileInformationByHandle, FILE_BASIC_INFO,
         };
-        let file = File::open(self.data_path.join(file_name)).unwrap();
+        let file = OpenOptions::new()
+            .write(true)
+            .open(self.data_path.join(file_name))
+            .unwrap();
         let info = FILE_BASIC_INFO {
             CreationTime: 0,
             LastAccessTime: 0,
             LastWriteTime: 0,
             ChangeTime: 0,
-            FileAttributes: FILE_ATTRIBUTE_HIDDEN,
+            FileAttributes: attributes,
         };
 
         let res = unsafe {
