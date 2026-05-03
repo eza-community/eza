@@ -101,7 +101,6 @@ impl TestDirectory {
         use std::fs::OpenOptions;
         use std::os::windows::io::AsRawHandle;
 
-        use windows_sys::Win32::Foundation::GetLastError;
         use windows_sys::Win32::Storage::FileSystem::{
             FILE_BASIC_INFO, FileBasicInfo, SetFileInformationByHandle,
         };
