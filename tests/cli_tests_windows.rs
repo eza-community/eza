@@ -12,7 +12,7 @@ fn cli_tests_windows_attributes() {
     };
     let test_dir = TestDirectory::new("windows", "attributes");
 
-    test_dir.create_files(&["readonly","normal", "hidden", "system", "archive", "all"]);
+    test_dir.create_files(&["readonly", "normal", "hidden", "system", "archive", "all"]);
     test_dir.create_dirs(&["dir"]);
     test_dir.set_attributes("readonly", FILE_ATTRIBUTE_READONLY);
     test_dir.set_attributes("normal", FILE_ATTRIBUTE_NORMAL);

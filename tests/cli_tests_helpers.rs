@@ -102,7 +102,7 @@ impl TestDirectory {
         use std::os::windows::io::AsRawHandle;
         use windows_sys::Win32::Foundation::GetLastError;
         use windows_sys::Win32::Storage::FileSystem::{
-            FileBasicInfo, SetFileInformationByHandle, FILE_BASIC_INFO,
+            FILE_BASIC_INFO, FileBasicInfo, SetFileInformationByHandle,
         };
 
         let file = OpenOptions::new()
