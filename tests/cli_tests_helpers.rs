@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use std::env;
-use std::fs::{self, File, FileTimes};
+use std::fs::{self, File, FileTimes, OpenOptions};
 use std::io::Write;
 #[cfg(unix)]
 use std::os::unix::fs as unix_fs;
@@ -58,7 +58,10 @@ impl TestDirectory {
     pub fn create_dirs<P: AsRef<Path>>(&self, dirs: &[P]) {
         for dir_name in dirs {
             fs::create_dir(self.data_path.join(dir_name)).unwrap();
-            let mut dir = File::open(self.data_path.join(dir_name)).unwrap();
+            let mut dir = OpenOptions::new()
+                .write(true)
+                .open(self.data_path.join(dir_name))
+                .unwrap();
             Self::set_time_to_epoch(&mut dir);
         }
     }
