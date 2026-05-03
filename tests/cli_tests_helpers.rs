@@ -104,10 +104,12 @@ impl TestDirectory {
         use windows_sys::Win32::Storage::FileSystem::{
             FileBasicInfo, SetFileInformationByHandle, FILE_BASIC_INFO,
         };
+
         let file = OpenOptions::new()
             .write(true)
             .open(self.data_path.join(file_name))
             .unwrap();
+
         let info = FILE_BASIC_INFO {
             CreationTime: 0,
             LastAccessTime: 0,
@@ -124,10 +126,6 @@ impl TestDirectory {
                 size_of::<FILE_BASIC_INFO>() as u32,
             )
         };
-        dbg!(res);
-        if res == 0 {
-            println!("{}", unsafe { GetLastError() });
-        }
     }
 
     // Not currently used on Windows
