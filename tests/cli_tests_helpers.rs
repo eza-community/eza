@@ -97,17 +97,29 @@ impl TestDirectory {
 
     #[cfg(windows)]
     pub fn set_attributes<P: AsRef<Path>>(&self, file_name: P) {
-        use windows_sys::Win32::Storage::FileSystem::{
-            FILE_ATTRIBUTE_HIDDEN,
-            SetFileAttributesW,
-        };
+        use std::ffi::c_void;
+        use std::os::windows::io::AsRawHandle;
         use windows_sys::Win32::Foundation::GetLastError;
-        use std::os::windows::ffi::OsStrExt;
-        let buffer = self.data_path.join(file_name)
-            .as_os_str()
-            .encode_wide()
-            .collect::<Vec<u16>>();
-        let res = unsafe { SetFileAttributesW(buffer.as_ptr(), FILE_ATTRIBUTE_HIDDEN) };
+        use windows_sys::Win32::Storage::FileSystem::{
+            FileBasicInfo, SetFileInformationByHandle, FILE_ATTRIBUTE_HIDDEN, FILE_BASIC_INFO,
+        };
+        let file = File::open(self.data_path.join(file_name)).unwrap();
+        let info = FILE_BASIC_INFO {
+            CreationTime: 0,
+            LastAccessTime: 0,
+            LastWriteTime: 0,
+            ChangeTime: 0,
+            FileAttributes: FILE_ATTRIBUTE_HIDDEN,
+        };
+
+        let res = unsafe {
+            SetFileInformationByHandle(
+                file.as_raw_handle(),
+                FileBasicInfo,
+                (&raw const info).cast::<c_void>(),
+                size_of::<FILE_BASIC_INFO>() as u32,
+            )
+        };
         dbg!(res);
         if res == 0 {
             println!("{}", unsafe { GetLastError() });
