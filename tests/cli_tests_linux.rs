@@ -2,7 +2,41 @@
 
 mod cli_tests_helpers;
 
+use std::fs::FileTimes;
+use std::time::SystemTime;
+
+use chrono::{Local, TimeZone};
+
 use cli_tests_helpers::TestDirectory;
+
+#[test]
+fn cli_tests_linux_date() {
+    let test_dir = TestDirectory::new("linux", "date");
+
+    let old_date: SystemTime = Local.with_ymd_and_hms(2003, 3, 3, 0, 0, 0).unwrap().into();
+    let med_date: SystemTime = Local
+        .with_ymd_and_hms(2006, 6, 15, 23, 14, 29)
+        .unwrap()
+        .into();
+    let new_date: SystemTime = Local
+        .with_ymd_and_hms(2009, 12, 22, 10, 38, 53)
+        .unwrap()
+        .into();
+
+    let peach = test_dir.create_file("peach");
+    let peach_times = FileTimes::new().set_modified(med_date);
+    peach.set_times(peach_times).unwrap();
+
+    let plum = test_dir.create_file("plum");
+    let plum_times = FileTimes::new().set_modified(new_date);
+    plum.set_times(plum_times).unwrap();
+
+    let pear = test_dir.create_file("pear");
+    let pear_times = FileTimes::new().set_modified(old_date);
+    pear.set_times(pear_times).unwrap();
+
+    test_dir.run_tests();
+}
 
 #[test]
 // This test needs locales en_US, fr_FR and ja_JP.

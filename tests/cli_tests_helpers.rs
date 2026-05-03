@@ -59,24 +59,29 @@ impl TestDirectory {
         for dir_name in dirs {
             fs::create_dir(self.data_path.join(dir_name)).unwrap();
 
-            let mut dir = {
-                #[cfg(windows)]
-                {
-                    use windows_sys::Win32::Storage::FileSystem::{FILE_WRITE_ATTRIBUTES, FILE_FLAG_BACKUP_SEMANTICS};
-                    use std::os::windows::fs::OpenOptionsExt;
-                    use std::fs::OpenOptions;
-
-                    OpenOptions::new()
-                        .access_mode(FILE_WRITE_ATTRIBUTES)
-                        .custom_flags(FILE_FLAG_BACKUP_SEMANTICS)
-                        .open(self.data_path.join(dir_name))
-                        .unwrap()
-                }
-                #[cfg(unix)]
-                File::open(self.data_path.join(dir_name)).unwrap()
-            };
+            let mut dir = self.open_dir(dir_name);
             Self::set_time_to_epoch(&mut dir);
         }
+    }
+
+    #[cfg(windows)]
+    pub fn open_dir<P: AsRef<Path>>(&self, dir_name: P) -> File {
+        use std::fs::OpenOptions;
+        use std::os::windows::fs::OpenOptionsExt;
+        use windows_sys::Win32::Storage::FileSystem::{
+            FILE_FLAG_BACKUP_SEMANTICS, FILE_WRITE_ATTRIBUTES,
+        };
+
+        OpenOptions::new()
+            .access_mode(FILE_WRITE_ATTRIBUTES)
+            .custom_flags(FILE_FLAG_BACKUP_SEMANTICS)
+            .open(self.data_path.join(dir_name))
+            .unwrap()
+    }
+
+    #[cfg(unix)]
+    pub fn open_dir<P: AsRef<Path>>(&self, dir_name: P) -> File {
+        File::open(self.data_path.join(dir_name)).unwrap()
     }
 
     fn set_time_to_epoch(f: &mut File) {

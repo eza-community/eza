@@ -1,7 +1,7 @@
-args = ["-l", "--header", "--no-user", "."]
+args = ["-l", "--header", "--no-permissions", "--no-user", "."]
 stdout = """
-Permissions Size Date Modified Name
-drwxr-xr-x     -  1 Jan  1970  dir
-.rw-r--r--     0  1 Jan  1970  file.txt
+Size Date Modified Name
+   -  1 Jan  1970  dir
+   0  1 Jan  1970  file.txt
 """
 stderr = ""

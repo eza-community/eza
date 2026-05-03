@@ -5,6 +5,16 @@ mod cli_tests_helpers;
 use cli_tests_helpers::TestDirectory;
 
 #[test]
+fn cli_tests_unix_basic() {
+    let test_dir = TestDirectory::new("unix", "basic");
+
+    test_dir.create_files(&["file.txt"]);
+    test_dir.create_dirs(&["dir"]);
+
+    test_dir.run_tests();
+}
+
+#[test]
 fn cli_tests_unix_views() {
     let test_dir = TestDirectory::new("unix", "views");
 
