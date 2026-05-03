@@ -81,7 +81,6 @@ jobs:
       - run: rustup toolchain install ${{ matrix.rust == 'msrv' && ' ' || matrix.rust }}
       - uses: Swatinem/rust-cache@v2
       - name: Run clippy lints
-        if: ${{ matrix.os != 'windows-latest' }}
         run: cargo clippy -- --no-deps -D warnings
       - name: Run unit tests
         run: cargo test -- --skip cli_tests
