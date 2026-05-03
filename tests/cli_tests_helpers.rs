@@ -100,6 +100,7 @@ impl TestDirectory {
         use std::ffi::c_void;
         use std::fs::OpenOptions;
         use std::os::windows::io::AsRawHandle;
+
         use windows_sys::Win32::Foundation::GetLastError;
         use windows_sys::Win32::Storage::FileSystem::{
             FILE_BASIC_INFO, FileBasicInfo, SetFileInformationByHandle,
@@ -118,7 +119,7 @@ impl TestDirectory {
             FileAttributes: attributes,
         };
 
-        let res = unsafe {
+        unsafe {
             SetFileInformationByHandle(
                 file.as_raw_handle(),
                 FileBasicInfo,
