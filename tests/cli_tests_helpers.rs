@@ -64,6 +64,7 @@ impl TestDirectory {
                 {
                     use windows_sys::Win32::Storage::FileSystem::{FILE_WRITE_ATTRIBUTES, FILE_FLAG_BACKUP_SEMANTICS};
                     use std::os::windows::fs::OpenOptionsExt;
+                    use std::fs::OpenOptions;
 
                     OpenOptions::new()
                         .access_mode(FILE_WRITE_ATTRIBUTES)
