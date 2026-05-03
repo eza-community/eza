@@ -66,6 +66,10 @@ impl TestDirectory {
 
     #[cfg(windows)]
     pub fn open_dir<P: AsRef<Path>>(&self, dir_name: P) -> File {
+        // Taken from the source of std::fs::set_times as it is
+        // still nightly. Windows needs specific options to open
+        // a directory, trying to open one with File::open result
+        // in a permission error.
         use std::fs::OpenOptions;
         use std::os::windows::fs::OpenOptionsExt;
         use windows_sys::Win32::Storage::FileSystem::{
@@ -89,6 +93,21 @@ impl TestDirectory {
             .set_accessed(SystemTime::UNIX_EPOCH)
             .set_modified(SystemTime::UNIX_EPOCH);
         f.set_times(times).unwrap();
+    }
+
+    #[cfg(windows)]
+    pub fn set_attributes<P: AsRef<Path>>(&self, file_name: P) {
+        use windows_sys::Win32::Storage::FileSystem::{
+            FILE_ATTRIBUTE_HIDDEN,
+            SetFileAttributesW,
+        };
+        let p = self.data_path.join(file_name)
+            .as_os_str()
+            .as_encoded_bytes()
+            .as_ptr()
+            .cast();
+        let res = unsafe { SetFileAttributesW(p, FILE_ATTRIBUTE_HIDDEN) };
+        dbg!(res);
     }
 
     // Not currently used on Windows

@@ -84,7 +84,7 @@ jobs:
         run: cargo clippy -- --no-deps -D warnings
       - name: Run unit tests
         run: cargo test -- --skip cli_tests
-      - name: Run integration test
+      - name: Run integration tests
         run: cargo test -- cli_tests --skip cli_tests_linux --test-threads 1
 
   tests-freebsd:

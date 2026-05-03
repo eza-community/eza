@@ -1,5 +1,5 @@
 args = ["--help"]
-# On windows the "usage" line include "[EXE]" after the "eza".
+# On windows the "usage" line include ".exe" after the "eza".
 stdout = """
 A modern replacement for ls
 

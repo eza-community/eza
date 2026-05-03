@@ -43,9 +43,7 @@ genDemo:
 
 # run unit tests
 [group('testing')]
-@test:
-    just unit-tests
-    just integration-tests
+@test: unit-tests integration-tests
 
 [group('testing')]
 @unit-tests:
