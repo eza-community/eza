@@ -99,15 +99,15 @@ impl TestDirectory {
     pub fn set_attributes<P: AsRef<Path>>(&self, file_name: P) {
         use windows_sys::Win32::Storage::FileSystem::{
             FILE_ATTRIBUTE_HIDDEN,
-            SetFileAttributesA,
+            SetFileAttributesW,
         };
         use windows_sys::Win32::Foundation::GetLastError;
-        let p = self.data_path.join(file_name)
+        use std::os::windows::ffi::OsStrExt;
+        let buffer = self.data_path.join(file_name)
             .as_os_str()
-            .as_encoded_bytes()
-            .as_ptr()
-            .cast();
-        let res = unsafe { SetFileAttributesA(p, FILE_ATTRIBUTE_HIDDEN) };
+            .encode_wide()
+            .collect::<Vec<u16>>();
+        let res = unsafe { SetFileAttributesW(buffer.as_ptr(), FILE_ATTRIBUTE_HIDDEN) };
         dbg!(res);
         if res == 0 {
             println!("{}", unsafe { GetLastError() });
