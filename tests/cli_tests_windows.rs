@@ -14,12 +14,12 @@ fn cli_tests_windows_attributes() {
 
     test_dir.create_files(&["readonly", "normal", "hidden", "system", "archive", "all"]);
     test_dir.create_dirs(&["dir"]);
-    test_dir.set_attributes("readonly", FILE_ATTRIBUTE_READONLY);
-    test_dir.set_attributes("normal", FILE_ATTRIBUTE_NORMAL);
-    test_dir.set_attributes("hidden", FILE_ATTRIBUTE_HIDDEN);
-    test_dir.set_attributes("archive", FILE_ATTRIBUTE_ARCHIVE);
-    test_dir.set_attributes("system", FILE_ATTRIBUTE_SYSTEM);
-    test_dir.set_attributes(
+    test_dir.set_windows_attributes("readonly", FILE_ATTRIBUTE_READONLY);
+    test_dir.set_windows_attributes("normal", FILE_ATTRIBUTE_NORMAL);
+    test_dir.set_windows_attributes("hidden", FILE_ATTRIBUTE_HIDDEN);
+    test_dir.set_windows_attributes("archive", FILE_ATTRIBUTE_ARCHIVE);
+    test_dir.set_windows_attributes("system", FILE_ATTRIBUTE_SYSTEM);
+    test_dir.set_windows_attributes(
         "all",
         FILE_ATTRIBUTE_READONLY
             | FILE_ATTRIBUTE_HIDDEN

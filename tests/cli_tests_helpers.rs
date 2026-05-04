@@ -96,18 +96,19 @@ impl TestDirectory {
     }
 
     #[cfg(windows)]
-    pub fn set_attributes<P: AsRef<Path>>(&self, file_name: P, attributes: u32) {
+    pub fn set_windows_attributes<P: AsRef<Path>>(&self, file_name: P, attributes: u32) {
         use std::ffi::c_void;
         use std::fs::OpenOptions;
         use std::os::windows::io::AsRawHandle;
 
+        use windows_sys::Win32::Foundation::GetLastError;
         use windows_sys::Win32::Storage::FileSystem::{
             FILE_BASIC_INFO, FileBasicInfo, SetFileInformationByHandle,
         };
 
         let file = OpenOptions::new()
             .write(true)
-            .open(self.data_path.join(file_name))
+            .open(self.data_path.join(&file_name))
             .unwrap();
 
         let info = FILE_BASIC_INFO {
@@ -118,7 +119,7 @@ impl TestDirectory {
             FileAttributes: attributes,
         };
 
-        unsafe {
+        let res = unsafe {
             SetFileInformationByHandle(
                 file.as_raw_handle(),
                 FileBasicInfo,
@@ -126,6 +127,13 @@ impl TestDirectory {
                 size_of::<FILE_BASIC_INFO>() as u32,
             )
         };
+        if res != 1 {
+            panic!(
+                "Unable to set file attributes for {}: error {}",
+                file_name.as_ref().to_str().unwrap(),
+                unsafe { GetLastError() },
+            );
+        }
     }
 
     // Not currently used on Windows
