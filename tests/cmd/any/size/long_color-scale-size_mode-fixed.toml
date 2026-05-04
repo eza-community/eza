@@ -1,12 +1,6 @@
 args = [
-    "-l",
-    "--color=always",
-    "--color-scale=size",
-    "--color-scale-mode=fixed",
-    "--no-permissions",
-    "--no-user",
-    "--no-time",
-    "."
+    "-l", "--color=always", "--color-scale=size", "--color-scale-mode=fixed",
+    "--no-permissions", "--no-user", "--no-time", ".",
 ]
 stdout = """
    \u001B[1;32m9\u001B[0m 9bytes

@@ -1,0 +1,14 @@
+args = [
+    "--grid", "--long", "--width=80",
+    "--no-permissions", "--no-filesize", "--no-user", "--no-time", ".",
+]
+stdout = """
+ dir1      file3     file7      file11     file15           symlink-file-broken
+ dir2      file4     file8      file12     file16
+ file1     file5     file9      file13     symlink-dir
+ file2     file6     file10     file14     symlink-file
+"""
+stderr = ""
+
+[env.add]
+COLUMNS="120"
