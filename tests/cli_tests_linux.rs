@@ -9,6 +9,8 @@ use chrono::{Local, TimeZone};
 
 use cli_tests_helpers::TestDirectory;
 
+use crate::cli_tests_helpers::AllocateFileSize;
+
 #[test]
 fn cli_tests_linux_date() {
     let test_dir = TestDirectory::new("linux", "date");
@@ -134,6 +136,23 @@ fn cli_tests_linux_groups() {
     test_dir.chown("eza_test", None, Some(5677));
     test_dir.chown("eza_group", None, Some(5678));
     test_dir.chown("eza_group2", None, Some(5679));
+
+    test_dir.run_tests();
+}
+
+#[test]
+fn cli_tests_linux_size() {
+    let test_dir = TestDirectory::new("linux", "size");
+
+    for i in 9..11 {
+        test_dir.create_file(format!("{i}bytes")).fill(i);
+        test_dir.create_file(format!("{i}Kib")).fill(i * 1024);
+        test_dir.create_file(format!("{i}Kb")).fill(i * 1000);
+        test_dir
+            .create_file(format!("{i}MiB"))
+            .fill(i * 1024 * 1024);
+        test_dir.create_file(format!("{i}MB")).fill(i * 1000 * 1000);
+    }
 
     test_dir.run_tests();
 }

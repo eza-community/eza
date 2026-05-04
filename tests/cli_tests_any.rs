@@ -106,13 +106,31 @@ fn cli_tests_any_no_git() {
 fn cli_tests_any_size() {
     let test_dir = TestDirectory::new("any", "size");
 
-    for i in 1..13 {
-        let mut f = test_dir.create_file(format!("{}_bytes", i));
-        f.write_sized(i);
-        let mut f = test_dir.create_file(format!("{}_Kib", i));
-        f.write_sized(i * 1024);
-        let mut f = test_dir.create_file(format!("{}_MiB", i));
-        f.write_sized(i * 1024 * 1024);
+    for i in 9..11 {
+        test_dir.create_file(format!("{i}bytes")).fill(i);
+        test_dir.create_file(format!("{i}Kib")).fill(i * 1024);
+        test_dir.create_file(format!("{i}Kb")).fill(i * 1000);
+        test_dir
+            .create_file(format!("{i}MiB"))
+            .fill(i * 1024 * 1024);
+        test_dir.create_file(format!("{i}MB")).fill(i * 1000 * 1000);
+    }
+
+    test_dir.run_tests();
+}
+
+#[test]
+fn cli_tests_any_size_dirs() {
+    let test_dir = TestDirectory::new("any", "size_dirs");
+
+    let dirs = ["dir1", "dir2", "dir1/dir3"];
+
+    test_dir.create_dirs(&dirs);
+
+    for i in 9..11 {
+        for dir in dirs {
+            test_dir.create_file(format!("{dir}/{i}Kib")).fill(i * 1024);
+        }
     }
 
     test_dir.run_tests();

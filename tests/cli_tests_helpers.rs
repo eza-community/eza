@@ -143,7 +143,6 @@ impl TestDirectory {
             .env_clear()
             .env("EZA_CONFIG_DIR", "/dev/null/")
             .args(args)
-            .current_dir(&self.data_path)
             .output()
             .unwrap();
     }
@@ -202,11 +201,11 @@ impl std::ops::Deref for TestDirectory {
 }
 
 pub trait AllocateFileSize {
-    fn write_sized(&mut self, size: usize);
+    fn fill(&mut self, size: usize);
 }
 
 impl AllocateFileSize for File {
-    fn write_sized(&mut self, size: usize) {
+    fn fill(&mut self, size: usize) {
         // Naive implementation, works fine for small files
         let buf = vec![0; size];
         self.write(buf.as_slice()).unwrap();

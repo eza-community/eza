@@ -1,40 +1,14 @@
 args = ["-l", "--binary", "--no-permissions", "--no-user", "--no-time", "."]
 stdout = """
-    1 1_bytes
-1.0Ki 1_Kib
-1.0Mi 1_MiB
-    2 2_bytes
-2.0Ki 2_Kib
-2.0Mi 2_MiB
-    3 3_bytes
-3.0Ki 3_Kib
-3.0Mi 3_MiB
-    4 4_bytes
-4.0Ki 4_Kib
-4.0Mi 4_MiB
-    5 5_bytes
-5.0Ki 5_Kib
-5.0Mi 5_MiB
-    6 6_bytes
-6.0Ki 6_Kib
-6.0Mi 6_MiB
-    7 7_bytes
-7.0Ki 7_Kib
-7.0Mi 7_MiB
-    8 8_bytes
-8.0Ki 8_Kib
-8.0Mi 8_MiB
-    9 9_bytes
-9.0Ki 9_Kib
-9.0Mi 9_MiB
-   10 10_bytes
- 10Ki 10_Kib
- 10Mi 10_MiB
-   11 11_bytes
- 11Ki 11_Kib
- 11Mi 11_MiB
-   12 12_bytes
- 12Ki 12_Kib
- 12Mi 12_MiB
+    9 9bytes
+8.8Ki 9Kb
+9.0Ki 9Kib
+8.6Mi 9MB
+9.0Mi 9MiB
+   10 10bytes
+9.8Ki 10Kb
+ 10Ki 10Kib
+9.5Mi 10MB
+ 10Mi 10MiB
 """
 stderr = ""

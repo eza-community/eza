@@ -1,0 +1,14 @@
+args = ["-l", "--bytes", "--no-permissions", "--no-user", "--no-time", "."]
+stdout = """
+       9 9bytes
+    9000 9Kb
+    9216 9Kib
+ 9000000 9MB
+ 9437184 9MiB
+      10 10bytes
+   10000 10Kb
+   10240 10Kib
+10000000 10MB
+10485760 10MiB
+"""
+stderr = ""
