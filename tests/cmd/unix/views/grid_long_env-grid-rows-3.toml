@@ -8,3 +8,4 @@ stderr = ""
 
 [env.add]
 COLUMNS="120"
+EZA_GRID_ROWS = "3"

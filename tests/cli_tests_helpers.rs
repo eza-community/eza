@@ -139,6 +139,9 @@ impl TestDirectory {
     // Not currently used on Windows
     pub fn run(&self, command: &str, args: &[&str]) {
         Command::new(command)
+            .current_dir(&self.data_path)
+            .env_clear()
+            .env("EZA_CONFIG_DIR", "/dev/null/")
             .args(args)
             .current_dir(&self.data_path)
             .output()
