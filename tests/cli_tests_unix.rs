@@ -15,6 +15,39 @@ fn cli_tests_unix_basic() {
 }
 
 #[test]
+fn cli_tests_unix_links() {
+    let test_dir = TestDirectory::new("unix", "links");
+
+    test_dir.create_dirs(&[
+        "dir",
+        "dir_with_subdirs/",
+        "dir_with_subdirs/dir1",
+        "dir_with_subdirs/dir2",
+        "dir_with_subdirs/dir3",
+        "dir_with_subdirs/dir4",
+        "dir_with_subdirs/dir5",
+        "dir_with_subdirs/dir6",
+        "dir_with_subdirs/dir7",
+        "dir_with_subdirs/dir8",
+        "dir_with_subdirs/dir9",
+    ]);
+
+    test_dir.create_files(
+        (1..=3u32)
+            .map(|n: u32| format!("file{n}"))
+            .collect::<Vec<_>>()
+            .as_ref(),
+    );
+
+    test_dir.hard_link("file2", "file2-link");
+
+    test_dir.hard_link("file3", "file3-link1");
+    test_dir.hard_link("file3", "file3-link2");
+
+    test_dir.run_tests();
+}
+
+#[test]
 fn cli_tests_unix_views() {
     let test_dir = TestDirectory::new("unix", "views");
 

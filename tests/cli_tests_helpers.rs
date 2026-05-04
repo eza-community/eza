@@ -155,6 +155,10 @@ impl TestDirectory {
         unix_fs::symlink(original, self.data_path.join(link)).unwrap();
     }
 
+    pub fn hard_link<P: AsRef<Path>, Q: AsRef<Path>>(&self, original: P, link: Q) {
+        fs::hard_link(self.data_path.join(original), self.data_path.join(link)).unwrap();
+    }
+
     #[cfg(unix)]
     pub fn chown<P: AsRef<Path>>(&self, dir: P, uid: Option<u32>, gid: Option<u32>) {
         unix_fs::chown(self.data_path.join(dir), uid, gid).unwrap();
