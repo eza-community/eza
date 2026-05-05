@@ -1,5 +1,5 @@
-uid=$(stat -c '%u' tests/cmd)
-gid=$(stat -c '%g' tests/cmd)
+uid=$(stat -c '%u' tests/)
+gid=$(stat -c '%g' tests/)
 
 export TRYCMD=overwrite
 
