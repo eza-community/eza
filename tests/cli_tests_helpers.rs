@@ -139,13 +139,17 @@ impl TestDirectory {
 
     // Not currently used on Windows
     pub fn run(&self, command: &str, args: &[&str]) {
-        Command::new(command)
+        let output = Command::new(command)
             .current_dir(&self.data_path)
             .env_clear()
             .env("EZA_CONFIG_DIR", "/dev/null/")
             .args(args)
             .output()
             .unwrap();
+
+        if !output.status.success() {
+            panic!("{}", String::try_from(output.stderr).unwrap());
+        }
     }
 
     pub fn configure_git(&self, dir: &str) {
