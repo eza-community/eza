@@ -10,7 +10,7 @@ use std::time::SystemTime;
 use crate::cli_tests_helpers::AllocateFileSize;
 
 #[test]
-fn cli_tests_linux_date() {
+fn cli_tests_linux_docker_date() {
     let test_dir = TestDirectory::new("linux", "date");
 
     use std::thread;
@@ -53,7 +53,7 @@ fn cli_tests_linux_date() {
 }
 
 #[test]
-fn cli_tests_linux_date_current_year() {
+fn cli_tests_linux_docker_date_current_year() {
     let test_dir = TestDirectory::new("linux", "date_current_year");
 
     use chrono::{Datelike, Local, TimeZone};
@@ -88,7 +88,7 @@ fn cli_tests_linux_date_current_year() {
 }
 
 #[test]
-fn cli_tests_linux_groups() {
+fn cli_tests_linux_docker_groups() {
     let test_dir = TestDirectory::new("linux", "groups");
 
     test_dir.create_files(&["eza_test", "eza_group", "eza_group2"]);
@@ -99,7 +99,7 @@ fn cli_tests_linux_groups() {
 }
 
 #[test]
-fn cli_tests_linux_size() {
+fn cli_tests_linux_docker_size() {
     let test_dir = TestDirectory::new("linux", "size");
 
     for i in 9..11 {
@@ -114,7 +114,7 @@ fn cli_tests_linux_size() {
 }
 
 #[test]
-fn cli_tests_linux_views() {
+fn cli_tests_linux_docker_views() {
     let test_dir = TestDirectory::new("linux", "views");
 
     test_dir.create_dirs(&["dir1", "dir2", "dir2/subdir"]);
@@ -149,7 +149,7 @@ fn cli_tests_linux_views() {
 }
 
 #[test]
-fn cli_tests_linux_weird_filenames() {
+fn cli_tests_linux_docker_weird_filenames() {
     use std::ffi::OsStr;
 
     use nu_ansi_term::Color;
@@ -199,7 +199,7 @@ fn cli_tests_linux_weird_filenames() {
 }
 
 #[test]
-fn cli_tests_linux_xattr() {
+fn cli_tests_linux_docker_xattr() {
     let test_dir = TestDirectory::new("linux", "xattr");
 
     test_dir.create_files(&["file_no_attributes", "file_attributes", "file_selinux"]);

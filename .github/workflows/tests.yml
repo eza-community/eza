@@ -111,7 +111,7 @@ jobs:
             export RUSTFLAGS="--deny warnings"
             cargo clippy -- --no-deps -D warnings
             cargo test -- --skip cli_tests
-            cargo test -- cli_tests --skip docker --test-threads 1
+            cargo test -- cli_tests --test-threads 1
 
   tests-netbsd:
     runs-on: ubuntu-latest
@@ -140,7 +140,7 @@ jobs:
             export RUSTFLAGS="--deny warnings"
             cargo clippy -- --no-deps -D warnings
             cargo test -- --skip cli_tests
-            cargo test -- cli_tests --skip docker --test-threads 1
+            cargo test -- cli_tests --test-threads 1
 
   tests-openbsd:
     runs-on: ubuntu-latest
@@ -166,7 +166,7 @@ jobs:
             # export RUSTFLAGS="--deny warnings"
             # cargo clippy -- --no-deps -D warnings
             cargo test -- --skip cli_tests
-            cargo test -- cli_tests --skip docker --test-threads 1
+            cargo test -- cli_tests --test-threads 1
 
   tests-linux-docker:
     runs-on: ubuntu-latest
