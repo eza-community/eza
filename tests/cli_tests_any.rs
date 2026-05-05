@@ -118,20 +118,3 @@ fn cli_tests_any_size() {
 
     test_dir.run_tests();
 }
-
-#[test]
-fn cli_tests_any_size_dirs() {
-    let test_dir = TestDirectory::new("any", "size_dirs");
-
-    let dirs = ["dir1", "dir2", "dir1/dir3"];
-
-    test_dir.create_dirs(&dirs);
-
-    for i in 9..11 {
-        for dir in dirs {
-            test_dir.create_file(format!("{dir}/{i}Kib")).fill(i * 1024);
-        }
-    }
-
-    test_dir.run_tests();
-}

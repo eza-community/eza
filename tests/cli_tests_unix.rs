@@ -4,6 +4,8 @@ mod cli_tests_helpers;
 
 use cli_tests_helpers::TestDirectory;
 
+use crate::cli_tests_helpers::AllocateFileSize;
+
 #[test]
 fn cli_tests_unix_basic() {
     let test_dir = TestDirectory::new("unix", "basic");
@@ -14,7 +16,6 @@ fn cli_tests_unix_basic() {
     test_dir.run_tests();
 }
 
-#[cfg(unix)]
 #[cfg(feature = "git")]
 #[test]
 fn cli_tests_unix_git_repos() {
@@ -58,7 +59,6 @@ fn cli_tests_unix_git_repos() {
     test_dir.run_tests();
 }
 
-#[cfg(unix)]
 #[cfg(feature = "git")]
 #[test]
 fn cli_tests_unix_git_status() {
@@ -181,6 +181,22 @@ fn cli_tests_unix_links() {
 
     test_dir.hard_link("file3", "file3-link1");
     test_dir.hard_link("file3", "file3-link2");
+
+    test_dir.run_tests();
+}
+
+#[test]
+fn cli_tests_any_unix_dirs() {
+    let test_dir = TestDirectory::new("unix", "size_dirs");
+
+    let dirs = ["dir1", "dir2", "dir1/dir3"];
+    test_dir.create_dirs(&dirs);
+
+    for i in 9..11 {
+        for dir in dirs {
+            test_dir.create_file(format!("{dir}/{i}Kib")).fill(i * 1024);
+        }
+    }
 
     test_dir.run_tests();
 }
