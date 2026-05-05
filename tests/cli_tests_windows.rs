@@ -32,9 +32,7 @@ fn cli_tests_windows_attributes() {
 
 #[test]
 fn cli_tests_windows_hidden() {
-    use windows_sys::Win32::Storage::FileSystem::{
-        FILE_ATTRIBUTE_HIDDEN,
-    };
+    use windows_sys::Win32::Storage::FileSystem::FILE_ATTRIBUTE_HIDDEN;
     let test_dir = TestDirectory::new("windows", "hidden");
 
     test_dir.create_files(&[".dotfile", "hidden", "file"]);
