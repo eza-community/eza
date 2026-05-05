@@ -137,6 +137,15 @@ fn cli_tests_linux_views() {
     test_dir.symlink("file16", "symlink-file");
     test_dir.symlink("file17", "symlink-file-broken");
 
+    // One of the things stolen from the old exa tests, including this comment:
+    // We can’t guarantee inode numbers, but we can at least check that they’re in
+    // order. The inode column is the leftmost one, so sort works for this.
+    let output = test_dir.run(
+        "/workspace/target/debug/eza",
+        &["-l", "--inode", "--sort=inode", "--color=never", "."],
+    );
+    let lines: Vec<_> = output.trim_end().split('\n').into_iter().collect();
+    assert!(lines.is_sorted());
 }
 
 #[test]

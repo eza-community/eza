@@ -138,7 +138,7 @@ impl TestDirectory {
     }
 
     // Not currently used on Windows
-    pub fn run(&self, command: &str, args: &[&str]) {
+    pub fn run(&self, command: &str, args: &[&str]) -> String {
         let output = Command::new(command)
             .current_dir(&self.data_path)
             .env_clear()
@@ -149,6 +149,8 @@ impl TestDirectory {
         if !output.status.success() {
             panic!("{}", String::try_from(output.stderr).unwrap());
         }
+
+        return String::try_from(output.stdout).unwrap();
     }
 
     pub fn configure_git(&self, dir: &str) {
