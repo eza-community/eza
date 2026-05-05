@@ -13,6 +13,8 @@ services:
       - rustup_cache:/home/eza_test/.rustup
       - cargo_cache:/home/eza_test/.cargo/registry
       - test_data:/workspace/tests/data
+    cap_add:
+      - CAP_SYS_ADMIN
 
 volumes:
   build_cache:

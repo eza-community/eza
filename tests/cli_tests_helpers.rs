@@ -142,7 +142,6 @@ impl TestDirectory {
         let output = Command::new(command)
             .current_dir(&self.data_path)
             .env_clear()
-            .env("EZA_CONFIG_DIR", "/dev/null/")
             .args(args)
             .output()
             .unwrap();
@@ -180,6 +179,7 @@ impl TestDirectory {
         env::set_current_dir(&self.data_path).unwrap();
         trycmd::TestCases::new()
             .case(format!("{spec_path}/*.toml"))
+            .env("EZA_CONFIG_DIR", "/dev/null/")
             .default_bin_name("eza")
             .run();
     }
