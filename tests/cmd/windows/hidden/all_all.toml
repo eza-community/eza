@@ -2,7 +2,12 @@ args = ["-aa", "."]
 stdout = """
 .
 ..
-.dir
-.file
+.dot
+.dot_dir
+_underscore
+_underscore_dir
+file
+hidden
+hidden_dir
 """
 stderr = ""

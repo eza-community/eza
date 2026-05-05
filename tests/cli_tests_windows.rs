@@ -35,8 +35,8 @@ fn cli_tests_windows_hidden() {
     use windows_sys::Win32::Storage::FileSystem::FILE_ATTRIBUTE_HIDDEN;
     let test_dir = TestDirectory::new("windows", "hidden");
 
-    test_dir.create_files(&[".dotfile", "hidden", "file"]);
-    test_dir.create_dirs(&[".dotdir", "hidden_dir"]);
+    test_dir.create_files(&[".dot", "_underscore", "hidden", "file"]);
+    test_dir.create_dirs(&[".dot_dir", "_underscore_dir", "hidden_dir"]);
     test_dir.set_windows_attributes("hidden", FILE_ATTRIBUTE_HIDDEN);
     test_dir.set_windows_attributes("hidden_dir", FILE_ATTRIBUTE_HIDDEN);
 
