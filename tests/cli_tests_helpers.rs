@@ -65,7 +65,7 @@ impl TestDirectory {
     }
 
     #[cfg(windows)]
-    pub fn open_dir<P: AsRef<Path>>(&self, dir_name: P) -> File {
+    pub fn open_file_attributes<P: AsRef<Path>>(&self, dir_name: P) -> File {
         // Taken from the source of std::fs::set_times as it is
         // still nightly. Windows needs specific options to open
         // a directory, trying to open one with File::open result
@@ -83,6 +83,11 @@ impl TestDirectory {
             .unwrap()
     }
 
+    #[cfg(windows)]
+    pub fn open_dir<P: AsRef<Path>>(&self, dir_name: P) -> File {
+        self.open_file_attributes(dir_name)
+    }
+
     #[cfg(unix)]
     pub fn open_dir<P: AsRef<Path>>(&self, dir_name: P) -> File {
         File::open(self.data_path.join(dir_name)).unwrap()
@@ -98,7 +103,6 @@ impl TestDirectory {
     #[cfg(windows)]
     pub fn set_windows_attributes<P: AsRef<Path>>(&self, file_name: P, attributes: u32) {
         use std::ffi::c_void;
-        use std::fs::OpenOptions;
         use std::os::windows::io::AsRawHandle;
 
         use windows_sys::Win32::Foundation::GetLastError;
@@ -106,10 +110,7 @@ impl TestDirectory {
             FILE_BASIC_INFO, FileBasicInfo, SetFileInformationByHandle,
         };
 
-        let file = OpenOptions::new()
-            .write(true)
-            .open(self.data_path.join(&file_name))
-            .unwrap();
+        let file = self.open_file_attributes(&file_name);
 
         let info = FILE_BASIC_INFO {
             CreationTime: 0,

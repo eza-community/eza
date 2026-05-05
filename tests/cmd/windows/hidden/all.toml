@@ -1,0 +1,9 @@
+args = ["-a", "."]
+stdout = """
+.dotdir
+.dotfile
+file
+hidden
+hidden_dir
+"""
+stderr = ""
