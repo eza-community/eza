@@ -1,4 +1,3 @@
-#![cfg(feature = "docker-tests")]
 #![cfg(target_os = "linux")]
 
 mod cli_tests_helpers;

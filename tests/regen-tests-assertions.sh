@@ -5,7 +5,7 @@ export TRYCMD=overwrite
 
 sudo chown -R $(whoami): tests/cmd
 
-cargo --locked test --features docker-tests -- --test cli_tests --test-threads 1
-cargo --locked test --no-default-features --features docker-tests -- --test cli_tests_any_no_git --test-threads 1
+cargo --locked test -- --test cli_tests --test-threads 1
+cargo --locked test --no-default-features -- --test 'cli_tests*no_git' --test-threads 1
 
 sudo chown -R $uid:$gid tests/cmd
