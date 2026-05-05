@@ -12,3 +12,7 @@ stdout = """
 10,485,760 10MiB
 """
 stderr = ""
+
+[env.add]
+# to make the test pass in Ubuntu runner on GitHub CI
+LANG = "en_US.UTF-8"
