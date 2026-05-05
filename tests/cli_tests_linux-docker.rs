@@ -1,3 +1,4 @@
+#![cfg(feature = "docker-tests")]
 #![cfg(target_os = "linux")]
 
 mod cli_tests_helpers;
@@ -30,18 +31,20 @@ fn cli_tests_linux_date() {
 
     // Sleep between each create as we can not modified the created time
     let peach = test_dir.create_file("peach");
-    thread::sleep(Duration::from_millis(100));
     let peach_times = FileTimes::new()
         .set_modified(med_date)
         .set_accessed(new_date);
     peach.set_times(peach_times).unwrap();
 
-    let plum = test_dir.create_file("plum");
     thread::sleep(Duration::from_millis(100));
+
+    let plum = test_dir.create_file("plum");
     let plum_times = FileTimes::new()
         .set_modified(new_date)
         .set_accessed(old_date);
     plum.set_times(plum_times).unwrap();
+
+    thread::sleep(Duration::from_millis(100));
 
     let pear = test_dir.create_file("pear");
     let pear_times = FileTimes::new()
@@ -53,7 +56,6 @@ fn cli_tests_linux_date() {
 }
 
 #[test]
-// This test needs locales en_US, fr_FR and ja_JP.
 fn cli_tests_linux_date_current_year() {
     let test_dir = TestDirectory::new("linux", "date_current_year");
 

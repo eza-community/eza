@@ -51,12 +51,12 @@ genDemo:
 [group('testing')]
 @integration-tests:
     docker compose -f tests/docker-compose.yml run --build --rm tests sh -c \
-        "cargo --locked test -- --test cli_tests --test-threads 1; \
-        cargo --locked test --no-default-features -- --test cli_tests --test-threads 1"
+        "cargo --locked test --feature docker-tests -- --test cli_tests --test-threads 1; \
+        cargo --locked test --no-default-features --feature docker-tests -- --test 'cli_tests*no_git' --test-threads 1"
 
 [group('testing')]
 integration-tests-regen:
-    docker compose -f tests/docker-compose.yml run --build --rm tests bash tests/regen-tests-assertions.sh
+    docker compose -f tests/docker-compose.yml run --build --rm tests sh tests/regen-tests-assertions.sh
 
 # run unit tests (in release mode)
 [group('testing')]
