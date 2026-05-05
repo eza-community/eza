@@ -205,8 +205,8 @@ fn cli_tests_linux_weird_filenames() {
 fn cli_tests_linux_xattr() {
     let test_dir = TestDirectory::new("linux", "xattr");
 
-    test_dir.create_files(&["file_no_attributes", "file_attributes"]);
-    test_dir.create_dirs(&["dir_no_attributes", "dir_attributes"]);
+    test_dir.create_files(&["file_no_attributes", "file_attributes", "file_selinux"]);
+    test_dir.create_dirs(&["dir_no_attributes", "dir_attributes", "dir_selinux"]);
 
     // command from package `attr`
     test_dir.run(
@@ -217,13 +217,29 @@ fn cli_tests_linux_xattr() {
             "file_attributes",
         ],
     );
-
     test_dir.run(
         "setfattr",
         &[
             "--name=user.xdg.tags",
             "--value=foo,bar,baz",
             "dir_attributes",
+        ],
+    );
+
+    test_dir.run(
+        "setfattr",
+        &[
+            "--name=security.selinux",
+            "--value=unconfined_u:object_r:user_home_t:s0",
+            "file_selinux",
+        ],
+    );
+    test_dir.run(
+        "setfattr",
+        &[
+            "--name=security.selinux",
+            "--value=unconfined_u:object_r:user_home_t:s0",
+            "dir_selinux",
         ],
     );
 
