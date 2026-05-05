@@ -169,8 +169,10 @@ impl TestDirectory {
     pub fn chown<P: AsRef<Path>>(&self, dir: P, uid: Option<u32>, gid: Option<u32>) {
         unix_fs::chown(self.data_path.join(dir), uid, gid).unwrap();
     }
+}
 
-    pub fn run_tests(&self) {
+impl Drop for TestDirectory {
+    fn drop(&mut self) {
         let spec_path = self.spec_path.to_str().unwrap();
 
         // This is not thread safe!!!
@@ -182,11 +184,6 @@ impl TestDirectory {
             .env("EZA_CONFIG_DIR", "/dev/null/")
             .default_bin_name("eza")
             .run();
-    }
-}
-
-impl Drop for TestDirectory {
-    fn drop(&mut self) {
         env::set_current_dir(&self.initial_dir_path).unwrap();
     }
 }

@@ -26,8 +26,6 @@ fn cli_tests_windows_attributes() {
             | FILE_ATTRIBUTE_ARCHIVE
             | FILE_ATTRIBUTE_SYSTEM,
     );
-
-    test_dir.run_tests();
 }
 
 #[test]
@@ -39,6 +37,4 @@ fn cli_tests_windows_hidden() {
     test_dir.create_dirs(&[".dot_dir", "_underscore_dir", "hidden_dir"]);
     test_dir.set_windows_attributes("hidden", FILE_ATTRIBUTE_HIDDEN);
     test_dir.set_windows_attributes("hidden_dir", FILE_ATTRIBUTE_HIDDEN);
-
-    test_dir.run_tests();
 }

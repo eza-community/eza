@@ -50,8 +50,6 @@ fn cli_tests_linux_date() {
         .set_modified(old_date)
         .set_accessed(med_date);
     pear.set_times(pear_times).unwrap();
-
-    test_dir.run_tests();
 }
 
 #[test]
@@ -87,8 +85,6 @@ fn cli_tests_linux_date_current_year() {
     let pear = test_dir.create_file("pear");
     let pear_times = FileTimes::new().set_modified(old_date);
     pear.set_times(pear_times).unwrap();
-
-    test_dir.run_tests();
 }
 
 #[test]
@@ -100,8 +96,6 @@ fn cli_tests_linux_groups() {
     test_dir.chown("eza_test", None, Some(5677));
     test_dir.chown("eza_group", None, Some(5678));
     test_dir.chown("eza_group2", None, Some(5679));
-
-    test_dir.run_tests();
 }
 
 #[test]
@@ -117,8 +111,6 @@ fn cli_tests_linux_size() {
             .fill(i * 1024 * 1024);
         test_dir.create_file(format!("{i}MB")).fill(i * 1000 * 1000);
     }
-
-    test_dir.run_tests();
 }
 
 #[test]
@@ -145,7 +137,6 @@ fn cli_tests_linux_views() {
     test_dir.symlink("file16", "symlink-file");
     test_dir.symlink("file17", "symlink-file-broken");
 
-    test_dir.run_tests();
 }
 
 #[test]
@@ -196,8 +187,6 @@ fn cli_tests_linux_weird_filenames() {
             OsStr::from_encoded_bytes_unchecked(&invalid_utf8_4),
         ]);
     }
-
-    test_dir.run_tests();
 }
 
 #[test]
@@ -243,6 +232,4 @@ fn cli_tests_linux_xattr() {
             "dir_selinux",
         ],
     );
-
-    test_dir.run_tests();
 }

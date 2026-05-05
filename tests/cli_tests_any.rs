@@ -11,8 +11,6 @@ fn cli_tests_any_basic() {
 
     test_dir.create_files(&["file.txt"]);
     test_dir.create_dirs(&["dir"]);
-
-    test_dir.run_tests();
 }
 
 #[test]
@@ -35,8 +33,6 @@ fn cli_tests_any_date_relative() {
     let pear = test_dir.create_file("pear");
     let pear_times = FileTimes::new().set_modified(old_date);
     pear.set_times(pear_times).unwrap();
-
-    test_dir.run_tests();
 }
 
 #[test]
@@ -45,8 +41,6 @@ fn cli_tests_any_dotfiles() {
 
     test_dir.create_files(&[".file"]);
     test_dir.create_dirs(&[".dir"]);
-
-    test_dir.run_tests();
 }
 
 #[test]
@@ -81,8 +75,6 @@ fn cli_tests_any_file_exts() {
         "compiled.js",
         "compiled.coffee",
     ]);
-
-    test_dir.run_tests();
 }
 
 #[test]
@@ -91,15 +83,12 @@ fn cli_tests_any_files_and_dirs() {
 
     test_dir.create_files(&["a.txt", "abc.mp3", "ab"]);
     test_dir.create_dirs(&["test", "abc", "01.city", "02.apple"]);
-
-    test_dir.run_tests();
 }
 
 #[test]
 #[cfg(not(feature = "git"))]
 fn cli_tests_any_no_git() {
-    let test_dir = TestDirectory::new("any", "no_git");
-    test_dir.run_tests();
+    TestDirectory::new("any", "no_git");
 }
 
 #[test]
@@ -115,6 +104,4 @@ fn cli_tests_any_size() {
             .fill(i * 1024 * 1024);
         test_dir.create_file(format!("{i}MB")).fill(i * 1000 * 1000);
     }
-
-    test_dir.run_tests();
 }

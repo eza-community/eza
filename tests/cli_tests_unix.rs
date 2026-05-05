@@ -12,8 +12,6 @@ fn cli_tests_unix_basic() {
 
     test_dir.create_files(&["file.txt"]);
     test_dir.create_dirs(&["dir"]);
-
-    test_dir.run_tests();
 }
 
 #[cfg(feature = "git")]
@@ -55,8 +53,6 @@ fn cli_tests_unix_git_repos() {
             "--allow-empty",
         ],
     );
-
-    test_dir.run_tests();
 }
 
 #[cfg(feature = "git")]
@@ -148,8 +144,6 @@ fn cli_tests_unix_git_status() {
 
     new_staged_modified.write_all(b"a").unwrap();
     modified_staged_modified.write_all(b"a").unwrap();
-
-    test_dir.run_tests();
 }
 
 #[test]
@@ -181,8 +175,6 @@ fn cli_tests_unix_links() {
 
     test_dir.hard_link("file3", "file3-link1");
     test_dir.hard_link("file3", "file3-link2");
-
-    test_dir.run_tests();
 }
 
 #[test]
@@ -197,8 +189,6 @@ fn cli_tests_any_unix_dirs() {
             test_dir.create_file(format!("{dir}/{i}Kib")).fill(i * 1024);
         }
     }
-
-    test_dir.run_tests();
 }
 
 #[test]
@@ -224,6 +214,4 @@ fn cli_tests_unix_views() {
     test_dir.symlink("dir2", "symlink-dir");
     test_dir.symlink("file16", "symlink-file");
     test_dir.symlink("file17", "symlink-file-broken");
-
-    test_dir.run_tests();
 }
