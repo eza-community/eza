@@ -1,0 +1,31 @@
+args = ["--tree", "--long", "--octal-permissions", "--no-time", "."]
+stdout = """
+0755 drwxr-xr-x - eza_test .
+0755 drwxr-xr-x - eza_test ├── dir1
+0755 drwxr-xr-x - eza_test ├── dir2
+0644 .rw-r--r-- 0 eza_test │   ├── file1
+0644 .rw-r--r-- 0 eza_test │   ├── file2
+0755 drwxr-xr-x - eza_test │   └── subdir
+0644 .rw-r--r-- 0 eza_test │       ├── file1
+0644 .rw-r--r-- 0 eza_test │       └── file2
+0644 .rw-r--r-- 0 eza_test ├── file1
+0644 .rw-r--r-- 0 eza_test ├── file2
+0644 .rw-r--r-- 0 eza_test ├── file3
+0644 .rw-r--r-- 0 eza_test ├── file4
+0644 .rw-r--r-- 0 eza_test ├── file5
+0644 .rw-r--r-- 0 eza_test ├── file6
+0644 .rw-r--r-- 0 eza_test ├── file7
+0644 .rw-r--r-- 0 eza_test ├── file8
+0644 .rw-r--r-- 0 eza_test ├── file9
+0644 .rw-r--r-- 0 eza_test ├── file10
+0644 .rw-r--r-- 0 eza_test ├── file11
+0644 .rw-r--r-- 0 eza_test ├── file12
+0644 .rw-r--r-- 0 eza_test ├── file13
+0644 .rw-r--r-- 0 eza_test ├── file14
+0644 .rw-r--r-- 0 eza_test ├── file15
+0644 .rw-r--r-- 0 eza_test ├── file16
+0777 lrwxrwxrwx - eza_test ├── symlink-dir -> dir2
+0777 lrwxrwxrwx - eza_test ├── symlink-file -> file16
+0777 lrwxrwxrwx - eza_test └── symlink-file-broken -> file17
+"""
+stderr = ""

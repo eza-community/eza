@@ -1,0 +1,11 @@
+args = ["--group-directories-first", "."]
+stdout = """
+01.city
+02.apple
+abc
+test
+a.txt
+ab
+abc.mp3
+"""
+stderr = ""

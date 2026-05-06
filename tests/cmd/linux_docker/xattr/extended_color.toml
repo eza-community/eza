@@ -1,0 +1,14 @@
+args = ["-l", "--extended", "--color=always", "--no-time", "."]
+stdout = """
+\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m@ \u001B[1;90m-\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[1;34mdir_attributes\u001B[0m
+                       \u001B[1;90m└── \u001B[0muser.xdg.tags: "foo,bar,baz"
+\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m  \u001B[1;90m-\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[1;34mdir_no_attributes\u001B[0m
+\u001B[1;34md\u001B[33mr\u001B[31mw\u001B[32mx\u001B[0m\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[33mr\u001B[1;90m-\u001B[0m\u001B[32mx\u001B[0m@ \u001B[1;90m-\u001B[0m \u001B[1;33meza_test\u001B[0m \u001B[1;34mdir_selinux\u001B[0m
+                       \u001B[1;90m└── \u001B[0msecurity.selinux: "unconfined_u:object_r:user_home_t:s0"
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m@ \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m file_attributes
+                       \u001B[1;90m└── \u001B[0muser.xdg.tags: "foo,bar,baz"
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m  \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m file_no_attributes
+.\u001B[1;33mr\u001B[31mw\u001B[90m-\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m\u001B[33mr\u001B[1;90m--\u001B[0m@ \u001B[32m0\u001B[0m \u001B[1;33meza_test\u001B[0m file_selinux
+                       \u001B[1;90m└── \u001B[0msecurity.selinux: "unconfined_u:object_r:user_home_t:s0"
+"""
+stderr = ""

@@ -17,65 +17,35 @@ sure to familiarize yourself with first.
 
 ## Hacking on eza
 
-It is strongly recommended that you install Nix for hacking on eza. We leverage
-nix  as a way to easily test and distribute eza to many users, and it allows us
-to provide multiple tools easily for developers. Instead of having to install
-each dependency manually and setting up a development environment, Nix allows
-you  to use the same environment as the devs use.
-
-Therefore, it is useful that you have a version of Nix installed with the
-"experimental" feature flakes enabled. Further, to make hacking on eza as easy
-as possible for yourself, you'd do yourself a favor to install
-[direnv](https://direnv.net/).
-
-When you enter the eza repository, if you have `direnv` installed, you'll be
-prompted to allow it with `direnv allow`. Doing this will save you from having
-to manually enter the development environment each time you open the folder. If
-you don't have direnv installed however, you can run `nix develop` in a pinch,
-to enter the direnv.
-
-The development environment includes basic checks of conformance to conventional
-commits, cargo clippy lints, and much more.
-
-It also contains a pre-commit-hook making it a lot easier not to make potential
-mistakes that will unnecessarily delay getting your PRs accepted. Most
-importantly, it ensures your commits are conforming to conventional commits.
-
-Some useful commands include:
-- `nix flake check`: checks everything is correct.
-- `nix build`: build eza.
-- `nix build .#test`: runs eza's cargo tests
-- `nix build .#clippy`: runs clippy on eza
-- `nix fmt`: automatically formats your code as required by flake checks and
-  pre-commit-hooks.nix
-- `just itest`: runs integration tests
-
-**For non-nix users,**
-There are traditional `pre-commit` hooks, which you can install with your system package manager or
-`brew|pip install pre-commit`, and run `pre-commit install -c .pre-commit-config-non-nix.yaml` in the root of the repository.
-Then these hooks will run automatically when you commit.
-
 The [just](https://github.com/casey/just) command runner can be used to run some
 helpful development commands, in a manner similar to `make`.  Run `just --list`
 to get an overview of what’s available.
 
-To compile the manual pages, you will need [pandoc](https://pandoc.org/), which
-the nix flake should have installed for you.  The `just man` command will
-compile the Markdown into manual pages, which it will place in the `target/man`
-directory.
+Some useful commands include:
+
+- `just unit-tests`: runs unit tests
+- `just cli-tests-local`: runs cli tests (on your machine)
+
+If you want more information on the tests please read:
+[testing on eza](./TESTING.md)
+
+There are hooks for the `pre-commit` software, which are run automatically when
+you make a commit. You can install it with your system package manager or
+`brew|pip install pre-commit`, and run `pre-commit install` in the root of the
+repository. Then these hooks will run automatically when you commit.
+
+To compile the manual pages, you will need [pandoc](https://pandoc.org/). The
+`just man` command will compile the Markdown into manual pages, which it will
+place in the `target/man` directory.
 
 eza depends on [libgit2](https://github.com/rust-lang/git2-rs) for certain
 features.  If you’re unable to compile libgit2, you can opt out of Git support
-by running `cargo build --no-default-features`. Again, the nix flake should
-have taken care of this for you, if not, please file an issue.
+by running `cargo build --no-default-features`.
 
 If you intend to compile for musl, you will need to use the flag
 `vendored-openssl` if you want to get the Git feature working.  The full command
 is `cargo build --release --target=x86_64-unknown-linux-musl --features
 vendored-openssl,git`.
-
-If you want more information on the tests please read:
-[testing on eza](https://github.com/eza-community/eza/blob/main/TESTING.md)
 
 ## Creating a PR
 

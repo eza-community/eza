@@ -1,0 +1,23 @@
+args = ["--color=always", "."]
+stdout = """
+'ansi: blue'
+'ascii: hello'
+'backspace: \u001B[31m/u{8}\u001B[0m'
+'bell: \u001B[31m/u{7}\u001B[0m'
+\u001B[36m'broken-target: [\u001B[31m/n\u001B[36m]-symlink'\u001B[0m \u001B[31m->\u001B[0m \u001B[4;31m'broken-target: [/n]'\u001B[0m
+'carriage return: \u001B[31m/r\u001B[0m'
+'emoji: [🆒]'
+'escape: \u001B[31m/u{1b}\u001B[0m'
+'form-feed: \u001B[31m/u{c}\u001B[0m'
+'invalid-utf8-1: �'
+'invalid-utf8-2: �('
+'invalid-utf8-3: �('
+'invalid-utf8-4: �(�('
+\u001B[1;34m'new-line-dir: [\u001B[0m\u001B[31m/n\u001B[1;34m]'\u001B[0m
+'new-line: [\u001B[31m/n\u001B[0m]'
+\u001B[36m'new-line: [\u001B[31m/n\u001B[36m]-symlink'\u001B[0m \u001B[1;90m->\u001B[0m 'new-line: [\u001B[31m/n\u001B[0m]'
+'tab: \u001B[31m/t\u001B[0m'
+'utf-8: pâté'
+'vertical tab: \u001B[31m/u{b}\u001B[0m'
+"""
+stderr = ""

@@ -1,0 +1,22 @@
+args = ["-l", "--git", "--git-ignore", "--no-permissions", "--no-user", "--no-time", "."]
+stdout = """
+- dir-empty
+- dir-ignored-with-file-unmodified
+- dir-modified
+- dir-modified-staged
+- dir-new
+- dir-new-staged
+- dir-new-staged-new
+1 file-modified
+1 file-modified-staged
+2 file-modified-staged-modified
+0 file-new
+0 file-new-staged
+1 file-new-staged-modified
+- symlink-broken -> file-non-existing
+- symlink-new -> file-modified
+"""
+stderr = ""
+
+[env.add]
+EZA_OVERRIDE_GIT = "1"

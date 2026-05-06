@@ -36,20 +36,44 @@ genDemo:
 @check:
     cargo check
 
-
 #---------------#
 # running tests #
 #---------------#
 
 # run unit tests
 [group('testing')]
-@test:
-    cargo test --workspace -- --quiet
+@test: unit-tests cli-tests
+
+[group('testing')]
+@unit-tests:
+    cargo --locked test -- --skip cli_tests.sh --quiet
+
+@cli-tests: cli-tests-local cli-tests-docker
+
+[group('testing')]
+@cli-tests-local:
+    sh tests/run-cli_tests.sh
+
+@cli-tests-local-regen:
+    TRYCMD=overwrite sh tests/run-cli_tests.sh
+
+[group('testing')]
+@cli-tests-docker:
+    docker compose -f tests/docker-compose.yml run --build --rm tests \
+        sh tests/run-cli_tests.sh
+
+[group('testing')]
+@cli-tests-docker-regen:
+    docker compose -f tests/docker-compose.yml run --build --rm --env TRYCMD=overwrite tests \
+        sh tests/run-cli_tests.sh
+
+@cli-tests-docker-shell:
+    docker compose -f tests/docker-compose.yml run --rm tests bash
 
 # run unit tests (in release mode)
 [group('testing')]
 @test-release:
-    cargo test --workspace --release --verbose
+    cargo test --release --verbose
 
 #-----------------------#
 # code quality and misc #
@@ -73,19 +97,6 @@ genDemo:
 @unused-deps:
     command -v cargo-udeps >/dev/null || (echo "cargo-udeps not installed" && exit 1)
     cargo +nightly udeps
-
-# check that every combination of feature flags is successful
-[group('house-keeping')]
-@check-features:
-    command -v cargo-hack >/dev/null || (echo "cargo-hack not installed" && exit 1)
-    cargo hack check --feature-powerset
-
-# print versions of the necessary build tools
-[group('house-keeping')]
-@versions:
-    rustc --version
-    cargo --version
-
 
 #---------------#
 # documentation #
@@ -298,57 +309,3 @@ alias c := cross
     mkdir -p ./target/"completions-$(convco version)"
     cp completions/*/* ./target/"completions-$(convco version)"/
     tar czvf ./target/"completions-$(convco version)".tar.gz ./target/"completions-$(convco version)"
-
-
-#---------------------#
-# Integration testing #
-#---------------------#
-
-alias gen := gen_test_dir
-
-test_dir := "tests/test_dir"
-
-[group('testing')]
-gen_test_dir:
-    bash devtools/dir-generator.sh {{ test_dir }}
-
-# Runs integration tests in nix sandbox
-#
-# Required nix, likely won't work on windows.
-[group('testing')]
-@itest:
-    nix build -L ./#trycmd-local
-
-# Runs integration tests in nix sandbox, and dumps outputs.
-#
-# WARNING: this can cause loss of work
-[group('testing')]
-@idump:
-    rm ./tests/gen/*_nix.stderr -f || echo
-    rm ./tests/gen/*_nix.stdout -f || echo
-    rm ./tests/gen/*_unix.stderr -f || echo
-    rm ./tests/gen/*_unix.stdout -f || echo
-    rm ./tests/ptests/ptest_*.stderr -f || echo
-    rm ./tests/ptests/ptest_*.stdout -f || echo
-
-    nix build -L ./#trydump
-
-    find result/dump -type f \( -name "*.stdout" -o -name "*.stderr" \) -exec sh -c 'base=$(basename {}); if [ -e "tests/gen/${base%.*}.toml" ]; then cp {} tests/gen/; elif [ -e "tests/cmd/${base%.*}.toml" ]; then cp {} tests/cmd/; elif [ -e "tests/ptests/${base%.*}.toml" ]; then cp {} tests/ptests/; fi' \;
-
-[group('testing')]
-@itest-gen:
-    nix build -L ./#trycmd
-
-# Fully re-generates the integration tests using powertest
-[group('testing')]
-@regen:
-    which powertest >&- 2>&- || (echo -e "Powertest not installed. Please Clone the repo and run:\n\tcargo install --path . --locked" && exit 1)
-    echo "WARNING: this will delete all tests in tests/ptest"
-    sleep 5
-    echo "Deleting tests/ptests"
-    rm -rf tests/ptests
-    echo "Generating tests/ptests"
-    powertest
-    nix build -L ./#trydump
-    find result/dump -type f \( -name "*.stdout" -o -name "*.stderr" \) -exec sh -c 'base=$(basename {}); if [ -e "tests/ptests/${base%.*}.toml" ]; then cp {} tests/ptests/; fi' \;
-

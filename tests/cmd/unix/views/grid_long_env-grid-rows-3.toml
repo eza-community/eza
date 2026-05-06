@@ -1,0 +1,11 @@
+args = ["--grid", "--long", "--no-permissions", "--no-filesize", "--no-user", "--no-time", "."]
+stdout = """
+ dir1      file2     file5     file8      file11     file14     symlink-dir
+ dir2      file3     file6     file9      file12     file15     symlink-file
+ file1     file4     file7     file10     file13     file16     symlink-file-broken
+"""
+stderr = ""
+
+[env.add]
+COLUMNS="120"
+EZA_GRID_ROWS = "3"

@@ -1,0 +1,7 @@
+args = ["-l", "--header", "--no-permissions", "--no-user", "."]
+stdout = """
+Size Date Modified Name
+   -  1 Jan  1970  dir
+   0  1 Jan  1970  file.txt
+"""
+stderr = ""

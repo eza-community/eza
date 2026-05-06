@@ -1,0 +1,14 @@
+args = ["-l", "--color=always", "--color-scale=size", "--no-permissions", "--no-user", "--no-time", "."]
+stdout = """
+   \u001B[38;2;0;104;0m9\u001B[0m 9bytes
+\u001B[1;38;2;0;104;0m9.0k\u001B[0m 9Kb
+\u001B[1;38;2;0;104;0m9.2k\u001B[0m 9Kib
+\u001B[38;2;182;179;0m9.0M\u001B[0m 9MB
+\u001B[38;2;201;199;0m9.4M\u001B[0m 9MiB
+  \u001B[38;2;0;104;0m10\u001B[0m 10bytes
+ \u001B[1;38;2;0;104;0m10k\u001B[0m 10Kb
+ \u001B[1;38;2;0;104;0m10k\u001B[0m 10Kib
+ \u001B[38;2;232;231;0m10M\u001B[0m 10MB
+ \u001B[38;2;255;255;42m10M\u001B[0m 10MiB
+"""
+stderr = ""
