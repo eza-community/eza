@@ -19,7 +19,7 @@ const SORT_FIELDS_HELP: &str = "[default: name] [possible values:
   size, inode, type, none]";
 
 const TIME_FIELDS_HELP: &str = "[possible values:
-  mod|modified, acc|accessed, ch|changed, cr|created]";
+  m|mod|r|modified, acc|accessed, ch|changed, cr|created]";
 
 const FORMAT_STYLE_FIELDS_HELP: &str = "[possible values:
   default, iso, long-iso, full-iso, relative, \"+<CUSTOM_FORMAT>\"]";
@@ -266,7 +266,7 @@ impl ValueEnum for TimeArgs {
 
     fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
         Some(match self {
-            Self::Modified => PossibleValue::new("modified").alias("mod"),
+            Self::Modified => PossibleValue::new("modified").aliases(["mod", "m", "r"]),
             Self::Changed => PossibleValue::new("changed").alias("ch"),
             Self::Accessed => PossibleValue::new("accessed").alias("acc"),
             Self::Created => PossibleValue::new("created").alias("cr"),

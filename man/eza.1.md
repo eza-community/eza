@@ -239,7 +239,7 @@ These options are available when running with `--long` (`-l`):
 `-t`, `--time=WORD`
 : Which timestamp field to list.
 
-: Valid timestamp fields are ‘`modified`’, ‘`changed`’, ‘`accessed`’, and ‘`created`’.
+: Valid timestamp fields are ‘`modified`’ (also ‘`mod`’, ‘`m`’, or ‘`r`’), ‘`changed`’ (also ‘`ch`’), ‘`accessed`’ (also ‘`acc`’), and ‘`created`’ (also ‘`cr`’).  The ‘`r`’ alias means the same as ‘`modified`’ and is provided so that `eza -ltr` and similar `ls`-style invocations don't error out.
 
 `--time-style=STYLE`
 : How to format timestamps.
