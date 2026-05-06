@@ -42,21 +42,33 @@ genDemo:
 
 # run unit tests
 [group('testing')]
-@test: unit-tests integration-tests
+@test: unit-tests cli-tests
 
 [group('testing')]
 @unit-tests:
-    cargo --locked test -- --skip cli_tests --quiet
+    cargo --locked test -- --skip cli_tests.sh --quiet
+
+@cli-tests: cli-tests-local cli-tests-docker
 
 [group('testing')]
-@integration-tests:
-    docker compose -f tests/docker-compose.yml run --build --rm tests sh -c \
-        "cargo --locked test -- --test cli_tests --test-threads 1; \
-        cargo --locked test --no-default-features -- --test no_git --test-threads 1"
+@cli-tests-local:
+    sh tests/run-cli_tests.sh
+
+@cli-tests-local-regen:
+    TRYCMD=overwrite sh tests/run-cli_tests.sh
 
 [group('testing')]
-integration-tests-regen:
-    docker compose -f tests/docker-compose.yml run --build --rm tests sh tests/regen-tests-assertions.sh
+@cli-tests-docker:
+    docker compose -f tests/docker-compose.yml run --build --rm tests \
+        sh tests/run-cli_tests.sh
+
+[group('testing')]
+@cli-tests-docker-regen:
+    docker compose -f tests/docker-compose.yml run --build --rm --env TRYCMD=overwrite tests \
+        sh tests/run-cli_tests.sh
+
+@cli-tests-docker-shell:
+    docker compose -f tests/docker-compose.yml run --rm tests bash
 
 # run unit tests (in release mode)
 [group('testing')]

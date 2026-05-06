@@ -14,7 +14,7 @@ services:
       - cargo_cache:/home/eza_test/.cargo/registry
       - test_data:/workspace/tests/data
     cap_add:
-      - CAP_SYS_ADMIN
+      - CAP_SYS_ADMIN  # to be able to set security attributes (setfattr)
 
 volumes:
   build_cache:

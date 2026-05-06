@@ -178,5 +178,5 @@ jobs:
       - name: Install test dependencies
         uses: extractions/setup-just@v4
 
-      - name: Run integration tests
-        run: just integration-tests
+      - name: Run cli tests
+        run: just cli-tests-docker

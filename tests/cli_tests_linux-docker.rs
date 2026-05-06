@@ -11,7 +11,7 @@ use crate::cli_tests_helpers::AllocateFileSize;
 
 #[test]
 fn cli_tests_linux_docker_date() {
-    let test_dir = TestDirectory::new("linux", "date");
+    let test_dir = TestDirectory::new("linux_docker", "date");
 
     use std::thread;
     use std::time::Duration;
@@ -54,7 +54,7 @@ fn cli_tests_linux_docker_date() {
 
 #[test]
 fn cli_tests_linux_docker_date_current_year() {
-    let test_dir = TestDirectory::new("linux", "date_current_year");
+    let test_dir = TestDirectory::new("linux_docker", "date_current_year");
 
     use chrono::{Datelike, Local, TimeZone};
 
@@ -89,7 +89,7 @@ fn cli_tests_linux_docker_date_current_year() {
 
 #[test]
 fn cli_tests_linux_docker_groups() {
-    let test_dir = TestDirectory::new("linux", "groups");
+    let test_dir = TestDirectory::new("linux_docker", "groups");
 
     test_dir.create_files(&["eza_test", "eza_group", "eza_group2"]);
 
@@ -100,7 +100,7 @@ fn cli_tests_linux_docker_groups() {
 
 #[test]
 fn cli_tests_linux_docker_size() {
-    let test_dir = TestDirectory::new("linux", "size");
+    let test_dir = TestDirectory::new("linux_docker", "size");
 
     for i in 9..11 {
         test_dir.create_file(format!("{i}bytes")).fill(i);
@@ -115,7 +115,7 @@ fn cli_tests_linux_docker_size() {
 
 #[test]
 fn cli_tests_linux_docker_views() {
-    let test_dir = TestDirectory::new("linux", "views");
+    let test_dir = TestDirectory::new("linux_docker", "views");
 
     test_dir.create_dirs(&["dir1", "dir2", "dir2/subdir"]);
 
@@ -154,7 +154,7 @@ fn cli_tests_linux_docker_weird_filenames() {
 
     use nu_ansi_term::Color;
 
-    let test_dir = TestDirectory::new("linux", "weird_filenames");
+    let test_dir = TestDirectory::new("linux_docker", "weird_filenames");
 
     test_dir.create_dirs(&["new-line-dir: [\n]"]);
 
@@ -200,7 +200,7 @@ fn cli_tests_linux_docker_weird_filenames() {
 
 #[test]
 fn cli_tests_linux_docker_xattr() {
-    let test_dir = TestDirectory::new("linux", "xattr");
+    let test_dir = TestDirectory::new("linux_docker", "xattr");
 
     test_dir.create_files(&["file_no_attributes", "file_attributes", "file_selinux"]);
     test_dir.create_dirs(&["dir_no_attributes", "dir_attributes", "dir_selinux"]);

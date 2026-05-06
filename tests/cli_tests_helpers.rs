@@ -9,6 +9,10 @@ use std::path::{self, Path, PathBuf};
 use std::process::Command;
 use std::time::SystemTime;
 
+const ENV_VARS_TO_KEEP_STARTS_WITH: &[&str] = &["RUST", "TRYCMD", "TERM"];
+const ENV_VARS_TO_SET: &[(&str, &str)] =
+    &[("LANG", "en_US.UTF-8"), ("EZA_CONFIG_DIR", "/dev/null")];
+
 pub struct TestDirectory {
     data_path: PathBuf,
     spec_path: PathBuf,
@@ -181,12 +185,35 @@ impl Drop for TestDirectory {
         // This will change the CWD of the whole process,
         // so the tests must be run in single thread mode.
         env::set_current_dir(&self.data_path).unwrap();
-        trycmd::TestCases::new()
-            .case(format!("{spec_path}/*.toml"))
-            .env("EZA_CONFIG_DIR", "/dev/null/")
-            .default_bin_name("eza")
-            .run();
+        // Similarly, these are unsafe unless run in a single-threaded program.
+        unsafe {
+            for (key, _) in std::env::vars_os() {
+                if let Ok(key_string) = key.into_string()
+                    && !ENV_VARS_TO_KEEP_STARTS_WITH
+                        .iter()
+                        .any(|pat| key_string.starts_with(pat))
+                {
+                    env::remove_var(key_string);
+                }
+            }
+            for (key, value) in ENV_VARS_TO_SET {
+                env::set_var(key, value);
+            }
+        }
+
+        // if a tests fails, catch the panic…
+        let result = std::panic::catch_unwind(|| {
+            trycmd::TestCases::new()
+                .case(format!("{spec_path}/*.toml"))
+                .default_bin_name("eza")
+                .run();
+        });
+        // …let’s still reset current dir…
         env::set_current_dir(&self.initial_dir_path).unwrap();
+        // …then resume panic!! :3
+        if let Err(e) = result {
+            std::panic::resume_unwind(e);
+        }
     }
 }
 
