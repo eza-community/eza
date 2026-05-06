@@ -62,7 +62,7 @@ LONG VIEW OPTIONS:
       --smart-group          only show group if it has a different name from owner
   -n, --numeric              show user and group as their numeric IDs
   -t, --time <FIELD>         which timestamp field to show [possible values:
-                               mod|modified, acc|accessed, ch|changed, cr|created]
+                               m|mod|r|modified, acc|accessed, ch|changed, cr|created]
   -m, --modified             show the modified timestamp field (replace default field, combinable)
   -u, --accessed             show the accessed timestamp field (replace default field, combinable)
       --changed              show the changed timestamp field (replace default field, combinable)

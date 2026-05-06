@@ -584,6 +584,39 @@ mod tests {
     }
 
     #[test]
+    fn deduce_time_types_modified_alias_r() {
+        assert_eq!(
+            TimeTypes::deduce(&mock_cli(vec!["--time", "r"])),
+            Ok(TimeTypes {
+                modified: true,
+                ..TimeTypes::default()
+            })
+        );
+    }
+
+    #[test]
+    fn deduce_time_types_modified_alias_m() {
+        assert_eq!(
+            TimeTypes::deduce(&mock_cli(vec!["--time", "m"])),
+            Ok(TimeTypes {
+                modified: true,
+                ..TimeTypes::default()
+            })
+        );
+    }
+
+    #[test]
+    fn deduce_time_types_modified_alias_mod() {
+        assert_eq!(
+            TimeTypes::deduce(&mock_cli(vec!["--time", "mod"])),
+            Ok(TimeTypes {
+                modified: true,
+                ..TimeTypes::default()
+            })
+        );
+    }
+
+    #[test]
     fn deduce_time_types_accessed_word() {
         assert_eq!(
             TimeTypes::deduce(&mock_cli(vec!["--time", "accessed"])),
