@@ -69,29 +69,31 @@ pub struct Theme {
 impl Options {
     #[must_use]
     pub fn to_theme(&self, isatty: bool) -> Theme {
-        if self.use_colours == UseColours::Never
-            || (self.use_colours == UseColours::Automatic && !isatty)
-        {
-            let ui = UiStyles::plain();
-            let exts = Box::new(NoFileStyle);
-            return Theme { ui, exts };
-        }
+        let use_colors = self.use_colours != UseColours::Never
+            && (self.use_colours != UseColours::Automatic || isatty);
 
         #[cfg(windows)]
-        if nu_ansi_term::enable_ansi_support().is_err() {
-            // Failed to enable ansi support, probably because legacy mode console.
-            // No need to alert the user unless they explicitly set color=always
-            if self.use_colours == UseColours::Always {
-                eprintln!("eza: Ignoring option color=always in legacy console.");
+        let use_colors = use_colors && {
+            if nu_ansi_term::enable_ansi_support().is_err() {
+                // Failed to enable ansi support, probably because legacy mode console.
+                // No need to alert the user unless they explicitly set color=always
+                if self.use_colours == UseColours::Always {
+                    eprintln!("eza: Ignoring option color=always in legacy console.");
+                }
+                false
+            } else {
+                true
             }
-            let ui = UiStyles::plain();
-            let exts = Box::new(NoFileStyle);
-            return Theme { ui, exts };
-        }
+        };
 
         match self.theme_config {
             Some(ref theme) => {
                 if let Some(mut ui) = theme.to_theme() {
+                    // If colors are disabled, strip color information but keep other styling
+                    if !use_colors {
+                        ui = ui.plain_colors();
+                    }
+
                     let (exts, use_default_filetypes) = self.definitions.parse_color_vars(&mut ui);
                     let exts: Box<dyn FileStyle> =
                         match (exts.is_non_empty(), use_default_filetypes) {
@@ -102,14 +104,18 @@ impl Options {
                         };
                     return Theme { ui, exts };
                 }
-                self.default_theme()
+                self.default_theme_with_colors(use_colors)
             }
-            None => self.default_theme(),
+            None => self.default_theme_with_colors(use_colors),
         }
     }
 
-    fn default_theme(&self) -> Theme {
-        let mut ui = UiStyles::default_theme(self.colour_scale);
+    fn default_theme_with_colors(&self, use_colors: bool) -> Theme {
+        let mut ui = if use_colors {
+            UiStyles::default_theme(self.colour_scale)
+        } else {
+            UiStyles::plain()
+        };
         let (exts, use_default_filetypes) = self.definitions.parse_color_vars(&mut ui);
         let exts: Box<dyn FileStyle> = match (exts.is_non_empty(), use_default_filetypes) {
             (false, false) => Box::new(NoFileStyle),
