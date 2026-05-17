@@ -79,9 +79,18 @@ mod test {
             QuoteStyle::QuoteSpaces,
         );
         assert_eq!(bits.len(), 3);
-        assert_eq!(format!("{}", bits[0]), format!("{}", good.dimmed().paint("'")));
-        assert_eq!(format!("{}", bits[2]), format!("{}", good.dimmed().paint("'")));
-        assert_eq!(format!("{}", bits[1]), format!("{}", good.paint("file name")));
+        assert_eq!(
+            format!("{}", bits[0]),
+            format!("{}", good.dimmed().paint("'"))
+        );
+        assert_eq!(
+            format!("{}", bits[2]),
+            format!("{}", good.dimmed().paint("'"))
+        );
+        assert_eq!(
+            format!("{}", bits[1]),
+            format!("{}", good.paint("file name"))
+        );
     }
 
     #[test]
