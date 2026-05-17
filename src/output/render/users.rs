@@ -29,10 +29,10 @@ impl Render for Option<f::User> {
             (UserFormat::Name, Some(user)) => user.name().to_string_lossy().into(),
         };
 
-        let style = if users.get_current_uid() == uid {
-            colours.you()
-        } else if uid == 0 {
+        let style = if uid == 0 {
             colours.root()
+        } else if users.get_current_uid() == uid {
+            colours.you()
         } else {
             colours.other()
         };
@@ -65,9 +65,19 @@ pub mod test {
     #[rustfmt::skip]
     impl Colours for TestColours {
         fn you(&self)          -> Style { Red.bold() }
-        fn other(&self) -> Style { Blue.underline() }
+        fn other(&self)        -> Style { Blue.underline() }
         fn root(&self)         -> Style { Blue.underline() }
         fn no_user(&self)      -> Style { Black.italic() }
+    }
+
+    struct DistinctTestColours;
+
+    #[rustfmt::skip]
+    impl Colours for DistinctTestColours {
+        fn you(&self)     -> Style { Red.bold() }
+        fn other(&self)  -> Style { Blue.underline() }
+        fn root(&self)    -> Style { Green.bold() }
+        fn no_user(&self) -> Style { Black.italic() }
     }
 
     #[test]
@@ -95,6 +105,32 @@ pub mod test {
         assert_eq!(expected, user.render(&TestColours, &users, UserFormat::Name));
         #[rustfmt::skip]
         assert_eq!(expected, user.render(&TestColours, &users, UserFormat::Numeric));
+    }
+
+    #[test]
+    fn root_file_uses_root_colour_when_current_is_root() {
+        let mut users = MockUsers::with_current_uid(0);
+        users.add_user(User::new(0, "root", 0));
+
+        let user = Some(f::User(0));
+        let expected = TextCell::paint_str(Green.bold(), "root");
+        assert_eq!(
+            expected,
+            user.render(&DistinctTestColours, &users, UserFormat::Name)
+        );
+    }
+
+    #[test]
+    fn other_user_uses_other_colour_when_current_is_root() {
+        let mut users = MockUsers::with_current_uid(0);
+        users.add_user(User::new(1000, "enoch", 100));
+
+        let user = Some(f::User(1000));
+        let expected = TextCell::paint_str(Blue.underline(), "enoch");
+        assert_eq!(
+            expected,
+            user.render(&DistinctTestColours, &users, UserFormat::Name)
+        );
     }
 
     #[test]
