@@ -129,7 +129,10 @@ fn update_information_recursively(
     r: Option<RecurseOptions>,
 ) {
     for file in files {
-        if information.options.age {
+        let skip_dir_for_age_scale =
+            information.options.age && file.is_directory() && r.is_some_and(|opts| opts.tree);
+
+        if information.options.age && !skip_dir_for_age_scale {
             Extremes::update(
                 file.created_time()
                     .map(|x| x.and_utc().timestamp_millis() as f32),
@@ -160,13 +163,7 @@ fn update_information_recursively(
             Extremes::update(size, &mut information.size);
         }
 
-        // We don't want to recurse into . and .., but still want to list them, therefore bypass
-        // the dot_filter.
-        if file.is_directory()
-            && r.is_some_and(|x| !x.is_too_deep(depth.0))
-            && file.name != "."
-            && file.name != ".."
-        {
+        if should_recurse_for_color_scale(&file.name, file.is_directory(), depth, r) {
             match file.read_dir() {
                 Ok(dir) => {
                     let files: Vec<File<'_>> = dir
@@ -187,6 +184,33 @@ fn update_information_recursively(
             }
         }
     }
+}
+
+/// Whether to descend into a directory while gathering gradient extremes.
+fn should_recurse_for_color_scale(
+    name: &str,
+    is_directory: bool,
+    depth: TreeDepth,
+    r: Option<RecurseOptions>,
+) -> bool {
+    if !is_directory {
+        return false;
+    }
+
+    if !r.is_some_and(|opts| !opts.is_too_deep(depth.0)) {
+        return false;
+    }
+
+    if name == ".." {
+        return false;
+    }
+
+    // Tree listings of "." only pass the directory itself; descend so child files are included.
+    if name == "." {
+        return r.is_some_and(|opts| opts.tree && depth.0 == 0);
+    }
+
+    true
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -215,6 +239,42 @@ impl Extremes {
             }
             _ => (),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn recurse_into_dot_only_for_tree_at_root() {
+        let tree = Some(RecurseOptions {
+            tree: true,
+            max_depth: Some(2),
+        });
+        let recurse = Some(RecurseOptions {
+            tree: false,
+            max_depth: None,
+        });
+
+        assert!(should_recurse_for_color_scale(
+            ".",
+            true,
+            TreeDepth::root(),
+            tree
+        ));
+        assert!(!should_recurse_for_color_scale(
+            ".",
+            true,
+            TreeDepth::root(),
+            recurse,
+        ));
+        assert!(!should_recurse_for_color_scale(
+            ".",
+            true,
+            TreeDepth(1),
+            tree
+        ));
     }
 }
 
