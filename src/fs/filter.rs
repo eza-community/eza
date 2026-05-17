@@ -99,7 +99,7 @@ impl FileFilter {
     pub fn filter_child_files(&self, is_recurse: bool, files: &mut Vec<File<'_>>) {
         use FileFilterFlags::{NoSymlinks, OnlyDirs, OnlyFiles, ShowSymlinks};
 
-        files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
+        files.retain(|f| !self.ignore_patterns.is_ignored_with_path(f));
         files.retain(|f| {
             match (
                 self.flags.contains(&OnlyDirs),
@@ -129,7 +129,7 @@ impl FileFilter {
     /// `exa -I='*.ogg' music/*` should filter out the ogg files obtained
     /// from the glob, even though the globbing is done by the shell!
     pub fn filter_argument_files(&self, files: &mut Vec<File<'_>>) {
-        files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
+        files.retain(|f| !self.ignore_patterns.is_ignored_with_path(&f));
     }
 
     /// Sort the files in the given vector based on the sort field option.
@@ -376,6 +376,10 @@ impl IgnorePatterns {
     /// Test whether the given file should be hidden from the results.
     fn is_ignored(&self, file: &str) -> bool {
         self.patterns.iter().any(|p| p.matches(file))
+    }
+    /// similar to is_ignored with an additional check based on path.
+    fn is_ignored_with_path(&self, file: &File) -> bool {
+        self.is_ignored(&file.name) | self.patterns.iter().any(|p| p.matches_path(&file.path))
     }
 }
 
