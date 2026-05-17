@@ -54,10 +54,17 @@ pub fn get_command() -> clap::Command {
             .value_parser(value_parser!(usize)))
 
         .next_help_heading("DISPLAY OPTIONS")
-        .arg(arg!(-F --classify <WHEN> "display type indicator by file names")
+        .arg(
+            clap::Arg::new("classify_short")
+                .short('F')
+                .help("display type indicator by file names (equivalent to --classify=always)")
+                .action(clap::ArgAction::SetTrue),
+        )
+        .arg(arg!(--classify <WHEN> "display type indicator by file names")
             .num_args(0..=1)
             .value_parser(value_parser!(ShowWhen))
-            .default_missing_value("auto"))
+            .default_missing_value("auto")
+            .conflicts_with("classify_short"))
         .arg(arg!(-X --dereference  "dereference symbolic links when displaying information"))
         .arg(arg!(--absolute "display entries with their absolute path")
             .num_args(0..=1)

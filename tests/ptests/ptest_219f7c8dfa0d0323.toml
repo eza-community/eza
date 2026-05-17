@@ -1,2 +1,2 @@
 bin.name = "eza"
-args = "tests/test_dir -F always"
+args = "tests/test_dir --classify=always"

@@ -39,6 +39,9 @@ impl Options {
 
 impl Classify {
     fn deduce(matches: &ArgMatches) -> Self {
+        if matches.get_flag("classify_short") {
+            return Self::AddFileIndicators;
+        }
         match matches.get_one("classify") {
             Some(ShowWhen::Auto) => Self::AutomaticAddFileIndicators,
             Some(ShowWhen::Always) => Self::AddFileIndicators,
@@ -110,7 +113,7 @@ mod tests {
 
     use super::*;
     use crate::options::parser::ShowWhen;
-    use crate::options::parser::test::mock_cli;
+    use crate::options::parser::test::{mock_cli, mock_cli_try};
     use crate::options::vars::test::MockVars;
     use crate::output::file_name::Absolute;
 
@@ -122,6 +125,20 @@ mod tests {
             Classify::deduce(&mock_cli(vec!["--classify"])),
             Classify::AutomaticAddFileIndicators
         );
+    }
+
+    #[test]
+    fn deduce_classify_short_flag() {
+        assert_eq!(
+            Classify::deduce(&mock_cli(vec!["-F"])),
+            Classify::AddFileIndicators
+        );
+    }
+
+    #[test]
+    fn deduce_classify_ls_style_cluster() {
+        let matches = mock_cli_try(vec!["-lAFh"]).expect("ls-style short options");
+        assert_eq!(Classify::deduce(&matches), Classify::AddFileIndicators);
     }
 
     #[test]
