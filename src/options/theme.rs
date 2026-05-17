@@ -35,10 +35,31 @@ impl Options {
     }
 }
 
+/// Expands `~`, `~/…`, `$HOME`, and `${HOME}` when the shell left them literal
+/// (for example `export EZA_CONFIG_DIR='~/eza'`).
+fn expand_config_dir(path: &str) -> PathBuf {
+    let home = dirs::home_dir();
+
+    match path {
+        "~" => home.unwrap_or_default(),
+        s if s.starts_with("~/") => home
+            .map(|h| h.join(&s[2..]))
+            .unwrap_or_else(|| PathBuf::from(s)),
+        "$HOME" | "${HOME}" => home.unwrap_or_default(),
+        s if s.starts_with("$HOME/") => home
+            .map(|h| h.join(&s[6..]))
+            .unwrap_or_else(|| PathBuf::from(s)),
+        s if s.starts_with("${HOME}/") => home
+            .map(|h| h.join(&s[8..]))
+            .unwrap_or_else(|| PathBuf::from(s)),
+        s => PathBuf::from(s),
+    }
+}
+
 impl ThemeConfig {
     fn deduce<V: Vars>(vars: &V) -> Option<Self> {
         if let Some(path) = vars.get("EZA_CONFIG_DIR") {
-            let path = PathBuf::from(path);
+            let path = expand_config_dir(&path.to_string_lossy());
             let theme = path.join("theme.yml");
             if theme.exists() {
                 return Some(ThemeConfig::from_path(theme));
@@ -175,6 +196,30 @@ mod tests {
         assert_eq!(
             UseColours::deduce(&mock_cli(vec!["--color", "auto"]), &vars),
             UseColours::Automatic
+        );
+    }
+
+    #[test]
+    fn expand_config_dir_tilde() {
+        let home = dirs::home_dir().expect("home directory");
+        assert_eq!(expand_config_dir("~"), home);
+        assert_eq!(expand_config_dir("~/eza"), home.join("eza"));
+    }
+
+    #[test]
+    fn expand_config_dir_home_var() {
+        let home = dirs::home_dir().expect("home directory");
+        assert_eq!(expand_config_dir("$HOME"), home);
+        assert_eq!(expand_config_dir("$HOME/eza"), home.join("eza"));
+        assert_eq!(expand_config_dir("${HOME}"), home);
+        assert_eq!(expand_config_dir("${HOME}/eza"), home.join("eza"));
+    }
+
+    #[test]
+    fn expand_config_dir_absolute_unchanged() {
+        assert_eq!(
+            expand_config_dir("/etc/eza"),
+            PathBuf::from("/etc/eza")
         );
     }
 }
