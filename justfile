@@ -286,9 +286,10 @@ alias c := cross
 @mangen:
     # Setup Output Directory
     mkdir -p ./target/"man-$(convco version)"
-    pandoc --standalone -f markdown -t man man/eza.1.md > ./target/"man-$(convco version)"/eza.1
-    pandoc --standalone -f markdown -t man man/eza_colors.5.md > ./target/"man-$(convco version)"/eza_colors.5
-    pandoc --standalone -f markdown -t man man/eza_colors-explanation.5.md > ./target/"man-$(convco version)"/eza_colors-explanation.5
+    version=$(awk 'BEGIN { FS = "\"" } ; /^version/ { print $2 ; exit }' Cargo.toml); \
+    for page in eza.1 eza_colors.5 eza_colors-explanation.5; do \
+        sed "s/\$version/v${version}/g" "man/${page}.md" | pandoc --standalone -f markdown -t man > "./target/man-$(convco version)/${page}"; \
+    done
     tar czvf ./target/"man-$(convco version)".tar.gz ./target/"man-$(convco version)"
 
 [group('documentation')]
