@@ -246,6 +246,16 @@ impl<C: Colours> FileName<'_, '_, C> {
             bits.push(style.paint(" ".repeat(spaces_count as usize)));
         }
 
+        let hyperlink_start_tag = if !self.file.name.is_empty() {
+            self.hyperlink_start_tag()
+        } else {
+            None
+        };
+
+        if let Some(tag) = hyperlink_start_tag.as_ref() {
+            bits.push(ANSIString::from(tag.clone()));
+        }
+
         if self.file.parent_dir.is_none()
             && self.options.absolute == Absolute::Off
             && let Some(parent) = self.file.path.parent()
@@ -263,6 +273,10 @@ impl<C: Colours> FileName<'_, '_, C> {
             for bit in self.escaped_file_name(filename_style_override) {
                 bits.push(bit);
             }
+        }
+
+        if hyperlink_start_tag.is_some() {
+            bits.push(ANSIString::from(escape::HYPERLINK_CLOSING));
         }
 
         if let (LinkStyle::FullLinkPaths, Some(target)) = (self.link_style, self.target.as_ref()) {
@@ -402,8 +416,6 @@ impl<C: Colours> FileName<'_, '_, C> {
     /// Returns at least one ANSI-highlighted string representing this file’s
     /// name using the given set of colours.
     ///
-    /// If --hyperlink flag is provided, it will escape the filename accordingly.
-    ///
     /// Ordinarily, this will be just one string: the file’s complete name,
     /// coloured according to its file type. If the name contains control
     /// characters such as newlines or escapes, though, we can’t just print them
@@ -418,7 +430,18 @@ impl<C: Colours> FileName<'_, '_, C> {
         let file_style = style_override.unwrap_or(self.style());
         let mut bits = Vec::new();
 
-        let mut display_hyperlink = false;
+        escape(
+            self.display_name(),
+            &mut bits,
+            file_style,
+            self.colours.control_char(),
+            self.options.quote_style,
+        );
+
+        bits
+    }
+
+    fn hyperlink_start_tag(&self) -> Option<String> {
         let should_embed_hyperlinks = match self.options.embed_hyperlinks {
             EmbedHyperlinks::Never => false,
             EmbedHyperlinks::Automatic => self.options.is_a_tty,
@@ -430,24 +453,10 @@ impl<C: Colours> FileName<'_, '_, C> {
                 .absolute_path()
                 .and_then(|p| p.as_os_str().to_str())
         {
-            bits.push(ANSIString::from(escape::get_hyperlink_start_tag(abs_path)));
-
-            display_hyperlink = true;
+            Some(escape::get_hyperlink_start_tag(abs_path))
+        } else {
+            None
         }
-
-        escape(
-            self.display_name(),
-            &mut bits,
-            file_style,
-            self.colours.control_char(),
-            self.options.quote_style,
-        );
-
-        if display_hyperlink {
-            bits.push(ANSIString::from(escape::HYPERLINK_CLOSING));
-        }
-
-        bits
     }
 
     /// Returns the string that should be displayed as the file's name.
@@ -541,4 +550,128 @@ pub trait Colours: FiletypeColours {
     fn colour_file(&self, file: &File<'_>) -> Style;
 
     fn style_override(&self, file: &File<'_>) -> Option<FileNameStyle>;
+}
+
+#[cfg(test)]
+mod test {
+    use std::path::PathBuf;
+
+    use super::*;
+
+    #[derive(Copy, Clone)]
+    struct TestColours;
+
+    impl FiletypeColours for TestColours {
+        fn normal(&self) -> Style {
+            Style::default()
+        }
+
+        fn directory(&self) -> Style {
+            Style::default()
+        }
+
+        fn pipe(&self) -> Style {
+            Style::default()
+        }
+
+        fn symlink(&self) -> Style {
+            Style::default()
+        }
+
+        fn block_device(&self) -> Style {
+            Style::default()
+        }
+
+        fn char_device(&self) -> Style {
+            Style::default()
+        }
+
+        fn socket(&self) -> Style {
+            Style::default()
+        }
+
+        fn special(&self) -> Style {
+            Style::default()
+        }
+    }
+
+    impl Colours for TestColours {
+        fn symlink_path(&self) -> Style {
+            Style::default()
+        }
+
+        fn normal_arrow(&self) -> Style {
+            Style::default()
+        }
+
+        fn broken_symlink(&self) -> Style {
+            Style::default()
+        }
+
+        fn broken_filename(&self) -> Style {
+            Style::default()
+        }
+
+        fn control_char(&self) -> Style {
+            Style::default()
+        }
+
+        fn broken_control_char(&self) -> Style {
+            Style::default()
+        }
+
+        fn executable_file(&self) -> Style {
+            Style::default()
+        }
+
+        fn mount_point(&self) -> Style {
+            Style::default()
+        }
+
+        fn colour_file(&self, _file: &File<'_>) -> Style {
+            Style::default()
+        }
+
+        fn style_override(&self, _file: &File<'_>) -> Option<FileNameStyle> {
+            None
+        }
+    }
+
+    #[test]
+    fn hyperlink_wraps_displayed_parent_path_for_argument_paths() {
+        let path = PathBuf::from("tests/itest/index.svg");
+        let file = File::from_args(path.clone(), None, None, false, false, None);
+        let options = Options {
+            classify: Classify::JustFilenames,
+            show_icons: ShowIcons::Never,
+            quote_style: QuoteStyle::NoQuotes,
+            embed_hyperlinks: EmbedHyperlinks::Always,
+            absolute: Absolute::Off,
+            is_a_tty: false,
+        };
+
+        let rendered = options
+            .for_file(&file, &TestColours)
+            .paint()
+            .strings()
+            .to_string();
+        let abs_path = std::fs::canonicalize(path).unwrap();
+        let abs_path = abs_path.to_str().unwrap();
+        let display_path = format!(
+            "{}{}{}",
+            file.path.parent().unwrap().to_string_lossy(),
+            std::path::MAIN_SEPARATOR,
+            file.name
+        );
+
+        assert_eq!(
+            rendered,
+            format!(
+                "{}{}{}",
+                escape::get_hyperlink_start_tag(abs_path),
+                display_path,
+                escape::HYPERLINK_CLOSING
+            )
+        );
+    }
 }
