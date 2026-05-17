@@ -768,16 +768,28 @@ impl<'dir> File<'dir> {
 
     /// Converts a `SystemTime` to a `NaiveDateTime` without panicking.
     ///
-    /// Fixes #655 and #667 in `Self::modified_time`, `Self::accessed_time` and
+    /// Fixes #655, #667, and #1668 in `Self::modified_time`, `Self::accessed_time` and
     /// `Self::created_time`.
     fn systemtime_to_naivedatetime(st: SystemTime) -> Option<NaiveDateTime> {
-        let duration = st.duration_since(SystemTime::UNIX_EPOCH).ok()?;
+        if let Ok(duration) = st.duration_since(SystemTime::UNIX_EPOCH) {
+            return DateTime::from_timestamp(
+                duration.as_secs().try_into().ok()?,
+                (duration.as_nanos() % 1_000_000_000).try_into().ok()?,
+            )
+            .map(|dt| dt.naive_local());
+        }
 
-        DateTime::from_timestamp(
-            duration.as_secs().try_into().ok()?,
-            (duration.as_nanos() % 1_000_000_000).try_into().ok()?,
-        )
-        .map(|dt| dt.naive_local())
+        let duration = SystemTime::UNIX_EPOCH.duration_since(st).ok()?;
+        let secs = duration.as_secs();
+        let nsecs = duration.subsec_nanos();
+
+        let (secs_adj, nsecs_adj) = if nsecs == 0 {
+            (-(secs as i64), 0u32)
+        } else {
+            (-(secs as i64) - 1, 1_000_000_000 - nsecs)
+        };
+
+        DateTime::from_timestamp(secs_adj, nsecs_adj).map(|dt| dt.naive_local())
     }
 
     /// This file’s last modified timestamp, if available on this platform.
@@ -1115,5 +1127,37 @@ mod filename_test {
     #[cfg(unix)]
     fn topmost() {
         assert_eq!("/", File::filename(Path::new("/")));
+    }
+}
+
+#[cfg(test)]
+mod systemtime_tests {
+    use super::File;
+    use std::time::{Duration, UNIX_EPOCH};
+
+    #[test]
+    fn unix_epoch() {
+        let dt = File::systemtime_to_naivedatetime(UNIX_EPOCH).unwrap();
+        assert_eq!(dt.and_utc().timestamp(), 0);
+    }
+
+    #[test]
+    fn after_epoch() {
+        let st = UNIX_EPOCH + Duration::from_secs(1_700_000_000);
+        assert!(File::systemtime_to_naivedatetime(st).is_some());
+    }
+
+    #[test]
+    fn before_epoch() {
+        let st = UNIX_EPOCH - Duration::from_secs(86_400);
+        let dt = File::systemtime_to_naivedatetime(st).unwrap();
+        assert!(dt.and_utc().timestamp() < 0);
+    }
+
+    #[test]
+    fn one_second_before_epoch() {
+        let st = UNIX_EPOCH - Duration::from_secs(1);
+        let dt = File::systemtime_to_naivedatetime(st).unwrap();
+        assert_eq!(dt.and_utc().timestamp(), -1);
     }
 }
