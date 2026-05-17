@@ -206,6 +206,8 @@ Check out the themes available in the official [eza-themes](https://github.com/e
 An example theme file is available in `docs/theme.yml`, and needs to either be placed in a directory specified by the 
 environment variable `EZA_CONFIG_DIR`, or will looked for by default in `$XDG_CONFIG_HOME/eza`.
 
+If you do not provide a `theme.yml`, eza falls back to a built-in default theme (compiled into the binary, not installed as a file). See `src/theme/default_theme.rs` for the defaults.
+
 Full details are available on the [man page](https://github.com/eza-community/eza/tree/main/man/eza_colors-explanation.5.md) and an example theme file is included [here](https://github.com/eza-community/eza/tree/main/docs/theme.yml)
 
 </details>

@@ -52,6 +52,10 @@ Now you can specify these options and more in a `theme.yml` file with convenient
 Set `EZA_CONFIG_DIR` to specify which directory you would like eza to look for your `theme.yml` file,
 otherwise eza will look for `$XDG_CONFIG_HOME/eza/theme.yml`.
 
+When no `theme.yml` is found, eza uses a **built-in default theme** compiled into the binary
+(see `src/theme/default_theme.rs` in the source tree). There is no separate default `theme.yml` on disk;
+use `docs/theme.yml` in the repository as a starting point for your own file.
+
 
 These are the available options:
 
