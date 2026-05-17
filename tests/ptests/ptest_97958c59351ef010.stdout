@@ -4196,7 +4196,7 @@ tests/test_dir/specials:
 tests/test_dir/symlinks:
 dir
 file
-' lorem ipsum'
+[2m'[0m lorem ipsum[2m'[0m
 symlink -> file
 symlink2 -> symlink
 symlink3 -> dir
