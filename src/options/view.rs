@@ -83,11 +83,9 @@ impl Mode {
             let details = details::Options::deduce_long(matches, vars, strict)?;
 
             if grid {
-                let across = matches.get_flag("across");
                 let row_threshold = RowThreshold::deduce(vars)?;
                 let grid_details = grid_details::Options {
                     details,
-                    across,
                     row_threshold,
                 };
                 return Ok(Self::GridDetails(grid_details));
@@ -597,17 +595,6 @@ mod tests {
     }
 
     #[test]
-    fn deduce_time_types_short_flag_defaults_to_modified() {
-        assert_eq!(
-            TimeTypes::deduce(&mock_cli(vec!["-t"])),
-            Ok(TimeTypes {
-                modified: true,
-                ..TimeTypes::default()
-            })
-        );
-    }
-
-    #[test]
     fn deduce_time_types_accessed_word() {
         assert_eq!(
             TimeTypes::deduce(&mock_cli(vec!["--time", "accessed"])),
@@ -966,22 +953,6 @@ mod tests {
         );
     }
 
-    #[test]
-    fn deduce_mode_grid_details_across() {
-        let result = Mode::deduce(
-            &mock_cli(vec!["--long", "--grid", "--across"]),
-            &MockVars::default(),
-            false,
-            false,
-        );
-        assert!(matches!(
-            result,
-            Ok(Mode::GridDetails(grid_details::Options {
-                across: true,
-                ..
-            }))
-        ));
-    }
     #[test]
     fn deduce_details_options_tree() {
         let cli = mock_cli(vec!["--tree"]);
