@@ -17,7 +17,8 @@ pub fn escape(
 ) {
     let bits_starting_length = bits.len();
     let needs_quotes = string.contains(' ') || string.contains('\'');
-    let quote_bit = good.paint(if string.contains('\'') { "\"" } else { "\'" });
+    let quote_style_for_quotes = good.dimmed();
+    let quote_bit = quote_style_for_quotes.paint(if string.contains('\'') { "\"" } else { "\'" });
 
     if string
         .chars()
@@ -64,6 +65,24 @@ pub fn get_hyperlink_start_tag(abs_path: &str) -> String {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn quotes_use_dimmed_style() {
+        let good = Style::default();
+        let bad = Style::default().bold();
+        let mut bits = Vec::new();
+        escape(
+            "file name".into(),
+            &mut bits,
+            good,
+            bad,
+            QuoteStyle::QuoteSpaces,
+        );
+        assert_eq!(bits.len(), 3);
+        assert_eq!(format!("{}", bits[0]), format!("{}", good.dimmed().paint("'")));
+        assert_eq!(format!("{}", bits[2]), format!("{}", good.dimmed().paint("'")));
+        assert_eq!(format!("{}", bits[1]), format!("{}", good.paint("file name")));
+    }
 
     #[test]
     fn hyperlink_start_tag_escape_spaces() {
