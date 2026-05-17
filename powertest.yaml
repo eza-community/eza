@@ -159,6 +159,9 @@ commands:
   :
   ? - -I # TODO: add more globs
     - --ignore-glob
+  :
+  ? - null
+    - --ignore-glob-ci
   : prefix: -l
     values:
       - "*.toml"
