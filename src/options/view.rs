@@ -83,9 +83,11 @@ impl Mode {
             let details = details::Options::deduce_long(matches, vars, strict)?;
 
             if grid {
+                let across = matches.get_flag("across");
                 let row_threshold = RowThreshold::deduce(vars)?;
                 let grid_details = grid_details::Options {
                     details,
+                    across,
                     row_threshold,
                 };
                 return Ok(Self::GridDetails(grid_details));
@@ -940,6 +942,23 @@ mod tests {
             ),
             Ok(Mode::Grid(grid::Options { across: true }))
         );
+    }
+
+    #[test]
+    fn deduce_mode_grid_details_across() {
+        let result = Mode::deduce(
+            &mock_cli(vec!["--long", "--grid", "--across"]),
+            &MockVars::default(),
+            false,
+            false,
+        );
+        assert!(matches!(
+            result,
+            Ok(Mode::GridDetails(grid_details::Options {
+                across: true,
+                ..
+            }))
+        ));
     }
     #[test]
     fn deduce_details_options_tree() {

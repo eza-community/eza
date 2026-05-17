@@ -466,7 +466,6 @@ impl Exa<'_> {
             }
 
             (Mode::GridDetails(opts), Some(console_width)) => {
-                let details = &opts.details;
                 let row_threshold = opts.row_threshold;
 
                 let filter = &self.options.filter;
@@ -479,7 +478,7 @@ impl Exa<'_> {
                     files,
                     theme,
                     file_style,
-                    details,
+                    opts,
                     filter,
                     row_threshold,
                     git_ignoring,
