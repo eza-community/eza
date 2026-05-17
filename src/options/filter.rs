@@ -121,25 +121,28 @@ impl DotFilter {
 
 impl IgnorePatterns {
     /// Determines the set of glob patterns to use based on the
-    /// `--ignore-glob` argument’s value. This is a list of strings
-    /// separated by pipe (`|`) characters, given in any order.
+    /// `--ignore-glob` and `--ignore-glob-ci` argument values. Each is a list
+    /// of strings separated by pipe (`|`) characters, given in any order.
     pub fn deduce(matches: &ArgMatches) -> Result<Self, OptionsError> {
-        // If there are no inputs, we return a set of patterns that doesn’t
-        // match anything, rather than, say, `None`.
-        let Some(inputs) = matches.get_one::<String>("ignore-glob") else {
-            return Ok(Self::empty());
-        };
+        let mut patterns = Self::empty();
 
-        // Awkwardly, though, a glob pattern can be invalid, and we need to
-        // deal with invalid patterns somehow.
-        let (patterns, mut errors) = Self::parse_from_iter(inputs.split('|'));
-
-        // It can actually return more than one glob error,
-        // but we only use one. (TODO)
-        match errors.pop() {
-            Some(e) => Err(e.into()),
-            None => Ok(patterns),
+        if let Some(inputs) = matches.get_one::<String>("ignore-glob") {
+            let (parsed, mut errors) = Self::parse_from_iter(inputs.split('|'));
+            if let Some(e) = errors.pop() {
+                return Err(e.into());
+            }
+            patterns.extend(parsed);
         }
+
+        if let Some(inputs) = matches.get_one::<String>("ignore-glob-ci") {
+            let (parsed, mut errors) = Self::parse_case_insensitive_from_iter(inputs.split('|'));
+            if let Some(e) = errors.pop() {
+                return Err(e.into());
+            }
+            patterns.extend(parsed);
+        }
+
+        Ok(patterns)
     }
 }
 
@@ -199,6 +202,15 @@ mod tests {
         assert_eq!(
             IgnorePatterns::deduce(&mock_cli(vec!["--ignore-glob", "["])),
             Err(e.pop().unwrap().into())
+        );
+    }
+
+    #[test]
+    fn deduce_ignore_patterns_case_insensitive() {
+        let (expected, _) = IgnorePatterns::parse_case_insensitive_from_iter(["bar"]);
+        assert_eq!(
+            IgnorePatterns::deduce(&mock_cli(vec!["--ignore-glob-ci", "bar"])),
+            Ok(expected)
         );
     }
 

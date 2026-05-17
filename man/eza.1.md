@@ -171,6 +171,9 @@ Sort fields starting with a capital letter will sort uppercase before lowercase:
 `-I`, `--ignore-glob=GLOBS`
 : Glob patterns, pipe-separated, of files to ignore.
 
+`--ignore-glob-ci=GLOBS`
+: Like `--ignore-glob`, but matches file names case-insensitively (ASCII only).
+
 `--git-ignore` [if eza was built with git support]
 : Do not list files that are ignored by Git.
 

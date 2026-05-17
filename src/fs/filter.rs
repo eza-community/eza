@@ -324,6 +324,7 @@ impl SortField {
 #[derive(PartialEq, Eq, Default, Debug, Clone)]
 pub struct IgnorePatterns {
     patterns: Vec<glob::Pattern>,
+    case_insensitive_patterns: Vec<glob::Pattern>,
 }
 
 impl FromIterator<glob::Pattern> for IgnorePatterns {
@@ -332,7 +333,10 @@ impl FromIterator<glob::Pattern> for IgnorePatterns {
         I: IntoIterator<Item = glob::Pattern>,
     {
         let patterns = iter.into_iter().collect();
-        Self { patterns }
+        Self {
+            patterns,
+            case_insensitive_patterns: Vec::new(),
+        }
     }
 }
 
@@ -342,6 +346,19 @@ impl IgnorePatterns {
     /// don’t parse correctly are returned separately.
     pub fn parse_from_iter<'a, I: IntoIterator<Item = &'a str>>(
         iter: I,
+    ) -> (Self, Vec<glob::PatternError>) {
+        Self::parse_from_iter_with_case(iter, false)
+    }
+
+    pub fn parse_case_insensitive_from_iter<'a, I: IntoIterator<Item = &'a str>>(
+        iter: I,
+    ) -> (Self, Vec<glob::PatternError>) {
+        Self::parse_from_iter_with_case(iter, true)
+    }
+
+    fn parse_from_iter_with_case<'a, I: IntoIterator<Item = &'a str>>(
+        iter: I,
+        case_insensitive: bool,
     ) -> (Self, Vec<glob::PatternError>) {
         let iter = iter.into_iter();
 
@@ -362,7 +379,19 @@ impl IgnorePatterns {
             }
         }
 
-        (Self { patterns }, errors)
+        let result = if case_insensitive {
+            Self {
+                patterns: Vec::new(),
+                case_insensitive_patterns: patterns,
+            }
+        } else {
+            Self {
+                patterns,
+                case_insensitive_patterns: Vec::new(),
+            }
+        };
+
+        (result, errors)
     }
 
     /// Create a new empty set of patterns that matches nothing.
@@ -370,12 +399,28 @@ impl IgnorePatterns {
     pub fn empty() -> Self {
         Self {
             patterns: Vec::new(),
+            case_insensitive_patterns: Vec::new(),
         }
+    }
+
+    /// Merge another set of patterns into this one.
+    pub fn extend(&mut self, other: Self) {
+        self.patterns.extend(other.patterns);
+        self.case_insensitive_patterns
+            .extend(other.case_insensitive_patterns);
     }
 
     /// Test whether the given file should be hidden from the results.
     fn is_ignored(&self, file: &str) -> bool {
+        let case_insensitive = glob::MatchOptions {
+            case_sensitive: false,
+            ..glob::MatchOptions::new()
+        };
         self.patterns.iter().any(|p| p.matches(file))
+            || self
+                .case_insensitive_patterns
+                .iter()
+                .any(|p| p.matches_with(file, case_insensitive))
     }
 }
 
@@ -422,5 +467,23 @@ mod test_ignores {
         assert!(fails.is_empty());
         assert!(pats.is_ignored("nothing"));
         assert!(pats.is_ignored("test.mp3"));
+    }
+
+    #[test]
+    fn ignores_case_insensitive() {
+        let (pats, fails) = IgnorePatterns::parse_case_insensitive_from_iter(vec!["bar"]);
+        assert!(fails.is_empty());
+        assert!(pats.is_ignored("bar"));
+        assert!(pats.is_ignored("Bar"));
+        assert!(pats.is_ignored("BAR"));
+        assert!(!pats.is_ignored("baz"));
+    }
+
+    #[test]
+    fn case_sensitive_does_not_ignore_different_case() {
+        let (pats, fails) = IgnorePatterns::parse_from_iter(vec!["bar"]);
+        assert!(fails.is_empty());
+        assert!(pats.is_ignored("bar"));
+        assert!(!pats.is_ignored("Bar"));
     }
 }

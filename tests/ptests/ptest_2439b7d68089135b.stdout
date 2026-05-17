@@ -30,15 +30,16 @@ DISPLAY OPTIONS:
       --no-quotes                  don't quote file names with spaces
 
 FILTERING OPTIONS:
-  -a, --all...               show hidden files. Use this twice to also show the '.' and '..' directories
-  -A, --almost-all           equivalent to --all; included for compatibility with `ls -A`
-  -d, --treat-dirs-as-files  treat directories as files; don't list their contents
-  -D, --only-dirs            list only directories
-  -f, --only-files           list only files
-      --show-symlinks        explicitly show symbolic links (with --only-dirs and --only-files)
-      --no-symlinks          do not show symbolic links
-  -I, --ignore-glob <GLOBS>  glob patterns (pipe-separated) of files to ignore
-      --git-ignore           ignore files mentioned in '.gitignore'
+  -a, --all...                  show hidden files. Use this twice to also show the '.' and '..' directories
+  -A, --almost-all              equivalent to --all; included for compatibility with `ls -A`
+  -d, --treat-dirs-as-files     treat directories as files; don't list their contents
+  -D, --only-dirs               list only directories
+  -f, --only-files              list only files
+      --show-symlinks           explicitly show symbolic links (with --only-dirs and --only-files)
+      --no-symlinks             do not show symbolic links
+  -I, --ignore-glob <GLOBS>     glob patterns (pipe-separated) of files to ignore
+      --ignore-glob-ci <GLOBS>  case-insensitive glob patterns (pipe-separated) of files to ignore
+      --git-ignore              ignore files mentioned in '.gitignore'
 
 SORTING OPTIONS:
       --group-directories-first  list directories before other files
