@@ -68,6 +68,10 @@ fn main() {
                                 .filter(|s| !s.is_empty())
                                 .collect::<Vec<_>>(),
                         );
+                        if input_paths.is_empty() {
+                            // Stdin is non-tty but empty (e.g. `/dev/null` in sandboxes).
+                            input_paths = vec![OsStr::new(".")];
+                        }
                     }
                 }
             }
