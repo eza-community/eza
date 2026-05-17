@@ -257,14 +257,24 @@ mod tests {
             max_depth: None,
         });
 
-        assert!(should_recurse_for_color_scale(".", true, TreeDepth::root(), tree));
+        assert!(should_recurse_for_color_scale(
+            ".",
+            true,
+            TreeDepth::root(),
+            tree
+        ));
         assert!(!should_recurse_for_color_scale(
             ".",
             true,
             TreeDepth::root(),
             recurse,
         ));
-        assert!(!should_recurse_for_color_scale(".", true, TreeDepth(1), tree));
+        assert!(!should_recurse_for_color_scale(
+            ".",
+            true,
+            TreeDepth(1),
+            tree
+        ));
     }
 }
 
