@@ -235,11 +235,11 @@ impl ValueEnum for SortField {
             // top and oldest at the bottom. I think this is the right way round to do this:
             // “size” puts the smallest at  the top and the largest at the bottom, doesn’t it?
             Self::ModifiedDate => {
-                PossibleValue::new("date").aliases(vec!["time", "mod", "modified", "new", "newest"])
+                PossibleValue::new("date").aliases(vec!["time", "mod", "modified", "new", "oldest"])
             }
             // Similarly, “age” means that files with the least age (the newest files) get sorted
             //  at the top, and files with the most age (the oldest) at the bottom.
-            Self::ModifiedAge => PossibleValue::new("age").aliases(vec!["old", "oldest"]),
+            Self::ModifiedAge => PossibleValue::new("age").aliases(vec!["old", "newest"]),
             Self::ChangedDate => PossibleValue::new("changed").alias("ch"),
             Self::AccessedDate => PossibleValue::new("accessed").alias("acc"),
             Self::CreatedDate => PossibleValue::new("created").alias("cr"),
