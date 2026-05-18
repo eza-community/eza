@@ -1,0 +1,10 @@
+args = ["-l", "--context", "--no-time", "."]
+stdout = """
+drwxr-xr-x@ - eza_test ?                                    dir_attributes
+drwxr-xr-x  - eza_test ?                                    dir_no_attributes
+drwxr-xr-x  - eza_test unconfined_u:object_r:user_home_t:s0 dir_selinux
+.rw-r--r--@ 0 eza_test ?                                    file_attributes
+.rw-r--r--  0 eza_test ?                                    file_no_attributes
+.rw-r--r--  0 eza_test unconfined_u:object_r:user_home_t:s0 file_selinux
+"""
+stderr = ""

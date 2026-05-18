@@ -1,0 +1,6 @@
+args = ["--only-dirs", "."]
+stdout = """
+dir1
+dir2
+"""
+stderr = ""

@@ -1,0 +1,8 @@
+args = ["-l", "--modified", "--accessed", "--header", "."]
+stdout = """
+Permissions Size User     Date Modified Date Accessed Name
+.rw-r--r--     0 eza_test 15 Jun  2006  22 Dec  2009  peach
+.rw-r--r--     0 eza_test  3 Mar  2003  15 Jun  2006  pear
+.rw-r--r--     0 eza_test 22 Dec  2009   3 Mar  2003  plum
+"""
+stderr = ""

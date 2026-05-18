@@ -7,7 +7,7 @@ use clap::ArgMatches;
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
 use crate::options::parser::ShowWhen;
-use crate::options::{vars, Vars};
+use crate::options::{Vars, vars};
 use crate::output::color_scale::ColorScaleOptions;
 use crate::theme::{Definitions, Options, UseColours};
 use std::path::PathBuf;
@@ -157,6 +157,19 @@ mod tests {
     #[test]
     fn deduce_use_colors_always() {
         let vars = MockVars {
+            ..MockVars::default()
+        };
+
+        assert_eq!(
+            UseColours::deduce(&mock_cli(vec!["--color", "always"]), &vars),
+            UseColours::Always
+        );
+    }
+
+    #[test]
+    fn deduce_use_colors_always_no_color_env() {
+        let vars = MockVars {
+            no_colors: OsString::from("1"),
             ..MockVars::default()
         };
 

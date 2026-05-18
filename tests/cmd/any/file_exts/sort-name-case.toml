@@ -1,0 +1,30 @@
+args = ["--sort=Name", "."]
+stdout = """
+#SAVEFILE#
+COMPRESSED.ZIP
+DOCUMENT.XLSX
+IMAGE.PNG
+MUSIC.OGG
+Makefile
+VIDEO.AVI
+backup~
+compiled.class
+compiled.coffee
+compiled.js
+compiled.o
+compressed.deb
+compressed.tar.gz
+compressed.tar.xz
+compressed.tgz
+compressed.txz
+crypto.asc
+crypto.signature
+document.pdf
+file.tmp
+image.svg
+lossless.flac
+lossless.wav
+music.mp3
+video.wmv
+"""
+stderr = ""

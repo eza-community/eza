@@ -1,0 +1,23 @@
+args = ["--hyperlink=always", "."]
+stdout = """
+\u001B]8;;file://[CWD]/ansi:%20blue\u001B/'ansi: blue'\u001B]8;;\u001B/
+\u001B]8;;file://[CWD]/ascii:%20hello\u001B/'ascii: hello'\u001B]8;;\u001B/
+\u001B]8;;file://[CWD]/backspace:%20%08\u001B/'backspace: /u{8}'\u001B]8;;\u001B/
+\u001B]8;;file://[CWD]/bell:%20%07\u001B/'bell: /u{7}'\u001B]8;;\u001B/
+\u001B]8;;file://[CWD]/broken-target:%20[%0A]-symlink\u001B/'broken-target: [/n]-symlink'\u001B]8;;\u001B/ -> 'broken-target: [/n]'
+\u001B]8;;file://[CWD]/carriage%20return:%20%0D\u001B/'carriage return: /r'\u001B]8;;\u001B/
+\u001B]8;;file://[CWD]/emoji:%20[%F0%9F%86%92]\u001B/'emoji: [🆒]'\u001B]8;;\u001B/
+\u001B]8;;file://[CWD]/escape:%20%1B\u001B/'escape: /u{1b}'\u001B]8;;\u001B/
+\u001B]8;;file://[CWD]/form-feed:%20%0C\u001B/'form-feed: /u{c}'\u001B]8;;\u001B/
+'invalid-utf8-1: �'
+'invalid-utf8-2: �('
+'invalid-utf8-3: �('
+'invalid-utf8-4: �(�('
+\u001B]8;;file://[CWD]/new-line-dir:%20[%0A]\u001B/'new-line-dir: [/n]'\u001B]8;;\u001B/
+\u001B]8;;file://[CWD]/new-line:%20[%0A]\u001B/'new-line: [/n]'\u001B]8;;\u001B/
+\u001B]8;;file://[CWD]/new-line:%20[%0A]\u001B/'new-line: [/n]-symlink'\u001B]8;;\u001B/ -> 'new-line: [/n]'
+\u001B]8;;file://[CWD]/tab:%20%09\u001B/'tab: /t'\u001B]8;;\u001B/
+\u001B]8;;file://[CWD]/utf-8:%20p%C3%A2t%C3%A9\u001B/'utf-8: pâté'\u001B]8;;\u001B/
+\u001B]8;;file://[CWD]/vertical%20tab:%20%0B\u001B/'vertical tab: /u{b}'\u001B]8;;\u001B/
+"""
+stderr = ""

@@ -1,0 +1,39 @@
+args = ["--recurse", "--long", "--header", "--no-time", "."]
+stdout = """
+Permissions Size User     Name
+drwxr-xr-x     - eza_test dir1
+drwxr-xr-x     - eza_test dir2
+.rw-r--r--     0 eza_test file1
+.rw-r--r--     0 eza_test file2
+.rw-r--r--     0 eza_test file3
+.rw-r--r--     0 eza_test file4
+.rw-r--r--     0 eza_test file5
+.rw-r--r--     0 eza_test file6
+.rw-r--r--     0 eza_test file7
+.rw-r--r--     0 eza_test file8
+.rw-r--r--     0 eza_test file9
+.rw-r--r--     0 eza_test file10
+.rw-r--r--     0 eza_test file11
+.rw-r--r--     0 eza_test file12
+.rw-r--r--     0 eza_test file13
+.rw-r--r--     0 eza_test file14
+.rw-r--r--     0 eza_test file15
+.rw-r--r--     0 eza_test file16
+lrwxrwxrwx     - eza_test symlink-dir -> dir2
+lrwxrwxrwx     - eza_test symlink-file -> file16
+lrwxrwxrwx     - eza_test symlink-file-broken -> file17
+
+./dir1:
+
+./dir2:
+Permissions Size User     Name
+.rw-r--r--     0 eza_test file1
+.rw-r--r--     0 eza_test file2
+drwxr-xr-x     - eza_test subdir
+
+./dir2/subdir:
+Permissions Size User     Name
+.rw-r--r--     0 eza_test file1
+.rw-r--r--     0 eza_test file2
+"""
+stderr = ""

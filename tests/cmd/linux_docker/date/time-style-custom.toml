@@ -1,0 +1,7 @@
+args = ["-l", "--time-style=+%Y-%d %H:%S", "--no-permissions", "--no-filesize", "--no-user", "."]
+stdout = """
+2006-15 23:29 peach
+2003-03 00:00 pear
+2009-22 10:53 plum
+"""
+stderr = ""

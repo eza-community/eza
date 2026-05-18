@@ -1,15 +1,6 @@
 # SPDX-FileCopyrightText: 2024 Christina Sørensen
 # SPDX-License-Identifier: EUPL-1.2
 [toolchain]
-# NOTE: don't forget to also update Cargo.toml and .github/workflows/unit-tests.yml
 # At the time of writing, 1.90 is the latest version supported by OpenBSD
-channel = "1.90"
-components = [
-  "rustfmt",
-  "rustc",
-  "rust-src",
-  "rust-analyzer",
-  "cargo",
-  "clippy",
-]
-profile = "minimal"
+channel = "1.90"  # NOTE: don't forget to also update Cargo.toml
+profile = "default"

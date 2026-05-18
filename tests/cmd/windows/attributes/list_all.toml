@@ -1,0 +1,12 @@
+args = ["-l", "-a", "--header",  "--no-user", "."]
+stdout = """
+Mode  Size Date Modified Name
+-arhs    0  1 Jan  1970  all
+-a---    0  1 Jan  1970  archive
+d----    -  1 Jan  1970  dir
+---h-    0  1 Jan  1970  hidden
+-----    0  1 Jan  1970  normal
+--r--    0  1 Jan  1970  readonly
+----s    0  1 Jan  1970  system
+"""
+stderr = ""
