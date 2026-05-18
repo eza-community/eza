@@ -81,6 +81,7 @@ pub struct FileFilter {
     /// Glob patterns to ignore. Any file name that matches *any* of these
     /// patterns won’t be displayed in the list.
     pub ignore_patterns: IgnorePatterns,
+    pub ignore_patterns_caseins: IgnorePatterns,
 
     /// Whether to ignore Git-ignored patterns.
     pub git_ignore: GitIgnore,
@@ -99,7 +100,10 @@ impl FileFilter {
     pub fn filter_child_files(&self, is_recurse: bool, files: &mut Vec<File<'_>>) {
         use FileFilterFlags::{NoSymlinks, OnlyDirs, OnlyFiles, ShowSymlinks};
 
-        files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
+        files.retain(|f| {
+            !(self.ignore_patterns.is_ignored(&f.name)
+                | self.ignore_patterns_caseins.is_ignored(&f.name))
+        });
         files.retain(|f| {
             match (
                 self.flags.contains(&OnlyDirs),
@@ -129,7 +133,10 @@ impl FileFilter {
     /// `exa -I='*.ogg' music/*` should filter out the ogg files obtained
     /// from the glob, even though the globbing is done by the shell!
     pub fn filter_argument_files(&self, files: &mut Vec<File<'_>>) {
-        files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
+        files.retain(|f| {
+            !(self.ignore_patterns.is_ignored(&f.name)
+                | self.ignore_patterns_caseins.is_ignored(&f.name))
+        });
     }
 
     /// Sort the files in the given vector based on the sort field option.
