@@ -324,6 +324,7 @@ impl SortField {
 #[derive(PartialEq, Eq, Default, Debug, Clone)]
 pub struct IgnorePatterns {
     patterns: Vec<glob::Pattern>,
+    options: glob::MatchOptions,
 }
 
 impl FromIterator<glob::Pattern> for IgnorePatterns {
@@ -332,7 +333,10 @@ impl FromIterator<glob::Pattern> for IgnorePatterns {
         I: IntoIterator<Item = glob::Pattern>,
     {
         let patterns = iter.into_iter().collect();
-        Self { patterns }
+        Self {
+            patterns,
+            options: glob::MatchOptions::new(),
+        }
     }
 }
 
@@ -362,7 +366,13 @@ impl IgnorePatterns {
             }
         }
 
-        (Self { patterns }, errors)
+        (
+            Self {
+                patterns,
+                options: glob::MatchOptions::new(),
+            },
+            errors,
+        )
     }
 
     /// Create a new empty set of patterns that matches nothing.
@@ -370,12 +380,30 @@ impl IgnorePatterns {
     pub fn empty() -> Self {
         Self {
             patterns: Vec::new(),
+            options: glob::MatchOptions::new(),
         }
+    }
+    /// Create a new empty set of patterns and set case insensitive
+    #[must_use]
+    pub fn empty_insensitive() -> Self {
+        Self {
+            patterns: Vec::new(),
+            options: glob::MatchOptions {
+                case_sensitive: false,
+                ..glob::MatchOptions::new()
+            },
+        }
+    }
+    pub fn set_match_options(mut self, opts: glob::MatchOptions) -> Self {
+        self.options = opts;
+        self
     }
 
     /// Test whether the given file should be hidden from the results.
     fn is_ignored(&self, file: &str) -> bool {
-        self.patterns.iter().any(|p| p.matches(file))
+        self.patterns
+            .iter()
+            .any(|p| p.matches_with(file, self.options))
     }
 }
 
@@ -422,5 +450,17 @@ mod test_ignores {
         assert!(fails.is_empty());
         assert!(pats.is_ignored("nothing"));
         assert!(pats.is_ignored("test.mp3"));
+    }
+
+    #[test]
+    fn ignores_insensitive() {
+        let (mut pats, fails) = IgnorePatterns::parse_from_iter(vec!["nothing"]);
+        assert!(fails.is_empty());
+        pats = pats.set_match_options(glob::MatchOptions {
+            case_sensitive: false,
+            ..glob::MatchOptions::new()
+        });
+        assert!(pats.is_ignored("nothing"));
+        assert!(pats.is_ignored("NoThING"));
     }
 }
