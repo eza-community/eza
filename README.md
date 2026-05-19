@@ -134,6 +134,7 @@ eza’s options are almost, but not quite, entirely unlike `ls`’s. Quick overv
 - **--show-symlinks**: explicitly show links (with `--only-dirs`, `--only-files`, to show symlinks that match the filter)
 - **--git-ignore**: ignore files mentioned in `.gitignore`
 - **-I**, **--ignore-glob=(globs)**: glob patterns (pipe-separated) of files to ignore
+- **--ignore-glob-ci=(globs)**: glob patterns (pipe-separated) of files to ignore (case-insensitive)
 
 Pass the `--all` option twice to also show the `.` and `..` directories.
 

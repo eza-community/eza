@@ -81,6 +81,7 @@ pub struct FileFilter {
     /// Glob patterns to ignore. Any file name that matches *any* of these
     /// patterns won’t be displayed in the list.
     pub ignore_patterns: IgnorePatterns,
+    pub ignore_patterns_caseins: IgnorePatterns,
 
     /// Whether to ignore Git-ignored patterns.
     pub git_ignore: GitIgnore,
@@ -99,7 +100,10 @@ impl FileFilter {
     pub fn filter_child_files(&self, is_recurse: bool, files: &mut Vec<File<'_>>) {
         use FileFilterFlags::{NoSymlinks, OnlyDirs, OnlyFiles, ShowSymlinks};
 
-        files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
+        files.retain(|f| {
+            !(self.ignore_patterns.is_ignored(&f.name)
+                | self.ignore_patterns_caseins.is_ignored(&f.name))
+        });
         files.retain(|f| {
             match (
                 self.flags.contains(&OnlyDirs),
@@ -129,7 +133,10 @@ impl FileFilter {
     /// `exa -I='*.ogg' music/*` should filter out the ogg files obtained
     /// from the glob, even though the globbing is done by the shell!
     pub fn filter_argument_files(&self, files: &mut Vec<File<'_>>) {
-        files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
+        files.retain(|f| {
+            !(self.ignore_patterns.is_ignored(&f.name)
+                | self.ignore_patterns_caseins.is_ignored(&f.name))
+        });
     }
 
     /// Sort the files in the given vector based on the sort field option.
@@ -324,6 +331,7 @@ impl SortField {
 #[derive(PartialEq, Eq, Default, Debug, Clone)]
 pub struct IgnorePatterns {
     patterns: Vec<glob::Pattern>,
+    options: glob::MatchOptions,
 }
 
 impl FromIterator<glob::Pattern> for IgnorePatterns {
@@ -332,7 +340,10 @@ impl FromIterator<glob::Pattern> for IgnorePatterns {
         I: IntoIterator<Item = glob::Pattern>,
     {
         let patterns = iter.into_iter().collect();
-        Self { patterns }
+        Self {
+            patterns,
+            options: glob::MatchOptions::new(),
+        }
     }
 }
 
@@ -362,7 +373,13 @@ impl IgnorePatterns {
             }
         }
 
-        (Self { patterns }, errors)
+        (
+            Self {
+                patterns,
+                options: glob::MatchOptions::new(),
+            },
+            errors,
+        )
     }
 
     /// Create a new empty set of patterns that matches nothing.
@@ -370,12 +387,30 @@ impl IgnorePatterns {
     pub fn empty() -> Self {
         Self {
             patterns: Vec::new(),
+            options: glob::MatchOptions::new(),
         }
+    }
+    /// Create a new empty set of patterns and set case insensitive
+    #[must_use]
+    pub fn empty_insensitive() -> Self {
+        Self {
+            patterns: Vec::new(),
+            options: glob::MatchOptions {
+                case_sensitive: false,
+                ..glob::MatchOptions::new()
+            },
+        }
+    }
+    pub fn set_match_options(mut self, opts: glob::MatchOptions) -> Self {
+        self.options = opts;
+        self
     }
 
     /// Test whether the given file should be hidden from the results.
     fn is_ignored(&self, file: &str) -> bool {
-        self.patterns.iter().any(|p| p.matches(file))
+        self.patterns
+            .iter()
+            .any(|p| p.matches_with(file, self.options))
     }
 }
 
@@ -422,5 +457,17 @@ mod test_ignores {
         assert!(fails.is_empty());
         assert!(pats.is_ignored("nothing"));
         assert!(pats.is_ignored("test.mp3"));
+    }
+
+    #[test]
+    fn ignores_insensitive() {
+        let (mut pats, fails) = IgnorePatterns::parse_from_iter(vec!["nothing"]);
+        assert!(fails.is_empty());
+        pats = pats.set_match_options(glob::MatchOptions {
+            case_sensitive: false,
+            ..glob::MatchOptions::new()
+        });
+        assert!(pats.is_ignored("nothing"));
+        assert!(pats.is_ignored("NoThING"));
     }
 }
