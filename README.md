@@ -84,6 +84,11 @@ If you want to pass arguments this way, use e.g. `nix run github:eza-community/e
 eza is available for Windows, macOS and Linux. Platform and distribution
 specific installation instructions can be found in [INSTALL.md](INSTALL.md).
 
+On Windows, PowerShell 5.1 can pass quoted native-command paths that end in a
+backslash with an extra quote. For example, `eza 'C:\Program Files\'` can reach
+eza as an invalid path and report `OS error 123`. Use PowerShell 6+ (`pwsh`) or
+omit the trailing backslash, such as `eza 'C:\Program Files'`.
+
 [![Packaging status](https://repology.org/badge/vertical-allrepos/eza.svg?columns=3)](https://repology.org/project/eza/versions)
 
 ---
