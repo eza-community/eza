@@ -38,6 +38,9 @@ pub struct Options {
 
     /// Whether we are in a console or redirecting the output
     pub is_a_tty: bool,
+
+    /// Whether to show `-> <sym target>` for symlinks
+    pub show_symlink_targets: ShowSymlinkTargets,
 }
 
 impl Options {
@@ -51,6 +54,8 @@ impl Options {
         FileName {
             file,
             colours,
+            // keeping JustFilenames as default
+            // because only a few display modes show symlink target
             link_style: LinkStyle::JustFilenames,
             options: self,
             target: if file.is_link() {
@@ -150,6 +155,16 @@ pub enum QuoteStyle {
     QuoteSpaces,
 }
 
+/// Whether or not to show symlink target (-> ...)
+#[derive(PartialEq, Debug, Copy, Clone)]
+pub enum ShowSymlinkTargets {
+    /// Do not show symlink target
+    NoSymlinkTargets,
+
+    /// Show symlink target
+    ShowSymlinkTargets,
+}
+
 /// A **file name** holds all the information necessary to display the name
 /// of the given file. This is used in all of the views.
 pub struct FileName<'a, 'dir, C> {
@@ -192,6 +207,17 @@ impl<C> FileName<'_, '_, C> {
             MountStyle::JustDirectoryNames
         };
         self
+    }
+
+    /// Set the `link_style` of `FileName` to the correct style.
+    /// Because there are only a few display modes show symlink target,
+    /// I think it is a good idea to explicitly invoke a function.
+    pub fn use_symlink_targets(self) -> Self {
+        if self.options.show_symlink_targets == ShowSymlinkTargets::ShowSymlinkTargets {
+            self.with_link_paths()
+        } else {
+            self
+        }
     }
 }
 
@@ -284,6 +310,7 @@ impl<C: Colours> FileName<'_, '_, C> {
                             embed_hyperlinks: EmbedHyperlinks::Never,
                             is_a_tty: self.options.is_a_tty,
                             absolute: Absolute::Off,
+                            show_symlink_targets: self.options.show_symlink_targets,
                         };
 
                         let target_name = FileName {
