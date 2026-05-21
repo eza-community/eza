@@ -478,7 +478,14 @@ impl FileNameColours for Theme {
             .unwrap_or(self.ui.filekinds.unwrap_or_default().normal())
     }
 
- fn style_override(&self, file: &File<'_>) -> Option<FileNameStyle> {
+    fn style_override(&self, file: &File<'_>) -> Option<FileNameStyle> {
+        if file.is_directory() {
+            if let Some(ref dir_overrides) = self.ui.directorynames
+                && let Some(dir_override) = dir_overrides.get(&file.name) {
+                    return Some(*dir_override);
+                }
+        }
+
         if let Some(ref name_overrides) = self.ui.filenames
             && let Some(file_override) = name_overrides.get(&file.name) {
                 return Some(*file_override);
@@ -781,4 +788,48 @@ mod customs_test {
     test!(ls_fi_exa_txt:  ls "fi=33", exa "*.txt=31"  => colours c -> { c.filekinds().normal = Some(Yellow.normal()); }, exts [ ("*.txt", Red.normal()) ]);
     test!(ls_txt_exa_fi:  ls "*.txt=31", exa "fi=33"  => colours c -> { c.filekinds().normal = Some(Yellow.normal()); }, exts [ ("*.txt", Red.normal()) ]);
     test!(eza_fi_exa_txt: ls "", exa "fi=33:*.txt=31" => colours c -> { c.filekinds().normal = Some(Yellow.normal()); }, exts [ ("*.txt", Red.normal()) ]);
+
+    #[test]
+    fn test_directorynames_style_override() {
+        use std::collections::HashMap;
+        use crate::theme::ui_styles::FileNameStyle;
+
+        let dirnames = HashMap::from([(
+            "EZA".to_string(),
+            FileNameStyle {
+                icon: None,
+                filename: Some(Red.bold()),
+            },
+        )]);
+
+        let theme = Theme {
+            ui: UiStyles {
+                directorynames: Some(dirnames),
+                ..UiStyles::default()
+            },
+            exts: Box::new(NoFileStyle),
+        };
+
+        // Set up temporary directory
+        let tempdir = tempfile::tempdir().unwrap();
+        let dir_path = tempdir.path().join("EZA");
+        std::fs::create_dir(&dir_path).unwrap();
+
+        // Test directory behavior
+        let file = File::from_args(dir_path.clone(), None, None, false, false, None);
+        assert!(file.is_directory());
+        
+        let style = theme.style_override(&file).unwrap();
+        assert_eq!(style.filename, Some(Red.bold()));
+
+        // Teardown directory and replace with a regular file
+        std::fs::remove_dir(&dir_path).unwrap();
+        std::fs::write(&dir_path, "").unwrap();
+
+        // Test regular file behavior
+        let file = File::from_args(dir_path, None, None, false, false, None);
+        
+        assert!(!file.is_directory());
+        assert!(theme.style_override(&file).is_none());
+    }
 }
