@@ -167,20 +167,20 @@ fn git_options(options: &Options, args: &[&OsStr]) -> Option<GitCache> {
     // traversal. Without this, `eza --tree --git-ignore` run from a parent
     // of a repository misses that repository’s `.gitignore` because
     // `GitRepo::discover` only walks UP from the input paths. See #1086.
-    if options.filter.git_ignore == GitIgnore::CheckAndIgnore {
-        if let Some(recurse) = options.dir_action.recurse_options() {
-            let max_depth = recurse.max_depth.unwrap_or(usize::MAX);
-            let mut extra: Vec<PathBuf> = Vec::new();
-            for path in &paths {
-                collect_child_git_repos(path, max_depth, &mut extra);
-            }
-            paths.extend(extra);
-            // Process deepest paths first so a child repo’s discovery
-            // isn’t skipped by `GitCache`’s "already covered by an
-            // existing repo" shortcut when its parent is also in the list
-            // (e.g. listing from a parent of a submodule).
-            paths.sort_by_key(|p| std::cmp::Reverse(p.components().count()));
+    if options.filter.git_ignore == GitIgnore::CheckAndIgnore
+        && let Some(recurse) = options.dir_action.recurse_options()
+    {
+        let max_depth = recurse.max_depth.unwrap_or(usize::MAX);
+        let mut extra: Vec<PathBuf> = Vec::new();
+        for path in &paths {
+            collect_child_git_repos(path, max_depth, &mut extra);
         }
+        paths.extend(extra);
+        // Process deepest paths first so a child repo’s discovery
+        // isn’t skipped by `GitCache`’s "already covered by an
+        // existing repo" shortcut when its parent is also in the list
+        // (e.g. listing from a parent of a submodule).
+        paths.sort_by_key(|p| std::cmp::Reverse(p.components().count()));
     }
 
     Some(paths.into_iter().collect())
