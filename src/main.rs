@@ -11,8 +11,9 @@
 
 use std::env;
 use std::ffi::{OsStr, OsString};
+use std::fs as stdfs;
 use std::io::{self, ErrorKind, IsTerminal, Read, Write, stdin};
-use std::path::{Component, PathBuf};
+use std::path::{Component, Path, PathBuf};
 use std::process::exit;
 
 use nu_ansi_term::{AnsiStrings as ANSIStrings, Style};
@@ -156,10 +157,182 @@ impl Vars for LiveVars {
 /// Create a Git cache populated with the arguments that are going to be
 /// listed before they’re actually listed, if the options demand it.
 fn git_options(options: &Options, args: &[&OsStr]) -> Option<GitCache> {
-    if options.should_scan_for_git() {
-        Some(args.iter().map(PathBuf::from).collect())
-    } else {
-        None
+    if !options.should_scan_for_git() {
+        return None;
+    }
+    let mut paths: Vec<PathBuf> = args.iter().map(PathBuf::from).collect();
+
+    // When --git-ignore is on AND we’re recursing, also pre-discover child
+    // Git repositories so their `.gitignore` files are honored during the
+    // traversal. Without this, `eza --tree --git-ignore` run from a parent
+    // of a repository misses that repository’s `.gitignore` because
+    // `GitRepo::discover` only walks UP from the input paths. See #1086.
+    if options.filter.git_ignore == GitIgnore::CheckAndIgnore {
+        if let Some(recurse) = options.dir_action.recurse_options() {
+            let max_depth = recurse.max_depth.unwrap_or(usize::MAX);
+            let mut extra: Vec<PathBuf> = Vec::new();
+            for path in &paths {
+                collect_child_git_repos(path, max_depth, &mut extra);
+            }
+            paths.extend(extra);
+            // Process deepest paths first so a child repo’s discovery
+            // isn’t skipped by `GitCache`’s "already covered by an
+            // existing repo" shortcut when its parent is also in the list
+            // (e.g. listing from a parent of a submodule).
+            paths.sort_by_key(|p| std::cmp::Reverse(p.components().count()));
+        }
+    }
+
+    Some(paths.into_iter().collect())
+}
+
+/// Walk down `start` looking for directories that are Git repositories
+/// (contain a `.git` directory or file — the latter is used by submodules
+/// and worktrees) and push them to `out`. Bounded by `max_depth` which
+/// matches the `--level` flag the user already opted into; depth `0` is
+/// `start` itself.
+fn collect_child_git_repos(start: &Path, max_depth: usize, out: &mut Vec<PathBuf>) {
+    fn walk(dir: &Path, depth: usize, max_depth: usize, out: &mut Vec<PathBuf>) {
+        let entries = match stdfs::read_dir(dir) {
+            Ok(e) => e,
+            Err(_) => return,
+        };
+
+        let mut has_git = false;
+        let mut subdirs: Vec<PathBuf> = Vec::new();
+        for entry in entries.flatten() {
+            let name = entry.file_name();
+            if name == ".git" {
+                has_git = true;
+            }
+            // Only descend into real subdirectories. Skip dotfiles to avoid
+            // pointlessly walking into `.git` itself and other hidden trees.
+            if entry.file_type().map(|t| t.is_dir()).unwrap_or(false) {
+                let name_str = name.to_string_lossy();
+                if !name_str.starts_with('.') {
+                    subdirs.push(entry.path());
+                }
+            }
+        }
+
+        if has_git {
+            out.push(dir.to_path_buf());
+        }
+        if depth >= max_depth {
+            return;
+        }
+        for sub in subdirs {
+            walk(&sub, depth + 1, max_depth, out);
+        }
+    }
+    walk(start, 0, max_depth, out);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::collect_child_git_repos;
+    use std::fs;
+    use std::path::{Path, PathBuf};
+
+    /// Create a directory containing an empty `.git` directory at `path`,
+    /// simulating a Git repository for the walk-down’s purposes (it only
+    /// checks for the literal existence of `.git`, not validity).
+    fn mark_as_repo(path: &Path) {
+        fs::create_dir_all(path.join(".git")).unwrap();
+    }
+
+    /// Create a temp directory unique to this test, returning its path. The
+    /// caller is responsible for cleanup; for these tests we leave it on
+    /// disk since `std::env::temp_dir()` is auto-cleared periodically and
+    /// adding a `tempfile` dependency for one test isn’t worth it.
+    fn temp_workdir(label: &str) -> PathBuf {
+        let mut path = std::env::temp_dir();
+        path.push(format!("eza-test-{}-{}", label, std::process::id(),));
+        let _ = fs::remove_dir_all(&path);
+        fs::create_dir_all(&path).unwrap();
+        path
+    }
+
+    #[test]
+    fn finds_child_repo_under_non_repo_parent() {
+        let root = temp_workdir("child-repo");
+        mark_as_repo(&root.join("repo"));
+        let mut out = Vec::new();
+        collect_child_git_repos(&root, usize::MAX, &mut out);
+        assert_eq!(out, vec![root.join("repo")]);
+    }
+
+    #[test]
+    fn finds_nested_repo() {
+        let root = temp_workdir("nested");
+        mark_as_repo(&root.join("a/b/c/repo"));
+        let mut out = Vec::new();
+        collect_child_git_repos(&root, usize::MAX, &mut out);
+        assert_eq!(out, vec![root.join("a/b/c/repo")]);
+    }
+
+    #[test]
+    fn finds_sibling_repos() {
+        let root = temp_workdir("siblings");
+        mark_as_repo(&root.join("alpha"));
+        mark_as_repo(&root.join("beta"));
+        let mut out = Vec::new();
+        collect_child_git_repos(&root, usize::MAX, &mut out);
+        out.sort();
+        assert_eq!(out, vec![root.join("alpha"), root.join("beta")]);
+    }
+
+    #[test]
+    fn includes_start_when_it_is_a_repo() {
+        let root = temp_workdir("start-is-repo");
+        mark_as_repo(&root);
+        mark_as_repo(&root.join("submod"));
+        let mut out = Vec::new();
+        collect_child_git_repos(&root, usize::MAX, &mut out);
+        out.sort();
+        let mut expected = vec![root.clone(), root.join("submod")];
+        expected.sort();
+        assert_eq!(out, expected);
+    }
+
+    #[test]
+    fn respects_max_depth() {
+        let root = temp_workdir("max-depth");
+        mark_as_repo(&root.join("a/b/c/repo")); // depth 4
+        let mut shallow = Vec::new();
+        collect_child_git_repos(&root, 2, &mut shallow);
+        assert!(shallow.is_empty(), "depth 2 should miss repo at depth 4");
+        let mut deep = Vec::new();
+        collect_child_git_repos(&root, 5, &mut deep);
+        assert_eq!(deep, vec![root.join("a/b/c/repo")]);
+    }
+
+    #[test]
+    fn handles_dot_git_as_a_file() {
+        // Submodules use a `.git` *file* whose contents point to the real
+        // gitdir. The walker only checks existence of the entry, so files
+        // work the same as directories.
+        let root = temp_workdir("dot-git-file");
+        let submod = root.join("submod");
+        fs::create_dir_all(&submod).unwrap();
+        fs::write(submod.join(".git"), "gitdir: ../.git/modules/submod\n").unwrap();
+        let mut out = Vec::new();
+        collect_child_git_repos(&root, usize::MAX, &mut out);
+        assert_eq!(out, vec![submod]);
+    }
+
+    #[test]
+    fn does_not_descend_into_dot_directories() {
+        let root = temp_workdir("dot-dir");
+        // A `.git/` containing nested directories shouldn’t be searched.
+        // If we descended into it we’d crash on permission-denied or worse,
+        // pretend the user’s `.git/modules/foo` is a normal child repo.
+        let bogus = root.join(".git/modules/inner");
+        fs::create_dir_all(&bogus).unwrap();
+        let mut out = Vec::new();
+        collect_child_git_repos(&root, usize::MAX, &mut out);
+        // The root itself has `.git`, so it counts; nothing under it should.
+        assert_eq!(out, vec![root.clone()]);
     }
 }
 
