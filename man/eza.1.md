@@ -369,7 +369,7 @@ Specifies the separator to use when file names are piped from stdin. Defaults to
 
 ## `EZA_CONFIG_DIR`
 
-Specifies the directory where eza will look for its configuration and theme files. Defaults to `$XDG_CONFIG_HOME/eza` or `$HOME/.config/eza` if `XDG_CONFIG_HOME` is not set.
+Specifies the directory where eza will look for its configuration and theme files. Defaults to `$XDG_CONFIG_HOME/eza` when `XDG_CONFIG_HOME` is set, otherwise eza uses the platform configuration directory.
 
 EXIT STATUSES
 =============
