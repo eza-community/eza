@@ -584,6 +584,17 @@ mod tests {
     }
 
     #[test]
+    fn deduce_time_types_short_flag_defaults_to_modified() {
+        assert_eq!(
+            TimeTypes::deduce(&mock_cli(vec!["-t"])),
+            Ok(TimeTypes {
+                modified: true,
+                ..TimeTypes::default()
+            })
+        );
+    }
+
+    #[test]
     fn deduce_time_types_accessed_word() {
         assert_eq!(
             TimeTypes::deduce(&mock_cli(vec!["--time", "accessed"])),
