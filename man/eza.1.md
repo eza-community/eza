@@ -164,7 +164,7 @@ Use this twice to also show the ‘`.`’ and ‘`..`’ directories.
 
 Valid sort fields are ‘`name`’, ‘`Name`’, ‘`extension`’, ‘`Extension`’, ‘`size`’, ‘`modified`’, ‘`changed`’, ‘`accessed`’, ‘`created`’, ‘`inode`’, ‘`type`’, and ‘`none`’.
 
-The `modified` sort field has the aliases ‘`date`’, ‘`time`’, and ‘`newest`’, and its reverse order has the aliases ‘`age`’ and ‘`oldest`’.
+The `modified` sort field has the aliases ‘`date`’, ‘`time`’, and ‘`oldest`’, and its reverse order has the aliases ‘`age`’ and ‘`newest`’.
 
 Sort fields starting with a capital letter will sort uppercase before lowercase: ‘A’ then ‘B’ then ‘a’ then ‘b’. Fields starting with a lowercase letter will mix them: ‘A’ then ‘a’ then ‘B’ then ‘b’.
 

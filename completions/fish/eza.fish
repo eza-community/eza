@@ -79,7 +79,7 @@ complete -c eza -s s -l sort -d "Which field to sort by" -x -a "
     Name\t'Sort by filename (uppercase first)'
     newest\t'Sort by file modified time (newest first)'
     none\t'Do not sort files at all'
-    oldest\t'Sort by file modified time'
+    oldest\t'Sort by file modified time (oldest first)'
     size\t'Sort by file size'
     time\t'Sort by file modified time'
     type\t'Sort by file type'
