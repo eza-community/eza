@@ -102,7 +102,7 @@ palette = { version = "=0.7.5", default-features = false, features = ["std"] }
 percent-encoding = "2.3.1"
 phf = { version = "0.13.1", features = ["macros"] }
 plist = { version = "1.7.0", default-features = false }
-uutils_term_grid = "0.7.0"
+uutils_term_grid = "0.8.0"
 terminal_size = "0.4.2"
 timeago = { version = "0.6.0", default-features = false }
 unicode-width = "0.2"
