@@ -44,6 +44,14 @@ fn main() {
 
     let cli = get_command().get_matches();
 
+    if let Some(shell) = cli.get_one::<String>("gen-completions") {
+        if let Err(err) = options::completions::print_completions(shell, &mut io::stdout()) {
+            eprintln!("eza: {err}");
+            exit(2);
+        }
+        return;
+    }
+
     let stdout_istty = io::stdout().is_terminal();
     let mut input = String::new();
     let mut input_paths: Vec<&OsStr> = match cli.get_many("FILE") {

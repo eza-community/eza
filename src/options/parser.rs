@@ -37,6 +37,11 @@ pub fn get_command() -> clap::Command {
 
         .next_help_heading("META OPTIONS")
         .arg(arg!(--stdin "read file names from stdin"))
+        .arg(
+            arg!(--"gen-completions" <SHELL> "print shell completions to stdout")
+                .alias("generate-shell-completion")
+                .value_parser(["bash", "fish", "zsh", "powershell", "pwsh", "nushell", "nu"]),
+        )
         .arg(arg!(-'?' --help "Print help").action(clap::ArgAction::HelpShort))
         .arg(arg!(-v --version "Print help").action(clap::ArgAction::Version))
 

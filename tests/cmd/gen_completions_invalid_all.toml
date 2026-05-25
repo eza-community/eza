@@ -1,0 +1,3 @@
+bin.name = "eza"
+args = "--gen-completions nope"
+status.code = 2

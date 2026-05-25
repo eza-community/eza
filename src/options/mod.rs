@@ -92,6 +92,7 @@ mod view;
 
 pub use self::error::{NumberSource, OptionsError};
 
+pub mod completions;
 pub mod parser;
 
 pub mod vars;
