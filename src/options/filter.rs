@@ -42,6 +42,7 @@ impl FileFilter {
             sort_field: *matches.get_one("sort").unwrap(),
             dot_filter: DotFilter::deduce(matches, strict)?,
             ignore_patterns: IgnorePatterns::deduce(matches)?,
+            ignore_contents_patterns: IgnorePatterns::deduce_contents(matches)?,
             git_ignore: GitIgnore::deduce(matches),
         })
     }
@@ -124,9 +125,19 @@ impl IgnorePatterns {
     /// `--ignore-glob` argument’s value. This is a list of strings
     /// separated by pipe (`|`) characters, given in any order.
     pub fn deduce(matches: &ArgMatches) -> Result<Self, OptionsError> {
+        Self::deduce_from_arg(matches, "ignore-glob")
+    }
+
+    /// Determines the set of glob patterns to use based on the
+    /// `--ignore-contents` argument’s value.
+    pub fn deduce_contents(matches: &ArgMatches) -> Result<Self, OptionsError> {
+        Self::deduce_from_arg(matches, "ignore-contents")
+    }
+
+    fn deduce_from_arg(matches: &ArgMatches, arg: &str) -> Result<Self, OptionsError> {
         // If there are no inputs, we return a set of patterns that doesn’t
         // match anything, rather than, say, `None`.
-        let Some(inputs) = matches.get_one::<String>("ignore-glob") else {
+        let Some(inputs) = matches.get_one::<String>(arg) else {
             return Ok(Self::empty());
         };
 
@@ -188,6 +199,17 @@ mod tests {
 
         assert_eq!(
             IgnorePatterns::deduce(&mock_cli(vec!["--ignore-glob", "*.o"])),
+            Ok(res)
+        );
+    }
+
+    #[test]
+    fn deduce_ignore_contents_one() {
+        let pattern = OsString::from("target");
+        let (res, _) = IgnorePatterns::parse_from_iter(pattern.to_string_lossy().split('|'));
+
+        assert_eq!(
+            IgnorePatterns::deduce_contents(&mock_cli(vec!["--ignore-contents", "target"])),
             Ok(res)
         );
     }
@@ -384,6 +406,7 @@ mod tests {
                 sort_field: SortField::default(),
                 dot_filter: DotFilter::JustFiles,
                 ignore_patterns: IgnorePatterns::empty(),
+                ignore_contents_patterns: IgnorePatterns::empty(),
                 git_ignore: GitIgnore::Off,
                 no_symlinks: false,
                 show_symlinks: false,
@@ -400,6 +423,7 @@ mod tests {
                 sort_field: SortField::default(),
                 dot_filter: DotFilter::JustFiles,
                 ignore_patterns: IgnorePatterns::empty(),
+                ignore_contents_patterns: IgnorePatterns::empty(),
                 git_ignore: GitIgnore::Off,
                 no_symlinks: false,
                 show_symlinks: false,
@@ -416,6 +440,7 @@ mod tests {
                 sort_field: SortField::default(),
                 dot_filter: DotFilter::JustFiles,
                 ignore_patterns: IgnorePatterns::empty(),
+                ignore_contents_patterns: IgnorePatterns::empty(),
                 git_ignore: GitIgnore::Off,
                 no_symlinks: false,
                 show_symlinks: false,
@@ -432,6 +457,7 @@ mod tests {
                 sort_field: SortField::default(),
                 dot_filter: DotFilter::JustFiles,
                 ignore_patterns: IgnorePatterns::empty(),
+                ignore_contents_patterns: IgnorePatterns::empty(),
                 git_ignore: GitIgnore::Off,
                 no_symlinks: false,
                 show_symlinks: false,

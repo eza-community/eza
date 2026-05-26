@@ -156,6 +156,7 @@ struct Egg<'a> {
     errors:    Vec<(io::Error, Option<PathBuf>)>,
     dir:       Option<Dir>,
     file:      &'a File<'a>,
+    hide_contents: bool,
 }
 
 impl<'a> AsRef<File<'a>> for Egg<'a> {
@@ -295,6 +296,13 @@ impl<'a> Render<'a> {
 
                 let mut dir = None;
                 let follow_links = self.opts.follow_links;
+                let hide_contents = self.recurse.as_ref().is_some_and(|r| r.tree)
+                    && self.filter.ignore_contents_patterns.matches(&file.name)
+                    && (if follow_links {
+                        file.points_to_directory()
+                    } else {
+                        file.is_directory()
+                    });
                 if let Some(r) = self.recurse
                     && (if follow_links {
                         file.points_to_directory()
@@ -303,6 +311,7 @@ impl<'a> Render<'a> {
                     })
                     && r.tree
                     && !r.is_too_deep(depth.0)
+                    && !hide_contents
                 {
                     trace!("matching on read_dir");
                     match file.read_dir() {
@@ -321,6 +330,7 @@ impl<'a> Render<'a> {
                     errors,
                     dir,
                     file,
+                    hide_contents,
                 }
             })
             .collect();
@@ -353,6 +363,11 @@ impl<'a> Render<'a> {
             };
 
             rows.push(row);
+
+            if egg.hide_contents {
+                rows.push(self.render_tree_placeholder(TreeParams::new(depth.deeper(), true)));
+                continue;
+            }
 
             if let Some(ref dir) = egg.dir {
                 for file_to_add in dir.files(
@@ -428,6 +443,14 @@ impl<'a> Render<'a> {
             cells: None,
             name,
             tree,
+        }
+    }
+
+    fn render_tree_placeholder(&self, tree: TreeParams) -> Row {
+        Row {
+            tree,
+            cells: None,
+            name: TextCell::paint_str(self.theme.ui.punctuation.unwrap_or_default(), "…"),
         }
     }
 

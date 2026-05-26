@@ -82,6 +82,11 @@ pub struct FileFilter {
     /// patterns won’t be displayed in the list.
     pub ignore_patterns: IgnorePatterns,
 
+    /// Glob patterns for directories whose contents should be hidden in tree
+    /// mode. Matching directories are still shown, with a `…` placeholder
+    /// instead of their children.
+    pub ignore_contents_patterns: IgnorePatterns,
+
     /// Whether to ignore Git-ignored patterns.
     pub git_ignore: GitIgnore,
 
@@ -374,8 +379,13 @@ impl IgnorePatterns {
     }
 
     /// Test whether the given file should be hidden from the results.
-    fn is_ignored(&self, file: &str) -> bool {
+    pub fn matches(&self, file: &str) -> bool {
         self.patterns.iter().any(|p| p.matches(file))
+    }
+
+    /// Test whether the given file should be hidden from the results.
+    fn is_ignored(&self, file: &str) -> bool {
+        self.matches(file)
     }
 }
 
