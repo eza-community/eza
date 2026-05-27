@@ -479,11 +479,11 @@ impl FileNameColours for Theme {
     }
 
     fn style_override(&self, file: &File<'_>) -> Option<FileNameStyle> {
-        if file.is_directory() {
-            if let Some(ref dir_overrides) = self.ui.directorynames
-                && let Some(dir_override) = dir_overrides.get(&file.name) {
-                    return Some(*dir_override);
-                }
+        if file.is_directory()
+            && let Some(ref dir_overrides) = self.ui.directorynames
+            && let Some(dir_override) = dir_overrides.get(&file.name)
+        {
+            return Some(*dir_override);
         }
 
         if let Some(ref name_overrides) = self.ui.filenames
@@ -791,8 +791,8 @@ mod customs_test {
 
     #[test]
     fn test_directorynames_style_override() {
-        use std::collections::HashMap;
         use crate::theme::ui_styles::FileNameStyle;
+        use std::collections::HashMap;
 
         let dirnames = HashMap::from([(
             "EZA".to_string(),
@@ -818,7 +818,7 @@ mod customs_test {
         // Test directory behavior
         let file = File::from_args(dir_path.clone(), None, None, false, false, None);
         assert!(file.is_directory());
-        
+
         let style = theme.style_override(&file).unwrap();
         assert_eq!(style.filename, Some(Red.bold()));
 
@@ -828,7 +828,7 @@ mod customs_test {
 
         // Test regular file behavior
         let file = File::from_args(dir_path, None, None, false, false, None);
-        
+
         assert!(!file.is_directory());
         assert!(theme.style_override(&file).is_none());
     }
