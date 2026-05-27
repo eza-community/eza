@@ -181,6 +181,23 @@ mod tests {
     }
 
     #[test]
+    fn deduce_embed_hyperlinks_last_flag_wins() {
+        assert_eq!(
+            EmbedHyperlinks::deduce(&mock_cli(vec![
+                "--hyperlink",
+                "never",
+                "--hyperlink",
+                "always"
+            ])),
+            EmbedHyperlinks::Always
+        );
+        assert_eq!(
+            EmbedHyperlinks::deduce(&mock_cli(vec!["--hyperlink", "always", "--hyperlink"])),
+            EmbedHyperlinks::Automatic
+        );
+    }
+
+    #[test]
     fn deduce_show_icons_never_no_arg() {
         assert_eq!(
             ShowIcons::deduce(&mock_cli(vec![""]), &MockVars::default()),
