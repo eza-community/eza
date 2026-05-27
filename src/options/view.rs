@@ -32,7 +32,8 @@ impl View {
     ) -> Result<Self, OptionsError> {
         let width = TerminalWidth::deduce(matches, vars)?;
         let is_tty = io::stdout().is_terminal();
-        let mode = Mode::deduce(matches, vars, is_tty, strict)?;
+        let default_grid = is_tty || matches!(width, Set(_));
+        let mode = Mode::deduce(matches, vars, default_grid, strict)?;
         let deref_links = matches.get_flag("dereference");
         let follow_links = matches.get_flag("follow-symlinks");
         let total_size = matches.get_flag("total-size");
@@ -943,6 +944,20 @@ mod tests {
         assert_eq!(
             Mode::deduce(&mock_cli(vec![""]), &MockVars::default(), false, false),
             Ok(Mode::Lines)
+        );
+    }
+
+    #[test]
+    fn deduce_view_defaults_to_grid_with_explicit_width() {
+        assert_eq!(
+            View::deduce(
+                &mock_cli(vec!["--width", "80"]),
+                &MockVars::default(),
+                false
+            )
+            .unwrap()
+            .mode,
+            Mode::Grid(grid::Options { across: false })
         );
     }
 
