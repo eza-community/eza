@@ -5,6 +5,7 @@
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
 use clap::{ArgMatches, ValueEnum};
+use std::io::{self, IsTerminal};
 
 use crate::output::TerminalWidth::Automatic;
 
@@ -30,7 +31,7 @@ impl View {
         strict: bool,
     ) -> Result<Self, OptionsError> {
         let width = TerminalWidth::deduce(matches, vars)?;
-        let is_tty = width.actual_terminal_width().is_some();
+        let is_tty = io::stdout().is_terminal();
         let mode = Mode::deduce(matches, vars, is_tty, strict)?;
         let deref_links = matches.get_flag("dereference");
         let follow_links = matches.get_flag("follow-symlinks");
@@ -926,6 +927,22 @@ mod tests {
                 false
             ),
             Ok(Mode::Grid(grid::Options { across: false }))
+        );
+    }
+
+    #[test]
+    fn deduce_mode_defaults_to_grid_on_tty() {
+        assert_eq!(
+            Mode::deduce(&mock_cli(vec![""]), &MockVars::default(), true, false),
+            Ok(Mode::Grid(grid::Options { across: false }))
+        );
+    }
+
+    #[test]
+    fn deduce_mode_defaults_to_lines_when_not_tty() {
+        assert_eq!(
+            Mode::deduce(&mock_cli(vec![""]), &MockVars::default(), false, false),
+            Ok(Mode::Lines)
         );
     }
 
