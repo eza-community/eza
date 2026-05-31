@@ -29,6 +29,10 @@ readme = "README.md"
 homepage = "https://github.com/eza-community/eza"
 license = "EUPL-1.2"
 repository = "https://github.com/eza-community/eza"
+
+# Note: when updating version, don’t forget:
+# - to regen powertest output (for `eza --version`)
+# - to update docs/theme.yml (if docs/schema.json changed since last release)
 version = "0.23.4"
 
 
