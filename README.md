@@ -167,7 +167,7 @@ These options are available when running with `--long` (`-l`):
 - **--git-repos**: list each directory’s Git status, if tracked
 - **--git-repos-no-status**: list whether a directory is a Git repository, but not its status (faster)
 - **--no-git**: suppress Git status (always overrides `--git`, `--git-repos`, `--git-repos-no-status`)
-- **--time-style**: how to format timestamps. valid timestamp styles are ‘`default`’, ‘`iso`’, ‘`long-iso`’, ‘`full-iso`’, ‘`relative`’, or a custom style ‘`+<FORMAT>`’ (E.g., ‘`+%Y-%m-%d %H:%M`’ => ‘`2023-09-30 13:00`’. For more specifications on the format string, see the _`eza(1)` manual page_ and [chrono documentation](https://docs.rs/chrono/latest/chrono/format/strftime/index.html).).
+- **--time-style**: how to format timestamps. Valid timestamp styles are ‘`default`’, ‘`iso`’, ‘`long-iso`’, ‘`full-iso`’, ‘`relative`’, '`relative-recent[:DAYS]`', or a custom style ‘`+<FORMAT>`’ (E.g., ‘`+%Y-%m-%d %H:%M`’ => ‘`2023-09-30 13:00`’. For more specifications on the format string, see the _`eza(1)` manual page_ and [chrono documentation](https://docs.rs/chrono/latest/chrono/format/strftime/index.html).).
 - **--total-size**: show recursive directory size
 - **--no-permissions**: suppress the permissions field
 - **-o**, **--octal-permissions**: list each file's permission in octal format
@@ -181,7 +181,7 @@ Some of the options accept parameters:
 - Valid **--colo\[u\]r** options are **always**, **automatic** (or **auto** for short), and **never**.
 - Valid sort fields are **accessed**, **changed**, **created**, **extension**, **Extension**, **inode**, **modified**, **name**, **Name**, **size**, **type**, and **none**. Fields starting with a capital letter sort uppercase before lowercase. The modified field has the aliases **date**, **time**, and **newest**, while its reverse has the aliases **age** and **oldest**.
 - Valid time fields are **modified**, **changed**, **accessed**, and **created**.
-- Valid time styles are **default**, **iso**, **long-iso**, **full-iso**, and **relative**.
+- Valid time styles are **default**, **iso**, **long-iso**, **full-iso**, **relative**, and **relative-recent**.
 
 
 
