@@ -771,13 +771,30 @@ impl<'dir> File<'dir> {
     /// Fixes #655 and #667 in `Self::modified_time`, `Self::accessed_time` and
     /// `Self::created_time`.
     fn systemtime_to_naivedatetime(st: SystemTime) -> Option<NaiveDateTime> {
-        let duration = st.duration_since(SystemTime::UNIX_EPOCH).ok()?;
+        let (secs, nanos) = match st.duration_since(SystemTime::UNIX_EPOCH) {
+            // Time at or after the UNIX epoch.
+            Ok(duration) => (
+                duration.as_secs().try_into().ok()?,
+                (duration.as_nanos() % 1_000_000_000).try_into().ok()?,
+            ),
+            // Time before the UNIX epoch (#1668): `duration_since` returns an
+            // `Err` whose duration is the absolute distance back to the epoch.
+            // Negate it, and when there is a sub-second part floor towards
+            // negative infinity so the timestamp matches how Unix counts time
+            // before 1970 (otherwise these files render their date as `-`).
+            Err(err) => {
+                let duration = err.duration();
+                let mut secs: i64 = -i64::try_from(duration.as_secs()).ok()?;
+                let mut nanos = duration.subsec_nanos();
+                if nanos > 0 {
+                    secs -= 1;
+                    nanos = 1_000_000_000 - nanos;
+                }
+                (secs, nanos)
+            }
+        };
 
-        DateTime::from_timestamp(
-            duration.as_secs().try_into().ok()?,
-            (duration.as_nanos() % 1_000_000_000).try_into().ok()?,
-        )
-        .map(|dt| dt.naive_local())
+        DateTime::from_timestamp(secs, nanos).map(|dt| dt.naive_local())
     }
 
     /// This file’s last modified timestamp, if available on this platform.
@@ -1115,5 +1132,53 @@ mod filename_test {
     #[cfg(unix)]
     fn topmost() {
         assert_eq!("/", File::filename(Path::new("/")));
+    }
+}
+
+#[cfg(test)]
+mod systemtime_to_naivedatetime_test {
+    use super::File;
+    use chrono::Datelike;
+    use std::time::{Duration, SystemTime};
+
+    #[test]
+    fn post_epoch() {
+        // 2001-09-09T01:46:40 UTC == 1_000_000_000 seconds after the epoch.
+        let st = SystemTime::UNIX_EPOCH + Duration::from_secs(1_000_000_000);
+        let dt = File::systemtime_to_naivedatetime(st).expect("post-epoch time");
+        assert_eq!(dt.and_utc().timestamp(), 1_000_000_000);
+        assert_eq!(dt.and_utc().timestamp_subsec_nanos(), 0);
+        assert_eq!(dt.year(), 2001);
+    }
+
+    #[test]
+    fn epoch() {
+        let dt = File::systemtime_to_naivedatetime(SystemTime::UNIX_EPOCH).expect("epoch time");
+        assert_eq!(dt.and_utc().timestamp(), 0);
+        assert_eq!(dt.year(), 1970);
+    }
+
+    #[test]
+    fn pre_epoch() {
+        // #1668: a time before the UNIX epoch must still yield a real date
+        // rather than `None` (which renders as `-`).
+        let st = SystemTime::UNIX_EPOCH - Duration::from_secs(2_147_483_648);
+        let dt = File::systemtime_to_naivedatetime(st).expect("pre-epoch time");
+        assert_eq!(dt.and_utc().timestamp(), -2_147_483_648);
+        assert_eq!(dt.and_utc().timestamp_subsec_nanos(), 0);
+        assert!(dt.year() < 1970);
+        assert_eq!(dt.year(), 1901);
+    }
+
+    #[test]
+    fn pre_epoch_subsecond() {
+        // A pre-epoch time with a sub-second component must floor towards
+        // negative infinity so the whole-seconds value and nanos line up.
+        let st = SystemTime::UNIX_EPOCH - Duration::new(10, 250_000_000);
+        let dt = File::systemtime_to_naivedatetime(st).expect("pre-epoch subsecond time");
+        // -10.25s == -11s + 0.75s.
+        assert_eq!(dt.and_utc().timestamp(), -11);
+        assert_eq!(dt.and_utc().timestamp_subsec_nanos(), 750_000_000);
+        assert!(dt.year() < 1970);
     }
 }
