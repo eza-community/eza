@@ -8,7 +8,9 @@ use crate::options::parser::ShowWhen;
 use crate::options::vars::{self, Vars};
 use crate::options::{NumberSource, OptionsError};
 
-use crate::output::file_name::{Classify, EmbedHyperlinks, Options, QuoteStyle, ShowIcons};
+use crate::output::file_name::{
+    Classify, EmbedHyperlinks, Options, QuoteStyle, ShowIcons, ShowSymlinkTargets,
+};
 
 use clap::ArgMatches;
 
@@ -26,6 +28,8 @@ impl Options {
 
         let absolute = *matches.get_one("absolute").unwrap();
 
+        let show_symlink_targets = ShowSymlinkTargets::deduce(matches);
+
         Ok(Self {
             classify,
             show_icons,
@@ -33,6 +37,7 @@ impl Options {
             embed_hyperlinks,
             absolute,
             is_a_tty,
+            show_symlink_targets,
         })
     }
 }
@@ -99,6 +104,16 @@ impl EmbedHyperlinks {
             Some(ShowWhen::Never) | None => Self::Never,
             Some(ShowWhen::Always) => Self::Always,
             Some(ShowWhen::Auto) => Self::Automatic,
+        }
+    }
+}
+
+impl ShowSymlinkTargets {
+    pub fn deduce(matches: &ArgMatches) -> Self {
+        if matches.get_flag("no-symlink-targets") {
+            Self::NoSymlinkTargets
+        } else {
+            Self::ShowSymlinkTargets
         }
     }
 }
@@ -273,6 +288,7 @@ mod tests {
                 embed_hyperlinks: EmbedHyperlinks::Never,
                 absolute: Absolute::Off,
                 is_a_tty: true,
+                show_symlink_targets: ShowSymlinkTargets::ShowSymlinkTargets,
             })
         );
     }
