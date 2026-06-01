@@ -167,4 +167,40 @@ pub mod test {
             )
         );
     }
+
+    #[test]
+    fn rounding_down_to_float() {
+        let directory = f::Blocksize::Some(9_940);
+        let expected = TextCell {
+            width: DisplayWidth::from(4),
+            contents: vec![Fixed(66).paint("9.9"), Fixed(77).bold().paint("k")].into(),
+        };
+
+        assert_eq!(
+            expected,
+            directory.render(
+                &TestColours,
+                SizeFormat::DecimalBytes,
+                &NumericLocale::english()
+            )
+        );
+    }
+
+    #[test]
+    fn rounding_up_to_integer() {
+        let directory = f::Blocksize::Some(9_990);
+        let expected = TextCell {
+            width: DisplayWidth::from(3),
+            contents: vec![Fixed(66).paint("10"), Fixed(77).bold().paint("k")].into(),
+        };
+
+        assert_eq!(
+            expected,
+            directory.render(
+                &TestColours,
+                SizeFormat::DecimalBytes,
+                &NumericLocale::english()
+            )
+        );
+    }
 }
