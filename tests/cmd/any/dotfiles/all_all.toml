@@ -1,0 +1,8 @@
+args = ["-aa", "."]
+stdout = """
+.
+..
+.dir
+.file
+"""
+stderr = ""

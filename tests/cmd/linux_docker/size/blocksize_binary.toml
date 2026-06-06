@@ -1,0 +1,14 @@
+args = ["-l", "--blocksize", "--binary", "--no-permissions", "--no-user", "--no-time", "."]
+stdout = """
+    9 4.0Ki 9bytes
+8.8Ki  12Ki 9Kb
+9.0Ki  12Ki 9Kib
+8.6Mi 8.6Mi 9MB
+9.0Mi 9.0Mi 9MiB
+   10 4.0Ki 10bytes
+9.8Ki  12Ki 10Kb
+ 10Ki  12Ki 10Kib
+9.5Mi 9.5Mi 10MB
+ 10Mi  10Mi 10MiB
+"""
+stderr = ""

@@ -1,0 +1,30 @@
+args = ["--reverse", "."]
+stdout = """
+video.wmv
+VIDEO.AVI
+MUSIC.OGG
+music.mp3
+Makefile
+lossless.wav
+lossless.flac
+image.svg
+IMAGE.PNG
+file.tmp
+DOCUMENT.XLSX
+document.pdf
+crypto.signature
+crypto.asc
+COMPRESSED.ZIP
+compressed.txz
+compressed.tgz
+compressed.tar.xz
+compressed.tar.gz
+compressed.deb
+compiled.o
+compiled.js
+compiled.coffee
+compiled.class
+backup~
+#SAVEFILE#
+"""
+stderr = ""

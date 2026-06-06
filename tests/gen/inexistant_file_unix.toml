@@ -1,3 +1,0 @@
-bin.name = "eza"
-args = "nonexistentdir"
-status.code = 2

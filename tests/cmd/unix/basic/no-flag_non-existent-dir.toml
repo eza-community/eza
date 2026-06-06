@@ -1,0 +1,7 @@
+args = "non-existent-dir"
+status.code = 2
+stdout = ""
+# The error message is platform specific. It differs on windows.
+stderr = """
+"non-existent-dir": No such file or directory (os error 2)
+"""

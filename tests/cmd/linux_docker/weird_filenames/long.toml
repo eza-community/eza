@@ -1,0 +1,23 @@
+args = ["-l", "--no-time", "."]
+stdout = """
+.rw-r--r-- 0 eza_test 'ansi: blue'
+.rw-r--r-- 0 eza_test 'ascii: hello'
+.rw-r--r-- 0 eza_test 'backspace: /u{8}'
+.rw-r--r-- 0 eza_test 'bell: /u{7}'
+lrwxrwxrwx - eza_test 'broken-target: [/n]-symlink' -> 'broken-target: [/n]'
+.rw-r--r-- 0 eza_test 'carriage return: /r'
+.rw-r--r-- 0 eza_test 'emoji: [🆒]'
+.rw-r--r-- 0 eza_test 'escape: /u{1b}'
+.rw-r--r-- 0 eza_test 'form-feed: /u{c}'
+.rw-r--r-- 0 eza_test 'invalid-utf8-1: �'
+.rw-r--r-- 0 eza_test 'invalid-utf8-2: �('
+.rw-r--r-- 0 eza_test 'invalid-utf8-3: �('
+.rw-r--r-- 0 eza_test 'invalid-utf8-4: �(�('
+drwxr-xr-x - eza_test 'new-line-dir: [/n]'
+.rw-r--r-- 0 eza_test 'new-line: [/n]'
+lrwxrwxrwx - eza_test 'new-line: [/n]-symlink' -> 'new-line: [/n]'
+.rw-r--r-- 0 eza_test 'tab: /t'
+.rw-r--r-- 0 eza_test 'utf-8: pâté'
+.rw-r--r-- 0 eza_test 'vertical tab: /u{b}'
+"""
+stderr = ""

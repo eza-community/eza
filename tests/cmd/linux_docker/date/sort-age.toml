@@ -1,0 +1,7 @@
+args = ["-l", "--sort=age", "."]
+stdout = """
+.rw-r--r-- 0 eza_test 22 Dec  2009 plum
+.rw-r--r-- 0 eza_test 15 Jun  2006 peach
+.rw-r--r-- 0 eza_test  3 Mar  2003 pear
+"""
+stderr = ""
