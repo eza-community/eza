@@ -14,7 +14,7 @@ use crate::{
 };
 
 const SORT_FIELDS_HELP: &str = "[default: name] [possible values:
-  name, Name, .name, .Name, ext, ext, created,
+  name, Name, .name, .Name, ext, ext, path, Path, created,
   date, age, accessed, changed,
   size, inode, type, none]";
 
@@ -207,6 +207,8 @@ impl ValueEnum for SortField {
             Self::Name(SortCase::ABCabc),
             Self::NameMixHidden(SortCase::AaBbCc),
             Self::NameMixHidden(SortCase::ABCabc),
+            Self::Path(SortCase::AaBbCc),
+            Self::Path(SortCase::ABCabc),
             Self::Size,
             Self::Extension(SortCase::AaBbCc),
             Self::Extension(SortCase::ABCabc),
@@ -228,6 +230,8 @@ impl ValueEnum for SortField {
             Self::Name(SortCase::ABCabc) => PossibleValue::new("Name").alias("Filename"),
             Self::NameMixHidden(SortCase::AaBbCc) => PossibleValue::new(".name").alias(".filename"),
             Self::NameMixHidden(SortCase::ABCabc) => PossibleValue::new(".Name").alias(".Filename"),
+            Self::Path(SortCase::AaBbCc) => PossibleValue::new("path"),
+            Self::Path(SortCase::ABCabc) => PossibleValue::new("Path"),
             Self::Size => PossibleValue::new("size"),
             Self::Extension(SortCase::AaBbCc) => PossibleValue::new("ext").alias("extension"),
             Self::Extension(SortCase::ABCabc) => PossibleValue::new("Ext").alias("Extension"),

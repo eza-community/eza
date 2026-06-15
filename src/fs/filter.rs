@@ -171,6 +171,9 @@ pub enum SortField {
     /// The file name. This is the default sorting.
     Name(SortCase),
 
+    /// The full path name.
+    Path(SortCase),
+
     /// The file’s extension, with extensionless files being listed first.
     Extension(SortCase),
 
@@ -270,6 +273,9 @@ impl SortField {
 
             Self::Name(ABCabc)  => natord::compare(&a.name, &b.name),
             Self::Name(AaBbCc)  => natord::compare_ignore_case(&a.name, &b.name),
+
+            Self::Path(ABCabc) => natord::compare(a.path.to_string_lossy().as_ref(), b.path.to_string_lossy().as_ref()),
+            Self::Path(AaBbCc) => natord::compare_ignore_case(a.path.to_string_lossy().as_ref(), b.path.to_string_lossy().as_ref()),
 
             Self::Size          => a.length().cmp(&b.length()),
 

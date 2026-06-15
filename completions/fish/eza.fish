@@ -77,6 +77,8 @@ complete -c eza -s s -l sort -d "Which field to sort by" -x -a "
     modified\t'Sort by file modified time'
     name\t'Sort by filename'
     Name\t'Sort by filename (uppercase first)'
+    path\t'Sort by full path'
+    Path\t'Sort by full path (uppercase first)'
     newest\t'Sort by file modified time (newest first)'
     none\t'Do not sort files at all'
     oldest\t'Sort by file modified time'
