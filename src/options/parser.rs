@@ -316,7 +316,14 @@ impl clap::builder::TypedValueParser for TimeFormatParser {
         _arg: Option<&clap::Arg>,
         value: &std::ffi::OsStr,
     ) -> Result<Self::Value, Error> {
-        match TimeFormat::try_from_str(value.to_str().unwrap()) {
+        let Some(value) = value.to_str() else {
+            return Err(Error::raw(
+                clap::error::ErrorKind::InvalidUtf8,
+                "invalid UTF-8 in --time-style value\n",
+            )
+            .with_cmd(cmd));
+        };
+        match TimeFormat::try_from_str(value) {
             Err(s) => Err(Error::raw(clap::error::ErrorKind::InvalidValue, s).with_cmd(cmd)),
             Ok(v) => Ok(v),
         }
@@ -367,5 +374,15 @@ pub mod test {
                 .collect::<Vec<_>>(),
             ["file1", "file2"]
         );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn time_style_non_utf8_is_a_usage_error() {
+        use std::os::unix::ffi::OsStringExt;
+        // A non-UTF-8 --time-style value should be a usage error, not a panic.
+        let value = OsString::from_vec(vec![0xff, 0xfe]);
+        let result = mock_cli_try(vec![OsString::from("--time-style"), value]);
+        assert!(result.is_err());
     }
 }
