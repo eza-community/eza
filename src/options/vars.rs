@@ -5,6 +5,7 @@
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
 use std::ffi::OsString;
+use std::io::{self, IsTerminal};
 
 // General variables
 
@@ -81,6 +82,10 @@ pub static EZA_WINDOWS_ATTRIBUTES: &str = "EZA_WINDOWS_ATTRIBUTES";
 pub trait Vars {
     fn get(&self, name: &'static str) -> Option<OsString>;
 
+    fn stdout_is_terminal(&self) -> bool {
+        io::stdout().is_terminal()
+    }
+
     /// Get the variable `name` and if not set get the variable `fallback`.
     fn get_with_fallback(&self, name: &'static str, fallback: &'static str) -> Option<OsString> {
         self.get(name).or_else(|| self.get(fallback))
@@ -120,6 +125,7 @@ pub mod test {
         pub luminance: OsString,
         pub icons: OsString,
         pub time: OsString,
+        pub stdout_is_terminal: bool,
     }
 
     impl Vars for MockVars {
@@ -145,6 +151,10 @@ pub mod test {
                 "TIME_STYLE" if !self.time.is_empty() => Some(self.time.clone()),
                 _ => None,
             }
+        }
+
+        fn stdout_is_terminal(&self) -> bool {
+            self.stdout_is_terminal
         }
     }
 

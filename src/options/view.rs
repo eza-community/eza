@@ -30,8 +30,9 @@ impl View {
         strict: bool,
     ) -> Result<Self, OptionsError> {
         let width = TerminalWidth::deduce(matches, vars)?;
-        let is_tty = width.actual_terminal_width().is_some();
-        let mode = Mode::deduce(matches, vars, is_tty, strict)?;
+        let width_is_known = width.actual_terminal_width().is_some();
+        let is_tty = vars.stdout_is_terminal();
+        let mode = Mode::deduce(matches, vars, width_is_known, strict)?;
         let deref_links = matches.get_flag("dereference");
         let follow_links = matches.get_flag("follow-symlinks");
         let total_size = matches.get_flag("total-size");
@@ -548,6 +549,7 @@ impl ColorScaleOptions {
 mod tests {
     use crate::options::parser::test::mock_cli;
     use crate::options::vars::test::MockVars;
+    use crate::output::file_name::ShowIcons;
     use std::ffi::OsString;
     use std::num::ParseIntError;
 
@@ -941,6 +943,20 @@ mod tests {
             Ok(Mode::Grid(grid::Options { across: true }))
         );
     }
+
+    #[test]
+    fn deduce_view_does_not_treat_columns_as_tty() {
+        let mut vars = MockVars::default();
+        vars.set(vars::COLUMNS, &OsString::from("200"));
+
+        let view = View::deduce(&mock_cli(vec!["--icons", "auto"]), &vars, false).unwrap();
+
+        assert_eq!(view.width, Set(200));
+        assert_eq!(view.mode, Mode::Grid(grid::Options { across: false }));
+        assert_eq!(view.file_style.show_icons, ShowIcons::Automatic(1));
+        assert!(!view.file_style.is_a_tty);
+    }
+
     #[test]
     fn deduce_details_options_tree() {
         let cli = mock_cli(vec!["--tree"]);
