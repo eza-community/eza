@@ -408,7 +408,7 @@ fn current_branch(repo: &git2::Repository) -> Option<String> {
         }
     };
 
-    head.and_then(|h| h.shorthand().map(std::string::ToString::to_string))
+    head.and_then(|h| h.shorthand().ok().map(std::string::ToString::to_string))
 }
 
 impl f::SubdirGitRepo {
