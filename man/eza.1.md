@@ -274,6 +274,9 @@ Alternatively, `<FORMAT>` can be a two line string, the first line will be used 
 `--no-time`
 : Suppress the time field.
 
+`--print-total`
+: Display total number of entries listed.
+
 `--stdin`
 : When you wish to pipe directories to eza/read from stdin. Separate one per line or define custom separation char in `EZA_STDIN_SEPARATOR` env variable.
 

@@ -151,6 +151,7 @@ pub fn get_command() -> clap::Command {
         .arg(arg!(--"no-user" "suppress the user field"))
         .arg(arg!(--"no-time" "suppress the time field"))
         .arg(arg!(--"no-git" "suppress Git fields (overrides --git, --git-repos, --git-repos-no-status)"))
+        .arg(arg!(--"print-total" "display total number of entries"))
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
