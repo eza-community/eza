@@ -90,7 +90,6 @@ pub fn get_command() -> clap::Command {
             .value_parser(value_parser!(ShowWhen))
             .default_missing_value("auto"))
         .arg(arg!(--"no-quotes" "don't quote file names with spaces"))
-        .arg(arg!(--"print-total" "display total number of entries"))
 
         .next_help_heading("FILTERING OPTIONS")
         .arg(arg!(-a --all... "show hidden files. Use this twice to also show the '.' and '..' directories"))
@@ -152,6 +151,7 @@ pub fn get_command() -> clap::Command {
         .arg(arg!(--"no-user" "suppress the user field"))
         .arg(arg!(--"no-time" "suppress the time field"))
         .arg(arg!(--"no-git" "suppress Git fields (overrides --git, --git-repos, --git-repos-no-status)"))
+        .arg(arg!(--"print-total" "display total number of entries"))
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

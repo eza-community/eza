@@ -174,6 +174,7 @@ These options are available when running with `--long` (`-l`):
 - **--no-filesize**: suppress the filesize field
 - **--no-user**: suppress the user field
 - **--no-time**: suppress the time field
+- **--print-total**: display total number of entries at the end
 - **--stdin**: read file names from stdin
 
 Some of the options accept parameters:
