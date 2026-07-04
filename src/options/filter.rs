@@ -339,10 +339,34 @@ mod tests {
     }
 
     #[test]
+    fn deduce_sort_field_new() {
+        assert_eq!(
+            mock_cli(vec!["--sort", "new"]).get_one::<SortField>("sort"),
+            Some(&SortField::ModifiedAge)
+        );
+    }
+
+    #[test]
+    fn deduce_sort_field_newest() {
+        assert_eq!(
+            mock_cli(vec!["--sort", "newest"]).get_one::<SortField>("sort"),
+            Some(&SortField::ModifiedAge)
+        );
+    }
+
+    #[test]
     fn deduce_sort_field_old() {
         assert_eq!(
             mock_cli(vec!["--sort", "old"]).get_one::<SortField>("sort"),
-            Some(&SortField::ModifiedAge)
+            Some(&SortField::ModifiedDate)
+        );
+    }
+
+    #[test]
+    fn deduce_sort_field_oldest() {
+        assert_eq!(
+            mock_cli(vec!["--sort", "oldest"]).get_one::<SortField>("sort"),
+            Some(&SortField::ModifiedDate)
         );
     }
 
