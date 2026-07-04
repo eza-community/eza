@@ -32,6 +32,10 @@ pub static NO_COLOR: &str = "NO_COLOR";
 pub static EXA_COLORS: &str = "EXA_COLORS";
 pub static EZA_COLORS: &str = "EZA_COLORS";
 
+pub static EZA_CONFIG_DIR: &str = "EZA_CONFIG_DIR";
+
+pub static HOME: &str = "HOME";
+
 /// Environment variable used to switch on strict argument checking, such as
 /// complaining if an argument was specified twice, or if two conflict.
 /// This is meant to be so you don’t accidentally introduce the wrong
