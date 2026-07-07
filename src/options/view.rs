@@ -269,7 +269,11 @@ impl Columns {
 
         let file_flags = matches.get_flag("file-flags");
         let blocksize = matches.get_flag("blocksize");
-        let group = matches.get_flag("group");
+        // `--smart-group` only controls *how* the group is rendered; on its own
+        // it would have no effect because the group column is hidden unless
+        // `--group` is given. Treat it as implying `--group` so the column
+        // actually shows up.
+        let group = matches.get_flag("group") || matches.get_flag("smart-group");
         let inode = matches.get_flag("inode");
         let links = matches.get_flag("links");
         let octal = matches.get_flag("octal-permissions");
@@ -680,6 +684,21 @@ mod tests {
             GroupFormat::deduce(&mock_cli(vec![""])),
             GroupFormat::Regular
         );
+    }
+
+    #[test]
+    fn deduce_columns_smart_group_implies_group() {
+        // Regression test for #1648: `--smart-group` on its own must enable the
+        // group column, otherwise the flag has no effect.
+        let columns =
+            Columns::deduce(&mock_cli(vec!["--smart-group"]), &MockVars::default()).unwrap();
+        assert!(columns.group);
+    }
+
+    #[test]
+    fn deduce_columns_no_group_by_default() {
+        let columns = Columns::deduce(&mock_cli(vec![""]), &MockVars::default()).unwrap();
+        assert!(!columns.group);
     }
 
     #[test]
