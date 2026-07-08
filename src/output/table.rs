@@ -315,7 +315,7 @@ impl TimeType {
 /// How display file flags.
 #[derive(PartialEq, Eq, Debug, Default, Copy, Clone)]
 pub enum FlagsFormat {
-    /// Display flags as comma seperated descriptions
+    /// Display flags as comma separated descriptions
     #[default]
     Long,
     /// Display flags as single character abbreviations (Windows only)

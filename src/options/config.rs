@@ -170,7 +170,7 @@ pub struct StyleOverride {
     #[serde(alias = "strikethrough")]
     pub is_strikethrough: Option<bool>,
 
-    /// Wether this style is always displayed starting with a reset code to clear any remaining style artifacts
+    /// Whether this style is always displayed starting with a reset code to clear any remaining style artifacts
     #[serde(alias = "prefix_reset")]
     pub prefix_with_reset: Option<bool>,
 }
