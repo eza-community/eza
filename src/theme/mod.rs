@@ -135,7 +135,7 @@ impl Definitions {
 
         if let Some(lsc) = &self.ls {
             LSColors(lsc).each_pair(|pair| {
-                if !colours.set_ls(&pair) {
+                if !colours.set_ls(&pair) && !is_builtin_ls_colors_key(pair.key) {
                     match glob::Pattern::new(pair.key) {
                         Ok(pat) => {
                             exts.add(pat, pair.to_style());
@@ -172,6 +172,34 @@ impl Definitions {
 
         (exts, use_default_filetypes)
     }
+}
+
+fn is_builtin_ls_colors_key(key: &str) -> bool {
+    matches!(
+        key,
+        "rs" | "no"
+            | "fi"
+            | "di"
+            | "ln"
+            | "mh"
+            | "pi"
+            | "so"
+            | "do"
+            | "bd"
+            | "cd"
+            | "or"
+            | "mi"
+            | "su"
+            | "sg"
+            | "ca"
+            | "tw"
+            | "ow"
+            | "st"
+            | "ex"
+            | "lc"
+            | "rc"
+            | "ec"
+    )
 }
 
 /// Determine the style to paint the text for the filename part of the output.
@@ -636,6 +664,7 @@ mod customs_test {
     test!(ls_cd:   ls "cd=35", exa ""  =>  colours c -> { c.filekinds().char_device  = Some(Purple.normal()); });
     test!(ls_ln:   ls "ln=34", exa ""  =>  colours c -> { c.filekinds().symlink      = Some(Blue.normal());   });
     test!(ls_or:   ls "or=33", exa ""  =>  colours c -> { c.broken_symlink         = Some(Yellow.normal()); });
+    test!(ls_unsupported_indicators: ls "rs=0:no=0:mh=31:do=32:mi=33:su=34:sg=35:ca=36:tw=37:ow=90:st=91:lc=92:rc=93:ec=94", exa "" => exts Vec::<(&str, Style)>::new());
 
     // EZA_COLORS can affect all those colours too:
     test!(exa_di:  ls "", exa "di=32"  =>  colours c -> { c.filekinds().directory    = Some(Green.normal());  });
@@ -752,6 +781,7 @@ mod customs_test {
     test!(ls_un:   ls "un=38;5;118", exa ""  =>  exts [ ("un", Fixed(118).normal()) ]);
     test!(ls_gu:   ls "gu=38;5;119", exa ""  =>  exts [ ("gu", Fixed(119).normal()) ]);
     test!(ls_gn:   ls "gn=38;5;120", exa ""  =>  exts [ ("gn", Fixed(120).normal()) ]);
+    test!(ls_eza_only_sf_still_glob: ls "sf=38;5;121", exa ""  =>  exts [ ("sf", Fixed(121).normal()) ]);
 
     // Just like all other keys:
     test!(ls_txt:  ls "*.txt=31",          exa ""  =>  exts [ ("*.txt",      Red.normal())             ]);
