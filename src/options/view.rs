@@ -21,6 +21,8 @@ use crate::output::table::{
 use crate::output::time::TimeFormat;
 use crate::output::{Mode, TerminalWidth, View, code, details, grid};
 
+use std::io::{self, IsTerminal};
+
 use super::parser::{ColorScaleArgs, TimeArgs};
 
 impl View {
@@ -30,7 +32,7 @@ impl View {
         strict: bool,
     ) -> Result<Self, OptionsError> {
         let width = TerminalWidth::deduce(matches, vars)?;
-        let is_tty = width.actual_terminal_width().is_some();
+        let is_tty = io::stdout().is_terminal();
         let mode = Mode::deduce(matches, vars, is_tty, strict)?;
         let deref_links = matches.get_flag("dereference");
         let follow_links = matches.get_flag("follow-symlinks");
