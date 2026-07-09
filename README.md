@@ -34,7 +34,9 @@ A modern replacement for ls.
 
 </div>
 
-![eza demo gif](docs/images/screenshots.png)
+https://github.com/user-attachments/assets/e7863767-3950-421b-b7e9-9bed3a78e8c9
+
+
 
 ---
 
