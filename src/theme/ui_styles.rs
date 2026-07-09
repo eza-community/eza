@@ -505,6 +505,44 @@ impl UiStyles {
             extensions: None,
         }
     }
+
+    /// Creates a version of this `UiStyles` with colors stripped but preserving
+    /// icon configurations and other non-color styling
+    #[must_use]
+    pub fn plain_colors(mut self) -> Self {
+        // Set the theme as non-colorful
+        self.colourful = Some(false);
+
+        // Strip colors from filename and extension styles but preserve icons
+        if let Some(ref mut filenames) = self.filenames {
+            for style in filenames.values_mut() {
+                if let Some(ref mut filename_style) = style.filename {
+                    *filename_style = Style::default();
+                }
+                // Keep icon configurations unchanged
+            }
+        }
+
+        if let Some(ref mut extensions) = self.extensions {
+            for style in extensions.values_mut() {
+                if let Some(ref mut filename_style) = style.filename {
+                    *filename_style = Style::default();
+                }
+                // Keep icon configurations unchanged
+            }
+        }
+
+        // Create a plain version for all other styles while preserving the structure
+        let plain_base = UiStyles::plain();
+
+        // Keep only the icon-related fields from self, everything else from plain
+        UiStyles {
+            colourful: Some(false),
+            filenames: self.filenames,
+            extensions: self.extensions,
+            ..plain_base
+        }
+    }
 }
 
 impl UiStyles {
