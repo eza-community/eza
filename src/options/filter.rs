@@ -99,14 +99,17 @@ impl DotFilter {
     pub fn deduce(matches: &ArgMatches, strict: bool) -> Result<Self, OptionsError> {
         let all_count = matches.get_count("all");
         let has_almost_all = matches.get_flag("almost-all");
+        let show_dotfiles = matches.get_flag("show-dotfiles");
 
-        match (all_count, has_almost_all) {
-            (0, false) => Ok(Self::JustFiles),
+        if has_almost_all {
+            return Ok(Self::Dotfiles);
+        }
 
-            // either a single --all or at least one --almost-all is given
-            (1, _) | (0, true) => Ok(Self::Dotfiles),
-            // more than one --all
-            (c, _) => {
+        match all_count {
+            0 if show_dotfiles => Ok(Self::DotfilesByName),
+            0 => Ok(Self::JustFiles),
+            1 => Ok(Self::Dotfiles),
+            c => {
                 if matches.get_flag("tree") {
                     Err(OptionsError::TreeAllAll)
                 } else if strict && c > 2 {
@@ -246,6 +249,22 @@ mod tests {
     fn deduce_dot_filter_almost_all() {
         assert_eq!(
             DotFilter::deduce(&mock_cli(vec!["--almost-all"]), false),
+            Ok(DotFilter::Dotfiles)
+        );
+    }
+
+    #[test]
+    fn deduce_dot_filter_show_dotfiles() {
+        assert_eq!(
+            DotFilter::deduce(&mock_cli(vec!["--show-dotfiles"]), false),
+            Ok(DotFilter::DotfilesByName)
+        );
+    }
+
+    #[test]
+    fn deduce_dot_filter_show_dotfiles_and_all() {
+        assert_eq!(
+            DotFilter::deduce(&mock_cli(vec!["--show-dotfiles", "--all"]), false),
             Ok(DotFilter::Dotfiles)
         );
     }
