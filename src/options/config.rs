@@ -236,10 +236,43 @@ impl FromOverride<IconStyleOverride> for IconStyle {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize)]
 pub struct FileNameStyleOverride {
     pub icon: Option<IconStyleOverride>,
     pub filename: Option<StyleOverride>,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct FileNameStyleOverrideDetailed {
+    icon: Option<IconStyleOverride>,
+    filename: Option<StyleOverride>,
+}
+
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum FileNameStyleOverrideRaw {
+    Detailed(FileNameStyleOverrideDetailed),
+    Simple(StyleOverride),
+}
+
+impl<'de> Deserialize<'de> for FileNameStyleOverride {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let raw = FileNameStyleOverrideRaw::deserialize(deserializer)?;
+        Ok(match raw {
+            FileNameStyleOverrideRaw::Detailed(d) => FileNameStyleOverride {
+                icon: d.icon,
+                filename: d.filename,
+            },
+            FileNameStyleOverrideRaw::Simple(s) => FileNameStyleOverride {
+                icon: None,
+                filename: Some(s),
+            },
+        })
+    }
 }
 
 impl FromOverride<FileNameStyleOverride> for FileNameStyle {
@@ -578,6 +611,7 @@ pub struct UiStylesOverride {
 
     pub filenames: Option<HashMap<String, FileNameStyleOverride>>,
     pub extensions: Option<HashMap<String, FileNameStyleOverride>>,
+    pub directorynames: Option<HashMap<String, FileNameStyleOverride>>,
 }
 
 impl FromOverride<UiStylesOverride> for UiStyles {
@@ -613,6 +647,7 @@ impl FromOverride<UiStylesOverride> for UiStyles {
 
             filenames: FromOverride::from(value.filenames, default.filenames),
             extensions: FromOverride::from(value.extensions, default.extensions),
+            directorynames: FromOverride::from(value.directorynames, default.directorynames),
         }
     }
 }
@@ -675,5 +710,36 @@ mod tests {
         for (s, c) in &[("118", 118), ("10", 10), ("01", 1), ("1", 1), ("001", 1)] {
             assert_eq!(color_from_str(s), Some(Color::Fixed(*c)));
         }
+    }
+
+    #[test]
+    fn parse_filename_style_override_simple() {
+        let yaml = "foreground: Red\nis_bold: true";
+        let style: FileNameStyleOverride = serde_norway::from_str(yaml).unwrap();
+        assert_eq!(style.icon, None);
+        let filename_style = style.filename.unwrap();
+        assert_eq!(filename_style.foreground, Some(Color::Red));
+        assert_eq!(filename_style.is_bold, Some(true));
+    }
+
+    #[test]
+    fn parse_filename_style_override_detailed() {
+        let yaml = "icon:\n  glyph: 🦀\nfilename:\n  foreground: Red";
+        let style: FileNameStyleOverride = serde_norway::from_str(yaml).unwrap();
+        assert_eq!(style.icon.unwrap().glyph, Some('🦀'));
+        let filename_style = style.filename.unwrap();
+        assert_eq!(filename_style.foreground, Some(Color::Red));
+    }
+
+    #[test]
+    fn parse_ui_styles_override_directorynames() {
+        let yaml = "directorynames:\n  RUST:\n    foreground: Red\n    is_bold: true";
+        let ui_override: UiStylesOverride = serde_norway::from_str(yaml).unwrap();
+        let dirnames = ui_override.directorynames.unwrap();
+        let style = dirnames.get("RUST").unwrap();
+        assert_eq!(style.icon, None);
+        let filename_style = style.filename.unwrap();
+        assert_eq!(filename_style.foreground, Some(Color::Red));
+        assert_eq!(filename_style.is_bold, Some(true));
     }
 }
