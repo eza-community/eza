@@ -72,6 +72,12 @@ pub static EZA_ICONS_AUTO: &str = "EZA_ICONS_AUTO";
 
 pub static EZA_STDIN_SEPARATOR: &str = "EZA_STDIN_SEPARATOR";
 
+/// Environment variable used to set the eza configuration directory.
+pub static EZA_CONFIG_DIR: &str = "EZA_CONFIG_DIR";
+
+/// Environment variable used to set the XDG base configuration directory.
+pub static XDG_CONFIG_HOME: &str = "XDG_CONFIG_HOME";
+
 /// Environment variable used to choose how windows attributes are displayed.
 /// Short will display a single character for each set attribute, long will
 /// display a comma separated list of descriptions.
@@ -119,6 +125,8 @@ pub mod test {
         pub icon_spacing: OsString,
         pub luminance: OsString,
         pub icons: OsString,
+        pub config_dir: OsString,
+        pub xdg_config_home: OsString,
         pub time: OsString,
     }
 
@@ -140,6 +148,10 @@ pub mod test {
                     Some(self.luminance.clone())
                 }
                 "EZA_ICONS_AUTO" if !self.icons.is_empty() => Some(self.icons.clone()),
+                "EZA_CONFIG_DIR" if !self.config_dir.is_empty() => Some(self.config_dir.clone()),
+                "XDG_CONFIG_HOME" if !self.xdg_config_home.is_empty() => {
+                    Some(self.xdg_config_home.clone())
+                }
                 "COLUMNS" if !self.columns.is_empty() => Some(self.columns.clone()),
                 "NO_COLOR" if !self.no_colors.is_empty() => Some(self.no_colors.clone()),
                 "TIME_STYLE" if !self.time.is_empty() => Some(self.time.clone()),
@@ -158,6 +170,8 @@ pub mod test {
                 "EXA_ICON_SPACING" | "EZA_ICON_SPACING" => self.icon_spacing = value.clone(),
                 "EXA_MIN_LUMINANCE" | "EZA_MIN_LUMINANCE" => self.luminance = value.clone(),
                 "EZA_ICONS_AUTO" => self.icons = value.clone(),
+                "EZA_CONFIG_DIR" => self.config_dir = value.clone(),
+                "XDG_CONFIG_HOME" => self.xdg_config_home = value.clone(),
                 "COLUMNS" => self.columns = value.clone(),
                 "NO_COLOR" => self.no_colors = value.clone(),
                 "TIME_STYLE" => self.time = value.clone(),

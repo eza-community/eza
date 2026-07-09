@@ -4,6 +4,7 @@
 // SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
+use crate::options::vars;
 use crate::theme::ThemeFileType as FileType;
 use crate::theme::{
     FileKinds, FileNameStyle, Git, GitRepo, IconStyle, Links, Permissions, SELinuxContext,
@@ -13,6 +14,7 @@ use nu_ansi_term::{Color, Style};
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_norway;
 use std::collections::HashMap;
+use std::ffi::OsString;
 use std::path::PathBuf;
 
 #[derive(Debug, Eq, PartialEq)]
@@ -23,13 +25,32 @@ pub struct ThemeConfig {
 
 impl Default for ThemeConfig {
     fn default() -> Self {
+        let config_dir = config_dir_from_env(
+            std::env::var_os(vars::EZA_CONFIG_DIR),
+            std::env::var_os(vars::XDG_CONFIG_HOME),
+        );
+
         ThemeConfig {
-            location: dirs::config_dir()
-                .unwrap_or_default()
-                .join("eza")
-                .join("theme.yml"),
+            location: config_dir.join("theme.yml"),
         }
     }
+}
+
+pub(crate) fn config_dir_from_env(
+    eza_config_dir: Option<OsString>,
+    xdg_config_home: Option<OsString>,
+) -> PathBuf {
+    eza_config_dir
+        .filter(|path| !path.as_os_str().is_empty())
+        .map(PathBuf::from)
+        .or_else(|| {
+            xdg_config_home
+                .filter(|path| !path.as_os_str().is_empty())
+                .map(PathBuf::from)
+                .filter(|path| path.is_absolute())
+                .map(|path| path.join("eza"))
+        })
+        .unwrap_or_else(|| dirs::config_dir().unwrap_or_default().join("eza"))
 }
 
 trait FromOverride<T>: Sized {
@@ -634,6 +655,40 @@ impl ThemeConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::ffi::OsString;
+
+    fn default_config_dir() -> std::path::PathBuf {
+        dirs::config_dir().unwrap_or_default().join("eza")
+    }
+
+    #[test]
+    fn config_dir_ignores_empty_xdg_config_home() {
+        assert_eq!(
+            config_dir_from_env(None, Some(OsString::new())),
+            default_config_dir()
+        );
+    }
+
+    #[test]
+    fn config_dir_ignores_relative_xdg_config_home() {
+        assert_eq!(
+            config_dir_from_env(None, Some(OsString::from("relative"))),
+            default_config_dir()
+        );
+    }
+
+    #[test]
+    fn config_dir_ignores_empty_eza_config_dir() {
+        let xdg_config_home = std::env::temp_dir().join("eza-xdg-config-home");
+
+        assert_eq!(
+            config_dir_from_env(
+                Some(OsString::new()),
+                Some(xdg_config_home.as_os_str().to_os_string()),
+            ),
+            xdg_config_home.join("eza")
+        );
+    }
 
     #[test]
     fn parse_none_color_from_string() {

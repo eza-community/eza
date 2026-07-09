@@ -10,9 +10,8 @@ use crate::options::parser::ShowWhen;
 use crate::options::{vars, Vars};
 use crate::output::color_scale::ColorScaleOptions;
 use crate::theme::{Definitions, Options, UseColours};
-use std::path::PathBuf;
 
-use super::config::ThemeConfig;
+use super::config::{config_dir_from_env, ThemeConfig};
 
 impl Options {
     pub fn deduce<V: Vars>(matches: &ArgMatches, vars: &V) -> Self {
@@ -37,30 +36,20 @@ impl Options {
 
 impl ThemeConfig {
     fn deduce<V: Vars>(vars: &V) -> Option<Self> {
-        if let Some(path) = vars.get("EZA_CONFIG_DIR") {
-            let path = PathBuf::from(path);
-            let theme = path.join("theme.yml");
-            if theme.exists() {
-                return Some(ThemeConfig::from_path(theme));
-            }
-            let theme = path.join("theme.yaml");
-            if theme.exists() {
-                return Some(ThemeConfig::from_path(theme));
-            }
-            None
-        } else {
-            let path = dirs::config_dir().unwrap_or_default();
-            let path = path.join("eza");
-            let theme = path.join("theme.yml");
-            if theme.exists() {
-                return Some(ThemeConfig::default());
-            }
-            let theme = path.join("theme.yaml");
-            if theme.exists() {
-                return Some(ThemeConfig::from_path(theme));
-            }
-            None
+        let path = config_dir_from_env(
+            vars.get(vars::EZA_CONFIG_DIR),
+            vars.get(vars::XDG_CONFIG_HOME),
+        );
+
+        let theme = path.join("theme.yml");
+        if theme.exists() {
+            return Some(ThemeConfig::from_path(theme));
         }
+        let theme = path.join("theme.yaml");
+        if theme.exists() {
+            return Some(ThemeConfig::from_path(theme));
+        }
+        None
     }
 }
 
@@ -96,6 +85,19 @@ mod tests {
     use super::*;
     use crate::options::{parser::test::mock_cli, vars::test::MockVars};
     use std::ffi::OsString;
+    use std::fs;
+    use std::path::PathBuf;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    fn temp_dir(name: &str) -> PathBuf {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!("eza-{name}-{nanos}"));
+        fs::create_dir_all(&path).unwrap();
+        path
+    }
 
     #[test]
     fn deduce_definitions() {
@@ -126,6 +128,72 @@ mod tests {
                 ls: Some("uR=1;34".to_string()),
                 exa: Some("uR=1;34".to_string()),
             }
+        );
+    }
+
+    #[test]
+    fn deduce_theme_from_eza_config_dir() {
+        let config_dir = temp_dir("eza-config-dir");
+        let theme = config_dir.join("theme.yml");
+        fs::write(&theme, "filekinds:\n  normal: { foreground: red }\n").unwrap();
+
+        let mut vars = MockVars {
+            ..MockVars::default()
+        };
+        vars.set(vars::EZA_CONFIG_DIR, &config_dir.as_os_str().to_os_string());
+
+        assert_eq!(ThemeConfig::deduce(&vars), Some(ThemeConfig::from_path(theme)));
+    }
+
+    #[test]
+    fn deduce_theme_from_xdg_config_home() {
+        let xdg_config_home = temp_dir("xdg-config-home");
+        let config_dir = xdg_config_home.join("eza");
+        fs::create_dir_all(&config_dir).unwrap();
+        let theme = config_dir.join("theme.yml");
+        fs::write(&theme, "filekinds:\n  normal: { foreground: red }\n").unwrap();
+
+        let mut vars = MockVars {
+            ..MockVars::default()
+        };
+        vars.set(
+            vars::XDG_CONFIG_HOME,
+            &xdg_config_home.as_os_str().to_os_string(),
+        );
+
+        assert_eq!(ThemeConfig::deduce(&vars), Some(ThemeConfig::from_path(theme)));
+    }
+
+    #[test]
+    fn eza_config_dir_takes_precedence_over_xdg_config_home() {
+        let eza_config_dir = temp_dir("eza-config-dir-priority");
+        let eza_theme = eza_config_dir.join("theme.yml");
+        fs::write(&eza_theme, "filekinds:\n  normal: { foreground: red }\n").unwrap();
+
+        let xdg_config_home = temp_dir("xdg-config-home-priority");
+        let xdg_config_dir = xdg_config_home.join("eza");
+        fs::create_dir_all(&xdg_config_dir).unwrap();
+        fs::write(
+            xdg_config_dir.join("theme.yml"),
+            "filekinds:\n  normal: { foreground: blue }\n",
+        )
+        .unwrap();
+
+        let mut vars = MockVars {
+            ..MockVars::default()
+        };
+        vars.set(
+            vars::EZA_CONFIG_DIR,
+            &eza_config_dir.as_os_str().to_os_string(),
+        );
+        vars.set(
+            vars::XDG_CONFIG_HOME,
+            &xdg_config_home.as_os_str().to_os_string(),
+        );
+
+        assert_eq!(
+            ThemeConfig::deduce(&vars),
+            Some(ThemeConfig::from_path(eza_theme))
         );
     }
 

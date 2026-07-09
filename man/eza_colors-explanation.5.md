@@ -49,8 +49,9 @@ in the same directory as one of its source files: styles.css will count as compi
 
 Now you can specify these options and more in a `theme.yml` file with convenient syntax for defining your styles.
 
-Set `EZA_CONFIG_DIR` to specify which directory you would like eza to look for your `theme.yml` file,
-otherwise eza will look for `$XDG_CONFIG_HOME/eza/theme.yml`.
+Set `EZA_CONFIG_DIR` to specify which directory you would like eza to look for your `theme.yml` file.
+If `EZA_CONFIG_DIR` is not set, eza will look for `$XDG_CONFIG_HOME/eza/theme.yml` when `XDG_CONFIG_HOME` is set.
+If neither variable is set, eza uses the platform configuration directory.
 
 
 These are the available options:
@@ -223,7 +224,7 @@ Not all glyphs support changing colors.
 If your theme is not working properly, double check the syntax in the config file, as
 a syntax issue can cause multiple properties to not be applied.
 
-You must name the file `theme.yml`, no matter the directory you specify.
+You can name the file `theme.yml` or `theme.yaml`, no matter the directory you specify.
 
 
 ## See also
