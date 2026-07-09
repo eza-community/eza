@@ -42,6 +42,7 @@ impl FileFilter {
             sort_field: *matches.get_one("sort").unwrap(),
             dot_filter: DotFilter::deduce(matches, strict)?,
             ignore_patterns: IgnorePatterns::deduce(matches)?,
+            ignore_patterns_caseins: IgnorePatterns::deduce_set_insensitive(matches)?,
             git_ignore: GitIgnore::deduce(matches),
         })
     }
@@ -123,10 +124,10 @@ impl IgnorePatterns {
     /// Determines the set of glob patterns to use based on the
     /// `--ignore-glob` argument’s value. This is a list of strings
     /// separated by pipe (`|`) characters, given in any order.
-    pub fn deduce(matches: &ArgMatches) -> Result<Self, OptionsError> {
+    fn deduce_from_arg(matches: &ArgMatches, arg_name: &str) -> Result<Self, OptionsError> {
         // If there are no inputs, we return a set of patterns that doesn’t
         // match anything, rather than, say, `None`.
-        let Some(inputs) = matches.get_one::<String>("ignore-glob") else {
+        let Some(inputs) = matches.get_one::<String>(arg_name) else {
             return Ok(Self::empty());
         };
 
@@ -140,6 +141,18 @@ impl IgnorePatterns {
             Some(e) => Err(e.into()),
             None => Ok(patterns),
         }
+    }
+
+    pub fn deduce(matches: &ArgMatches) -> Result<Self, OptionsError> {
+        Self::deduce_from_arg(matches, "ignore-glob")
+    }
+
+    pub fn deduce_set_insensitive(matches: &ArgMatches) -> Result<Self, OptionsError> {
+        let patterns = Self::deduce_from_arg(matches, "ignore-glob-ci")?;
+        Ok(patterns.set_match_options(glob::MatchOptions {
+            case_sensitive: false,
+            ..glob::MatchOptions::new()
+        }))
     }
 }
 
@@ -198,6 +211,39 @@ mod tests {
         let (_, mut e) = IgnorePatterns::parse_from_iter(pattern.to_string_lossy().split('|'));
         assert_eq!(
             IgnorePatterns::deduce(&mock_cli(vec!["--ignore-glob", "["])),
+            Err(e.pop().unwrap().into())
+        );
+    }
+
+    #[test]
+    fn deduce_ignore_patterns_ci_empty() {
+        assert_eq!(
+            IgnorePatterns::deduce_set_insensitive(&mock_cli(vec![""])),
+            Ok(IgnorePatterns::empty_insensitive())
+        );
+    }
+
+    #[test]
+    fn deduce_ignore_patterns_ci_one() {
+        let pattern = OsString::from("*.o");
+        let (mut res, _) = IgnorePatterns::parse_from_iter(pattern.to_string_lossy().split('|'));
+        res = res.set_match_options(glob::MatchOptions {
+            case_sensitive: false,
+            ..glob::MatchOptions::new()
+        });
+
+        assert_eq!(
+            IgnorePatterns::deduce_set_insensitive(&mock_cli(vec!["--ignore-glob-ci", "*.o"])),
+            Ok(res)
+        );
+    }
+
+    #[test]
+    fn deduce_ignore_patterns_ci_error() {
+        let pattern = OsString::from("[");
+        let (_, mut e) = IgnorePatterns::parse_from_iter(pattern.to_string_lossy().split('|'));
+        assert_eq!(
+            IgnorePatterns::deduce_set_insensitive(&mock_cli(vec!["--ignore-glob-ci", "["])),
             Err(e.pop().unwrap().into())
         );
     }
@@ -384,6 +430,7 @@ mod tests {
                 sort_field: SortField::default(),
                 dot_filter: DotFilter::JustFiles,
                 ignore_patterns: IgnorePatterns::empty(),
+                ignore_patterns_caseins: IgnorePatterns::empty_insensitive(),
                 git_ignore: GitIgnore::Off,
                 no_symlinks: false,
                 show_symlinks: false,
@@ -400,6 +447,7 @@ mod tests {
                 sort_field: SortField::default(),
                 dot_filter: DotFilter::JustFiles,
                 ignore_patterns: IgnorePatterns::empty(),
+                ignore_patterns_caseins: IgnorePatterns::empty_insensitive(),
                 git_ignore: GitIgnore::Off,
                 no_symlinks: false,
                 show_symlinks: false,
@@ -416,6 +464,7 @@ mod tests {
                 sort_field: SortField::default(),
                 dot_filter: DotFilter::JustFiles,
                 ignore_patterns: IgnorePatterns::empty(),
+                ignore_patterns_caseins: IgnorePatterns::empty_insensitive(),
                 git_ignore: GitIgnore::Off,
                 no_symlinks: false,
                 show_symlinks: false,
@@ -432,6 +481,7 @@ mod tests {
                 sort_field: SortField::default(),
                 dot_filter: DotFilter::JustFiles,
                 ignore_patterns: IgnorePatterns::empty(),
+                ignore_patterns_caseins: IgnorePatterns::empty_insensitive(),
                 git_ignore: GitIgnore::Off,
                 no_symlinks: false,
                 show_symlinks: false,
