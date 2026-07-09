@@ -84,10 +84,10 @@ impl Definitions {
         let ls = vars
             .get(vars::LS_COLORS)
             .map(|e| e.to_string_lossy().to_string());
-        let exa = vars
+        let eza = vars
             .get_with_fallback(vars::EZA_COLORS, vars::EXA_COLORS)
             .map(|e| e.to_string_lossy().to_string());
-        Self { ls, exa }
+        Self { ls, eza }
     }
 }
 
@@ -107,7 +107,7 @@ mod tests {
             Definitions::deduce(&vars),
             Definitions {
                 ls: None,
-                exa: None,
+                eza: None,
             }
         );
     }
@@ -124,7 +124,7 @@ mod tests {
             Definitions::deduce(&vars),
             Definitions {
                 ls: Some("uR=1;34".to_string()),
-                exa: Some("uR=1;34".to_string()),
+                eza: Some("uR=1;34".to_string()),
             }
         );
     }

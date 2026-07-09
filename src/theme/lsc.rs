@@ -16,17 +16,17 @@ use nu_ansi_term::{Color as Colour, Style};
 // Parsing the LS_COLORS environment variable into a map of names to Style values.
 //
 // This is sitting around undocumented at the moment because it’s a feature
-// that should really be unnecessary! exa highlights its output by creating a
+// that should really be unnecessary! eza highlights its output by creating a
 // theme of one Style value per part of the interface that can be coloured,
 // then reading styles from that theme. The LS_COLORS variable, on the other
 // hand, can contain arbitrary characters that ls is supposed to add to the
-// output, without needing to know what they actually do. This puts exa in the
+// output, without needing to know what they actually do. This puts eza in the
 // annoying position of having to parse the ANSI escape codes _back_ into
 // Style values before it’s able to use them. Doing this has a lot of
-// downsides: if a new terminal feature is added with its own code, exa won’t
+// downsides: if a new terminal feature is added with its own code, eza won’t
 // be able to use this without explicit support for parsing the feature, while
 // ls would not even need to know it existed. And there are some edge cases in
-// ANSI codes, where terminals would accept codes exa is strict about it. It’s
+// ANSI codes, where terminals would accept codes eza is strict about it. It’s
 // just not worth doing, and there should really be a way to just use slices
 // of the LS_COLORS string without having to parse them.
 

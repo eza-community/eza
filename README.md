@@ -196,7 +196,7 @@ See the `man` pages for further documentation of usage. They are available
 <summary>Click to expand</summary>
 
 **Eza** has recently added support for a `theme.yml` file, where you can specify all of the existing theme-ing options
-available for the `LS_COLORS` and `EXA_COLORS` environment variables, as well as the option to specify different icons
+available for the `LS_COLORS` and `EZA_COLORS` environment variables, as well as the option to specify different icons
 for different file types and extensions. Any existing environment variables set will continue to work and will take
 precedence for backwards compatibility.
 

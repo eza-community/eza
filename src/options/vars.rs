@@ -24,47 +24,47 @@ pub static TIME_STYLE: &str = "TIME_STYLE";
 /// See: <https://no-color.org/>
 pub static NO_COLOR: &str = "NO_COLOR";
 
-// exa-specific variables
+// eza-specific variables
 
-/// Environment variable used to colour exa’s interface when colours are
+/// Environment variable used to colour eza’s interface when colours are
 /// enabled. This includes all the colours that `LS_COLORS` would recognise,
-/// overriding them if necessary. It can also contain exa-specific codes.
-pub static EXA_COLORS: &str = "EXA_COLORS";
+/// overriding them if necessary. It can also contain eza-specific codes.
 pub static EZA_COLORS: &str = "EZA_COLORS";
+pub static EXA_COLORS: &str = "EXA_COLORS";
 
 /// Environment variable used to switch on strict argument checking, such as
 /// complaining if an argument was specified twice, or if two conflict.
 /// This is meant to be so you don’t accidentally introduce the wrong
 /// behaviour in a script, rather than for general command-line use.
 /// Any non-empty value will turn strict mode on.
-pub static EXA_STRICT: &str = "EXA_STRICT";
 pub static EZA_STRICT: &str = "EZA_STRICT";
+pub static EXA_STRICT: &str = "EXA_STRICT";
 
-/// Environment variable used to make exa print out debugging information as
+/// Environment variable used to make eza print out debugging information as
 /// it runs. Any non-empty value will turn debug mode on.
-pub static EXA_DEBUG: &str = "EXA_DEBUG";
 pub static EZA_DEBUG: &str = "EZA_DEBUG";
+pub static EXA_DEBUG: &str = "EXA_DEBUG";
 
 /// Environment variable used to limit the grid-details view
 /// (`--grid --long`) so it’s only activated if there’s at least the given
 /// number of rows of output.
-pub static EXA_GRID_ROWS: &str = "EXA_GRID_ROWS";
 pub static EZA_GRID_ROWS: &str = "EZA_GRID_ROWS";
+pub static EXA_GRID_ROWS: &str = "EXA_GRID_ROWS";
 
 /// Environment variable used to specify how many spaces to print between an
 /// icon and its file name. Different terminals display icons differently,
 /// with 1 space bringing them too close together or 2 spaces putting them too
 /// far apart, so this may be necessary depending on how they are shown.
-pub static EXA_ICON_SPACING: &str = "EXA_ICON_SPACING";
 pub static EZA_ICON_SPACING: &str = "EZA_ICON_SPACING";
+pub static EXA_ICON_SPACING: &str = "EXA_ICON_SPACING";
 
-pub static EXA_OVERRIDE_GIT: &str = "EXA_OVERRIDE_GIT";
 pub static EZA_OVERRIDE_GIT: &str = "EZA_OVERRIDE_GIT";
+pub static EXA_OVERRIDE_GIT: &str = "EXA_OVERRIDE_GIT";
 
 /// Enviroment variable used to set the minimum luminance in `color_scale`. It's value
 /// can be between -100 and 100
-pub static EXA_MIN_LUMINANCE: &str = "EXA_MIN_LUMINANCE";
 pub static EZA_MIN_LUMINANCE: &str = "EZA_MIN_LUMINANCE";
+pub static EXA_MIN_LUMINANCE: &str = "EXA_MIN_LUMINANCE";
 
 /// Environment variable used to automate the same behavior as `--icons=auto` if set.
 /// Any explicit use of `--icons=WHEN` overrides this behavior.
