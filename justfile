@@ -269,6 +269,9 @@ alias c := cross
     just binary_no_libgit eza arm-unknown-linux-gnueabihf
     # just binary_static eza arm-unknown-linux-gnueabihf
 
+    ### riscv64
+    just binary eza riscv64gc-unknown-linux-gnu
+
     ## MacOS
     # TODO: just binary eza x86_64-apple-darwin
 
