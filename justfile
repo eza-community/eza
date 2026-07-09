@@ -263,6 +263,9 @@ alias c := cross
     just binary eza aarch64-unknown-linux-gnu
     just binary_no_libgit eza aarch64-unknown-linux-gnu
     # BUG: just binary_static eza aarch64-unknown-linux-gnu
+    just binary eza aarch64-unknown-linux-musl
+    just binary_no_libgit eza aarch64-unknown-linux-musl
+    # just binary_static eza aarch64-unknown-linux-musl
 
     ### arm
     just binary eza arm-unknown-linux-gnueabihf
