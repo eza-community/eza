@@ -29,6 +29,7 @@ DISPLAY OPTIONS:
       --icons [<WHEN>]             when to display icons [possible values: always, auto, never]
       --hyperlink [<WHEN>]         when to display entries as hyperlinks [possible values: always, auto, never]
       --no-quotes                  don't quote file names with spaces
+      --short-nix                  abbreviate Nix store hashes in file names and paths
 
 FILTERING OPTIONS:
   -a, --all...               show hidden files. Use this twice to also show the '.' and '..' directories

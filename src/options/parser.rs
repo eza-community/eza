@@ -96,6 +96,7 @@ pub fn get_command() -> clap::Command {
             .value_parser(value_parser!(ShowWhen))
             .default_missing_value("auto"))
         .arg(arg!(--"no-quotes" "don't quote file names with spaces"))
+        .arg(arg!(--"short-nix" "abbreviate Nix store hashes in file names and paths"))
 
         .next_help_heading("FILTERING OPTIONS")
         .arg(arg!(-a --all... "show hidden files. Use this twice to also show the '.' and '..' directories"))

@@ -37,6 +37,7 @@ complete -c eza -l icons -d "When to display icons" -x -a "
   never\t'Never display icons'
 "
 complete -c eza -l no-quotes -d "Don't quote file names with spaces"
+complete -c eza -l short-nix -d "Abbreviate Nix store hashes in file names and paths"
 complete -c eza -l hyperlink -d "When to display entries as hyperlinks" -x -a "
   always\t'Always display entries as hyperlinks'
   auto\t'Display hyperlinks if standard output is a terminal'

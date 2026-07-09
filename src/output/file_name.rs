@@ -36,8 +36,71 @@ pub struct Options {
     /// Whether to display files with their absolute path.
     pub absolute: Absolute,
 
+    /// Whether to abbreviate Nix store hashes in file names and paths.
+    pub short_nix: bool,
+
     /// Whether we are in a console or redirecting the output
     pub is_a_tty: bool,
+}
+
+/// How many characters of a Nix store hash to keep when `--short-nix`
+/// abbreviates it. Eight is enough to stay recognisable and unambiguous at
+/// a glance, like a short git commit id.
+const SHORT_NIX_HASH_LENGTH: usize = 8;
+
+/// Whether this byte belongs to Nix’s base32 alphabet, which deliberately
+/// omits `e`, `o`, `t`, and `u` to avoid accidentally spelling words.
+const fn is_nix_base32(b: u8) -> bool {
+    matches!(b, b'0'..=b'9' | b'a'..=b'd' | b'f'..=b'n' | b'p'..=b's' | b'v'..=b'z')
+}
+
+/// If `component` starts with a Nix store hash — exactly 32 characters of
+/// Nix base32 followed by a dash — return the hash and the rest.
+fn split_nix_hash(component: &str) -> Option<(&str, &str)> {
+    let (hash, rest) = component.split_at_checked(32)?;
+    if rest.starts_with('-') && hash.bytes().all(is_nix_base32) {
+        Some((hash, rest))
+    } else {
+        None
+    }
+}
+
+/// One piece of a display name: either an abbreviated Nix store hash, to be
+/// painted dim, or ordinary text painted in the file’s usual style.
+#[derive(Debug, PartialEq, Eq)]
+enum NameSegment {
+    Hash(String),
+    Text(String),
+}
+
+/// Split a display name (which may be a whole path) into segments, replacing
+/// every path component’s leading Nix store hash with its abbreviation.
+fn shorten_nix_segments(name: &str) -> Vec<NameSegment> {
+    let mut segments = Vec::new();
+    let mut text = String::new();
+
+    for (i, component) in name.split('/').enumerate() {
+        if i > 0 {
+            text.push('/');
+        }
+        if let Some((hash, rest)) = split_nix_hash(component) {
+            if !text.is_empty() {
+                segments.push(NameSegment::Text(std::mem::take(&mut text)));
+            }
+            segments.push(NameSegment::Hash(format!(
+                "{}…",
+                &hash[..SHORT_NIX_HASH_LENGTH]
+            )));
+            text.push_str(rest);
+        } else {
+            text.push_str(component);
+        }
+    }
+
+    if !text.is_empty() {
+        segments.push(NameSegment::Text(text));
+    }
+    segments
 }
 
 impl Options {
@@ -284,6 +347,7 @@ impl<C: Colours> FileName<'_, '_, C> {
                             embed_hyperlinks: EmbedHyperlinks::Never,
                             is_a_tty: self.options.is_a_tty,
                             absolute: Absolute::Off,
+                            short_nix: self.options.short_nix,
                         };
 
                         let target_name = FileName {
@@ -354,8 +418,19 @@ impl<C: Colours> FileName<'_, '_, C> {
                     .paint(std::path::MAIN_SEPARATOR.to_string()),
             );
         } else if coconut >= 1 {
+            let mut parent_str = parent.to_string_lossy().to_string();
+            if self.options.short_nix {
+                // Parent paths are painted in one dim style already, so the
+                // hashes just get abbreviated in place.
+                parent_str = shorten_nix_segments(&parent_str)
+                    .into_iter()
+                    .map(|segment| match segment {
+                        NameSegment::Hash(s) | NameSegment::Text(s) => s,
+                    })
+                    .collect();
+            }
             escape(
-                parent.to_string_lossy().to_string(),
+                parent_str,
                 bits,
                 self.colours.symlink_path(),
                 self.colours.control_char(),
@@ -435,13 +510,33 @@ impl<C: Colours> FileName<'_, '_, C> {
             display_hyperlink = true;
         }
 
-        escape(
-            self.display_name(),
-            &mut bits,
-            file_style,
-            self.colours.control_char(),
-            self.options.quote_style,
-        );
+        let display_name = self.display_name();
+        if self.options.short_nix {
+            // Abbreviated store hashes get painted dim, so the part of the
+            // name that a human actually reads is the part that stands out.
+            for segment in shorten_nix_segments(&display_name) {
+                match segment {
+                    NameSegment::Hash(hash) => {
+                        bits.push(self.colours.nix_hash().paint(hash));
+                    }
+                    NameSegment::Text(text) => escape(
+                        text,
+                        &mut bits,
+                        file_style,
+                        self.colours.control_char(),
+                        self.options.quote_style,
+                    ),
+                }
+            }
+        } else {
+            escape(
+                display_name,
+                &mut bits,
+                file_style,
+                self.colours.control_char(),
+                self.options.quote_style,
+            );
+        }
 
         if display_hyperlink {
             bits.push(ANSIString::from(escape::HYPERLINK_CLOSING));
@@ -504,7 +599,17 @@ impl<C: Colours> FileName<'_, '_, C> {
     /// For grid's use, to cover the case of hyperlink escape sequences
     #[must_use]
     pub fn bare_utf8_width(&self) -> usize {
-        UnicodeWidthStr::width(self.file.name.as_str())
+        if self.options.short_nix {
+            let shortened: String = shorten_nix_segments(&self.file.name)
+                .into_iter()
+                .map(|segment| match segment {
+                    NameSegment::Hash(s) | NameSegment::Text(s) => s,
+                })
+                .collect();
+            UnicodeWidthStr::width(shortened.as_str())
+        } else {
+            UnicodeWidthStr::width(self.file.name.as_str())
+        }
     }
 }
 
@@ -528,6 +633,9 @@ pub trait Colours: FiletypeColours {
     /// The style to paint a non-displayable control character in a filename.
     fn control_char(&self) -> Style;
 
+    /// The style to paint an abbreviated Nix store hash with `--short-nix`.
+    fn nix_hash(&self) -> Style;
+
     /// The style to paint a non-displayable control character in a filename,
     /// when the filename is being displayed as a broken link target.
     fn broken_control_char(&self) -> Style;
@@ -541,4 +649,79 @@ pub trait Colours: FiletypeColours {
     fn colour_file(&self, file: &File<'_>) -> Style;
 
     fn style_override(&self, file: &File<'_>) -> Option<FileNameStyle>;
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    const HASH: &str = "vlkia5wk0svsikwv50554mh06iayg2m2";
+
+    #[test]
+    fn splits_a_store_file_name() {
+        let name = format!("{HASH}-source.drv");
+        assert_eq!(split_nix_hash(&name), Some((HASH, "-source.drv")));
+    }
+
+    #[test]
+    fn rejects_wrong_length_and_alphabet() {
+        // Too short, no dash, and a hash containing characters outside
+        // Nix’s base32 set (it has no e, o, t, or u).
+        assert_eq!(split_nix_hash("abc-source.drv"), None);
+        assert_eq!(split_nix_hash(HASH), None);
+        assert_eq!(
+            split_nix_hash("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-source.drv"),
+            None
+        );
+    }
+
+    #[test]
+    fn plain_names_pass_through_untouched() {
+        assert_eq!(
+            shorten_nix_segments("Cargo.toml"),
+            vec![NameSegment::Text("Cargo.toml".into())]
+        );
+    }
+
+    #[test]
+    fn shortens_a_bare_store_name() {
+        assert_eq!(
+            shorten_nix_segments(&format!("{HASH}-source.drv")),
+            vec![
+                NameSegment::Hash("vlkia5wk…".into()),
+                NameSegment::Text("-source.drv".into()),
+            ]
+        );
+    }
+
+    #[test]
+    fn shortens_every_component_of_a_path() {
+        let path = format!("/nix/store/{HASH}-foo/bin/{HASH}-bar");
+        assert_eq!(
+            shorten_nix_segments(&path),
+            vec![
+                NameSegment::Text("/nix/store/".into()),
+                NameSegment::Hash("vlkia5wk…".into()),
+                NameSegment::Text("-foo/bin/".into()),
+                NameSegment::Hash("vlkia5wk…".into()),
+                NameSegment::Text("-bar".into()),
+            ]
+        );
+    }
+
+    #[test]
+    fn hash_mid_component_is_not_shortened() {
+        let name = format!("prefix-{HASH}-source.drv");
+        assert_eq!(
+            shorten_nix_segments(&name),
+            vec![NameSegment::Text(name.clone())]
+        );
+    }
+
+    #[test]
+    fn multibyte_names_are_split_safely() {
+        // A name whose 32-char boundary would fall inside a multi-byte
+        // character must not panic.
+        assert_eq!(split_nix_hash("ααααααααααααααααα-x"), None);
+    }
 }

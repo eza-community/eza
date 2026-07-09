@@ -128,6 +128,11 @@ When used without a value, defaults to ‘`automatic`’.
 `--no-quotes`
 : Don't quote file names with spaces.
 
+`--short-nix`
+: Abbreviate Nix store hashes in file names and paths.
+
+: A path component beginning with a Nix store hash — exactly 32 characters of Nix’s base32 alphabet followed by a dash, like `vlkia5wk0svsikwv50554mh06iayg2m2-source.drv` — is displayed with the hash shortened to its first 8 characters and an ellipsis, painted dim so the name stands out: `vlkia5wk…-source.drv`. This applies to listed names, symbolic link targets, and absolute paths.
+
 `--hyperlink=WHEN`
 : Display entries as hyperlinks
 

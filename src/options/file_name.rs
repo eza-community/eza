@@ -25,6 +25,7 @@ impl Options {
         let embed_hyperlinks = EmbedHyperlinks::deduce(matches);
 
         let absolute = *matches.get_one("absolute").unwrap();
+        let short_nix = matches.get_flag("short-nix");
 
         Ok(Self {
             classify,
@@ -32,6 +33,7 @@ impl Options {
             quote_style,
             embed_hyperlinks,
             absolute,
+            short_nix,
             is_a_tty,
         })
     }
@@ -272,8 +274,18 @@ mod tests {
                 quote_style: QuoteStyle::QuoteSpaces,
                 embed_hyperlinks: EmbedHyperlinks::Never,
                 absolute: Absolute::Off,
+                short_nix: false,
                 is_a_tty: true,
             })
+        );
+    }
+
+    #[test]
+    fn deduce_options_short_nix() {
+        assert!(
+            Options::deduce(&mock_cli(vec!["--short-nix"]), &MockVars::default(), true)
+                .unwrap()
+                .short_nix
         );
     }
 }
