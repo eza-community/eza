@@ -16,7 +16,7 @@ use nu_ansi_term::{AnsiString as ANSIString, Style};
 impl PermissionsPlusRender for Option<f::PermissionsPlus> {
     fn render<C: Colours + FiletypeColours>(&self, colours: &C) -> TextCell {
         if let Some(p) = self {
-            let mut chars = vec![p.file_type.render(colours)];
+            let mut chars = vec![p.file_type.render(colours, p.mount)];
             let permissions = p.permissions;
             chars.extend(Some(permissions).render(colours, p.file_type.is_regular_file()));
 

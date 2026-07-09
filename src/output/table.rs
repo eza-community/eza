@@ -531,6 +531,7 @@ impl<'a> Table<'a> {
             file_type: file.type_char(),
             permissions: p,
             xattrs,
+            mount: file.is_mount_point(),
         })
     }
 
@@ -542,6 +543,7 @@ impl<'a> Table<'a> {
             #[cfg(windows)]
             attributes: file.attributes()?,
             xattrs,
+            mount: false,
         })
     }
 

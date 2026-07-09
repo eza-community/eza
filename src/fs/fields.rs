@@ -114,6 +114,8 @@ pub struct PermissionsPlus {
     pub attributes: Attributes,
     #[allow(unused)]
     pub xattrs: bool,
+    #[allow(unused)]
+    pub mount: bool,
 }
 
 /// The permissions encoded as octal values

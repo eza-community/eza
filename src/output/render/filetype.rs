@@ -9,11 +9,11 @@ use nu_ansi_term::{AnsiString as ANSIString, Style};
 use crate::fs::fields as f;
 
 impl f::Type {
-    pub fn render<C: Colours>(self, colours: &C) -> ANSIString<'static> {
+    pub fn render<C: Colours>(self, colours: &C, mount: bool) -> ANSIString<'static> {
         #[rustfmt::skip]
         return match self {
             Self::File         => colours.normal().paint("."),
-            Self::Directory    => colours.directory().paint("d"),
+            Self::Directory    => colours.directory().paint(if mount { "D" } else { "d" }),
             Self::Pipe         => colours.pipe().paint("|"),
             Self::Link         => colours.symlink().paint("l"),
             Self::BlockDevice  => colours.block_device().paint("b"),
