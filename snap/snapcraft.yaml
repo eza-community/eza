@@ -26,7 +26,7 @@ parts:
     source: .
     build-attributes:
       - enable-patchelf
-    stage-packages:
+    build-packages:
       - cmake
       - libz-dev
 platforms:
