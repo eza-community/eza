@@ -182,6 +182,7 @@ const DIRECTORY_ICONS: Map<&'static str, char> = phf_map! {
     "Desktop"             => '\u{f108}',            // 
     "Documents"           => '\u{f0c82}',           // 󰲂
     "Downloads"           => '\u{f024d}',           // 󰉍
+    "Dev"                 => '\u{f121}',            // 
     "etc"                 => Icons::FOLDER_CONFIG,  // 
     "Favorites"           => '\u{f069d}',           // 󰚝
     "hidden"              => Icons::FOLDER_HIDDEN,  // 󱞞
