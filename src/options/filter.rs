@@ -275,6 +275,22 @@ mod tests {
     }
 
     #[test]
+    fn deduce_sort_field_path() {
+        assert_eq!(
+            mock_cli(vec!["--sort", "path"]).get_one::<SortField>("sort"),
+            Some(&SortField::Path(SortCase::AaBbCc))
+        );
+    }
+
+    #[test]
+    fn deduce_sort_field_path_case() {
+        assert_eq!(
+            mock_cli(vec!["--sort", "Path"]).get_one::<SortField>("sort"),
+            Some(&SortField::Path(SortCase::ABCabc))
+        );
+    }
+
+    #[test]
     fn deduce_sort_field_name_mix_hidden() {
         assert_eq!(
             mock_cli(vec!["--sort", ".name"]).get_one::<SortField>("sort"),

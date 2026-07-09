@@ -46,7 +46,7 @@ SORTING OPTIONS:
       --group-directories-first  list directories before other files
       --group-directories-last   list directories after other files
   -s, --sort <FIELD>             which field to sort by [default: name] [possible values:
-                                   name, Name, .name, .Name, ext, ext, created,
+                                   name, Name, .name, .Name, ext, ext, path, Path, created,
                                    date, age, accessed, changed,
                                    size, inode, type, none]
   -r, --reverse                  reverse the sort order
