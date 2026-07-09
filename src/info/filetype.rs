@@ -98,6 +98,7 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "bmp"        => FileType::Image,
     "cbr"        => FileType::Image,
     "cbz"        => FileType::Image,
+    "cb7"        => FileType::Image,
     "cr2"        => FileType::Image,
     "dvi"        => FileType::Image,
     "eps"        => FileType::Image,
