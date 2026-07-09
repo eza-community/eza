@@ -1,0 +1,8 @@
+# Also bind-mount the host RUSTUP_HOME at its original path inside the
+# container. cross mounts the active toolchain at /rust, but the nixpkgs
+# rustup linker-wrapper has the toolchain's original absolute path baked in
+# (it calls .../bin/gcc-ld-unwrapped/ld.lld via -fuse-ld=lld). Without this
+# mount that path doesn't exist inside the container, so linking host-side
+# build scripts (e.g. windows_x86_64_gnu) fails with ENOENT / "ld returned 127".
+[build.env]
+volumes = ["RUSTUP_HOME"]
