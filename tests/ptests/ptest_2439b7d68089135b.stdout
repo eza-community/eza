@@ -26,7 +26,7 @@ DISPLAY OPTIONS:
       --color [<WHEN>]             When to use colours. [default: auto] [possible values: always, auto, never]
       --color-scale [<FIELDS>...]  highlight value of FIELDS distinctly [possible values: all, age, size]
       --color-scale-mode <MODE>    mode for --color-scale [default: gradient] [possible values: fixed, gradient]
-      --icons [<WHEN>]             when to display icons [possible values: always, auto, never]
+      --icons[=<WHEN>]             when to display icons [possible values: always, auto, never]
       --hyperlink [<WHEN>]         when to display entries as hyperlinks [possible values: always, auto, never]
       --no-quotes                  don't quote file names with spaces
       --short-nix                  abbreviate Nix store hashes in file names and paths

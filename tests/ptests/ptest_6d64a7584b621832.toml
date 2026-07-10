@@ -1,2 +1,2 @@
 bin.name = "eza"
-args = "tests/test_dir --icons always"
+args = "tests/test_dir --icons=always"
