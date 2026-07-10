@@ -79,11 +79,13 @@ pub fn get_command() -> clap::Command {
             .default_missing_value("auto")
             .default_value("auto"))
         .arg(arg!(--"color-scale" <FIELDS> "highlight value of FIELDS distinctly")
+            .alias("colour-scale")
             .num_args(0..)
             .value_parser(value_parser!(ColorScaleArgs))
             .default_missing_value("all")
             .value_delimiter(','))
         .arg(arg!(--"color-scale-mode" <MODE> "mode for --color-scale")
+            .alias("colour-scale-mode")
             .num_args(1)
             .value_parser(value_parser!(ColorScaleModeArgs))
             .default_value("gradient"))
@@ -180,14 +182,11 @@ impl ValueEnum for ShowWhen {
     }
 
     fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
-        Some(
-            match self {
-                Self::Always => "always",
-                Self::Auto => "auto",
-                Self::Never => "never",
-            }
-            .into(),
-        )
+        Some(match self {
+            Self::Always => PossibleValue::new("always"),
+            Self::Auto => PossibleValue::new("auto").alias("automatic"),
+            Self::Never => PossibleValue::new("never"),
+        })
     }
 
     fn from_str(s: &str, _ignore_case: bool) -> Result<Self, String> {
@@ -355,6 +354,27 @@ pub mod test {
         T: Into<OsString> + Clone,
     {
         get_command().no_binary_name(true).try_get_matches_from(itr)
+    }
+
+    #[test]
+    fn accepts_automatic_color_value() {
+        let cli = mock_cli_try(["--color=automatic"]).unwrap();
+        assert_eq!(cli.get_one::<ShowWhen>("color"), Some(&ShowWhen::Auto));
+    }
+
+    #[test]
+    fn accepts_colour_scale_aliases() {
+        let cli = mock_cli_try(["--colour-scale=size", "--colour-scale-mode=fixed"]).unwrap();
+        assert_eq!(
+            cli.get_many::<ColorScaleArgs>("color-scale")
+                .unwrap()
+                .collect::<Vec<_>>(),
+            [&ColorScaleArgs::Size]
+        );
+        assert_eq!(
+            cli.get_one::<ColorScaleModeArgs>("color-scale-mode"),
+            Some(&ColorScaleModeArgs::Fixed)
+        );
     }
 
     #[test]
