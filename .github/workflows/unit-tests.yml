@@ -190,7 +190,7 @@ jobs:
   flake-build:
     needs: conventional
     name: Build Nix package
-    # if cross compilation is desired add 'aarch64-linux', 'x86_64-darwin' and 'aarch64-darwin' and fix the flake to support cross compilation.
+    # if cross compilation is desired, add 'aarch64-linux' and 'aarch64-darwin', and fix the flake to support cross compilation.
     strategy:
       matrix:
         target: [x86_64-linux]
