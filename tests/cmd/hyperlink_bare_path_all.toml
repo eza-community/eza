@@ -1,0 +1,3 @@
+bin.name = "eza"
+args = "--hyperlink tests/cmd"
+status.code = 0

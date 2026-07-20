@@ -93,6 +93,7 @@ pub fn get_command() -> clap::Command {
             .default_missing_value("auto"))
         .arg(arg!(--hyperlink <WHEN> "when to display entries as hyperlinks")
             .num_args(0..=1)
+            .require_equals(true)
             .value_parser(value_parser!(ShowWhen))
             .default_missing_value("auto"))
         .arg(arg!(--"no-quotes" "don't quote file names with spaces"))
