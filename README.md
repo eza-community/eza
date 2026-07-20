@@ -75,7 +75,9 @@ If you already have Nix setup with flake support, you can try out eza with the `
 
     nix shell nixpkgs#eza -c eza
 
-Nix will build environment for eza and run it.
+Nix will run `eza` in a nix shell.
+
+If you want to pass arguments this way, use e.g. `nix shell nixpkgs#eza -c eza -ol`.
 
 # Installation
 
