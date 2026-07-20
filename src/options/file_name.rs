@@ -157,7 +157,7 @@ mod tests {
             EmbedHyperlinks::Automatic
         );
         assert_eq!(
-            EmbedHyperlinks::deduce(&mock_cli(vec!["--hyperlink", "auto"])),
+            EmbedHyperlinks::deduce(&mock_cli(vec!["--hyperlink=auto"])),
             EmbedHyperlinks::Automatic
         );
     }
@@ -165,7 +165,7 @@ mod tests {
     #[test]
     fn deduce_embed_hyperlinks_always() {
         assert_eq!(
-            EmbedHyperlinks::deduce(&mock_cli(vec!["--hyperlink", "always"])),
+            EmbedHyperlinks::deduce(&mock_cli(vec!["--hyperlink=always"])),
             EmbedHyperlinks::Always
         );
     }
@@ -173,7 +173,7 @@ mod tests {
     #[test]
     fn deduce_embed_hyperlinks_never() {
         assert_eq!(
-            EmbedHyperlinks::deduce(&mock_cli(vec!["--hyperlink", "never"])),
+            EmbedHyperlinks::deduce(&mock_cli(vec!["--hyperlink=never"])),
             EmbedHyperlinks::Never
         );
         assert_eq!(
