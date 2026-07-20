@@ -71,13 +71,11 @@ Like seriously, we have a lot of good stuff.
 
 ### Nix ❄️
 
-If you already have Nix setup with flake support, you can try out eza with the `nix run` command:
+If you already have Nix setup with flake support, you can try out eza with the `nix` command:
 
-    nix run github:eza-community/eza
+    nix shell nixpkgs#eza -c eza
 
-Nix will build eza and run it.
-
-If you want to pass arguments this way, use e.g. `nix run github:eza-community/eza -- -ol`.
+Nix will build environment for eza and run it.
 
 # Installation
 
