@@ -20,19 +20,26 @@ LAYOUT OPTIONS:
   -w, --width <COLS>     set screen width in columns
 
 DISPLAY OPTIONS:
-  -F, --classify [<WHEN>]          display type indicator by file names [possible values: always, auto, never]
+  -F, --classify [<WHEN>]          display type indicator by file names [possible values: always,
+                                   auto, never]
   -X, --dereference                dereference symbolic links when displaying information
-      --absolute [<absolute>]      display entries with their absolute path [possible values: on, off, follow]
-      --color [<WHEN>]             When to use colours. [default: auto] [possible values: always, auto, never]
-      --color-scale [<FIELDS>...]  highlight value of FIELDS distinctly [possible values: all, age, size]
-      --color-scale-mode <MODE>    mode for --color-scale [default: gradient] [possible values: fixed, gradient]
+      --absolute [<absolute>]      display entries with their absolute path [possible values: on,
+                                   off, follow]
+      --color [<WHEN>]             When to use colours. [default: auto] [possible values: always,
+                                   auto, never]
+      --color-scale [<FIELDS>...]  highlight value of FIELDS distinctly [possible values: all, age,
+                                   size]
+      --color-scale-mode <MODE>    mode for --color-scale [default: gradient] [possible values:
+                                   fixed, gradient]
       --icons [<WHEN>]             when to display icons [possible values: always, auto, never]
-      --hyperlink [<WHEN>]         when to display entries as hyperlinks [possible values: always, auto, never]
+      --hyperlink [<WHEN>]         when to display entries as hyperlinks [possible values: always,
+                                   auto, never]
       --no-quotes                  don't quote file names with spaces
       --short-nix                  abbreviate Nix store hashes in file names and paths
 
 FILTERING OPTIONS:
-  -a, --all...               show hidden files. Use this twice to also show the '.' and '..' directories
+  -a, --all...               show hidden files. Use this twice to also show the '.' and '..'
+                             directories
   -A, --almost-all           equivalent to --all; included for compatibility with `ls -A`
   -d, --treat-dirs-as-files  treat directories as files; don't list their contents
   -D, --only-dirs            list only directories
@@ -83,4 +90,5 @@ LONG VIEW OPTIONS:
       --no-filesize          suppress the filesize field
       --no-user              suppress the user field
       --no-time              suppress the time field
-      --no-git               suppress Git fields (overrides --git, --git-repos, --git-repos-no-status)
+      --no-git               suppress Git fields (overrides --git, --git-repos,
+                             --git-repos-no-status)
