@@ -4,7 +4,7 @@
 // SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
-use clap::{ArgMatches, ValueEnum};
+use clap::{ArgMatches, ValueEnum, parser::ValueSource};
 
 use crate::output::TerminalWidth::Automatic;
 
@@ -131,7 +131,7 @@ impl Mode {
             "mounts",
             "loc",
         ] {
-            if matches.contains_id(flag) {
+            if matches.value_source(flag) == Some(ValueSource::CommandLine) {
                 return Err(OptionsError::Useless(flag, false, "long"));
             }
         }
@@ -1028,6 +1028,24 @@ mod tests {
                 true
             ),
             Err(OptionsError::Useless("across", true, "long"))
+        );
+    }
+
+    #[test]
+    fn strict_check_long_flags_no_args_is_ok() {
+        // Regression test for https://github.com/eza-community/eza/issues/1874:
+        // strict mode used to reject a bare invocation (no relevant flags passed
+        // at all) because `contains_id` is true for every flag clap has a
+        // matched (even default/unset) value for, not just ones actually given
+        // on the command line.
+        assert_eq!(Mode::strict_check_long_flags(&mock_cli(vec![""])), Ok(()));
+    }
+
+    #[test]
+    fn strict_check_long_flags_binary_without_long_errors() {
+        assert_eq!(
+            Mode::strict_check_long_flags(&mock_cli(vec!["--binary"])),
+            Err(OptionsError::Useless("binary", false, "long"))
         );
     }
 
