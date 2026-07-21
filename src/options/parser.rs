@@ -6,7 +6,14 @@
 // SPDX-License-Identifier: MIT
 use std::ffi::OsString;
 
-use clap::{Error, ValueEnum, arg, builder::PossibleValue, value_parser};
+use clap::{
+    Error, ValueEnum, arg,
+    builder::{
+        PossibleValue,
+        styling::{AnsiColor, Effects, Styles},
+    },
+    value_parser,
+};
 
 use crate::{
     fs::filter::{SortCase, SortField},
@@ -24,6 +31,15 @@ const TIME_FIELDS_HELP: &str = "[possible values:
 const FORMAT_STYLE_FIELDS_HELP: &str = "[possible values:
   default, iso, long-iso, full-iso, relative, \"+<CUSTOM_FORMAT>\"]";
 
+const HELP_STYLES: Styles = Styles::styled()
+    .header(AnsiColor::BrightGreen.on_default().effects(Effects::BOLD))
+    .usage(AnsiColor::BrightGreen.on_default().effects(Effects::BOLD))
+    .literal(AnsiColor::BrightCyan.on_default().effects(Effects::BOLD))
+    .placeholder(AnsiColor::Cyan.on_default())
+    .error(AnsiColor::BrightRed.on_default().effects(Effects::BOLD))
+    .valid(AnsiColor::BrightCyan.on_default().effects(Effects::BOLD))
+    .invalid(AnsiColor::Yellow.on_default().effects(Effects::BOLD));
+
 pub fn get_command() -> clap::Command {
     clap::Command::new(clap::crate_name!())
         .author(clap::crate_authors!())
@@ -32,6 +48,7 @@ pub fn get_command() -> clap::Command {
         .disable_help_flag(true)
         .disable_version_flag(true)
         .args_override_self(true)
+        .styles(HELP_STYLES)
 
         .arg(arg!([FILE]...).value_parser(clap::value_parser!(OsString)).hide_short_help(true))
 
@@ -367,5 +384,17 @@ pub mod test {
                 .collect::<Vec<_>>(),
             ["file1", "file2"]
         );
+    }
+
+    #[test]
+    fn help_uses_cargo_style_colors() {
+        let command = get_command();
+        let styles = command.get_styles();
+        let header = AnsiColor::BrightGreen.on_default().effects(Effects::BOLD);
+        let literal = AnsiColor::BrightCyan.on_default().effects(Effects::BOLD);
+
+        assert_eq!(styles.get_header(), &header);
+        assert_eq!(styles.get_literal(), &literal);
+        assert_eq!(styles.get_placeholder(), &AnsiColor::Cyan.on_default());
     }
 }
