@@ -20,7 +20,7 @@ LAYOUT OPTIONS:
   -w, --width <COLS>     set screen width in columns
 
 DISPLAY OPTIONS:
-  -F, --classify [<WHEN>]          display type indicator by file names [possible values: always, auto, never]
+  -F, --classify[=<WHEN>]          display type indicator by file names [possible values: always, auto, never]
   -X, --dereference                dereference symbolic links when displaying information
       --absolute [<absolute>]      display entries with their absolute path [possible values: on, off, follow]
       --color [<WHEN>]             When to use colours. [default: auto] [possible values: always, auto, never]
