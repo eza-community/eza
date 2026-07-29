@@ -198,7 +198,7 @@ impl details::Options {
 impl TerminalWidth {
     fn deduce<V: Vars>(matches: &ArgMatches, vars: &V) -> Result<Self, OptionsError> {
         if let Some(&width) = matches.get_one("width") {
-            if width >= 1 {
+            if width >= 1 && width <= usize::MAX / 2 {
                 Ok(Set(width))
             } else {
                 Ok(Automatic)
