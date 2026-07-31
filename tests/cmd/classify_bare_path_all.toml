@@ -1,0 +1,3 @@
+bin.name = "eza"
+args = "-alF tests/cmd"
+status.code = 0

@@ -62,6 +62,7 @@ pub fn get_command() -> clap::Command {
         .next_help_heading("DISPLAY OPTIONS")
         .arg(arg!(-F --classify <WHEN> "display type indicator by file names")
             .num_args(0..=1)
+            .require_equals(true)
             .value_parser(value_parser!(ShowWhen))
             .default_missing_value("auto"))
         .arg(arg!(-X --dereference  "dereference symbolic links when displaying information"))
@@ -367,5 +368,26 @@ pub mod test {
                 .collect::<Vec<_>>(),
             ["file1", "file2"]
         );
+    }
+
+    #[test]
+    fn classify_does_not_consume_file() {
+        let cli = mock_cli(vec!["-alF", "."]);
+
+        assert_eq!(
+            cli.get_many("FILE")
+                .unwrap()
+                .map(OsString::as_os_str)
+                .collect::<Vec<_>>(),
+            ["."]
+        );
+        assert_eq!(cli.get_one::<ShowWhen>("classify"), Some(&ShowWhen::Auto));
+    }
+
+    #[test]
+    fn classify_accepts_explicit_value() {
+        let cli = mock_cli(vec!["--classify=always", "."]);
+
+        assert_eq!(cli.get_one::<ShowWhen>("classify"), Some(&ShowWhen::Always));
     }
 }
