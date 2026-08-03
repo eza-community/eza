@@ -13,6 +13,7 @@ use crate::output::table::UserFormat;
 
 pub trait Render {
     fn render<C: Colours, U: Users>(self, colours: &C, users: &U, format: UserFormat) -> TextCell;
+    fn render_json<U: Users>(self, users: &U, format: UserFormat) -> Option<String>;
 }
 
 impl Render for Option<f::User> {
@@ -37,6 +38,19 @@ impl Render for Option<f::User> {
             colours.other()
         };
         TextCell::paint(style, user_name)
+    }
+
+    fn render_json<U: Users>(self, users: &U, format: UserFormat) -> Option<String> {
+        let uid = match self {
+            Some(u) => u.0,
+            None => return None,
+        };
+
+        Some(match (format, users.get_user_by_uid(uid)) {
+            (_, None) => uid.to_string(),
+            (UserFormat::Numeric, _) => uid.to_string(),
+            (UserFormat::Name, Some(user)) => user.name().to_string_lossy().into(),
+        })
     }
 }
 
@@ -135,6 +149,63 @@ pub mod test {
                 &MockUsers::with_current_uid(0),
                 UserFormat::Numeric
             )
+        );
+    }
+
+    #[test]
+    fn named_json() {
+        let mut users = MockUsers::with_current_uid(1000);
+        users.add_user(User::new(1000, "enoch", 100));
+
+        let user = Some(f::User(1000));
+        let expected = Some("enoch".to_string());
+        #[rustfmt::skip]
+        assert_eq!(expected, user.render_json(&users, UserFormat::Name));
+
+        let expected = Some("1000".to_string());
+        #[rustfmt::skip]
+        assert_eq!(expected, user.render_json(&users, UserFormat::Numeric));
+    }
+
+    #[test]
+    fn unnamed_json() {
+        let users = MockUsers::with_current_uid(1000);
+
+        let user = Some(f::User(1000));
+        let expected = Some("1000".to_string());
+        #[rustfmt::skip]
+        assert_eq!(expected, user.render_json(&users, UserFormat::Name));
+        #[rustfmt::skip]
+        assert_eq!(expected, user.render_json(&users, UserFormat::Numeric));
+    }
+
+    #[test]
+    fn different_named_json() {
+        let mut users = MockUsers::with_current_uid(0);
+        users.add_user(User::new(1000, "enoch", 100));
+
+        let user = Some(f::User(1000));
+        let expected = Some("enoch".to_string());
+        assert_eq!(expected, user.render_json(&users, UserFormat::Name));
+    }
+
+    #[test]
+    fn different_unnamed_json() {
+        let user = Some(f::User(1000));
+        let expected = Some("1000".to_string());
+        assert_eq!(
+            expected,
+            user.render_json(&MockUsers::with_current_uid(0), UserFormat::Numeric)
+        );
+    }
+
+    #[test]
+    fn overflow_json() {
+        let user = Some(f::User(2_147_483_648));
+        let expected = Some("2147483648".to_string());
+        assert_eq!(
+            expected,
+            user.render_json(&MockUsers::with_current_uid(0), UserFormat::Numeric)
         );
     }
 }

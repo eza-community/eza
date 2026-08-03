@@ -39,10 +39,25 @@ impl PermissionsPlusRender for Option<f::PermissionsPlus> {
             }
         }
     }
+
+    fn render_json(&self) -> Option<String> {
+        self.map(|p| {
+            let mut chars = vec![p.file_type.render_json()];
+            let permissions = p.permissions;
+            chars.extend(Some(permissions).render_json(p.file_type.is_regular_file()));
+
+            if p.xattrs {
+                chars.push("@");
+            }
+
+            chars.join("")
+        })
+    }
 }
 
 pub trait RenderPermissions {
     fn render<C: Colours>(&self, colours: &C, is_regular_file: bool) -> Vec<ANSIString<'static>>;
+    fn render_json(&self, is_regular_file: bool) -> Vec<&'static str>;
 }
 
 impl RenderPermissions for Option<f::Permissions> {
@@ -70,6 +85,50 @@ impl RenderPermissions for Option<f::Permissions> {
                 ]
             }
             None => std::iter::repeat_n(colours.dash().paint("-"), 9).collect(),
+        }
+    }
+
+    fn render_json(&self, is_regular_file: bool) -> Vec<&'static str> {
+        let bit = |bit, chr: &'static str| {
+            if bit { chr } else { "-" }
+        };
+
+        match self {
+            Some(p) => {
+                let user_exec = match (p.user_execute, p.setuid, is_regular_file) {
+                    (false, false, _) => "-",
+                    (true, false, _) => "x",
+                    (false, true, _) => "S",
+                    (true, true, _) => "s",
+                };
+
+                let group_exec = match (p.group_execute, p.setgid) {
+                    (false, false) => "-",
+                    (true, false) => "x",
+                    (false, true) => "S",
+                    (true, true) => "s",
+                };
+
+                let other_exec = match (p.other_execute, p.sticky) {
+                    (false, false) => "-",
+                    (true, false) => "x",
+                    (false, true) => "T",
+                    (true, true) => "t",
+                };
+
+                vec![
+                    bit(p.user_read, "r"),
+                    bit(p.user_write, "w"),
+                    user_exec, // p.user_execute_bit(colours, is_regular_file),
+                    bit(p.group_read, "r"),
+                    bit(p.group_write, "w"),
+                    group_exec, // p.group_execute_bit(colours),
+                    bit(p.other_read, "r"),
+                    bit(p.other_write, "w"),
+                    other_exec, //p.other_execute_bit(colours),
+                ]
+            }
+            None => std::iter::repeat_n("-", 9).collect::<Vec<&'static str>>(),
         }
     }
 }
@@ -269,5 +328,95 @@ pub mod test {
         ]);
 
         assert_eq!(expected, bits.render(&TestColours, true).into());
+    }
+
+    #[test]
+    #[cfg(unix)]
+    fn negate_json() {
+        let bits = Some(f::Permissions {
+            user_read: false,
+            user_write: false,
+            user_execute: false,
+            setuid: false,
+            group_read: false,
+            group_write: false,
+            group_execute: false,
+            setgid: false,
+            other_read: false,
+            other_write: false,
+            other_execute: false,
+            sticky: false,
+        });
+
+        let expected = vec!["-", "-", "-", "-", "-", "-", "-", "-", "-"];
+
+        assert_eq!(expected, bits.render_json(false));
+    }
+
+    #[test]
+    #[cfg(unix)]
+    fn affirm_json() {
+        let bits = Some(f::Permissions {
+            user_read: true,
+            user_write: true,
+            user_execute: true,
+            setuid: false,
+            group_read: true,
+            group_write: true,
+            group_execute: true,
+            setgid: false,
+            other_read: true,
+            other_write: true,
+            other_execute: true,
+            sticky: false,
+        });
+
+        let expected = vec!["r", "w", "x", "r", "w", "x", "r", "w", "x"];
+
+        assert_eq!(expected, bits.render_json(true));
+    }
+
+    #[test]
+    fn specials_json() {
+        let bits = Some(f::Permissions {
+            user_read: false,
+            user_write: false,
+            user_execute: true,
+            setuid: true,
+            group_read: false,
+            group_write: false,
+            group_execute: true,
+            setgid: true,
+            other_read: false,
+            other_write: false,
+            other_execute: true,
+            sticky: true,
+        });
+
+        let expected = vec!["-", "-", "s", "-", "-", "s", "-", "-", "t"];
+
+        assert_eq!(expected, bits.render_json(true));
+    }
+
+    #[test]
+    fn extra_specials_json() {
+        let bits = Some(f::Permissions {
+            user_read: false,
+            user_write: false,
+            user_execute: false,
+            setuid: true,
+            group_read: false,
+            group_write: false,
+            group_execute: false,
+            setgid: true,
+            other_read: false,
+            other_write: false,
+            other_execute: false,
+            sticky: true,
+        });
+
+        let expected = vec!["-", "-", "S", "-", "-", "S", "-", "-", "T"];
+
+        assert_eq!(expected, bits.render_json(true));
     }
 }

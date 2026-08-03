@@ -79,7 +79,7 @@ use clap::ArgMatches;
 use crate::fs::dir_action::DirAction;
 use crate::fs::filter::{FileFilter, GitIgnore};
 use crate::options::stdin::FilesInput;
-use crate::output::{Mode, View, details, grid_details};
+use crate::output::{Mode, View, details, grid_details, json};
 use crate::theme::Options as ThemeOptions;
 
 mod dir_action;
@@ -143,6 +143,14 @@ impl Options {
                         table: Some(ref table),
                         ..
                     },
+                ..
+            })
+            | Mode::Json(json::Options {
+                details:
+                    Some(details::Options {
+                        table: Some(ref table),
+                        ..
+                    }),
                 ..
             }) => table.columns.git,
             _ => false,

@@ -1018,6 +1018,26 @@ impl<'dir> File<'dir> {
     pub fn flags(&self) -> f::Flags {
         f::Flags(0)
     }
+
+    #[cfg(unix)]
+    pub fn permissions_plus(&self, xattrs: bool) -> Option<f::PermissionsPlus> {
+        self.permissions().map(|p| f::PermissionsPlus {
+            file_type: self.type_char(),
+            permissions: p,
+            xattrs,
+        })
+    }
+
+    #[allow(clippy::unnecessary_wraps)] // Needs to match Unix function
+    #[cfg(windows)]
+    pub fn permissions_plus(&self, xattrs: bool) -> Option<f::PermissionsPlus> {
+        Some(f::PermissionsPlus {
+            file_type: self.type_char(),
+            #[cfg(windows)]
+            attributes: self.attributes()?,
+            xattrs,
+        })
+    }
 }
 
 impl<'a> AsRef<File<'a>> for File<'a> {

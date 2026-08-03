@@ -25,7 +25,7 @@ use crate::output::cell::TextCell;
 use crate::output::color_scale::ColorScaleInformation;
 #[cfg(unix)]
 use crate::output::render::{GroupRender, OctalPermissionsRender, UserRender};
-use crate::output::render::{PermissionsPlusRender, TimeRender};
+use crate::output::render::{LanguageRender, LocRender, PermissionsPlusRender, TimeRender};
 use crate::output::time::TimeFormat;
 use crate::theme::Theme;
 
@@ -393,14 +393,14 @@ impl Default for TimeTypes {
 /// Any environment field should be able to be mocked up for test runs.
 pub struct Environment {
     /// The computer’s current time offset, determined from time zone.
-    time_offset: FixedOffset,
+    pub time_offset: FixedOffset,
 
     /// Localisation rules for formatting numbers.
-    numeric: locale::Numeric,
+    pub numeric: locale::Numeric,
 
     /// Mapping cache of user IDs to usernames.
     #[cfg(unix)]
-    users: Mutex<UsersCache>,
+    pub users: Mutex<UsersCache>,
 }
 
 impl Environment {
@@ -427,7 +427,7 @@ impl Environment {
     }
 }
 
-static ENVIRONMENT: LazyLock<Environment> = LazyLock::new(Environment::load_all);
+pub static ENVIRONMENT: LazyLock<Environment> = LazyLock::new(Environment::load_all);
 
 pub struct Table<'a> {
     columns: Vec<Column>,
@@ -526,26 +526,6 @@ impl<'a> Table<'a> {
     }
 
     #[cfg(unix)]
-    fn permissions_plus(&self, file: &File<'_>, xattrs: bool) -> Option<f::PermissionsPlus> {
-        file.permissions().map(|p| f::PermissionsPlus {
-            file_type: file.type_char(),
-            permissions: p,
-            xattrs,
-        })
-    }
-
-    #[allow(clippy::unnecessary_wraps)] // Needs to match Unix function
-    #[cfg(windows)]
-    fn permissions_plus(&self, file: &File<'_>, xattrs: bool) -> Option<f::PermissionsPlus> {
-        Some(f::PermissionsPlus {
-            file_type: file.type_char(),
-            #[cfg(windows)]
-            attributes: file.attributes()?,
-            xattrs,
-        })
-    }
-
-    #[cfg(unix)]
     fn octal_permissions(&self, file: &File<'_>) -> Option<f::OctalPermissions> {
         file.permissions()
             .map(|p| f::OctalPermissions { permissions: p })
@@ -559,15 +539,28 @@ impl<'a> Table<'a> {
         color_scale_info: Option<ColorScaleInformation>,
     ) -> TextCell {
         match column {
-            Column::Permissions => self.permissions_plus(file, xattrs).render(self.theme),
+            Column::Permissions => file.permissions_plus(xattrs).render(self.theme),
             Column::FileSize => file.size().render(
                 self.theme,
                 self.size_format,
                 &self.env.numeric,
                 color_scale_info,
             ),
-            Column::Language => self.language(file),
-            Column::Loc(content) => self.loc(file, content),
+            Column::Language => file
+                .language()
+                .render(self.theme.ui.date.unwrap_or_default()),
+            Column::Loc(content) => file.loc().render(
+                self.theme
+                    .ui
+                    .size
+                    .unwrap_or_default()
+                    .number_byte
+                    .unwrap_or_default(),
+                self.theme.ui.punctuation.unwrap_or_default(),
+                content,
+                self.loc_total,
+                &self.env.numeric,
+            ),
             #[cfg(unix)]
             Column::HardLinks => file.links().render(self.theme, &self.env.numeric),
             #[cfg(unix)]
@@ -617,52 +610,6 @@ impl<'a> Table<'a> {
                 self.time_format.clone(),
             ),
         }
-    }
-
-    /// The language column: the recognised language’s name, or a dash.
-    fn language(&self, file: &File<'_>) -> TextCell {
-        match file.language() {
-            Some(lang) => TextCell::paint(
-                self.theme.ui.date.unwrap_or_default(),
-                lang.name.to_string(),
-            ),
-            None => self.loc_placeholder(),
-        }
-    }
-
-    /// A lines-of-code column, rendered as a raw code-line count or as a
-    /// percentage of the whole tree’s code, depending on `content`.
-    fn loc(&self, file: &File<'_>, content: CodeContent) -> TextCell {
-        let Some(counts) = file.loc() else {
-            return self.loc_placeholder();
-        };
-        // Quantities take the same colour as file sizes, so the Code column
-        // reads consistently next to Size.
-        let style = self
-            .theme
-            .ui
-            .size
-            .unwrap_or_default()
-            .number_byte
-            .unwrap_or_default();
-        match content {
-            CodeContent::Percent => match self.loc_total {
-                Some(total) if total > 0 => {
-                    let pct = (counts.code as f64) * 100.0 / (total as f64);
-                    TextCell::paint(style, format!("{pct:.1}%"))
-                }
-                _ => self.loc_placeholder(),
-            },
-            _ => TextCell::paint(style, self.env.numeric.format_int(counts.code)),
-        }
-    }
-
-    /// The placeholder shown for files with no language or no count.
-    fn loc_placeholder(&self) -> TextCell {
-        TextCell::paint(
-            self.theme.ui.punctuation.unwrap_or_default(),
-            "-".to_string(),
-        )
     }
 
     fn git_status(&self, file: &File<'_>) -> f::Git {

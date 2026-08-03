@@ -15,6 +15,7 @@ pub mod file_name;
 pub mod grid;
 pub mod grid_details;
 pub mod icons;
+pub mod json;
 pub mod lines;
 pub mod render;
 pub mod table;
@@ -46,6 +47,7 @@ pub enum Mode {
     /// The `--code` lines-of-code summary, which lists languages rather than
     /// files.
     Code(code::Options),
+    Json(json::Options),
 }
 
 /// The width of the terminal requested by the user.

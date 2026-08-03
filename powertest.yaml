@@ -257,3 +257,6 @@ commands:
   ? - -Z
     - --context
   :
+  ? - null
+    - --json
+  :

@@ -79,3 +79,9 @@ mod flags_windows;
     target_os = "windows"
 )))]
 mod flags;
+
+mod language;
+pub use self::language::Render as LanguageRender;
+
+mod loc;
+pub use self::loc::Render as LocRender;

@@ -24,6 +24,10 @@ impl f::Links {
 
         TextCell::paint(style, numeric.format_int(self.count))
     }
+
+    pub fn render_json(&self, numeric: &NumericLocale) -> String {
+        numeric.format_int(self.count)
+    }
 }
 
 #[allow(unused)]
@@ -111,6 +115,48 @@ pub mod test {
         assert_eq!(
             expected,
             stati.render(&TestColours, &locale::Numeric::english())
+        );
+    }
+
+    #[test]
+    #[cfg(unix)]
+    fn regular_file_json() {
+        let stati = f::Links {
+            count: 1,
+            multiple: false,
+        };
+
+        assert_eq!(
+            "1".to_string(),
+            stati.render_json(&locale::Numeric::english())
+        );
+    }
+
+    #[test]
+    #[cfg(unix)]
+    fn regular_directory_json() {
+        let stati = f::Links {
+            count: 3005,
+            multiple: false,
+        };
+
+        assert_eq!(
+            "3,005".to_string(),
+            stati.render_json(&locale::Numeric::english())
+        );
+    }
+
+    #[test]
+    #[cfg(unix)]
+    fn popular_file_json() {
+        let stati = f::Links {
+            count: 3005,
+            multiple: true,
+        };
+
+        assert_eq!(
+            "3,005".to_string(),
+            stati.render_json(&locale::Numeric::english())
         );
     }
 }

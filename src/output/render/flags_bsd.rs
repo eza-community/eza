@@ -60,4 +60,8 @@ impl f::Flags {
     pub fn render(self, style: Style, _format: FlagsFormat) -> TextCell {
         TextCell::paint(style, wrapper_flags_to_string(self.0))
     }
+
+    pub fn render_json(self, _format: FlagsFormat) -> Option<String> {
+        Some(wrapper_flags_to_string(self.0))
+    }
 }

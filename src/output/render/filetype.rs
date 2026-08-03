@@ -22,6 +22,20 @@ impl f::Type {
             Self::Special      => colours.special().paint("?"),
         };
     }
+
+    pub fn render_json(self) -> &'static str {
+        #[rustfmt::skip]
+        return match self {
+            Self::File         => ".",
+            Self::Directory    => "d",
+            Self::Pipe         => "|",
+            Self::Link         => "l",
+            Self::BlockDevice  => "b",
+            Self::CharDevice   => "c",
+            Self::Socket       => "s",
+            Self::Special      => "?",
+        };
+    }
 }
 
 pub trait Colours {

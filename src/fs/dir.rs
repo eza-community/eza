@@ -22,6 +22,7 @@ use crate::fs::File;
 /// This object gets passed to the Files themselves, in order for them to
 /// check the existence of surrounding files, then highlight themselves
 /// accordingly. (See `File#get_source_files`)
+#[derive(Debug)]
 pub struct Dir {
     /// A vector of the files that have been read from this directory.
     contents: Vec<DirEntry>,

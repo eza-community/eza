@@ -18,7 +18,7 @@ use crate::fs::{Dir, File};
 use crate::options::parser::CodeContent;
 use crate::output::cell::TextCell;
 use crate::output::color_scale::ColorScaleInformation;
-use crate::output::details::{Options as DetailsOptions, Render as DetailsRender};
+use crate::output::details::{Options as DetailsOptions, Render as DetailsRender, show_xattr_hint};
 use crate::output::file_name::Options as FileStyle;
 use crate::output::table::{Options as TableOptions, Table};
 use crate::theme::Theme;
@@ -92,28 +92,6 @@ pub struct Render<'a> {
 }
 
 impl<'a> Render<'a> {
-    /// Create a temporary Details render that gets used for the columns of
-    /// the grid-details render that’s being generated.
-    ///
-    /// This includes an empty files vector because the files get added to
-    /// the table in *this* file, not in details: we only want to insert every
-    /// *n* files into each column’s table, not all of them.
-    fn details_for_column(&self) -> DetailsRender<'a> {
-        #[rustfmt::skip]
-        return DetailsRender {
-            dir:           self.dir,
-            files:         Vec::new(),
-            theme:         self.theme,
-            file_style:    self.file_style,
-            opts:          self.details,
-            recurse:       None,
-            filter:        self.filter,
-            git_ignoring:  self.git_ignoring,
-            git:           self.git,
-            git_repos:     self.git_repos,
-        };
-    }
-
     // This doesn’t take an IgnoreCache even though the details one does
     // because grid-details has no tree view.
 
@@ -123,8 +101,6 @@ impl<'a> Render<'a> {
             .table
             .as_ref()
             .expect("Details table options not given!");
-
-        let drender = self.details_for_column();
 
         let color_scale_info = ColorScaleInformation::from_color_scale(
             self.details.color_scale,
@@ -144,7 +120,11 @@ impl<'a> Render<'a> {
             .files
             .iter()
             .map(|file| {
-                let row = table.row_for_file(file, drender.show_xattr_hint(file), color_scale_info);
+                let row = table.row_for_file(
+                    file,
+                    show_xattr_hint(self.details.secattr, file),
+                    color_scale_info,
+                );
                 table.add_widths(&row);
                 row
             })

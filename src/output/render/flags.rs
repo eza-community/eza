@@ -15,4 +15,9 @@ impl f::Flags {
     pub fn render(self, style: Style, _format: FlagsFormat) -> TextCell {
         TextCell::paint(style, "-".to_string())
     }
+
+    #[must_use]
+    pub fn render_json(self, _format: FlagsFormat) -> Option<String> {
+        None
+    }
 }

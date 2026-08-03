@@ -11,6 +11,7 @@ use crate::output::cell::TextCell;
 
 pub trait Render {
     fn render(&self, style: Style) -> TextCell;
+    fn render_json(&self) -> Option<String>;
 }
 
 impl Render for Option<f::OctalPermissions> {
@@ -47,6 +48,35 @@ impl Render for Option<f::OctalPermissions> {
             }
             None => TextCell::paint(style, "----".into()),
         }
+    }
+
+    fn render_json(&self) -> Option<String> {
+        self.map(|p| {
+            let perm = &p.permissions;
+            #[rustfmt::skip]
+                let octal_sticky = f::OctalPermissions::bits_to_octal(
+                    perm.setuid,
+                    perm.setgid,
+                    perm.sticky
+                );
+            let octal_owner = f::OctalPermissions::bits_to_octal(
+                perm.user_read,
+                perm.user_write,
+                perm.user_execute,
+            );
+            let octal_group = f::OctalPermissions::bits_to_octal(
+                perm.group_read,
+                perm.group_write,
+                perm.group_execute,
+            );
+            let octal_other = f::OctalPermissions::bits_to_octal(
+                perm.other_read,
+                perm.other_write,
+                perm.other_execute,
+            );
+
+            format!("{octal_sticky}{octal_owner}{octal_group}{octal_other}")
+        })
     }
 }
 
@@ -200,5 +230,143 @@ pub mod test {
 
         let expected = TextCell::paint_str(Purple.bold(), "1777");
         assert_eq!(expected, octal.render(Purple.bold()));
+    }
+
+    #[test]
+    fn normal_folder_json() {
+        let bits = f::Permissions {
+            user_read: true,
+            user_write: true,
+            user_execute: true,
+            setuid: false,
+            group_read: true,
+            group_write: false,
+            group_execute: true,
+            setgid: false,
+            other_read: true,
+            other_write: false,
+            other_execute: true,
+            sticky: false,
+        };
+
+        let octal = Some(f::OctalPermissions { permissions: bits });
+
+        let expected = Some("0755".to_string());
+        assert_eq!(expected, octal.render_json());
+    }
+
+    #[test]
+    fn normal_file_json() {
+        let bits = f::Permissions {
+            user_read: true,
+            user_write: true,
+            user_execute: false,
+            setuid: false,
+            group_read: true,
+            group_write: false,
+            group_execute: false,
+            setgid: false,
+            other_read: true,
+            other_write: false,
+            other_execute: false,
+            sticky: false,
+        };
+
+        let octal = Some(f::OctalPermissions { permissions: bits });
+
+        let expected = Some("0644".to_string());
+        assert_eq!(expected, octal.render_json());
+    }
+
+    #[test]
+    fn secret_file_json() {
+        let bits = f::Permissions {
+            user_read: true,
+            user_write: true,
+            user_execute: false,
+            setuid: false,
+            group_read: false,
+            group_write: false,
+            group_execute: false,
+            setgid: false,
+            other_read: false,
+            other_write: false,
+            other_execute: false,
+            sticky: false,
+        };
+
+        let octal = Some(f::OctalPermissions { permissions: bits });
+
+        let expected = Some("0600".to_string());
+        assert_eq!(expected, octal.render_json());
+    }
+
+    #[test]
+    fn sticky1_json() {
+        let bits = f::Permissions {
+            user_read: true,
+            user_write: true,
+            user_execute: true,
+            setuid: true,
+            group_read: true,
+            group_write: true,
+            group_execute: true,
+            setgid: false,
+            other_read: true,
+            other_write: true,
+            other_execute: true,
+            sticky: false,
+        };
+
+        let octal = Some(f::OctalPermissions { permissions: bits });
+
+        let expected = Some("4777".to_string());
+        assert_eq!(expected, octal.render_json());
+    }
+
+    #[test]
+    fn sticky2_json() {
+        let bits = f::Permissions {
+            user_read: true,
+            user_write: true,
+            user_execute: true,
+            setuid: false,
+            group_read: true,
+            group_write: true,
+            group_execute: true,
+            setgid: true,
+            other_read: true,
+            other_write: true,
+            other_execute: true,
+            sticky: false,
+        };
+
+        let octal = Some(f::OctalPermissions { permissions: bits });
+
+        let expected = Some("2777".to_string());
+        assert_eq!(expected, octal.render_json());
+    }
+
+    #[test]
+    fn sticky3_json() {
+        let bits = f::Permissions {
+            user_read: true,
+            user_write: true,
+            user_execute: true,
+            setuid: false,
+            group_read: true,
+            group_write: true,
+            group_execute: true,
+            setgid: false,
+            other_read: true,
+            other_write: true,
+            other_execute: true,
+            sticky: true,
+        };
+
+        let octal = Some(f::OctalPermissions { permissions: bits });
+
+        let expected = Some("1777".to_string());
+        assert_eq!(expected, octal.render_json());
     }
 }

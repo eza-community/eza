@@ -18,6 +18,7 @@ LAYOUT OPTIONS:
       --code[=<MODE>]    summarise lines of code by language, recursing the tree or git repo
       --follow-symlinks  drill down into symbolic links that point to directories
   -w, --width <COLS>     set screen width in columns
+      --json             display as a json object
 
 DISPLAY OPTIONS:
   -F, --classify [<WHEN>]          display type indicator by file names [possible values: always, auto, never]

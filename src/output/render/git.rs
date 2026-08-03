@@ -16,6 +16,10 @@ impl f::Git {
             contents: vec![self.staged.render(colours), self.unstaged.render(colours)].into(),
         }
     }
+
+    pub fn render_json(self) -> String {
+        self.staged.render_json().to_owned() + self.unstaged.render_json()
+    }
 }
 
 impl f::GitStatus {
@@ -30,6 +34,20 @@ impl f::GitStatus {
             Self::TypeChange   => colours.type_change().paint("T"),
             Self::Ignored      => colours.ignored().paint("I"),
             Self::Conflicted   => colours.conflicted().paint("U"),
+        };
+    }
+
+    fn render_json(self) -> &'static str {
+        #[rustfmt::skip]
+        return match self {
+            Self::NotModified  => "-",
+            Self::New          => "N",
+            Self::Modified     => "M",
+            Self::Deleted      => "D",
+            Self::Renamed      => "R",
+            Self::TypeChange   => "T",
+            Self::Ignored      => "I",
+            Self::Conflicted   => "U",
         };
     }
 }
@@ -75,6 +93,15 @@ impl f::SubdirGitRepo {
             }
         }
     }
+
+    pub fn render_json(self) -> Option<String> {
+        let branch_name = self.branch.unwrap_or("-".to_string());
+        if let Some(status) = self.status {
+            Some(format!("{} {}", status.render_json(), branch_name))
+        } else {
+            Some(branch_name)
+        }
+    }
 }
 
 impl f::SubdirGitRepoStatus {
@@ -83,6 +110,14 @@ impl f::SubdirGitRepoStatus {
             Self::NoRepo => colours.no_repo().paint("-"),
             Self::GitClean => colours.git_clean().paint("|"),
             Self::GitDirty => colours.git_dirty().paint("+"),
+        }
+    }
+
+    pub fn render_json(self) -> &'static str {
+        match self {
+            Self::NoRepo => "-",
+            Self::GitClean => "|",
+            Self::GitDirty => "+",
         }
     }
 }
@@ -161,5 +196,29 @@ pub mod test {
         };
 
         assert_eq!(expected, stati.render(&TestColours));
+    }
+
+    #[test]
+    fn git_blank_json() {
+        let stati = f::Git {
+            staged: f::GitStatus::NotModified,
+            unstaged: f::GitStatus::NotModified,
+        };
+
+        let expected = "--".to_string();
+
+        assert_eq!(expected, stati.render_json());
+    }
+
+    #[test]
+    fn git_new_changed_json() {
+        let stati = f::Git {
+            staged: f::GitStatus::New,
+            unstaged: f::GitStatus::Modified,
+        };
+
+        let expected = "NM".to_string();
+
+        assert_eq!(expected, stati.render_json());
     }
 }

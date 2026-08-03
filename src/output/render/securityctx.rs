@@ -36,6 +36,24 @@ impl f::SecurityContext<'_> {
             }
         }
     }
+
+    pub fn render_json(&self) -> Option<String> {
+        match &self.context {
+            f::SecurityContextType::None => None,
+            f::SecurityContextType::SELinux(context) => {
+                let mut chars = Vec::with_capacity(7);
+
+                for (i, part) in context.split(':').enumerate() {
+                    if i > 0 {
+                        chars.push(":".to_string());
+                    }
+                    chars.push(String::from(part));
+                }
+
+                Some(chars.join(""))
+            }
+        }
+    }
 }
 
 #[rustfmt::skip]
