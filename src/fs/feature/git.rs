@@ -160,7 +160,7 @@ impl GitRepo {
 
         debug!("Querying Git repo {:?} for the first time", &self.workdir);
         let repo = replace(&mut *contents, GitContents::Processing).inner_repo();
-        let statuses = repo_to_statuses(&repo, &self.workdir);
+        let statuses = repo_to_statuses(&repo, &self.workdir, &self.listing_roots());
         let result = statuses.status(index, prefix_lookup);
         let _processing = replace(&mut *contents, GitContents::After { statuses });
         result
@@ -169,6 +169,15 @@ impl GitRepo {
     /// Whether this repository has the given working directory.
     fn has_workdir(&self, path: &Path) -> bool {
         self.workdir == path
+    }
+
+    /// The absolute paths of every listing that resolved to this repository:
+    /// status queries only ever concern paths beneath these (see `has_path`).
+    fn listing_roots(&self) -> Vec<PathBuf> {
+        std::iter::once(&self.original_path)
+            .chain(self.extra_paths.iter())
+            .map(|p| reorient(p))
+            .collect()
     }
 
     /// Whether this repository cares about the given path at all.
@@ -224,11 +233,37 @@ impl GitContents {
 /// mapping of files to their Git status.
 /// We will have already used the working directory at this point, so it gets
 /// passed in rather than deriving it from the `Repository` again.
-fn repo_to_statuses(repo: &git2::Repository, workdir: &Path) -> Git {
+fn repo_to_statuses(repo: &git2::Repository, workdir: &Path, roots: &[PathBuf]) -> Git {
     let mut statuses = Vec::new();
 
     info!("Getting Git statuses for repo with workdir {workdir:?}");
-    match repo.statuses(None) {
+
+    // Mirror `GIT_STATUS_OPT_DEFAULTS`, which libgit2 applies when given no options.
+    let mut options = git2::StatusOptions::new();
+    options
+        .include_ignored(true)
+        .include_untracked(true)
+        .recurse_untracked_dirs(true);
+
+    // Limit the scan to the listed paths: a small corner of a large repository
+    // should not pay for a scan of the whole working tree. Roots at or outside
+    // the workdir fall back to a full scan.
+    let workdir_canonical = reorient(workdir);
+    let pathspecs: Option<Vec<&Path>> = roots
+        .iter()
+        .map(|root| match root.strip_prefix(&workdir_canonical) {
+            Ok(rel) if !rel.as_os_str().is_empty() => Some(rel),
+            _ => None,
+        })
+        .collect();
+    if let Some(pathspecs) = pathspecs {
+        debug!("Limiting Git status scan to {pathspecs:?}");
+        for spec in pathspecs {
+            options.pathspec(spec);
+        }
+    }
+
+    match repo.statuses(Some(&mut options)) {
         Ok(es) => {
             for e in es.iter() {
                 if let Some(p) = get_path_from_status_entry(&e) {
