@@ -126,7 +126,7 @@ version := ""
 new_version := if version == "" { "$(convco version --bump)" } else { version }
 
 # If you're not cafkafk and she isn't dead, don't run this!
-#
+# We redump the tests to update the test that needs the new version.
 # usage: release major, release minor, release patch
 [group('release')]
 release:
@@ -134,6 +134,7 @@ release:
     git cliff -c .config/cliff.toml -t "{{new_version}}" > CHANGELOG.md
     cargo check
     nix build -L ./#clippy
+    just idump 
     git checkout -b "cafk-release-v{{new_version}}"
     git commit -asm "chore: eza v{{new_version}} changelogs, version bump"
     git push
