@@ -216,6 +216,8 @@ To install eza, run:
 scoop install eza
 ```
 
+After Winget or Scoop, open a **new** terminal so your `PATH` includes `eza`.
+
 ### Flox (Linux, macOS, Windows WSL)
 
 Eza is available from [Flox](https://flox.dev).
