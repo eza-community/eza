@@ -6,6 +6,14 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## [Unreleased]
+
+### Breaking Changes
+
+- `-t`/`--time` field argument is now optional: when omitted, defaults to `modified` (#1740)
+
+### Bug Fixes
+
 ## [0.23.5] - 2026-07-09
 
 ### Bug Fixes
