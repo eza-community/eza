@@ -730,6 +730,30 @@ mod tests {
     }
 
     #[test]
+    fn deduce_size_format_last_long_option_wins() {
+        assert_eq!(
+            SizeFormat::deduce(&mock_cli(vec!["--binary", "--bytes"])),
+            SizeFormat::JustBytes
+        );
+        assert_eq!(
+            SizeFormat::deduce(&mock_cli(vec!["--bytes", "--binary"])),
+            SizeFormat::BinaryBytes
+        );
+    }
+
+    #[test]
+    fn deduce_size_format_last_short_option_wins() {
+        assert_eq!(
+            SizeFormat::deduce(&mock_cli(vec!["-bB"])),
+            SizeFormat::JustBytes
+        );
+        assert_eq!(
+            SizeFormat::deduce(&mock_cli(vec!["-Bb"])),
+            SizeFormat::BinaryBytes
+        );
+    }
+
+    #[test]
     fn deduce_grid_options() {
         assert_eq!(
             grid::Options::deduce(&mock_cli(vec!["--across"])),
