@@ -309,6 +309,21 @@ impl<C: Colours> FileName<'_, '_, C> {
             bits.push(style.paint(" ".repeat(spaces_count as usize)));
         }
 
+        let should_embed_hyperlink = match self.options.embed_hyperlinks {
+            EmbedHyperlinks::Never => false,
+            EmbedHyperlinks::Automatic => self.options.is_a_tty,
+            EmbedHyperlinks::Always => true,
+        };
+        let hyperlink_start_tag = should_embed_hyperlink
+            .then(|| self.file.absolute_path())
+            .flatten()
+            .and_then(|p| p.as_os_str().to_str())
+            .map(escape::get_hyperlink_start_tag);
+
+        if let Some(start_tag) = hyperlink_start_tag.as_ref() {
+            bits.push(ANSIString::from(start_tag.clone()));
+        }
+
         if self.file.parent_dir.is_none()
             && self.options.absolute == Absolute::Off
             && let Some(parent) = self.file.path.parent()
@@ -326,6 +341,10 @@ impl<C: Colours> FileName<'_, '_, C> {
             for bit in self.escaped_file_name(filename_style_override) {
                 bits.push(bit);
             }
+        }
+
+        if hyperlink_start_tag.is_some() {
+            bits.push(ANSIString::from(escape::HYPERLINK_CLOSING));
         }
 
         if let (LinkStyle::FullLinkPaths, Some(target)) = (self.link_style, self.target.as_ref()) {
@@ -493,23 +512,6 @@ impl<C: Colours> FileName<'_, '_, C> {
         let file_style = style_override.unwrap_or(self.style());
         let mut bits = Vec::new();
 
-        let mut display_hyperlink = false;
-        let should_embed_hyperlinks = match self.options.embed_hyperlinks {
-            EmbedHyperlinks::Never => false,
-            EmbedHyperlinks::Automatic => self.options.is_a_tty,
-            EmbedHyperlinks::Always => true,
-        };
-        if should_embed_hyperlinks
-            && let Some(abs_path) = self
-                .file
-                .absolute_path()
-                .and_then(|p| p.as_os_str().to_str())
-        {
-            bits.push(ANSIString::from(escape::get_hyperlink_start_tag(abs_path)));
-
-            display_hyperlink = true;
-        }
-
         let display_name = self.display_name();
         if self.options.short_nix {
             // Abbreviated store hashes get painted dim, so the part of the
@@ -536,10 +538,6 @@ impl<C: Colours> FileName<'_, '_, C> {
                 self.colours.control_char(),
                 self.options.quote_style,
             );
-        }
-
-        if display_hyperlink {
-            bits.push(ANSIString::from(escape::HYPERLINK_CLOSING));
         }
 
         bits
