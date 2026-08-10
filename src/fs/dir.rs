@@ -6,11 +6,13 @@
 // SPDX-License-Identifier: MIT
 use crate::fs::feature::git::GitCache;
 use crate::fs::fields::GitStatus;
+use std::collections::HashSet;
 use std::fs;
 use std::fs::DirEntry;
 use std::io;
 use std::path::{Path, PathBuf};
 use std::slice::Iter as SliceIter;
+use std::sync::OnceLock;
 
 use log::info;
 
@@ -28,6 +30,10 @@ pub struct Dir {
 
     /// The path that was read.
     pub path: PathBuf,
+
+    /// The same paths as `contents`, in a form that can be searched in
+    /// constant time. Built on first use, since most listings never ask.
+    paths: OnceLock<HashSet<PathBuf>>,
 }
 
 impl Dir {
@@ -40,6 +46,7 @@ impl Dir {
         Self {
             contents: vec![],
             path,
+            paths: OnceLock::new(),
         }
     }
 
@@ -52,6 +59,8 @@ impl Dir {
         info!("Reading directory {:?}", &self.path);
 
         self.contents = fs::read_dir(&self.path)?.collect::<Result<Vec<_>, _>>()?;
+        // The contents just changed, so anything derived from them is stale.
+        self.paths = OnceLock::new();
 
         info!("Read directory success {:?}", &self.path);
         Ok(self)
@@ -71,7 +80,11 @@ impl Dir {
         let contents = fs::read_dir(&path)?.collect::<Result<Vec<_>, _>>()?;
 
         info!("Read directory success {:?}", &path);
-        Ok(Self { contents, path })
+        Ok(Self {
+            contents,
+            path,
+            paths: OnceLock::new(),
+        })
     }
 
     /// Produce an iterator of IO results of trying to read all the files in
@@ -100,7 +113,9 @@ impl Dir {
     /// Whether this directory contains a file with the given path.
     #[must_use]
     pub fn contains(&self, path: &Path) -> bool {
-        self.contents.iter().any(|p| p.path().as_path() == path)
+        self.paths
+            .get_or_init(|| self.contents.iter().map(DirEntry::path).collect())
+            .contains(path)
     }
 
     /// Append a path onto the path specified by this directory.
