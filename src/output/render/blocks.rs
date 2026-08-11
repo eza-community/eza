@@ -50,6 +50,8 @@ impl f::Blocksize {
             NumberPrefix::Prefixed(p, n) => (p, n),
         };
 
+        let (prefix, n) = super::size::carry_to_next_prefix(prefix, n);
+
         let symbol = prefix.symbol();
         let number = if n < 10_f64 {
             numerics.format_float(n, 1)
