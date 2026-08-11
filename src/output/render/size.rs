@@ -13,6 +13,48 @@ use crate::output::cell::{DisplayWidth, TextCell};
 use crate::output::color_scale::{ColorScaleInformation, ColorScaleMode};
 use crate::output::table::SizeFormat;
 
+/// Steps up to the next unit prefix when rounding for display would otherwise
+/// show a whole unit's worth of the current one.
+///
+/// The prefix is picked before the number is rounded, so a size just short of
+/// the next unit — 1 048 575 bytes is 1023.999 KiB — ends up rendered as
+/// `1,024Ki` instead of `1.0Mi`. `NumberPrefix` only ever hands back a value in
+/// `1 .. base`, so rounding can at most reach `base` exactly, which is one of
+/// the next unit.
+pub fn carry_to_next_prefix(prefix: Prefix, n: f64) -> (Prefix, f64) {
+    #[rustfmt::skip]
+    let (base, next) = match prefix {
+        Prefix::Kilo  => (1000_f64, Some(Prefix::Mega)),
+        Prefix::Mega  => (1000_f64, Some(Prefix::Giga)),
+        Prefix::Giga  => (1000_f64, Some(Prefix::Tera)),
+        Prefix::Tera  => (1000_f64, Some(Prefix::Peta)),
+        Prefix::Peta  => (1000_f64, Some(Prefix::Exa)),
+        Prefix::Exa   => (1000_f64, Some(Prefix::Zetta)),
+        Prefix::Zetta => (1000_f64, Some(Prefix::Yotta)),
+        Prefix::Yotta => (1000_f64, None),
+        Prefix::Kibi  => (1024_f64, Some(Prefix::Mebi)),
+        Prefix::Mebi  => (1024_f64, Some(Prefix::Gibi)),
+        Prefix::Gibi  => (1024_f64, Some(Prefix::Tebi)),
+        Prefix::Tebi  => (1024_f64, Some(Prefix::Pebi)),
+        Prefix::Pebi  => (1024_f64, Some(Prefix::Exbi)),
+        Prefix::Exbi  => (1024_f64, Some(Prefix::Zebi)),
+        Prefix::Zebi  => (1024_f64, Some(Prefix::Yobi)),
+        Prefix::Yobi  => (1024_f64, None),
+    };
+
+    // Mirror the rounding that the number will be displayed with.
+    let rounded = if n < 10_f64 {
+        (n * 10_f64).round() / 10_f64
+    } else {
+        n.round()
+    };
+
+    match next {
+        Some(next) if rounded >= base => (next, 1_f64),
+        _ => (prefix, n),
+    }
+}
+
 impl f::Size {
     pub fn render<C: Colours>(
         self,
@@ -73,6 +115,8 @@ impl f::Size {
             }
             NumberPrefix::Prefixed(p, n)  => (p, n),
         };
+
+        let (prefix, n) = carry_to_next_prefix(prefix, n);
 
         let symbol = prefix.symbol();
         let number = if n < 10_f64 {
@@ -195,6 +239,64 @@ pub mod test {
         let expected = TextCell {
             width: DisplayWidth::from(5),
             contents: vec![Fixed(66).paint("1.0"), Fixed(77).bold().paint("Mi")].into(),
+        };
+
+        assert_eq!(
+            expected,
+            directory.render(
+                &TestColours,
+                SizeFormat::BinaryBytes,
+                &NumericLocale::english(),
+                None
+            )
+        );
+    }
+
+    #[test]
+    fn file_binary_carries_to_next_prefix() {
+        // 1023.999 KiB rounds to 1024, which reads as a whole mebibyte.
+        let directory = f::Size::Some(1_048_575);
+        let expected = TextCell {
+            width: DisplayWidth::from(5),
+            contents: vec![Fixed(66).paint("1.0"), Fixed(77).bold().paint("Mi")].into(),
+        };
+
+        assert_eq!(
+            expected,
+            directory.render(
+                &TestColours,
+                SizeFormat::BinaryBytes,
+                &NumericLocale::english(),
+                None
+            )
+        );
+    }
+
+    #[test]
+    fn file_decimal_carries_to_next_prefix() {
+        let directory = f::Size::Some(999_999);
+        let expected = TextCell {
+            width: DisplayWidth::from(4),
+            contents: vec![Fixed(66).paint("1.0"), Fixed(77).bold().paint("M")].into(),
+        };
+
+        assert_eq!(
+            expected,
+            directory.render(
+                &TestColours,
+                SizeFormat::DecimalBytes,
+                &NumericLocale::english(),
+                None
+            )
+        );
+    }
+
+    #[test]
+    fn file_binary_below_boundary_is_unchanged() {
+        let directory = f::Size::Some(1_047_000);
+        let expected = TextCell {
+            width: DisplayWidth::from(7),
+            contents: vec![Fixed(66).paint("1,022"), Fixed(77).bold().paint("Ki")].into(),
         };
 
         assert_eq!(
