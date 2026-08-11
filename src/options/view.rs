@@ -197,15 +197,15 @@ impl details::Options {
 
 impl TerminalWidth {
     fn deduce<V: Vars>(matches: &ArgMatches, vars: &V) -> Result<Self, OptionsError> {
-        if let Some(&width) = matches.get_one("width") {
+        if let Some(&width) = matches.get_one::<usize>("width") {
             if width >= 1 {
-                Ok(Set(width))
+                Ok(Set(width.min(TerminalWidth::MAXIMUM)))
             } else {
                 Ok(Automatic)
             }
         } else if let Some(columns) = vars.get(vars::COLUMNS).and_then(|s| s.into_string().ok()) {
-            match columns.parse() {
-                Ok(width) => Ok(Set(width)),
+            match columns.parse::<usize>() {
+                Ok(width) => Ok(Set(width.min(TerminalWidth::MAXIMUM))),
                 Err(e) => {
                     let source = NumberSource::Env(vars::COLUMNS);
                     Err(OptionsError::FailedParse(columns, source, e))
@@ -1066,6 +1066,27 @@ mod tests {
         assert_eq!(
             TerminalWidth::deduce(&mock_cli(vec![""]), &vars),
             Ok(Set(80))
+        );
+    }
+
+    #[test]
+    fn deduce_terminal_width_huge_arg_is_clamped() {
+        assert_eq!(
+            TerminalWidth::deduce(
+                &mock_cli(vec!["--width", &usize::MAX.to_string()]),
+                &MockVars::default()
+            ),
+            Ok(Set(TerminalWidth::MAXIMUM))
+        );
+    }
+
+    #[test]
+    fn deduce_terminal_width_huge_env_is_clamped() {
+        let mut vars = MockVars::default();
+        vars.set(vars::COLUMNS, &OsString::from(usize::MAX.to_string()));
+        assert_eq!(
+            TerminalWidth::deduce(&mock_cli(vec![""]), &vars),
+            Ok(Set(TerminalWidth::MAXIMUM))
         );
     }
 
