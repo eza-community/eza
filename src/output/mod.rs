@@ -59,6 +59,10 @@ pub enum TerminalWidth {
 }
 
 impl TerminalWidth {
+    /// The largest width that can be requested. Terminals report their size as
+    /// a `u16`, and widths beyond that overflow the grid layout arithmetic.
+    pub const MAXIMUM: usize = u16::MAX as usize;
+
     #[must_use]
     pub fn actual_terminal_width(self) -> Option<usize> {
         // All of stdin, stdout, and stderr could not be connected to a
