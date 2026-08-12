@@ -357,6 +357,7 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "ino"        => FileType::Source, // Arduino
     "ipynb"      => FileType::Source, // Jupyter Notebook
     "ixx"        => FileType::Source, // C/C++ module
+    "janet"      => FileType::Source, // Janet
     "java"       => FileType::Source, // Java
     "jl"         => FileType::Source, // Julia
     "js"         => FileType::Source, // JavaScript
