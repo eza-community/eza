@@ -420,6 +420,7 @@ languages! {
     CLOJURE    = ("Clojure",      &[";"],               NO_BLOCK);
     LISP       = ("Lisp",         &[";"],               &[("#|", "|#")]);
     SCHEME     = ("Scheme",       &[";"],               &[("#|", "|#")]);
+    JANET      = ("Janet",        HASH_LINE,            NO_BLOCK);
     OCAML      = ("OCaml",        NO_LINE,              &[("(*", "*)")]);
     FSHARP     = ("F#",           C_LINE,               &[("(*", "*)")]);
     VIM        = ("Vim script",   &["\""],              NO_BLOCK);
@@ -516,6 +517,7 @@ static BY_EXTENSION: Map<&'static str, &'static Language> = phf_map! {
     "lisp"  => &LISP,
     "el"    => &LISP,
     "scm"   => &SCHEME,
+    "janet" => &JANET,
     "ml"    => &OCAML,
     "mli"   => &OCAML,
     "fs"    => &FSHARP,
