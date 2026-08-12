@@ -380,6 +380,7 @@ macro_rules! languages {
 languages! {
     RUST       = ("Rust",         C_LINE,               &[("/*", "*/")]);
     C          = ("C",            C_LINE,               C_BLOCK);
+    ODIN       = ("Odin",         C_LINE,               C_BLOCK);
     CPP        = ("C++",          C_LINE,               C_BLOCK);
     CSHARP     = ("C#",           C_LINE,               C_BLOCK);
     JAVA       = ("Java",         C_LINE,               C_BLOCK);
@@ -451,6 +452,7 @@ static BY_EXTENSION: Map<&'static str, &'static Language> = phf_map! {
     "rs"    => &RUST,
     "c"     => &C,
     "h"     => &C,
+    "odin"  => &ODIN,
     "cc"    => &CPP,
     "cpp"   => &CPP,
     "cxx"   => &CPP,
