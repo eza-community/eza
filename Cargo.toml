@@ -99,6 +99,10 @@ path-clean = "1.0.1"
 unit-prefix = "0.5.2"
 # palette 0.7.6 is broken: https://github.com/eza-community/eza/pull/1207
 palette = { version = "=0.7.5", default-features = false, features = ["std"] }
+# palette 0.7.5 requires palette_derive "0.7.5" (a caret requirement), so pinning
+# palette alone lets palette_derive 0.7.6+ in, which is what actually pulls the
+# unsound by_address crate. It must be pinned directly to have any effect.
+palette_derive = "=0.7.5"
 percent-encoding = "2.3.1"
 phf = { version = "0.13.1", features = ["macros"] }
 plist = { version = "1.7.0", default-features = false }
