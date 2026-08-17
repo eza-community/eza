@@ -45,18 +45,56 @@ pub fn escape(
     }
 }
 
-const HYPERLINK_ESCAPE_CHARS: &AsciiSet = &CONTROLS.add(b' ');
+const HYPERLINK_ESCAPE_CHARS: &AsciiSet = &CONTROLS
+    .add(b' ')
+    .add(b'"')
+    .add(b'#')
+    .add(b'%')
+    .add(b'<')
+    .add(b'>')
+    .add(b'?')
+    .add(b'[')
+    .add(b'\\')
+    .add(b']')
+    .add(b'^')
+    .add(b'`')
+    .add(b'{')
+    .add(b'|')
+    .add(b'}');
 const HYPERLINK_OPENING_START: &str = "\x1B]8;;";
 const HYPERLINK_OPENING_END: &str = "\x1B\x5C";
 // Combination of both above tags
 pub const HYPERLINK_CLOSING: &str = "\x1B]8;;\x1B\x5C";
 
-pub fn get_hyperlink_start_tag(abs_path: &str) -> String {
-    let abs_path = utf8_percent_encode(abs_path, HYPERLINK_ESCAPE_CHARS).to_string();
+#[cfg(any(target_os = "windows", test))]
+fn encode_windows_path_for_file_uri(abs_path: &str) -> String {
+    let (path, is_unc) = if let Some(path) = abs_path.strip_prefix(r"\\?\UNC\") {
+        (path, true)
+    } else {
+        let path = abs_path.strip_prefix(r"\\?\").unwrap_or(abs_path);
+        if let Some(path) = path.strip_prefix(r"\\") {
+            (path, true)
+        } else {
+            (path, false)
+        }
+    };
 
-    // On Windows, `std::fs::canonicalize` adds the Win32 File prefix, which we need to remove
+    let mut path = path.replace('\\', "/");
+    // Drive paths need an empty authority (`file:///C:/...`), while UNC paths
+    // use their server name as the authority (`file://server/share/...`).
+    if !is_unc && !path.starts_with('/') {
+        path.insert(0, '/');
+    }
+
+    utf8_percent_encode(&path, HYPERLINK_ESCAPE_CHARS).to_string()
+}
+
+pub fn get_hyperlink_start_tag(abs_path: &str) -> String {
     #[cfg(target_os = "windows")]
-    let abs_path = abs_path.strip_prefix("\\\\?\\").unwrap_or(&abs_path);
+    let abs_path = encode_windows_path_for_file_uri(abs_path);
+
+    #[cfg(not(target_os = "windows"))]
+    let abs_path = utf8_percent_encode(abs_path, HYPERLINK_ESCAPE_CHARS).to_string();
 
     format!("{HYPERLINK_OPENING_START}file://{abs_path}{HYPERLINK_OPENING_END}")
 }
@@ -73,5 +111,40 @@ mod test {
                 "{HYPERLINK_OPENING_START}file:///folder%20name/file%20name{HYPERLINK_OPENING_END}"
             ),
         );
+    }
+
+    #[test]
+    fn hyperlink_start_tag_escapes_uri_path_characters() {
+        assert_eq!(
+            get_hyperlink_start_tag(r#"/folder/file#?%[]\"<>^`{|}.txt"#),
+            format!(
+                "{HYPERLINK_OPENING_START}file:///folder/file%23%3F%25%5B%5D%5C%22%3C%3E%5E%60%7B%7C%7D.txt{HYPERLINK_OPENING_END}"
+            ),
+        );
+    }
+
+    #[test]
+    fn windows_paths_are_normalized_before_uri_escaping() {
+        for (path, expected) in [
+            (
+                r"\\?\C:\folder name\file#.txt",
+                "file:///C:/folder%20name/file%23.txt",
+            ),
+            (
+                r"C:\folder name\file#.txt",
+                "file:///C:/folder%20name/file%23.txt",
+            ),
+            (
+                r"\\?\UNC\server\share\folder name\file#.txt",
+                "file://server/share/folder%20name/file%23.txt",
+            ),
+            (
+                r"\\server\share\folder name\file#.txt",
+                "file://server/share/folder%20name/file%23.txt",
+            ),
+        ] {
+            let encoded_path = encode_windows_path_for_file_uri(path);
+            assert_eq!(format!("file://{encoded_path}"), expected);
+        }
     }
 }
