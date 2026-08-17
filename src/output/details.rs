@@ -172,7 +172,7 @@ impl<'a> Render<'a> {
         let color_scale_info = ColorScaleInformation::from_color_scale(
             self.opts.color_scale,
             &self.files,
-            self.filter.dot_filter,
+            self.filter,
             self.git,
             self.git_ignoring,
             self.recurse,

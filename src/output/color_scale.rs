@@ -9,7 +9,9 @@ use nu_ansi_term::{Color as Colour, Style};
 use palette::{FromColor, LinSrgb, Oklab, Srgb};
 
 use crate::{
-    fs::{DotFilter, File, dir_action::RecurseOptions, feature::git::GitCache, fields::Size},
+    fs::{
+        File, dir_action::RecurseOptions, feature::git::GitCache, fields::Size, filter::FileFilter,
+    },
     output::{table::TimeType, tree::TreeDepth},
 };
 
@@ -54,7 +56,7 @@ impl ColorScaleInformation {
     pub fn from_color_scale(
         color_scale: ColorScaleOptions,
         files: &[File<'_>],
-        dot_filter: DotFilter,
+        filter: &FileFilter,
         git: Option<&GitCache>,
         git_ignoring: bool,
         r: Option<RecurseOptions>,
@@ -74,7 +76,7 @@ impl ColorScaleInformation {
             update_information_recursively(
                 &mut information,
                 files,
-                dot_filter,
+                filter,
                 git,
                 git_ignoring,
                 TreeDepth::root(),
@@ -122,7 +124,7 @@ impl ColorScaleInformation {
 fn update_information_recursively(
     information: &mut ColorScaleInformation,
     files: &[File<'_>],
-    dot_filter: DotFilter,
+    filter: &FileFilter,
     git: Option<&GitCache>,
     git_ignoring: bool,
     depth: TreeDepth,
@@ -169,14 +171,19 @@ fn update_information_recursively(
         {
             match file.read_dir() {
                 Ok(dir) => {
-                    let files: Vec<File<'_>> = dir
-                        .files(dot_filter, git, git_ignoring, false, false)
+                    let mut files: Vec<File<'_>> = dir
+                        .files(filter.dot_filter, git, git_ignoring, false, false)
                         .collect();
+
+                    // Files that will never be displayed must not contribute to
+                    // the gradient extremes, or an ignored outlier would skew
+                    // the colours of every row that *is* shown.
+                    filter.filter_child_files(r.is_some(), &mut files);
 
                     update_information_recursively(
                         information,
                         &files,
-                        dot_filter,
+                        filter,
                         git,
                         git_ignoring,
                         depth.deeper(),
@@ -260,4 +267,81 @@ fn adjust_luminance(color: Colour, x: f32, min_l: f32) -> Colour {
         (adjusted_rgb.green * 255.0).round() as u8,
         (adjusted_rgb.blue * 255.0).round() as u8,
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{ColorScaleInformation, ColorScaleMode, ColorScaleOptions};
+    use crate::fs::filter::{FileFilter, GitIgnore, IgnorePatterns};
+    use crate::fs::{DotFilter, File, dir_action::RecurseOptions};
+    use std::path::Path;
+    use std::time::{Duration, SystemTime};
+
+    fn touch(path: &Path, secs_since_epoch: u64) {
+        let f = std::fs::File::create(path).unwrap();
+        f.set_modified(SystemTime::UNIX_EPOCH + Duration::from_secs(secs_since_epoch))
+            .unwrap();
+    }
+
+    fn filter_ignoring(patterns: Vec<&str>) -> FileFilter {
+        let (ignore_patterns, errors) = IgnorePatterns::parse_from_iter(patterns);
+        assert!(errors.is_empty());
+
+        FileFilter {
+            flags: Vec::new(),
+            sort_field: crate::fs::filter::SortField::default(),
+            dot_filter: DotFilter::JustFiles,
+            ignore_patterns,
+            git_ignore: GitIgnore::Off,
+            no_symlinks: false,
+            show_symlinks: false,
+        }
+    }
+
+    fn modified_range(filter: &FileFilter, dir: &Path) -> (f32, f32) {
+        let root = File::from_args(dir.to_path_buf(), None, None, false, false, None);
+        let info = ColorScaleInformation::from_color_scale(
+            ColorScaleOptions {
+                mode: ColorScaleMode::Gradient,
+                age: true,
+                ..ColorScaleOptions::default()
+            },
+            &[root],
+            filter,
+            None,
+            false,
+            Some(RecurseOptions {
+                tree: true,
+                max_depth: None,
+            }),
+        )
+        .expect("gradient mode should produce color scale information");
+
+        let modified = info.modified.expect("mtimes should have been collected");
+        (modified.min, modified.max)
+    }
+
+    /// Files removed by the filter (here: `--ignore-glob`) must not widen the
+    /// age gradient, or an invisible outlier changes the colour of every
+    /// visible row. Regression test: the walk used to bypass the filter.
+    #[test]
+    fn ignored_files_do_not_skew_the_age_range() {
+        let dir = std::env::temp_dir().join(format!("eza-color-scale-{}", std::process::id()));
+        let sub = dir.join("sub");
+        std::fs::create_dir_all(&sub).unwrap();
+
+        touch(&sub.join("visible-old.txt"), 1_000_000);
+        touch(&sub.join("visible-new.txt"), 3_000_000);
+        touch(&sub.join("ignored-ancient.log"), 1);
+
+        let with_ignore = modified_range(&filter_ignoring(vec!["*.log"]), &dir);
+        let without_ignore = modified_range(&filter_ignoring(vec![]), &dir);
+
+        std::fs::remove_dir_all(&dir).unwrap();
+
+        // The ignored `.log` is the oldest file, so it only shows up in the
+        // unfiltered range.
+        assert_eq!(1_000_000_000.0_f32, with_ignore.0);
+        assert_eq!(1_000.0_f32, without_ignore.0);
+    }
 }
