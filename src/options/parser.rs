@@ -323,6 +323,122 @@ impl clap::builder::TypedValueParser for TimeFormatParser {
     }
 }
 
+fn is_value_free_short(command: &clap::Command, short: char) -> bool {
+    command
+        .get_arguments()
+        .find(|arg| arg.get_short() == Some(short))
+        .is_some_and(|arg| !arg.get_action().takes_values())
+}
+
+fn is_time_value(value: &OsString) -> bool {
+    value
+        .to_str()
+        .is_some_and(|value| TimeArgs::from_str(value, false).is_ok())
+}
+
+fn normalize_short_time_arg(
+    arg: &OsString,
+    next: Option<&OsString>,
+    command: &clap::Command,
+) -> Option<Vec<OsString>> {
+    let arg = arg.to_str()?;
+
+    if !arg.starts_with('-') || arg.starts_with("--") {
+        return None;
+    }
+
+    let shorts = arg.strip_prefix('-')?;
+
+    let (before_t, after_t) = shorts.split_once('t')?;
+
+    if !before_t
+        .chars()
+        .all(|short| is_value_free_short(command, short))
+    {
+        return None;
+    }
+
+    if after_t.is_empty() && next.is_some_and(is_time_value) {
+        return None;
+    }
+
+    if !after_t.is_empty() {
+        let value = after_t.strip_prefix('=').unwrap_or(after_t);
+
+        if TimeArgs::from_str(value, false).is_ok() {
+            return None;
+        }
+    }
+
+    let mut result = Vec::new();
+
+    if after_t.is_empty() {
+        if !before_t.is_empty() {
+            result.push(OsString::from(format!("-{before_t}")));
+        }
+
+        result.push(OsString::from("--sort=age"));
+
+        return Some(result);
+    }
+
+    if !after_t
+        .chars()
+        .all(|short| is_value_free_short(command, short))
+    {
+        return None;
+    }
+
+    if !before_t.is_empty() {
+        result.push(OsString::from(format!("-{before_t}")));
+    }
+
+    result.push(OsString::from("--sort=age"));
+    result.push(OsString::from(format!("-{after_t}")));
+
+    Some(result)
+}
+
+/// Compatibility layer for ls-style `-t`.
+///
+/// `--time <FIELD>` and `-t <FIELD>` keep eza's existing timestamp-selection
+/// behavior. Only `-t` without a valid timestamp value is rewritten to
+/// `--sort=age`, matching `ls -t`.
+///
+/// This preprocessing avoids clap's ambiguity between an optional `-t` value,
+/// grouped short flags such as `-ltra`, and positional file arguments.
+pub(crate) fn normalize_args<I, T>(itr: I, command: &clap::Command) -> Vec<OsString>
+where
+    I: IntoIterator<Item = T>,
+    T: Into<OsString>,
+{
+    let mut args = itr.into_iter().map(Into::into).peekable();
+
+    let mut normalized = Vec::new();
+    let mut parse_options = true;
+
+    while let Some(arg) = args.next() {
+        if arg.to_str() == Some("--") {
+            parse_options = false;
+            normalized.push(arg);
+            continue;
+        }
+
+        if !parse_options {
+            normalized.push(arg);
+            continue;
+        }
+
+        if let Some(rewritten) = normalize_short_time_arg(&arg, args.peek(), command) {
+            normalized.extend(rewritten);
+        } else {
+            normalized.push(arg);
+        }
+    }
+
+    normalized
+}
+
 impl ValueEnum for Absolute {
     fn value_variants<'a>() -> &'a [Self] {
         &[Self::On, Self::Off, Self::Follow]
@@ -344,17 +460,25 @@ pub mod test {
     pub fn mock_cli<I, T>(itr: I) -> clap::ArgMatches
     where
         I: IntoIterator<Item = T>,
-        T: Into<OsString> + Clone,
+        T: Into<OsString>,
     {
-        get_command().no_binary_name(true).get_matches_from(itr)
+        let command = get_command().no_binary_name(true);
+
+        let args = normalize_args(itr, &command);
+
+        command.get_matches_from(args)
     }
 
     pub fn mock_cli_try<I, T>(itr: I) -> Result<clap::ArgMatches, clap::error::Error>
     where
         I: IntoIterator<Item = T>,
-        T: Into<OsString> + Clone,
+        T: Into<OsString>,
     {
-        get_command().no_binary_name(true).try_get_matches_from(itr)
+        let command = get_command().no_binary_name(true);
+
+        let args = normalize_args(itr, &command);
+
+        command.try_get_matches_from(args)
     }
 
     #[test]
@@ -367,5 +491,115 @@ pub mod test {
                 .collect::<Vec<_>>(),
             ["file1", "file2"]
         );
+    }
+
+    #[test]
+    fn explicit_sort_after_short_time_wins() {
+        let cli = mock_cli(vec!["-t", "--sort", "name"]);
+
+        assert_eq!(
+            cli.get_one::<SortField>("sort"),
+            Some(&SortField::Name(SortCase::AaBbCc))
+        );
+    }
+
+    #[test]
+    fn short_time_after_explicit_sort_wins() {
+        let cli = mock_cli(vec!["--sort", "name", "-t"]);
+
+        assert_eq!(
+            cli.get_one::<SortField>("sort"),
+            Some(&SortField::ModifiedAge)
+        );
+    }
+
+    #[test]
+    fn short_time_with_value_keeps_existing_behavior() {
+        let cli = mock_cli(vec!["-t", "modified"]);
+
+        assert_eq!(cli.get_one::<TimeArgs>("time"), Some(&TimeArgs::Modified));
+        assert_eq!(
+            cli.get_one::<SortField>("sort"),
+            Some(&SortField::default())
+        );
+    }
+
+    #[test]
+    fn attached_time_value_keeps_existing_behavior() {
+        let cli = mock_cli(vec!["-tmodified"]);
+
+        assert_eq!(cli.get_one::<TimeArgs>("time"), Some(&TimeArgs::Modified));
+        assert_eq!(
+            cli.get_one::<SortField>("sort"),
+            Some(&SortField::default())
+        );
+    }
+
+    #[test]
+    fn grouped_short_time_with_value_keeps_existing_behavior() {
+        let cli = mock_cli(vec!["-ltmodified"]);
+
+        assert!(cli.get_flag("long"));
+        assert_eq!(cli.get_one::<TimeArgs>("time"), Some(&TimeArgs::Modified));
+    }
+
+    #[test]
+    fn short_time_does_not_consume_file_argument() {
+        let cli = mock_cli(vec!["-t", "/tmp/example"]);
+
+        assert_eq!(
+            cli.get_one::<SortField>("sort"),
+            Some(&SortField::ModifiedAge)
+        );
+
+        assert_eq!(
+            cli.get_many::<OsString>("FILE")
+                .unwrap()
+                .map(OsString::as_os_str)
+                .collect::<Vec<_>>(),
+            ["/tmp/example"]
+        );
+    }
+
+    #[test]
+    fn short_time_works_inside_grouped_flags() {
+        let cli = mock_cli(vec!["-ltra"]);
+
+        assert!(cli.get_flag("long"));
+        assert!(cli.get_flag("reverse"));
+        assert_eq!(cli.get_count("all"), 1);
+
+        assert_eq!(
+            cli.get_one::<SortField>("sort"),
+            Some(&SortField::ModifiedAge)
+        );
+    }
+
+    #[test]
+    fn short_sort_attached_value_is_not_rewritten() {
+        let cli = mock_cli(vec!["-stime"]);
+
+        assert_eq!(
+            cli.get_one::<SortField>("sort"),
+            Some(&SortField::ModifiedDate)
+        );
+    }
+
+    #[test]
+    fn arguments_after_double_dash_are_not_normalized() {
+        let cli = mock_cli(vec!["--", "-ltra"]);
+
+        assert_eq!(
+            cli.get_many::<OsString>("FILE")
+                .unwrap()
+                .map(OsString::as_os_str)
+                .collect::<Vec<_>>(),
+            ["-ltra"]
+        );
+    }
+
+    #[test]
+    fn long_time_without_value_is_still_rejected() {
+        assert!(mock_cli_try(vec!["--time"]).is_err());
     }
 }

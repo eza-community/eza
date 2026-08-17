@@ -16,7 +16,7 @@ use std::path::{Component, PathBuf};
 use std::process::exit;
 
 use nu_ansi_term::{AnsiStrings as ANSIStrings, Style};
-use options::parser::get_command;
+use options::parser::{get_command, normalize_args};
 
 use crate::fs::feature::git::GitCache;
 use crate::fs::filter::{FileFilterFlags::OnlyFiles, GitIgnore};
@@ -43,7 +43,9 @@ fn main() {
 
     logger::configure(env::var_os(vars::EZA_DEBUG).or_else(|| env::var_os(vars::EXA_DEBUG)));
 
-    let cli = get_command().get_matches();
+    let command = get_command();
+    let args = normalize_args(env::args_os(), &command);
+    let cli = command.get_matches_from(args);
 
     let stdout_istty = io::stdout().is_terminal();
     let mut input = String::new();

@@ -376,6 +376,15 @@ mod tests {
     }
 
     #[test]
+    fn short_time_without_value_sorts_by_modified_time() {
+        let cli = mock_cli(vec!["-t"]);
+
+        let filter = FileFilter::deduce(&cli, false).unwrap();
+
+        assert_eq!(filter.sort_field, SortField::ModifiedAge);
+    }
+
+    #[test]
     fn deduce_file_filter_default() {
         assert_eq!(
             FileFilter::deduce(&mock_cli(vec![""]), false),
