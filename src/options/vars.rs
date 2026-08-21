@@ -120,6 +120,7 @@ pub mod test {
         pub luminance: OsString,
         pub icons: OsString,
         pub time: OsString,
+        pub stdin_separator: OsString,
     }
 
     impl Vars for MockVars {
@@ -143,6 +144,9 @@ pub mod test {
                 "COLUMNS" if !self.columns.is_empty() => Some(self.columns.clone()),
                 "NO_COLOR" if !self.no_colors.is_empty() => Some(self.no_colors.clone()),
                 "TIME_STYLE" if !self.time.is_empty() => Some(self.time.clone()),
+                "EZA_STDIN_SEPARATOR" if !self.stdin_separator.is_empty() => {
+                    Some(self.stdin_separator.clone())
+                }
                 _ => None,
             }
         }
@@ -161,6 +165,7 @@ pub mod test {
                 "COLUMNS" => self.columns = value.clone(),
                 "NO_COLOR" => self.no_colors = value.clone(),
                 "TIME_STYLE" => self.time = value.clone(),
+                "EZA_STDIN_SEPARATOR" => self.stdin_separator = value.clone(),
                 _ => (),
             };
         }
