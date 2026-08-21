@@ -53,22 +53,22 @@ fn main() {
     };
     match Options::deduce(&cli, &LiveVars) {
         Ok(options) => {
-            if input_paths.is_empty() {
-                match &options.stdin {
-                    FilesInput::Args => {
+            match &options.stdin {
+                FilesInput::Stdin(separator) => {
+                    stdin()
+                        .read_to_string(&mut input)
+                        .expect("Failed to read from stdin");
+                    input_paths.extend(
+                        input
+                            .split(&separator.clone().into_string().unwrap_or("\n".to_string()))
+                            .map(OsStr::new)
+                            .filter(|s| !s.is_empty())
+                            .collect::<Vec<_>>(),
+                    );
+                }
+                FilesInput::Args => {
+                    if input_paths.is_empty() {
                         input_paths = vec![OsStr::new(".")];
-                    }
-                    FilesInput::Stdin(separator) => {
-                        stdin()
-                            .read_to_string(&mut input)
-                            .expect("Failed to read from stdin");
-                        input_paths.extend(
-                            input
-                                .split(&separator.clone().into_string().unwrap_or("\n".to_string()))
-                                .map(OsStr::new)
-                                .filter(|s| !s.is_empty())
-                                .collect::<Vec<_>>(),
-                        );
                     }
                 }
             }
