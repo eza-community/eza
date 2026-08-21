@@ -11,9 +11,10 @@ fn test_stdin_ignored_by_default_without_flag() {
         .spawn()
         .expect("Failed to spawn eza");
 
-    {
-        let mut stdin = child.stdin.take().expect("Failed to open stdin");
-        stdin.write_all(b"non_existent_file_xyz_123\n").unwrap();
+    if let Some(mut stdin) = child.stdin.take() {
+        // eza may exit immediately without reading from stdin (expected behavior),
+        // so writing to the pipe might result in BrokenPipe on Unix.
+        let _ = stdin.write_all(b"non_existent_file_xyz_123\n");
     }
 
     let output = child.wait_with_output().expect("Failed to read stdout");
@@ -54,9 +55,8 @@ fn test_stdin_explicit_flag_reads_paths() {
         .spawn()
         .expect("Failed to spawn eza");
 
-    {
-        let mut stdin = child.stdin.take().expect("Failed to open stdin");
-        stdin.write_all(b"src\nCargo.toml\n").unwrap();
+    if let Some(mut stdin) = child.stdin.take() {
+        let _ = stdin.write_all(b"src\nCargo.toml\n");
     }
 
     let output = child.wait_with_output().expect("Failed to read stdout");
