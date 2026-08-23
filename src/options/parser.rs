@@ -24,6 +24,121 @@ const TIME_FIELDS_HELP: &str = "[possible values:
 const FORMAT_STYLE_FIELDS_HELP: &str = "[possible values:
   default, iso, long-iso, full-iso, relative, \"+<CUSTOM_FORMAT>\"]";
 
+#[derive(Clone, Copy)]
+struct OptionalValueArg {
+    names: &'static [&'static str],
+    default: &'static str,
+    accepts: fn(&str) -> bool,
+}
+
+fn accepts_show_when(value: &str) -> bool {
+    ShowWhen::from_str(value, false).is_ok()
+}
+
+fn accepts_absolute(value: &str) -> bool {
+    Absolute::from_str(value, false).is_ok()
+}
+
+fn accepts_color_scale(value: &str) -> bool {
+    !value.is_empty()
+        && value
+            .split(',')
+            .all(|part| ColorScaleArgs::from_str(part, false).is_ok())
+}
+
+const OPTIONAL_VALUE_ARGS: &[OptionalValueArg] = &[
+    OptionalValueArg {
+        names: &["--classify", "-F"],
+        default: "auto",
+        accepts: accepts_show_when,
+    },
+    OptionalValueArg {
+        names: &["--absolute"],
+        default: "on",
+        accepts: accepts_absolute,
+    },
+    OptionalValueArg {
+        names: &["--color", "--colour"],
+        default: "auto",
+        accepts: accepts_show_when,
+    },
+    OptionalValueArg {
+        names: &["--color-scale"],
+        default: "all",
+        accepts: accepts_color_scale,
+    },
+    OptionalValueArg {
+        names: &["--icons"],
+        default: "auto",
+        accepts: accepts_show_when,
+    },
+    OptionalValueArg {
+        names: &["--hyperlink"],
+        default: "auto",
+        accepts: accepts_show_when,
+    },
+];
+
+fn classify_short_cluster(arg: &str) -> bool {
+    if !arg.starts_with('-')
+        || arg.starts_with("--")
+        || arg == "-F"
+        || !arg.ends_with('F')
+        || arg[..arg.len() - 1].contains('F')
+    {
+        return false;
+    }
+
+    let prefix = &arg[..arg.len() - 1];
+    get_command()
+        .no_binary_name(true)
+        .try_get_matches_from([prefix])
+        .is_ok()
+}
+
+fn normalize_optional_value_args<I, T>(args: I) -> Vec<OsString>
+where
+    I: IntoIterator<Item = T>,
+    T: Into<OsString>,
+{
+    let mut args = args.into_iter().map(Into::into).peekable();
+    let mut normalized = Vec::new();
+
+    while let Some(arg) = args.next() {
+        if arg == "--" {
+            normalized.push(arg);
+            normalized.extend(args);
+            break;
+        }
+
+        let spec = arg.to_str().and_then(|arg| {
+            OPTIONAL_VALUE_ARGS
+                .iter()
+                .find(|spec| spec.names.contains(&arg))
+                .or_else(|| classify_short_cluster(arg).then_some(&OPTIONAL_VALUE_ARGS[0]))
+        });
+        let Some(spec) = spec else {
+            normalized.push(arg);
+            continue;
+        };
+
+        let value = match args.peek().and_then(|next| next.to_str()) {
+            Some(next) if (spec.accepts)(next) => args.next().expect("peeked argument must exist"),
+            _ => OsString::from(spec.default),
+        };
+        let mut explicit = arg;
+        explicit.push("=");
+        explicit.push(value);
+        normalized.push(explicit);
+    }
+
+    normalized
+}
+
+pub fn get_matches() -> clap::ArgMatches {
+    get_command().get_matches_from(normalize_optional_value_args(std::env::args_os()))
+}
+
 pub fn get_command() -> clap::Command {
     clap::Command::new(clap::crate_name!())
         .author(clap::crate_authors!())
@@ -346,7 +461,9 @@ pub mod test {
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        get_command().no_binary_name(true).get_matches_from(itr)
+        get_command()
+            .no_binary_name(true)
+            .get_matches_from(normalize_optional_value_args(itr))
     }
 
     pub fn mock_cli_try<I, T>(itr: I) -> Result<clap::ArgMatches, clap::error::Error>
@@ -354,7 +471,9 @@ pub mod test {
         I: IntoIterator<Item = T>,
         T: Into<OsString> + Clone,
     {
-        get_command().no_binary_name(true).try_get_matches_from(itr)
+        get_command()
+            .no_binary_name(true)
+            .try_get_matches_from(normalize_optional_value_args(itr))
     }
 
     #[test]
@@ -367,5 +486,70 @@ pub mod test {
                 .collect::<Vec<_>>(),
             ["file1", "file2"]
         );
+    }
+
+    #[test]
+    fn optional_display_flags_do_not_consume_file_arguments() {
+        for args in [
+            vec!["--classify", "foo/"],
+            vec!["-F", "foo/"],
+            vec!["-lF", "foo/"],
+            vec!["--absolute", "foo/"],
+            vec!["--color", "foo/"],
+            vec!["--colour", "foo/"],
+            vec!["--color-scale", "foo/"],
+            vec!["--icons", "foo/"],
+            vec!["--hyperlink", "foo/"],
+        ] {
+            let cli = mock_cli(args.clone());
+            let files = cli
+                .get_many::<OsString>("FILE")
+                .unwrap()
+                .map(OsString::as_os_str)
+                .collect::<Vec<_>>();
+
+            assert_eq!(files, ["foo/"], "arguments: {args:?}");
+        }
+    }
+
+    #[test]
+    fn optional_display_flags_keep_spaced_values() {
+        for args in [
+            vec!["--classify", "always", "foo/"],
+            vec!["-F", "never", "foo/"],
+            vec!["-lF", "never", "foo/"],
+            vec!["--absolute", "follow", "foo/"],
+            vec!["--color", "never", "foo/"],
+            vec!["--colour", "always", "foo/"],
+            vec!["--color-scale", "size,age", "foo/"],
+            vec!["--icons", "always", "foo/"],
+            vec!["--hyperlink", "never", "foo/"],
+        ] {
+            let cli = mock_cli(args.clone());
+            let files = cli
+                .get_many::<OsString>("FILE")
+                .unwrap()
+                .map(OsString::as_os_str)
+                .collect::<Vec<_>>();
+
+            assert_eq!(files, ["foo/"], "arguments: {args:?}");
+        }
+    }
+
+    #[test]
+    fn explicit_invalid_optional_value_is_still_rejected() {
+        assert!(mock_cli_try(["--icons=invalid"]).is_err());
+    }
+
+    #[test]
+    fn double_dash_preserves_option_like_file_names() {
+        let cli = mock_cli(["--", "--icons", "--color"]);
+        let files = cli
+            .get_many::<OsString>("FILE")
+            .unwrap()
+            .map(OsString::as_os_str)
+            .collect::<Vec<_>>();
+
+        assert_eq!(files, ["--icons", "--color"]);
     }
 }
