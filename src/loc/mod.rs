@@ -130,13 +130,9 @@ fn classify_line(line: &str, lang: &Language, block: &mut Option<&'static str>) 
             break;
         }
 
-        // A line comment swallows the remainder of the line.
-        if lang.line_comments.iter().any(|lc| rest.starts_with(lc)) {
-            has_comment = true;
-            break;
-        }
-
         // A block comment opener starts a (possibly multi-line) comment.
+        // Check these before line comments because some languages (notably
+        // Lua) use a block opener that starts with their line-comment token.
         if let Some((open, close)) = lang
             .block_comments
             .iter()
@@ -146,6 +142,12 @@ fn classify_line(line: &str, lang: &Language, block: &mut Option<&'static str>) 
             *block = Some(close);
             rest = &rest[open.len()..];
             continue 'scan;
+        }
+
+        // A line comment swallows the remainder of the line.
+        if lang.line_comments.iter().any(|lc| rest.starts_with(lc)) {
+            has_comment = true;
+            break;
         }
 
         // Anything else is code. Consume one unit, skipping over string
@@ -572,6 +574,21 @@ mod test {
             LocCounts {
                 lines: 5,
                 code: 2,
+                comments: 3,
+                blanks: 0,
+            }
+        );
+    }
+
+    #[test]
+    fn lua_block_comment_opener_takes_precedence_over_line_comment() {
+        let source = "local x = 1 --[[\nlocal y\nlocal z\n]]\n";
+        let c = count(source, &LUA);
+        assert_eq!(
+            c,
+            LocCounts {
+                lines: 4,
+                code: 1,
                 comments: 3,
                 blanks: 0,
             }

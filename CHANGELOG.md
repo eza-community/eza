@@ -6,6 +6,12 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## Upcoming
+
+### Bug Fixes
+
+- Fix Lua block comments being counted as code when their opener starts with the line-comment token, see #1918 (@fly1d)
+
 ## [0.23.5] - 2026-07-09
 
 ### Bug Fixes
@@ -2889,5 +2895,4 @@ SPDX-License-Identifier: EUPL-1.2
 ### Vagrant
 
 - Update apt before installing
-
 
