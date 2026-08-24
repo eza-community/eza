@@ -6,6 +6,12 @@ SPDX-License-Identifier: EUPL-1.2
 -->
 # Changelog
 
+## Upcoming
+
+### Bug Fixes
+
+- Fix `--loc` miscounting Lua block comments whose opener (`--[[`) starts with the line-comment token (`--`), see #1918
+
 ## [0.23.5] - 2026-07-09
 
 ### Bug Fixes
