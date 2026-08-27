@@ -45,6 +45,7 @@ And it’s **small**, **fast**, and just **one single binary**.
 
 By deliberately making some decisions differently, eza attempts to be a more featureful, more user-friendly version of `ls`.
 
+[![Live demo by Demoshell](https://build.demoshell.com/v1/embed/badge.svg)](https://build.demoshell.com/launch?snapshot=demoshell%2Ftui%3Aeza)
 ---
 
 **eza** features not in exa (non-exhaustive):
