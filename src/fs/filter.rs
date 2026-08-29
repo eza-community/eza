@@ -95,27 +95,30 @@ pub struct FileFilter {
 impl FileFilter {
     /// Remove every file in the given vector that does *not* pass the
     /// filter predicate for files found inside a directory.
-    #[rustfmt::skip]
     pub fn filter_child_files(&self, is_recurse: bool, files: &mut Vec<File<'_>>) {
         use FileFilterFlags::{NoSymlinks, OnlyDirs, OnlyFiles, ShowSymlinks};
 
         files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
         files.retain(|f| {
-            match (
-                self.flags.contains(&OnlyDirs),
-                self.flags.contains(&OnlyFiles),
-                self.flags.contains(&NoSymlinks),
-                self.flags.contains(&ShowSymlinks),
-            ) {
-                (true, false, false, false) => f.is_directory(),
-                (true, false, true, false) => f.is_directory(),
-                (true, false, false, true) => f.is_directory() || f.points_to_directory(),
-                (false, true, false, false) => if is_recurse { true } else {f.is_file() },
-                (false, true, false, true) => if is_recurse { true } else { f.is_file() || f.is_link() && !f.points_to_directory()
-                },
-                (false, false, true, false) => !f.is_link(),
-                _ => true,
+            let no_symlinks = self.flags.contains(&NoSymlinks);
+            let show_symlinks = self.flags.contains(&ShowSymlinks);
+
+            if no_symlinks && f.is_link() {
+                return false;
             }
+            if self.flags.contains(&OnlyDirs)
+                && !(f.is_directory() || show_symlinks && f.points_to_directory())
+            {
+                return false;
+            }
+            if self.flags.contains(&OnlyFiles)
+                && !is_recurse
+                && !(f.is_file() || show_symlinks && f.is_link() && !f.points_to_directory())
+            {
+                return false;
+            }
+
+            true
         });
     }
 
@@ -315,6 +318,57 @@ impl SortField {
             Some(s) => s,
             None => n,
         }
+    }
+}
+
+#[cfg(all(test, unix))]
+mod test_file_type_filters {
+    use std::fs;
+    use std::os::unix::fs::symlink;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    use super::*;
+
+    #[test]
+    fn only_files_and_no_symlinks_compose() {
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let root = std::env::temp_dir().join(format!("eza-filter-{}-{nonce}", std::process::id()));
+        fs::create_dir(&root).unwrap();
+        fs::create_dir(root.join("subdir")).unwrap();
+        fs::write(root.join("file.txt"), []).unwrap();
+        symlink("subdir", root.join("link")).unwrap();
+
+        let mut files = ["subdir", "file.txt", "link"]
+            .into_iter()
+            .map(|name| {
+                File::from_args(
+                    root.join(name),
+                    None::<&crate::fs::Dir>,
+                    None::<String>,
+                    false,
+                    false,
+                    None,
+                )
+            })
+            .collect();
+        let filter = FileFilter {
+            sort_field: SortField::default(),
+            flags: vec![FileFilterFlags::OnlyFiles, FileFilterFlags::NoSymlinks],
+            dot_filter: DotFilter::default(),
+            ignore_patterns: IgnorePatterns::empty(),
+            git_ignore: GitIgnore::Off,
+            no_symlinks: true,
+            show_symlinks: false,
+        };
+
+        filter.filter_child_files(false, &mut files);
+        let names: Vec<_> = files.into_iter().map(|file| file.name).collect();
+        fs::remove_dir_all(root).unwrap();
+
+        assert_eq!(names, ["file.txt"]);
     }
 }
 
