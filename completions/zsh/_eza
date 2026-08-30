@@ -9,73 +9,77 @@ __eza() {
     # Give completions using the `_arguments` utility function with
     # `-s` for option stacking like `eza -ab` for `eza -a -b` and
     # `-S` for delimiting options with `--` like in `eza -- -a`.
+    # Most flags are prefixed with `*` so `_arguments` keeps offering them for
+    # completion even after they've already been given once on the line: eza
+    # honors repeated flags (last one wins, e.g. `--sort=size --sort=changed`),
+    # so completion shouldn't act as if they can only be used once (#1846).
     _arguments -s -S \
         "(- *)"{-v,--version}"[Show version of eza]" \
         "(- *)"--help"[Show list of command-line options]" \
-        {-1,--oneline}"[Display one entry per line]" \
-        {-l,--long}"[Display extended file metadata as a table]" \
-        {-G,--grid}"[Display entries as a grid]" \
-        {-x,--across}"[Sort the grid across, rather than downwards]" \
-        {-R,--recurse}"[Recurse into directories]" \
-        {-T,--tree}"[Recurse into directories as a tree]" \
-        {-X,--dereference}"[Dereference symbolic links when displaying file information]" \
-        {-F,--classify}"[Display type indicator by file names]:(when):(always auto automatic never)" \
-        --colo{,u}r="[When to use terminal colours]:(when):(always auto automatic never)" \
-        --colo{,u}r-scale"[highlight levels of 'field' distinctly]:(fields):(all age size)" \
-        --colo{,u}r-scale-mode"[Use gradient or fixed colors in --color-scale]:(mode):(fixed gradient)" \
-        --icons="[When to display icons]:(when):(always auto automatic never)" \
-        --no-quotes"[Don't quote filenames with spaces]" \
-        --short-nix"[Abbreviate Nix store hashes in file names and paths]" \
-        --hyperlink="[When to display entries as hyperlinks]:(when):(always auto automatic never)" \
-        --absolute"[Display entries with their absolute path]:(mode):(on follow off)" \
-        --follow-symlinks"[Drill down into symbolic links that point to directories]" \
-        --group-directories-first"[Sort directories before other files]" \
-        --group-directories-last"[Sort directories after other files]" \
-        --git-ignore"[Ignore files mentioned in '.gitignore']" \
-        {-a,--all}"[Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories]" \
-        {-A,--almost-all}"[Equivalent to --all; included for compatibility with \'ls -A\']" \
-        {-d,--treat-dirs-as-files}"[List directories like regular files]" \
-        {-D,--only-dirs}"[List only directories]" \
-        --no-symlinks"[Do not show symbolic links]" \
-        --show-symlinks"[Explictly show symbolic links: for use with '--only-dirs'| '--only-files']" \
-        {-f,--only-files}"[List only files]" \
-        {-L,--level}"+[Limit the depth of recursion]" \
-        {-w,--width}"+[Limits column output of grid, 0 implies auto-width]" \
-        {-r,--reverse}"[Reverse the sort order]" \
-        {-s,--sort}="[Which field to sort by]:(sort field):(accessed age changed created date extension Extension filename Filename inode modified oldest name Name newest none size time type)" \
-        {-I,--ignore-glob}"[Ignore files that match these glob patterns]" \
-        {-b,--binary}"[List file sizes with binary prefixes]" \
-        {-B,--bytes}"[List file sizes in bytes, without any prefixes]" \
-        --changed"[Use the changed timestamp field]" \
-        {-g,--group}"[List each file's group]" \
-        {-h,--header}"[Add a header row to each column]" \
-        {-H,--links}"[List each file's number of hard links]" \
-        {-i,--inode}"[List each file's inode number]" \
-        --loc="[Add lines-of-code and language columns]:(mode):(lines percent both)" \
-        --code="[Summarise lines of code by language]:(mode):(lines percent both)" \
-        {-m,--modified}"[Use the modified timestamp field]" \
-        {-n,--numeric}"[List numeric user and group IDs.]" \
-        {-S,--blocksize}"[List each file's size of allocated file system blocks.]" \
-        {-t,--time}="[Which time field to show]:(time field):(accessed changed created modified)" \
-        --time-style="[How to format timestamps]:(time style):(default iso long-iso full-iso relative +FORMAT)" \
-        --total-size"[Show recursive directory size (unix only)]" \
-        --no-permissions"[Suppress the permissions field]" \
-        {-o,--octal-permissions}"[List each file's permission in octal format]" \
-        --no-filesize"[Suppress the filesize field]" \
-        --no-user"[Suppress the user field]" \
-        --no-time"[Suppress the time field]" \
-        {-u,--accessed}"[Use the accessed timestamp field]" \
-        {-U,--created}"[Use the created timestamp field]" \
-        --git"[List each file's Git status, if tracked]" \
-        --no-git"[Suppress Git status]" \
-        --git-repos"[List each git-repos status and branch name]" \
-        --git-repos-no-status"[List each git-repos branch name (much faster)]" \
-        {-@,--extended}"[List each file's extended attributes and sizes]" \
-        {-Z,--context}"[List each file's security context]" \
-        {-M,--mounts}"[Show mount details (long mode only)]" \
+        \*{-1,--oneline}"[Display one entry per line]" \
+        \*{-l,--long}"[Display extended file metadata as a table]" \
+        \*{-G,--grid}"[Display entries as a grid]" \
+        \*{-x,--across}"[Sort the grid across, rather than downwards]" \
+        \*{-R,--recurse}"[Recurse into directories]" \
+        \*{-T,--tree}"[Recurse into directories as a tree]" \
+        \*{-X,--dereference}"[Dereference symbolic links when displaying file information]" \
+        \*{-F,--classify}"[Display type indicator by file names]:(when):(always auto automatic never)" \
+        \*--colo{,u}r="[When to use terminal colours]:(when):(always auto automatic never)" \
+        \*--colo{,u}r-scale"[highlight levels of 'field' distinctly]:(fields):(all age size)" \
+        \*--colo{,u}r-scale-mode"[Use gradient or fixed colors in --color-scale]:(mode):(fixed gradient)" \
+        \*--icons="[When to display icons]:(when):(always auto automatic never)" \
+        \*--no-quotes"[Don't quote filenames with spaces]" \
+        \*--short-nix"[Abbreviate Nix store hashes in file names and paths]" \
+        \*--hyperlink="[When to display entries as hyperlinks]:(when):(always auto automatic never)" \
+        \*--absolute"[Display entries with their absolute path]:(mode):(on follow off)" \
+        \*--follow-symlinks"[Drill down into symbolic links that point to directories]" \
+        \*--group-directories-first"[Sort directories before other files]" \
+        \*--group-directories-last"[Sort directories after other files]" \
+        \*--git-ignore"[Ignore files mentioned in '.gitignore']" \
+        \*{-a,--all}"[Show hidden and 'dot' files. Use this twice to also show the '.' and '..' directories]" \
+        \*{-A,--almost-all}"[Equivalent to --all; included for compatibility with \'ls -A\']" \
+        \*{-d,--treat-dirs-as-files}"[List directories like regular files]" \
+        \*{-D,--only-dirs}"[List only directories]" \
+        \*--no-symlinks"[Do not show symbolic links]" \
+        \*--show-symlinks"[Explictly show symbolic links: for use with '--only-dirs'| '--only-files']" \
+        \*{-f,--only-files}"[List only files]" \
+        \*{-L,--level}"+[Limit the depth of recursion]" \
+        \*{-w,--width}"+[Limits column output of grid, 0 implies auto-width]" \
+        \*{-r,--reverse}"[Reverse the sort order]" \
+        \*{-s,--sort}="[Which field to sort by]:(sort field):(accessed age changed created date extension Extension filename Filename inode modified oldest name Name newest none size time type)" \
+        \*{-I,--ignore-glob}"[Ignore files that match these glob patterns]" \
+        \*{-b,--binary}"[List file sizes with binary prefixes]" \
+        \*{-B,--bytes}"[List file sizes in bytes, without any prefixes]" \
+        \*--changed"[Use the changed timestamp field]" \
+        \*{-g,--group}"[List each file's group]" \
+        \*{-h,--header}"[Add a header row to each column]" \
+        \*{-H,--links}"[List each file's number of hard links]" \
+        \*{-i,--inode}"[List each file's inode number]" \
+        \*--loc="[Add lines-of-code and language columns]:(mode):(lines percent both)" \
+        \*--code="[Summarise lines of code by language]:(mode):(lines percent both)" \
+        \*{-m,--modified}"[Use the modified timestamp field]" \
+        \*{-n,--numeric}"[List numeric user and group IDs.]" \
+        \*{-S,--blocksize}"[List each file's size of allocated file system blocks.]" \
+        \*{-t,--time}="[Which time field to show]:(time field):(accessed changed created modified)" \
+        \*--time-style="[How to format timestamps]:(time style):(default iso long-iso full-iso relative +FORMAT)" \
+        \*--total-size"[Show recursive directory size (unix only)]" \
+        \*--no-permissions"[Suppress the permissions field]" \
+        \*{-o,--octal-permissions}"[List each file's permission in octal format]" \
+        \*--no-filesize"[Suppress the filesize field]" \
+        \*--no-user"[Suppress the user field]" \
+        \*--no-time"[Suppress the time field]" \
+        \*{-u,--accessed}"[Use the accessed timestamp field]" \
+        \*{-U,--created}"[Use the created timestamp field]" \
+        \*--git"[List each file's Git status, if tracked]" \
+        \*--no-git"[Suppress Git status]" \
+        \*--git-repos"[List each git-repos status and branch name]" \
+        \*--git-repos-no-status"[List each git-repos branch name (much faster)]" \
+        \*{-@,--extended}"[List each file's extended attributes and sizes]" \
+        \*{-Z,--context}"[List each file's security context]" \
+        \*{-M,--mounts}"[Show mount details (long mode only)]" \
         '*:filename:_files' \
-        --smart-group"[Only show group if it has a different name from owner]" \
-        --stdin"[When piping to eza. Read file names from stdin]"
+        \*--smart-group"[Only show group if it has a different name from owner]" \
+        \*--stdin"[When piping to eza. Read file names from stdin]"
 }
 
 __eza
