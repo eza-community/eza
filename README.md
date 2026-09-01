@@ -219,4 +219,6 @@ After having understood the code of conduct, you can have a look at our
 [CONTRIBUTING.md](https://github.com/eza-community/eza/blob/main/CONTRIBUTING.md) 
 for more info about actual hacking.
 
-[![Star History Chart](https://api.star-history.com/svg?repos=eza-community/eza&type=Date)](https://star-history.com/#eza-community/eza&Date)
+<!-- star-history:start -->
+
+<!-- star-history:end -->
