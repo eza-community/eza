@@ -172,12 +172,18 @@ impl<'dir> Files<'dir, '_> {
                     }
                 }
 
+                let dotfilter = if self.dotfiles {
+                    DotFilter::Dotfiles
+                } else {
+                    DotFilter::JustFiles
+                };
                 let file = File::from_args(
                     path,
                     self.dir,
                     filename,
                     self.deref_links,
                     self.total_size,
+                    dotfilter,
                     entry.file_type().ok(),
                 );
 

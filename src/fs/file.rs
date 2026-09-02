@@ -24,7 +24,10 @@ use std::time::SystemTime;
 
 use chrono::prelude::*;
 
+#[cfg(unix)]
+use log::info;
 use log::{debug, error, trace};
+
 #[cfg(unix)]
 use std::sync::LazyLock;
 
@@ -35,6 +38,7 @@ use crate::fs::fields as f;
 use crate::fs::fields::SecurityContextType;
 use crate::fs::recursive_size::RecursiveSize;
 
+use super::DotFilter;
 use super::mounts::MountedFs;
 use super::mounts::all_mounts;
 
@@ -125,6 +129,7 @@ impl<'dir> File<'dir> {
         filename: FN,
         deref_links: bool,
         total_size: bool,
+        dotfilter: DotFilter,
         filetype: Option<std::fs::FileType>,
     ) -> File<'dir>
     where
@@ -166,7 +171,7 @@ impl<'dir> File<'dir> {
         };
 
         if total_size {
-            file.recursive_size = file.recursive_directory_size();
+            file.recursive_size = file.recursive_directory_size(dotfilter);
         }
 
         file
@@ -203,7 +208,7 @@ impl<'dir> File<'dir> {
         };
 
         if total_size {
-            file.recursive_size = file.recursive_directory_size();
+            file.recursive_size = file.recursive_directory_size(DotFilter::Dotfiles);
         }
 
         file
@@ -665,8 +670,10 @@ impl<'dir> File<'dir> {
     /// will be returned.  The directory size is cached for recursive directory
     /// listing.
     #[cfg(unix)]
-    fn recursive_directory_size(&self) -> RecursiveSize {
+    fn recursive_directory_size(&self, dotfilter: DotFilter) -> RecursiveSize {
         if self.is_directory() {
+            info!("Retrieving recursive directory size for {:?}", self.path);
+
             let key = (
                 self.metadata().map_or(0, MetadataExt::dev),
                 self.metadata().map_or(0, MetadataExt::ino),
@@ -677,8 +684,11 @@ impl<'dir> File<'dir> {
             Dir::read_dir(self.path.clone()).map_or(RecursiveSize::Unknown, |dir| {
                 let mut size = 0;
                 let mut blocks = 0;
-                for file in dir.files(super::DotFilter::Dotfiles, None, false, false, true) {
-                    match file.recursive_directory_size() {
+                for file in dir
+                    .files(dotfilter, None, false, false, true)
+                    .filter(|f| !f.is_all_all)
+                {
+                    match file.recursive_directory_size(dotfilter) {
                         RecursiveSize::Some(bytes, blks) => {
                             size += bytes;
                             blocks += blks;
@@ -706,7 +716,7 @@ impl<'dir> File<'dir> {
     /// not cache the sizes.  Without caching we could end up walking the
     /// directory structure several times.
     #[cfg(windows)]
-    fn recursive_directory_size(&self) -> RecursiveSize {
+    fn recursive_directory_size(&self, _dotfilter: DotFilter) -> RecursiveSize {
         RecursiveSize::None
     }
 

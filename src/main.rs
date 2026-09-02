@@ -276,6 +276,7 @@ impl Exa<'_> {
                 None,
                 self.options.view.deref_links,
                 self.options.view.total_size,
+                self.options.filter.dot_filter,
                 None,
             );
 
