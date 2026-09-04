@@ -116,9 +116,20 @@ mod test {
     #[test]
     fn hyperlink_start_tag_escapes_uri_path_characters() {
         assert_eq!(
-            get_hyperlink_start_tag(r#"/folder/file#?%[]\"<>^`{|}.txt"#),
+            get_hyperlink_start_tag(r#"/folder/file#?%[]"<>^`{|}.txt"#),
             format!(
-                "{HYPERLINK_OPENING_START}file:///folder/file%23%3F%25%5B%5D%5C%22%3C%3E%5E%60%7B%7C%7D.txt{HYPERLINK_OPENING_END}"
+                "{HYPERLINK_OPENING_START}file:///folder/file%23%3F%25%5B%5D%22%3C%3E%5E%60%7B%7C%7D.txt{HYPERLINK_OPENING_END}"
+            ),
+        );
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    #[test]
+    fn hyperlink_start_tag_escapes_backslashes_in_unix_file_names() {
+        assert_eq!(
+            get_hyperlink_start_tag(r"/folder/file\name.txt"),
+            format!(
+                "{HYPERLINK_OPENING_START}file:///folder/file%5Cname.txt{HYPERLINK_OPENING_END}"
             ),
         );
     }
