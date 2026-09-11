@@ -41,11 +41,11 @@ impl ThemeConfig {
             let path = PathBuf::from(path);
             let theme = path.join("theme.yml");
             if theme.exists() {
-                return Some(ThemeConfig::from_path(theme));
+                return Some(Self::from_path(theme));
             }
             let theme = path.join("theme.yaml");
             if theme.exists() {
-                return Some(ThemeConfig::from_path(theme));
+                return Some(Self::from_path(theme));
             }
             None
         } else {
@@ -53,11 +53,11 @@ impl ThemeConfig {
             let path = path.join("eza");
             let theme = path.join("theme.yml");
             if theme.exists() {
-                return Some(ThemeConfig::default());
+                return Some(Self::default());
             }
             let theme = path.join("theme.yaml");
             if theme.exists() {
-                return Some(ThemeConfig::from_path(theme));
+                return Some(Self::from_path(theme));
             }
             None
         }

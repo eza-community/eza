@@ -81,7 +81,7 @@ impl RecursiveSize {
         F: FnOnce(u64, u64) -> U,
     {
         match self {
-            RecursiveSize::Some(bytes, blocks) => f(bytes, blocks),
+            Self::Some(bytes, blocks) => f(bytes, blocks),
             _ => default,
         }
     }

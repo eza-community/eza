@@ -126,7 +126,7 @@ impl<'dir> File<'dir> {
         deref_links: bool,
         total_size: bool,
         filetype: Option<std::fs::FileType>,
-    ) -> File<'dir>
+    ) -> Self
     where
         PD: Into<Option<&'dir Dir>>,
         FN: Into<Option<String>>,
@@ -172,12 +172,7 @@ impl<'dir> File<'dir> {
         file
     }
 
-    fn new_aa(
-        path: PathBuf,
-        parent_dir: &'dir Dir,
-        name: &'static str,
-        total_size: bool,
-    ) -> File<'dir> {
+    fn new_aa(path: PathBuf, parent_dir: &'dir Dir, name: &'static str, total_size: bool) -> Self {
         let ext = File::ext(&path);
 
         let is_all_all = true;
@@ -188,7 +183,7 @@ impl<'dir> File<'dir> {
             RecursiveSize::None
         };
 
-        let mut file = File {
+        let mut file = Self {
             name: name.into(),
             ext,
             path,
@@ -210,13 +205,13 @@ impl<'dir> File<'dir> {
     }
 
     #[must_use]
-    pub fn new_aa_current(parent_dir: &'dir Dir, total_size: bool) -> File<'dir> {
-        File::new_aa(parent_dir.path.clone(), parent_dir, ".", total_size)
+    pub fn new_aa_current(parent_dir: &'dir Dir, total_size: bool) -> Self {
+        Self::new_aa(parent_dir.path.clone(), parent_dir, ".", total_size)
     }
 
     #[must_use]
-    pub fn new_aa_parent(path: PathBuf, parent_dir: &'dir Dir, total_size: bool) -> File<'dir> {
-        File::new_aa(path, parent_dir, "..", total_size)
+    pub fn new_aa_parent(path: PathBuf, parent_dir: &'dir Dir, total_size: bool) -> Self {
+        Self::new_aa(path, parent_dir, "..", total_size)
     }
 
     /// A file’s name is derived from its string. This needs to handle directories
@@ -352,9 +347,7 @@ impl<'dir> File<'dir> {
             return None;
         }
         let lang = self.language()?;
-        crate::loc::LocCounts::from_path(&self.path, lang)
-            .ok()
-            .flatten()
+        crate::loc::LocCounts::from_path(&self.path, lang).ok().flatten()
     }
 
     /// Whether this file is both a regular file *and* executable for the
@@ -424,9 +417,7 @@ impl<'dir> File<'dir> {
     pub fn is_mount_point(&self) -> bool {
         cfg!(any(target_os = "linux", target_os = "macos"))
             && self.is_directory()
-            && self
-                .absolute_path()
-                .is_some_and(|p| all_mounts().contains_key(p))
+            && self.absolute_path().is_some_and(|p| all_mounts().contains_key(p))
     }
 
     /// The filesystem device and type for a mount point
@@ -558,9 +549,8 @@ impl<'dir> File<'dir> {
                 _ => f::Blocksize::None,
             }
         } else if self.is_directory() {
-            self.recursive_size.map_or(f::Blocksize::None, |_, blocks| {
-                f::Blocksize::Some(blocks * 512)
-            })
+            self.recursive_size
+                .map_or(f::Blocksize::None, |_, blocks| f::Blocksize::Some(blocks * 512))
         } else if self.is_file() {
             // Note that metadata.blocks returns the number of blocks
             // for 512 byte blocks according to the POSIX standard
@@ -690,10 +680,7 @@ impl<'dir> File<'dir> {
                         }
                     }
                 }
-                DIRECTORY_SIZE_CACHE
-                    .lock()
-                    .unwrap()
-                    .insert(key, (size, blocks));
+                DIRECTORY_SIZE_CACHE.lock().unwrap().insert(key, (size, blocks));
                 RecursiveSize::Some(size, blocks)
             })
         } else {
@@ -951,11 +938,7 @@ impl<'dir> File<'dir> {
     /// This file’s security context field.
     #[cfg(unix)]
     pub fn security_context(&self) -> f::SecurityContext<'_> {
-        let context = match self
-            .extended_attributes()
-            .iter()
-            .find(|a| a.name == "security.selinux")
-        {
+        let context = match self.extended_attributes().iter().find(|a| a.name == "security.selinux") {
             Some(attr) => match &attr.value {
                 None => SecurityContextType::None,
                 Some(value) => match str::from_utf8(value) {
@@ -995,11 +978,7 @@ impl<'dir> File<'dir> {
         use std::os::netbsd::fs::MetadataExt;
         #[cfg(target_os = "openbsd")]
         use std::os::openbsd::fs::MetadataExt;
-        f::Flags(
-            self.metadata()
-                .map(MetadataExt::st_flags)
-                .unwrap_or_default(),
-        )
+        f::Flags(self.metadata().map(MetadataExt::st_flags).unwrap_or_default())
     }
 
     #[cfg(windows)]
@@ -1020,8 +999,8 @@ impl<'dir> File<'dir> {
     }
 }
 
-impl<'a> AsRef<File<'a>> for File<'a> {
-    fn as_ref(&self) -> &File<'a> {
+impl<'a> AsRef<Self> for File<'a> {
+    fn as_ref(&self) -> &Self {
         self
     }
 }

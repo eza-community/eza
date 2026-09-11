@@ -285,7 +285,7 @@ field_accessors!(
 );
 impl Default for Git {
     fn default() -> Self {
-        Git {
+        Self {
             new: Some(Green.normal()),
             modified: Some(Blue.normal()),
             deleted: Some(Red.normal()),
@@ -354,7 +354,7 @@ field_accessors!(
 
 impl Default for SecurityContext {
     fn default() -> Self {
-        SecurityContext {
+        Self {
             none: Some(Style::default()),
             selinux: Some(SELinuxContext {
                 colon: Some(Style::default().dimmed()),

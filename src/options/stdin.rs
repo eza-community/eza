@@ -24,9 +24,9 @@ impl FilesInput {
             let separator = vars
                 .get(EZA_STDIN_SEPARATOR)
                 .unwrap_or(OsString::from("\n"));
-            FilesInput::Stdin(separator)
+            Self::Stdin(separator)
         } else {
-            FilesInput::Args
+            Self::Args
         }
     }
 }

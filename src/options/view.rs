@@ -151,7 +151,7 @@ impl Mode {
 
 impl grid::Options {
     fn deduce(matches: &ArgMatches) -> Self {
-        grid::Options {
+        Self {
             across: matches.get_flag("across"),
         }
     }
@@ -159,7 +159,7 @@ impl grid::Options {
 
 impl details::Options {
     fn deduce_tree<V: Vars>(matches: &ArgMatches, vars: &V) -> Self {
-        details::Options {
+        Self {
             table: None,
             header: false,
             xattr: xattr::ENABLED && matches.get_flag("extended"),
@@ -183,7 +183,7 @@ impl details::Options {
             }
         }
 
-        Ok(details::Options {
+        Ok(Self {
             table: Some(TableOptions::deduce(matches, vars)?),
             header: matches.get_flag("header"),
             xattr: xattr::ENABLED && matches.get_flag("extended"),
@@ -357,11 +357,11 @@ impl TimeFormat {
         );
 
         let fmt = match value {
-            "default" => return Ok(TimeFormat::DefaultFormat),
-            "iso" => return Ok(TimeFormat::ISOFormat),
-            "long-iso" => return Ok(TimeFormat::LongISO),
-            "full-iso" => return Ok(TimeFormat::FullISO),
-            "relative" => return Ok(TimeFormat::Relative),
+            "default" => return Ok(Self::DefaultFormat),
+            "iso" => return Ok(Self::ISOFormat),
+            "long-iso" => return Ok(Self::LongISO),
+            "full-iso" => return Ok(Self::FullISO),
+            "relative" => return Ok(Self::Relative),
             s if !s.starts_with('+') => {
                 let error_middle = format!(
                     "{}{}",
@@ -403,7 +403,7 @@ impl TimeFormat {
             recent => recent.map(std::string::ToString::to_string),
         };
 
-        Ok(TimeFormat::Custom {
+        Ok(Self::Custom {
             non_recent: String::from(non_recent),
             recent,
         })
@@ -413,12 +413,12 @@ impl TimeFormat {
 impl TimeFormat {
     /// Determine how time should be formatted in timestamp columns.
     fn deduce<V: Vars>(matches: &ArgMatches, vars: &V) -> Self {
-        if let Some(arg) = matches.get_one::<TimeFormat>("time-style") {
+        if let Some(arg) = matches.get_one::<Self>("time-style") {
             arg.clone()
         } else {
             match vars.get(vars::TIME_STYLE) {
-                Some(t) if !t.is_empty() => TimeFormat::try_from_str(t.to_str().unwrap_or(""))
-                    .unwrap_or(TimeFormat::DefaultFormat),
+                Some(t) if !t.is_empty() => Self::try_from_str(t.to_str().unwrap_or(""))
+                    .unwrap_or(Self::DefaultFormat),
                 _ => Self::DefaultFormat,
             }
         }
@@ -524,7 +524,7 @@ impl ColorScaleOptions {
             ColorScaleModeArgs::Gradient => ColorScaleMode::Gradient,
         };
 
-        let mut options = ColorScaleOptions {
+        let mut options = Self {
             mode,
             min_luminance,
             size: false,

@@ -415,7 +415,7 @@ impl FileType {
     /// Lookup the file type based on the file's name, by the file name
     /// lowercase extension, or if the file could be compiled from related
     /// source code.
-    pub(crate) fn get_file_type(file: &File<'_>) -> Option<FileType> {
+    pub(crate) fn get_file_type(file: &File<'_>) -> Option<Self> {
         // Case-insensitive readme is checked first for backwards compatibility.
         if file.name.to_lowercase().starts_with("readme") {
             return Some(Self::Build);
