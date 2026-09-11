@@ -23,7 +23,7 @@ pub struct ThemeConfig {
 
 impl Default for ThemeConfig {
     fn default() -> Self {
-        ThemeConfig {
+        Self {
             location: dirs::config_dir()
                 .unwrap_or_default()
                 .join("eza")
@@ -40,7 +40,7 @@ impl<S, T> FromOverride<Option<S>> for Option<T>
 where
     T: FromOverride<S> + Default,
 {
-    fn from(value: Option<S>, default: Option<T>) -> Option<T> {
+    fn from(value: Option<S>, default: Self) -> Self {
         match (value, default) {
             (Some(value), Some(default)) => Some(FromOverride::from(value, default)),
             (Some(value), None) => Some(FromOverride::from(value, T::default())),
@@ -221,15 +221,15 @@ pub struct IconStyleOverride {
     pub style: Option<StyleOverride>,
 }
 
-impl FromOverride<char> for char {
-    fn from(value: char, _default: char) -> char {
+impl FromOverride<Self> for char {
+    fn from(value: Self, _default: Self) -> Self {
         value
     }
 }
 
 impl FromOverride<IconStyleOverride> for IconStyle {
     fn from(value: IconStyleOverride, default: Self) -> Self {
-        IconStyle {
+        Self {
             glyph: FromOverride::from(value.glyph, default.glyph),
             style: FromOverride::from(value.style, default.style),
         }
@@ -244,7 +244,7 @@ pub struct FileNameStyleOverride {
 
 impl FromOverride<FileNameStyleOverride> for FileNameStyle {
     fn from(value: FileNameStyleOverride, default: Self) -> Self {
-        FileNameStyle {
+        Self {
             icon: FromOverride::from(value.icon, default.icon),
             filename: FromOverride::from(value.filename, default.filename),
         }
@@ -257,7 +257,7 @@ where
     R: Clone + Eq + std::hash::Hash,
     T: Clone + Eq + Default,
 {
-    fn from(value: HashMap<R, S>, default: HashMap<R, T>) -> HashMap<R, T> {
+    fn from(value: HashMap<R, S>, default: Self) -> Self {
         let mut result = default.clone();
         for (r, s) in value {
             let t = match default.get(&r) {
@@ -287,7 +287,7 @@ pub struct FileKindsOverride {
 
 impl FromOverride<FileKindsOverride> for FileKinds {
     fn from(value: FileKindsOverride, default: Self) -> Self {
-        FileKinds {
+        Self {
             normal: FromOverride::from(value.normal, default.normal),
             directory: FromOverride::from(value.directory, default.directory),
             symlink: FromOverride::from(value.symlink, default.symlink),
@@ -326,7 +326,7 @@ pub struct PermissionsOverride {
 
 impl FromOverride<PermissionsOverride> for Permissions {
     fn from(value: PermissionsOverride, default: Self) -> Self {
-        Permissions {
+        Self {
             user_read: FromOverride::from(value.user_read, default.user_read),
             user_write: FromOverride::from(value.user_write, default.user_write),
             user_execute_file: FromOverride::from(
@@ -374,7 +374,7 @@ pub struct SizeOverride {
 
 impl FromOverride<SizeOverride> for Size {
     fn from(value: SizeOverride, default: Self) -> Self {
-        Size {
+        Self {
             major: FromOverride::from(value.major, default.major),
             minor: FromOverride::from(value.minor, default.minor),
             number_byte: FromOverride::from(value.number_byte, default.number_byte),
@@ -404,7 +404,7 @@ pub struct UsersOverride {
 
 impl FromOverride<UsersOverride> for Users {
     fn from(value: UsersOverride, default: Self) -> Self {
-        Users {
+        Self {
             user_you: FromOverride::from(value.user_you, default.user_you),
             user_root: FromOverride::from(value.user_root, default.user_root),
             user_other: FromOverride::from(value.user_other, default.user_other),
@@ -424,7 +424,7 @@ pub struct LinksOverride {
 
 impl FromOverride<LinksOverride> for Links {
     fn from(value: LinksOverride, default: Self) -> Self {
-        Links {
+        Self {
             normal: FromOverride::from(value.normal, default.normal),
             multi_link_file: FromOverride::from(value.multi_link_file, default.multi_link_file),
         }
@@ -445,7 +445,7 @@ pub struct GitOverride {
 
 impl FromOverride<GitOverride> for Git {
     fn from(value: GitOverride, default: Self) -> Self {
-        Git {
+        Self {
             new: FromOverride::from(value.new, default.new),
             modified: FromOverride::from(value.modified, default.modified),
             deleted: FromOverride::from(value.deleted, default.deleted),
@@ -468,7 +468,7 @@ pub struct GitRepoOverride {
 
 impl FromOverride<GitRepoOverride> for GitRepo {
     fn from(value: GitRepoOverride, default: Self) -> Self {
-        GitRepo {
+        Self {
             branch_main: FromOverride::from(value.branch_main, default.branch_main),
             branch_other: FromOverride::from(value.branch_other, default.branch_other),
             git_clean: FromOverride::from(value.git_clean, default.git_clean),
@@ -488,7 +488,7 @@ pub struct SELinuxContextOverride {
 
 impl FromOverride<SELinuxContextOverride> for SELinuxContext {
     fn from(value: SELinuxContextOverride, default: Self) -> Self {
-        SELinuxContext {
+        Self {
             colon: FromOverride::from(value.colon, default.colon),
             user: FromOverride::from(value.user, default.user),
             role: FromOverride::from(value.role, default.role),
@@ -507,7 +507,7 @@ pub struct SecurityContextOverride {
 
 impl FromOverride<SecurityContextOverride> for SecurityContext {
     fn from(value: SecurityContextOverride, default: Self) -> Self {
-        SecurityContext {
+        Self {
             none: FromOverride::from(value.none, default.none),
             selinux: FromOverride::from(value.selinux, default.selinux),
         }
@@ -532,7 +532,7 @@ pub struct FileTypeOverride {
 
 impl FromOverride<FileTypeOverride> for FileType {
     fn from(value: FileTypeOverride, default: Self) -> Self {
-        FileType {
+        Self {
             image: FromOverride::from(value.image, default.image),
             video: FromOverride::from(value.video, default.video),
             music: FromOverride::from(value.music, default.music),
@@ -582,7 +582,7 @@ pub struct UiStylesOverride {
 
 impl FromOverride<UiStylesOverride> for UiStyles {
     fn from(value: UiStylesOverride, default: Self) -> Self {
-        UiStyles {
+        Self {
             colourful: value.colourful,
 
             filekinds: FromOverride::from(value.filekinds, default.filekinds),
@@ -619,7 +619,7 @@ impl FromOverride<UiStylesOverride> for UiStyles {
 impl ThemeConfig {
     #[must_use]
     pub fn from_path(path: PathBuf) -> Self {
-        ThemeConfig { location: path }
+        Self { location: path }
     }
     #[must_use]
     pub fn to_theme(&self) -> Option<UiStyles> {

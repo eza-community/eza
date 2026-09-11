@@ -196,7 +196,7 @@ pub struct Extremes {
 }
 
 impl Extremes {
-    fn update(maybe_value: Option<f32>, maybe_range: &mut Option<Extremes>) {
+    fn update(maybe_value: Option<f32>, maybe_range: &mut Option<Self>) {
         match (maybe_value, maybe_range) {
             (Some(value), Some(range)) => {
                 if value > range.max {
@@ -207,7 +207,7 @@ impl Extremes {
             }
             (Some(value), rel) => {
                 let _ = rel.insert({
-                    Extremes {
+                    Self {
                         max: value,
                         min: value,
                     }

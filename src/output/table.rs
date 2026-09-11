@@ -329,10 +329,10 @@ impl TimeType {
     /// Returns the corresponding time from [File]
     pub fn get_corresponding_time(self, file: &File<'_>) -> Option<NaiveDateTime> {
         match self {
-            TimeType::Modified => file.modified_time(),
-            TimeType::Changed => file.changed_time(),
-            TimeType::Accessed => file.accessed_time(),
-            TimeType::Created => file.created_time(),
+            Self::Modified => file.modified_time(),
+            Self::Changed => file.changed_time(),
+            Self::Accessed => file.accessed_time(),
+            Self::Created => file.created_time(),
         }
     }
 }
@@ -348,11 +348,11 @@ pub enum FlagsFormat {
 }
 
 impl FlagsFormat {
-    pub(crate) fn deduce<V: Vars>(vars: &V) -> FlagsFormat {
+    pub(crate) fn deduce<V: Vars>(vars: &V) -> Self {
         vars.get(EZA_WINDOWS_ATTRIBUTES)
             .and_then(|v| match v.to_ascii_lowercase().to_str() {
-                Some("short") => Some(FlagsFormat::Short),
-                Some("long") => Some(FlagsFormat::Long),
+                Some("short") => Some(Self::Short),
+                Some("long") => Some(Self::Long),
                 _ => None,
             })
             .unwrap_or_default()
@@ -460,7 +460,7 @@ impl<'a> Table<'a> {
         git: Option<&'a GitCache>,
         theme: &'a Theme,
         git_repos: bool,
-    ) -> Table<'a> {
+    ) -> Self {
         let columns = options.columns.collect(git.is_some(), git_repos);
         let widths = TableWidths::zero(columns.len());
         let env = &*ENVIRONMENT;

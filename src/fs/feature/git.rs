@@ -444,7 +444,7 @@ impl f::SubdirGitRepo {
                 }
             }
         }
-        f::SubdirGitRepo {
+        Self {
             status: if status {
                 Some(f::SubdirGitRepoStatus::NoRepo)
             } else {

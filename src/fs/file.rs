@@ -126,7 +126,7 @@ impl<'dir> File<'dir> {
         deref_links: bool,
         total_size: bool,
         filetype: Option<std::fs::FileType>,
-    ) -> File<'dir>
+    ) -> Self
     where
         PD: Into<Option<&'dir Dir>>,
         FN: Into<Option<String>>,
@@ -177,7 +177,7 @@ impl<'dir> File<'dir> {
         parent_dir: &'dir Dir,
         name: &'static str,
         total_size: bool,
-    ) -> File<'dir> {
+    ) -> Self {
         let ext = File::ext(&path);
 
         let is_all_all = true;
@@ -210,12 +210,12 @@ impl<'dir> File<'dir> {
     }
 
     #[must_use]
-    pub fn new_aa_current(parent_dir: &'dir Dir, total_size: bool) -> File<'dir> {
+    pub fn new_aa_current(parent_dir: &'dir Dir, total_size: bool) -> Self {
         File::new_aa(parent_dir.path.clone(), parent_dir, ".", total_size)
     }
 
     #[must_use]
-    pub fn new_aa_parent(path: PathBuf, parent_dir: &'dir Dir, total_size: bool) -> File<'dir> {
+    pub fn new_aa_parent(path: PathBuf, parent_dir: &'dir Dir, total_size: bool) -> Self {
         File::new_aa(path, parent_dir, "..", total_size)
     }
 
@@ -1020,8 +1020,8 @@ impl<'dir> File<'dir> {
     }
 }
 
-impl<'a> AsRef<File<'a>> for File<'a> {
-    fn as_ref(&self) -> &File<'a> {
+impl<'a> AsRef<Self> for File<'a> {
+    fn as_ref(&self) -> &Self {
         self
     }
 }

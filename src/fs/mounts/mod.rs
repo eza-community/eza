@@ -44,7 +44,7 @@ impl std::fmt::Display for Error {
         // Allow unreachable_patterns for windows build
         match self {
             #[cfg(target_os = "macos")]
-            Error::GetFSStatError(err) => write!(f, "getfsstat failed: {err}"),
+            Self::GetFSStatError(err) => write!(f, "getfsstat failed: {err}"),
             #[cfg(target_os = "linux")]
             Error::IOError(err) => write!(f, "failed to read /proc/mounts: {err}"),
         }
