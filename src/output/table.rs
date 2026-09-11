@@ -209,12 +209,9 @@ impl Column {
     pub fn alignment(self) -> Alignment {
         #[allow(clippy::wildcard_in_or_patterns)]
         match self {
-            Self::FileSize
-            | Self::HardLinks
-            | Self::Inode
-            | Self::Blocksize
-            | Self::GitStatus
-            | Self::Loc(_) => Alignment::Right,
+            Self::FileSize | Self::HardLinks | Self::Inode | Self::Blocksize | Self::GitStatus | Self::Loc(_) => {
+                Alignment::Right
+            }
             Self::Timestamp(_) | _ => Alignment::Left,
         }
     }
@@ -412,8 +409,7 @@ impl Environment {
     fn load_all() -> Self {
         let time_offset = *Local::now().offset();
 
-        let numeric =
-            locale::Numeric::load_user_locale().unwrap_or_else(|_| locale::Numeric::english());
+        let numeric = locale::Numeric::load_user_locale().unwrap_or_else(|_| locale::Numeric::english());
 
         #[cfg(unix)]
         let users = Mutex::new(UsersCache::new());
@@ -455,19 +451,14 @@ pub struct Row {
 
 impl<'a> Table<'a> {
     #[must_use]
-    pub fn new(
-        options: &'a Options,
-        git: Option<&'a GitCache>,
-        theme: &'a Theme,
-        git_repos: bool,
-    ) -> Self {
+    pub fn new(options: &'a Options, git: Option<&'a GitCache>, theme: &'a Theme, git_repos: bool) -> Self {
         let columns = options.columns.collect(git.is_some(), git_repos);
         let widths = TableWidths::zero(columns.len());
         let env = &*ENVIRONMENT;
 
         debug!("Creating table with columns: {columns:?}");
 
-        Table {
+        Self {
             theme,
             widths,
             columns,
@@ -506,12 +497,7 @@ impl<'a> Table<'a> {
         Row { cells }
     }
 
-    pub fn row_for_file(
-        &self,
-        file: &File<'_>,
-        xattrs: bool,
-        color_scale_info: Option<ColorScaleInformation>,
-    ) -> Row {
+    pub fn row_for_file(&self, file: &File<'_>, xattrs: bool, color_scale_info: Option<ColorScaleInformation>) -> Row {
         let cells = self
             .columns
             .iter()
@@ -547,8 +533,7 @@ impl<'a> Table<'a> {
 
     #[cfg(unix)]
     fn octal_permissions(&self, file: &File<'_>) -> Option<f::OctalPermissions> {
-        file.permissions()
-            .map(|p| f::OctalPermissions { permissions: p })
+        file.permissions().map(|p| f::OctalPermissions { permissions: p })
     }
 
     fn display(
@@ -560,12 +545,9 @@ impl<'a> Table<'a> {
     ) -> TextCell {
         match column {
             Column::Permissions => self.permissions_plus(file, xattrs).render(self.theme),
-            Column::FileSize => file.size().render(
-                self.theme,
-                self.size_format,
-                &self.env.numeric,
-                color_scale_info,
-            ),
+            Column::FileSize => file
+                .size()
+                .render(self.theme, self.size_format, &self.env.numeric, color_scale_info),
             Column::Language => self.language(file),
             Column::Loc(content) => self.loc(file, content),
             #[cfg(unix)]
@@ -573,15 +555,11 @@ impl<'a> Table<'a> {
             #[cfg(unix)]
             Column::Inode => file.inode().render(self.theme.ui.inode.unwrap_or_default()),
             #[cfg(unix)]
-            Column::Blocksize => {
-                file.blocksize()
-                    .render(self.theme, self.size_format, &self.env.numeric)
-            }
+            Column::Blocksize => file.blocksize().render(self.theme, self.size_format, &self.env.numeric),
             #[cfg(unix)]
-            Column::User => {
-                file.user()
-                    .render(self.theme, &*self.env.lock_users(), self.user_format)
-            }
+            Column::User => file
+                .user()
+                .render(self.theme, &*self.env.lock_users(), self.user_format),
             #[cfg(unix)]
             Column::Group => file.group().render(
                 self.theme,
@@ -603,8 +581,7 @@ impl<'a> Table<'a> {
                 .render(self.theme.ui.octal.unwrap_or_default()),
 
             Column::Timestamp(time_type) => time_type.get_corresponding_time(file).render(
-                if color_scale_info.is_some_and(|csi| csi.options.mode == ColorScaleMode::Gradient)
-                {
+                if color_scale_info.is_some_and(|csi| csi.options.mode == ColorScaleMode::Gradient) {
                     color_scale_info.unwrap().apply_time_gradient(
                         self.theme.ui.date.unwrap_or_default(),
                         file,
@@ -622,10 +599,7 @@ impl<'a> Table<'a> {
     /// The language column: the recognised language’s name, or a dash.
     fn language(&self, file: &File<'_>) -> TextCell {
         match file.language() {
-            Some(lang) => TextCell::paint(
-                self.theme.ui.date.unwrap_or_default(),
-                lang.name.to_string(),
-            ),
+            Some(lang) => TextCell::paint(self.theme.ui.date.unwrap_or_default(), lang.name.to_string()),
             None => self.loc_placeholder(),
         }
     }
@@ -638,13 +612,7 @@ impl<'a> Table<'a> {
         };
         // Quantities take the same colour as file sizes, so the Code column
         // reads consistently next to Size.
-        let style = self
-            .theme
-            .ui
-            .size
-            .unwrap_or_default()
-            .number_byte
-            .unwrap_or_default();
+        let style = self.theme.ui.size.unwrap_or_default().number_byte.unwrap_or_default();
         match content {
             CodeContent::Percent => match self.loc_total {
                 Some(total) if total > 0 => {
@@ -659,10 +627,7 @@ impl<'a> Table<'a> {
 
     /// The placeholder shown for files with no language or no count.
     fn loc_placeholder(&self) -> TextCell {
-        TextCell::paint(
-            self.theme.ui.punctuation.unwrap_or_default(),
-            "-".to_string(),
-        )
+        TextCell::paint(self.theme.ui.punctuation.unwrap_or_default(), "-".to_string())
     }
 
     fn git_status(&self, file: &File<'_>) -> f::Git {
