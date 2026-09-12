@@ -95,27 +95,43 @@ pub struct FileFilter {
 impl FileFilter {
     /// Remove every file in the given vector that does *not* pass the
     /// filter predicate for files found inside a directory.
-    #[rustfmt::skip]
     pub fn filter_child_files(&self, is_recurse: bool, files: &mut Vec<File<'_>>) {
         use FileFilterFlags::{NoSymlinks, OnlyDirs, OnlyFiles, ShowSymlinks};
 
+        let only_dirs = self.flags.contains(&OnlyDirs);
+        let only_files = self.flags.contains(&OnlyFiles);
+        let no_symlinks = self.flags.contains(&NoSymlinks);
+        let show_symlinks = self.flags.contains(&ShowSymlinks);
+
         files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
+        // Each active flag applies its own constraint independently, and a file
+        // must satisfy all of them (rather than matching on flag combinations,
+        // which silently let unlisted combinations through unfiltered).
         files.retain(|f| {
-            match (
-                self.flags.contains(&OnlyDirs),
-                self.flags.contains(&OnlyFiles),
-                self.flags.contains(&NoSymlinks),
-                self.flags.contains(&ShowSymlinks),
-            ) {
-                (true, false, false, false) => f.is_directory(),
-                (true, false, true, false) => f.is_directory(),
-                (true, false, false, true) => f.is_directory() || f.points_to_directory(),
-                (false, true, false, false) => if is_recurse { true } else {f.is_file() },
-                (false, true, false, true) => if is_recurse { true } else { f.is_file() || f.is_link() && !f.points_to_directory()
-                },
-                (false, false, true, false) => !f.is_link(),
-                _ => true,
+            if only_dirs {
+                let is_dir = if show_symlinks {
+                    f.points_to_directory()
+                } else {
+                    f.is_directory()
+                };
+                if !is_dir {
+                    return false;
+                }
             }
+            if only_files && !is_recurse {
+                let is_file = if show_symlinks {
+                    f.is_file() || (f.is_link() && !f.points_to_directory())
+                } else {
+                    f.is_file()
+                };
+                if !is_file {
+                    return false;
+                }
+            }
+            if no_symlinks && f.is_link() {
+                return false;
+            }
+            true
         });
     }
 
@@ -387,6 +403,133 @@ pub enum GitIgnore {
 
     /// Display files, even if Git would ignore them.
     Off,
+}
+
+#[cfg(test)]
+#[cfg(unix)]
+mod test_filter_child_files {
+    use super::*;
+    use std::fs;
+    use std::os::unix::fs::symlink;
+    use std::path::PathBuf;
+
+    /// A self-cleaning temp directory, since this crate has no existing
+    /// dependency on a tempfile crate.
+    struct TempDir(PathBuf);
+
+    impl TempDir {
+        fn new(name: &str) -> Self {
+            let dir =
+                std::env::temp_dir().join(format!("eza-filter-test-{name}-{}", std::process::id()));
+            let _ = fs::remove_dir_all(&dir);
+            fs::create_dir_all(&dir).unwrap();
+            Self(dir)
+        }
+    }
+
+    impl Drop for TempDir {
+        fn drop(&mut self) {
+            let _ = fs::remove_dir_all(&self.0);
+        }
+    }
+
+    fn make_filter(flags: Vec<FileFilterFlags>) -> FileFilter {
+        FileFilter {
+            sort_field: SortField::Unsorted,
+            flags,
+            dot_filter: DotFilter::default(),
+            ignore_patterns: IgnorePatterns::empty(),
+            git_ignore: GitIgnore::Off,
+            no_symlinks: false,
+            show_symlinks: false,
+        }
+    }
+
+    fn names<'a>(files: &'a [File<'a>]) -> Vec<&'a str> {
+        let mut names: Vec<&str> = files.iter().map(|f| f.name.as_str()).collect();
+        names.sort_unstable();
+        names
+    }
+
+    /// Builds a real directory containing a real subdirectory (`dir`), a
+    /// real regular file (`file`), and a real symlink to that subdirectory
+    /// (`link`), and returns `File`s for all three (in that order).
+    fn fixture(temp: &TempDir) -> Vec<File<'static>> {
+        let dir_path = temp.0.join("dir");
+        let file_path = temp.0.join("file");
+        let link_path = temp.0.join("link");
+        fs::create_dir(&dir_path).unwrap();
+        fs::write(&file_path, b"hi").unwrap();
+        symlink(&dir_path, &link_path).unwrap();
+
+        vec![
+            File::from_args(dir_path, None, None, false, false, None),
+            File::from_args(file_path, None, None, false, false, None),
+            File::from_args(link_path, None, None, false, false, None),
+        ]
+    }
+
+    #[test]
+    fn only_files_with_no_symlinks_excludes_dirs_and_symlinks() {
+        // Regression test for https://github.com/eza-community/eza/issues/1927:
+        // this combination used to fall through to the catch-all `_ => true`
+        // arm and disable filtering entirely.
+        let temp = TempDir::new("only-files-no-symlinks");
+        let mut files = fixture(&temp);
+        let filter = make_filter(vec![
+            FileFilterFlags::OnlyFiles,
+            FileFilterFlags::NoSymlinks,
+        ]);
+
+        filter.filter_child_files(false, &mut files);
+
+        assert_eq!(names(&files), vec!["file"]);
+    }
+
+    #[test]
+    fn only_dirs_with_no_symlinks_and_show_symlinks_excludes_the_symlink() {
+        // NoSymlinks always wins over ShowSymlinks: a symlink-to-dir is not
+        // shown even though OnlyDirs+ShowSymlinks alone would include it.
+        let temp = TempDir::new("only-dirs-no-symlinks-show-symlinks");
+        let mut files = fixture(&temp);
+        let filter = make_filter(vec![
+            FileFilterFlags::OnlyDirs,
+            FileFilterFlags::NoSymlinks,
+            FileFilterFlags::ShowSymlinks,
+        ]);
+
+        filter.filter_child_files(false, &mut files);
+
+        assert_eq!(names(&files), vec!["dir"]);
+    }
+
+    #[test]
+    fn no_symlinks_with_show_symlinks_still_excludes_symlinks() {
+        let temp = TempDir::new("no-symlinks-show-symlinks");
+        let mut files = fixture(&temp);
+        let filter = make_filter(vec![
+            FileFilterFlags::NoSymlinks,
+            FileFilterFlags::ShowSymlinks,
+        ]);
+
+        filter.filter_child_files(false, &mut files);
+
+        assert_eq!(names(&files), vec!["dir", "file"]);
+    }
+
+    #[test]
+    fn only_dirs_with_show_symlinks_includes_symlink_to_dir() {
+        let temp = TempDir::new("only-dirs-show-symlinks");
+        let mut files = fixture(&temp);
+        let filter = make_filter(vec![
+            FileFilterFlags::OnlyDirs,
+            FileFilterFlags::ShowSymlinks,
+        ]);
+
+        filter.filter_child_files(false, &mut files);
+
+        assert_eq!(names(&files), vec!["dir", "link"]);
+    }
 }
 
 #[cfg(test)]
