@@ -95,26 +95,32 @@ pub struct FileFilter {
 impl FileFilter {
     /// Remove every file in the given vector that does *not* pass the
     /// filter predicate for files found inside a directory.
-    #[rustfmt::skip]
     pub fn filter_child_files(&self, is_recurse: bool, files: &mut Vec<File<'_>>) {
         use FileFilterFlags::{NoSymlinks, OnlyDirs, OnlyFiles, ShowSymlinks};
 
+        let no_symlinks = self.flags.contains(&NoSymlinks);
+        let only_dirs = self.flags.contains(&OnlyDirs);
+        let only_files = self.flags.contains(&OnlyFiles);
+        let show_symlinks = self.flags.contains(&ShowSymlinks);
+
         files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
         files.retain(|f| {
-            match (
-                self.flags.contains(&OnlyDirs),
-                self.flags.contains(&OnlyFiles),
-                self.flags.contains(&NoSymlinks),
-                self.flags.contains(&ShowSymlinks),
-            ) {
-                (true, false, false, false) => f.is_directory(),
-                (true, false, true, false) => f.is_directory(),
-                (true, false, false, true) => f.is_directory() || f.points_to_directory(),
-                (false, true, false, false) => if is_recurse { true } else {f.is_file() },
-                (false, true, false, true) => if is_recurse { true } else { f.is_file() || f.is_link() && !f.points_to_directory()
-                },
-                (false, false, true, false) => !f.is_link(),
-                _ => true,
+            // NoSymlinks takes precedence over ShowSymlinks.
+            if no_symlinks && f.is_link() {
+                return false;
+            }
+
+            if only_dirs {
+                f.is_directory() || (show_symlinks && f.is_link() && f.points_to_directory())
+            } else if only_files {
+                // During recursion, directories must be retained for traversal.
+                if is_recurse {
+                    true
+                } else {
+                    f.is_file() || (show_symlinks && f.is_link() && !f.points_to_directory())
+                }
+            } else {
+                true
             }
         });
     }
