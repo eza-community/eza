@@ -98,7 +98,7 @@ When used without a value, defaults to ‘`automatic`’.
 : Sort the grid across, rather than downwards.
 
 `--color=WHEN`, `--colour=WHEN`
-: When to use terminal colours (using ANSI escape code to colorize the output).
+: When to use terminal colors (using ANSI escape codes to colorize the output).
 
 Valid settings are ‘`always`’, ‘`automatic`’ (or ‘`auto`’ for short), and ‘`never`’.
 When used without a value, defaults to ‘`automatic`’.
