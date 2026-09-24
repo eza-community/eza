@@ -302,7 +302,11 @@ impl Exa<'_> {
         let no_files = files.is_empty();
         let is_only_dir = dirs.len() == 1 && no_files;
 
-        self.options.filter.filter_argument_files(&mut files);
+        if self.options.dir_action.treat_dirs_as_files() {
+            self.options.filter.filter_child_files(false, &mut files);
+        } else {
+            self.options.filter.filter_argument_files(&mut files);
+        }
         self.print_files(None, files)?;
 
         self.print_dirs(dirs, no_files, is_only_dir, exit_status)

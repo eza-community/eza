@@ -1,0 +1,2 @@
+bin.name = "eza"
+args = "--only-files --list-dirs tests/itest/a tests/itest/exa tests/itest/b"
