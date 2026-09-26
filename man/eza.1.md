@@ -288,6 +288,9 @@ Alternatively, `<FORMAT>` can be a two line string, the first line will be used 
 `--no-user`
 : Suppress the user field.
 
+`--user-length=N`
+: Truncate each username to at most N characters, appending '…' if longer.
+
 `--no-time`
 : Suppress the time field.
 

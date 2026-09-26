@@ -286,6 +286,8 @@ pub enum UserFormat {
     Numeric,
     /// Show the name
     Name,
+    /// Show the name truncated to at most N characters, with '…' suffix if longer
+    Truncated(usize),
 }
 
 /// Formatting options for group only.

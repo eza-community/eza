@@ -57,7 +57,7 @@ impl Render for Option<f::Group> {
         }
 
         let mut group_name = match user_format {
-            UserFormat::Name => group.name().to_string_lossy().into(),
+            UserFormat::Name | UserFormat::Truncated(_) => group.name().to_string_lossy().into(),
             UserFormat::Numeric => group.gid().to_string(),
         };
 

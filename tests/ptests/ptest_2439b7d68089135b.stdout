@@ -52,35 +52,36 @@ SORTING OPTIONS:
   -r, --reverse                  reverse the sort order
 
 LONG VIEW OPTIONS:
-  -h, --header               add a header row to each column
-  -i, --inode                list each file's inode number
-      --loc[=<MODE>]         add lines-of-code and language columns [modes: lines, percent, both]
-  -o, --octal-permissions    list each file's permission in octal format
-  -H, --links                list each file's number of hard links
-  -b, --binary               show file sizes with binary prefixes
-  -B, --bytes                show file sizes in bytes, without any prefixes
-      --total-size           show the size of a directory as the one of its content (unix only)
-  -S, --blocksize            list size of allocated file system blocks
-  -g, --group                list each file's group
-      --smart-group          only show group if it has a different name from owner
-  -n, --numeric              show user and group as their numeric IDs
-  -t, --time <FIELD>         which timestamp field to show [possible values:
-                               mod|modified, acc|accessed, ch|changed, cr|created]
-  -m, --modified             show the modified timestamp field (replace default field, combinable)
-  -u, --accessed             show the accessed timestamp field (replace default field, combinable)
-      --changed              show the changed timestamp field (replace default field, combinable)
-  -U, --created              show the created timestamp field (replace default field, combinable)
-      --time-style <STYLE>   how to format timestamps [possible values:
-                               default, iso, long-iso, full-iso, relative, "+<CUSTOM_FORMAT>"]
-  -O, --flags                list file flags (Mac, BSD, and Windows only)
-  -Z, --context              list each file's security context
-      --git                  list each file's Git status, if tracked or ignored
-      --git-repos            list root of git-tree status
-      --git-repos-no-status  list each git-repos branch name (much faster)
-  -M, --mounts               show mount details (Linux and macOS only)
-  -@, --extended             list each file's extended attributes and sizes
-      --no-permissions       suppress the permissions field
-      --no-filesize          suppress the filesize field
-      --no-user              suppress the user field
-      --no-time              suppress the time field
-      --no-git               suppress Git fields (overrides --git, --git-repos, --git-repos-no-status)
+  -h, --header                add a header row to each column
+  -i, --inode                 list each file's inode number
+      --loc[=<MODE>]          add lines-of-code and language columns [modes: lines, percent, both]
+  -o, --octal-permissions     list each file's permission in octal format
+  -H, --links                 list each file's number of hard links
+  -b, --binary                show file sizes with binary prefixes
+  -B, --bytes                 show file sizes in bytes, without any prefixes
+      --total-size            show the size of a directory as the one of its content (unix only)
+  -S, --blocksize             list size of allocated file system blocks
+  -g, --group                 list each file's group
+      --smart-group           only show group if it has a different name from owner
+  -n, --numeric               show user and group as their numeric IDs
+  -t, --time <FIELD>          which timestamp field to show [possible values:
+                                mod|modified, acc|accessed, ch|changed, cr|created]
+  -m, --modified              show the modified timestamp field (replace default field, combinable)
+  -u, --accessed              show the accessed timestamp field (replace default field, combinable)
+      --changed               show the changed timestamp field (replace default field, combinable)
+  -U, --created               show the created timestamp field (replace default field, combinable)
+      --time-style <STYLE>    how to format timestamps [possible values:
+                                default, iso, long-iso, full-iso, relative, "+<CUSTOM_FORMAT>"]
+  -O, --flags                 list file flags (Mac, BSD, and Windows only)
+  -Z, --context               list each file's security context
+      --git                   list each file's Git status, if tracked or ignored
+      --git-repos             list root of git-tree status
+      --git-repos-no-status   list each git-repos branch name (much faster)
+  -M, --mounts                show mount details (Linux and macOS only)
+  -@, --extended              list each file's extended attributes and sizes
+      --no-permissions        suppress the permissions field
+      --no-filesize           suppress the filesize field
+      --no-user               suppress the user field
+      --user-length <LENGTH>  truncate username to LENGTH characters, appending '…' if longer
+      --no-time               suppress the time field
+      --no-git                suppress Git fields (overrides --git, --git-repos, --git-repos-no-status)

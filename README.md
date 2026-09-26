@@ -173,6 +173,7 @@ These options are available when running with `--long` (`-l`):
 - **-o**, **--octal-permissions**: list each file's permission in octal format
 - **--no-filesize**: suppress the filesize field
 - **--no-user**: suppress the user field
+- **--user-length=(N)**: truncate the user column to at most N characters, appending '…' if longer
 - **--no-time**: suppress the time field
 - **--stdin**: read file names from stdin
 

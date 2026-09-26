@@ -56,6 +56,7 @@ export extern "eza" [
     --octal-permissions(-o)    # List each file's permission in octal format
     --no-filesize              # Suppress the filesize field
     --no-user                  # Suppress the user field
+    --user-length: int         # Truncate the user column to N characters
     --no-time                  # Suppress the time field
     --mounts(-M)               # Show mount details
     --git                      # List each file's Git status, if tracked

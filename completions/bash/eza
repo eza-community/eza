@@ -57,6 +57,11 @@ _eza() {
             mapfile -t COMPREPLY < <(compgen -W 'on follow off --' -- "$cur")
             return
             ;;
+
+        --user-length)
+            mapfile -t COMPREPLY < <(compgen -W '{1..32}' -- "$cur")
+            return
+            ;;
     esac
 
     case "$cur" in

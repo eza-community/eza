@@ -128,6 +128,7 @@ impl Mode {
             "time",
             "group",
             "numeric",
+            "user-length",
             "mounts",
             "loc",
         ] {
@@ -429,6 +430,8 @@ impl UserFormat {
     fn deduce(matches: &ArgMatches) -> Self {
         if matches.get_flag("numeric") {
             Self::Numeric
+        } else if let Some(&n) = matches.get_one::<usize>("user-length") {
+            Self::Truncated(n)
         } else {
             Self::Name
         }
@@ -703,6 +706,14 @@ mod tests {
     #[test]
     fn deduce_user_format_off() {
         assert_eq!(UserFormat::deduce(&mock_cli(vec![""])), UserFormat::Name);
+    }
+
+    #[test]
+    fn deduce_user_format_truncated() {
+        assert_eq!(
+            UserFormat::deduce(&mock_cli(vec!["--user-length", "8"])),
+            UserFormat::Truncated(8)
+        );
     }
 
     #[test]
