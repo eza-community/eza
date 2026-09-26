@@ -41,6 +41,9 @@ pub struct Options {
 
     /// Whether we are in a console or redirecting the output
     pub is_a_tty: bool,
+
+    /// Whether to display macOS Finder tag colors and symbol overlays.
+    pub finder_meta: bool,
 }
 
 /// How many characters of a Nix store hash to keep when `--short-nix`
@@ -316,8 +319,23 @@ impl<C: Colours> FileName<'_, '_, C> {
             self.add_parent_bits(&mut bits, parent);
         }
 
+        // macOS Finder symbol overlay -- prepend emoji/glyph before filename
+        #[cfg(target_os = "macos")]
+        let filename_style_override = if self.options.finder_meta {
+            if let Some(sym) = self.file.finder_symbol_char() {
+                bits.push(Style::default().paint(format!("{} ", sym)));
+            }
+            // Apply Finder tag color if set (overrides default style)
+            self.file
+                .finder_tag_color()
+                .map(crate::fs::feature::macos_finder::finder_tag_style)
+                .or(filename_style_override)
+        } else {
+            filename_style_override
+        };
+
         if !self.file.name.is_empty() {
-            // The “missing file” colour seems like it should be used here,
+            // The "missing file" colour seems like it should be used here,
             // but it’s not! In a grid view, where there’s no space to display
             // link targets, the filename has to have a different style to
             // indicate this fact. But when showing targets, we can just
@@ -348,6 +366,7 @@ impl<C: Colours> FileName<'_, '_, C> {
                             is_a_tty: self.options.is_a_tty,
                             absolute: Absolute::Off,
                             short_nix: self.options.short_nix,
+                            finder_meta: false,
                         };
 
                         let target_name = FileName {
@@ -564,7 +583,7 @@ impl<C: Colours> FileName<'_, '_, C> {
     }
 
     /// Figures out which colour to paint the filename part of the output,
-    /// depending on which “type” of file it appears to be — either from the
+    /// depending on which "type" of file it appears to be — either from the
     /// class on the filesystem or from its name. (Or the broken link colour,
     /// if there’s nowhere else for that fact to be shown.)
     #[must_use]
