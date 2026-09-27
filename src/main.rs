@@ -12,6 +12,8 @@
 use std::env;
 use std::ffi::{OsStr, OsString};
 use std::io::{self, ErrorKind, IsTerminal, Read, Write, stdin};
+#[cfg(any(windows, test))]
+use std::path::Path;
 use std::path::{Component, PathBuf};
 use std::process::exit;
 
@@ -237,7 +239,7 @@ impl Exa<'_> {
             // Report paths that don’t exist, like the normal listing does,
             // and count the rest.
             for file_path in &self.input_paths {
-                let path = PathBuf::from(file_path);
+                let path = normalize_arg_path(file_path);
                 if let Err(e) = std::fs::symlink_metadata(&path) {
                     exit_status = 2;
                     writeln!(io::stderr(), "{file_path:?}: {e}")?;
@@ -271,7 +273,7 @@ impl Exa<'_> {
 
         for file_path in &self.input_paths {
             let f = File::from_args(
-                PathBuf::from(file_path),
+                normalize_arg_path(file_path),
                 None,
                 None,
                 self.options.view.deref_links,
@@ -559,6 +561,33 @@ impl Exa<'_> {
     }
 }
 
+/// Turn a command-line path argument into the `PathBuf` the rest of the
+/// program works with.
+///
+/// On Windows a trailing separator makes filesystem calls fail with OS
+/// error 123, so `eza 'C:\Program Files\'` errors out instead of listing
+/// the directory. Dropping the separator up front fixes that while leaving
+/// roots (`/`, `C:\`) untouched. Everywhere else the argument is passed
+/// through unchanged. See <https://github.com/eza-community/eza/issues/404>.
+fn normalize_arg_path(path: &OsStr) -> PathBuf {
+    #[cfg(windows)]
+    {
+        strip_trailing_separator(Path::new(path))
+    }
+    #[cfg(not(windows))]
+    {
+        PathBuf::from(path)
+    }
+}
+
+/// Rebuild a path without any trailing separator. `components` never yields
+/// a trailing separator as a component, while root prefixes (`/`, `C:\`,
+/// `\\server\share\`) survive the round trip as real components.
+#[cfg(any(windows, test))]
+fn strip_trailing_separator(path: &Path) -> PathBuf {
+    path.components().collect()
+}
+
 mod exits {
 
     /// Exit code for when exa runs OK.
@@ -572,4 +601,35 @@ mod exits {
 
     /// Exit code for missing file permissions
     pub const PERMISSION_DENIED: i32 = 13;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn strips_trailing_separators_but_keeps_roots() {
+        for (input, want) in [
+            ("foo/", "foo"),
+            ("foo//", "foo"),
+            ("/tmp/dir/", "/tmp/dir"),
+            ("/", "/"),
+            ("", ""),
+            ("relative", "relative"),
+        ] {
+            assert_eq!(
+                strip_trailing_separator(Path::new(input)),
+                PathBuf::from(want)
+            );
+        }
+    }
+
+    #[cfg(not(windows))]
+    #[test]
+    fn arg_paths_pass_through_outside_windows() {
+        assert_eq!(
+            normalize_arg_path(OsStr::new("foo/")),
+            PathBuf::from("foo/")
+        );
+    }
 }
