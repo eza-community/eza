@@ -4,10 +4,20 @@
 // SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
+use dirs;
 use nu_ansi_term::Style;
 use phf::{Map, phf_map};
 
+use std::collections::HashMap;
+use std::path::PathBuf;
+use std::sync::LazyLock;
+
 use crate::fs::File;
+
+/// Special directories are system/user directories that have a special icon. (Documents,
+/// Downloads, Videos, etc.)
+/// This caches the results per program execution, instead of recalculating for every file.
+static SPECIAL_DIRS: LazyLock<HashMap<PathBuf, char>> = LazyLock::new(load_special_dirs);
 
 #[non_exhaustive]
 struct Icons;
@@ -1136,6 +1146,28 @@ pub fn iconify_style(style: Style) -> Style {
         .unwrap_or_default()
 }
 
+/// Builds up the cache of special directories, mapping the directories it finds to the associated
+/// icons.
+fn load_special_dirs() -> HashMap<PathBuf, char> {
+    let mut map = HashMap::new();
+
+    // NOTE: maybe we should not use this for Windows, since AppData\Roaming is not really
+    // a config directory (Windows does not split the config and data directories like this)
+    dirs::config_dir().map(|p| map.insert(p, Icons::FOLDER_CONFIG));
+    dirs::desktop_dir().map(|p| map.insert(p, Icons::FOLDER_DESKTOP));
+    dirs::document_dir().map(|p| map.insert(p, Icons::FOLDER_DOCUMENTS));
+    dirs::download_dir().map(|p| map.insert(p, Icons::FOLDER_DOWNLOADS));
+    // NOTE: maybe we should make the home dir icon a profile/person icon like  (\uf415)
+    // in Windows, instead of a home icon, since that is a more common representation
+    // for Users\<User> in Windows
+    dirs::home_dir().map(|p| map.insert(p, Icons::FOLDER_HOME));
+    dirs::audio_dir().map(|p| map.insert(p, Icons::FOLDER_MUSIC));
+    dirs::picture_dir().map(|p| map.insert(p, Icons::FOLDER_PICTURES));
+    dirs::video_dir().map(|p| map.insert(p, Icons::FOLDER_VIDEOS));
+
+    map
+}
+
 /// Lookup the icon for a plain file name and lowercase extension, without
 /// needing a whole `File`. Used by the `--code` summary to give each
 /// language the icon of a representative source file.
@@ -1152,14 +1184,23 @@ pub fn icon_for_name_ext(name: &str, ext: Option<&str>) -> char {
 /// Lookup the icon for a file based on the file's name, if the entry is a
 /// directory, or by the lowercase file extension.
 pub fn icon_for_file(file: &File<'_>) -> char {
+    // Directories
     if file.points_to_directory() {
-        *DIRECTORY_ICONS.get(file.name.as_str()).unwrap_or_else(|| {
-            if file.is_empty_dir() {
-                &Icons::FOLDER_OPEN // 
-            } else {
-                &Icons::FOLDER // 
-            }
-        })
+        if let Some(icon) = SPECIAL_DIRS.get(&file.path) {
+            // First check if the file is in an Special Directory.
+            *icon
+        } else {
+            // Base the icon on the directory name.
+            *DIRECTORY_ICONS.get(file.name.as_str()).unwrap_or_else(|| {
+                if file.is_empty_dir() {
+                    &Icons::FOLDER_OPEN // 
+                } else {
+                    &Icons::FOLDER // 
+                }
+            })
+        }
+
+    // Files
     } else if let Some(icon) = FILENAME_ICONS.get(file.name.as_str()) {
         *icon
     } else if let Some(ext) = file.ext.as_ref() {
