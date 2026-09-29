@@ -47,10 +47,15 @@ fn main() {
 
     let stdout_istty = io::stdout().is_terminal();
     let mut input = String::new();
-    let mut input_paths: Vec<&OsStr> = match cli.get_many("FILE") {
-        Some(x) => x.map(OsString::as_os_str).collect(),
+
+    // Windows shells (cmd.exe, PowerShell) don't expand wildcard arguments
+    // before invoking the program, so `eza t*` arrives literally and fails
+    // with `os error 123`. Expand `*`/`?` patterns ourselves (issue #337).
+    let file_args: Vec<OsString> = match cli.get_many("FILE") {
+        Some(x) => x.cloned().flat_map(expand_arg).collect(),
         None => vec![],
     };
+    let mut input_paths: Vec<&OsStr> = file_args.iter().map(OsString::as_os_str).collect();
     match Options::deduce(&cli, &LiveVars) {
         Ok(options) => {
             if input_paths.is_empty() {
@@ -572,4 +577,81 @@ mod exits {
 
     /// Exit code for missing file permissions
     pub const PERMISSION_DENIED: i32 = 13;
+}
+
+/// Expand a `FILE` argument into concrete paths.
+///
+/// On Windows, `*`/`?` wildcards in the last path component are expanded
+/// against the filesystem (case-insensitively, like the filesystem itself)
+/// since Windows shells don't glob for the program. Arguments that contain
+/// no wildcard, or match nothing, pass through unchanged so the usual
+/// not-found error path is preserved. On other platforms arguments pass
+/// through untouched.
+#[cfg(windows)]
+fn expand_arg(arg: OsString) -> Vec<OsString> {
+    let arg_str = arg.to_string_lossy();
+    let sep = arg_str.rfind(['/', '\\']).map_or(0, |i| i + 1);
+    let (dir, pattern) = arg_str.split_at(sep);
+    if !pattern.contains(['*', '?']) || dir.contains(['*', '?']) {
+        return vec![arg]; // only the last component may contain wildcards
+    }
+
+    let Ok(entries) = std::fs::read_dir(if dir.is_empty() { "." } else { dir }) else {
+        return vec![arg];
+    };
+
+    let pattern_lc = pattern.to_lowercase();
+    let mut expanded: Vec<OsString> = entries
+        .flatten()
+        .map(|entry| entry.file_name())
+        .filter(|name| wildcard_match(&pattern_lc, &name.to_string_lossy().to_lowercase()))
+        .map(|name| {
+            let mut joined = OsString::from(dir);
+            joined.push(name);
+            joined
+        })
+        .collect();
+
+    if expanded.is_empty() {
+        vec![arg]
+    } else {
+        expanded.sort();
+        expanded
+    }
+}
+
+/// Pass arguments through unchanged on non-Windows platforms, where the
+/// shell is responsible for glob expansion.
+#[cfg(not(windows))]
+fn expand_arg(arg: OsString) -> Vec<OsString> {
+    vec![arg]
+}
+
+/// `*`/`?` wildcard matching (cmd.exe semantics): `*` matches any sequence
+/// of characters including none, `?` matches exactly one character.
+#[cfg(windows)]
+fn wildcard_match(pattern: &str, name: &str) -> bool {
+    let pat: Vec<char> = pattern.chars().collect();
+    let name: Vec<char> = name.chars().collect();
+    let (mut p, mut n, mut star, mut retry) = (0usize, 0usize, usize::MAX, 0usize);
+    while n < name.len() {
+        if p < pat.len() && (pat[p] == '?' || pat[p] == name[n]) {
+            p += 1;
+            n += 1;
+        } else if p < pat.len() && pat[p] == '*' {
+            star = p;
+            retry = n;
+            p += 1;
+        } else if star != usize::MAX {
+            p = star + 1;
+            retry += 1;
+            n = retry;
+        } else {
+            return false;
+        }
+    }
+    while p < pat.len() && pat[p] == '*' {
+        p += 1;
+    }
+    p == pat.len()
 }
