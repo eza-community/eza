@@ -43,7 +43,22 @@ fn main() {
 
     logger::configure(env::var_os(vars::EZA_DEBUG).or_else(|| env::var_os(vars::EXA_DEBUG)));
 
-    let cli = get_command().get_matches();
+    let cli = match get_command().try_get_matches() {
+        Ok(matches) => matches,
+        Err(e) => {
+            // Print help/version/parse errors ourselves: `Error::exit()`
+            // panics when stdout has already been closed by the reader
+            // (e.g. `eza --help | rg` on Windows, where there is no
+            // SIGPIPE). See BurntSushi/ripgrep#3372.
+            let rendered = e.render().to_string();
+            if e.use_stderr() {
+                let _ = io::stderr().write_all(rendered.as_bytes());
+            } else {
+                let _ = io::stdout().write_all(rendered.as_bytes());
+            }
+            exit(e.exit_code());
+        }
+    };
 
     let stdout_istty = io::stdout().is_terminal();
     let mut input = String::new();
