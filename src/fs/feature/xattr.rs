@@ -298,6 +298,12 @@ mod extended_attrs {
         result
     }
 
+    // A size reported by the first call can be too small for the second call,
+    // which then fails with ERANGE.  Retrying is the only way to recover from
+    // that, but a file system that keeps answering with a size its own second
+    // call rejects would spin here forever, so the retries are bounded.
+    const MAX_ERANGE_RETRIES: usize = 5;
+
     // Calling getxattr and listxattr is a two part process.  The first call
     // a null ptr for buffer and a zero buffer size is passed and the function
     // returns the needed buffer size.  The second call the buffer ptr and the
@@ -305,6 +311,7 @@ mod extended_attrs {
     // the buffer size changes between the first and second call.
     fn get_loop<F: Fn(*mut u8, usize) -> ssize_t>(f: F) -> io::Result<Option<Vec<u8>>> {
         let mut buffer: Vec<u8> = Vec::new();
+        let mut retries: usize = 0;
         loop {
             let buffer_size = match f(null_mut(), 0) {
                 -1 => return Err(io::Error::last_os_error()),
@@ -314,22 +321,118 @@ mod extended_attrs {
 
             buffer.resize(buffer_size, 0);
 
-            return match f(buffer.as_mut_ptr(), buffer_size) {
+            match f(buffer.as_mut_ptr(), buffer_size) {
                 -1 => {
                     let last_os_error = io::Error::last_os_error();
-                    if last_os_error.raw_os_error() == Some(ERANGE) {
-                        // Passed buffer was to small so retry again.
+                    if last_os_error.raw_os_error() == Some(ERANGE) && retries < MAX_ERANGE_RETRIES
+                    {
+                        // Passed buffer was to small so ask for the size again and retry.
+                        retries += 1;
                         continue;
                     }
-                    Err(last_os_error)
+                    return Err(last_os_error);
                 }
-                0 => Ok(None),
+                0 => return Ok(None),
                 len => {
                     // Just in case the size shrunk
                     buffer.truncate(len as usize);
-                    Ok(Some(buffer))
+                    return Ok(Some(buffer));
                 }
-            };
+            }
+        }
+    }
+
+    // The errno slot that decides which error path is taken is reached
+    // through a different symbol per platform, and netbsd and openbsd expose
+    // neither, so the tests that need a specific error are limited to the
+    // platforms that do.
+    #[cfg(test)]
+    #[cfg(not(any(target_os = "netbsd", target_os = "openbsd")))]
+    mod tests {
+        use super::{ERANGE, MAX_ERANGE_RETRIES, get_loop};
+        use std::cell::Cell;
+        use std::sync::atomic::{AtomicUsize, Ordering};
+
+        #[cfg(any(target_os = "macos", target_os = "ios", target_os = "freebsd"))]
+        fn set_errno(value: i32) {
+            // SAFETY: Assigning to the thread local errno slot.
+            unsafe { *libc::__error() = value }
+        }
+
+        #[cfg(not(any(target_os = "macos", target_os = "ios", target_os = "freebsd")))]
+        fn set_errno(value: i32) {
+            // SAFETY: Assigning to the thread local errno slot.
+            unsafe { *libc::__errno_location() = value }
+        }
+
+        // A file system that reports a size and then refuses a buffer of
+        // exactly that size, for as long as it is asked.  This is what a
+        // macFUSE mount does, and without a bound on the retries the loop
+        // never returns.
+        #[test]
+        fn get_loop_gives_up_on_endless_erange() {
+            let calls = AtomicUsize::new(0);
+            let result = get_loop(|buf, _size| {
+                calls.fetch_add(1, Ordering::SeqCst);
+                if buf.is_null() {
+                    // The sizing call always reports the same size.
+                    8
+                } else {
+                    set_errno(ERANGE);
+                    -1
+                }
+            });
+
+            // One sizing call and one buffer call per attempt, the last of
+            // which is the attempt that gives up.
+            let calls_made = calls.load(Ordering::SeqCst);
+            assert_eq!(calls_made, (MAX_ERANGE_RETRIES + 1) * 2);
+            assert_eq!(result.unwrap_err().raw_os_error(), Some(ERANGE));
+        }
+
+        // A size that turns out too small is the case the retry exists for,
+        // and it still has to be picked up.
+        #[test]
+        fn get_loop_recovers_from_a_growing_size() {
+            let sizes = [4usize, 8];
+            let sizing_calls = Cell::new(0);
+            let buffer_calls = Cell::new(0);
+            let result = get_loop(|buf, _size| {
+                if buf.is_null() {
+                    let call = sizing_calls.get();
+                    sizing_calls.set(call + 1);
+                    sizes[std::cmp::min(call, sizes.len() - 1)] as isize
+                } else {
+                    let call = buffer_calls.get();
+                    buffer_calls.set(call + 1);
+                    if call == 0 {
+                        set_errno(ERANGE);
+                        -1
+                    } else {
+                        8
+                    }
+                }
+            });
+
+            assert_eq!(result.unwrap().unwrap().len(), 8);
+        }
+
+        // An error that a larger buffer cannot fix is reported straight
+        // away rather than retried.
+        #[test]
+        fn get_loop_does_not_retry_other_errors() {
+            let sizing_calls = Cell::new(0);
+            let result = get_loop(|buf, _size| {
+                if buf.is_null() {
+                    sizing_calls.set(sizing_calls.get() + 1);
+                    return 8;
+                }
+                set_errno(libc::EPERM);
+                -1
+            });
+
+            assert_eq!(result.unwrap_err().raw_os_error(), Some(libc::EPERM));
+            assert_eq!(sizing_calls.get(), 1);
         }
     }
 
