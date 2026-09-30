@@ -37,30 +37,24 @@ impl Options {
 
 impl ThemeConfig {
     fn deduce<V: Vars>(vars: &V) -> Option<Self> {
-        if let Some(path) = vars.get("EZA_CONFIG_DIR") {
-            let path = PathBuf::from(path);
-            let theme = path.join("theme.yml");
-            if theme.exists() {
-                return Some(ThemeConfig::from_path(theme));
+        let path = match  vars.get(vars::EZA_CONFIG_DIR) {
+            Some(value) => PathBuf::from(value),
+            None => dirs::config_dir().unwrap_or_default().join("eza"),
+        };
+
+        let theme = match vars.get(vars::EZA_THEME) {
+            Some(value) => path.join("themes").join(value),
+            None => path.join("theme"),
+        };
+
+        for extension in ["yml", "yaml"] {
+            let theme_path = theme.with_extension(extension);
+            if theme_path.exists() {
+                return Some(ThemeConfig::from_path(theme_path));
             }
-            let theme = path.join("theme.yaml");
-            if theme.exists() {
-                return Some(ThemeConfig::from_path(theme));
-            }
-            None
-        } else {
-            let path = dirs::config_dir().unwrap_or_default();
-            let path = path.join("eza");
-            let theme = path.join("theme.yml");
-            if theme.exists() {
-                return Some(ThemeConfig::default());
-            }
-            let theme = path.join("theme.yaml");
-            if theme.exists() {
-                return Some(ThemeConfig::from_path(theme));
-            }
-            None
         }
+
+        Some(ThemeConfig::default())
     }
 }
 

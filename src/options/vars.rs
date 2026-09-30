@@ -77,6 +77,13 @@ pub static EZA_STDIN_SEPARATOR: &str = "EZA_STDIN_SEPARATOR";
 /// display a comma separated list of descriptions.
 pub static EZA_WINDOWS_ATTRIBUTES: &str = "EZA_WINDOWS_ATTRIBUTES";
 
+/// Environment variable used to specify which directory
+/// you would like eza to look for your `theme.yml` file or 'themes' directory.
+pub static EZA_CONFIG_DIR: &str = "EZA_CONFIG_DIR";
+
+/// Environment variable used to specify a current theme name.
+pub static EZA_THEME: &str = "EZA_THEME";
+
 /// Mockable wrapper for `std::env::var_os`.
 pub trait Vars {
     fn get(&self, name: &'static str) -> Option<OsString>;

@@ -18,7 +18,7 @@ SPDX-License-Identifier: EUPL-1.2
 [Available for MacOS, Linux, & Windows](https://www.warp.dev/eza)<br>
 
 </div>
-    
+
 # eza
 
 A modern replacement for ls.
@@ -195,7 +195,7 @@ See the `man` pages for further documentation of usage. They are available
 <details>
 <summary>Click to expand</summary>
 
-**Eza** has recently added support for a `theme.yml` file, where you can specify all of the existing theme-ing options
+**Eza** has support for a `theme.yml` file, where you can specify all of the existing theme-ing options
 available for the `LS_COLORS` and `EXA_COLORS` environment variables, as well as the option to specify different icons
 for different file types and extensions. Any existing environment variables set will continue to work and will take
 precedence for backwards compatibility.
@@ -203,8 +203,11 @@ precedence for backwards compatibility.
 #### **New** Pre-made themes
 Check out the themes available in the official [eza-themes](https://github.com/eza-community/eza-themes) repository, or contribute your own.
 
-An example theme file is available in `docs/theme.yml`, and needs to either be placed in a directory specified by the 
+An example theme file is available in `docs/theme.yml`, and needs to either be placed in a directory specified by the
 environment variable `EZA_CONFIG_DIR`, or will looked for by default in `$XDG_CONFIG_HOME/eza`.
+
+Addtionaly you can use `EZA_THEME` to specify a theme by it's name.
+Named themes can be placed in the `$EZA_CONFIG_DIR/themes` directory.
 
 Full details are available on the [man page](https://github.com/eza-community/eza/tree/main/man/eza_colors-explanation.5.md) and an example theme file is included [here](https://github.com/eza-community/eza/tree/main/docs/theme.yml)
 
@@ -213,10 +216,10 @@ Full details are available on the [man page](https://github.com/eza-community/ez
 
 # Hacking on eza
 
-If you wanna contribute to eza, firstly, you're expected to follow our 
-[code of conduct](https://github.com/eza-community/eza/blob/main/CODE_OF_CONDUCT.md). 
+If you wanna contribute to eza, firstly, you're expected to follow our
+[code of conduct](https://github.com/eza-community/eza/blob/main/CODE_OF_CONDUCT.md).
 After having understood the code of conduct, you can have a look at our
-[CONTRIBUTING.md](https://github.com/eza-community/eza/blob/main/CONTRIBUTING.md) 
+[CONTRIBUTING.md](https://github.com/eza-community/eza/blob/main/CONTRIBUTING.md)
 for more info about actual hacking.
 
 [![Star History Chart](https://api.star-history.com/svg?repos=eza-community/eza&type=Date)](https://star-history.com/#eza-community/eza&Date)
