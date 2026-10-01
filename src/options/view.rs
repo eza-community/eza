@@ -4,6 +4,8 @@
 // SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
+use std::io::{self, IsTerminal};
+
 use clap::{ArgMatches, ValueEnum};
 
 use crate::output::TerminalWidth::Automatic;
@@ -29,9 +31,18 @@ impl View {
         vars: &V,
         strict: bool,
     ) -> Result<Self, OptionsError> {
+        Self::deduce_with_tty(matches, vars, strict, io::stdout().is_terminal())
+    }
+
+    fn deduce_with_tty<V: Vars>(
+        matches: &ArgMatches,
+        vars: &V,
+        strict: bool,
+        is_tty: bool,
+    ) -> Result<Self, OptionsError> {
         let width = TerminalWidth::deduce(matches, vars)?;
-        let is_tty = width.actual_terminal_width().is_some();
-        let mode = Mode::deduce(matches, vars, is_tty, strict)?;
+        let width_is_known = width.actual_terminal_width().is_some();
+        let mode = Mode::deduce(matches, vars, width_is_known, strict)?;
         let deref_links = matches.get_flag("dereference");
         let follow_links = matches.get_flag("follow-symlinks");
         let total_size = matches.get_flag("total-size");
@@ -558,6 +569,7 @@ impl ColorScaleOptions {
 mod tests {
     use crate::options::parser::test::mock_cli;
     use crate::options::vars::test::MockVars;
+    use crate::output::file_name::ShowIcons;
     use std::ffi::OsString;
     use std::num::ParseIntError;
 
@@ -951,6 +963,46 @@ mod tests {
             Ok(Mode::Grid(grid::Options { across: true }))
         );
     }
+
+    #[test]
+    fn deduce_view_keeps_terminal_state_separate_from_columns() {
+        for stdout_is_terminal in [false, true] {
+            let mut vars = MockVars::default();
+            vars.set(vars::COLUMNS, &OsString::from("200"));
+
+            let view = View::deduce_with_tty(
+                &mock_cli(vec!["--icons", "auto"]),
+                &vars,
+                false,
+                stdout_is_terminal,
+            )
+            .unwrap();
+
+            assert_eq!(view.width, Set(200));
+            assert_eq!(view.mode, Mode::Grid(grid::Options { across: false }));
+            assert_eq!(view.file_style.show_icons, ShowIcons::Automatic(1));
+            assert_eq!(view.file_style.is_a_tty, stdout_is_terminal);
+        }
+    }
+
+    #[test]
+    fn deduce_view_keeps_terminal_state_separate_from_width() {
+        for stdout_is_terminal in [false, true] {
+            let view = View::deduce_with_tty(
+                &mock_cli(vec!["--width", "200", "--icons", "auto"]),
+                &MockVars::default(),
+                false,
+                stdout_is_terminal,
+            )
+            .unwrap();
+
+            assert_eq!(view.width, Set(200));
+            assert_eq!(view.mode, Mode::Grid(grid::Options { across: false }));
+            assert_eq!(view.file_style.show_icons, ShowIcons::Automatic(1));
+            assert_eq!(view.file_style.is_a_tty, stdout_is_terminal);
+        }
+    }
+
     #[test]
     fn deduce_details_options_tree() {
         let cli = mock_cli(vec!["--tree"]);
