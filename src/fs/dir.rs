@@ -221,11 +221,7 @@ impl<'dir> Iterator for Files<'dir, '_> {
 
             DotsNext::DotDot => {
                 self.dots = DotsNext::Files;
-                Some(File::new_aa_parent(
-                    self.parent(),
-                    self.dir,
-                    self.total_size,
-                ))
+                Some(File::new_aa_parent(self.parent(), self.dir))
             }
 
             DotsNext::Files => self.next_visible_file(),

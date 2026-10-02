@@ -215,8 +215,9 @@ impl<'dir> File<'dir> {
     }
 
     #[must_use]
-    pub fn new_aa_parent(path: PathBuf, parent_dir: &'dir Dir, total_size: bool) -> File<'dir> {
-        File::new_aa(path, parent_dir, "..", total_size)
+    pub fn new_aa_parent(path: PathBuf, parent_dir: &'dir Dir) -> File<'dir> {
+        // `..` is not part of the listed directory, so never walk it for `--total-size`.
+        File::new_aa(path, parent_dir, "..", false)
     }
 
     /// A file’s name is derived from its string. This needs to handle directories
@@ -1134,5 +1135,23 @@ mod filename_test {
     #[cfg(unix)]
     fn topmost() {
         assert_eq!("/", File::filename(Path::new("/")));
+    }
+
+    #[test]
+    #[cfg(unix)]
+    fn total_size_skips_parent_dir() {
+        let root = std::env::temp_dir().join(format!("eza-total-size-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        std::fs::create_dir_all(root.join("sub")).unwrap();
+
+        let dir = crate::fs::Dir::read_dir(root.join("sub")).unwrap();
+        let current = File::new_aa_current(&dir, true);
+        let parent = File::new_aa_parent(root.clone(), &dir);
+        let is_current_recursive = current.is_recursive_size();
+        let is_parent_recursive = parent.is_recursive_size();
+        std::fs::remove_dir_all(&root).unwrap();
+
+        assert!(is_current_recursive);
+        assert!(!is_parent_recursive);
     }
 }
