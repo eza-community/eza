@@ -1030,6 +1030,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "tfstate"        => Icons::TERRAFORM,        // 󱁢
     "tfvars"         => Icons::TERRAFORM,        // 󱁢
     "tgz"            => Icons::COMPRESSED,       // 
+    "tzst"           => Icons::COMPRESSED,       // 
     "tif"            => Icons::IMAGE,            // 
     "tiff"           => Icons::IMAGE,            // 
     "tlz"            => Icons::COMPRESSED,       // 

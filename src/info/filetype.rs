@@ -253,6 +253,7 @@ const EXTENSION_TYPES: Map<&'static str, FileType> = phf_map! {
     "tgz"        => FileType::Compressed,
     "tlz"        => FileType::Compressed,
     "txz"        => FileType::Compressed,
+    "tzst"       => FileType::Compressed, // tar.zst shorthand
     "tz"         => FileType::Compressed,
     "xz"         => FileType::Compressed,
     "vdi"        => FileType::Compressed,
