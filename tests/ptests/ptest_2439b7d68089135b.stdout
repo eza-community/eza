@@ -23,9 +23,9 @@ DISPLAY OPTIONS:
   -F, --classify [<WHEN>]          display type indicator by file names [possible values: always, auto, never]
   -X, --dereference                dereference symbolic links when displaying information
       --absolute [<absolute>]      display entries with their absolute path [possible values: on, off, follow]
-      --color [<WHEN>]             When to use colours. [default: auto] [possible values: always, auto, never]
-      --color-scale [<FIELDS>...]  highlight value of FIELDS distinctly [possible values: all, age, size]
-      --color-scale-mode <MODE>    mode for --color-scale [default: gradient] [possible values: fixed, gradient]
+      --color [<WHEN>]             When to use terminal colors. [default: auto] [aliases: --colour] [possible values: always, auto, never]
+      --color-scale [<FIELDS>...]  Highlight levels of file FIELDS using color [aliases: --colour-scale] [possible values: all, age, size]
+      --color-scale-mode <MODE>    Color scale mode for --color-scale [default: gradient] [aliases: --colour-scale-mode] [possible values: fixed, gradient]
       --icons [<WHEN>]             when to display icons [possible values: always, auto, never]
       --hyperlink [<WHEN>]         when to display entries as hyperlinks [possible values: always, auto, never]
       --no-quotes                  don't quote file names with spaces

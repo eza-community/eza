@@ -9,12 +9,12 @@ export extern "eza" [
     --tree(-T)                 # Recurse into directories as a tree
     --dereference(-X)          # Dereference symbolic links when displaying file information
     --classify(-F)             # Display type indicator by file names
-    --color                    # When to use terminal colours
-    --colour                   # When to use terminal colours
+    --color                    # When to use terminal colors
+    --colour                   # When to use terminal colors
     --color-scale              # Highlight levels of file sizes distinctly
     --colour-scale             # Highlight levels of file sizes distinctly
     --color-scale-mode         # Use gradient or fixed colors in --color-scale
-    --colour-scale-mode        # Use gradient or fixed colors in --colour-scale
+    --colour-scale-mode        # Use gradient or fixed colors in --color-scale
     --icons                    # When to display icons
     --no-quotes                # Don't quote file names with spaces
     --short-nix                # Abbreviate Nix store hashes in file names and paths
