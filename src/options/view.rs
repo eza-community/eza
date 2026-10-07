@@ -195,16 +195,29 @@ impl details::Options {
     }
 }
 
+/// The maximum accepted terminal width. `uutils_term_grid` computes
+/// `width + separator` internally; values near `usize::MAX` overflow that
+/// arithmetic to 0 and trigger a divide-by-zero panic. 65535 columns is
+/// already far beyond any real terminal, so it is a safe practical ceiling.
+const MAX_TERMINAL_WIDTH: usize = 65535;
+
 impl TerminalWidth {
     fn deduce<V: Vars>(matches: &ArgMatches, vars: &V) -> Result<Self, OptionsError> {
         if let Some(&width) = matches.get_one("width") {
-            if width >= 1 {
-                Ok(Set(width))
-            } else {
+            if width == 0 {
                 Ok(Automatic)
+            } else if width > MAX_TERMINAL_WIDTH {
+                Err(OptionsError::Unsupported(format!(
+                    "--width value {width} exceeds the maximum of {MAX_TERMINAL_WIDTH}"
+                )))
+            } else {
+                Ok(Set(width))
             }
         } else if let Some(columns) = vars.get(vars::COLUMNS).and_then(|s| s.into_string().ok()) {
-            match columns.parse() {
+            match columns.parse::<usize>() {
+                Ok(width) if width > MAX_TERMINAL_WIDTH => Err(OptionsError::Unsupported(format!(
+                    "COLUMNS value {width} exceeds the maximum of {MAX_TERMINAL_WIDTH}"
+                ))),
                 Ok(width) => Ok(Set(width)),
                 Err(e) => {
                     let source = NumberSource::Env(vars::COLUMNS);
@@ -1084,6 +1097,36 @@ mod tests {
                 NumberSource::Env(vars::COLUMNS),
                 e.unwrap_err()
             ))
+        );
+    }
+
+    #[test]
+    fn deduce_terminal_width_arg_too_large() {
+        // Values above MAX_TERMINAL_WIDTH must be rejected to prevent a
+        // divide-by-zero panic in uutils_term_grid (see issue #1895).
+        assert_eq!(
+            TerminalWidth::deduce(
+                &mock_cli(vec!["--width", &usize::MAX.to_string()]),
+                &MockVars::default()
+            ),
+            Err(OptionsError::Unsupported(format!(
+                "--width value {} exceeds the maximum of {}",
+                usize::MAX,
+                MAX_TERMINAL_WIDTH
+            )))
+        );
+    }
+
+    #[test]
+    fn deduce_terminal_width_env_too_large() {
+        let mut vars = MockVars::default();
+        vars.set(vars::COLUMNS, &OsString::from("100000"));
+        assert_eq!(
+            TerminalWidth::deduce(&mock_cli(vec![""]), &vars),
+            Err(OptionsError::Unsupported(format!(
+                "COLUMNS value 100000 exceeds the maximum of {}",
+                MAX_TERMINAL_WIDTH
+            )))
         );
     }
 
