@@ -19,10 +19,9 @@ pub fn escape(
     let needs_quotes = string.contains(' ') || string.contains('\'');
     let quote_bit = good.paint(if string.contains('\'') { "\"" } else { "\'" });
 
-    if string
-        .chars()
-        .all(|c| c >= 0x20 as char && c != 0x7f as char)
-    {
+    // `is_control` covers C0, DEL and C1 control characters, all of which
+    // a terminal may interpret instead of printing.
+    if !string.chars().any(char::is_control) {
         bits.push(good.paint(string));
     } else {
         for c in string.chars() {
@@ -30,8 +29,8 @@ pub fn escape(
             // it still escapes non-ASCII UTF-8 characters, which are still printable.
 
             // TODO: This allocates way too much,
-            // hence the `all` check above.
-            if c >= 0x20 as char && c != 0x7f as char {
+            // hence the check above.
+            if !c.is_control() {
                 bits.push(good.paint(c.to_string()));
             } else {
                 bits.push(bad.paint(c.escape_default().to_string()));
@@ -64,6 +63,29 @@ pub fn get_hyperlink_start_tag(abs_path: &str) -> String {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    fn escaped(string: &str) -> String {
+        let mut bits = Vec::new();
+        escape(
+            string.into(),
+            &mut bits,
+            Style::default(),
+            Style::default(),
+            QuoteStyle::NoQuotes,
+        );
+        bits.iter().map(|bit| bit.to_string()).collect()
+    }
+
+    #[test]
+    fn escape_control_characters() {
+        assert_eq!(escaped("a\tb"), "a\\tb");
+        assert_eq!(escaped("a\x7fb"), "a\\u{7f}b");
+        // C1 control characters, e.g. U+009F, start terminal control sequences too
+        assert_eq!(escaped("b\u{9f}"), "b\\u{9f}");
+        assert_eq!(escaped("b\u{85}c"), "b\\u{85}c");
+        // printable non-ASCII characters are kept as they are
+        assert_eq!(escaped("café ☕"), "café ☕");
+    }
 
     #[test]
     fn hyperlink_start_tag_escape_spaces() {
