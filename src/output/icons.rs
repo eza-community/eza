@@ -90,6 +90,7 @@ impl Icons {
     const LANG_JAVASCRIPT: char = '\u{e74e}';  // 
     const LANG_KOTLIN: char     = '\u{e634}';  // 
     const LANG_LUA: char        = '\u{e620}';  // 
+    const LANG_MATLAB: char     = '\u{e82a}';  // 
     const LANG_NIM: char        = '\u{e677}';  // 
     const LANG_OCAML: char      = '\u{e67a}';  // 
     const LANG_PERL: char       = '\u{e67e}';  // 
@@ -801,7 +802,7 @@ const EXTENSION_ICONS: Map<&'static str, char> = phf_map! {
     "lzh"            => Icons::COMPRESSED,       // 
     "lzma"           => Icons::COMPRESSED,       // 
     "lzo"            => Icons::COMPRESSED,       // 
-    "m"              => Icons::LANG_C,           // 
+    "m"              => Icons::LANG_MATLAB,      // 
     "m2ts"           => Icons::VIDEO,            // 
     "m2v"            => Icons::VIDEO,            // 
     "m3u"            => Icons::PLAYLIST,         // 󰲹
@@ -1153,5 +1154,24 @@ pub fn icon_for_file(file: &File<'_>) -> char {
         *EXTENSION_ICONS.get(ext.as_str()).unwrap_or(&Icons::FILE) // 
     } else {
         Icons::FILE_UNKNOW // 󰡯
+    }
+}
+
+#[cfg(test)]
+mod icon_test {
+    use super::{Icons, icon_for_name_ext};
+
+    #[test]
+    fn m_extension_is_matlab_not_c() {
+        assert_eq!(icon_for_name_ext("script", Some("m")), Icons::LANG_MATLAB);
+        assert_ne!(icon_for_name_ext("script", Some("m")), Icons::LANG_C);
+    }
+
+    #[test]
+    fn mm_extension_is_still_objective_cpp() {
+        assert_eq!(
+            icon_for_name_ext("AppDelegate", Some("mm")),
+            Icons::LANG_CPP
+        );
     }
 }
