@@ -34,6 +34,8 @@ A modern replacement for ls.
 
 </div>
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 ![eza demo gif](docs/images/screenshots.png)
 
 ---
