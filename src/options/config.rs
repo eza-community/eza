@@ -283,6 +283,9 @@ pub struct FileKindsOverride {
     pub special: Option<StyleOverride>,       // sp
     pub executable: Option<StyleOverride>,    // ex
     pub mount_point: Option<StyleOverride>,   // mp
+    pub sticky_other_writable: Option<StyleOverride>,  // tw (LS_COLORS)
+    pub other_writable: Option<StyleOverride>,         // ow (LS_COLORS)
+    pub sticky: Option<StyleOverride>,                 // st (LS_COLORS)
 }
 
 impl FromOverride<FileKindsOverride> for FileKinds {
@@ -298,6 +301,12 @@ impl FromOverride<FileKindsOverride> for FileKinds {
             special: FromOverride::from(value.special, default.special),
             executable: FromOverride::from(value.executable, default.executable),
             mount_point: FromOverride::from(value.mount_point, default.mount_point),
+            sticky_other_writable: FromOverride::from(
+                value.sticky_other_writable,
+                default.sticky_other_writable,
+            ),
+            other_writable: FromOverride::from(value.other_writable, default.other_writable),
+            sticky: FromOverride::from(value.sticky, default.sticky),
         }
     }
 }

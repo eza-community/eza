@@ -135,7 +135,7 @@ impl Definitions {
 
         if let Some(lsc) = &self.ls {
             LSColors(lsc).each_pair(|pair| {
-                if !colours.set_ls(&pair) {
+                if !colours.set_ls(&pair) && !colours.set_ls_only(&pair) {
                     match glob::Pattern::new(pair.key) {
                         Ok(pat) => {
                             exts.add(pat, pair.to_style());
@@ -472,6 +472,7 @@ impl FileNameColours for Theme {
     fn nix_hash(&self)            -> Style { self.ui.punctuation() }
     fn executable_file(&self)     -> Style { self.ui.filekinds.unwrap_or_default().executable() }
     fn mount_point(&self)         -> Style { self.ui.filekinds.unwrap_or_default().mount_point() }
+    fn directory_by_perms(&self, other_write: bool, sticky: bool) -> Option<Style> { self.ui.directory_by_perms(other_write, sticky) }
 
     fn colour_file(&self, file: &File<'_>) -> Style {
         self.exts
@@ -636,6 +637,13 @@ mod customs_test {
     test!(ls_cd:   ls "cd=35", exa ""  =>  colours c -> { c.filekinds().char_device  = Some(Purple.normal()); });
     test!(ls_ln:   ls "ln=34", exa ""  =>  colours c -> { c.filekinds().symlink      = Some(Blue.normal());   });
     test!(ls_or:   ls "or=33", exa ""  =>  colours c -> { c.broken_symlink         = Some(Yellow.normal()); });
+    test!(ls_tw:   ls "tw=30;42", exa ""  =>  colours c -> { c.filekinds().sticky_other_writable = Some(Black.on(Green)); });
+    test!(ls_ow:   ls "ow=34;42", exa ""  =>  colours c -> { c.filekinds().other_writable        = Some(Blue.on(Green));  });
+    test!(ls_st:   ls "st=37;44", exa ""  =>  colours c -> { c.filekinds().sticky                = Some(White.on(Blue));  });
+
+    // ...but EZA_COLORS keeps its own meaning for tw, and ow/st stay globs:
+    test!(exa_tw_is_perm: ls "", exa "tw=31"  =>  colours c -> { c.perms().other_write = Some(Red.normal()); });
+    test!(exa_ow_is_glob: ls "", exa "ow=31"  =>  exts [ ("ow", Red.normal()) ]);
 
     // EZA_COLORS can affect all those colours too:
     test!(exa_di:  ls "", exa "di=32"  =>  colours c -> { c.filekinds().directory    = Some(Green.normal());  });

@@ -70,6 +70,9 @@ filekinds:
   special
   executable
   mount_point
+  sticky_other_writable
+  other_writable
+  sticky
 
 perms:
   user_read
