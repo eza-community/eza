@@ -568,6 +568,21 @@ impl<C: Colours> FileName<'_, '_, C> {
     /// class on the filesystem or from its name. (Or the broken link colour,
     /// if there’s nowhere else for that fact to be shown.)
     #[must_use]
+    /// The style for a directory: one picked by its others-write and
+    /// sticky bits (`LS_COLORS` `tw`, `ow`, `st`) when that is set, else the
+    /// directory style.
+    fn directory_style(&self) -> Style {
+        #[cfg(unix)]
+        if let Some(perms) = self.file.permissions()
+            && let Some(style) = self
+                .colours
+                .directory_by_perms(perms.other_write, perms.sticky)
+        {
+            return style;
+        }
+        self.colours.directory()
+    }
+
     pub fn style(&self) -> Style {
         if let LinkStyle::JustFilenames = self.link_style
             && let Some(ref target) = self.target
@@ -579,7 +594,7 @@ impl<C: Colours> FileName<'_, '_, C> {
         #[rustfmt::skip]
         return match self.file {
             f if f.is_mount_point()      => self.colours.mount_point(),
-            f if f.is_directory()        => self.colours.directory(),
+            f if f.is_directory()        => self.directory_style(),
             #[cfg(unix)]
             f if f.is_executable_file()  => self.colours.executable_file(),
             f if f.is_link()             => self.colours.symlink(),
@@ -645,6 +660,10 @@ pub trait Colours: FiletypeColours {
 
     /// The style to paint a directory that has a filesystem mounted on it.
     fn mount_point(&self) -> Style;
+
+    /// The style to paint a directory by its others-write and sticky bits,
+    /// or `None` to paint it as any other directory.
+    fn directory_by_perms(&self, other_write: bool, sticky: bool) -> Option<Style>;
 
     fn colour_file(&self, file: &File<'_>) -> Style;
 

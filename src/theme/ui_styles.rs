@@ -128,6 +128,11 @@ pub struct FileKinds {
     pub special: Option<Style>,       // sp
     pub executable: Option<Style>,    // ex
     pub mount_point: Option<Style>,   // mp
+
+    // Directories by permission bits. `None` paints them as `directory`.
+    pub sticky_other_writable: Option<Style>,  // tw (LS_COLORS only)
+    pub other_writable: Option<Style>,         // ow (LS_COLORS only)
+    pub sticky: Option<Style>,                 // st (LS_COLORS only)
 }
 
 impl Default for FileKinds {
@@ -143,6 +148,9 @@ impl Default for FileKinds {
             special: Some(Yellow.normal()),
             executable: Some(Green.bold()),
             mount_point: Some(Blue.bold().underline()),
+            sticky_other_writable: None,
+            other_writable: None,
+            sticky: None,
         }
     }
 }
@@ -402,6 +410,9 @@ impl UiStyles {
             special: Some(Style::default()),
             executable: Some(Style::default()),
             mount_point: Some(Style::default()),
+            sticky_other_writable: None,
+            other_writable: None,
+            sticky: None,
             }),
 
             #[rustfmt::skip]
@@ -525,10 +536,39 @@ impl UiStyles {
             "or" => self.broken_symlink         = Some(pair.to_style()),  // ORPHAN
              _   => return false,
              // Codes we don’t do anything with:
-             // MULTIHARDLINK, DOOR, SETUID, SETGID, CAPABILITY,
-             // STICKY_OTHER_WRITABLE, OTHER_WRITABLE, STICKY, MISSING
+             // MULTIHARDLINK, DOOR, SETUID, SETGID, CAPABILITY, MISSING
+             // (STICKY_OTHER_WRITABLE, OTHER_WRITABLE and STICKY are in
+             // `set_ls_only`.)
         }
         true
+    }
+
+    /// Sets a value using one of the `LS_COLORS` keys that `EZA_COLORS`
+    /// doesn’t share: in `EZA_COLORS`, `tw` is the others-write permission
+    /// bit, so these are only read from `LS_COLORS`. Invalid keys set
+    /// nothing, but return false.
+    #[rustfmt::skip]
+    pub fn set_ls_only(&mut self, pair: &Pair<'_>) -> bool {
+        match pair.key {
+            "tw" => self.filekinds().sticky_other_writable = Some(pair.to_style()),  // STICKY_OTHER_WRITABLE
+            "ow" => self.filekinds().other_writable        = Some(pair.to_style()),  // OTHER_WRITABLE
+            "st" => self.filekinds().sticky                = Some(pair.to_style()),  // STICKY
+             _   => return false,
+        }
+        true
+    }
+
+    /// The style for a directory with the given others-write and sticky
+    /// bits, picked as GNU ls does: `tw` for both bits, else `ow`, else `st`,
+    /// skipping any that are unset. `None` means a plain directory.
+    #[must_use]
+    pub fn directory_by_perms(&self, other_write: bool, sticky: bool) -> Option<Style> {
+        let kinds = self.filekinds.unwrap_or_default();
+        (other_write && sticky)
+            .then_some(kinds.sticky_other_writable)
+            .flatten()
+            .or(other_write.then_some(kinds.other_writable).flatten())
+            .or(sticky.then_some(kinds.sticky).flatten())
     }
 
     /// Sets a value on this set of colours using one of the keys understood
@@ -641,5 +681,50 @@ impl UiStyles {
         self.size().unit_mega = Some(style);
         self.size().unit_giga = Some(style);
         self.size().unit_huge = Some(style);
+    }
+}
+
+#[cfg(test)]
+mod directory_by_perms_test {
+    use super::*;
+    use nu_ansi_term::Color::{Blue, Green, Red};
+
+    fn styles(tw: Option<Style>, ow: Option<Style>, st: Option<Style>) -> UiStyles {
+        let mut ui = UiStyles::default();
+        let kinds = ui.filekinds();
+        kinds.sticky_other_writable = tw;
+        kinds.other_writable = ow;
+        kinds.sticky = st;
+        ui
+    }
+
+    #[test]
+    fn picks_by_bits() {
+        let ui = styles(
+            Some(Red.normal()),
+            Some(Green.normal()),
+            Some(Blue.normal()),
+        );
+        assert_eq!(ui.directory_by_perms(true, true), Some(Red.normal()));
+        assert_eq!(ui.directory_by_perms(true, false), Some(Green.normal()));
+        assert_eq!(ui.directory_by_perms(false, true), Some(Blue.normal()));
+        assert_eq!(ui.directory_by_perms(false, false), None);
+    }
+
+    #[test]
+    fn falls_back_like_gnu_ls() {
+        // No tw: a sticky, others-writable directory takes ow, then st.
+        let ui = styles(None, Some(Green.normal()), Some(Blue.normal()));
+        assert_eq!(ui.directory_by_perms(true, true), Some(Green.normal()));
+        let ui = styles(None, None, Some(Blue.normal()));
+        assert_eq!(ui.directory_by_perms(true, true), Some(Blue.normal()));
+    }
+
+    #[test]
+    fn unset_by_default() {
+        let ui = UiStyles::default_theme(Default::default());
+        assert_eq!(ui.directory_by_perms(true, true), None);
+        assert_eq!(ui.directory_by_perms(true, false), None);
+        assert_eq!(ui.directory_by_perms(false, true), None);
     }
 }

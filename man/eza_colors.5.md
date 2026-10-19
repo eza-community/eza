@@ -49,7 +49,7 @@ EXAMPLES
 LIST OF CODES
 =============
 
-`LS_COLORS` can use these ten codes:
+`LS_COLORS` can use these thirteen codes:
 
 `di`
 : directories
@@ -77,6 +77,21 @@ LIST OF CODES
 
 `or`
 : symlinks with no target
+
+`tw`
+: directories that are sticky and others-writable (`+t,o+w`)
+
+`ow`
+: directories that are others-writable but not sticky (`o+w`)
+
+`st`
+: directories that are sticky but not others-writable (`+t`)
+
+As in GNU ls, a sticky, others-writable directory falls back to `ow` and then
+`st` when `tw` is not set, and to `di` when none of them is. `EZA_COLORS`
+doesn’t read these three: there `tw` is the others-write permission bit, and
+`ow` and `st` are globs. A theme file sets them as `sticky_other_writable`,
+`other_writable` and `sticky` under `filekinds`.
 
 
 `EZA_COLORS` can use many more:
