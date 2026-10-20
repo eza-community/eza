@@ -254,6 +254,9 @@ commands:
   ? - -@
     - --extended
   :
+  ? - null
+    - --no-extended
+  :
   ? - -Z
     - --context
   :

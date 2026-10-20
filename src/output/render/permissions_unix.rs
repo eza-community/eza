@@ -141,6 +141,18 @@ pub mod test {
         fn attribute(&self)           -> Style { Fixed(112).normal() }
     }
 
+    #[rustfmt::skip]
+    impl FiletypeColours for TestColours {
+        fn normal(&self)       -> Style { Fixed(120).normal() }
+        fn directory(&self)    -> Style { Fixed(121).normal() }
+        fn pipe(&self)         -> Style { Fixed(122).normal() }
+        fn symlink(&self)      -> Style { Fixed(123).normal() }
+        fn block_device(&self) -> Style { Fixed(124).normal() }
+        fn char_device(&self)  -> Style { Fixed(125).normal() }
+        fn socket(&self)       -> Style { Fixed(126).normal() }
+        fn special(&self)      -> Style { Fixed(127).normal() }
+    }
+
     #[test]
     #[cfg(unix)]
     fn negate() {
@@ -269,5 +281,65 @@ pub mod test {
         ]);
 
         assert_eq!(expected, bits.render(&TestColours, true).into());
+    }
+
+    fn extra_specials_plus(xattrs: bool) -> Option<f::PermissionsPlus> {
+        Some(f::PermissionsPlus {
+            file_type: f::Type::File,
+            permissions: f::Permissions {
+                user_read: false,
+                user_write: false,
+                user_execute: false,
+                setuid: true,
+                group_read: false,
+                group_write: false,
+                group_execute: false,
+                setgid: true,
+                other_read: false,
+                other_write: false,
+                other_execute: false,
+                sticky: true,
+            },
+            xattrs,
+        })
+    }
+
+    fn extra_specials_expected(xattrs: bool) -> TextCell {
+        let mut chars = vec![
+            Fixed(120).paint("."),
+            Fixed(11).paint("-"),
+            Fixed(11).paint("-"),
+            Fixed(111).paint("S"),
+            Fixed(11).paint("-"),
+            Fixed(11).paint("-"),
+            Fixed(111).paint("S"),
+            Fixed(11).paint("-"),
+            Fixed(11).paint("-"),
+            Fixed(111).paint("T"),
+        ];
+        if xattrs {
+            chars.push(Fixed(112).paint("@"));
+        }
+        let contents = TextCellContents::from(chars);
+        TextCell {
+            width: contents.width(),
+            contents,
+        }
+    }
+
+    #[test]
+    fn extra_specials_and_extra_attributes() {
+        assert_eq!(
+            extra_specials_expected(true),
+            extra_specials_plus(true).render(&TestColours)
+        );
+    }
+
+    #[test]
+    fn extra_specials_and_extra_attributes_off() {
+        assert_eq!(
+            extra_specials_expected(false),
+            extra_specials_plus(false).render(&TestColours)
+        );
     }
 }

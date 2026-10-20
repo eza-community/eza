@@ -79,6 +79,7 @@ LONG VIEW OPTIONS:
       --git-repos-no-status  list each git-repos branch name (much faster)
   -M, --mounts               show mount details (Linux and macOS only)
   -@, --extended             list each file's extended attributes and sizes
+      --no-extended          do not show a marker if a file's extended attributes exist
       --no-permissions       suppress the permissions field
       --no-filesize          suppress the filesize field
       --no-user              suppress the user field
