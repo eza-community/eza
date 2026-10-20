@@ -159,6 +159,7 @@ pub fn get_command() -> clap::Command {
         .arg(arg!(--"git-repos-no-status" "list each git-repos branch name (much faster)"))
         .arg(arg!(-M --mounts "show mount details (Linux and macOS only)"))
         .arg(arg!(-'@' --extended "list each file's extended attributes and sizes"))
+        .arg(arg!(--"no-extended" "do not show a marker if a file's extended attributes exist"))
         .arg(arg!(--"no-permissions" "suppress the permissions field"))
         .arg(arg!(--"no-filesize" "suppress the filesize field"))
         .arg(arg!(--"no-user" "suppress the user field"))
