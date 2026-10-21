@@ -4,6 +4,8 @@
 // SPDX-FileCopyrightText: 2023-2024 Christina Sørensen, eza contributors
 // SPDX-FileCopyrightText: 2014 Benjamin Sago
 // SPDX-License-Identifier: MIT
+#[cfg(windows)]
+pub mod glob_expand;
 pub mod xattr;
 
 #[cfg(feature = "git")]

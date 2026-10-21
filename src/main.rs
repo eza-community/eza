@@ -72,6 +72,14 @@ fn main() {
                     }
                 }
             }
+            // Expand wildcard arguments on Windows. The helper returns a Vec<Cow<OsStr>>:
+            // borrowed entries are unchanged arguments, owned entries are glob matches.
+            // Keep `expanded` alive for as long as the shadowed `input_paths` is used,
+            // since its references borrow from it.
+            #[cfg(windows)]
+            let expanded = crate::fs::feature::glob_expand::expand_args(&input_paths);
+            #[cfg(windows)]
+            let input_paths: Vec<&OsStr> = expanded.iter().map(|c| c.as_ref()).collect();
 
             let git = git_options(&options, &input_paths);
             let writer = io::stdout();
