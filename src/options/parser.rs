@@ -109,6 +109,7 @@ pub fn get_command() -> clap::Command {
         .arg(arg!(--"show-symlinks" "explicitly show symbolic links (with --only-dirs and --only-files)"))
         .arg(arg!(--"no-symlinks" "do not show symbolic links"))
         .arg(arg!(-I --"ignore-glob" <GLOBS> "glob patterns (pipe-separated) of files to ignore"))
+        .arg(arg!(--"include-glob" <GLOBS> "glob patterns (pipe-separated) of files to include; directories are always shown"))
         .arg(arg!(--"git-ignore" "ignore files mentioned in '.gitignore'"))
 
         .next_help_heading("SORTING OPTIONS")

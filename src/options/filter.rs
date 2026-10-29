@@ -42,6 +42,7 @@ impl FileFilter {
             sort_field: *matches.get_one("sort").unwrap(),
             dot_filter: DotFilter::deduce(matches, strict)?,
             ignore_patterns: IgnorePatterns::deduce(matches)?,
+            include_patterns: IgnorePatterns::deduce_include(matches)?,
             git_ignore: GitIgnore::deduce(matches),
         })
     }
@@ -124,9 +125,18 @@ impl IgnorePatterns {
     /// `--ignore-glob` argument’s value. This is a list of strings
     /// separated by pipe (`|`) characters, given in any order.
     pub fn deduce(matches: &ArgMatches) -> Result<Self, OptionsError> {
+        Self::deduce_from(matches, "ignore-glob")
+    }
+
+    /// Like `deduce`, but for the `--include-glob` argument.
+    pub fn deduce_include(matches: &ArgMatches) -> Result<Self, OptionsError> {
+        Self::deduce_from(matches, "include-glob")
+    }
+
+    fn deduce_from(matches: &ArgMatches, arg: &str) -> Result<Self, OptionsError> {
         // If there are no inputs, we return a set of patterns that doesn’t
         // match anything, rather than, say, `None`.
-        let Some(inputs) = matches.get_one::<String>("ignore-glob") else {
+        let Some(inputs) = matches.get_one::<String>(arg) else {
             return Ok(Self::empty());
         };
 
@@ -199,6 +209,40 @@ mod tests {
         assert_eq!(
             IgnorePatterns::deduce(&mock_cli(vec!["--ignore-glob", "["])),
             Err(e.pop().unwrap().into())
+        );
+    }
+
+    #[test]
+    fn deduce_include_patterns_empty() {
+        assert_eq!(
+            IgnorePatterns::deduce_include(&mock_cli(vec![""])),
+            Ok(IgnorePatterns::empty())
+        );
+    }
+
+    #[test]
+    fn deduce_include_patterns_many() {
+        let (res, _) = IgnorePatterns::parse_from_iter(vec!["*.rs", "*.toml"]);
+        assert_eq!(
+            IgnorePatterns::deduce_include(&mock_cli(vec!["--include-glob", "*.rs|*.toml"])),
+            Ok(res)
+        );
+    }
+
+    #[test]
+    fn deduce_include_patterns_error() {
+        let (_, mut e) = IgnorePatterns::parse_from_iter(vec!["["]);
+        assert_eq!(
+            IgnorePatterns::deduce_include(&mock_cli(vec!["--include-glob", "["])),
+            Err(e.pop().unwrap().into())
+        );
+    }
+
+    #[test]
+    fn deduce_include_does_not_read_ignore() {
+        assert_eq!(
+            IgnorePatterns::deduce_include(&mock_cli(vec!["--ignore-glob", "*.o"])),
+            Ok(IgnorePatterns::empty())
         );
     }
 
@@ -384,6 +428,7 @@ mod tests {
                 sort_field: SortField::default(),
                 dot_filter: DotFilter::JustFiles,
                 ignore_patterns: IgnorePatterns::empty(),
+                include_patterns: IgnorePatterns::empty(),
                 git_ignore: GitIgnore::Off,
                 no_symlinks: false,
                 show_symlinks: false,
@@ -400,6 +445,7 @@ mod tests {
                 sort_field: SortField::default(),
                 dot_filter: DotFilter::JustFiles,
                 ignore_patterns: IgnorePatterns::empty(),
+                include_patterns: IgnorePatterns::empty(),
                 git_ignore: GitIgnore::Off,
                 no_symlinks: false,
                 show_symlinks: false,
@@ -416,6 +462,7 @@ mod tests {
                 sort_field: SortField::default(),
                 dot_filter: DotFilter::JustFiles,
                 ignore_patterns: IgnorePatterns::empty(),
+                include_patterns: IgnorePatterns::empty(),
                 git_ignore: GitIgnore::Off,
                 no_symlinks: false,
                 show_symlinks: false,
@@ -432,6 +479,7 @@ mod tests {
                 sort_field: SortField::default(),
                 dot_filter: DotFilter::JustFiles,
                 ignore_patterns: IgnorePatterns::empty(),
+                include_patterns: IgnorePatterns::empty(),
                 git_ignore: GitIgnore::Off,
                 no_symlinks: false,
                 show_symlinks: false,

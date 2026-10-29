@@ -202,6 +202,7 @@ Register-ArgumentCompleter -Native -CommandName 'eza' -ScriptBlock {
             [CompletionResult]::new('--group-directories-last'   ,'gdl'                 , [CompletionResultType]::ParameterName, 'list directories after other files')
         #   [CompletionResult]::new('-I'                         ,'ignore-glob'         , [CompletionResultType]::ParameterName, 'glob patterns (pipe-separated) of files to ignore GLOBS')
             [CompletionResult]::new('--ignore-glob'              ,'ignore-glob'         , [CompletionResultType]::ParameterName, 'glob patterns (pipe-separated) of files to ignore GLOBS')
+            [CompletionResult]::new('--include-glob'             ,'include-glob'        , [CompletionResultType]::ParameterName, 'glob patterns (pipe-separated) of files to include GLOBS')
             [CompletionResult]::new('--git-ignore'               ,'git-ignore'          , [CompletionResultType]::ParameterName, 'ignore files mentioned in ''.gitignore''')
             break
         }

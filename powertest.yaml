@@ -163,6 +163,11 @@ commands:
     values:
       - "*.toml"
   ? - null
+    - --include-glob
+  : prefix: -l
+    values:
+      - "*.toml"
+  ? - null
     - --git-ignore
   :
   ? - -b # Long View Options

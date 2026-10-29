@@ -82,6 +82,11 @@ pub struct FileFilter {
     /// patterns won’t be displayed in the list.
     pub ignore_patterns: IgnorePatterns,
 
+    /// Glob patterns to include. If there are any, only files whose name
+    /// matches *any* of these patterns are displayed. Directories are always
+    /// kept, so they can still be recursed into.
+    pub include_patterns: IgnorePatterns,
+
     /// Whether to ignore Git-ignored patterns.
     pub git_ignore: GitIgnore,
 
@@ -99,7 +104,8 @@ impl FileFilter {
     pub fn filter_child_files(&self, is_recurse: bool, files: &mut Vec<File<'_>>) {
         use FileFilterFlags::{NoSymlinks, OnlyDirs, OnlyFiles, ShowSymlinks};
 
-        files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
+        files.retain(|f| !self.ignore_patterns.matches(&f.name));
+        files.retain(|f| self.is_included(f));
         files.retain(|f| {
             match (
                 self.flags.contains(&OnlyDirs),
@@ -129,7 +135,17 @@ impl FileFilter {
     /// `exa -I='*.ogg' music/*` should filter out the ogg files obtained
     /// from the glob, even though the globbing is done by the shell!
     pub fn filter_argument_files(&self, files: &mut Vec<File<'_>>) {
-        files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
+        files.retain(|f| !self.ignore_patterns.matches(&f.name));
+        files.retain(|f| self.is_included(f));
+    }
+
+    /// Whether the given file passes the `--include-glob` patterns.
+    /// Directories always pass, so that `--tree` and `--recurse` can still
+    /// descend into them, like `tree -P` does.
+    fn is_included(&self, file: &File<'_>) -> bool {
+        self.include_patterns.is_empty()
+            || file.is_directory()
+            || self.include_patterns.matches(&file.name)
     }
 
     /// Sort the files in the given vector based on the sort field option.
@@ -373,9 +389,14 @@ impl IgnorePatterns {
         }
     }
 
-    /// Test whether the given file should be hidden from the results.
-    fn is_ignored(&self, file: &str) -> bool {
+    /// Test whether the given file name matches any of the patterns.
+    fn matches(&self, file: &str) -> bool {
         self.patterns.iter().any(|p| p.matches(file))
+    }
+
+    /// Whether there are no patterns at all.
+    fn is_empty(&self) -> bool {
+        self.patterns.is_empty()
     }
 }
 
@@ -396,31 +417,31 @@ mod test_ignores {
     #[test]
     fn empty_matches_nothing() {
         let pats = IgnorePatterns::empty();
-        assert!(!pats.is_ignored("nothing"));
-        assert!(!pats.is_ignored("test.mp3"));
+        assert!(!pats.matches("nothing"));
+        assert!(!pats.matches("test.mp3"));
     }
 
     #[test]
     fn ignores_a_glob() {
         let (pats, fails) = IgnorePatterns::parse_from_iter(vec!["*.mp3"]);
         assert!(fails.is_empty());
-        assert!(!pats.is_ignored("nothing"));
-        assert!(pats.is_ignored("test.mp3"));
+        assert!(!pats.matches("nothing"));
+        assert!(pats.matches("test.mp3"));
     }
 
     #[test]
     fn ignores_an_exact_filename() {
         let (pats, fails) = IgnorePatterns::parse_from_iter(vec!["nothing"]);
         assert!(fails.is_empty());
-        assert!(pats.is_ignored("nothing"));
-        assert!(!pats.is_ignored("test.mp3"));
+        assert!(pats.matches("nothing"));
+        assert!(!pats.matches("test.mp3"));
     }
 
     #[test]
     fn ignores_both() {
         let (pats, fails) = IgnorePatterns::parse_from_iter(vec!["nothing", "*.mp3"]);
         assert!(fails.is_empty());
-        assert!(pats.is_ignored("nothing"));
-        assert!(pats.is_ignored("test.mp3"));
+        assert!(pats.matches("nothing"));
+        assert!(pats.matches("test.mp3"));
     }
 }

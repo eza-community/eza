@@ -181,6 +181,9 @@ Sort fields starting with a capital letter will sort uppercase before lowercase:
 `-I`, `--ignore-glob=GLOBS`
 : Glob patterns, pipe-separated, of files to ignore.
 
+`--include-glob=GLOBS`
+: Glob patterns, pipe-separated, of files to include. Files that match none of them are hidden. Directories are always shown, so `--tree` and `--recurse` can still descend into them.
+
 `--git-ignore` [if eza was built with git support]
 : Do not list files that are ignored by Git.
 
