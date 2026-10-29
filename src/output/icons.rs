@@ -381,6 +381,7 @@ const FILENAME_ICONS: Map<&'static str, char> = phf_map! {
     "id_ed25519"          => Icons::PRIVATE_KEY,    // 󰌆
     "id_ed25519_sk"       => Icons::PRIVATE_KEY,    // 󰌆
     "id_rsa"              => Icons::PRIVATE_KEY,    // 󰌆
+    "Icon\r"              => Icons::OS_APPLE,       //  (macOS custom folder icon file)
     "index.theme"         => '\u{ee72}',            // 
     "inputrc"             => Icons::CONFIG,         // 󱁻
     "Jenkinsfile"         => '\u{e66e}',            // 
