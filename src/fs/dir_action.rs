@@ -6,6 +6,8 @@
 // SPDX-License-Identifier: MIT
 //! What to do when encountering a directory?
 
+use crate::fs::File;
+
 /// The action to take when trying to list a file that turns out to be a
 /// directory.
 ///
@@ -72,6 +74,10 @@ pub struct RecurseOptions {
     /// The maximum number of times that recursion should descend to, if one
     /// is specified.
     pub max_depth: Option<usize>,
+
+    /// Whether to stay on the filesystem of the directory being listed,
+    /// rather than descending into mount points.
+    pub one_file_system: bool,
 }
 
 impl RecurseOptions {
@@ -82,5 +88,12 @@ impl RecurseOptions {
             None => false,
             Some(d) => d <= depth,
         }
+    }
+
+    /// Returns whether descending into the given directory would cross onto
+    /// another filesystem when that isn’t allowed.
+    #[must_use]
+    pub fn is_other_filesystem(self, dir: &File<'_>) -> bool {
+        self.one_file_system && dir.is_on_other_filesystem()
     }
 }

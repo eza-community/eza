@@ -40,6 +40,7 @@ __eza() {
         --show-symlinks"[Explictly show symbolic links: for use with '--only-dirs'| '--only-files']" \
         {-f,--only-files}"[List only files]" \
         {-L,--level}"+[Limit the depth of recursion]" \
+        --one-file-system"[Don't descend into directories on other filesystems]" \
         {-w,--width}"+[Limits column output of grid, 0 implies auto-width]" \
         {-r,--reverse}"[Reverse the sort order]" \
         {-s,--sort}="[Which field to sort by]:(sort field):(accessed age changed created date extension Extension filename Filename inode modified oldest name Name newest none size time type)" \

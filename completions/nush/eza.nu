@@ -28,6 +28,7 @@ export extern "eza" [
     --almost-all(-A)           # Equivalent to --all; included for compatibility with `ls -A`
     --treat-dirs-as-files(-d)  # List directories like regular files
     --level(-L): string        # Limit the depth of recursion
+    --one-file-system          # Don't descend into directories on other filesystems
     --width(-w)                # Limits column output of grid, 0 implies auto-width
     --reverse(-r)              # Reverse the sort order
     --sort(-s)                 # Which field to sort by

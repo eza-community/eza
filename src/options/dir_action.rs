@@ -61,6 +61,7 @@ impl RecurseOptions {
         Self {
             tree,
             max_depth: matches.get_one("level").copied(),
+            one_file_system: matches.get_flag("one-file-system"),
         }
     }
 }
@@ -85,6 +86,7 @@ mod tests {
             RecurseOptions {
                 tree: false,
                 max_depth: Some(3),
+                one_file_system: false,
             }
         );
     }
@@ -96,6 +98,7 @@ mod tests {
             Ok(DirAction::Recurse(RecurseOptions {
                 tree: false,
                 max_depth: None,
+                one_file_system: false,
             }))
         );
     }
@@ -115,6 +118,7 @@ mod tests {
             Ok(DirAction::Recurse(RecurseOptions {
                 tree: false,
                 max_depth: None,
+                one_file_system: false,
             }))
         );
     }
@@ -126,6 +130,19 @@ mod tests {
             Ok(DirAction::Recurse(RecurseOptions {
                 tree: true,
                 max_depth: None,
+                one_file_system: false,
+            }))
+        );
+    }
+
+    #[test]
+    fn deduce_dir_action_tree_one_file_system() {
+        assert_eq!(
+            DirAction::deduce(&mock_cli(vec!["--tree", "--one-file-system"]), true, false),
+            Ok(DirAction::Recurse(RecurseOptions {
+                tree: true,
+                max_depth: None,
+                one_file_system: true,
             }))
         );
     }
@@ -137,6 +154,7 @@ mod tests {
             Ok(DirAction::Recurse(RecurseOptions {
                 tree: true,
                 max_depth: Some(3),
+                one_file_system: false,
             }))
         );
     }

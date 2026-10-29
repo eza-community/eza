@@ -112,6 +112,9 @@ commands:
       - 3
       - 4
       - 5
+  ? - null
+    - --one-file-system
+  : prefix: -T
   ? - -r
     - --reverse
   :

@@ -14,6 +14,7 @@ LAYOUT OPTIONS:
   -x, --across           sort the grid across, rather than downwards
   -R, --recurse          recurse into directories
   -T, --tree             recurse into directories as a tree
+      --one-file-system  don't descend into directories on other filesystems
   -L, --level <DEPTH>    limit the depth of recursion
       --code[=<MODE>]    summarise lines of code by language, recursing the tree or git repo
       --follow-symlinks  drill down into symbolic links that point to directories

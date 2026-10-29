@@ -194,6 +194,7 @@ Register-ArgumentCompleter -Native -CommandName 'eza' -ScriptBlock {
             [CompletionResult]::new('--only-files'               ,'filter'              , [CompletionResultType]::ParameterName, 'list only files')
         #   [CompletionResult]::new('-L'                         ,'level'               , [CompletionResultType]::ParameterName, 'limit the depth of recursion')
             [CompletionResult]::new('--level'                    ,'level'               , [CompletionResultType]::ParameterName, 'limit the depth of recursion')
+            [CompletionResult]::new('--one-file-system'          ,'one-file-system'     , [CompletionResultType]::ParameterName, 'don''t descend into directories on other filesystems')
         #   [CompletionResult]::new('-r'                         ,'reverse'             , [CompletionResultType]::ParameterName, 'reverse the sort order')
             [CompletionResult]::new('--reverse'                  ,'reverse'             , [CompletionResultType]::ParameterName, 'reverse the sort order')
         #   [CompletionResult]::new('-s'                         ,'sort'                , [CompletionResultType]::ParameterName, 'which field to sort by SORT_FIELD')

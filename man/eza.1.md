@@ -166,6 +166,9 @@ Use this twice to also show the ‘`.`’ and ‘`..`’ directories.
 `-L`, `--level=DEPTH`
 : Limit the depth of recursion.
 
+`--one-file-system` [unix only]
+: When recursing with `--recurse` or `--tree`, don’t descend into directories that are on a different filesystem from their parent, such as mount points. The directories themselves are still listed.
+
 `-r`, `--reverse`
 : Reverse the sort order.
 

@@ -313,6 +313,31 @@ impl<'dir> File<'dir> {
         false
     }
 
+    /// Whether this file lives on a different filesystem than the directory
+    /// containing it, such as a mount point. Symlinks are followed. Files
+    /// without a parent directory are never considered to be on another
+    /// filesystem.
+    #[cfg(unix)]
+    pub fn is_on_other_filesystem(&self) -> bool {
+        let Some(parent) = self.parent_dir else {
+            return false;
+        };
+        match (
+            std::fs::metadata(&self.path),
+            std::fs::metadata(&parent.path),
+        ) {
+            (Ok(md), Ok(parent_md)) => md.dev() != parent_md.dev(),
+            _ => false,
+        }
+    }
+
+    /// Device IDs aren’t available on this platform, so everything is
+    /// treated as being on the same filesystem.
+    #[cfg(not(unix))]
+    pub fn is_on_other_filesystem(&self) -> bool {
+        false
+    }
+
     /// Initializes a new `Dir` object using the `PathBuf` of
     /// the current file. It does not perform any validation to check if the
     /// file is actually a directory. To verify that, use `is_directory()`.

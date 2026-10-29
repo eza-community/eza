@@ -395,6 +395,7 @@ impl Exa<'_> {
                             } else {
                                 f.is_directory()
                             }) && !f.is_all_all
+                                && !recurse_opts.is_other_filesystem(f)
                         })
                         .map(fs::File::to_dir)
                         .collect::<Vec<Dir>>();

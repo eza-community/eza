@@ -47,6 +47,7 @@ pub fn get_command() -> clap::Command {
         .arg(arg!(-x --across "sort the grid across, rather than downwards"))
         .arg(arg!(-R --recurse "recurse into directories"))
         .arg(arg!(-T --tree "recurse into directories as a tree"))
+        .arg(arg!(--"one-file-system" "don't descend into directories on other filesystems"))
         .arg(arg!(-L --level <DEPTH> "limit the depth of recursion")
             .value_parser(value_parser!(usize)))
         .arg(arg!(--code <MODE> "summarise lines of code by language, recursing the tree or git repo")
