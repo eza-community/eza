@@ -35,6 +35,16 @@ impl FileFilter {
             }
         }
 
+        // The tree recurses into symlinked directories with --follow-symlinks,
+        // so --only-dirs must keep them rather than dropping them.
+        if matches.get_flag("follow-symlinks")
+            && matches.get_flag("only-dirs")
+            && !matches.get_flag("no-symlinks")
+            && !filter_flags.contains(&FFF::ShowSymlinks)
+        {
+            filter_flags.push(FFF::ShowSymlinks);
+        }
+
         Ok(Self {
             no_symlinks: matches.get_flag("no-symlinks"),
             show_symlinks: matches.get_flag("show-symlinks"),
@@ -413,6 +423,23 @@ mod tests {
             FileFilter::deduce(&mock_cli(vec!["--only-dirs"]), false),
             Ok(FileFilter {
                 flags: vec![FileFilterFlags::OnlyDirs],
+                sort_field: SortField::default(),
+                dot_filter: DotFilter::JustFiles,
+                ignore_patterns: IgnorePatterns::empty(),
+                git_ignore: GitIgnore::Off,
+                no_symlinks: false,
+                show_symlinks: false,
+            })
+        );
+    }
+
+    #[test]
+    fn deduce_file_filter_only_dirs_follow_symlinks() {
+        // Symlinks to directories are recursed into, so they must be kept.
+        assert_eq!(
+            FileFilter::deduce(&mock_cli(vec!["--only-dirs", "--follow-symlinks"]), false),
+            Ok(FileFilter {
+                flags: vec![FileFilterFlags::OnlyDirs, FileFilterFlags::ShowSymlinks],
                 sort_field: SortField::default(),
                 dot_filter: DotFilter::JustFiles,
                 ignore_patterns: IgnorePatterns::empty(),
