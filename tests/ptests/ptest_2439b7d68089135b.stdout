@@ -82,5 +82,6 @@ LONG VIEW OPTIONS:
       --no-permissions       suppress the permissions field
       --no-filesize          suppress the filesize field
       --no-user              suppress the user field
+      --finder-meta          show macOS Finder tag colors and symbol overlays (macOS only)
       --no-time              suppress the time field
       --no-git               suppress Git fields (overrides --git, --git-repos, --git-repos-no-status)

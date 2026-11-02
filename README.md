@@ -155,6 +155,7 @@ These options are available when running with `--long` (`-l`):
 - **-i**, **--inode**: list each file’s inode number
 - **-m**, **--modified**: use the modified timestamp field
 - **-M**, **--mounts**: Show mount details (Linux and MacOS only).
+- **--finder-meta**: display macOS Finder tag colors and SF Symbol overlays in long listings (macOS only)
 - **-S**, **--blocksize**: show size of allocated file system blocks
 - **-t**, **--time=(field)**: which timestamp field to use
 - **-u**, **--accessed**: use the accessed timestamp field

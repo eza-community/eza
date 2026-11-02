@@ -73,6 +73,7 @@ __eza() {
         {-@,--extended}"[List each file's extended attributes and sizes]" \
         {-Z,--context}"[List each file's security context]" \
         {-M,--mounts}"[Show mount details (long mode only)]" \
+        --finder-meta"[Show macOS Finder tag colors and SF Symbol overlays (macOS only)]" \
         '*:filename:_files' \
         --smart-group"[Only show group if it has a different name from owner]" \
         --stdin"[When piping to eza. Read file names from stdin]"

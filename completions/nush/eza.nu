@@ -58,6 +58,7 @@ export extern "eza" [
     --no-user                  # Suppress the user field
     --no-time                  # Suppress the time field
     --mounts(-M)               # Show mount details
+    --finder-meta              # Show macOS Finder tag colors and SF Symbol overlays (macOS only)
     --git                      # List each file's Git status, if tracked
     --no-git                   # Suppress Git status
     --git-repos                # List each git-repos status and branch name

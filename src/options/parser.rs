@@ -162,6 +162,7 @@ pub fn get_command() -> clap::Command {
         .arg(arg!(--"no-permissions" "suppress the permissions field"))
         .arg(arg!(--"no-filesize" "suppress the filesize field"))
         .arg(arg!(--"no-user" "suppress the user field"))
+        .arg(arg!(--"finder-meta" "show macOS Finder tag colors and symbol overlays (macOS only)"))
         .arg(arg!(--"no-time" "suppress the time field"))
         .arg(arg!(--"no-git" "suppress Git fields (overrides --git, --git-repos, --git-repos-no-status)"))
 }
