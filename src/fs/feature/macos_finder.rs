@@ -48,78 +48,19 @@ fn attr_value<'a>(attrs: &'a [Attribute], name: &str) -> Option<&'a [u8]> {
         .and_then(|a| a.value.as_deref())
 }
 
-/// Binary plist parser for `_kMDItemUserTags`.
-///
-/// macOS stores tags as a bplist00 containing an array of UTF-8 strings of the
-/// form "TagName\nN" where N is a color index 1–7. The array holds object
-/// *references* (not inline objects), so we must follow the 32-byte trailer to
-/// locate the offset table and resolve each reference to its string object.
+/// Read Finder's binary plist using the shared plist decoder, including UTF-16
+/// tag names and extended-length strings/arrays. Preserve Finder tag order.
 fn parse_tag_color(data: &[u8]) -> Option<u8> {
-    // 32-byte trailer + magic + at least one object
-    if data.len() < 40 || &data[..8] != b"bplist00" {
+    if !data.starts_with(b"bplist00") {
         return None;
     }
-
-    // --- trailer (last 32 bytes) ---
-    let t = data.len() - 32;
-    let offset_size = data[t + 6] as usize; // bytes per offset-table entry
-    let ref_size = data[t + 7] as usize; // bytes per object reference
-    let num_objects = read_uint_be(data.get(t + 8..t + 16)?)? as usize;
-    let top_object = read_uint_be(data.get(t + 16..t + 24)?)? as usize;
-    let ot_start = read_uint_be(data.get(t + 24..t + 32)?)? as usize;
-
-    if offset_size == 0 || ref_size == 0 || offset_size > 8 || ref_size > 8 {
-        return None;
-    }
-
-    // Resolve object index → byte offset in data
-    let obj_offset = |idx: usize| -> Option<usize> {
-        if idx >= num_objects {
-            return None;
+    let value = plist::Value::from_reader(std::io::Cursor::new(data)).ok()?;
+    value.as_array()?.iter().find_map(|tag| {
+        let (_, suffix) = tag.as_string()?.rsplit_once('\n')?;
+        match suffix.as_bytes() {
+            [digit @ b'1'..=b'7'] => Some(digit - b'0'),
+            _ => None,
         }
-        let pos = ot_start + idx * offset_size;
-        read_uint_be(data.get(pos..pos + offset_size)?).map(|v| v as usize)
-    };
-
-    // Root object must be an array
-    let root = obj_offset(top_object)?;
-    let array_marker = *data.get(root)?;
-    if (array_marker & 0xF0) != 0xA0 {
-        return None;
-    }
-    let count = (array_marker & 0x0F) as usize;
-
-    // Walk array elements: each is a ref_size-byte index into the object table
-    for i in 0..count {
-        let ref_pos = root + 1 + i * ref_size;
-        let obj_ref = read_uint_be(data.get(ref_pos..ref_pos + ref_size)?)? as usize;
-        let str_off = obj_offset(obj_ref)?;
-
-        let str_marker = *data.get(str_off)?;
-        if (str_marker & 0xF0) != 0x50 {
-            continue; // not a UTF-8 string
-        }
-        let str_len = (str_marker & 0x0F) as usize;
-        let str_bytes = data.get(str_off + 1..str_off + 1 + str_len)?;
-
-        // Tag string is "TagName\nN" — color index is the last byte
-        if let Some(&digit) = str_bytes.last()
-            && (b'1'..=b'7').contains(&digit)
-        {
-            return Some(digit - b'0');
-        }
-    }
-    None
-}
-
-/// Read a 1-, 2-, 4-, or 8-byte big-endian unsigned integer.
-fn read_uint_be(bytes: &[u8]) -> Option<u64> {
-    Some(match bytes.len() {
-        1 => bytes[0] as u64,
-        2 => u16::from_be_bytes(bytes.try_into().ok()?) as u64,
-        4 => u32::from_be_bytes(bytes.try_into().ok()?) as u64,
-        8 => u64::from_be_bytes(bytes.try_into().ok()?),
-        _ => return None,
     })
 }
 
@@ -441,37 +382,15 @@ mod tests {
         }
     }
 
-    // Minimal bplist00: array of one string "2" (tag color Green)
-    //
-    // Layout (46 bytes):
-    //   [0..8]  magic "bplist00"
-    //   [8]     0xA1  array marker (1 element)
-    //   [9]     0x01  element ref → object 1
-    //   [10]    0x51  string marker (1 char)
-    //   [11]    b'2'  string content
-    //   [12]    0x08  offset table: obj 0 at byte 8
-    //   [13]    0x0A  offset table: obj 1 at byte 10
-    //   [14..46] 32-byte trailer
+    // Real binary plists encoded independently with Python's plistlib.
     const BPLIST_TAG2: &[u8] = &[
-        b'b', b'p', b'l', b'i', b's', b't', b'0', b'0', // magic
-        0xA1, 0x01, // array(1), ref=1
-        0x51, b'2', // string(1) = "2"
-        0x08, 0x0A, // offset table
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // trailer padding
-        0x01, // offset_size = 1
-        0x01, // ref_size = 1
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, // num_objects = 2
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // top_object = 0
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0C, // ot_start = 12
+        98, 112, 108, 105, 115, 116, 48, 48, 161, 1, 87, 71, 114, 101, 101, 110, 10, 50, 8, 10, 0,
+        0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        18,
     ];
-
-    // Same layout but string content is "none" — no digit '1'–'7' as last byte
     const BPLIST_NO_DIGIT: &[u8] = &[
-        b'b', b'p', b'l', b'i', b's', b't', b'0', b'0', 0xA1, 0x01, 0x54, b'n', b'o', b'n',
-        b'e', // string(4) = "none"
-        0x08, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x0C,
+        98, 112, 108, 105, 115, 116, 48, 48, 161, 1, 84, 110, 111, 110, 101, 8, 10, 0, 0, 0, 0, 0,
+        0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15,
     ];
 
     // --- parse_tag_color ---
@@ -496,6 +415,59 @@ mod tests {
     #[test]
     fn tag_color_no_digit() {
         assert_eq!(parse_tag_color(BPLIST_NO_DIGIT), None);
+    }
+
+    fn encoded_tags(tags: &[&str]) -> Vec<u8> {
+        let value = plist::Value::Array(
+            tags.iter()
+                .map(|tag| plist::Value::String((*tag).into()))
+                .collect(),
+        );
+        let mut bytes = Vec::new();
+        value.to_writer_binary(&mut bytes).unwrap();
+        bytes
+    }
+
+    #[test]
+    fn tag_color_unicode_and_long_names() {
+        for name in [
+            "红色",
+            "工作🛠️",
+            "A custom label longer than fifteen characters",
+        ] {
+            for color in 1..=7 {
+                let tag = format!("{name}\n{color}");
+                assert_eq!(parse_tag_color(&encoded_tags(&[&tag])), Some(color));
+            }
+        }
+    }
+
+    #[test]
+    fn tag_color_extended_array_and_first_colored_tag() {
+        let mut tags = vec!["Uncolored\n0"; 20];
+        tags.extend(["绿色\n2", "Red\n6"]);
+        assert_eq!(parse_tag_color(&encoded_tags(&tags)), Some(2));
+    }
+
+    #[test]
+    fn tag_color_requires_valid_suffix() {
+        for tag in ["Project2", "2", "Tag\n0", "Tag\n8", "Tag\n12", "Tag\n2x"] {
+            assert_eq!(parse_tag_color(&encoded_tags(&[tag])), None);
+        }
+        assert_eq!(parse_tag_color(&encoded_tags(&[])), None);
+    }
+
+    #[test]
+    fn tag_color_truncated_plists() {
+        let bytes = encoded_tags(&["红色\n6"]);
+        for length in 0..bytes.len() {
+            assert_eq!(parse_tag_color(&bytes[..length]), None);
+        }
+        let mut bytes = Vec::new();
+        plist::Value::String("Red\n6".into())
+            .to_writer_binary(&mut bytes)
+            .unwrap();
+        assert_eq!(parse_tag_color(&bytes), None);
     }
 
     // --- finder_tag_color (via Attribute slice) ---
