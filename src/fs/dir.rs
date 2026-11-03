@@ -6,6 +6,7 @@
 // SPDX-License-Identifier: MIT
 use crate::fs::feature::git::GitCache;
 use crate::fs::fields::GitStatus;
+use crate::fs::filter::{NoGitIgnore, absolutise};
 use std::fs;
 use std::fs::DirEntry;
 use std::io;
@@ -82,9 +83,20 @@ impl Dir {
         dots: DotFilter,
         git: Option<&'ig GitCache>,
         git_ignoring: bool,
+        no_git_ignore: &'ig NoGitIgnore,
         deref_links: bool,
         total_size: bool,
     ) -> Files<'dir, 'ig> {
+        // In order for `--no-git-ignore` paths to be compared with the paths
+        // here, given the possibility of symlinks,  we must resolve the
+        // directory paths here; skipped when either git-ignore is off or
+        // no-git-ignore is absent
+        let absolute_path = if git_ignoring && !no_git_ignore.is_empty() {
+            Some(absolutise(&self.path))
+        } else {
+            None
+        };
+
         Files {
             inner: self.contents.iter(),
             dir: self,
@@ -92,6 +104,8 @@ impl Dir {
             dots: dots.dots(),
             git,
             git_ignoring,
+            no_git_ignore,
+            absolute_path,
             deref_links,
             total_size,
         }
@@ -130,6 +144,15 @@ pub struct Files<'dir, 'ig> {
 
     git_ignoring: bool,
 
+    /// The `--no-git-ignore` paths, under which files stay visible even when
+    /// Git would ignore them.
+    no_git_ignore: &'ig NoGitIgnore,
+
+    /// This directory’s path, made absolute when `--git-ignore` is active
+    /// alongside any `--no-git-ignore` paths, so entries can be matched
+    /// against them without another filesystem call per entry.
+    absolute_path: Option<PathBuf>,
+
     /// Whether symbolic links should be dereferenced when querying information.
     deref_links: bool,
 
@@ -138,6 +161,20 @@ pub struct Files<'dir, 'ig> {
 }
 
 impl<'dir> Files<'dir, '_> {
+    /// Whether the given entry should stay visible because its path lies
+    /// under one of the `--no-git-ignore` exclusions.
+    fn in_no_git_ignore(&self, path: &Path) -> bool {
+        match &self.absolute_path {
+            Some(root) => {
+                self.no_git_ignore.covers_dir(root)
+                    || path
+                        .file_name()
+                        .is_some_and(|name| self.no_git_ignore.covers_child(root, name))
+            }
+            None => false,
+        }
+    }
+
     fn parent(&self) -> PathBuf {
         // We can’t use `Path#parent` here because all it does is remove the
         // last path component, which is no good for us if the path is
@@ -165,7 +202,7 @@ impl<'dir> Files<'dir, '_> {
                     continue;
                 }
 
-                if self.git_ignoring {
+                if self.git_ignoring && !self.in_no_git_ignore(&path) {
                     let git_status = self.git.map(|g| g.get(&path, false)).unwrap_or_default();
                     if git_status.unstaged == GitStatus::Ignored {
                         continue;

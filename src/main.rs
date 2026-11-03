@@ -367,6 +367,7 @@ impl Exa<'_> {
                 self.options.filter.dot_filter,
                 self.git.as_ref(),
                 git_ignore,
+                &self.options.filter.no_git_ignore,
                 self.options.view.deref_links,
                 self.options.view.total_size,
             ) {

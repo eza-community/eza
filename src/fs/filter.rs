@@ -7,9 +7,11 @@
 //! Filtering and sorting the list of files before displaying them.
 
 use std::cmp::Ordering;
+use std::ffi::OsStr;
 use std::iter::FromIterator;
 #[cfg(unix)]
 use std::os::unix::fs::MetadataExt;
+use std::path::{Path, PathBuf};
 
 use crate::fs::DotFilter;
 use crate::fs::File;
@@ -84,6 +86,11 @@ pub struct FileFilter {
 
     /// Whether to ignore Git-ignored patterns.
     pub git_ignore: GitIgnore,
+
+    /// Paths under which the Git-ignore filter is turned off, given with
+    /// `--no-git-ignore`. Files listed within one of these directories are
+    /// shown even when Git would ignore them.
+    pub no_git_ignore: NoGitIgnore,
 
     /// Whether to ignore symlinks
     pub no_symlinks: bool,
@@ -387,6 +394,126 @@ pub enum GitIgnore {
 
     /// Display files, even if Git would ignore them.
     Off,
+}
+
+/// The set of paths given with `--no-git-ignore`, under which the
+/// `--git-ignore` feature is disabled: files within them are listed even
+/// when Git would ignore them. This exists for directories that live inside
+/// a repository but whose contents should always stay visible, such as
+/// Homebrew’s `/opt/homebrew` prefix.
+///
+/// The paths are made absolute (canonicalised when possible, so that
+/// relative inputs and symlinked directories still match the paths being
+/// listed) when they’re parsed.
+#[derive(PartialEq, Eq, Debug, Default, Clone)]
+pub struct NoGitIgnore {
+    paths: Vec<PathBuf>,
+}
+
+impl NoGitIgnore {
+    /// Create a set of exclusions from the user-supplied paths.
+    pub fn new<I, P>(inputs: I) -> Self
+    where
+        I: IntoIterator<Item = P>,
+        P: AsRef<Path>,
+    {
+        Self {
+            paths: inputs.into_iter().map(|p| absolutise(p.as_ref())).collect(),
+        }
+    }
+
+    /// Whether no paths were given, letting callers skip the checks entirely.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.paths.is_empty()
+    }
+
+    /// The number of paths this set was built from.
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.paths.len()
+    }
+
+    /// Whether the directory at the given (absolutised) path lies within one
+    /// of the excluded paths, in which case every file listed from it should
+    /// stay visible.
+    #[must_use]
+    pub fn covers_dir(&self, dir: &Path) -> bool {
+        self.paths.iter().any(|p| dir.starts_with(p))
+    }
+
+    /// Whether the child entry with the given name, listed from the directory
+    /// at the given (absolutised) path, is or contains one of the excluded
+    /// paths — covering the case where the exclusion itself would be
+    /// Git-ignored in the parent listing.
+    #[must_use]
+    pub fn covers_child(&self, dir: &Path, name: &OsStr) -> bool {
+        self.paths.iter().any(|p| {
+            p.strip_prefix(dir)
+                .is_ok_and(|rest| rest.components().next().map(|c| c.as_os_str()) == Some(name))
+        })
+    }
+}
+
+/// Make a path absolute, resolving symlinks if the filesystem will let us,
+/// and falling back to the path unchanged if it won’t.
+pub fn absolutise(path: &Path) -> PathBuf {
+    std::fs::canonicalize(path)
+        .or_else(|_| std::path::absolute(path))
+        .unwrap_or_else(|_| path.to_path_buf())
+}
+
+#[cfg(test)]
+mod test_no_git_ignore {
+    use super::*;
+
+    fn exclusions(paths: &[&str]) -> NoGitIgnore {
+        NoGitIgnore {
+            paths: paths.iter().map(PathBuf::from).collect(),
+        }
+    }
+
+    #[test]
+    fn empty_covers_nothing() {
+        let ex = NoGitIgnore::default();
+        assert!(ex.is_empty());
+        assert!(!ex.covers_dir(Path::new("/opt/homebrew")));
+        assert!(!ex.covers_child(Path::new("/opt"), OsStr::new("homebrew")));
+    }
+
+    #[test]
+    fn covers_exact_and_nested_paths() {
+        let ex = exclusions(&["/opt/homebrew"]);
+        assert!(ex.covers_dir(Path::new("/opt/homebrew")));
+        assert!(ex.covers_dir(Path::new("/opt/homebrew/Library/Cask")));
+        assert!(!ex.covers_dir(Path::new("/opt")));
+        assert!(!ex.covers_dir(Path::new("/opt/homebrew-other")));
+    }
+
+    #[test]
+    fn covers_child_before_recursing() {
+        let ex = exclusions(&["/opt/homebrew"]);
+        // The `homebrew` entry in a listing of `/opt` is covered itself, so
+        // it’s not filtered out of the parent listing.
+        assert!(ex.covers_child(Path::new("/opt"), OsStr::new("homebrew")));
+        assert!(!ex.covers_child(Path::new("/opt"), OsStr::new("other")));
+        assert!(!ex.covers_child(Path::new("/opt/homebrew"), OsStr::new("Library")));
+    }
+
+    #[test]
+    fn multiple_exclusions() {
+        let ex = exclusions(&["/a/b", "/c"]);
+        assert!(ex.covers_dir(Path::new("/a/b/x")));
+        assert!(ex.covers_child(Path::new("/"), OsStr::new("c")));
+        assert!(!ex.covers_dir(Path::new("/d")));
+    }
+
+    #[test]
+    fn new_makes_relative_paths_absolute() {
+        let ex = NoGitIgnore::new(["some/relative/dir"]);
+        assert!(ex.paths[0].is_absolute());
+        assert!(ex.paths[0].ends_with("some/relative/dir"));
+    }
 }
 
 #[cfg(test)]

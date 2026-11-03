@@ -6,11 +6,13 @@
 // SPDX-License-Identifier: MIT
 //! Parsing the options for `FileFilter`.
 
+use std::ffi::OsString;
+
 use clap::ArgMatches;
 
 use crate::fs::DotFilter;
 use crate::fs::filter::{
-    FileFilter, FileFilterFlags, GitIgnore, IgnorePatterns, SortCase, SortField,
+    FileFilter, FileFilterFlags, GitIgnore, IgnorePatterns, NoGitIgnore, SortCase, SortField,
 };
 
 use crate::options::OptionsError;
@@ -35,6 +37,10 @@ impl FileFilter {
             }
         }
 
+        if strict && matches.contains_id("no-git-ignore") && !matches.get_flag("git-ignore") {
+            return Err(OptionsError::Useless("no-git-ignore", false, "git-ignore"));
+        }
+
         Ok(Self {
             no_symlinks: matches.get_flag("no-symlinks"),
             show_symlinks: matches.get_flag("show-symlinks"),
@@ -43,6 +49,7 @@ impl FileFilter {
             dot_filter: DotFilter::deduce(matches, strict)?,
             ignore_patterns: IgnorePatterns::deduce(matches)?,
             git_ignore: GitIgnore::deduce(matches),
+            no_git_ignore: NoGitIgnore::deduce(matches),
         })
     }
 }
@@ -153,6 +160,16 @@ impl GitIgnore {
     }
 }
 
+impl NoGitIgnore {
+    pub fn deduce(matches: &ArgMatches) -> Self {
+        let paths = matches
+            .get_many::<OsString>("no-git-ignore")
+            .into_iter()
+            .flatten();
+        Self::new(paths)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::ffi::OsString;
@@ -170,6 +187,48 @@ mod tests {
         assert_eq!(
             GitIgnore::deduce(&mock_cli(vec!["--git-ignore"])),
             GitIgnore::CheckAndIgnore
+        );
+    }
+
+    #[test]
+    fn deduce_no_git_ignore_none() {
+        assert!(NoGitIgnore::deduce(&mock_cli(vec![""])).is_empty());
+    }
+
+    #[test]
+    fn deduce_no_git_ignore_one() {
+        let no_ignore = NoGitIgnore::deduce(&mock_cli(vec!["--no-git-ignore", "/opt/homebrew"]));
+        assert!(!no_ignore.is_empty());
+        assert!(no_ignore.covers_dir(std::path::Path::new("/opt/homebrew/Cask")));
+    }
+
+    #[test]
+    fn deduce_no_git_ignore_repeatable() {
+        let no_ignore = NoGitIgnore::deduce(&mock_cli(vec![
+            "--no-git-ignore",
+            "/opt/homebrew",
+            "--git-ignore",
+            "--no-git-ignore=/var/cache",
+        ]));
+        assert_eq!(no_ignore.len(), 2);
+        assert!(no_ignore.covers_dir(std::path::Path::new("/opt/homebrew/Library")));
+        assert!(no_ignore.covers_dir(std::path::Path::new("/var/cache")));
+    }
+
+    #[test]
+    fn deduce_no_git_ignore_strict_without_git_ignore() {
+        assert_eq!(
+            FileFilter::deduce(&mock_cli(vec!["--no-git-ignore", "/tmp"]), true),
+            Err(OptionsError::Useless("no-git-ignore", false, "git-ignore"))
+        );
+        // …but not in non-strict mode, nor with --git-ignore present.
+        assert!(FileFilter::deduce(&mock_cli(vec!["--no-git-ignore", "/tmp"]), false).is_ok());
+        assert!(
+            FileFilter::deduce(
+                &mock_cli(vec!["--no-git-ignore", "/tmp", "--git-ignore"]),
+                true
+            )
+            .is_ok()
         );
     }
 
@@ -385,6 +444,7 @@ mod tests {
                 dot_filter: DotFilter::JustFiles,
                 ignore_patterns: IgnorePatterns::empty(),
                 git_ignore: GitIgnore::Off,
+                no_git_ignore: NoGitIgnore::default(),
                 no_symlinks: false,
                 show_symlinks: false,
             })
@@ -401,6 +461,7 @@ mod tests {
                 dot_filter: DotFilter::JustFiles,
                 ignore_patterns: IgnorePatterns::empty(),
                 git_ignore: GitIgnore::Off,
+                no_git_ignore: NoGitIgnore::default(),
                 no_symlinks: false,
                 show_symlinks: false,
             })
@@ -417,6 +478,7 @@ mod tests {
                 dot_filter: DotFilter::JustFiles,
                 ignore_patterns: IgnorePatterns::empty(),
                 git_ignore: GitIgnore::Off,
+                no_git_ignore: NoGitIgnore::default(),
                 no_symlinks: false,
                 show_symlinks: false,
             })
@@ -433,6 +495,7 @@ mod tests {
                 dot_filter: DotFilter::JustFiles,
                 ignore_patterns: IgnorePatterns::empty(),
                 git_ignore: GitIgnore::Off,
+                no_git_ignore: NoGitIgnore::default(),
                 no_symlinks: false,
                 show_symlinks: false,
             })

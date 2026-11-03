@@ -175,6 +175,7 @@ impl<'a> Render<'a> {
             self.filter.dot_filter,
             self.git,
             self.git_ignoring,
+            &self.filter.no_git_ignore,
             self.recurse,
         );
 
@@ -378,6 +379,7 @@ impl<'a> Render<'a> {
                     self.filter.dot_filter,
                     self.git,
                     self.git_ignoring,
+                    &self.filter.no_git_ignore,
                     egg.file.deref_links,
                     egg.file.is_recursive_size(),
                 ) {
