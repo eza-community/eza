@@ -313,7 +313,7 @@ impl Exa<'_> {
         dir_files: Vec<Dir>,
         mut first: bool,
         is_only_dir: bool,
-        exit_status: i32,
+        mut exit_status: i32,
     ) -> io::Result<i32> {
         let View {
             file_style: file_name::Options { quote_style, .. },
@@ -333,6 +333,7 @@ impl Exa<'_> {
                             exits::PERMISSION_DENIED
                         );
                         denied_dirs.push(dir.path);
+                        exit_status = exits::PERMISSION_DENIED;
                         continue;
                     }
 
@@ -400,10 +401,7 @@ impl Exa<'_> {
                         .collect::<Vec<Dir>>();
 
                     self.print_files(Some(dir), children)?;
-                    match self.print_dirs(child_dirs, false, false, exit_status) {
-                        Ok(_) => (),
-                        Err(e) => return Err(e),
-                    }
+                    exit_status = self.print_dirs(child_dirs, false, false, exit_status)?;
                     continue;
                 }
             }
