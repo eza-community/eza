@@ -512,6 +512,9 @@ impl<'a> Table<'a> {
         xattrs: bool,
         color_scale_info: Option<ColorScaleInformation>,
     ) -> Row {
+        // Resolve the type before any column makes type-dependent decisions,
+        // including when permissions are hidden or the column order changes.
+        let _ = file.metadata();
         let cells = self
             .columns
             .iter()

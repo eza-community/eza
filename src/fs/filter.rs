@@ -100,7 +100,15 @@ impl FileFilter {
         use FileFilterFlags::{NoSymlinks, OnlyDirs, OnlyFiles, ShowSymlinks};
 
         files.retain(|f| !self.ignore_patterns.is_ignored(&f.name));
+        let needs_file_type = is_recurse || self.flags.iter().any(|flag| {
+            matches!(flag, OnlyDirs | OnlyFiles | NoSymlinks | ShowSymlinks)
+        });
         files.retain(|f| {
+            // These decisions precede rendering and cannot be corrected later
+            // if a directory entry misidentifies a directory or symlink.
+            if needs_file_type {
+                let _ = f.metadata();
+            }
             match (
                 self.flags.contains(&OnlyDirs),
                 self.flags.contains(&OnlyFiles),
@@ -137,6 +145,18 @@ impl FileFilter {
     where
         F: AsRef<File<'a>>,
     {
+        if matches!(
+            self.sort_field,
+            SortField::FileType | SortField::Extension(_)
+        ) || self.flags.contains(&FileFilterFlags::ListDirsFirst)
+            || self.flags.contains(&FileFilterFlags::ListDirsLast)
+        {
+            // Resolve types before sorting, so comparisons use a consistent
+            // source even when directory-entry types disagree with metadata.
+            for file in files.iter() {
+                let _ = file.as_ref().metadata();
+            }
+        }
         files.sort_by(|a, b| self.sort_field.compare_files(a.as_ref(), b.as_ref()));
 
         if self.flags.contains(&FileFilterFlags::Reverse) {
