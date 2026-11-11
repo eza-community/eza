@@ -8,7 +8,6 @@
 
 #[cfg(unix)]
 use std::collections::HashMap;
-use std::fs::FileType;
 use std::io;
 #[cfg(unix)]
 use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
@@ -74,7 +73,8 @@ pub struct File<'dir> {
     /// path (following a symlink).
     pub path: PathBuf,
 
-    /// The cached filetype for this file
+    /// A cached directory-entry file type, used until metadata is available.
+    /// Directory entries can report an incorrect type on some filesystems.
     pub filetype: OnceLock<Option<std::fs::FileType>>,
 
     /// A cached `metadata` (`stat`) call for this file.
@@ -271,10 +271,22 @@ impl<'dir> File<'dir> {
         }
     }
 
-    fn filetype(&self) -> Option<&std::fs::FileType> {
-        self.filetype
+    fn filetype(&self) -> Option<std::fs::FileType> {
+        // Dereferencing must identify links before choosing whose metadata to
+        // display, even when the directory entry reports a regular file.
+        if self.deref_links {
+            let _ = self.metadata();
+        }
+
+        // Once stat information is available, it is authoritative. Keep the
+        // directory-entry hint for short listings and as a fallback on errors.
+        if let Some(Ok(metadata)) = self.metadata.get() {
+            return Some(metadata.file_type());
+        }
+
+        *self
+            .filetype
             .get_or_init(|| self.metadata().as_ref().ok().map(|md| md.file_type()))
-            .as_ref()
     }
 
     pub fn metadata(&self) -> Result<&std::fs::Metadata, &io::Error> {
@@ -294,7 +306,7 @@ impl<'dir> File<'dir> {
 
     /// Whether this file is a directory on the filesystem.
     pub fn is_directory(&self) -> bool {
-        self.filetype().is_some_and(std::fs::FileType::is_dir)
+        self.filetype().is_some_and(|ft| ft.is_dir())
     }
 
     /// Whether this file is a directory, or a symlink pointing to a directory.
@@ -335,7 +347,7 @@ impl<'dir> File<'dir> {
     /// Whether this file is a regular file on the filesystem — that is, not a
     /// directory, a link, or anything else treated specially.
     pub fn is_file(&self) -> bool {
-        self.filetype().is_some_and(std::fs::FileType::is_file)
+        self.filetype().is_some_and(|ft| ft.is_file())
     }
 
     /// The programming language this file is written in, worked out from its
@@ -374,31 +386,31 @@ impl<'dir> File<'dir> {
 
     /// Whether this file is a symlink on the filesystem.
     pub fn is_link(&self) -> bool {
-        self.filetype().is_some_and(FileType::is_symlink)
+        self.filetype().is_some_and(|ft| ft.is_symlink())
     }
 
     /// Whether this file is a named pipe on the filesystem.
     #[cfg(unix)]
     pub fn is_pipe(&self) -> bool {
-        self.filetype().is_some_and(FileTypeExt::is_fifo)
+        self.filetype().is_some_and(|ft| ft.is_fifo())
     }
 
     /// Whether this file is a char device on the filesystem.
     #[cfg(unix)]
     pub fn is_char_device(&self) -> bool {
-        self.filetype().is_some_and(FileTypeExt::is_char_device)
+        self.filetype().is_some_and(|ft| ft.is_char_device())
     }
 
     /// Whether this file is a block device on the filesystem.
     #[cfg(unix)]
     pub fn is_block_device(&self) -> bool {
-        self.filetype().is_some_and(FileTypeExt::is_block_device)
+        self.filetype().is_some_and(|ft| ft.is_block_device())
     }
 
     /// Whether this file is a socket on the filesystem.
     #[cfg(unix)]
     pub fn is_socket(&self) -> bool {
-        self.filetype().is_some_and(FileTypeExt::is_socket)
+        self.filetype().is_some_and(|ft| ft.is_socket())
     }
 
     /// Determine the full path resolving all symbolic links on demand.
@@ -666,6 +678,7 @@ impl<'dir> File<'dir> {
     /// listing.
     #[cfg(unix)]
     fn recursive_directory_size(&self) -> RecursiveSize {
+        let _ = self.metadata();
         if self.is_directory() {
             let key = (
                 self.metadata().map_or(0, MetadataExt::dev),
