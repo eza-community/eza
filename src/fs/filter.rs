@@ -563,15 +563,36 @@ mod test_no_git_ignore {
         assert!(ex.paths.len() == 1);
     }
 
+    #[cfg(unix)]
     #[test]
     fn new_folds_dot_and_parent_components() {
         let ex = NoGitIgnore::new(["./some/../relative/dir"]);
         // Folded lexically: no `.` or `..` survive to break `strip_prefix`,
         // and the anchored form is the one child names are matched from.
-        let anchored = ex.paths.first().unwrap().to_str().unwrap();
-        assert!(anchored.ends_with("/relative/dir"), "got {anchored:?}");
-        assert!(!anchored.contains("/../"), "got {anchored:?}");
-        assert!(!anchored.contains("/./"), "got {anchored:?}");
+        let anchored = ex.paths.first().unwrap();
+        let as_str = anchored.to_str().unwrap();
+        assert!(
+            anchored.ends_with(Path::new("relative/dir")),
+            "got {anchored:?}"
+        );
+        assert!(!as_str.contains("/../"), "got {anchored:?}");
+        assert!(!as_str.contains("/./"), "got {anchored:?}");
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn new_folds_dot_and_parent_components() {
+        let ex = NoGitIgnore::new(["./some/../relative/dir"]);
+        // Folded lexically: no `.` or `..` survive to break `strip_prefix`,
+        // and the anchored form is the one child names are matched from.
+        let anchored = ex.paths.first().unwrap();
+        let as_str = anchored.to_str().unwrap();
+        assert!(
+            anchored.ends_with(Path::new("relative/dir")),
+            "got {anchored:?}"
+        );
+        assert!(!as_str.contains("\\..\\"), "got {anchored:?}");
+        assert!(!as_str.contains("\\.\\"), "got {anchored:?}");
     }
 
     /// An exemption naming a symlink must survive the parent listing under

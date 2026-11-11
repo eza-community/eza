@@ -195,13 +195,31 @@ mod tests {
         assert!(NoGitIgnore::deduce(&mock_cli(vec![""])).is_empty());
     }
 
+    #[cfg(windows)]
     #[test]
     fn deduce_no_git_ignore_one() {
         let no_ignore = NoGitIgnore::deduce(&mock_cli(vec!["--no-git-ignore", "/opt/homebrew"]));
         assert!(!no_ignore.is_empty());
-        assert!(no_ignore.covers_dir(std::path::Path::new("/opt/homebrew/Cask")));
+        let cask_path = std::path::absolute("/opt/homebrew/Cask").unwrap();
+        assert!(
+            no_ignore.covers_dir(&cask_path),
+            "{no_ignore:?} not covering {cask_path:?}"
+        );
     }
 
+    #[cfg(unix)]
+    #[test]
+    fn deduce_no_git_ignore_one() {
+        let no_ignore = NoGitIgnore::deduce(&mock_cli(vec!["--no-git-ignore", "/opt/homebrew"]));
+        assert!(!no_ignore.is_empty());
+        let cask_path = std::path::Path::new("/opt/homebrew/Cask");
+        assert!(
+            no_ignore.covers_dir(cask_path),
+            "{no_ignore:?} not covering {cask_path:?}"
+        );
+    }
+
+    #[cfg(windows)]
     #[test]
     fn deduce_no_git_ignore_repeatable() {
         let no_ignore = NoGitIgnore::deduce(&mock_cli(vec![
@@ -211,8 +229,38 @@ mod tests {
             "--no-git-ignore=/var/cache",
         ]));
         assert_eq!(no_ignore.len(), 2);
-        assert!(no_ignore.covers_dir(std::path::Path::new("/opt/homebrew/Library")));
-        assert!(no_ignore.covers_dir(std::path::Path::new("/var/cache")));
+        let lib_path = std::path::absolute("/opt/homebrew/Library").unwrap();
+        assert!(
+            no_ignore.covers_dir(&lib_path),
+            "{no_ignore:?} not covering {lib_path:?}"
+        );
+        let cache_path = std::path::absolute("/var/cache").unwrap();
+        assert!(
+            no_ignore.covers_dir(&cache_path),
+            "{no_ignore:?} not covering {cache_path:?}"
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn deduce_no_git_ignore_repeatable() {
+        let no_ignore = NoGitIgnore::deduce(&mock_cli(vec![
+            "--no-git-ignore",
+            "/opt/homebrew",
+            "--git-ignore",
+            "--no-git-ignore=/var/cache",
+        ]));
+        assert_eq!(no_ignore.len(), 2);
+        let lib_path = std::path::Path::new("/opt/homebrew/Library");
+        assert!(
+            no_ignore.covers_dir(lib_path),
+            "{no_ignore:?} not covering {lib_path:?}"
+        );
+        let cache_path = std::path::Path::new("/var/cache");
+        assert!(
+            no_ignore.covers_dir(cache_path),
+            "{no_ignore:?} not covering {cache_path:?}"
+        );
     }
 
     #[test]
