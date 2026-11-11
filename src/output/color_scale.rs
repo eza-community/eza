@@ -9,7 +9,10 @@ use nu_ansi_term::{Color as Colour, Style};
 use palette::{FromColor, LinSrgb, Oklab, Srgb};
 
 use crate::{
-    fs::{DotFilter, File, dir_action::RecurseOptions, feature::git::GitCache, fields::Size},
+    fs::{
+        DotFilter, File, dir_action::RecurseOptions, feature::git::GitCache, fields::Size,
+        filter::NoGitIgnore,
+    },
     output::{table::TimeType, tree::TreeDepth},
 };
 
@@ -57,6 +60,7 @@ impl ColorScaleInformation {
         dot_filter: DotFilter,
         git: Option<&GitCache>,
         git_ignoring: bool,
+        no_git_ignore: &NoGitIgnore,
         r: Option<RecurseOptions>,
     ) -> Option<Self> {
         if color_scale.mode == ColorScaleMode::Fixed {
@@ -77,6 +81,7 @@ impl ColorScaleInformation {
                 dot_filter,
                 git,
                 git_ignoring,
+                no_git_ignore,
                 TreeDepth::root(),
                 r,
             );
@@ -119,12 +124,14 @@ impl ColorScaleInformation {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn update_information_recursively(
     information: &mut ColorScaleInformation,
     files: &[File<'_>],
     dot_filter: DotFilter,
     git: Option<&GitCache>,
     git_ignoring: bool,
+    no_git_ignore: &NoGitIgnore,
     depth: TreeDepth,
     r: Option<RecurseOptions>,
 ) {
@@ -170,7 +177,7 @@ fn update_information_recursively(
             match file.read_dir() {
                 Ok(dir) => {
                     let files: Vec<File<'_>> = dir
-                        .files(dot_filter, git, git_ignoring, false, false)
+                        .files(dot_filter, git, git_ignoring, no_git_ignore, false, false)
                         .collect();
 
                     update_information_recursively(
@@ -179,6 +186,7 @@ fn update_information_recursively(
                         dot_filter,
                         git,
                         git_ignoring,
+                        no_git_ignore,
                         depth.deeper(),
                         r,
                     );

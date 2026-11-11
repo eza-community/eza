@@ -57,6 +57,11 @@ _eza() {
             mapfile -t COMPREPLY < <(compgen -W 'on follow off --' -- "$cur")
             return
             ;;
+
+        --no-git-ignore)
+            mapfile -t COMPREPLY < <(compgen -f -- "${cur}")
+            return
+            ;;
     esac
 
     case "$cur" in

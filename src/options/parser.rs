@@ -110,6 +110,9 @@ pub fn get_command() -> clap::Command {
         .arg(arg!(--"no-symlinks" "do not show symbolic links"))
         .arg(arg!(-I --"ignore-glob" <GLOBS> "glob patterns (pipe-separated) of files to ignore"))
         .arg(arg!(--"git-ignore" "ignore files mentioned in '.gitignore'"))
+        .arg(arg!(--"no-git-ignore" <PATH> "with --git-ignore, don't ignore files under PATH (repeatable)")
+            .action(clap::ArgAction::Append)
+            .value_parser(clap::value_parser!(OsString)))
 
         .next_help_heading("SORTING OPTIONS")
         .arg(arg!(--"group-directories-first" "list directories before other files").id("dirs-first"))

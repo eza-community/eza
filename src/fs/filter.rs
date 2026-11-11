@@ -7,9 +7,11 @@
 //! Filtering and sorting the list of files before displaying them.
 
 use std::cmp::Ordering;
+use std::ffi::OsStr;
 use std::iter::FromIterator;
 #[cfg(unix)]
 use std::os::unix::fs::MetadataExt;
+use std::path::{Component, Path, PathBuf};
 
 use crate::fs::DotFilter;
 use crate::fs::File;
@@ -84,6 +86,11 @@ pub struct FileFilter {
 
     /// Whether to ignore Git-ignored patterns.
     pub git_ignore: GitIgnore,
+
+    /// Paths under which the Git-ignore filter is turned off, given with
+    /// `--no-git-ignore`. Files listed within one of these directories are
+    /// shown even when Git would ignore them.
+    pub no_git_ignore: NoGitIgnore,
 
     /// Whether to ignore symlinks
     pub no_symlinks: bool,
@@ -387,6 +394,257 @@ pub enum GitIgnore {
 
     /// Display files, even if Git would ignore them.
     Off,
+}
+
+/// The set of paths given with `--no-git-ignore`, under which the
+/// `--git-ignore` feature is disabled: files within them are listed even
+/// when Git would ignore them. This exists for directories that live inside
+/// a repository but whose contents should always stay visible, such as
+/// Homebrew’s `/opt/homebrew` prefix.
+///
+/// The paths are made absolute when they’re parsed. Each one is kept in two
+/// forms: its lexical path with any `.` or `..` components folded away but
+/// symlinked names left intact, so the name of a symlinked exclusion still
+/// matches its entry in a relative directory listing, and the fully
+/// resolved path, so listings reached through symlinks still match. The
+/// resolved form is kept only when it differs from the anchored one.
+#[derive(PartialEq, Eq, Debug, Default, Clone)]
+pub struct NoGitIgnore {
+    paths: Vec<PathBuf>,
+}
+
+impl NoGitIgnore {
+    /// Create a set of exclusions from the user-supplied paths.
+    pub fn new<I, P>(inputs: I) -> Self
+    where
+        I: IntoIterator<Item = P>,
+        P: AsRef<Path>,
+    {
+        Self {
+            paths: inputs.into_iter().fold(Vec::new(), |mut paths, input| {
+                let path = anchor_path(input.as_ref());
+                let canonical = absolutise(&path);
+                if canonical != path {
+                    paths.push(canonical);
+                }
+                paths.push(path);
+                paths
+            }),
+        }
+    }
+
+    /// Whether no paths were given, letting callers skip the checks entirely.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.paths.is_empty()
+    }
+
+    /// The number of paths this set was built from.
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.paths.len()
+    }
+
+    /// Whether the directory at the given (absolutised) path lies within one
+    /// of the excluded paths, in which case every file listed from it should
+    /// stay visible.
+    #[must_use]
+    pub fn covers_dir(&self, dir: &Path) -> bool {
+        self.paths.iter().any(|p| dir.starts_with(p))
+    }
+
+    /// Whether the child entry with the given name, listed from the directory
+    /// at the given (absolutised) path, is or contains one of the excluded
+    /// paths — covering the case where the exclusion itself would be
+    /// Git-ignored in the parent listing.
+    #[must_use]
+    pub fn covers_child(&self, dir: &Path, name: &OsStr) -> bool {
+        self.paths.iter().any(|p| {
+            p.strip_prefix(dir)
+                .is_ok_and(|rest| rest.components().next().map(|c| c.as_os_str()) == Some(name))
+        })
+    }
+}
+
+/// Make a path absolute, resolving symlinks if the filesystem will let us,
+/// and falling back to the path unchanged if it won’t.
+pub fn absolutise(path: &Path) -> PathBuf {
+    std::fs::canonicalize(path)
+        .or_else(|_| std::path::absolute(path))
+        .unwrap_or_else(|_| path.to_path_buf())
+}
+
+/// Make a path absolute and fold away any `.` or `..` components purely
+/// lexically, so `strip_prefix` against a canonicalised listing directory
+/// can succeed, while symlinked names stay intact so a path still matches
+/// the entry it was named by. Where the `..` would have crossed a symlink
+/// and led somewhere the fold doesn’t predict, the fully resolved form kept
+/// alongside the anchored one covers the match instead.
+fn anchor_path(path: &Path) -> PathBuf {
+    let absolute = std::path::absolute(path).unwrap_or_else(|_| path.to_path_buf());
+
+    // all of the below can be replaced by Path::normalize_lexically when that stabilizes
+    let mut anchored = PathBuf::new();
+    for component in absolute.components() {
+        match component {
+            Component::ParentDir => {
+                anchored.pop();
+            }
+            Component::CurDir => {}
+            other => anchored.push(other),
+        }
+    }
+    anchored
+}
+
+#[cfg(test)]
+mod test_no_git_ignore {
+    use super::*;
+
+    fn exclusions(paths: &[&str]) -> NoGitIgnore {
+        NoGitIgnore {
+            paths: paths.iter().map(PathBuf::from).collect(),
+        }
+    }
+
+    /// A fresh scratch directory, canonicalised so symlinks earlier in the path
+    /// don’t skew comparisons against absolutised exemptions.
+    #[cfg(unix)]
+    fn scratch_base(tag: &str) -> PathBuf {
+        let base =
+            std::env::temp_dir().join(format!("eza-no-git-ignore-{}-{tag}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&base);
+        std::fs::create_dir_all(&base).unwrap();
+        std::fs::canonicalize(&base).unwrap()
+    }
+
+    #[test]
+    fn empty_covers_nothing() {
+        let ex = NoGitIgnore::default();
+        assert!(ex.is_empty());
+        assert!(!ex.covers_dir(Path::new("/opt/homebrew")));
+        assert!(!ex.covers_child(Path::new("/opt"), OsStr::new("homebrew")));
+    }
+
+    #[test]
+    fn covers_exact_and_nested_paths() {
+        let ex = exclusions(&["/opt/homebrew"]);
+        assert!(ex.covers_dir(Path::new("/opt/homebrew")));
+        assert!(ex.covers_dir(Path::new("/opt/homebrew/Library/Cask")));
+        assert!(!ex.covers_dir(Path::new("/opt")));
+        assert!(!ex.covers_dir(Path::new("/opt/homebrew-other")));
+    }
+
+    #[test]
+    fn covers_child_before_recursing() {
+        let ex = exclusions(&["/opt/homebrew"]);
+        // The `homebrew` entry in a listing of `/opt` is covered itself, so
+        // it’s not filtered out of the parent listing.
+        assert!(ex.covers_child(Path::new("/opt"), OsStr::new("homebrew")));
+        assert!(!ex.covers_child(Path::new("/opt"), OsStr::new("other")));
+        assert!(!ex.covers_child(Path::new("/opt/homebrew"), OsStr::new("Library")));
+    }
+
+    #[test]
+    fn multiple_exclusions() {
+        let ex = exclusions(&["/a/b", "/c"]);
+        assert!(ex.covers_dir(Path::new("/a/b/x")));
+        assert!(ex.covers_child(Path::new("/"), OsStr::new("c")));
+        assert!(!ex.covers_dir(Path::new("/d")));
+    }
+
+    #[test]
+    fn new_makes_relative_paths_absolute() {
+        let ex = NoGitIgnore::new(["some/relative/dir"]);
+        let first = ex.paths.first().unwrap();
+        assert!(first.is_absolute());
+        assert!(first.ends_with("some/relative/dir"));
+        // The path doesn’t exist, so there’s nothing resolved to keep.
+        assert!(ex.paths.len() == 1);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn new_folds_dot_and_parent_components() {
+        let ex = NoGitIgnore::new(["./some/../relative/dir"]);
+        // Folded lexically: no `.` or `..` survive to break `strip_prefix`,
+        // and the anchored form is the one child names are matched from.
+        let anchored = ex.paths.first().unwrap();
+        let as_str = anchored.to_str().unwrap();
+        assert!(
+            anchored.ends_with(Path::new("relative/dir")),
+            "got {anchored:?}"
+        );
+        assert!(!as_str.contains("/../"), "got {anchored:?}");
+        assert!(!as_str.contains("/./"), "got {anchored:?}");
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn new_folds_dot_and_parent_components() {
+        let ex = NoGitIgnore::new(["./some/../relative/dir"]);
+        // Folded lexically: no `.` or `..` survive to break `strip_prefix`,
+        // and the anchored form is the one child names are matched from.
+        let anchored = ex.paths.first().unwrap();
+        let as_str = anchored.to_str().unwrap();
+        assert!(
+            anchored.ends_with(Path::new("relative/dir")),
+            "got {anchored:?}"
+        );
+        assert!(!as_str.contains("\\..\\"), "got {anchored:?}");
+        assert!(!as_str.contains("\\.\\"), "got {anchored:?}");
+    }
+
+    /// An exemption naming a symlink must survive the parent listing under
+    /// the link’s own name: canonicalising eagerly resolves the link away,
+    /// leaving `covers_child` with only the target, which it can’t match.
+    #[cfg(unix)]
+    #[test]
+    fn new_keeps_symlink_name_for_child_matching() {
+        let base = scratch_base("child");
+
+        std::fs::create_dir(base.join("target")).unwrap();
+        std::os::unix::fs::symlink(base.join("target"), base.join("link")).unwrap();
+
+        let ex = NoGitIgnore::new([base.join("link")]);
+
+        // The `link` entry in a listing of `base` must stay visible, under
+        // the name the user gave rather than the target's...
+        assert!(
+            ex.covers_child(&base, OsStr::new("link")),
+            "link’s own name missing from paths {:?}",
+            ex.paths
+        );
+        // The target’s own entry matches as well whenever it’s a sibling
+        // in the same listing: the resolved form still names it, keeping the
+        // exempted contents visible under either spelling.
+        assert!(ex.covers_child(&base, OsStr::new("target")));
+        // …and everything under it stays visible once we descend into it,
+        // where the directory path is canonicalised to the target.
+        let canonical_link = std::fs::canonicalize(base.join("link")).unwrap();
+        assert!(ex.covers_dir(&canonical_link));
+
+        std::fs::remove_dir_all(&base).unwrap();
+    }
+
+    /// An exemption *under* a symlinked directory must still match both
+    /// listings: the parent listing that sees the link’s name, and listings
+    /// reached through the link, whose paths resolve to the target.
+    #[cfg(unix)]
+    #[test]
+    fn new_matches_nested_exemptions_through_symlinks() {
+        let base = scratch_base("nested");
+        std::fs::create_dir_all(base.join("target/sub")).unwrap();
+        std::os::unix::fs::symlink(base.join("target"), base.join("link")).unwrap();
+
+        let ex = NoGitIgnore::new([base.join("link/sub")]);
+
+        assert!(ex.covers_child(&base, OsStr::new("link")));
+        assert!(ex.covers_dir(&base.join("target/sub")));
+        assert!(!ex.covers_dir(&base.join("other")));
+
+        std::fs::remove_dir_all(&base).unwrap();
+    }
 }
 
 #[cfg(test)]

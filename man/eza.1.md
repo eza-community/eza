@@ -184,6 +184,9 @@ Sort fields starting with a capital letter will sort uppercase before lowercase:
 `--git-ignore` [if eza was built with git support]
 : Do not list files that are ignored by Git.
 
+`--no-git-ignore=PATH` [if eza was built with git support]
+: When `--git-ignore` is active, keep listing the files under `PATH` even when Git would ignore them. Can be passed multiple times to exclude several directories.
+
 `--group-directories-first`
 : List directories before other files.
 

@@ -132,6 +132,7 @@ impl<'a> Render<'a> {
             self.filter.dot_filter,
             self.git,
             self.git_ignoring,
+            &self.filter.no_git_ignore,
             None,
         );
 
