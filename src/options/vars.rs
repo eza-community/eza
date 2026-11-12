@@ -77,6 +77,10 @@ pub static EZA_STDIN_SEPARATOR: &str = "EZA_STDIN_SEPARATOR";
 /// display a comma separated list of descriptions.
 pub static EZA_WINDOWS_ATTRIBUTES: &str = "EZA_WINDOWS_ATTRIBUTES";
 
+/// Environment variable used to set the default file size display style.
+/// Accepted values: "binary", "decimal", "bytes".
+pub static EZA_SIZE_STYLE: &str = "EZA_SIZE_STYLE";
+
 /// Mockable wrapper for `std::env::var_os`.
 pub trait Vars {
     fn get(&self, name: &'static str) -> Option<OsString>;
@@ -120,6 +124,7 @@ pub mod test {
         pub luminance: OsString,
         pub icons: OsString,
         pub time: OsString,
+        pub size_style: OsString,
     }
 
     impl Vars for MockVars {
@@ -143,6 +148,9 @@ pub mod test {
                 "COLUMNS" if !self.columns.is_empty() => Some(self.columns.clone()),
                 "NO_COLOR" if !self.no_colors.is_empty() => Some(self.no_colors.clone()),
                 "TIME_STYLE" if !self.time.is_empty() => Some(self.time.clone()),
+                "EZA_SIZE_STYLE" if !self.size_style.is_empty() => {
+                    Some(self.size_style.clone())
+                }
                 _ => None,
             }
         }
@@ -161,6 +169,7 @@ pub mod test {
                 "COLUMNS" => self.columns = value.clone(),
                 "NO_COLOR" => self.no_colors = value.clone(),
                 "TIME_STYLE" => self.time = value.clone(),
+                "EZA_SIZE_STYLE" => self.size_style = value.clone(),
                 _ => (),
             };
         }
