@@ -316,7 +316,14 @@ impl clap::builder::TypedValueParser for TimeFormatParser {
         _arg: Option<&clap::Arg>,
         value: &std::ffi::OsStr,
     ) -> Result<Self::Value, Error> {
-        match TimeFormat::try_from_str(value.to_str().unwrap()) {
+        let Some(s) = value.to_str() else {
+            return Err(Error::raw(
+                clap::error::ErrorKind::InvalidValue,
+                "invalid UTF-8 in --time-style value",
+            )
+            .with_cmd(cmd));
+        };
+        match TimeFormat::try_from_str(s) {
             Err(s) => Err(Error::raw(clap::error::ErrorKind::InvalidValue, s).with_cmd(cmd)),
             Ok(v) => Ok(v),
         }
@@ -366,6 +373,36 @@ pub mod test {
                 .map(OsString::as_os_str)
                 .collect::<Vec<_>>(),
             ["file1", "file2"]
+        );
+    }
+
+    /// A `--time-style` value that is not valid UTF-8 must be reported as a
+    /// normal parse error, not panic in `OsStr::to_str().unwrap()`.
+    #[test]
+    fn non_utf8_time_style_is_an_error() {
+        #[cfg(unix)]
+        fn invalid_os_string() -> OsString {
+            use std::os::unix::ffi::OsStringExt;
+            OsString::from_vec(vec![0xff, 0xfe])
+        }
+
+        #[cfg(windows)]
+        fn invalid_os_string() -> OsString {
+            use std::os::windows::ffi::OsStringExt;
+            // An unpaired surrogate is not representable in UTF-8.
+            OsString::from_wide(&[0xd800])
+        }
+
+        let mut arg = OsString::from("--time-style=");
+        arg.push(invalid_os_string());
+
+        let err = mock_cli_try(vec![arg]).unwrap_err();
+
+        assert_eq!(err.kind(), clap::error::ErrorKind::InvalidValue);
+        assert!(
+            err.to_string()
+                .contains("invalid UTF-8 in --time-style value"),
+            "unexpected error: {err}"
         );
     }
 }
