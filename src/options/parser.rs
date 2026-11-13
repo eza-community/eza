@@ -316,7 +316,17 @@ impl clap::builder::TypedValueParser for TimeFormatParser {
         _arg: Option<&clap::Arg>,
         value: &std::ffi::OsStr,
     ) -> Result<Self::Value, Error> {
-        match TimeFormat::try_from_str(value.to_str().unwrap()) {
+        let s = match value.to_str() {
+            Some(s) => s,
+            None => {
+                return Err(Error::raw(
+                    clap::error::ErrorKind::InvalidValue,
+                    "invalid UTF-8 in --time-style value",
+                )
+                .with_cmd(cmd))
+            }
+        };
+        match TimeFormat::try_from_str(s) {
             Err(s) => Err(Error::raw(clap::error::ErrorKind::InvalidValue, s).with_cmd(cmd)),
             Ok(v) => Ok(v),
         }
