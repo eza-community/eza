@@ -66,12 +66,9 @@ impl Dir {
     /// entries, so if the user wants to see them, we’ll have to add them
     /// ourselves after the files have been read.
     pub fn read_dir(path: PathBuf) -> io::Result<Self> {
-        info!("Reading directory {:?}", &path);
-
-        let contents = fs::read_dir(&path)?.collect::<Result<Vec<_>, _>>()?;
-
-        info!("Read directory success {:?}", &path);
-        Ok(Self { contents, path })
+        let mut this = Self::new(path);
+        this.read()?;
+        Ok(this)
     }
 
     /// Produce an iterator of IO results of trying to read all the files in
