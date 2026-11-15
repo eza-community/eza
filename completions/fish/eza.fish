@@ -9,6 +9,7 @@ complete -c eza -s G -l grid -d "Display entries in a grid"
 complete -c eza -s x -l across -d "Sort the grid across, rather than downwards"
 complete -c eza -s R -l recurse -d "Recurse into directories"
 complete -c eza -s T -l tree -d "Recurse into directories as a tree"
+complete -c eza -l inline-dirs -d "Collapse directories containing only a subdirectory"
 complete -c eza -s X -l dereference -d "Dereference symbolic links when displaying file information"
 complete -c eza -s F -l classify -d "Display type indicator by file names"
 complete -c eza -l color \

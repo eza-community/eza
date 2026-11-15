@@ -122,6 +122,7 @@ impl Options {
                 None
             },
             mount_style: MountStyle::JustDirectoryNames,
+            included_parents: None,
         }
     }
 }
@@ -232,6 +233,9 @@ pub struct FileName<'a, 'dir, C> {
 
     /// How to handle displaying a mounted filesystem.
     mount_style: MountStyle,
+
+    /// Parent names to include
+    included_parents: Option<Vec<String>>,
 }
 
 impl<C> FileName<'_, '_, C> {
@@ -254,6 +258,13 @@ impl<C> FileName<'_, '_, C> {
         } else {
             MountStyle::JustDirectoryNames
         };
+        self
+    }
+
+    /// Includes given number of parent directories
+    #[must_use]
+    pub fn with_included_parents(mut self, included_parents: Vec<String>) -> Self {
+        self.included_parents = Some(included_parents);
         self
     }
 }
@@ -316,6 +327,25 @@ impl<C: Colours> FileName<'_, '_, C> {
             self.add_parent_bits(&mut bits, parent);
         }
 
+        if (self.options.absolute == Absolute::Off)
+            && let Some(ref parents) = self.included_parents
+        {
+            for parent in parents {
+                escape(
+                    parent.clone(),
+                    &mut bits,
+                    self.colours.directory(),
+                    self.colours.control_char(),
+                    self.options.quote_style,
+                );
+                bits.push(
+                    self.colours
+                        .symlink_path()
+                        .paint(std::path::MAIN_SEPARATOR.to_string()),
+                );
+            }
+        }
+
         if !self.file.name.is_empty() {
             // The “missing file” colour seems like it should be used here,
             // but it’s not! In a grid view, where there’s no space to display
@@ -357,6 +387,7 @@ impl<C: Colours> FileName<'_, '_, C> {
                             link_style: LinkStyle::FullLinkPaths,
                             options: target_options,
                             mount_style: MountStyle::JustDirectoryNames,
+                            included_parents: None,
                         };
 
                         for bit in target_name.escaped_file_name(filename_style_override) {

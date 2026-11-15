@@ -83,6 +83,11 @@ When used without a value, defaults to ‘`automatic`’.
 `-T`, `--tree`
 : Recurse into directories as a tree.
 
+`--inline-dirs`
+: In tree view, if a directory only contains another directory, try to display two directories in the same entry.
+Useful for Java-like source trees, where `org/`-`apache/`-`commons/` would take three lines instead of one.
+In long view, if directories have different properties they won't be collapsed.
+
 `--code[=MODE]`
 : Print a lines-of-code summary by language instead of listing files, in the spirit of tools like `tokei` and `cloc`.
 

@@ -7,6 +7,7 @@ export extern "eza" [
     --across(-x)               # Sort the grid across, rather than downwards
     --recurse(-R)              # Recurse into directories
     --tree(-T)                 # Recurse into directories as a tree
+    --inline-dirs              # Collapse directories containing only a subdirectory
     --dereference(-X)          # Dereference symbolic links when displaying file information
     --classify(-F)             # Display type indicator by file names
     --color                    # When to use terminal colours

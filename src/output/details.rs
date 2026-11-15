@@ -76,7 +76,7 @@ use log::{debug, trace};
 
 use crate::fs::dir_action::RecurseOptions;
 use crate::fs::feature::git::GitCache;
-use crate::fs::feature::xattr::Attribute;
+use crate::fs::feature::xattr::{self, Attribute};
 use crate::fs::fields::SecurityContextType;
 use crate::fs::filter::FileFilter;
 use crate::fs::{Dir, File};
@@ -125,6 +125,9 @@ pub struct Options {
 
     /// Whether to drill down into symbolic links that point to directories
     pub follow_links: bool,
+
+    /// Whether to attempt to collapse directories containing a single directory to one line
+    pub inline_directories: bool,
 }
 
 pub struct Render<'a> {
@@ -151,16 +154,16 @@ pub struct Render<'a> {
 }
 
 #[rustfmt::skip]
-struct Egg<'a> {
+struct Egg<'file, 'dir> {
     table_row: Option<TableRow>,
-    xattrs:    &'a [Attribute],
+    xattrs:    &'dir [Attribute],
     errors:    Vec<(io::Error, Option<PathBuf>)>,
     dir:       Option<Dir>,
-    file:      &'a File<'a>,
+    file:      &'file File<'dir>,
 }
 
-impl<'a> AsRef<File<'a>> for Egg<'a> {
-    fn as_ref(&self) -> &File<'a> {
+impl<'file, 'dir> AsRef<File<'dir>> for Egg<'file, 'dir> {
+    fn as_ref(&self) -> &File<'dir> {
         self.file
     }
 }
@@ -263,92 +266,117 @@ impl<'a> Render<'a> {
         xattr_count > 1 || (xattr_count == 1 && !selinux_ctx_shown)
     }
 
+    fn create_egg_for<'file, 'dir>(
+        &self,
+        file: &'file File<'dir>,
+        table: Option<&Table<'_>>,
+        depth: TreeDepth,
+        color_scale_info: Option<ColorScaleInformation>,
+    ) -> Egg<'file, 'dir>
+    where
+        'file: 'dir,
+    {
+        let mut errors = Vec::new();
+
+        // There are three “levels” of extended attribute support:
+        //
+        // 1. If we’re compiling without that feature, then
+        //    exa pretends all files have no attributes.
+        // 2. If the feature is enabled and the --extended flag
+        //    has been specified, then display an @ in the
+        //    permissions column for files with attributes, the
+        //    names of all attributes and their values, and any
+        //    errors encountered when getting them.
+        // 3. If the --extended flag *hasn’t* been specified, then
+        //    display the @, but don’t display anything else.
+        //
+        // For a while, exa took a stricter approach to (3):
+        // if an error occurred while checking a file’s xattrs to
+        // see if it should display the @, exa would display that
+        // error even though the attributes weren’t actually being
+        // shown! This was confusing, as users were being shown
+        // errors for something they didn’t explicitly ask for,
+        // and just cluttered up the output. So now errors aren’t
+        // printed unless the user passes --extended to signify
+        // that they want to see them.
+
+        let xattrs: &[Attribute] = if xattr::ENABLED && self.opts.xattr {
+            file.extended_attributes()
+        } else {
+            &[]
+        };
+
+        let table_row =
+            table.map(|t| t.row_for_file(file, self.show_xattr_hint(file), color_scale_info));
+
+        let mut dir = None;
+        let follow_links = self.opts.follow_links;
+        if let Some(r) = self.recurse
+            && (if follow_links {
+                file.points_to_directory()
+            } else {
+                file.is_directory()
+            })
+            && r.tree
+            && !r.is_too_deep(depth.0)
+        {
+            trace!("matching on read_dir");
+            match file.read_dir() {
+                Ok(d) => {
+                    dir = Some(d);
+                }
+                Err(e) => {
+                    errors.push((e, None));
+                }
+            }
+        }
+
+        Egg {
+            table_row,
+            xattrs,
+            errors,
+            dir,
+            file,
+        }
+    }
+
+    fn print_xattrs(
+        &self,
+        xattrs: &[Attribute],
+        rows: &mut Vec<Row>,
+        depth: TreeDepth,
+        last_entries: bool,
+    ) -> bool {
+        let xattrs_count = xattrs.len();
+        for (index, xattr) in xattrs.iter().enumerate() {
+            let params = TreeParams::new(depth.deeper(), last_entries && index == xattrs_count - 1);
+            let r = self.render_xattr(xattr, params);
+            rows.push(r);
+        }
+        xattrs_count > 0
+    }
+
     /// Adds files to the table, possibly recursively. This is easily
     /// parallelisable, and uses a pool of threads.
-    fn add_files_to_table<'dir>(
+    fn add_files_to_table<'file, 'dir>(
         &self,
         table: &mut Option<Table<'a>>,
         rows: &mut Vec<Row>,
-        src: &[File<'dir>],
+        src: &'file [File<'dir>],
         depth: TreeDepth,
         color_scale_info: Option<ColorScaleInformation>,
-    ) {
-        use crate::fs::feature::xattr;
-
+    ) where
+        'file: 'dir,
+    {
         let mut file_eggs: Vec<_> = src
             .par_iter()
-            .map(|file| {
-                let mut errors = Vec::new();
-
-                // There are three “levels” of extended attribute support:
-                //
-                // 1. If we’re compiling without that feature, then
-                //    exa pretends all files have no attributes.
-                // 2. If the feature is enabled and the --extended flag
-                //    has been specified, then display an @ in the
-                //    permissions column for files with attributes, the
-                //    names of all attributes and their values, and any
-                //    errors encountered when getting them.
-                // 3. If the --extended flag *hasn’t* been specified, then
-                //    display the @, but don’t display anything else.
-                //
-                // For a while, exa took a stricter approach to (3):
-                // if an error occurred while checking a file’s xattrs to
-                // see if it should display the @, exa would display that
-                // error even though the attributes weren’t actually being
-                // shown! This was confusing, as users were being shown
-                // errors for something they didn’t explicitly ask for,
-                // and just cluttered up the output. So now errors aren’t
-                // printed unless the user passes --extended to signify
-                // that they want to see them.
-
-                let xattrs: &[Attribute] = if xattr::ENABLED && self.opts.xattr {
-                    file.extended_attributes()
-                } else {
-                    &[]
-                };
-
-                let table_row = table
-                    .as_ref()
-                    .map(|t| t.row_for_file(file, self.show_xattr_hint(file), color_scale_info));
-
-                let mut dir = None;
-                let follow_links = self.opts.follow_links;
-                if let Some(r) = self.recurse
-                    && (if follow_links {
-                        file.points_to_directory()
-                    } else {
-                        file.is_directory()
-                    })
-                    && r.tree
-                    && !r.is_too_deep(depth.0)
-                {
-                    trace!("matching on read_dir");
-                    match file.read_dir() {
-                        Ok(d) => {
-                            dir = Some(d);
-                        }
-                        Err(e) => {
-                            errors.push((e, None));
-                        }
-                    }
-                }
-
-                Egg {
-                    table_row,
-                    xattrs,
-                    errors,
-                    dir,
-                    file,
-                }
-            })
+            .map(|file| self.create_egg_for(file, table.as_ref(), depth, color_scale_info))
             .collect();
 
         // this is safe because all entries have been initialized above
         self.filter.sort_files(&mut file_eggs);
 
         for (tree_params, egg) in depth.iterate_over(file_eggs.into_iter()) {
-            let mut files = Vec::new();
             let errors = egg.errors;
 
             if let (Some(ref mut t), Some(row)) = (table.as_mut(), egg.table_row.as_ref()) {
@@ -373,45 +401,81 @@ impl<'a> Render<'a> {
 
             rows.push(row);
 
-            if let Some(ref dir) = egg.dir {
-                for file_to_add in dir.files(
-                    self.filter.dot_filter,
-                    self.git,
-                    self.git_ignoring,
-                    egg.file.deref_links,
-                    egg.file.is_recursive_size(),
-                ) {
-                    files.push(file_to_add);
-                }
+            if let Some(dir) = egg.dir {
+                let mut target_dir = Some(dir);
+                let mut included_parents = Vec::new();
+                let mut parent_file_name = egg.file.name.clone();
+                let mut loop_depth = depth; // for rendering, depth is good; not for recursion limit
 
-                self.filter
-                    .filter_child_files(self.recurse.is_some(), &mut files);
+                while let Some(dir) = target_dir.take() {
+                    let mut files = dir
+                        .files(
+                            self.filter.dot_filter,
+                            self.git,
+                            self.git_ignoring,
+                            egg.file.deref_links,
+                            egg.file.is_recursive_size(),
+                        )
+                        .collect::<Vec<_>>();
 
-                if !files.is_empty() {
-                    for xattr in egg.xattrs {
-                        rows.push(self.render_xattr(xattr, TreeParams::new(depth.deeper(), false)));
-                    }
+                    self.filter
+                        .filter_child_files(self.recurse.is_some(), &mut files);
 
-                    for (error, path) in errors {
-                        rows.push(self.render_error(
-                            &error,
-                            TreeParams::new(depth.deeper(), false),
-                            path,
-                        ));
+                    let were_xattrs = self.print_xattrs(
+                        egg.xattrs,
+                        rows,
+                        depth,
+                        files.is_empty() && errors.is_empty(),
+                    );
+
+                    if self.opts.inline_directories
+                        && !were_xattrs
+                        && let [alone_subdir] = &files[..]
+                        && alone_subdir.is_directory()
+                        && let Some(current_row) = rows.pop()
+                    {
+                        loop_depth = loop_depth.deeper();
+                        let subdir_egg = self.create_egg_for(
+                            alone_subdir,
+                            table.as_ref(),
+                            loop_depth,
+                            color_scale_info,
+                        );
+                        if subdir_egg.table_row != current_row.cells {
+                            // Data to present is different, restore row
+                            rows.push(current_row);
+                        } else {
+                            included_parents.push(parent_file_name);
+
+                            let file_name = self
+                                .file_style
+                                .for_file(alone_subdir, self.theme)
+                                .with_link_paths()
+                                .with_mount_details(self.opts.mounts)
+                                .with_included_parents(included_parents.clone())
+                                .paint()
+                                .promote();
+
+                            rows.push(Row {
+                                tree: tree_params,
+                                cells: current_row.cells,
+                                name: file_name,
+                            });
+
+                            parent_file_name = subdir_egg.file.name.clone();
+                            target_dir = subdir_egg.dir; // If we run into a depth limit might be None
+
+                            continue;
+                        }
                     }
 
                     self.add_files_to_table(table, rows, &files, depth.deeper(), color_scale_info);
-                    continue;
                 }
+
+                continue;
             }
 
-            let count = egg.xattrs.len();
-            for (index, xattr) in egg.xattrs.iter().enumerate() {
-                let params =
-                    TreeParams::new(depth.deeper(), errors.is_empty() && index == count - 1);
-                let r = self.render_xattr(xattr, params);
-                rows.push(r);
-            }
+            self.print_xattrs(egg.xattrs, rows, depth, errors.is_empty());
 
             let count = errors.len();
             for (index, (error, path)) in errors.into_iter().enumerate() {
