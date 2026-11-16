@@ -243,7 +243,7 @@ impl TableOptions {
     fn deduce<V: Vars>(matches: &ArgMatches, vars: &V) -> Result<Self, OptionsError> {
         let time_format = TimeFormat::deduce(matches, vars);
         let flags_format = FlagsFormat::deduce(vars);
-        let size_format = SizeFormat::deduce(matches);
+        let size_format = SizeFormat::deduce(matches, vars);
         let user_format = UserFormat::deduce(matches);
         let group_format = GroupFormat::deduce(matches);
         let columns = Columns::deduce(matches, vars)?;
@@ -316,13 +316,20 @@ impl SizeFormat {
     /// most commonly-understood, and don’t involve trying to parse large
     /// strings of digits in your head. Changing the format to anything else
     /// involves the `--binary` or `--bytes` flags, and these conflict with
-    /// each other.
-    fn deduce(matches: &ArgMatches) -> Self {
+    /// each other. The `EZA_SIZE_STYLE` environment variable sets the
+    /// default when no flag is given.
+    fn deduce<V: Vars>(matches: &ArgMatches, vars: &V) -> Self {
         use SizeFormat::*;
         if matches.get_flag("binary") {
             BinaryBytes
         } else if matches.get_flag("bytes") {
             JustBytes
+        } else if let Some(val) = vars.get(vars::EZA_SIZE_STYLE) {
+            match val.to_str() {
+                Some("binary") => BinaryBytes,
+                Some("bytes") => JustBytes,
+                _ => DecimalBytes,
+            }
         } else {
             DecimalBytes
         }
@@ -707,25 +714,58 @@ mod tests {
 
     #[test]
     fn deduce_size_format_off() {
+        let vars = MockVars::default();
         assert_eq!(
-            SizeFormat::deduce(&mock_cli(vec![""])),
+            SizeFormat::deduce(&mock_cli(vec![""]), &vars),
             SizeFormat::DecimalBytes
         );
     }
 
     #[test]
     fn deduce_user_format_bytes() {
+        let vars = MockVars::default();
         assert_eq!(
-            SizeFormat::deduce(&mock_cli(vec!["--bytes"])),
+            SizeFormat::deduce(&mock_cli(vec!["--bytes"]), &vars),
             SizeFormat::JustBytes
         );
     }
 
     #[test]
     fn deduce_user_format_binary() {
+        let vars = MockVars::default();
         assert_eq!(
-            SizeFormat::deduce(&mock_cli(vec!["--binary"])),
+            SizeFormat::deduce(&mock_cli(vec!["--binary"]), &vars),
             SizeFormat::BinaryBytes
+        );
+    }
+
+    #[test]
+    fn deduce_size_format_env_binary() {
+        let mut vars = MockVars::default();
+        vars.set(vars::EZA_SIZE_STYLE, &OsString::from("binary"));
+        assert_eq!(
+            SizeFormat::deduce(&mock_cli(vec![""]), &vars),
+            SizeFormat::BinaryBytes
+        );
+    }
+
+    #[test]
+    fn deduce_size_format_env_bytes() {
+        let mut vars = MockVars::default();
+        vars.set(vars::EZA_SIZE_STYLE, &OsString::from("bytes"));
+        assert_eq!(
+            SizeFormat::deduce(&mock_cli(vec![""]), &vars),
+            SizeFormat::JustBytes
+        );
+    }
+
+    #[test]
+    fn deduce_size_format_flag_overrides_env() {
+        let mut vars = MockVars::default();
+        vars.set(vars::EZA_SIZE_STYLE, &OsString::from("binary"));
+        assert_eq!(
+            SizeFormat::deduce(&mock_cli(vec!["--bytes"]), &vars),
+            SizeFormat::JustBytes
         );
     }
 
