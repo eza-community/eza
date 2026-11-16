@@ -76,6 +76,9 @@ impl Mode {
         if !long && strict {
             Self::strict_check_long_flags(matches)?;
         }
+        if !tree && strict && matches.get_flag("inline-dirs") {
+            return Err(OptionsError::Useless("inline-dirs", false, "tree"));
+        }
 
         if !(long || oneline || grid || tree) {
             if is_tty {
@@ -167,6 +170,7 @@ impl details::Options {
             mounts: matches.get_flag("mounts"),
             color_scale: ColorScaleOptions::deduce(matches, vars),
             follow_links: matches.get_flag("follow-symlinks"),
+            inline_directories: matches.get_flag("inline-dirs"),
         }
     }
 
@@ -191,6 +195,7 @@ impl details::Options {
             mounts: matches.get_flag("mounts"),
             color_scale: ColorScaleOptions::deduce(matches, vars),
             follow_links: matches.get_flag("follow-symlinks"),
+            inline_directories: matches.get_flag("inline-dirs"),
         })
     }
 }
@@ -964,6 +969,7 @@ mod tests {
                 mounts: false,
                 color_scale: ColorScaleOptions::deduce(&cli, &MockVars::default()),
                 follow_links: false,
+                inline_directories: false,
             }
         );
     }
@@ -981,6 +987,7 @@ mod tests {
                 mounts: true,
                 color_scale: ColorScaleOptions::deduce(&cli, &MockVars::default()),
                 follow_links: false,
+                inline_directories: false,
             }
         );
     }
@@ -998,6 +1005,7 @@ mod tests {
                 mounts: false,
                 color_scale: ColorScaleOptions::deduce(&cli, &MockVars::default()),
                 follow_links: false,
+                inline_directories: false,
             }
         );
     }
@@ -1015,6 +1023,7 @@ mod tests {
                 mounts: false,
                 color_scale: ColorScaleOptions::deduce(&cli, &MockVars::default()),
                 follow_links: false,
+                inline_directories: false,
             }
         );
     }

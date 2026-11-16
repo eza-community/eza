@@ -164,6 +164,7 @@ Register-ArgumentCompleter -Native -CommandName 'eza' -ScriptBlock {
             [CompletionResult]::new('--recurse'                  ,'recurse'             , [CompletionResultType]::ParameterName, 'recurse into directories')
         #   [CompletionResult]::new('-T'                         ,'tree'                , [CompletionResultType]::ParameterName, 'recurse into directories as a tree')
             [CompletionResult]::new('--tree'                     ,'tree'                , [CompletionResultType]::ParameterName, 'recurse into directories as a tree')
+            [CompletionResult]::new('--inline-dirs'              ,'inline-dirs'         , [CompletionResultType]::ParameterName, 'collapse directories containing only a subdirectory')
         #   [CompletionResult]::new('-X'                         ,'dereference'         , [CompletionResultType]::ParameterName, 'dereference symbolic links when displaying information')
             [CompletionResult]::new('--dereference'              ,'dereference'         , [CompletionResultType]::ParameterName, 'dereference symbolic links when displaying information')
         #   [CompletionResult]::new('-F'                         ,'classify'            , [CompletionResultType]::ParameterName, 'display type indicator by file names (always, auto, never)')

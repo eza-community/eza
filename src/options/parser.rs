@@ -164,6 +164,7 @@ pub fn get_command() -> clap::Command {
         .arg(arg!(--"no-user" "suppress the user field"))
         .arg(arg!(--"no-time" "suppress the time field"))
         .arg(arg!(--"no-git" "suppress Git fields (overrides --git, --git-repos, --git-repos-no-status)"))
+        .arg(arg!(--"inline-dirs" "show directories containing a single directory in one line (in tree view)"))
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

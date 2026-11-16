@@ -448,7 +448,7 @@ pub struct Table<'a> {
     loc_total: Option<usize>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Row {
     cells: Vec<TextCell>,
 }
