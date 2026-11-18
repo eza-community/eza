@@ -67,7 +67,7 @@ complete -c eza -s s -l sort -d "Which field to sort by" -x -a "
     accessed\t'Sort by file accessed time'
     age\t'Sort by file modified time (newest first)'
     changed\t'Sort by changed time'
-    created\t'Sort by file modified time'
+    created\t'Sort by file created time'
     date\t'Sort by file modified time'
     ext\t'Sort by file extension'
     Ext\t'Sort by file extension (uppercase first)'
