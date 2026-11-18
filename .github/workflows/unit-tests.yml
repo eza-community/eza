@@ -59,7 +59,7 @@ jobs:
     continue-on-error: ${{ matrix.rust == 'nightly' }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest, windows-11-arm]
         rust: [msrv, stable, beta, nightly]
     steps:
       - name: Checkout repository
@@ -75,7 +75,7 @@ jobs:
       - name: Run rustfmt checks
         run: cargo fmt --check
       - name: Run clippy lints
-        if: ${{ matrix.os != 'windows-latest' }}
+        if: ${{ !startsWith(matrix.os, 'windows') }}
         run: cargo clippy -- -D warnings
       - name: Run unit tests
         run: cargo hack test
