@@ -12,7 +12,7 @@
 use std::env;
 use std::ffi::{OsStr, OsString};
 use std::io::{self, ErrorKind, IsTerminal, Read, Write, stdin};
-use std::path::{Component, PathBuf};
+use std::path::PathBuf;
 use std::process::exit;
 
 use nu_ansi_term::{AnsiStrings as ANSIStrings, Style};
@@ -315,6 +315,20 @@ impl Exa<'_> {
         is_only_dir: bool,
         exit_status: i32,
     ) -> io::Result<i32> {
+        self.print_dirs_at_depth(dir_files, &mut first, is_only_dir, exit_status, 0)
+    }
+
+    /// Print directories, with `depth_from_root` counting directory levels below the directories
+    /// the user asked to list. `--level` is compared against that count, so the depth does not
+    /// depend on how many components the path arguments happen to have.
+    fn print_dirs_at_depth(
+        &mut self,
+        dir_files: Vec<Dir>,
+        first: &mut bool,
+        is_only_dir: bool,
+        exit_status: i32,
+        depth_from_root: usize,
+    ) -> io::Result<i32> {
         let View {
             file_style: file_name::Options { quote_style, .. },
             ..
@@ -343,8 +357,8 @@ impl Exa<'_> {
 
             // Put a gap between directories, or between the list of files and
             // the first directory.
-            if first {
-                first = false;
+            if *first {
+                *first = false;
             } else {
                 writeln!(&mut self.writer)?;
             }
@@ -379,12 +393,11 @@ impl Exa<'_> {
             self.options.filter.sort_files(&mut children);
 
             if let Some(recurse_opts) = self.options.dir_action.recurse_options() {
-                let depth = dir
-                    .path
-                    .components()
-                    .filter(|&c| c != Component::CurDir)
-                    .count()
-                    + 1;
+                // The directories the user asked for are at depth 1, so a level of 1 lists their
+                // children without descending further. Counting from the argument rather than
+                // from the filesystem root keeps `eza dir --level=2` independent of how many
+                // components precede `dir` in the path.
+                let depth = depth_from_root + 1;
                 let follow_links = self.options.view.follow_links;
                 if !recurse_opts.tree && !recurse_opts.is_too_deep(depth) {
                     let child_dirs = children
@@ -400,7 +413,7 @@ impl Exa<'_> {
                         .collect::<Vec<Dir>>();
 
                     self.print_files(Some(dir), children)?;
-                    match self.print_dirs(child_dirs, false, false, exit_status) {
+                    match self.print_dirs_at_depth(child_dirs, first, false, exit_status, depth) {
                         Ok(_) => (),
                         Err(e) => return Err(e),
                     }
