@@ -1,0 +1,15 @@
+debug
+dev
+log
+
+tests/itest/vagrant/debug:
+a
+symlink -> a
+symlink-broken -> ./b
+
+tests/itest/vagrant/dev:
+main.bf
+
+tests/itest/vagrant/log:
+file.png
+run
