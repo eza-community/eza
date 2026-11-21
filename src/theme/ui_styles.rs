@@ -128,6 +128,7 @@ pub struct FileKinds {
     pub special: Option<Style>,       // sp
     pub executable: Option<Style>,    // ex
     pub mount_point: Option<Style>,   // mp
+    pub git_repo_dir: Option<Style>,  // Gr
 }
 
 impl Default for FileKinds {
@@ -143,6 +144,7 @@ impl Default for FileKinds {
             special: Some(Yellow.normal()),
             executable: Some(Green.bold()),
             mount_point: Some(Blue.bold().underline()),
+            git_repo_dir: None,
         }
     }
 }
@@ -157,7 +159,8 @@ field_accessors!(
     socket: Option<Style>,
     special: Option<Style>,
     executable: Option<Style>,
-    mount_point: Option<Style>
+    mount_point: Option<Style>,
+    git_repo_dir: Option<Style>
 );
 
 #[rustfmt::skip]
@@ -402,6 +405,7 @@ impl UiStyles {
             special: Some(Style::default()),
             executable: Some(Style::default()),
             mount_point: Some(Style::default()),
+            git_repo_dir: None,
             }),
 
             #[rustfmt::skip]
@@ -589,6 +593,7 @@ impl UiStyles {
             "Go" => self.git_repo().branch_other          = Some(pair.to_style()),
             "Gc" => self.git_repo().git_clean             = Some(pair.to_style()),
             "Gd" => self.git_repo().git_dirty             = Some(pair.to_style()),
+            "Gr" => self.filekinds().git_repo_dir         = Some(pair.to_style()),
             "xx" => self.punctuation                     = Some(pair.to_style()),
             "da" => self.date                            = Some(pair.to_style()),
             "in" => self.inode                           = Some(pair.to_style()),

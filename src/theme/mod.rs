@@ -472,6 +472,7 @@ impl FileNameColours for Theme {
     fn nix_hash(&self)            -> Style { self.ui.punctuation() }
     fn executable_file(&self)     -> Style { self.ui.filekinds.unwrap_or_default().executable() }
     fn mount_point(&self)         -> Style { self.ui.filekinds.unwrap_or_default().mount_point() }
+    fn git_repo_dir(&self)        -> Option<Style> { self.ui.filekinds.and_then(|fk| fk.git_repo_dir) }
 
     fn colour_file(&self, file: &File<'_>) -> Style {
         self.exts
@@ -726,6 +727,7 @@ mod customs_test {
     test!(exa_bo:  ls "", exa "bO=4"         =>  colours c -> { c.broken_path_overlay                   = Some(Style::default().underline()); });
 
     test!(exa_mp:  ls "", exa "mp=1;34;4"    =>  colours c -> { c.filekinds().mount_point                 = Some(Blue.bold().underline()); });
+    test!(exa_git_repo_dir: ls "", exa "Gr=1;35" =>  colours c -> { c.filekinds().git_repo_dir                = Some(Purple.bold()); });
     test!(exa_sp:  ls "", exa "sp=1;35;4"    =>  colours c -> { c.filekinds().special                     = Some(Purple.bold().underline()); });
 
     test!(exa_im:  ls "", exa "im=38;5;128"  =>  colours c -> { c.file_type().image                       = Some(Fixed(128).normal()); });
