@@ -252,6 +252,9 @@ LIST OF CODES
 `mp`
 : a mount point
 
+`Gr`
+: a directory that directly contains a `.git` entry (a Git repository, worktree or submodule); not set by default, and the check is only done when it is set
+
 `im`
 : a regular file that is an image
 

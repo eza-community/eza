@@ -21,6 +21,7 @@ files; setting `EZA_COLORS="reset"` will highlight nothing.
 ## Examples
 
 - Disable the "current user" highlighting: `EZA_COLORS="uu=0:gu=0"`
+- Show directories that are Git repositories in bold purple: `EZA_COLORS="Gr=1;35"`
 - Turn the date column green: `EZA_COLORS="da=32"`
 - Highlight Vagrantfiles: `EZA_COLORS="Vagrantfile=1;4;33"`
 - Override the existing zip colour: `EZA_COLORS="*.zip=38;5;125"`
@@ -70,6 +71,7 @@ filekinds:
   special
   executable
   mount_point
+  git_repo_dir
 
 perms:
   user_read

@@ -579,7 +579,7 @@ impl<C: Colours> FileName<'_, '_, C> {
         #[rustfmt::skip]
         return match self.file {
             f if f.is_mount_point()      => self.colours.mount_point(),
-            f if f.is_directory()        => self.colours.directory(),
+            f if f.is_directory()        => self.directory_style(f),
             #[cfg(unix)]
             f if f.is_executable_file()  => self.colours.executable_file(),
             f if f.is_link()             => self.colours.symlink(),
@@ -594,6 +594,17 @@ impl<C: Colours> FileName<'_, '_, C> {
             f if ! f.is_file()           => self.colours.special(),
             _                            => self.colours.colour_file(self.file),
         };
+    }
+
+    /// The style for a directory: the git repository style if one is set
+    /// and the directory directly contains a `.git` entry, otherwise the
+    /// normal directory style. The `.git` check is skipped entirely when no
+    /// git repository style is configured.
+    fn directory_style(&self, dir: &File<'_>) -> Style {
+        match self.colours.git_repo_dir() {
+            Some(style) if dir.is_git_repo_dir() => style,
+            _ => self.colours.directory(),
+        }
     }
 
     /// For grid's use, to cover the case of hyperlink escape sequences
@@ -645,6 +656,10 @@ pub trait Colours: FiletypeColours {
 
     /// The style to paint a directory that has a filesystem mounted on it.
     fn mount_point(&self) -> Style;
+
+    /// The style to paint a directory that directly contains a `.git`
+    /// entry (a git repository, worktree or submodule), if one is set.
+    fn git_repo_dir(&self) -> Option<Style>;
 
     fn colour_file(&self, file: &File<'_>) -> Style;
 

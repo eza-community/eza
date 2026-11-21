@@ -429,6 +429,13 @@ impl<'dir> File<'dir> {
                 .is_some_and(|p| all_mounts().contains_key(p))
     }
 
+    /// Whether this is a directory that directly contains a `.git` entry
+    /// (a directory for a normal repository, or a file for worktrees and
+    /// submodules). Only one level is checked: `dir/.git`.
+    pub fn is_git_repo_dir(&self) -> bool {
+        self.is_directory() && std::fs::symlink_metadata(self.path.join(".git")).is_ok()
+    }
+
     /// The filesystem device and type for a mount point
     pub fn mount_point_info(&self) -> Option<&MountedFs> {
         if cfg!(any(target_os = "linux", target_os = "macos")) {
@@ -1134,5 +1141,68 @@ mod filename_test {
     #[cfg(unix)]
     fn topmost() {
         assert_eq!("/", File::filename(Path::new("/")));
+    }
+}
+
+#[cfg(test)]
+mod git_repo_dir_test {
+    use super::File;
+    use std::fs;
+    use std::path::PathBuf;
+
+    /// A fresh, empty scratch directory under the system temp dir.
+    fn scratch(name: &str) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!(
+            "eza-git-repo-dir-test-{}-{name}",
+            std::process::id()
+        ));
+        let _ = fs::remove_dir_all(&dir);
+        fs::create_dir_all(&dir).unwrap();
+        dir
+    }
+
+    fn file(path: PathBuf) -> File<'static> {
+        File::from_args(path, None, None, false, false, None)
+    }
+
+    #[test]
+    fn plain_directory_is_not_a_repo() {
+        let dir = scratch("plain");
+        assert!(!file(dir.clone()).is_git_repo_dir());
+        fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn directory_with_dot_git_dir_is_a_repo() {
+        let dir = scratch("repo");
+        fs::create_dir(dir.join(".git")).unwrap();
+        assert!(file(dir.clone()).is_git_repo_dir());
+        fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn directory_with_dot_git_file_is_a_repo() {
+        // Worktrees and submodules have a `.git` file pointing elsewhere.
+        let dir = scratch("worktree");
+        fs::write(dir.join(".git"), "gitdir: /elsewhere\n").unwrap();
+        assert!(file(dir.clone()).is_git_repo_dir());
+        fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn only_one_level_is_checked() {
+        let dir = scratch("nested");
+        fs::create_dir_all(dir.join("sub/.git")).unwrap();
+        assert!(!file(dir.clone()).is_git_repo_dir());
+        assert!(file(dir.join("sub")).is_git_repo_dir());
+        fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn a_file_is_not_a_repo() {
+        let dir = scratch("file");
+        fs::write(dir.join("f"), "").unwrap();
+        assert!(!file(dir.join("f")).is_git_repo_dir());
+        fs::remove_dir_all(dir).unwrap();
     }
 }
