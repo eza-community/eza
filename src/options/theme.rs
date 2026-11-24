@@ -65,7 +65,7 @@ impl ThemeConfig {
 }
 
 impl UseColours {
-    fn deduce<V: Vars>(matches: &ArgMatches, vars: &V) -> Self {
+    pub(super) fn deduce<V: Vars>(matches: &ArgMatches, vars: &V) -> Self {
         let default_value = match vars.get(vars::NO_COLOR) {
             Some(_) => Self::Never,
             None => Self::Automatic,

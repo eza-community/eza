@@ -10,7 +10,9 @@ use crate::options::{NumberSource, OptionsError};
 
 use crate::output::file_name::{Classify, EmbedHyperlinks, Options, QuoteStyle, ShowIcons};
 
+use crate::theme::UseColours;
 use clap::ArgMatches;
+use std::io::IsTerminal;
 
 impl Options {
     pub fn deduce<V: Vars>(
@@ -26,7 +28,12 @@ impl Options {
 
         let absolute = *matches.get_one("absolute").unwrap();
         let short_nix = matches.get_flag("short-nix");
-        let finder_meta = matches.get_flag("finder-meta");
+        let finder_meta = matches.get_flag("finder-meta")
+            && match UseColours::deduce(matches, vars) {
+                UseColours::Always => true,
+                UseColours::Automatic => std::io::stdout().is_terminal(),
+                UseColours::Never => false,
+            };
 
         Ok(Self {
             classify,

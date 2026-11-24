@@ -298,12 +298,6 @@ impl<'dir> File<'dir> {
         crate::fs::feature::macos_finder::finder_tag_color(self.extended_attributes())
     }
 
-    /// Returns a Unicode char for this file's Finder SF Symbol overlay, if any.
-    #[cfg(target_os = "macos")]
-    pub fn finder_symbol_char(&self) -> Option<char> {
-        crate::fs::feature::macos_finder::finder_symbol_char(self.extended_attributes())
-    }
-
     /// Whether this file is a directory on the filesystem.
     pub fn is_directory(&self) -> bool {
         self.filetype().is_some_and(std::fs::FileType::is_dir)
