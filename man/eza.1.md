@@ -244,6 +244,9 @@ These options are available when running with `--long` (`-l`):
 `-M`, `--mounts`
 : Show mount details (Linux and Mac only)
 
+`--finder-meta`
+: Color file names by Finder tag in long listings. macOS only.
+
 `-n`, `--numeric`
 : List numeric user and group IDs.
 
