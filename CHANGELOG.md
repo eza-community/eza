@@ -749,7 +749,7 @@ SPDX-License-Identifier: EUPL-1.2
 ### Bug Fixes
 
 - Ensure nested tree parts align under item name
-- Remove depricated `chrono` `from_timestamp_opt`
+- Remove deprecated `chrono` `from_timestamp_opt`
 
 ### Miscellaneous Tasks
 
